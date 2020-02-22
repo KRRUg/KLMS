@@ -11,6 +11,7 @@
         "symfony/framework-bundle": "4.4.*",
         "symfony/orm-pack": "^1.0",
         "symfony/security-bundle": "4.4.*",
+        "symfony/twig-pack": "^1.0",
         "symfony/yaml": "4.4.*"
     },
     "require-dev": {
