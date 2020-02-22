@@ -4,4 +4,5 @@
 
 admin:
     prefix: /admin
+    name_prefix: admin_
     resource: '../src/Controller/Admin'

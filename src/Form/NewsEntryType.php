@@ -15,6 +15,7 @@ class NewsEntryType extends AbstractType
         $builder
             ->add('title')
             ->add('content')
+            ->add('published')
             ->add('save', SubmitType::class, ['label' => 'Anlegen'])
         ;
     }

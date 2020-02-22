@@ -37,6 +37,11 @@ class NewsEntry
      */
     private $created;
 
+    /**
+     * @ORM\Column(type="boolean")
+     */
+    private $published;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -100,5 +105,17 @@ class NewsEntry
         if ($this->getCreated() === null) {
             $this->setCreated(new \DateTime());
         }
+    }
+
+    public function getPublished(): ?bool
+    {
+        return $this->published;
+    }
+
+    public function setPublished(bool $published): self
+    {
+        $this->published = $published;
+
+        return $this;
     }
 }

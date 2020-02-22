@@ -9,14 +9,17 @@
     </style>
 
     <div class="example-wrapper">
-        <h1>Neue News</h1>
+        <h1>News Liste</h1>
 
         <ul>
             {% for newsentry in news %}
             <li>
-                {{ newsentry.title|e }}: {{ newsentry.content|e }}
+                {{ newsentry.title }}: {{ newsentry.content }} :
+                <a href="{{ path('admin_news_edit', {'id' : newsentry.id}) }}"> bearbeiten </a>
+                <a href="{{ path('admin_news_delete', {'id' : newsentry.id}) }}">delete</a>
             </li>
             {% endfor %}
         </ul>
+        <a href="{{ path('admin_news_new') }}">neu</a>
     </div>
 {% endblock %}
