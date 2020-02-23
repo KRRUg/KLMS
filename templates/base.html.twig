@@ -9,7 +9,7 @@
         {% block nav %}
             {% for naventry in nav.index() %}{{ naventry }}{% endfor %}
             <br />
-            Username: {{ app.user.username | default(" not logged in") }}
+            Username: {{ app.user.username | default(" not logged in") }} <a href="/logout">logout</a>
         {% endblock %}
         {% block body %}{% endblock %}
         {% block javascripts %}{% endblock %}

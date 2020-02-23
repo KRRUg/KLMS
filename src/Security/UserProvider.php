@@ -2,6 +2,9 @@
 
 namespace App\Security;
 
+use App\Repository\UserAdminsRepository;
+use App\Repository\UserGamerRepository;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Security\Core\Exception\UnsupportedUserException;
 use Symfony\Component\Security\Core\Exception\UsernameNotFoundException;
 use Symfony\Component\Security\Core\User\PasswordUpgraderInterface;
@@ -10,6 +13,31 @@ use Symfony\Component\Security\Core\User\UserProviderInterface;
 
 class UserProvider implements UserProviderInterface, PasswordUpgraderInterface
 {
+    private $ar;
+    private $gr;
+
+    public function __construct(UserAdminsRepository $ar, UserGamerRepository $gr)
+    {
+        $this->ar = $ar;
+        $this->gr = $gr;
+    }
+
+    private function loadUserRoles($userGuid)
+    {
+        $ret = [];
+        if ($this->ar->find($userGuid)) {
+            array_push($ret, "ROLE_ADMIN");
+        }
+        $gamer = $this->gr->find($userGuid);
+        if ($gamer) {
+            if ($gamer->getPayed()) {
+                array_push($ret, "ROLE_PAYED_USER");
+            }
+            // TODO check if user has seat,...
+        }
+        return $ret;
+    }
+
     /**
      * Symfony calls this method if you use features like switch_user
      * or remember_me.
@@ -29,10 +57,17 @@ class UserProvider implements UserProviderInterface, PasswordUpgraderInterface
         // method in your User class.
         if ($username === "admin") {
             $user = new User();
-            $user->setUsername("admin");
+            $user->setUsername($username);
             $user->setClans([]);
-            $user->setUuid("");
-            $user->setRoles(["ROLE_ADMIN"]);
+            $user->setUuid("c11ed9b0-e060–4aec-b513-e17c24df2c70");
+            $user->setRoles($this->loadUserRoles($user->getUuid()));
+            return $user;
+        } else if ($username === "hata") {
+            $user = new User();
+            $user->setUsername($username);
+            $user->setClans([]);
+            $user->setUuid("a3ba1298-4aa0–4aa1-5bb2-e18c98fa0980");
+            $user->setRoles($this->loadUserRoles($user->getUuid()));
             return $user;
         }
         throw new UsernameNotFoundException();

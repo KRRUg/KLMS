@@ -83,7 +83,9 @@ class LoginFormAuthenticator extends AbstractFormLoginAuthenticator
             return new RedirectResponse($targetPath);
         }
 
-        // TODO redirect admin to '/admin'
+        if (in_array("ROLE_ADMIN", $token->getRoleNames())) {
+            return new RedirectResponse("/admin");
+        }
         return new RedirectResponse("/");
     }
 
