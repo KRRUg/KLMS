@@ -2,21 +2,21 @@
 
 namespace App\Repository;
 
-use App\Entity\NewsEntry;
+use App\Entity\Content;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Common\Persistence\ManagerRegistry;
 
 /**
- * @method NewsEntry|null find($id, $lockMode = null, $lockVersion = null)
- * @method NewsEntry|null findOneBy(array $criteria, array $orderBy = null)
- * @method NewsEntry[]    findAll()
- * @method NewsEntry[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
+ * @method Content|null find($id, $lockMode = null, $lockVersion = null)
+ * @method Content|null findOneBy(array $criteria, array $orderBy = null)
+ * @method Content[]    findAll()
+ * @method Content[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  */
-class NewsEntryRepository extends ServiceEntityRepository
+class ContentRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
     {
-        parent::__construct($registry, NewsEntry::class);
+        parent::__construct($registry, Content::class);
     }
 
     // /**

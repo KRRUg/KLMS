@@ -5,15 +5,15 @@ namespace App\Controller\Site;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Routing\Annotation\Route;
 
-class NewsController extends AbstractController
+class ContentController extends AbstractController
 {
     /**
-     * @Route("/news", name="news")
+     * @Route("/content", name="content")
      */
     public function index()
     {
-        return $this->render('site/news/index.html.twig', [
-            'controller_name' => 'NewsController',
+        return $this->render('site/content/index.html.twig', [
+            'controller_name' => 'contentController',
         ]);
     }
 }

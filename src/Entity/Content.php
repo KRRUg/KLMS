@@ -5,10 +5,10 @@ namespace App\Entity;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * @ORM\Entity(repositoryClass="App\Repository\NewsEntryRepository")
+ * @ORM\Entity(repositoryClass="ContentRepository")
  * @ORM\HasLifecycleCallbacks
  */
-class NewsEntry
+class Content
 {
     /**
      * @ORM\Id()
@@ -41,6 +41,26 @@ class NewsEntry
      * @ORM\Column(type="boolean")
      */
     private $published;
+
+    /**
+     * @ORM\Column(type="text", nullable=true)
+     */
+    private $description;
+
+    /**
+     * @ORM\Column(type="datetime", nullable=true)
+     */
+    private $publishedFrom;
+
+    /**
+     * @ORM\Column(type="datetime", nullable=true)
+     */
+    private $publishedTo;
+
+    /**
+     * @ORM\ManyToOne(targetEntity="App\Entity\ContentCategory", inversedBy="contents")
+     */
+    private $category;
 
     public function getId(): ?int
     {
@@ -115,6 +135,54 @@ class NewsEntry
     public function setPublished(bool $published): self
     {
         $this->published = $published;
+
+        return $this;
+    }
+
+    public function getDescription(): ?string
+    {
+        return $this->description;
+    }
+
+    public function setDescription(?string $description): self
+    {
+        $this->description = $description;
+
+        return $this;
+    }
+
+    public function getPublishedFrom(): ?\DateTimeInterface
+    {
+        return $this->publishedFrom;
+    }
+
+    public function setPublishedFrom(?\DateTimeInterface $publishedFrom): self
+    {
+        $this->publishedFrom = $publishedFrom;
+
+        return $this;
+    }
+
+    public function getPublishedTo(): ?\DateTimeInterface
+    {
+        return $this->publishedTo;
+    }
+
+    public function setPublishedTo(?\DateTimeInterface $publishedTo): self
+    {
+        $this->publishedTo = $publishedTo;
+
+        return $this;
+    }
+
+    public function getCategory(): ?ContentCategory
+    {
+        return $this->category;
+    }
+
+    public function setCategory(?ContentCategory $category): self
+    {
+        $this->category = $category;
 
         return $this;
     }
