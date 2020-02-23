@@ -54,3 +54,9 @@
 .env.local
 /nbproject/
 .idea
+
+#Ignore NodeJS Modules
+/node_modules
+
+#Ignore already built Assets
+/public/build
