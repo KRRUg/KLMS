@@ -2,13 +2,13 @@
 
 namespace App\Form;
 
-use App\Entity\NewsEntry;
+use App\Entity\Content;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
-class NewsEntryType extends AbstractType
+class ContentType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
@@ -23,7 +23,7 @@ class NewsEntryType extends AbstractType
     public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefaults([
-            'data_class' => NewsEntry::class,
+            'data_class' => Content::class,
         ]);
     }
 }
