@@ -6,7 +6,11 @@
         {% block stylesheets %}{% endblock %}
     </head>
     <body>
-        {% block nav %}{% for naventry in nav.index() %}{{ naventry }}{% endfor %}{% endblock %}
+        {% block nav %}
+            {% for naventry in nav.index() %}{{ naventry }}{% endfor %}
+            <br />
+            Username: {{ app.user.username | default(" not logged in") }}
+        {% endblock %}
         {% block body %}{% endblock %}
         {% block javascripts %}{% endblock %}
     </body>
