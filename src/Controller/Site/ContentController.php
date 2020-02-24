@@ -2,6 +2,7 @@
 
 namespace App\Controller\Site;
 
+use App\Repository\ContentRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -10,10 +11,11 @@ class ContentController extends AbstractController
     /**
      * @Route("/content", name="content")
      */
-    public function index()
+    public function index(ContentRepository $contentEntryRepository)
     {
-        return $this->render('site/content/index.html.twig', [
-            'controller_name' => 'contentController',
+        $content = $contentEntryRepository->findAll();
+        return $this->render("site/content/index.html.twig", [
+            'contents' => $content
         ]);
     }
 }
