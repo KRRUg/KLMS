@@ -1,4 +1,28 @@
-<header id="header">
-    <img src="logo.svg" alt="logo">
-    <h1>Überschrift</h1>
-</header>
+{% block headerContent %}
+    <div class="jumbotron jumbotron-fluid">
+        <div class="container">
+            <h1 class="display-4">Welcome!</h1>
+            <p class="lead">Come to the dark side - We have cookies.</p>
+        </div>
+    </div>
+{% endblock %}
+
+{% block nav %}
+    <div class="container">
+        <nav id="main-nav" class="row navbar navbar-expand-lg navbar-dark bg-dark">
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#main-nav-content" aria-controls="main-nav-content" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="main-nav-content">
+                <ul class="navbar-nav mr-auto">
+                    {% for element in nav.index() %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">{{ element }}</a>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </nav>
+    </div>
+{% endblock %}

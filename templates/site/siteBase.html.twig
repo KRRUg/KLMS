@@ -1,18 +1,21 @@
 {% extends 'base.html.twig' %}
 {% block body %}
+
     {% block topbar %}
         {% include 'site/components/topBar.html.twig' %}
     {% endblock %}
-    {% block header %}
-        {% include 'site/components/header.html.twig' %}
-    {% endblock %}
-
-    {% block nav %}
-        {% for naventry in nav.index() %}{{ naventry }}{% endfor %}
-    {% endblock %}
+    <header id="header" class="mb-5">
+        {% block header %}
+            {% include 'site/components/header.html.twig' %}
+        {% endblock %}
+    </header>
 
     <main id="main">
         {% block main %}{% endblock %}
     </main>
-    {% block footer %}{% endblock %}
+    <footer id="footer" class="bg-dark text-white">
+        {% block footer %}
+            {% include 'site/components/footer.html.twig' %}
+        {% endblock %}
+    </footer>
 {% endblock %}
