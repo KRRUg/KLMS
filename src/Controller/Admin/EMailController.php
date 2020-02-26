@@ -3,10 +3,14 @@
 namespace App\Controller\Admin;
 
 use App\Entity\Admin\EMail\EMailTemplate;
+use App\Entity\HelperEntities\EMailRecipient;
 use App\Form\EmailTemplateCreateType;
+use App\Helper\EntityHelper;
 use App\Repository\Admin\EMail\EMailTemplateRepository;
 use App\Service\EMailService;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
@@ -28,16 +32,26 @@ class EMailController extends AbstractController
     }
 
     /**
-     * @Route("/admin/email/{id}", name="admin_email_show")
-     * @param EMailTemplate $template
-     * @return \Symfony\Component\HttpFoundation\Response
+     * @Route("/admin/email/testsending/{id}", name="admin_email_testsending")
      */
-    public function show(EMailTemplate $template)
-    {
-        return $this->render('admin/email/show.html.twig', [
-            'template' => $template
-        ]);
 
+    public function testsending(EMailTemplate $template, EMailService $mailService)
+    {
+        //dd($mailService->getVariableTokens());
+        //$mailService->test();
+        $mailService->addRecipient();
+        $mailService->addRecipient();
+        $mailService->addRecipient();
+        $mailService->sendAll($template);
+        return $this->redirectToRoute('admin_email');
+    }
+
+    /**
+     * @Route("/admin/email/{id}", name="admin_email_show")
+     */
+    public function show(EMailTemplate $template, EMailService $mailService)
+    {
+        return $this->render('admin/email/show.html.twig', ['template' => $template]);
     }
 
     /**
@@ -47,7 +61,8 @@ class EMailController extends AbstractController
      */
     public function send(EMailTemplate $template, EMailService $mailService)
     {
-        $mailService->sendEMail($template, 'mrandibilbao@gmail.com');
+        $recipient = new EMailRecipient('Andi', 'mrandibilbao@gmail.com');
+        $mailService->sendSingleEmail($template, $recipient);
         return $this->render('admin/email/show.html.twig', [
             'template' => $template
         ]);
@@ -90,7 +105,6 @@ class EMailController extends AbstractController
         }
         return $this->render('admin/email/edit.html.twig', ["form" => $form->createView()]);
     }
-
 
     public function store(EMailTemplate $template)
     {

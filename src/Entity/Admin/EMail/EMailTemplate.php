@@ -2,6 +2,8 @@
 
 namespace App\Entity\Admin\EMail;
 
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -46,6 +48,16 @@ class EMailTemplate
      * @ORM\Column(type="text")
      */
     private $body;
+
+    /**
+     * @ORM\OneToMany(targetEntity="App\Entity\Admin\EMail\EmailSending", mappedBy="template")
+     */
+    private $emailSendings;
+
+    public function __construct()
+    {
+        $this->emailSendings = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -133,6 +145,37 @@ class EMailTemplate
     public function setBody(string $body): self
     {
         $this->body = $body;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|EmailSending[]
+     */
+    public function getEmailSendings(): Collection
+    {
+        return $this->emailSendings;
+    }
+
+    public function addEmailSending(EmailSending $emailSending): self
+    {
+        if (!$this->emailSendings->contains($emailSending)) {
+            $this->emailSendings[] = $emailSending;
+            $emailSending->setTemplate($this);
+        }
+
+        return $this;
+    }
+
+    public function removeEmailSending(EmailSending $emailSending): self
+    {
+        if ($this->emailSendings->contains($emailSending)) {
+            $this->emailSendings->removeElement($emailSending);
+            // set the owning side to null (unless already changed)
+            if ($emailSending->getTemplate() === $this) {
+                $emailSending->setTemplate(null);
+            }
+        }
 
         return $this;
     }
