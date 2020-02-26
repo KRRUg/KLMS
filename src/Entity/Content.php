@@ -38,11 +38,6 @@ class Content
     private $created;
 
     /**
-     * @ORM\Column(type="boolean")
-     */
-    private $published;
-
-    /**
      * @ORM\Column(type="text", nullable=true)
      */
     private $description;
@@ -61,6 +56,11 @@ class Content
      * @ORM\ManyToOne(targetEntity="App\Entity\ContentCategory", inversedBy="contents")
      */
     private $category;
+
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true, unique=true)
+     */
+    private $alias;
 
     public function getId(): ?int
     {
@@ -127,18 +127,6 @@ class Content
         }
     }
 
-    public function getPublished(): ?bool
-    {
-        return $this->published;
-    }
-
-    public function setPublished(bool $published): self
-    {
-        $this->published = $published;
-
-        return $this;
-    }
-
     public function getDescription(): ?string
     {
         return $this->description;
@@ -183,6 +171,18 @@ class Content
     public function setCategory(?ContentCategory $category): self
     {
         $this->category = $category;
+
+        return $this;
+    }
+
+    public function getAlias(): ?string
+    {
+        return $this->alias;
+    }
+
+    public function setAlias(?string $alias): self
+    {
+        $this->alias = $alias;
 
         return $this;
     }
