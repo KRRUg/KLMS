@@ -4,9 +4,10 @@
 namespace App\Service;
 
 
-use App\Entity\Admin\EMail\EmailSendingRecipient;
+use App\Entity\Admin\EMail\EmailSendingTask;
 use App\Entity\Admin\EMail\EMailTemplate;
 use App\Entity\HelperEntities\EMailRecipient;
+use App\Repository\Admin\EMail\EmailSendingTaskRepository;
 use App\Repository\Admin\EMail\EMailSendingRepository;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Mailer\MailerInterface;
@@ -17,14 +18,14 @@ class EMailService
 {
     protected $mailer;
     protected $senderAddress;
-    protected $emailSendings;
-    protected $emailSendingRecipients;
+    protected $sendings;
+    protected $sendingRecipients;
     protected $em;
     protected $logger;
     protected $recipients = [];
     protected $queueSending = false;
 
-    public function __construct(MailerInterface $mailer, LoggerInterface $logger)
+    public function __construct(MailerInterface $mailer, LoggerInterface $logger, EMailSendingRepository $sendingRepository, EmailSendingTaskRepository $emailSendingRecipientRepository)
     {
         $this->mailer = $mailer;
         $this->queueSending = $_ENV['MAILER_QUEUESENDING'] == 'true';
@@ -33,13 +34,17 @@ class EMailService
         $this->senderAddress = new Address($mailAddress, $mailName);
         $this->logger = $logger;
         //repos
-        //$this->emailSendings = $emailSendings;
-        //$this->emailSendingRecipients = $recipients;
+        $this->recipients = $emailSendingRecipientRepository;
+        $this->sendings = $sendingRepository;
     }
 
 
+    /*
+     * Helper Methods
+     */
     private function replaceVariableTokens($text, EMailRecipient $mailRecipient)
     {
+        $errors = [];
         $recipientData = $mailRecipient->getDataArray();
         preg_match_all('/{{2}.*}{2}/', $text, $matches);
         if (isset($matches[0]) && count($matches[0])) {
@@ -49,9 +54,12 @@ class EMailService
                 $variableName = trim(strtolower($variableName));
                 $filled = $recipientData[$variableName];
                 if (empty($filled)) {
-                    $this->logger->error("Variable $variableName not valid: " . sprintf($mailRecipient));
-                    throw  new  \Exception("MailData is not valid");
+                    $error = "Variable $variableName not valid: " . sprintf($mailRecipient);
+                    $this->logger->error($error);
+                    array_push($errors, $error);
                 }
+                if (count($errors) > 0)
+                    throw  new  \Exception("MailData is not valid: " . implode(',', $errors));
                 $text = str_replace($match, $filled, $text);
             }
         }
@@ -64,14 +72,21 @@ class EMailService
         array_push($this->recipients, $recipient);
     }
 
-    public function getVariableTokens()
+    public function getTemplateVariables()
     {
         $draft = new  EMailRecipient('Hansi', 'hansi@hansi.at');
         return $draft->getDataArray();
     }
 
+
+    /*
+     * Sending methods
+     */
     public function sendAll(EMailTemplate $template)
     {
+        if (count($this->recipients) <= 0) {
+            throw  new \Exception("Recipient list is empty!");
+        }
         foreach ($this->recipients as $recipient) {
             $this->sendEMail($template, $recipient);
         }

@@ -45,15 +45,15 @@ class EmailSending
     private $template;
 
     /**
-     * @ORM\ManyToMany(targetEntity="App\Entity\Admin\EMail\EmailSendingRecipient", mappedBy="EMailSending")
+     * @ORM\ManyToMany(targetEntity="EmailSendingTask", mappedBy="EMailSending")
      */
-    private $emailSendingRecipients;
+    private $emailSendingTasks;
 
 
     public function __construct()
     {
         $this->Recipient = new ArrayCollection();
-        $this->emailSendingRecipients = new ArrayCollection();
+        $this->emailSendingTasks = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -135,28 +135,28 @@ class EmailSending
     }
 
     /**
-     * @return Collection|EmailSendingRecipient[]
+     * @return Collection|EmailSendingTask[]
      */
-    public function getEmailSendingRecipients(): Collection
+    public function getEmailTasks(): Collection
     {
-        return $this->emailSendingRecipients;
+        return $this->emailSendingTasks;
     }
 
-    public function addEmailSendingRecipient(EmailSendingRecipient $emailSendingRecipient): self
+    public function addEmailSendingTask(EmailSendingTask $emailSendingTask): self
     {
-        if (!$this->emailSendingRecipients->contains($emailSendingRecipient)) {
-            $this->emailSendingRecipients[] = $emailSendingRecipient;
-            $emailSendingRecipient->addEMailSending($this);
+        if (!$this->emailSendingTasks->contains($emailSendingTask)) {
+            $this->emailSendingTasks[] = $emailSendingTask;
+            $emailSendingTask->addEMailSending($this);
         }
 
         return $this;
     }
 
-    public function removeEmailSendingRecipient(EmailSendingRecipient $emailSendingRecipient): self
+    public function removeEmailSendingTask(EmailSendingTask $emailSendingTask): self
     {
-        if ($this->emailSendingRecipients->contains($emailSendingRecipient)) {
-            $this->emailSendingRecipients->removeElement($emailSendingRecipient);
-            $emailSendingRecipient->removeEMailSending($this);
+        if ($this->emailSendingTasks->contains($emailSendingTask)) {
+            $this->emailSendingTasks->removeElement($emailSendingTask);
+            $emailSendingTask->removeEMailSending($this);
         }
 
         return $this;

@@ -8,10 +8,10 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * @ORM\Entity(repositoryClass="App\Repository\Admin\EMail\EmailSendingRecipientRepository")
+ * @ORM\Entity(repositoryClass="EmailSendingTaskRepository")
  * @ORM\HasLifecycleCallbacks
  */
-class EmailSendingRecipient
+class EmailSendingTask
 {
     /**
      * @ORM\Id()
@@ -44,7 +44,7 @@ class EmailSendingRecipient
     private $last_modified;
 
     /**
-     * @ORM\ManyToMany(targetEntity="App\Entity\Admin\EMail\EMailSending", inversedBy="emailSendingRecipients")
+     * @ORM\ManyToMany(targetEntity="App\Entity\Admin\EMail\EMailSending", inversedBy="emailSendingTasks")
      */
     private $EMailSending;
 
