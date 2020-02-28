@@ -2,6 +2,7 @@
 
 namespace App\Security;
 
+use Symfony\Component\HttpClient\HttpClient;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
@@ -73,8 +74,30 @@ class LoginFormAuthenticator extends AbstractFormLoginAuthenticator
     {
         // Check the user's password or other credentials and return true or false
         // If there are no credentials to check, you can just return true
-        // TODO check credentials
-        return true;
+
+        $client = HttpClient::create();
+        $response = $client->request('POST', "{$_ENV['KLMS_IDM_URL']}/api/users/authorize", [
+            'headers' => [
+                'X-API-KEY' => $_ENV['KLMS_IDM_APIKEY'],
+            ],
+            'json' => [
+                'email' => $credentials['username'],
+                'password' => $credentials['password'],
+            ]
+        ]);
+
+        //TODO: improve ErrorHandling
+        $content = $response->toArray(false);
+
+        if ($response->getStatusCode() === 404) {
+            return false;
+        } elseif ($response->getStatusCode() === 200) {
+            if($content['data']['email'] === $credentials['username']) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     public function onAuthenticationSuccess(Request $request, TokenInterface $token, $providerKey)
