@@ -7,6 +7,7 @@ use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Vich\UploaderBundle\Form\Type\VichImageType;
 
 class ContentType extends AbstractType
 {
@@ -15,9 +16,15 @@ class ContentType extends AbstractType
         $builder
             ->add('title')
             ->add('content')
-            ->add('published')
-            ->add('save', SubmitType::class, ['label' => 'Anlegen'])
         ;
+        $builder->add('imageFile', VichImageType::class, [
+            'required' => false,
+            'allow_delete' => true,
+            'download_uri' => true,
+            'image_uri' => true,
+            'asset_helper' => true
+        ]);
+        $builder->add('save', SubmitType::class, ['label' => 'Anlegen']);
     }
 
     public function configureOptions(OptionsResolver $resolver)

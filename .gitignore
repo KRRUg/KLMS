@@ -54,3 +54,5 @@
 .env.local
 /nbproject/
 .idea
+
+public/images

@@ -3,10 +3,15 @@
 namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\HttpFoundation\File\File;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
+use Vich\UploaderBundle\Entity\File as EmbeddedFile;
+use Vich\UploaderBundle\Mapping\Annotation as Vich;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\ContentRepository")
  * @ORM\HasLifecycleCallbacks
+ * @Vich\Uploadable()
  */
 class Content
 {
@@ -62,6 +67,25 @@ class Content
      */
     private $alias;
 
+    /**
+     * @Vich\UploadableField(mapping="news", fileNameProperty="image.name", size="image.size", mimeType="image.mimeType", originalName="image.originalName", dimensions="image.dimensions")
+     *
+     * @var File|null
+     */
+    private $imageFile;
+
+    /**
+     * @ORM\Embedded(class="Vich\UploaderBundle\Entity\File")
+     *
+     * @var EmbeddedFile
+     */
+    private $image;
+
+    public function __construct()
+    {
+        $this->image = new EmbeddedFile();
+    }
+
     public function getId(): ?int
     {
         return $this->id;
@@ -115,16 +139,31 @@ class Content
         return $this;
     }
 
-    /**
-     * @ORM\PrePersist()
-     * @ORM\PreUpdate()
-     */
-    public function updateModifiedDatetime() {
-        // update the modified time and creation time
-        $this->setLastModified(new \DateTime());
-        if ($this->getCreated() === null) {
-            $this->setCreated(new \DateTime());
+    public function setImageFile(?File $imageFile = null): void
+    {
+        $this->imageFile = $imageFile;
+
+        if (null !== $imageFile) {
+            // It is required that at least one field changes if you are using doctrine
+            // otherwise the event listeners won't be called and the file is lost
+            $this->setLastModified(new \DateTime());
         }
+    }
+
+    public function getImageFile(): ?File
+    {
+        return $this->imageFile;
+    }
+
+
+    public function setImage(EmbeddedFile $image): void
+    {
+        $this->image = $image;
+    }
+
+    public function getImage(): ?EmbeddedFile
+    {
+        return $this->image;
     }
 
     public function getDescription(): ?string
@@ -185,5 +224,17 @@ class Content
         $this->alias = $alias;
 
         return $this;
+    }
+
+    /**
+     * @ORM\PrePersist()
+     * @ORM\PreUpdate()
+     */
+    public function updateModifiedDatetime() {
+        // update the modified time and creation time
+        $this->setLastModified(new \DateTime());
+        if ($this->getCreated() === null) {
+            $this->setCreated(new \DateTime());
+        }
     }
 }
