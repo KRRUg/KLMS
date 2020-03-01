@@ -16,6 +16,11 @@ use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Mime\Address;
 use Symfony\Component\Mime\Email;
 
+/**
+ * Class EMailService
+ * @package App\Service
+ */
+//TODO: Exceptions abfangen
 class EMailService
 {
     protected $mailer;
@@ -77,6 +82,9 @@ class EMailService
         return $sending;
     }
 
+    /**
+     * @param EmailSending $sending
+     */
     private function createSendingTasks(EmailSending $sending)
     {
         foreach ($this->recipients as $recipient) {
@@ -105,7 +113,6 @@ class EMailService
     //TODO: Mockdaten gegen echte Daten austauschen
     public function getPossibleEmailRecipients($group = null)
     {
-
         for ($i = 0; $i < 50; $i++) {
             $this->addRecipient();
         }
@@ -183,10 +190,11 @@ class EMailService
      * Sending methods
      */
     //DEPRECATED: sendAll
+    //TODO Prüfen ob noch gebraucht wird
     public function sendAll(EMailTemplate $template) //
     {
         if (count($this->recipients) <= 0) {
-            throw  new \Exception("Recipient list is empty! ");
+            throw new \Exception("Recipient list is empty! ");
         }
         foreach ($this->recipients as $recipient) {
             $this->sendEMail($template, $recipient);
