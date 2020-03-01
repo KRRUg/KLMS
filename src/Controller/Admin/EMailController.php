@@ -38,6 +38,8 @@ class EMailController extends AbstractController
 
     /**
      * @Route("/admin/email/sendings", name="admin_email_sendings")
+     * @param EMailSendingRepository $repository
+     * @return Response
      */
     public function sendings(EMailSendingRepository $repository)
     {
@@ -49,6 +51,8 @@ class EMailController extends AbstractController
 
     /**
      * @Route("/admin/email/new", name="admin_email_new")
+     * @param Request $request
+     * @return RedirectResponse|Response
      */
     public function new(Request $request)
     {
@@ -67,6 +71,10 @@ class EMailController extends AbstractController
 
     /**
      * @Route("/admin/email/testsending/{id}", name="admin_email_testsending")
+     * @param EMailTemplate $template
+     * @param EMailService $mailService
+     * @param Request $request
+     * @return RedirectResponse|Response
      */
 
     public function createSending(EMailTemplate $template, EMailService $mailService, Request $request)
@@ -77,7 +85,6 @@ class EMailController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             $sending = $form->getData();
             $mailService->createSending($sending, $template);
-            $recipients = $mailService->getPossibleEmailRecipients();
             return $this->redirectToRoute('admin_email_sendings');
         }
         $template = $mailService->previewTemplate($template);
@@ -99,6 +106,7 @@ class EMailController extends AbstractController
     /**
      * @Route("/admin/email/send/{id}", name="admin_email_send")
      * @param EMailTemplate $template
+     * @param EMailService $mailService
      * @return Response
      */
     public function send(EMailTemplate $template, EMailService $mailService)
