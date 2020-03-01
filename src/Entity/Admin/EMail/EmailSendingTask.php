@@ -3,9 +3,11 @@
 namespace App\Entity\Admin\EMail;
 
 use App\Entity\Admin\Email\EMailSending;
+use App\Entity\HelperEntities\EMailRecipient;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints\Json;
 
 /**
  * @ORM\Entity(repositoryClass="EmailSendingTaskRepository")
@@ -30,7 +32,7 @@ class EmailSendingTask
     /**
      * @ORM\Column(type="boolean")
      */
-    private $isSent;
+    private $isSent = false;
 
     /**
      * @ORM\Column(type="datetime")
@@ -43,15 +45,22 @@ class EmailSendingTask
      */
     private $last_modified;
 
-    /**
-     * @ORM\ManyToMany(targetEntity="App\Entity\Admin\EMail\EMailSending", inversedBy="emailSendingTasks")
-     */
-    private $EMailSending;
 
-    public function __construct()
-    {
-        $this->EMailSending = new ArrayCollection();
-    }
+    /**
+     * @ORM\Column(type="boolean")
+     */
+    private $isSendable = false;
+
+    /**
+     * @ORM\Column(type="datetime", nullable=true)
+     */
+    private $sent;
+
+    /**
+     * @ORM\ManyToOne(targetEntity="App\Entity\Admin\EMail\EmailSending", inversedBy="EMailSendingTask")
+     * @ORM\JoinColumn(nullable=false)
+     */
+    private $emailSending;
 
     public function getId(): ?int
     {
@@ -59,15 +68,14 @@ class EmailSendingTask
     }
 
 
-    public function getRecipient(): ?string
+    public function getRecipient(): ?EMailRecipient
     {
-        return $this->Recipient;
+        return json_decode($this->Recipient);
     }
 
-    public function setRecipient(string $Recipient): self
+    public function setRecipient(EMailRecipient $Recipient): self
     {
-        $this->Recipient = $Recipient;
-
+        $this->Recipient = json_encode($Recipient);
         return $this;
     }
 
@@ -76,10 +84,11 @@ class EmailSendingTask
         return $this->isSent;
     }
 
-    public function setIsSent(bool $isSent): self
+    public function setIsSent(): self
     {
-        $this->isSent = $isSent;
-
+        $this->isSent = true;
+        $this->setIsSendable(false);
+        $this->setSent(new \DateTime());
         return $this;
     }
 
@@ -109,33 +118,6 @@ class EmailSendingTask
     }
 
     /**
-     * @return Collection|EMailSending[]
-     */
-    public function getEMailSending(): Collection
-    {
-        return $this->EMailSending;
-    }
-
-    public function addEMailSending(EMailSending $eMailSending): self
-    {
-        if (!$this->EMailSending->contains($eMailSending)) {
-            $this->EMailSending[] = $eMailSending;
-        }
-
-        return $this;
-    }
-
-    public function removeEMailSending(EMailSending $eMailSending): self
-    {
-        if ($this->EMailSending->contains($eMailSending)) {
-            $this->EMailSending->removeElement($eMailSending);
-        }
-
-        return $this;
-    }
-
-
-    /**
      * @ORM\PrePersist()
      * @ORM\PreUpdate()
      */
@@ -146,6 +128,42 @@ class EmailSendingTask
         if ($this->getCreated() === null) {
             $this->setCreated(new \DateTime());
         }
+    }
+
+    public function getIsSendable(): ?bool
+    {
+        return $this->isSendable;
+    }
+
+    public function setIsSendable(bool $isSendable): self
+    {
+        $this->isSendable = $isSendable;
+
+        return $this;
+    }
+
+    public function getSent(): ?\DateTimeInterface
+    {
+        return $this->sent;
+    }
+
+    private function setSent(\DateTimeInterface $sent): self
+    {
+        $this->sent = $sent;
+
+        return $this;
+    }
+
+    public function getEmailSending(): ?EmailSending
+    {
+        return $this->emailSending;
+    }
+
+    public function setEmailSending(?EmailSending $emailSending): self
+    {
+        $this->emailSending = $emailSending;
+
+        return $this;
     }
 
 

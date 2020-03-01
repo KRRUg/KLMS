@@ -4,11 +4,13 @@
 namespace App\Service;
 
 
+use App\Entity\Admin\EMail\EmailSending;
 use App\Entity\Admin\EMail\EmailSendingTask;
 use App\Entity\Admin\EMail\EMailTemplate;
 use App\Entity\HelperEntities\EMailRecipient;
 use App\Repository\Admin\EMail\EmailSendingTaskRepository;
 use App\Repository\Admin\EMail\EMailSendingRepository;
+use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Mime\Address;
@@ -19,13 +21,22 @@ class EMailService
     protected $mailer;
     protected $senderAddress;
     protected $sendings;
+    protected $recipients = [];
     protected $sendingRecipients;
     protected $em;
     protected $logger;
-    protected $recipients = [];
+    protected $tasks;
     protected $queueSending = false;
+    protected $testRecipient;
+    protected $isInTestMode;
 
-    public function __construct(MailerInterface $mailer, LoggerInterface $logger, EMailSendingRepository $sendingRepository, EmailSendingTaskRepository $emailSendingRecipientRepository)
+    public function __construct(
+        MailerInterface $mailer,
+        LoggerInterface $logger,
+        EMailSendingRepository $sendingRepository,
+        EmailSendingTaskRepository $emailSendingTaskRepository,
+        EntityManagerInterface $em
+    )
     {
         $this->mailer = $mailer;
         $this->queueSending = $_ENV['MAILER_QUEUESENDING'] == 'true';
@@ -33,15 +44,77 @@ class EMailService
         $mailName = $_ENV['MAILER_DEFAULT_SENDER_NAME'];
         $this->senderAddress = new Address($mailAddress, $mailName);
         $this->logger = $logger;
+        $this->em = $em;
         //repos
-        $this->recipients = $emailSendingRecipientRepository;
+        $this->tasks = $emailSendingTaskRepository;
         $this->sendings = $sendingRepository;
     }
 
+    /*
+     * Sending + Sending Task Verwaltung
+     */
+    public function createSending(EmailSending $sending, EMailTemplate $template)
+    {
+        $template = clone $template;
+        $this->em->persist($template);
+        $sending->setTemplate($template);
+        $this->em->persist($sending);
+        //Welchen Gruppen??
+        $this->getPossibleEmailRecipients();
+        $this->createSendingTasks($sending);
+        $this->em->persist($sending);
+        $this->em->flush();
+        return $sending;
+    }
+
+    private function createSendingTasks(EmailSending $sending)
+    {
+        foreach ($this->recipients as $recipient) {
+            $task = new EmailSendingTask();
+            $task->setRecipient($recipient);
+            $this->em->persist($task);
+            $sending->addEmailSendingTask($task);
+        }
+        $this->em->flush();
+    }
+
+    public function stopSending(EmailSending $sending)
+    {
+        $tasks = $sending->getEMailSendingTask();
+        foreach ($tasks as $task) {
+            if ($task->getIsSent() == false) {
+                $task->setIsSendable('false');
+                $this->em->persist($task);
+                //sofort flushen, damit keine EMails mehr ausgesendet werden können
+                $this->em->flush();
+            }
+        }
+    }
+
+    public function getPossibleEmailRecipients($group = null)
+    {
+        //TODO: Mockdaten gegen echte Daten austauschen
+        for ($i = 0; $i < 50; $i++) {
+            $this->addRecipient();
+        }
+        return $this->recipients;
+    }
 
     /*
      * Helper Methods
      */
+
+    public function previewTemplate(EMailTemplate $template)
+    {
+        $this->addRecipient();
+        $html = $template->getBody();
+        $testRecipient = $this->generateTestRecipient();
+        $html = $this->replaceVariableTokens($html, $testRecipient);
+        $template->setSubject($this->replaceVariableTokens($template->getSubject(), $testRecipient));
+        $template->setBody($html);
+        return $template;
+    }
+
     private function replaceVariableTokens($text, EMailRecipient $mailRecipient)
     {
         $errors = [];
@@ -66,30 +139,83 @@ class EMailService
         return $text;
     }
 
+    //TODO: private machen!
     public function addRecipient($user = null) // TODO: Dann mal mit echten UserDaten füllen
     {
-        $recipient = new  EMailRecipient('Hansi', 'hansi@hansi.at');
+        if ($user == null) {
+            $recipient = $this->generateTestRecipient();
+            $this->isInTestMode = true;
+        } else {
+            $recipient = new EMailRecipient($user->id, $user->name, $user->email);
+        }
         array_push($this->recipients, $recipient);
+    }
+
+    private function removeRecipients()
+    {
+        $this->recipients = [];
     }
 
     public function getTemplateVariables()
     {
-        $draft = new  EMailRecipient('Hansi', 'hansi@hansi.at');
-        return $draft->getDataArray();
+        $testRecipient = $this->generateTestRecipient();
+        return $testRecipient->getDataArray();
     }
 
+    private function generateTestRecipient()
+    {
+        return new  EMailRecipient(md5(rand()), 'Name ' . rand(), 'hansi' . rand() . '@krru.at');
+    }
 
     /*
      * Sending methods
      */
-    public function sendAll(EMailTemplate $template)
+    //DEPRECATED
+    public function sendAll(EMailTemplate $template) //
     {
         if (count($this->recipients) <= 0) {
-            throw  new \Exception("Recipient list is empty!");
+            throw  new \Exception("Recipient list is empty! ");
         }
         foreach ($this->recipients as $recipient) {
             $this->sendEMail($template, $recipient);
         }
+    }
+
+    public function sendEmailTasks($limit = 0)
+    {
+        $tasks = $this->tasks->findBy(['isSent' => false, 'isSendable' => true], ['created'], $limit);
+        $lastSending = null;
+        $template = null;
+        foreach ($tasks as $task) {
+            $sending = $task->getEMailSending();
+
+            //Template nur neu lkaden, wenn sich das Sending geändert hat
+            if ($sending != $lastSending) {
+                $template = $sending->getTemplate();
+            } else {
+                //prüfen ob alle gesendet wurden, dann sending closen
+                $opentasks = $this->tasks->findBy(['emailSending' => $sending, 'isSent' => false, 'isSendable' => true], ['created'], $limit);
+                if (count($opentasks) > 0) {
+                    $sending->setSent();
+                    $this->em->persist($sending);
+                    $this->em->flush();
+                }
+            }
+
+            $lastSending = $sending;
+
+            if ($sending->getReadyToSend() && $template->getIsPublished()) {
+                $recipient = $task->getRecipient();
+                $sendingError = $this->sendEMail($template, $recipient);
+                if ($sendingError == null) {
+                    $task->setIsSent();
+                    $this->em->persist($task);
+                    $this->em->flush();
+                }
+            }
+        }
+
+
     }
 
     public function sendSingleEmail(EMailTemplate $template, EMailRecipient $mailRecipient)
@@ -99,23 +225,28 @@ class EMailService
 
     private function sendEMail(EMailTemplate $template, EMailRecipient $recipient)
     {
+        $error = null;
+        if ($this->isInTestMode) {
+            $error = "Sending was in Test-Mode or no User was given!";
+            $this->logger->alert($error);
+        }
+        if ($error != null)
+            return $error;
         try {
             $text = $this->replaceVariableTokens($template->getBody(), $recipient);
+            $subject = $this->replaceVariableTokens($template->getSubject(), $recipient);
             $email = (new Email())
                 ->from($this->senderAddress)
                 ->to($recipient->getAddressObject())
-                ->subject($template->getSubject())
+                ->subject($subject)
                 ->text(strip_tags($text))
                 ->html($text);
-            if ($this->queueSending == true) {
-                // TODO QUEUE-SENDING implementieren
-            } else {
-                $this->mailer->send($email);
-            }
+            $this->mailer->send($email);
         } catch (\Exception $e) {
-            $this->logger->error(' QUEUE Sending: ' . $this->queueSending . ' --> ' . $e);
-            if (!$this->queueSending)
-                throw  $e;
+            $this->logger->error($e);
+            $error = $e;
+        } finally {
+            return $error;
         }
     }
 }

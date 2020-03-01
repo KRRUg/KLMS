@@ -8,7 +8,7 @@ use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
-class EmailTemplateCreateType extends AbstractType
+class EmailTemplateType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
@@ -18,7 +18,7 @@ class EmailTemplateCreateType extends AbstractType
             ->add('body')
             //->add('last_modified')
             //->add('created')
-            ->add('published')
+            ->add('isPublished')
             ->add('save', SubmitType::class, ["label" => "speichern"])
         ;
     }

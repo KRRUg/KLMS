@@ -45,15 +45,20 @@ class EmailSending
     private $template;
 
     /**
-     * @ORM\ManyToMany(targetEntity="EmailSendingTask", mappedBy="EMailSending")
+     * @ORM\OneToMany(targetEntity="App\Entity\Admin\EMail\EmailSendingTask", mappedBy="emailSending")
      */
-    private $emailSendingTasks;
+    private $EMailSendingTask;
 
+    /**
+     * @ORM\Column(type="datetime", nullable=true)
+     */
+    private $sent;
 
     public function __construct()
     {
         $this->Recipient = new ArrayCollection();
         $this->emailSendingTasks = new ArrayCollection();
+        $this->EMailSendingTask = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -137,27 +142,43 @@ class EmailSending
     /**
      * @return Collection|EmailSendingTask[]
      */
-    public function getEmailTasks(): Collection
+    public function getEMailSendingTask(): Collection
     {
-        return $this->emailSendingTasks;
+        return $this->EMailSendingTask;
     }
 
-    public function addEmailSendingTask(EmailSendingTask $emailSendingTask): self
+    public function addEMailSendingTask(EmailSendingTask $eMailSendingTask): self
     {
-        if (!$this->emailSendingTasks->contains($emailSendingTask)) {
-            $this->emailSendingTasks[] = $emailSendingTask;
-            $emailSendingTask->addEMailSending($this);
+        if (!$this->EMailSendingTask->contains($eMailSendingTask)) {
+            $this->EMailSendingTask[] = $eMailSendingTask;
+            $eMailSendingTask->setEmailSending($this);
         }
 
         return $this;
     }
 
-    public function removeEmailSendingTask(EmailSendingTask $emailSendingTask): self
+    public function removeEMailSendingTask(EmailSendingTask $eMailSendingTask): self
     {
-        if ($this->emailSendingTasks->contains($emailSendingTask)) {
-            $this->emailSendingTasks->removeElement($emailSendingTask);
-            $emailSendingTask->removeEMailSending($this);
+        if ($this->EMailSendingTask->contains($eMailSendingTask)) {
+            $this->EMailSendingTask->removeElement($eMailSendingTask);
+            // set the owning side to null (unless already changed)
+            if ($eMailSendingTask->getEmailSending() === $this) {
+                $eMailSendingTask->setEmailSending(null);
+            }
         }
+
+        return $this;
+    }
+
+    public function getSent(): ?\DateTimeInterface
+    {
+        return $this->sent;
+    }
+
+    public function setSent(): self
+    {
+        $this->sent = new \DateTime();
+        $this->setReadyToSend(false);
 
         return $this;
     }

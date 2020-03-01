@@ -25,7 +25,7 @@ class EMailTemplate
     private $name;
 
     /**
-     * @ORM\Column(type="text")
+     * @ORM\Column(type="string", length=255)
      */
     private $subject;
 
@@ -42,17 +42,18 @@ class EMailTemplate
     /**
      * @ORM\Column(type="boolean")
      */
-    private $published;
+    private $isPublished;
 
     /**
      * @ORM\Column(type="text")
      */
-    private $body;
+    private $body = '';
 
     /**
      * @ORM\OneToMany(targetEntity="App\Entity\Admin\EMail\EmailSending", mappedBy="template")
      */
     private $emailSendings;
+
 
     public function __construct()
     {
@@ -112,6 +113,7 @@ class EMailTemplate
 
         return $this;
     }
+
     /**
      * @ORM\PrePersist()
      * @ORM\PreUpdate()
@@ -125,15 +127,14 @@ class EMailTemplate
         }
     }
 
-    public function getPublished(): ?bool
+    public function getIsPublished(): ?bool
     {
-        return $this->published;
+        return $this->isPublished;
     }
 
-    public function setPublished(bool $published): self
+    public function setIsPublished(bool $published): self
     {
-        $this->published = $published;
-
+        $this->isPublished = $published;
         return $this;
     }
 
@@ -179,4 +180,45 @@ class EMailTemplate
 
         return $this;
     }
+
+    public function getIsEditable(): ?bool
+    {
+        $editable = true;
+        $tasks = $this->getEmailSendingTasks();
+        foreach ($tasks as $task) {
+            if ($task->setIsSent()) {
+                $editable = false;
+            }
+        }
+        return $editable;
+    }
+
+    /**
+     * @return Collection|EmailSendingTask[]
+     */
+    public function getEmailSendingTasks(): Collection
+    {
+        $sendingTasks = new ArrayCollection();
+        $sendings = $this->getEmailSendings();
+        foreach ($sendings as $sending) {
+            foreach ($sending->getEMailSendingTask() as $task) {
+                $sendingTasks->add($task);
+            }
+        }
+        return $sendingTasks;
+    }
+
+    /**
+     * @return Collection|EmailSendingTask[]
+     */
+    public function getCompletedEmailSendingTasks(): Collection
+    {
+        $sendingTasks = $this->getEmailSendingTasks()->filter(function (EmailSendingTask $t) {
+            $t->getIsSent();
+        });
+
+        return $sendingTasks;
+    }
+
+
 }
