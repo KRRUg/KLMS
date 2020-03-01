@@ -2,15 +2,13 @@
 
 namespace App\Entity\Admin\EMail;
 
-use App\Entity\Admin\Email\EMailSending;
 use App\Entity\HelperEntities\EMailRecipient;
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
+use DateTime;
+use DateTimeInterface;
 use Doctrine\ORM\Mapping as ORM;
-use Symfony\Component\Validator\Constraints\Json;
 
 /**
- * @ORM\Entity(repositoryClass="EmailSendingTaskRepository")
+ * @ORM\Entity(repositoryClass="App\Repository\Admin\EMail\EmailSendingTaskRepository")
  * @ORM\HasLifecycleCallbacks
  */
 class EmailSendingTask
@@ -90,16 +88,16 @@ class EmailSendingTask
     {
         $this->isSent = true;
         $this->setIsSendable(false);
-        $this->setSent(new \DateTime());
+        $this->setSent(new DateTime());
         return $this;
     }
 
-    public function getCreated(): ?\DateTimeInterface
+    public function getCreated(): ?DateTimeInterface
     {
         return $this->created;
     }
 
-    public function setCreated(\DateTimeInterface $created): self
+    public function setCreated(DateTimeInterface $created): self
     {
         $this->created = $created;
 
@@ -107,12 +105,12 @@ class EmailSendingTask
     }
 
 
-    public function getLastModified(): ?\DateTimeInterface
+    public function getLastModified(): ?DateTimeInterface
     {
         return $this->last_modified;
     }
 
-    public function setLastModified(\DateTimeInterface $last_modified): self
+    public function setLastModified(DateTimeInterface $last_modified): self
     {
         $this->last_modified = $last_modified;
 
@@ -126,9 +124,9 @@ class EmailSendingTask
     public function updateModifiedDatetime()
     {
         // update the modified time and creation time
-        $this->setLastModified(new \DateTime());
+        $this->setLastModified(new DateTime());
         if ($this->getCreated() === null) {
-            $this->setCreated(new \DateTime());
+            $this->setCreated(new DateTime());
         }
     }
 
@@ -144,12 +142,12 @@ class EmailSendingTask
         return $this;
     }
 
-    public function getSent(): ?\DateTimeInterface
+    public function getSent(): ?DateTimeInterface
     {
         return $this->sent;
     }
 
-    private function setSent(\DateTimeInterface $sent): self
+    private function setSent(DateTimeInterface $sent): self
     {
         $this->sent = $sent;
 
