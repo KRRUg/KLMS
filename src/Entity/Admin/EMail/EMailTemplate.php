@@ -50,14 +50,13 @@ class EMailTemplate
     private $body = '';
 
     /**
-     * @ORM\OneToMany(targetEntity="App\Entity\Admin\EMail\EmailSending", mappedBy="template")
+     * @ORM\OneToOne(targetEntity="App\Entity\Admin\EMail\EmailSending", mappedBy="template", cascade={"persist", "remove"})
      */
-    private $emailSendings;
+    private $emailSending;
 
 
     public function __construct()
     {
-        $this->emailSendings = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -150,47 +149,14 @@ class EMailTemplate
         return $this;
     }
 
-    /**
-     * @return Collection|EmailSending[]
-     */
-    public function getEmailSendings(): Collection
-    {
-        return $this->emailSendings;
-    }
-
-    public function addEmailSending(EmailSending $emailSending): self
-    {
-        if (!$this->emailSendings->contains($emailSending)) {
-            $this->emailSendings[] = $emailSending;
-            $emailSending->setTemplate($this);
-        }
-
-        return $this;
-    }
-
-    public function removeEmailSending(EmailSending $emailSending): self
-    {
-        if ($this->emailSendings->contains($emailSending)) {
-            $this->emailSendings->removeElement($emailSending);
-            // set the owning side to null (unless already changed)
-            if ($emailSending->getTemplate() === $this) {
-                $emailSending->setTemplate(null);
-            }
-        }
-
-        return $this;
-    }
-
     public function getIsEditable(): ?bool
     {
-        $editable = true;
-        $tasks = $this->getEmailSendingTasks();
-        foreach ($tasks as $task) {
-            if ($task->setIsSent()) {
-                $editable = false;
-            }
-        }
-        return $editable;
+        return $this->getEmailSending() ? $this->getEmailSending()->getIsEditable() : true;
+    }
+
+    public function getIsDeleteable(): ?bool
+    {
+        return $this->getEmailSending() == null || $this->getEmailSending()->getIsDeleteable();
     }
 
     /**
@@ -198,14 +164,7 @@ class EMailTemplate
      */
     public function getEmailSendingTasks(): Collection
     {
-        $sendingTasks = new ArrayCollection();
-        $sendings = $this->getEmailSendings();
-        foreach ($sendings as $sending) {
-            foreach ($sending->getEMailSendingTask() as $task) {
-                $sendingTasks->add($task);
-            }
-        }
-        return $sendingTasks;
+        return $this->getEmailSending() ? $this->getEmailSending()->getEMailSendingTask() : new ArrayCollection();
     }
 
     /**
@@ -214,10 +173,28 @@ class EMailTemplate
     public function getCompletedEmailSendingTasks(): Collection
     {
         $sendingTasks = $this->getEmailSendingTasks()->filter(function (EmailSendingTask $t) {
-            $t->getIsSent();
+            return $t->getIsSent();
         });
 
         return $sendingTasks;
+    }
+
+    public function getEmailSending(): ?EmailSending
+    {
+        return $this->emailSending;
+    }
+
+    public function setEmailSending(?EmailSending $emailSending): self
+    {
+        $this->emailSending = $emailSending;
+
+        // set (or unset) the owning side of the relation if necessary
+        $newTemplate = null === $emailSending ? null : $this;
+        if ($emailSending->getTemplate() !== $newTemplate) {
+            $emailSending->setTemplate($newTemplate);
+        }
+
+        return $this;
     }
 
 

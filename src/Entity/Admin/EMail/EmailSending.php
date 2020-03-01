@@ -5,6 +5,7 @@ namespace App\Entity\Admin\EMail;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints\DateTime;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\Admin\EMail\EMailSendingRepository")
@@ -34,15 +35,10 @@ class EmailSending
     private $last_modified;
 
     /**
-     * @ORM\Column(type="boolean")
+     * @ORM\Column(type="boolean", nullable=true)
      */
     private $ready_to_send;
 
-    /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\Admin\EMail\EMailTemplate", inversedBy="emailSendings")
-     * @ORM\JoinColumn(nullable=false)
-     */
-    private $template;
 
     /**
      * @ORM\OneToMany(targetEntity="App\Entity\Admin\EMail\EmailSendingTask", mappedBy="emailSending")
@@ -53,6 +49,16 @@ class EmailSending
      * @ORM\Column(type="datetime", nullable=true)
      */
     private $sent;
+
+    /**
+     * @ORM\OneToOne(targetEntity="App\Entity\Admin\EMail\EMailTemplate", inversedBy="emailSending", cascade={"persist", "remove"})
+     */
+    private $template;
+
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $ApplicationHook;
 
     public function __construct()
     {
@@ -127,18 +133,6 @@ class EmailSending
         }
     }
 
-    public function getTemplate(): ?EMailTemplate
-    {
-        return $this->template;
-    }
-
-    public function setTemplate(?EMailTemplate $template): self
-    {
-        $this->template = $template;
-
-        return $this;
-    }
-
     /**
      * @return Collection|EmailSendingTask[]
      */
@@ -175,11 +169,71 @@ class EmailSending
         return $this->sent;
     }
 
-    public function setSent(): self
+    public function setSent(\DateTimeInterface $dateTime = null): self
     {
-        $this->sent = new \DateTime();
+        if ($dateTime == null)
+            $dateTime = new  DateTime();
+        $this->sent = $dateTime;
         $this->setReadyToSend(false);
 
         return $this;
+    }
+
+    public function getTemplate(): ?EMailTemplate
+    {
+        return $this->template;
+    }
+
+    public function setTemplate(?EMailTemplate $template): self
+    {
+        $this->template = $template;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection
+     */
+    public function getCompletedEMailSendingTask()
+    {
+        return $this->getEMailSendingTask()->filter(function (EmailSendingTask $task) {
+            return $task->getIsSent();
+        });
+    }
+
+    public function getIsEditable()
+    {
+        return $this->getCompletedEMailSendingTask()->count() == 0;
+    }
+
+    public function getIsDeleteable()
+    {
+        return $this->getIsEditable() && empty($this->getApplicationHook());
+    }
+
+    public function getApplicationHook(): ?string
+    {
+        return $this->ApplicationHook;
+    }
+
+    public function setApplicationHook(?string $ApplicationHook): self
+    {
+        $this->ApplicationHook = $ApplicationHook;
+        return $this;
+    }
+
+    public function isApplicationHooked()
+    {
+        return !empty($this->getApplicationHook());
+    }
+
+    public function getStatus()
+    {
+        $status = $this->getEMailSendingTask()->count() . "/" . $this->getCompletedEMailSendingTask()->count();
+        $status = $this->isApplicationHooked() ? "APPLICATION HOOK!" : $status;
+
+
+        return $status;
+
     }
 }

@@ -18,9 +18,12 @@ class EMailSendingType extends AbstractType
             //->add('name')
             //->add('created')
             //->add('last_modified')
-            ->add('ready_to_send', CheckboxType::class, ["label" => "Sendungsfreigabe", "attr" => ["checked" => true]])
+            ->add('ready_to_send', CheckboxType::class, ["label" => "Sendungsfreigabe",
+                //"attr" => ["checked" => true],
+                'required' => false])
             //->add('emailSendingTasks')
             //->add('template')
+            ->add('applicationHook')
             ->add('sendToAllUsers', ChoiceType::class, ['choices' => ['Alle IDM User' => 'ALL', 'KLMS Instanz' => 'KLMS'], 'mapped' => false])
             ->add('save', SubmitType::class, ["label" => "Sendung speichern"]);
     }

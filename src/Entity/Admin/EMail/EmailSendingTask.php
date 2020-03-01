@@ -70,12 +70,14 @@ class EmailSendingTask
 
     public function getRecipient(): ?EMailRecipient
     {
-        return json_decode($this->Recipient);
+        $recipientData = explode(';', $this->Recipient);
+        return New EMailRecipient($recipientData[0], $recipientData[1], $recipientData[2]);
+        //return $this->Recipient;
     }
 
     public function setRecipient(EMailRecipient $Recipient): self
     {
-        $this->Recipient = json_encode($Recipient);
+        $this->Recipient = implode(';', [$Recipient->getId(), $Recipient->getName(), $Recipient->getEmailAddress()]);
         return $this;
     }
 

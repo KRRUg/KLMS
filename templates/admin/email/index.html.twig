@@ -19,59 +19,31 @@
     </style>
     {% include('admin/email/includes/menu.html.twig') %}
     <div class="example-wrapper">
-        <h1>Hello {{ controller_name }}! ✅</h1>
+        <h1>Template Übersicht! ✅</h1>
 
-        This friendly message is coming from:
-        <ul>
-            <li>Your controller at <code><a
-                            href="{{ 'C:/Users/Andi/Documents/KLMS/src/Controller/Admin/EMailController.php'|file_link(0) }}">src/Controller/Admin/EMail/AdministrationController.php</a></code>
-            </li>
-            <li>Your template at <code><a
-                            href="{{ 'C:/Users/Andi/Documents/KLMS/templates/admin/email/index.html.twig'|file_link(0) }}">templates/admin/e_mail/administration/index.html.twig</a></code>
-            </li>
-        </ul>
         <table>
             <tr>
                 <th>Name</th>
-                <th>edit</th>
-                <th>anzeigen</th>
-                <th>Test senden</th>
-                <th>Sendung erstellen</th>
-                <th>gesendet</th>
-                <th>starten</th>
-                <th>starten</th>
+                <th>Aktionen</th>
             </tr>
             {% for  template in templates %}
                 <tr>
                     <td>     {{ template.name }}</td>
-
-                    <td>
-
-                        <a href="{{ path('admin_email_edit', {'id' : template.id}) }}"
-                           id="{{ template.id }}">edit</a>
-                    </td>
-                    <td>
-                        <a href="{{ path('admin_email_show', {'id' : template.id}) }}" id="{{ template.id }}">show</a>
-                    </td>
-                    <td>
-                        <a href="{{ path('admin_email_send', {'id' : template.id}) }}" id="{{ template.id }}">test</a>
-                    </td>
-                    <td>
-                        {% if  template.isPublished %}
-                            <a href="{{ path('admin_email_testsending', {'id' : template.id}) }}"
-                               id="{{ template.id }}">
-                                Neue Sendung</a>
+                    <td><a href="{{ path('admin_email_show', {'id' : template.id}) }}"
+                           id="{{ template.id }}">anzeigen</a>
+                        | <a href="{{ path('admin_email_send', {'id' : template.id}) }}" id="{{ template.id }}">test</a>
+                        {% if template.isDeleteable %}
+                            | <a href="{{ path('admin_email_delete', {'id' : template.id}) }}" id="{{ template.id }}">löschen</a>
                         {% endif %}
-                    </td>
-                    <td>
-                        {{ template.completedEmailSendingTasks.count }}/{{ template.emailSendingTasks.count }}
-                    </td>
-                    <td>
-
-                        <a>start</a>
-                    </td>
-                    <td>
-                        <a>stop</a>
+                        {% if template.isEditable %}
+                            | <a href="{{ path('admin_email_edit', {'id' : template.id}) }}"
+                                 id="{{ template.id }}">edit</a>
+                        {% endif %}
+                        {% if  template.isPublished %}
+                            | <a href="{{ path('admin_email_testsending', {'id' : template.id}) }}"
+                                 id="{{ template.id }}">
+                            Neue Sendung</a>
+                        {% endif %}
                     </td>
                 </tr>
             {% endfor %}

@@ -20,12 +20,12 @@ class EMailService
 {
     protected $mailer;
     protected $senderAddress;
-    protected $sendings;
     protected $recipients = [];
     protected $sendingRecipients;
     protected $em;
     protected $logger;
     protected $tasks;
+    protected $sendings;
     protected $queueSending = false;
     protected $testRecipient;
     protected $isInTestMode;
@@ -53,15 +53,25 @@ class EMailService
     /*
      * Sending + Sending Task Verwaltung
      */
-    public function createSending(EmailSending $sending, EMailTemplate $template)
+    public function createSending(EmailSending $sending, EMailTemplate $template, $clone = true)
     {
-        $template = clone $template;
+        // Erstellt ein neues Template mit, dann kann nichts passieren, wenn ein Template während einer Aussendung geändert wird
+        ///Bei ApplicationHook kein Sending kopieren!
+        if ($clone && !$sending->isApplicationHooked())
+            $template = clone $template;
+
         $this->em->persist($template);
         $sending->setTemplate($template);
         $this->em->persist($sending);
-        //Welchen Gruppen??
-        $this->getPossibleEmailRecipients();
-        $this->createSendingTasks($sending);
+
+        //Keine sendinglist, weil ApplicationHook nur Single-Mail ist
+        if (!$sending->isApplicationHooked()) {
+            //Welchen Gruppen??
+            $this->getPossibleEmailRecipients();
+            $this->createSendingTasks($sending);
+        }
+
+
         $this->em->persist($sending);
         $this->em->flush();
         return $sending;
@@ -72,6 +82,7 @@ class EMailService
         foreach ($this->recipients as $recipient) {
             $task = new EmailSendingTask();
             $task->setRecipient($recipient);
+            $task->setIsSendable(true);
             $this->em->persist($task);
             $sending->addEmailSendingTask($task);
         }
@@ -91,9 +102,10 @@ class EMailService
         }
     }
 
+    //TODO: Mockdaten gegen echte Daten austauschen
     public function getPossibleEmailRecipients($group = null)
     {
-        //TODO: Mockdaten gegen echte Daten austauschen
+
         for ($i = 0; $i < 50; $i++) {
             $this->addRecipient();
         }
@@ -170,7 +182,7 @@ class EMailService
     /*
      * Sending methods
      */
-    //DEPRECATED
+    //DEPRECATED: sendAll
     public function sendAll(EMailTemplate $template) //
     {
         if (count($this->recipients) <= 0) {
@@ -181,9 +193,9 @@ class EMailService
         }
     }
 
-    public function sendEmailTasks($limit = 0)
+    public function sendEmailTasks($limit = null)
     {
-        $tasks = $this->tasks->findBy(['isSent' => false, 'isSendable' => true], ['created'], $limit);
+        $tasks = $this->tasks->findBy(['isSent' => false, 'isSendable' => true], ['created' => 'ASC'], $limit);
         $lastSending = null;
         $template = null;
         foreach ($tasks as $task) {
@@ -194,12 +206,18 @@ class EMailService
                 $template = $sending->getTemplate();
             } else {
                 //prüfen ob alle gesendet wurden, dann sending closen
-                $opentasks = $this->tasks->findBy(['emailSending' => $sending, 'isSent' => false, 'isSendable' => true], ['created'], $limit);
-                if (count($opentasks) > 0) {
+                $opentasks = $this->tasks->findBy(['emailSending' => $lastSending, 'isSent' => false, 'isSendable' => true], ['created' => 'ASC']);
+                if (count($opentasks) == 0) {
                     $sending->setSent();
                     $this->em->persist($sending);
                     $this->em->flush();
                 }
+            }
+            if ($sending != $lastSending) {
+                if ($lastSending == null)
+                    $this->setSendingStatus($sending);
+                else
+                    $this->setSendingStatus($lastSending);
             }
 
             $lastSending = $sending;
@@ -215,7 +233,33 @@ class EMailService
             }
         }
 
+    }
 
+    public function sendByApplicationHook(string $applicationHook, EMailRecipient $recipient)
+    {
+        $sending = $this->sendings->findOneBy(['ApplicationHook' => $applicationHook]);
+        $template = $sending->getTemplate();
+        $this->sendSingleEmail($template, $recipient);
+    }
+
+    public function repairSendingStats()
+    {
+        foreach ($this->sendings->findAll() as $sending) {
+            $this->setSendingStatus($sending);
+        }
+    }
+
+    private function setSendingStatus(EmailSending $sending)
+    {
+        //prüfen ob alle gesendet wurden, dann sending closen
+        $opentasks = $this->tasks->findBy(['emailSending' => $sending, 'isSent' => false, 'isSendable' => true], ['created' => 'ASC']);
+        if ($opentasks == null || count($opentasks) == 0) {
+            $lastTask = $this->tasks->findOneBy(['emailSending' => $sending], ['sent' => 'DESC']);
+            if ($lastTask != null)
+                $sending->setSent($lastTask->getSent());
+            $this->em->persist($sending);
+            $this->em->flush();
+        }
     }
 
     public function sendSingleEmail(EMailTemplate $template, EMailRecipient $mailRecipient)
@@ -249,4 +293,32 @@ class EMailService
             return $error;
         }
     }
+
+    public function deleteTemplate(EMailTemplate $template)
+    {
+        if ($template->getIsDeleteable()) {
+            $this->deleteSending($template->getEmailSending());
+            $this->em->remove($template);
+            $this->em->flush();
+        }
+    }
+
+    public function deleteSending(EmailSending $sending = null)
+    {
+        if ($sending != null && $sending->getIsDeleteable()) {
+            $this->deleteSendingTasks($sending);
+            $this->em->remove($sending);
+            $this->em->flush();
+        }
+    }
+
+    private function deleteSendingTasks(EmailSending $sending)
+    {
+        $tasks = $sending->getEMailSendingTask();
+        foreach ($tasks as $task) {
+            $this->em->remove($task);
+        }
+    }
+
+
 }
