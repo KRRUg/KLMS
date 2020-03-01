@@ -2,12 +2,15 @@
 
 namespace App\Entity\Admin\EMail;
 
+use DateTimeInterface;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints\DateTime;
 
 /**
+ * @property ArrayCollection emailSendingTasks
+ * @property ArrayCollection Recipient
  * @ORM\Entity(repositoryClass="App\Repository\Admin\EMail\EMailSendingRepository")
  * @ORM\HasLifecycleCallbacks
  */
@@ -60,6 +63,9 @@ class EmailSending
      */
     private $ApplicationHook;
 
+    /**
+     * EmailSending constructor.
+     */
     public function __construct()
     {
         $this->Recipient = new ArrayCollection();
@@ -72,36 +78,24 @@ class EmailSending
         return $this->id;
     }
 
-    public function getName(): ?string
-    {
-        return $this->name;
-    }
-
-    public function setName(string $name): self
-    {
-        $this->name = $name;
-
-        return $this;
-    }
-
-    public function getCreated(): ?\DateTimeInterface
+    public function getCreated(): ?DateTimeInterface
     {
         return $this->created;
     }
 
-    public function setCreated(\DateTimeInterface $created): self
+    public function setCreated(DateTimeInterface $created): self
     {
         $this->created = $created;
 
         return $this;
     }
 
-    public function getLastModified(): ?\DateTimeInterface
+    public function getLastModified(): ?DateTimeInterface
     {
         return $this->last_modified;
     }
 
-    public function setLastModified(\DateTimeInterface $last_modified): self
+    public function setLastModified(DateTimeInterface $last_modified): self
     {
         $this->last_modified = $last_modified;
 
@@ -164,12 +158,12 @@ class EmailSending
         return $this;
     }
 
-    public function getSent(): ?\DateTimeInterface
+    public function getSent(): ?DateTimeInterface
     {
         return $this->sent;
     }
 
-    public function setSent(\DateTimeInterface $dateTime = null): self
+    public function setSent(DateTimeInterface $dateTime = null): self
     {
         if ($dateTime == null)
             $dateTime = new  DateTime();
