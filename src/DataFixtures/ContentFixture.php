@@ -12,11 +12,11 @@ class ContentFixture extends Fixture
     public function load(ObjectManager $manager)
     {
         $category[0] = new ContentCategory();
-        $category[0]->setName("News");
+        $category[0]->setName("Allgemeine Infos");
         $category[1] = new ContentCategory();
         $category[1]->setName("Lan Party");
         $category[2] = new ContentCategory();
-        $category[2]->setName("Allgemeine Infos");
+        $category[2]->setName("Verein");
 
         foreach ($category as $c) {
             $manager->persist($c);
@@ -30,11 +30,11 @@ class ContentFixture extends Fixture
         $content[1]->setTitle("FAQ");
         $content[1]->setContent("Wer ist dieser LAN?");
         $content[1]->setAlias("info");
-        $content[1]->setCategory($category[2]);
+        $content[1]->setCategory($category[1]);
         $content[2] = new Content();
         $content[2]->setTitle("Sitzplan ist online");
         $content[2]->setContent("Wir haben ein paar Sessel gefunden.");
-        $content[2]->setCategory($category[0]);
+        $content[2]->setCategory($category[1]);
 
         foreach ($content as $c) {
             $manager->persist($c);

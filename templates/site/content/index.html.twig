@@ -4,8 +4,5 @@
 
 {% block body %}
     <h1>{{ content.title }}</h1>
-    {% if content.imageFile is not empty %}
-        <img src="{{ vich_uploader_asset(content, 'imageFile') }}" alt="{{ content.image.name }}" />
-    {% endif %}
     <p>{{ content.content }}</p>
 {% endblock %}
