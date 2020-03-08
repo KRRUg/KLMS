@@ -45,11 +45,6 @@ class Content
     private $description;
 
     /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\ContentCategory", inversedBy="contents")
-     */
-    private $category;
-
-    /**
      * @ORM\Column(type="string", length=255, nullable=true, unique=true)
      */
     private $alias;
@@ -115,18 +110,6 @@ class Content
     public function setDescription(?string $description): self
     {
         $this->description = $description;
-
-        return $this;
-    }
-
-    public function getCategory(): ?ContentCategory
-    {
-        return $this->category;
-    }
-
-    public function setCategory(?ContentCategory $category): self
-    {
-        $this->category = $category;
 
         return $this;
     }

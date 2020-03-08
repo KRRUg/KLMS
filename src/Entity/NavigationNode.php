@@ -2,16 +2,23 @@
 
 namespace App\Entity;
 
+use Doctrine\ORM\Mapping as ORM;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
-use Doctrine\ORM\Mapping as ORM;
-
-// TODO one subtype for each type?
 
 /**
- * @ORM\Entity(repositoryClass="App\Repository\NavigationNodeRepository")
+ * @ORM\Entity(repositoryClass="App\Repository\NavigationRepository")
+ * @ORM\Table(name="navigation")
+ * @ORM\InheritanceType("SINGLE_TABLE")
+ * @ORM\DiscriminatorColumn(name="type", type="string", length=25)
+ * @ORM\DiscriminatorMap({
+ *     "root" = "NavigationNodeRoot",
+ *     "empty" = "NavigationNodeEmpty",
+ *     "content" = "NavigationNodeContent",
+ *     "generic" = "NavigationNodeGeneric"
+ * })
  */
-class NavigationNode
+abstract class NavigationNode
 {
     /**
      * @ORM\Id()
@@ -26,29 +33,26 @@ class NavigationNode
     private $name;
 
     /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\NavigationNode", inversedBy="childNodes")
+     * @ORM\ManyToOne(targetEntity="App\Entity\NavigationNode", inversedBy="childNodes", fetch="EAGER")
      */
     private $parent;
 
     /**
-     * @ORM\OneToMany(targetEntity="App\Entity\NavigationNode", mappedBy="parent")
+     * @ORM\OneToMany(targetEntity="App\Entity\NavigationNode", mappedBy="parent", fetch="EAGER")
      */
     private $childNodes;
-
-    /**
-     * @ORM\Column(type="string", length=50, nullable=true, columnDefinition="ENUM('summary', 'content', 'seatmap')")
-     */
-    private $type;
-
-    /**
-     * @ORM\Column(type="integer", nullable=true)
-     */
-    private $targetId;
 
     public function __construct()
     {
         $this->childNodes = new ArrayCollection();
     }
+
+    public function __toString()
+    {
+        return $this->getName();
+    }
+
+    abstract public function getPath(): ?string;
 
     public function getId(): ?int
     {
@@ -109,27 +113,94 @@ class NavigationNode
 
         return $this;
     }
+}
 
-    public function getType(): ?string
+/**
+ * @ORM\Entity()
+ */
+class NavigationNodeRoot extends NavigationNode
+{
+    public function __construct()
     {
-        return $this->type;
+        $this->setParent($this);
+        $this->setName("KLMS");
     }
 
-    public function setType(string $type): self
+    public function __toString()
     {
-        $this->type = $type;
-
-        return $this;
+        return "";
     }
 
-    public function getTargetId(): ?int
+    public function getPath(): ?string
     {
-        return $this->targetId;
+        return null;
+    }
+}
+
+/**
+ * @ORM\Entity()
+ */
+class NavigationNodeContent extends NavigationNode
+{
+    /**
+     * @ORM\OneToOne(targetEntity="App\Entity\Content", fetch="LAZY")
+     * @ORM\JoinColumn(name="content_id", referencedColumnName="id")
+     * @var Content
+     */
+    private $content;
+
+    /**
+     * @return Content
+     */
+    public function getContent(): Content
+    {
+        return $this->content;
     }
 
-    public function setTargetId(int $targetId): self
+    /**
+     * @param Content $content
+     */
+    public function setContent(Content $content): void
     {
-        $this->targetId = $targetId;
+        $this->content = $content;
+    }
+
+    public function getPath(): ?string
+    {
+        return "/content/" . $this->content->getId();
+    }
+}
+
+/**
+ * @ORM\Entity()
+ */
+class NavigationNodeEmpty extends NavigationNode
+{
+    public function getPath(): ?string
+    {
+        return null;
+    }
+}
+
+/**
+ * @ORM\Entity()
+ */
+class NavigationNodeGeneric extends NavigationNode
+{
+    /**
+     * @ORM\Column(type="string", length=50, nullable=false)
+     * @var string
+     */
+    private $path;
+
+    public function getPath(): ?string
+    {
+        return $this->path;
+    }
+
+    public function setPath(string $path): self
+    {
+        $this->path = $path;
 
         return $this;
     }
