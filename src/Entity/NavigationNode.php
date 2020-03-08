@@ -6,6 +6,8 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
+// TODO one subtype for each type?
+
 /**
  * @ORM\Entity(repositoryClass="App\Repository\NavigationNodeRepository")
  */
@@ -34,12 +36,12 @@ class NavigationNode
     private $childNodes;
 
     /**
-     * @ORM\Column(type="string", length=50)
+     * @ORM\Column(type="string", length=50, nullable=true, columnDefinition="ENUM('summary', 'content', 'seatmap')")
      */
     private $type;
 
     /**
-     * @ORM\Column(type="integer")
+     * @ORM\Column(type="integer", nullable=true)
      */
     private $targetId;
 
