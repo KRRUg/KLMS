@@ -6,7 +6,7 @@
         {% block stylesheets %}{% endblock %}
     </head>
     <body>
-        {% block nav %}{% for naventry in nav.index() %}{{ naventry }}{% endfor %}{% endblock %}
+        {% block nav %}{% include 'navigation.html.twig' %}{% endblock %}
         {% block body %}{% endblock %}
         {% block javascripts %}{% endblock %}
     </body>

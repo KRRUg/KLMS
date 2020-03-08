@@ -16,7 +16,7 @@ class NavService
         $this->em = $em;
     }
 
-    public function index()
+    public function getNav()
     {
         $rep = $this->em->getRepository(NavigationNode::class);
         return $rep->getRootChildren();

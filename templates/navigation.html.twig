@@ -1,0 +1,16 @@
+{% macro menu_links(nodes) %}
+    {% for node in nodes %}
+        <li>
+            <a {% if node.getPath() is not empty %} href="{{ node.getPath() }}" {% endif %}>{{ node.getName() }}</a>
+            {% if node.getChildNodes() %}
+                <ul>
+                    {{ _self.menu_links(node.getChildNodes()) }}
+                </ul>
+            {% endif %}
+        </li>
+    {% endfor %}
+{% endmacro %}
+
+<ul class="main-menu">
+    {{ _self.menu_links( nav.getNav() ) }}
+</ul>
