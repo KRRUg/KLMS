@@ -33,12 +33,18 @@ abstract class NavigationNode
     private $name;
 
     /**
+     * @ORM\Column(type="integer", name="ord")
+     */
+    private $order;
+
+    /**
      * @ORM\ManyToOne(targetEntity="App\Entity\NavigationNode", inversedBy="childNodes", fetch="EAGER")
      */
     private $parent;
 
     /**
      * @ORM\OneToMany(targetEntity="App\Entity\NavigationNode", mappedBy="parent", fetch="EAGER")
+     * @ORM\OrderBy({"order" = "ASC"})
      */
     private $childNodes;
 
@@ -67,6 +73,18 @@ abstract class NavigationNode
     public function setName(string $name): self
     {
         $this->name = $name;
+
+        return $this;
+    }
+
+    public function getOrder(): int
+    {
+        return $this->order;
+    }
+
+    public function setOrder($order): self
+    {
+        $this->order = $order;
 
         return $this;
     }
@@ -124,6 +142,7 @@ class NavigationNodeRoot extends NavigationNode
     {
         $this->setParent($this);
         $this->setName("KLMS");
+        $this->setOrder(0);
     }
 
     public function __toString()
@@ -192,6 +211,12 @@ class NavigationNodeGeneric extends NavigationNode
      * @var string
      */
     private $path;
+
+    public function __construct()
+    {
+        parent::__construct();
+        $this->path = "/";
+    }
 
     public function getPath(): ?string
     {
