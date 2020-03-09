@@ -1,0 +1,14 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}KLMS - News{% endblock %}
+
+{% block body %}
+<h1>News</h1>
+{% for n in news %}
+    <div>
+        <h3>{{ n.title }}</h3>
+        <p>{{ n.content }}</p>
+        <a href="{{ path('news', {'id' : n.id}) }}"> mehr... </a>
+    </div>
+{% endfor %}
+{% endblock %}

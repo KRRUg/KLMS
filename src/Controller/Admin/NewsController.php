@@ -18,9 +18,9 @@ class NewsController extends AbstractController
      */
     public function index(NewsRepository $newsEntryRepository) {
         $news = $newsEntryRepository->findAll();
-        return $this->render("admin/content/index.html.twig", [
+        return $this->render("admin/news/index.html.twig", [
             'type' => 'News',
-            'content' => $news
+            'news' => $news
         ]);
     }
 
@@ -41,7 +41,7 @@ class NewsController extends AbstractController
             return $this->redirectToRoute("admin_news");
         }
 
-        return $this->render("admin/content/new.html.twig", [
+        return $this->render("admin/news/new.html.twig", [
             'type' => 'News',
             'method' => 'Neu',
             'form' => $form->createView()
@@ -76,7 +76,7 @@ class NewsController extends AbstractController
             return $this->redirectToRoute("admin_news");
         }
 
-        return $this->render("admin/content/new.html.twig", [
+        return $this->render("admin/news/new.html.twig", [
             'type' => 'News',
             'method' => 'Update',
             'form' => $form->createView()

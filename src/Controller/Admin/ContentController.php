@@ -19,7 +19,6 @@ class ContentController extends AbstractController
     public function index(ContentRepository $contentEntryRepository) {
         $content = $contentEntryRepository->findAll();
         return $this->render("admin/content/index.html.twig", [
-            'type' => 'Content',
             'content' => $content
         ]);
     }
@@ -42,7 +41,6 @@ class ContentController extends AbstractController
         }
 
         return $this->render("admin/content/new.html.twig", [
-            'type' => 'Content',
             'method' => 'Neu',
             'form' => $form->createView()
         ]);
@@ -77,8 +75,7 @@ class ContentController extends AbstractController
         }
 
         return $this->render("admin/content/new.html.twig", [
-            'type' => 'Content',
-            'method' => 'Neu',
+            'method' => 'Bearbeiten',
             'form' => $form->createView()
         ]);
     }
