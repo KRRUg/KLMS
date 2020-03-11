@@ -1,16 +1,100 @@
-{% macro menu_links(nodes) %}
-    {% for node in nodes %}
-        <li>
-            <a {% if node.getPath() is not empty %} href="{{ node.getPath() }}" {% endif %}>{{ node.getName() }}</a>
-            {% if node.getChildNodes() %}
-                <ul>
-                    {{ _self.menu_links(node.getChildNodes()) }}
-                </ul>
-            {% endif %}
-        </li>
-    {% endfor %}
-{% endmacro %}
 
-<ul class="main-menu">
-    {{ _self.menu_links( nav.getNav() ) }}
-</ul>
+<div>
+    <style>
+        .level-2-menu
+        {
+            position: absolute;
+            top: 0;
+            right: -150px;
+            width: 150px;
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: none;
+        }
+
+        .level-2-menu > li
+        {
+            height: 30px;
+            background: #999999;
+        }
+        .level-2-menu > li:hover { background: #CCCCCC; }
+
+        .level-1-menu
+        {
+            position: absolute;
+            top: 30px;
+            left: 0;
+            width: 150px;
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: none;
+        }
+
+        .level-1-menu > li
+        {
+            position: relative;
+            height: 30px;
+            background: #999999;
+        }
+        .level-1-menu > li:hover { background: #CCCCCC; }
+
+        .top-level-menu
+        {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: block;
+            width: 100%;
+        }
+
+        .top-level-menu > li
+        {
+            position: relative;
+            float: left;
+            height: 30px;
+            width: 150px;
+            background: #999999;
+        }
+        .top-level-menu > li:hover { background: #CCCCCC; }
+
+        .top-level-menu li:hover > ul
+        {
+            /* On hover, display the next level's menu */
+            display: inline;
+        }
+
+
+        /* Menu Link Styles */
+        .top-level-menu a /* Apply to all links inside the multi-level menu */
+        {
+            font: bold 14px Arial, Helvetica, sans-serif;
+            color: #FFFFFF;
+            text-decoration: none;
+            padding: 0 0 0 10px;
+
+            /* Make the link cover the entire list item-container */
+            display: block;
+            line-height: 30px;
+        }
+        .top-level-menu a:hover { color: #000000; }
+    </style>
+
+    {% macro menu_links(nodes, d) %}
+        {% for node in nodes %}
+            <li>
+                <a {% if node.getPath() is not empty %} href="{{ node.getPath() }}" {% endif %}>{{ node.getName() }}</a>
+                {% if node.getChildNodes() is not empty %}
+                    <ul class="level-{{d}}-menu">
+                        {{ _self.menu_links(node.getChildNodes(), d+1) }}
+                    </ul>
+                {% endif %}
+            </li>
+        {% endfor %}
+    {% endmacro %}
+
+    <ul class="top-level-menu">
+        {{ _self.menu_links( nav.getNav(), 1 ) }}
+    </ul>
+</div>

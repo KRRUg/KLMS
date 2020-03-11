@@ -2,19 +2,34 @@
 
 {% block title %}KLMS - Content{% endblock %}
 
-{% block body %}
-    <div class="example-wrapper">
-        <h1>Content Liste</h1>
+{% block stylesheets %}
+    {{ parent() }}
+    <style>
+        .box {
+            float: left;
+            padding: 20px;
+            background: #eee;
+            max-width: 700px;
+        }
+    </style>
+{% endblock %}
 
-        <ul>
-            {% for contententry in content %}
-            <li>
-                {{ contententry.title }}: {{ contententry.content }} :
-                <a href="{{ path('admin_content_edit', {'id' : contententry.id}) }}"> bearbeiten </a>
-                <a href="{{ path('admin_content_delete', {'id' : contententry.id}) }}">delete</a>
-            </li>
-            {% endfor %}
-        </ul>
-        <a href="{{ path('admin_content_new') }}">neu</a>
+{% block body %}
+    <h1>Content Liste</h1>
+
+    <div class="box">
+
+    </div>
+    <div class="box" >
+    <ul>
+        {% for contententry in content %}
+        <li>
+            {{ contententry.title }}: {{ contententry.content }} :
+            <a href="{{ path('admin_content_edit', {'id' : contententry.id}) }}"> bearbeiten </a>
+            <a href="{{ path('admin_content_delete', {'id' : contententry.id}) }}">delete</a>
+        </li>
+        {% endfor %}
+    </ul>
+    <a href="{{ path('admin_content_new') }}">neu</a>
     </div>
 {% endblock %}

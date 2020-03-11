@@ -5,6 +5,7 @@ namespace App\Controller\Admin;
 use App\Entity\Content;
 use App\Form\ContentType;
 use App\Repository\ContentRepository;
+use App\Repository\NavigationRepository;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -16,9 +17,12 @@ class ContentController extends AbstractController
     /**
      * @Route("/content", name="content")
      */
-    public function index(ContentRepository $contentEntryRepository) {
+    public function index(NavigationRepository $navigationRepository,
+                          ContentRepository $contentEntryRepository) {
+        $main = $navigationRepository->getRootChildren();
         $content = $contentEntryRepository->findAll();
         return $this->render("admin/content/index.html.twig", [
+            'tree' => $main,
             'content' => $content
         ]);
     }
