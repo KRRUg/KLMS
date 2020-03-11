@@ -3,6 +3,7 @@
 {% block title %}KLMS - News{% endblock %}
 
 {% block body %}
+<div class="example-wrapper">
 <h1>News</h1>
 {% for n in news %}
     <div>
@@ -11,4 +12,5 @@
         <a href="{{ path('news', {'id' : n.id}) }}"> mehr... </a>
     </div>
 {% endfor %}
+</div>
 {% endblock %}
