@@ -60,4 +60,10 @@ class EMailRecipient
     }
 
 
+    public function generateTestLinkHash()
+    {
+        return md5(rand());
+    }
+
+
 }

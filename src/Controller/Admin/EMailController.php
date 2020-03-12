@@ -195,4 +195,17 @@ class EMailController extends AbstractController
         return $this->redirectToRoute('admin_email');
     }
 
+    /**
+     * @Route("/admin/email/methodcall/test", name="admin_email_methodcall_test")
+     * @param EMailService $mailService
+     */
+    public function methodCallTest(EMailService $mailService)
+    {
+        $testRecipient = new EMailRecipient(1, "Bieblov", "mrandibilbao@gmail.com");
+        $methodName = 'getName';
+        $testData = $testRecipient->{$methodName}();
+        //$testData = call_user_func([$testRecipient, 'generateTestLinkHash']);
+        dd($testData);
+    }
+
 }
