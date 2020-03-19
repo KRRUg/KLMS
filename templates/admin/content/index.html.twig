@@ -18,18 +18,28 @@
     <h1>Content Liste</h1>
 
     <div class="box">
+        {% macro menu_links(nodes, d) %}
+            {% for node in nodes %}
+                <li>
+                    <a href="{{ path('admin_content', {'id' : node.getId() }) }}">{{ node.getName() }}</a>
+                    {% if node.getChildNodes() is not empty %}
+                        <ul>
+                            {{ _self.menu_links(node.getChildNodes(), d+1) }}
+                        </ul>
+                    {% endif %}
+                </li>
+            {% endfor %}
+        {% endmacro %}
 
+        <ul >
+            {{ _self.menu_links( nav.getNav(), 1 ) }}
+        </ul>
     </div>
     <div class="box" >
-    <ul>
-        {% for contententry in content %}
-        <li>
-            {{ contententry.title }}: {{ contententry.content }} :
-            <a href="{{ path('admin_content_edit', {'id' : contententry.id}) }}"> bearbeiten </a>
-            <a href="{{ path('admin_content_delete', {'id' : contententry.id}) }}">delete</a>
-        </li>
-        {% endfor %}
-    </ul>
-    <a href="{{ path('admin_content_new') }}">neu</a>
+        {% if form is not empty %}
+            {{ form(form) }}
+        {% else %}
+            <p>Nichts ausgewählt!</p>
+        {% endif %}
     </div>
 {% endblock %}
