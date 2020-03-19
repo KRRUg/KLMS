@@ -10,6 +10,30 @@
             padding: 20px;
             background: #eee;
             max-width: 700px;
+            min-width: 250px;
+        }
+
+        .selected {
+            background: #70a6fd;
+        }
+
+        .tree {
+            list-style-type: none;
+        }
+
+        .tree ul {
+            list-style-type: none;
+        }
+
+        .tree a {
+            color: #17324f;
+            text-decoration: none;
+        }
+
+        .tree div.type {
+            color: gray;
+            float: none;
+            font-size: x-small;
         }
     </style>
 {% endblock %}
@@ -18,26 +42,39 @@
     <h1>Content Liste</h1>
 
     <div class="box">
-        {% macro menu_links(nodes, d) %}
-            {% for node in nodes %}
+        {% macro menu_links(nodes, d, id) %}
+            {% for n in nodes %}
                 <li>
-                    <a href="{{ path('admin_content', {'id' : node.getId() }) }}">{{ node.getName() }}</a>
-                    {% if node.getChildNodes() is not empty %}
+                    {% set selected = id == n.getId() %}
+                    <a href="{{ path('admin_content', {'id' : n.getId() }) }}" {% if selected %} class="selected" {% endif %}>{{ n.getName() }}</a>
+                    {%  if selected %}
+                        <div style="float: right">
+                        <a href="{{ path('admin_content', {'id' : n.getId(), action : 'up'}) }}">&#x25b2;</a>
+                        <a href="{{ path('admin_content', {'id' : n.getId(), action : 'down'}) }}">&#x25bc;</a>
+                        </div>
+                    {% endif %}
+                    <div class="type">{{ n.getType() }}</div>
+
+                    {% if n.getChildNodes() is not empty %}
                         <ul>
-                            {{ _self.menu_links(node.getChildNodes(), d+1) }}
+                            {{ _self.menu_links(n.getChildNodes(), d+1, id) }}
                         </ul>
                     {% endif %}
                 </li>
             {% endfor %}
         {% endmacro %}
 
-        <ul >
-            {{ _self.menu_links( nav.getNav(), 1 ) }}
+        <ul class="tree">
+            {{ _self.menu_links(tree, 1, node.getId()) }}
         </ul>
     </div>
     <div class="box" >
-        {% if form is not empty %}
-            {{ form(form) }}
+        {% if node is not empty %}
+            {% if form is not empty %}
+                {{ form(form) }}
+            {% endif %}
+            <br>
+            <a href="{{ path('admin_content', {'id' : node.getId(), action : 'delete'}) }}">Löschen</a>
         {% else %}
             <p>Nichts ausgewählt!</p>
         {% endif %}

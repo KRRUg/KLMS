@@ -46,13 +46,13 @@ class ContentFixture extends Fixture
         $home = new NavigationNodeGeneric();
         $home
             ->setParent($root)
-            ->setOrder(1)
+            ->setOrder(0)
             ->setName("Home");
 
         $lan = new NavigationNodeEmpty();
         $lan
             ->setParent($root)
-            ->setOrder(2)
+            ->setOrder(1)
             ->setName("Lan Party");
 
         $lan_facts = new NavigationNodeContent();
@@ -66,14 +66,14 @@ class ContentFixture extends Fixture
         $lan_facts_net
             ->setParent($lan_facts)
             ->setName("Netzwerk")
-            ->setOrder(1)
+            ->setOrder(0)
             ->setContent($content[4]);
 
         $lan_facts_catering = new NavigationNodeContent();
         $lan_facts_catering
             ->setParent($lan_facts)
             ->setName("Catering")
-            ->setOrder(2)
+            ->setOrder(1)
             ->setContent($content[3]);
 
         $lan_faq = new NavigationNodeContent();
@@ -87,8 +87,15 @@ class ContentFixture extends Fixture
         $lan_loc
             ->setParent($lan)
             ->setName("Location")
-            ->setOrder(3)
+            ->setOrder(2)
             ->setContent($content[2]);
+
+        $admin = new NavigationNodeGeneric();
+        $admin
+            ->setParent($root)
+            ->setName("Admin")
+            ->setPath('/admin')
+            ->setOrder(2);
 
         $manager->persist($root);
         $manager->persist($home);
@@ -96,7 +103,9 @@ class ContentFixture extends Fixture
         $manager->persist($lan_facts);
         $manager->persist($lan_facts_net);
         $manager->persist($lan_facts_catering);
+        $manager->persist($lan_faq);
         $manager->persist($lan_loc);
+        $manager->persist($admin);
 
         $manager->flush();
     }

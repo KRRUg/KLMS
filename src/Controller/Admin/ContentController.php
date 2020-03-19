@@ -3,11 +3,13 @@
 namespace App\Controller\Admin;
 
 use App\Entity\Content;
+use App\Entity\NavigationNode;
 use App\Entity\NavigationNodeContent;
 use App\Entity\NavigationNodeGeneric;
 use App\Form\ContentType;
 use App\Repository\ContentRepository;
 use App\Repository\NavigationRepository;
+use App\Service\NavService;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
@@ -17,6 +19,62 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class ContentController extends AbstractController
 {
+    private $nav;
+
+    public function __construct(NavService $nav)
+    {
+        $this->nav = $nav;
+    }
+
+    private function handleForm(?NavigationNode $current, Request $request)
+    {
+        if (empty($current))
+            return null;
+
+        $em = $this->getDoctrine()->getManager();
+        $form = null;
+        if ($current instanceof NavigationNodeContent) {
+            $form = $this->createForm(ContentType::class, $current->getContent());
+            $form->handleRequest($request);
+            if ($form->isSubmitted() && $form->isValid()) {
+                $content = $form->getData();
+                $em->persist($content);
+                $em->flush();
+            }
+        } else if ($current instanceof NavigationNodeGeneric) {
+            $defaultData = ['path' => $current->getPath()];
+            $form = $this->createFormBuilder($defaultData)
+                ->add('path', TextType::class)
+                ->add('save', SubmitType::class, ['label' => 'Speichern'])
+                ->getForm();
+            $form->handleRequest($request);
+            if ($form->isSubmitted() && $form->isValid()) {
+                $current->setPath($form->getData()['path']);
+                $em->persist($current);
+                $em->flush();
+            }
+        }
+        return $form;
+    }
+
+    private function handleAction(?NavigationNode $current, Request $request)
+    {
+        $action = $request->get('action');
+        if (empty($action) || empty($current))
+            return $current;
+
+        switch (strtoupper($action)) {
+            case 'UP':
+                $this->nav->moveNode($current, true);
+                return $current;
+            case 'DOWN':
+                $this->nav->moveNode($current, false);
+                return $current;
+            case 'DELETE':
+                $this->nav->removeNode($current);
+                return null;
+        }
+    }
 
     /**
      * @Route("/content", name="content")
@@ -24,50 +82,27 @@ class ContentController extends AbstractController
     public function index(Request $request,
                           NavigationRepository $navigationRepository,
                           ContentRepository $contentEntryRepository) {
-        $main = $navigationRepository->getRootChildren();
+
         $id = $request->get('id');
 
         $current = null;
         if ($id)
             $current = $navigationRepository->find($id);
 
-        $form = null;
-        if ($current instanceof NavigationNodeContent) {
-            $form = $this->createForm(ContentType::class, $current->getContent())->createView();
-        } else if ($current instanceof NavigationNodeGeneric) {
-            $defaultData = ['path' => $current->getPath()];
-            $form = $this->createFormBuilder($defaultData)
-                ->add('path', TextType::class)
-                ->add('save', SubmitType::class, ['label' => 'Speichern'])
-                ->getForm()->createView();
-        }
+        $current = $this->handleAction($current, $request);
+        $form = $this->handleForm($current, $request);
+
+        $navigationRepository->clear();
+        $main = $navigationRepository->getRootChildren();
+
+        $view = null;
+        if ($form)
+            $view = $form->createView();
 
         return $this->render("admin/content/index.html.twig", [
             'tree' => $main,
-            'form' => $form
-        ]);
-    }
-
-    /**
-     * @Route("/content/new", name="content_new")
-     */
-    public function new(Request $request) {
-        $content = new Content();
-        $form = $this->createForm(ContentType::class, $content);
-
-        $form->handleRequest($request);
-
-        if ($form->isSubmitted() && $form->isValid()) {
-            $content = $form->getData();
-            $em = $this->getDoctrine()->getManager();
-            $em->persist($content);
-            $em->flush();
-            return $this->redirectToRoute("admin_content");
-        }
-
-        return $this->render("admin/content/new.html.twig", [
-            'method' => 'Neu',
-            'form' => $form->createView()
+            'node' => $current,
+            'form' => $view
         ]);
     }
 
@@ -80,28 +115,5 @@ class ContentController extends AbstractController
         $em->remove($content);
         $em->flush();
         return $this->redirectToRoute("admin_content");
-    }
-
-    /**
-     * @Route("/content/edit/{id}", name="content_edit")
-     * @ParamConverter()
-     */
-    public function edit(Content $content, Request $request) {
-        $form = $this->createForm(ContentType::class, $content);
-
-        $form->handleRequest($request);
-
-        if ($form->isSubmitted() && $form->isValid()) {
-            $content = $form->getData();
-            $em = $this->getDoctrine()->getManager();
-            $em->persist($content);
-            $em->flush();
-            return $this->redirectToRoute("admin_content");
-        }
-
-        return $this->render("admin/content/new.html.twig", [
-            'method' => 'Bearbeiten',
-            'form' => $form->createView()
-        ]);
     }
 }

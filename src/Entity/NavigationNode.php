@@ -60,6 +60,8 @@ abstract class NavigationNode
 
     abstract public function getPath(): ?string;
 
+    abstract public function getType(): ?string;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -140,7 +142,8 @@ class NavigationNodeRoot extends NavigationNode
 {
     public function __construct()
     {
-        $this->setParent($this);
+        parent::__construct();
+        $this->setParent(null);
         $this->setName("KLMS");
         $this->setOrder(0);
     }
@@ -151,6 +154,11 @@ class NavigationNodeRoot extends NavigationNode
     }
 
     public function getPath(): ?string
+    {
+        return null;
+    }
+
+    public function getType(): ?string
     {
         return null;
     }
@@ -188,6 +196,11 @@ class NavigationNodeContent extends NavigationNode
     {
         return "/content/" . $this->content->getId();
     }
+
+    public function getType(): ?string
+    {
+        return 'content';
+    }
 }
 
 /**
@@ -198,6 +211,11 @@ class NavigationNodeEmpty extends NavigationNode
     public function getPath(): ?string
     {
         return null;
+    }
+
+    public function getType(): ?string
+    {
+        return 'empty';
     }
 }
 
@@ -228,5 +246,10 @@ class NavigationNodeGeneric extends NavigationNode
         $this->path = $path;
 
         return $this;
+    }
+
+    public function getType(): ?string
+    {
+        return 'path';
     }
 }
