@@ -49,6 +49,12 @@ class Content
      */
     private $alias;
 
+    public function __construct()
+    {
+        $this->title = '';
+        $this->content = '';
+    }
+
     public function getId(): ?int
     {
         return $this->id;

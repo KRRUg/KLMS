@@ -5,6 +5,7 @@ namespace App\Controller\Admin;
 use App\Entity\Content;
 use App\Entity\NavigationNode;
 use App\Entity\NavigationNodeContent;
+use App\Entity\NavigationNodeEmpty;
 use App\Entity\NavigationNodeGeneric;
 use App\Form\ContentType;
 use App\Repository\ContentRepository;
@@ -60,6 +61,7 @@ class ContentController extends AbstractController
     private function handleAction(?NavigationNode $current, Request $request)
     {
         $action = $request->get('action');
+        $type = $request->get('type');
         if (empty($action) || empty($current))
             return $current;
 
@@ -73,6 +75,8 @@ class ContentController extends AbstractController
             case 'DELETE':
                 $this->nav->removeNode($current);
                 return null;
+            case 'ADD':
+                return $this->nav->newNode($current, $type);
         }
     }
 

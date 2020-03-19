@@ -4,6 +4,9 @@
 namespace App\Service;
 
 use App\Entity\NavigationNode;
+use App\Entity\NavigationNodeContent;
+use App\Entity\NavigationNodeEmpty;
+use App\Entity\NavigationNodeGeneric;
 use Doctrine\ORM\EntityManagerInterface;
 
 class NavService
@@ -42,6 +45,32 @@ class NavService
         return false;
     }
 
+    public function newNode(NavigationNode $parent, ?string $type) : ?NavigationNode
+    {
+        if (empty($type))
+            return null;
+
+        switch (strtoupper($type)) {
+            case 'CONTENT':
+                $new = new NavigationNodeContent();
+                break;
+            case 'PATH':
+                $new = new NavigationNodeGeneric();
+                break;
+            case 'EMPTY':
+                $new = new NavigationNodeEmpty();
+                break;
+            default:
+                return null;
+        }
+        $new->setOrder(0);
+        $new->setName("new");
+        $parent->addChildNode($new);
+        $this->em->persist($new);
+        $this->em->flush();
+        return $new;
+    }
+
     public function removeNode(NavigationNode $node)
     {
         $parent = $node->getParent();
@@ -66,8 +95,9 @@ class NavService
         $nodes = $node->getChildNodes();
         for ($i = 0; $i < count($nodes); $i += 1) {
             $n = $nodes[$i];
-            if ($n->getOrder() != $i) {
-                $n->setOrder($i);
+            // start with 1 to be able to insert new nodes at position 0
+            if ($n->getOrder() != $i+1) {
+                $n->setOrder($i+1);
             }
             $this->fixOrder($n);
         }

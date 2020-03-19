@@ -170,11 +170,18 @@ class NavigationNodeRoot extends NavigationNode
 class NavigationNodeContent extends NavigationNode
 {
     /**
-     * @ORM\OneToOne(targetEntity="App\Entity\Content", fetch="LAZY")
+     * @ORM\OneToOne(targetEntity="App\Entity\Content", fetch="LAZY", cascade={"persist", "remove"})
      * @ORM\JoinColumn(name="content_id", referencedColumnName="id")
      * @var Content
      */
     private $content;
+
+    public function __construct()
+    {
+        parent::__construct();
+        $this->content = new Content();
+        $this->content->setTitle("");
+    }
 
     /**
      * @return Content

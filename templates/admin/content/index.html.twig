@@ -10,7 +10,7 @@
             padding: 20px;
             background: #eee;
             max-width: 700px;
-            min-width: 250px;
+            min-width: 300px;
         }
 
         .selected {
@@ -25,15 +25,51 @@
             list-style-type: none;
         }
 
-        .tree a {
+        .tree {
             color: #17324f;
-            text-decoration: none;
         }
 
-        .tree div.type {
+        .tree a {
+            text-decoration: none;
+            color: #17324f;
+        }
+
+        .tree a.selected {
+            background: #70a6fd;
+        }
+
+        .tree .type {
             color: gray;
             float: none;
             font-size: x-small;
+        }
+
+        .tree .icons {
+            float: right;
+            padding-left: 10px;
+            font-size: smaller;
+        }
+
+        .option {
+            padding-bottom: 5px;
+            cursor: pointer;
+        }
+
+        .option:hover {
+            background: #70a6fd;
+        }
+
+        .option div.tooltip {
+            display: none;
+            position: absolute;
+            font-size: small;
+            color: #fff;
+            background: #70a6fd;
+            padding: 5px;
+        }
+
+        .option:hover div.tooltip {
+            display: block;
         }
     </style>
 {% endblock %}
@@ -48,9 +84,16 @@
                     {% set selected = id == n.getId() %}
                     <a href="{{ path('admin_content', {'id' : n.getId() }) }}" {% if selected %} class="selected" {% endif %}>{{ n.getName() }}</a>
                     {%  if selected %}
-                        <div style="float: right">
-                        <a href="{{ path('admin_content', {'id' : n.getId(), action : 'up'}) }}">&#x25b2;</a>
-                        <a href="{{ path('admin_content', {'id' : n.getId(), action : 'down'}) }}">&#x25bc;</a>
+                        <div class="icons">
+                            <span class="option" href="#"><b>+</b>
+                                <div class="tooltip">
+                                    <a href="{{ path('admin_content', {'id' : n.getId(), action : 'add', type : 'content' }) }}">content</a><br/>
+                                    <a href="{{ path('admin_content', {'id' : n.getId(), action : 'add', type : 'path' }) }}">path</a><br/>
+                                    <a href="{{ path('admin_content', {'id' : n.getId(), action : 'add', type : 'empty' }) }}">empty</a>
+                                </div>
+                            </span>
+                            <a href="{{ path('admin_content', {'id' : n.getId(), action : 'up'}) }}">&#x25b2;</a>
+                            <a href="{{ path('admin_content', {'id' : n.getId(), action : 'down'}) }}">&#x25bc;</a>
                         </div>
                     {% endif %}
                     <div class="type">{{ n.getType() }}</div>
@@ -65,11 +108,11 @@
         {% endmacro %}
 
         <ul class="tree">
-            {{ _self.menu_links(tree, 1, node.getId()) }}
+            {{ _self.menu_links(tree, 1, node ? node.getId() : null) }}
         </ul>
     </div>
     <div class="box" >
-        {% if node is not empty %}
+        {% if node is not null %}
             {% if form is not empty %}
                 {{ form(form) }}
             {% endif %}
