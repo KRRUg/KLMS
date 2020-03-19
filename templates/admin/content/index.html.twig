@@ -45,12 +45,22 @@
         }
 
         .tree .icons {
+            display: flex;
             float: right;
             padding-left: 10px;
             font-size: smaller;
         }
 
+        .tree .icons button {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 0px;
+        }
+
         .option {
+            padding-right: 5px;
+            padding-top: 2px;
             padding-bottom: 5px;
             cursor: pointer;
         }
@@ -84,16 +94,21 @@
                     {% set selected = id == n.getId() %}
                     <a href="{{ path('admin_content', {'id' : n.getId() }) }}" {% if selected %} class="selected" {% endif %}>{{ n.getName() }}</a>
                     {%  if selected %}
-                        <div class="icons">
-                            <span class="option" href="#"><b>+</b>
+                        <div class="icons" >
+                            <span class="option"><b>+</b>
                                 <div class="tooltip">
-                                    <a href="{{ path('admin_content', {'id' : n.getId(), action : 'add', type : 'content' }) }}">content</a><br/>
-                                    <a href="{{ path('admin_content', {'id' : n.getId(), action : 'add', type : 'path' }) }}">path</a><br/>
-                                    <a href="{{ path('admin_content', {'id' : n.getId(), action : 'add', type : 'empty' }) }}">empty</a>
+                                    <form method="post" action="{{ path('admin_content', {'id' : n.getId()}) }}">
+                                        <input type="hidden" name="action" value="add"/>
+                                        <button name="type" value="content">content</button><br/>
+                                        <button name="type" value="path">path</button><br/>
+                                        <button name="type" value="empty">empty</button>
+                                    </form>
                                 </div>
                             </span>
-                            <a href="{{ path('admin_content', {'id' : n.getId(), action : 'up'}) }}">&#x25b2;</a>
-                            <a href="{{ path('admin_content', {'id' : n.getId(), action : 'down'}) }}">&#x25bc;</a>
+                            <form method="post" action="{{ path('admin_content', {'id' : n.getId()}) }}">
+                                <button type="submit" name="action" value="up">&#x25b2;</button>
+                                <button type="submit" name="action" value="down">&#x25bc;</button>
+                            </form>
                         </div>
                     {% endif %}
                     <div class="type">{{ n.getType() }}</div>
@@ -116,8 +131,9 @@
             {% if form is not empty %}
                 {{ form(form) }}
             {% endif %}
-            <br>
-            <a href="{{ path('admin_content', {'id' : node.getId(), action : 'delete'}) }}">Löschen</a>
+            <form method="post" action="{{ path('admin_content', {'id' : node.getId()}) }}">
+                <button  type="submit" name="action" value="delete">Löschen</button>
+            </form>
         {% else %}
             <p>Nichts ausgewählt!</p>
         {% endif %}
