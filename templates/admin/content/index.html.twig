@@ -4,15 +4,20 @@
 
 {% block stylesheets %}
     {{ parent() }}
+
     <style>
         .box {
             float: left;
-            padding: 20px;
-            background: #eee;
+            padding: 10px;
+            /*background: #eee; */
+            width: 45%;
             max-width: 700px;
-            min-width: 300px;
+            min-width: 240px;
         }
+    </style>
 
+    <!-- tree style -->
+    <style>
         .selected {
             background: #70a6fd;
         }
@@ -82,12 +87,40 @@
             display: block;
         }
     </style>
+
+    <!-- form style -->
+    <style>
+        div.form_section {
+            display: block;
+            border: 1px solid #ccc !important;
+            border-radius: 4px;
+            margin: 5px;
+            padding: 5px;
+            width: 90%;
+        }
+
+        div.form_section label {
+            display: block;
+            font-size: smaller;
+        }
+
+        div.form_section input, textarea {
+            width: 90%;
+            margin: 5px;
+            resize: none;
+        }
+
+        div.form_section textarea {
+            height: 300px;
+        }
+
+    </style>
 {% endblock %}
 
 {% block body %}
     <h1>Content Liste</h1>
 
-    <div class="box">
+    <div class="box" style="max-width: 400px">
         {% macro menu_links(nodes, d, id) %}
             {% for n in nodes %}
                 <li>
@@ -130,13 +163,16 @@
         {% if node is not null %}
             {% if form is not null %}
                 {{ form_start(form) }}
-                {{ form_widget(form) }}
-                <button type="submit" name="save">Speichern</button>
+                <div class="form_section">
+                    {{ form_row(form.name) }}
+                </div>
+                <div class="form_section">
+                    {{ form_rest(form) }}
+                </div>
+                <button type="submit">Speichern</button>
+                <button type="submit" name="action" value="delete">Löschen</button>
                 {{ form_end(form) }}
             {% endif %}
-            <form method="post" action="{{ path('admin_content', {'id' : node.getId()}) }}">
-                <button type="submit" name="action" value="delete">Löschen</button>
-            </form>
         {% else %}
             <p>Nichts ausgewählt!</p>
         {% endif %}

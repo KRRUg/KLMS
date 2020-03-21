@@ -41,42 +41,56 @@ class ContentController extends AbstractController
         return $form;
     }
 
+    /**
+     * @param NavigationNode|null $current
+     * @param Request $request
+     * @return int|null Returns null when no action to be done, the node id to redirect to or -1 to redirect without target.
+     */
     private function handleAction(?NavigationNode $current, Request $request)
     {
         $action = $request->get('action');
         $type = $request->get('type');
+
         if (empty($action) || empty($current))
-            return $current;
+            return null;
 
         switch (strtoupper($action)) {
             case 'UP':
                 $this->nav->moveNode($current, true);
-                return $current;
+                return $current->getId();
             case 'DOWN':
                 $this->nav->moveNode($current, false);
-                return $current;
+                return $current->getId();
             case 'DELETE':
                 $this->nav->removeNode($current);
-                return null;
+                return -1;
             case 'ADD':
-                return $this->nav->newNode($current, $type);
+                return $this->nav->newNode($current, $type)->getId();
+            default:
+                return $current->getId();
         }
     }
 
     /**
      * @Route("/content", name="content")
      */
-    public function index(Request $request,
-                          NavigationRepository $navigationRepository,
-                          ContentRepository $contentEntryRepository) {
+    public function index(Request $request, NavigationRepository $navigationRepository) {
 
         $id = $request->get('id');
 
         $current = null;
-        if ($id)
+        if ($id) {
             $current = $navigationRepository->find($id);
+        }
 
-        $current = $this->handleAction($current, $request);
+        $target = $this->handleAction($current, $request);
+        if (!empty($target)) {
+            return $this->redirectToRoute(
+                "admin_content",
+                $target < 0 ? [] : ['id' => $target]
+            );
+        }
+
         $form = $this->handleForm($current, $request);
 
         $navigationRepository->clear();
