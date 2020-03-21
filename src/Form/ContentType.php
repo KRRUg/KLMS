@@ -16,7 +16,6 @@ class ContentType extends AbstractType
             ->add('title')
             ->add('content')
         ;
-        $builder->add('save', SubmitType::class, ['label' => 'Speichern']);
     }
 
     public function configureOptions(OptionsResolver $resolver)

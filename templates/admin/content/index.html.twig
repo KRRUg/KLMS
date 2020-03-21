@@ -128,11 +128,14 @@
     </div>
     <div class="box" >
         {% if node is not null %}
-            {% if form is not empty %}
-                {{ form(form) }}
+            {% if form is not null %}
+                {{ form_start(form) }}
+                {{ form_widget(form) }}
+                <button type="submit" name="save">Speichern</button>
+                {{ form_end(form) }}
             {% endif %}
             <form method="post" action="{{ path('admin_content', {'id' : node.getId()}) }}">
-                <button  type="submit" name="action" value="delete">Löschen</button>
+                <button type="submit" name="action" value="delete">Löschen</button>
             </form>
         {% else %}
             <p>Nichts ausgewählt!</p>

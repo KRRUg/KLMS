@@ -2,19 +2,13 @@
 
 namespace App\Controller\Admin;
 
-use App\Entity\Content;
 use App\Entity\NavigationNode;
-use App\Entity\NavigationNodeContent;
-use App\Entity\NavigationNodeEmpty;
-use App\Entity\NavigationNodeGeneric;
-use App\Form\ContentType;
+use App\Form\NavigationNodeType;
 use App\Repository\ContentRepository;
 use App\Repository\NavigationRepository;
 use App\Service\NavService;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
+use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\Form\Extension\Core\Type\SubmitType;
-use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -22,8 +16,11 @@ class ContentController extends AbstractController
 {
     private $nav;
 
-    public function __construct(NavService $nav)
+    private $logger;
+
+    public function __construct(NavService $nav, LoggerInterface $logger)
     {
+        $this->logger = $logger;
         $this->nav = $nav;
     }
 
@@ -32,29 +29,15 @@ class ContentController extends AbstractController
         if (empty($current))
             return null;
 
-        $em = $this->getDoctrine()->getManager();
-        $form = null;
-        if ($current instanceof NavigationNodeContent) {
-            $form = $this->createForm(ContentType::class, $current->getContent());
-            $form->handleRequest($request);
-            if ($form->isSubmitted() && $form->isValid()) {
-                $content = $form->getData();
-                $em->persist($content);
-                $em->flush();
-            }
-        } else if ($current instanceof NavigationNodeGeneric) {
-            $defaultData = ['path' => $current->getPath()];
-            $form = $this->createFormBuilder($defaultData)
-                ->add('path', TextType::class)
-                ->add('save', SubmitType::class, ['label' => 'Speichern'])
-                ->getForm();
-            $form->handleRequest($request);
-            if ($form->isSubmitted() && $form->isValid()) {
-                $current->setPath($form->getData()['path']);
-                $em->persist($current);
-                $em->flush();
-            }
+        $form = $this->createForm(NavigationNodeType::class, $current);
+
+        $form->handleRequest($request);
+        if ($form->isSubmitted() && $form->isValid()) {
+            $em = $this->getDoctrine()->getManager();
+            $em->persist($form->getData());
+            $em->flush();
         }
+
         return $form;
     }
 
@@ -108,16 +91,5 @@ class ContentController extends AbstractController
             'node' => $current,
             'form' => $view
         ]);
-    }
-
-    /**
-     * @Route("/content/delete/{id}", name="content_delete")
-     * @ParamConverter()
-     */
-    public function delete(Content $content) {
-        $em = $this->getDoctrine()->getManager();
-        $em->remove($content);
-        $em->flush();
-        return $this->redirectToRoute("admin_content");
     }
 }
