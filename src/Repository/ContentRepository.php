@@ -19,6 +19,37 @@ class ContentRepository extends ServiceEntityRepository
         parent::__construct($registry, Content::class);
     }
 
+    /**
+     * @return Content[] Returns an array of Content objects that are active
+     * @throws \Exception
+     */
+    public function findActive()
+    {
+        return $this->createQueryBuilder('n')
+            ->andWhere('n.publishedTo >= :now')
+            ->andWhere('n.publishedFrom <= :now')
+            ->setParameter('now', new \DateTime('now'))
+            ->orderBy('n.publishedFrom')
+            ->getQuery()
+            ->getResult()
+        ;
+    }
+
+    /**
+     * @param $alias Alias to search for
+     * @return mixed
+     * @throws \Doctrine\ORM\NonUniqueResultException
+     */
+    public function findByAlias($alias)
+    {
+        return $this->createQueryBuilder('n')
+            ->andWhere('n.alias = :alias')
+            ->setParameter('alias', $alias)
+            ->getQuery()
+            ->getOneOrNullResult()
+            ;
+    }
+
     // /**
     //  * @return NewsEntry[] Returns an array of NewsEntry objects
     //  */

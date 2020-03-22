@@ -6,6 +6,7 @@
         "ext-ctype": "*",
         "ext-iconv": "*",
         "sensio/framework-extra-bundle": "^5.5",
+        "symfony/asset": "4.4.*",
         "symfony/console": "4.4.*",
         "symfony/debug-pack": "^1.0",
         "symfony/dotenv": "4.4.*",
@@ -18,8 +19,11 @@
         "symfony/twig-pack": "^1.0",
         "symfony/validator": "4.4.*",
         "symfony/webpack-encore-bundle": "^1.7"
+        "symfony/yaml": "4.4.*",
+        "vich/uploader-bundle": "^1.13"
     },
     "require-dev": {
+        "doctrine/doctrine-fixtures-bundle": "^3.3"
     },
     "config": {
         "preferred-install": {
