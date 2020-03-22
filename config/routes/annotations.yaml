@@ -1,5 +1,11 @@
-controllers:
-    resource: ../../src/Controller/
+site:
+    resource: ../../src/Controller/Site
+    type: annotation
+
+admin:
+    resource: ../../src/Controller/Admin
+    prefix: /admin
+    name_prefix: admin_
     type: annotation
 
 kernel:

@@ -1,0 +1,9 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}KLMS - Admin{% endblock %}
+
+{% block body %}
+    <h1>Admin</h1>
+    <a href="{{ path('admin_news') }}"> News </a><br/>
+    <a href="{{ path('admin_content') }}"> Content </a>
+{% endblock %}
