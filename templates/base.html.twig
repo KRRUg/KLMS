@@ -3,11 +3,20 @@
     <head>
         <meta charset="UTF-8">
         <title>{% block title %}Welcome!{% endblock %}</title>
-        {% block stylesheets %}{% endblock %}
+        {% block stylesheets %}
+            <style>
+                .nav-wrapper { background-color: red; padding: 0; }
+                .content-wrapper { display: block; margin: 1em auto; max-width: 1200px; width: 95%; font: 18px/1.5 sans-serif; }
+            </style>
+        {% endblock %}
     </head>
     <body>
-        {% block nav %}{% for naventry in nav.index() %}{{ naventry }}{% endfor %}{% endblock %}
+        <header class="nav-wrapper">
+            {% block nav %}{% include 'navigation.html.twig' %}{% endblock %}
+        </header><br/>
+        <main class="content-wrapper">
         {% block body %}{% endblock %}
+        </main>
         {% block javascripts %}{% endblock %}
     </body>
 </html>
