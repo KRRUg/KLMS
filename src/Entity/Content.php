@@ -4,8 +4,10 @@ namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
 
+// TODO add created user and last modified by user
+
 /**
- * @ORM\Entity(repositoryClass="ContentRepository")
+ * @ORM\Entity(repositoryClass="App\Repository\ContentRepository")
  * @ORM\HasLifecycleCallbacks
  */
 class Content
@@ -38,29 +40,20 @@ class Content
     private $created;
 
     /**
-     * @ORM\Column(type="boolean")
-     */
-    private $published;
-
-    /**
      * @ORM\Column(type="text", nullable=true)
      */
     private $description;
 
     /**
-     * @ORM\Column(type="datetime", nullable=true)
+     * @ORM\Column(type="string", length=255, nullable=true, unique=true)
      */
-    private $publishedFrom;
+    private $alias;
 
-    /**
-     * @ORM\Column(type="datetime", nullable=true)
-     */
-    private $publishedTo;
-
-    /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\ContentCategory", inversedBy="contents")
-     */
-    private $category;
+    public function __construct()
+    {
+        $this->title = '';
+        $this->content = '';
+    }
 
     public function getId(): ?int
     {
@@ -115,30 +108,6 @@ class Content
         return $this;
     }
 
-    /**
-     * @ORM\PrePersist()
-     * @ORM\PreUpdate()
-     */
-    public function updateModifiedDatetime() {
-        // update the modified time and creation time
-        $this->setLastModified(new \DateTime());
-        if ($this->getCreated() === null) {
-            $this->setCreated(new \DateTime());
-        }
-    }
-
-    public function getPublished(): ?bool
-    {
-        return $this->published;
-    }
-
-    public function setPublished(bool $published): self
-    {
-        $this->published = $published;
-
-        return $this;
-    }
-
     public function getDescription(): ?string
     {
         return $this->description;
@@ -151,39 +120,27 @@ class Content
         return $this;
     }
 
-    public function getPublishedFrom(): ?\DateTimeInterface
+    public function getAlias(): ?string
     {
-        return $this->publishedFrom;
+        return $this->alias;
     }
 
-    public function setPublishedFrom(?\DateTimeInterface $publishedFrom): self
+    public function setAlias(?string $alias): self
     {
-        $this->publishedFrom = $publishedFrom;
+        $this->alias = $alias;
 
         return $this;
     }
 
-    public function getPublishedTo(): ?\DateTimeInterface
-    {
-        return $this->publishedTo;
-    }
-
-    public function setPublishedTo(?\DateTimeInterface $publishedTo): self
-    {
-        $this->publishedTo = $publishedTo;
-
-        return $this;
-    }
-
-    public function getCategory(): ?ContentCategory
-    {
-        return $this->category;
-    }
-
-    public function setCategory(?ContentCategory $category): self
-    {
-        $this->category = $category;
-
-        return $this;
+    /**
+     * @ORM\PrePersist()
+     * @ORM\PreUpdate()
+     */
+    public function updateModifiedDatetime() {
+        // update the modified time and creation time
+        $this->setLastModified(new \DateTime());
+        if ($this->getCreated() === null) {
+            $this->setCreated(new \DateTime());
+        }
     }
 }

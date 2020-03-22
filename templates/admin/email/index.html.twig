@@ -1,0 +1,52 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Hello AdministrationController!{% endblock %}
+
+{% block body %}
+
+    <style xmlns="http://www.w3.org/1999/html">
+        .example-wrapper {
+            margin: 1em auto;
+            max-width: 800px;
+            width: 95%;
+            font: 18px/1.5 sans-serif;
+        }
+
+        .example-wrapper code {
+            background: #F5F5F5;
+            padding: 2px 6px;
+        }
+    </style>
+    {% include('admin/email/includes/menu.html.twig') %}
+    <div class="example-wrapper">
+        <h1>Template Übersicht! ✅</h1>
+
+        <table>
+            <tr>
+                <th>Name</th>
+                <th>Aktionen</th>
+            </tr>
+            {% for  template in templates %}
+                <tr>
+                    <td>     {{ template.name }}</td>
+                    <td><a href="{{ path('admin_email_show', {'id' : template.id}) }}"
+                           id="{{ template.id }}">anzeigen</a>
+                        | <a href="{{ path('admin_email_send', {'id' : template.id}) }}" id="{{ template.id }}">test</a>
+                        {% if template.isDeleteable %}
+                            | <a href="{{ path('admin_email_delete', {'id' : template.id}) }}" id="{{ template.id }}">löschen</a>
+                        {% endif %}
+                        {% if template.isEditable %}
+                            | <a href="{{ path('admin_email_edit', {'id' : template.id}) }}"
+                                 id="{{ template.id }}">edit</a>
+                        {% endif %}
+                        {% if  template.isPublished %}
+                            | <a href="{{ path('admin_email_testsending', {'id' : template.id}) }}"
+                                 id="{{ template.id }}">
+                            Neue Sendung</a>
+                        {% endif %}
+                    </td>
+                </tr>
+            {% endfor %}
+        </table>
+    </div>
+{% endblock %}

@@ -1,11 +1,6 @@
-#index:
-#    path: /
-#    controller: App\Controller\DefaultController::index
-
-admin:
-    prefix: /admin
-    name_prefix: admin_
-    resource: '../src/Controller/Admin'
+index:
+    path: /
+    controller: App\Controller\Site\NewsController::index
 
 logout:
     path: /logout

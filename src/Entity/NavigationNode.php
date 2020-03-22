@@ -2,14 +2,23 @@
 
 namespace App\Entity;
 
+use Doctrine\ORM\Mapping as ORM;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
-use Doctrine\ORM\Mapping as ORM;
 
 /**
- * @ORM\Entity(repositoryClass="App\Repository\NavigationNodeRepository")
+ * @ORM\Entity(repositoryClass="App\Repository\NavigationRepository")
+ * @ORM\Table(name="navigation")
+ * @ORM\InheritanceType("SINGLE_TABLE")
+ * @ORM\DiscriminatorColumn(name="type", type="string", length=25)
+ * @ORM\DiscriminatorMap({
+ *     "root" = "NavigationNodeRoot",
+ *     "empty" = "NavigationNodeEmpty",
+ *     "content" = "NavigationNodeContent",
+ *     "generic" = "NavigationNodeGeneric"
+ * })
  */
-class NavigationNode
+abstract class NavigationNode
 {
     /**
      * @ORM\Id()
@@ -24,29 +33,34 @@ class NavigationNode
     private $name;
 
     /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\NavigationNode", inversedBy="childNodes")
+     * @ORM\Column(type="integer", name="ord")
+     */
+    private $order;
+
+    /**
+     * @ORM\ManyToOne(targetEntity="App\Entity\NavigationNode", inversedBy="childNodes", fetch="EAGER")
      */
     private $parent;
 
     /**
-     * @ORM\OneToMany(targetEntity="App\Entity\NavigationNode", mappedBy="parent")
+     * @ORM\OneToMany(targetEntity="App\Entity\NavigationNode", mappedBy="parent", fetch="EAGER")
+     * @ORM\OrderBy({"order" = "ASC"})
      */
     private $childNodes;
-
-    /**
-     * @ORM\Column(type="string", length=50)
-     */
-    private $type;
-
-    /**
-     * @ORM\Column(type="integer")
-     */
-    private $targetId;
 
     public function __construct()
     {
         $this->childNodes = new ArrayCollection();
     }
+
+    public function __toString()
+    {
+        return $this->getName();
+    }
+
+    abstract public function getPath(): ?string;
+
+    abstract public function getType(): ?string;
 
     public function getId(): ?int
     {
@@ -61,6 +75,18 @@ class NavigationNode
     public function setName(string $name): self
     {
         $this->name = $name;
+
+        return $this;
+    }
+
+    public function getOrder(): int
+    {
+        return $this->order;
+    }
+
+    public function setOrder($order): self
+    {
+        $this->order = $order;
 
         return $this;
     }
@@ -107,28 +133,130 @@ class NavigationNode
 
         return $this;
     }
+}
+
+/**
+ * @ORM\Entity()
+ */
+class NavigationNodeRoot extends NavigationNode
+{
+    public function __construct()
+    {
+        parent::__construct();
+        $this->setParent(null);
+        $this->setName("KLMS");
+        $this->setOrder(0);
+    }
+
+    public function __toString()
+    {
+        return "";
+    }
+
+    public function getPath(): ?string
+    {
+        return null;
+    }
 
     public function getType(): ?string
     {
-        return $this->type;
+        return null;
+    }
+}
+
+/**
+ * @ORM\Entity()
+ */
+class NavigationNodeContent extends NavigationNode
+{
+    /**
+     * @ORM\OneToOne(targetEntity="App\Entity\Content", fetch="LAZY", cascade={"persist", "remove"})
+     * @ORM\JoinColumn(name="content_id", referencedColumnName="id")
+     * @var Content
+     */
+    private $content;
+
+    public function __construct()
+    {
+        parent::__construct();
+        $this->content = new Content();
+        $this->content->setTitle("");
     }
 
-    public function setType(string $type): self
+    /**
+     * @return Content
+     */
+    public function getContent(): Content
     {
-        $this->type = $type;
+        return $this->content;
+    }
+
+    /**
+     * @param Content $content
+     */
+    public function setContent(Content $content): void
+    {
+        $this->content = $content;
+    }
+
+    public function getPath(): ?string
+    {
+        return "/content/" . $this->content->getId();
+    }
+
+    public function getType(): ?string
+    {
+        return 'content';
+    }
+}
+
+/**
+ * @ORM\Entity()
+ */
+class NavigationNodeEmpty extends NavigationNode
+{
+    public function getPath(): ?string
+    {
+        return null;
+    }
+
+    public function getType(): ?string
+    {
+        return 'empty';
+    }
+}
+
+/**
+ * @ORM\Entity()
+ */
+class NavigationNodeGeneric extends NavigationNode
+{
+    /**
+     * @ORM\Column(type="string", length=50, nullable=false)
+     * @var string
+     */
+    private $path;
+
+    public function __construct()
+    {
+        parent::__construct();
+        $this->path = "/";
+    }
+
+    public function getPath(): ?string
+    {
+        return $this->path;
+    }
+
+    public function setPath(string $path): self
+    {
+        $this->path = $path;
 
         return $this;
     }
 
-    public function getTargetId(): ?int
+    public function getType(): ?string
     {
-        return $this->targetId;
-    }
-
-    public function setTargetId(int $targetId): self
-    {
-        $this->targetId = $targetId;
-
-        return $this;
+        return 'path';
     }
 }

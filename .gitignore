@@ -52,3 +52,18 @@
 /.web-server-pid
 
 .env.local
+/nbproject/
+.idea
+
+#Ignore NodeJS Modules
+/node_modules
+
+#Ignore already built Assets
+/public/build
+###> symfony/webpack-encore-bundle ###
+/node_modules/
+/public/build/
+npm-debug.log
+yarn-error.log
+###< symfony/webpack-encore-bundle ###
+public/images
