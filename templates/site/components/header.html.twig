@@ -24,6 +24,7 @@
                 </ul>
             </div>
         </nav>
+        Username: {{ app.user.username | default(" not logged in") }} <a href="/logout">logout</a>
                 {# ToDO: Nav dynamic by Makro recursion see #}
                 {% include 'navigation.html.twig' %}
     </div>

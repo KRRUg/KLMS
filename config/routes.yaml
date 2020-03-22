@@ -1,3 +1,7 @@
 index:
     path: /
     controller: App\Controller\Site\NewsController::index
+
+logout:
+    path: /logout
+    methods: GET
