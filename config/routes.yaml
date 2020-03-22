@@ -2,6 +2,10 @@ index:
     path: /
     controller: App\Controller\Site\NewsController::index
 
-logout:
+app_logout:
     path: /logout
     methods: GET
+
+app_login:
+    path: /login
+    controller: App\Controller\SecurityController::login
