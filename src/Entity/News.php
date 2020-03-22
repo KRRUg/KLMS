@@ -3,14 +3,19 @@
 namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\HttpFoundation\File\File;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
+use Vich\UploaderBundle\Entity\File as EmbeddedFile;
+use Vich\UploaderBundle\Mapping\Annotation as Vich;
 
 // TODO add created user and last modified by user
 
 /**
- * @ORM\Entity(repositoryClass="App\Repository\ContentRepository")
+ * @ORM\Entity(repositoryClass="App\Repository\NewsRepository")
  * @ORM\HasLifecycleCallbacks
+ * @Vich\Uploadable
  */
-class Content
+class News
 {
     /**
      * @ORM\Id()
@@ -45,14 +50,32 @@ class Content
     private $description;
 
     /**
-     * @ORM\Column(type="string", length=255, nullable=true, unique=true)
+     * @ORM\Column(type="datetime", nullable=true)
      */
-    private $alias;
+    private $publishedFrom;
+
+    /**
+     * @ORM\Column(type="datetime", nullable=true)
+     */
+    private $publishedTo;
+
+    /**
+     * @Vich\UploadableField(mapping="news", fileNameProperty="image.name", size="image.size", mimeType="image.mimeType", originalName="image.originalName", dimensions="image.dimensions")
+     *
+     * @var File|null
+     */
+    private $imageFile;
+
+    /**
+     * @ORM\Embedded(class="Vich\UploaderBundle\Entity\File")
+     *
+     * @var EmbeddedFile
+     */
+    private $image;
 
     public function __construct()
     {
-        $this->title = '';
-        $this->content = '';
+        $this->image = new EmbeddedFile();
     }
 
     public function getId(): ?int
@@ -108,6 +131,33 @@ class Content
         return $this;
     }
 
+    public function setImageFile(?File $imageFile = null): void
+    {
+        $this->imageFile = $imageFile;
+
+        if (null !== $imageFile) {
+            // It is required that at least one field changes if you are using doctrine
+            // otherwise the event listeners won't be called and the file is lost
+            $this->setLastModified(new \DateTime());
+        }
+    }
+
+    public function getImageFile(): ?File
+    {
+        return $this->imageFile;
+    }
+
+
+    public function setImage(EmbeddedFile $image): void
+    {
+        $this->image = $image;
+    }
+
+    public function getImage(): ?EmbeddedFile
+    {
+        return $this->image;
+    }
+
     public function getDescription(): ?string
     {
         return $this->description;
@@ -120,14 +170,26 @@ class Content
         return $this;
     }
 
-    public function getAlias(): ?string
+    public function getPublishedFrom(): ?\DateTimeInterface
     {
-        return $this->alias;
+        return $this->publishedFrom;
     }
 
-    public function setAlias(?string $alias): self
+    public function setPublishedFrom(?\DateTimeInterface $publishedFrom): self
     {
-        $this->alias = $alias;
+        $this->publishedFrom = $publishedFrom;
+
+        return $this;
+    }
+
+    public function getPublishedTo(): ?\DateTimeInterface
+    {
+        return $this->publishedTo;
+    }
+
+    public function setPublishedTo(?\DateTimeInterface $publishedTo): self
+    {
+        $this->publishedTo = $publishedTo;
 
         return $this;
     }
