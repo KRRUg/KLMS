@@ -1,0 +1,21 @@
+{% extends 'base.html.twig' %}
+{% block body %}
+
+    {% block topbar %}
+        {% include 'site/components/topBar.html.twig' %}
+    {% endblock %}
+    <header id="header" class="mb-5">
+        {% block header %}
+            {% include 'site/components/header.html.twig' %}
+        {% endblock %}
+    </header>
+
+    <main id="main">
+        {% block main %}{% endblock %}
+    </main>
+    <footer id="footer" class="bg-dark text-white">
+        {% block footer %}
+            {% include 'site/components/footer.html.twig' %}
+        {% endblock %}
+    </footer>
+{% endblock %}

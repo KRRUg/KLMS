@@ -1,8 +1,17 @@
-{% extends 'base.html.twig' %}
+{% extends 'site/siteBase.html.twig' %}
 
-{% block title %}KLMS{% endblock %}
+{% block title %}Neuigkeiten{% endblock %}
 
-{% block body %}
-    <h1>{{ content.title }}</h1>
-    <p>{{ content.content }}</p>
+{% block main %}
+<div class="container">
+    <div class="row">
+        <div class="row row-cols-1 row-cols-md-2">
+        {% for content in contents %}                
+            <div class="col mb-5">
+                {% include 'site/content/contentBlock.html.twig' with {'content': content} %}
+            </div>
+        {% endfor %}
+        </div>
+    </div>
+</div>
 {% endblock %}
