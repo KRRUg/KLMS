@@ -16,7 +16,7 @@
 
             <div class="collapse navbar-collapse" id="main-nav-content">
                 <ul class="navbar-nav mr-auto">
-                    {% for element in nav.index() %}
+                    {% for element in nav.getNav() %}
                         <li class="nav-item">
                             <a class="nav-link" href="#">{{ element }}</a>
                         </li>
@@ -24,5 +24,7 @@
                 </ul>
             </div>
         </nav>
+                {# ToDO: Nav dynamic by Makro recursion see #}
+                {% include 'navigation.html.twig' %}
     </div>
 {% endblock %}
