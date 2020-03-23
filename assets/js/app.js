@@ -13,3 +13,6 @@ require('@fortawesome/fontawesome-free/css/all.min.css');
 
 //Images
 require('../images/test_content_pic.jpg');
+require('../images/header_bg_big.jpg');
+require('../images/header_bg.jpg');
+require('../images/krru.png');

@@ -1,0 +1,13 @@
+<div class="card h-100">
+    <img src="{{ asset('build/images/test_content_pic.jpg') }}" class="card-img-top" alt="Bild des Inhaltes">
+    <div class="card-body">
+        <h2 class="card-title"><a href="{{ link }}">{{ content.title }}</a></h2>
+        <p class="card-subtitle mb-3 text-muted">
+            gepostet von KRRU, <i class="fas fa-clock"></i> {{ content.created | date("d.m.Y") }} </small>
+        </p>
+        <p class="card-text">
+            {{ content.content|raw }}
+        </p>
+        <a href="{{ link }}" class="card-link"> weiterlesen...</a>
+    </div>
+</div>

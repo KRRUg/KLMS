@@ -19,3 +19,7 @@ $container-max-widths: (
 ) !default;
 
 @import '../../../node_modules/bootstrap/scss/bootstrap.scss';
+
+header #head-content {
+    background-size: cover;
+}
