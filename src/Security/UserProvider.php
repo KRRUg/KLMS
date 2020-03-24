@@ -2,47 +2,20 @@
 
 namespace App\Security;
 
-use App\Repository\UserAdminsRepository;
-use App\Repository\UserGamerRepository;
-use App\Service\IdmService;
+use App\Service\UserService;
 use Symfony\Component\Security\Core\Exception\UnsupportedUserException;
 use Symfony\Component\Security\Core\Exception\UsernameNotFoundException;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Core\User\UserProviderInterface;
-use Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface;
-use Symfony\Contracts\HttpClient\Exception\DecodingExceptionInterface;
-use Symfony\Contracts\HttpClient\Exception\RedirectionExceptionInterface;
-use Symfony\Contracts\HttpClient\Exception\ServerExceptionInterface;
-use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
 
 
 class UserProvider implements UserProviderInterface
 {
-    private $ar;
-    private $gr;
-    private $idmService;
+    private $userService;
 
-    public function __construct(UserAdminsRepository $ar, UserGamerRepository $gr, IdmService $idmService)
+    public function __construct(UserService $userService)
     {
-        $this->ar = $ar;
-        $this->gr = $gr;
-        $this->idmService = $idmService;
-    }
-
-    private function loadUserRoles($userGuid)
-    {
-        $ret = [];
-        if ($this->ar->find($userGuid)) {
-            array_push($ret, "ROLE_ADMIN");
-        }
-        $gamer = $this->gr->find($userGuid);
-        if ($gamer) {
-            if ($gamer->getPayed()) {
-                array_push($ret, "ROLE_PAYED_USER");
-            }
-            // TODO check if user has seat,...
-        }
-        return $ret;
+        $this->userService = $userService;
     }
 
     /**
@@ -63,7 +36,7 @@ class UserProvider implements UserProviderInterface
         // The $username argument may not actually be a username:
         // it is whatever value is being returned by the getUsername()
         // method in your User class.
-        $user = $this->idmService->getUser($username);
+        $user = $this->userService->getUser($username);
         if (empty($user)) {
             throw new UsernameNotFoundException();
         }

@@ -4,6 +4,8 @@
 namespace App\Service;
 
 
+use App\Repository\UserAdminsRepository;
+use App\Repository\UserGamerRepository;
 use App\Security\User;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
@@ -14,13 +16,20 @@ use Symfony\Contracts\HttpClient\Exception\RedirectionExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\ServerExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
 
-class IdmService
+class UserService
 {
     private $logger;
     private $em;
+    private $ar;
+    private $gr;
 
-    public function __construct(EntityManagerInterface $em, LoggerInterface $logger)
+    public function __construct(UserAdminsRepository $ar,
+                                UserGamerRepository $gr,
+                                EntityManagerInterface $em,
+                                LoggerInterface $logger)
     {
+        $this->ar = $ar;
+        $this->gr = $gr;
         $this->em = $em;
         $this->logger = $logger;
     }
@@ -74,6 +83,7 @@ class IdmService
             if ($response->getStatusCode() === 404) {
                 return false;
             }
+            // TODO this call converts boolean to odd types (?int)
             return $response->toArray()['data'];
 
         } catch (ClientExceptionInterface $e) {
@@ -110,6 +120,33 @@ class IdmService
         }
     }
 
+    private function loadAdminRoles(User $user, bool $superAdmin = false)
+    {
+        $userGuid = $user->getUuid();
+        $roles = [];
+
+        // TODO extend admin table with roles
+        if ($superAdmin || $this->ar->find($userGuid)) {
+            array_push($roles, "ROLE_ADMIN");
+        }
+        $user->addRoles($roles);
+    }
+
+    private function loadUserRoles(User $user)
+    {
+        $userGuid = $user->getUuid();
+        $roles = [];
+
+        $gamer = $this->gr->find($userGuid);
+        if ($gamer) {
+            if ($gamer->getPayed()) {
+                array_push($roles, "ROLE_USER_PAYED");
+            }
+            // TODO check if user has seat,...
+        }
+        $user->addRoles($roles);
+    }
+
     /**
      * @param string $username
      * @return User|null
@@ -117,14 +154,16 @@ class IdmService
     public function getUser(string $username) : ?User
     {
         $result = $this->request('USERS', $username);
-
         if ($result === false) {
             return null;
         } else {
+            // TODO do deserialize
             $user = new User();
             $user->setUsername($result[0]['email']);
             $user->setUuid($result[0]['uuid']);
             $user->setClans([]);
+            $this->loadAdminRoles($user, $result[0]['isSuperadmin']);
+            $this->loadUserRoles($user);
             return $user;
         }
     }

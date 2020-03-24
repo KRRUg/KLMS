@@ -68,6 +68,13 @@ class User implements UserInterface
         return $this;
     }
 
+    public function addRoles(array $roles): self
+    {
+        $this->roles = array_merge($this->roles, $roles);
+
+        return $this;
+    }
+
     /**
      * @see UserInterface
      */
