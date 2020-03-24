@@ -2,6 +2,7 @@
 
 namespace App\Security;
 
+use App\Service\IdmService;
 use Symfony\Component\HttpClient\HttpClient;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -23,11 +24,13 @@ class LoginFormAuthenticator extends AbstractFormLoginAuthenticator
 
     private $urlGenerator;
     private $csrfTokenManager;
+    private $idmService;
 
-    public function __construct(UrlGeneratorInterface $urlGenerator, CsrfTokenManagerInterface $csrfTokenManager)
+    public function __construct(UrlGeneratorInterface $urlGenerator, CsrfTokenManagerInterface $csrfTokenManager, IdmService $idmService)
     {
         $this->urlGenerator = $urlGenerator;
         $this->csrfTokenManager = $csrfTokenManager;
+        $this->idmService = $idmService;
     }
 
     public function supports(Request $request)
@@ -74,30 +77,7 @@ class LoginFormAuthenticator extends AbstractFormLoginAuthenticator
     {
         // Check the user's password or other credentials and return true or false
         // If there are no credentials to check, you can just return true
-
-        $client = HttpClient::create();
-        $response = $client->request('POST', "{$_ENV['KLMS_IDM_URL']}/api/users/authorize", [
-            'headers' => [
-                'X-API-KEY' => $_ENV['KLMS_IDM_APIKEY'],
-            ],
-            'json' => [
-                'email' => $credentials['username'],
-                'password' => $credentials['password'],
-            ]
-        ]);
-
-        //TODO: improve ErrorHandling
-        $content = $response->toArray(false);
-
-        if ($response->getStatusCode() === 404) {
-            return false;
-        } elseif ($response->getStatusCode() === 200) {
-            if($content['data']['email'] === $credentials['username']) {
-                return true;
-            }
-        }
-
-        return false;
+        return $this->idmService->authenticate($credentials['username'], $credentials['password']);
     }
 
     public function onAuthenticationSuccess(Request $request, TokenInterface $token, $providerKey)
@@ -109,6 +89,7 @@ class LoginFormAuthenticator extends AbstractFormLoginAuthenticator
         if (in_array("ROLE_ADMIN", $token->getRoleNames())) {
             return new RedirectResponse("/admin");
         }
+
         return new RedirectResponse("/");
     }
 
