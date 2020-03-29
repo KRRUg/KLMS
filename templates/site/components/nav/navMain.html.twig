@@ -13,12 +13,11 @@
             <li class="dropdown-item">
                 <a class="" href="{% if node.path is not empty %}{{ node.path }}{% else %}#{% endif %}">{{ node.name }}</a>
             </li>
-            <a class="dropdown-item" href="{% if node.path is not empty %}{{ node.path }}{% else %}#{% endif %}">{{ node.name }}</a>
         {% endif %}
     {% endfor %}
 {% endmacro %}
 
-<nav id="main-nav" class="row navbar navbar-expand-lg navbar-dark bg-dark">
+<nav id="main-nav" class="row navbar navbar-expand-lg navbar-dark bg-dark mt-n4">
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#main-nav-content" aria-controls="main-nav-content" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
     </button>

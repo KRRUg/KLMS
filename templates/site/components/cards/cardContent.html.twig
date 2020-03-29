@@ -3,7 +3,7 @@
     <div class="card-body">
         <h2 class="card-title"><a href="{{ link }}">{{ content.title }}</a></h2>
         <p class="card-subtitle mb-3 text-muted">
-            gepostet von KRRU, <i class="fas fa-clock"></i> {{ content.created | date("d.m.Y") }} </small>
+            <small>gepostet von KRRU, <i class="fas fa-clock"></i>vor {{ content.created|  ago }} </small>
         </p>
         <p class="card-text">
             {{ content.content|raw }}

@@ -1,7 +1,10 @@
-{% block headerContent %}
-    <div id="head-content" class="p-5"  style="background-image: url({{ asset("build/images/header_bg.jpg") }})">
+<div class="head-wrap {{ css_prefix|default('') }}" class=""  style="background-image: url({{ asset("build/images/header_bg.jpg") }})">
+    <div class="head-content container">
+        <img class="logo mb-4" src="{{ asset("build/images/krru-white.png") }}" alt="KRRU Logo">
+        {% block headerContent %}
+        {% endblock %}
     </div>
-{% endblock %}
+</div>
 
 {% block nav %}
     <div class="container">

@@ -18,8 +18,28 @@ $container-max-widths: (
   xl: 1200px
 ) !default;
 
+$enable-rounded: false;
+$enable-shadows: true;
+
+$box-shadow-sm: 0 1.6px 3.6px 0 rgba($shadow-color,.132),0 .3px .9px 0 rgba($shadow-color,.108);
+$box-shadow:    0 3.2px 7.2px 0 rgba($shadow-color,.132),0 .6px 1.8px 0 rgba($shadow-color,.108);
+$box-shadow-lg: 0 6.4px 14.4px 0 rgba($shadow-color,.132),0 1.2px 3.6px 0 rgba($shadow-color,.108);
+$box-shadow-xl: 0 25.6px 57.6px 0 rgba($shadow-color,.22),0 4.8px 14.4px 0 rgba($shadow-color,.18);
+
 @import '../../../node_modules/bootstrap/scss/bootstrap.scss';
 
-header #head-content {
-    background-size: cover;
+@import 'header.scss';
+@import 'navigation.scss';
+
+footer {
+    box-shadow: $box-shadow;
+}
+
+.navbar {
+    box-shadow:  $box-shadow-sm;
+}
+
+.card {
+    box-shadow: $box-shadow-sm;
+    border:none;
 }

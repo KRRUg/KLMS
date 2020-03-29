@@ -1,18 +1,12 @@
 {% extends 'site/siteBase.html.twig' %}
 
-{% block title %}{{ content.title }}{% endblock %}
+{% block title %}KLMS - {{ content.title }}{% endblock %}
 
 {% block main %}
     <div class="container mb-5">
-        <div class="row">
-            <div class="card w-100">
-                <div class="card-body">
-                    <h1 class="card-title">{{ content.title }}</h1>
+                    <h1 >{{ content.title }}</h1>
                     <p class="card-text">
                         {{ content.content|raw }}
                     </p>
-                </div>
-            </div>
-        </div>
     </div>
 {% endblock %}

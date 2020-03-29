@@ -3,12 +3,18 @@
 {% block title %}KLMS - News{% endblock %}
 
 {% block header %}
-    {% include "site/components/header_big.html.twig" %}
+    {% embed 'site/components/header.html.twig' with {'css_prefix': 'startpage'}%}
+        {% block headerContent %}
+            {{ parent() }}
+            <h3>Verein "Kremsmünsterer Runde"</h3>
+            <p>Organisation von professionellen eSport Events und LAN-Partys seit 2003</p>
+        {% endblock %}
+    {% endembed %}
 {% endblock %}
 
 
 {% block main %}
-<div class="container">
+<div class="container pt-4">
     <div class="row">
         <div class="row row-cols-1 row-cols-md-2">
         {% for entry in news %}

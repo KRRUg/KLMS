@@ -3,16 +3,10 @@
 {% block title %}{{ content.title }}{% endblock %}
 
 {% block main %}
-<div class="container mb-5">
-        <div class="row">
-            <div class="card w-100">
-                <div class="card-body">
-                    <h1 class="card-title">{{ content.title }}</h1>
-                    <p class="card-text">
-                        {{ content.content|raw }}
-                    </p>
-                </div>
-            </div>
-        </div>
+    <div class="container mb-5">
+        <h1 class="mb-4">{{ content.title }}</h1>
+        <p class="card-text">
+            {{ content.content|raw }}
+        </p>
     </div>
 {% endblock %}
