@@ -1,9 +1,13 @@
 <div class="card h-100">
-    <img src="{{ asset('build/images/test_content_pic.jpg') }}" class="card-img-top" alt="Bild des Inhaltes">
+    {% if content.image.name is null %}
+        <img src="{{ asset('build/images/test_content_pic.jpg') }}" class="card-img-top" alt="Bild des Inhaltes">
+    {% else %}
+        <img src="{{ vich_uploader_asset(content, 'imageFile') }}" class="card-img-top"  alt="{{ content.title }}" />
+    {% endif %}
     <div class="card-body">
         <h2 class="card-title"><a href="{{ link }}">{{ content.title }}</a></h2>
         <p class="card-subtitle mb-3 text-muted">
-            <small>gepostet von KRRU, <i class="fas fa-clock"></i>vor {{ content.created|  ago }} </small>
+            <small>gepostet von KRRU, <i class="fas fa-clock"></i> vor {% if content.publishedFrom is null %}{{ content.created |  ago }}{% else %}{{ content.publishedFrom |  ago }}{% endif %} </small>
         </p>
         <p class="card-text">
             {{ content.content|raw }}

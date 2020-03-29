@@ -42,4 +42,10 @@ footer {
 .card {
     box-shadow: $box-shadow-sm;
     border:none;
+    
+    img {
+        max-width:100%;
+        height:15rem;
+        overflow:hidden;
+    }
 }
