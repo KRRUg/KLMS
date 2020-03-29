@@ -16,6 +16,11 @@
                 &:hover {
                     border-color:$primary;
                 }
+                
+                &:after {
+                    float:right;
+                    margin-top: (1 - $caret-width)/2;
+                }
             }
         }
     }
