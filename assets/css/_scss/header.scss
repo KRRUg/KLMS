@@ -1,0 +1,24 @@
+header {
+    .head-wrap {
+        display: flex;
+        background-size: cover;
+        background-position: center center;
+        background-repeat: no-repeat;
+        box-shadow: $box-shadow;
+        height:12rem;
+        
+        &.startpage {
+            height:23rem;
+        }
+        
+        .head-content {
+            text-align: center;
+            align-self: center;
+            color:$header-color;
+            
+            .logo {
+                max-height: 6rem;
+            }
+        }
+    }
+}
