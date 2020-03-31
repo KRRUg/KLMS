@@ -1,8 +1,18 @@
 <div id="top-bar" class="bg-dark text-white">
     <div class="container">
         <div class="row">
-            <div class="col">
-                Something, somthing dark...
+            <div class="col text-right">
+                <a class="btn btn-link" href="/admin">
+                    <i class="fas fa-cogs"></i> Admin
+                </a>
+                
+                {% if app.user.username is defined %}
+                    {{ app.user.username }} <a href="/logout">logout</a>
+                {% else %}
+                    <a class="btn btn-link" href="/login">
+                        <i class="fas fa-user-circle"></i> Anmelden
+                    </a>
+                {% endif %}
             </div>
         </div>
     </div>

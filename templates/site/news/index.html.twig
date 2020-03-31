@@ -1,14 +1,26 @@
-{% extends 'base.html.twig' %}
+{% extends 'site/siteBase.html.twig' %}
 
 {% block title %}KLMS - News{% endblock %}
 
-{% block body %}
-<h1>News</h1>
-{% for n in news %}
-    <div>
-        <h3>{{ n.title }}</h3>
-        <p>{{ n.content }}</p>
-        <a href="{{ path('news', {'id' : n.id}) }}"> mehr... </a>
+{% block header %}
+    {% embed 'site/components/header.html.twig' with {'css_prefix': 'startpage'}%}
+        {% block headerContent %}
+            {{ parent() }}
+            <h3>Verein "Kremsmünsterer Runde"</h3>
+            <p>Organisation von professionellen eSport Events und LAN-Partys seit 2003</p>
+        {% endblock %}
+    {% endembed %}
+{% endblock %}
+
+
+{% block main %}
+    <div class="container pt-4">
+        <div class="row row-cols-1 row-cols-md-2">
+            {% for entry in news %}
+                <div class="col mb-5">
+                    {% include 'site/components/cards/cardContent.html.twig' with {'content': entry, 'link': path('news', {'id' : entry.id})} %}
+                </div>
+            {% endfor %}
+        </div>
     </div>
-{% endfor %}
 {% endblock %}
