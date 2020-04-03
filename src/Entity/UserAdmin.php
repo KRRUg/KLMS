@@ -15,6 +15,11 @@ class UserAdmin
      */
     private $guid;
 
+    public function __construct(string $guid)
+    {
+        $this->guid = $guid;
+    }
+
     public function getId(): ?string
     {
         return $this->guid;

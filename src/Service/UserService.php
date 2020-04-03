@@ -4,6 +4,7 @@
 namespace App\Service;
 
 
+use App\Exception\UserServiceException;
 use App\Repository\UserAdminsRepository;
 use App\Repository\UserGamerRepository;
 use App\Security\User;
@@ -37,7 +38,8 @@ class UserService
     const METHOD = 0;
     const PATH = 1;
     const ENDPOINTS = [
-        'USERS' => [self::PATH => 'users',           self::METHOD => 'GET' ],
+        'USER'  => [self::PATH => 'users',           self::METHOD => 'GET' ],
+        'USERS' => [self::PATH => 'users/search',    self::METHOD => 'POST'],
         'AUTH'  => [self::PATH => 'users/authorize', self::METHOD => 'POST'],
     ];
 
@@ -68,6 +70,8 @@ class UserService
      * @param string|null $param REST url parameter
      * @param array $content The content of the request (will be encoded as JSON for the request)
      * @return bool|mixed Returns false on 404 or error, the data result otherwise
+     *
+     * @throws
      */
     private function request(string $endpoint, ?string $param = null, array $content = [])
     {
@@ -97,8 +101,7 @@ class UserService
             $this->logger->error('Connection to IDM failed (' . $e->getMessage() . ')');
         }
 
-        // TODO Decide whether to throw error in such cases.
-        return false;
+        throw new UserServiceException();
     }
 
     /**
@@ -147,24 +150,43 @@ class UserService
         $user->addRoles($roles);
     }
 
+    private function responseToUser(array $result) : ?User
+    {
+        // TODO do deserialize
+        $user = new User();
+        $user->setUsername($result['email']);
+        $user->setUuid($result['uuid']);
+        $user->setClans([]);
+        $this->loadAdminRoles($user, $result['isSuperadmin']);
+        $this->loadUserRoles($user);
+        return $user;
+    }
+
     /**
      * @param string $username
      * @return User|null
      */
     public function getUser(string $username) : ?User
     {
-        $result = $this->request('USERS', $username);
+        $result = $this->request('USER', $username);
         if ($result === false) {
             return null;
         } else {
-            // TODO do deserialize
-            $user = new User();
-            $user->setUsername($result[0]['email']);
-            $user->setUuid($result[0]['uuid']);
-            $user->setClans([]);
-            $this->loadAdminRoles($user, $result[0]['isSuperadmin']);
-            $this->loadUserRoles($user);
-            return $user;
+            return $this->responseToUser($result);
         }
+    }
+
+    /**
+     * @param array $uuids Ids to get user for.
+     * @return User[] Array of users.
+     */
+    public function getUserByUuid(array $uuids) : array
+    {
+        if (empty($uuids))
+            return [];
+
+        $result = $this->request('USERS', null, ["uuid" => $uuids]);
+        array_map(array($this, 'responseToUser'), $result);
+        return $result;
     }
 }

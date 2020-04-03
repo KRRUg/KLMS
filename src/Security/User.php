@@ -15,8 +15,6 @@ class User implements UserInterface
 
     private $roles = [];
 
-    // Add token for auth here
-
     public function getUuid(): ?string
     {
         return $this->uuid;
