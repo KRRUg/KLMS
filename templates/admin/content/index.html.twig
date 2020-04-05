@@ -1,6 +1,7 @@
-{% extends 'base.html.twig' %}
+{% extends 'admin/adminBase.html.twig' %}
 
-{% block title %}KLMS - Content{% endblock %}
+{% block title %}KLMS - Admin{% endblock %}
+{% block siteheading %}<i class="far fa-file-alt"></i> Content{% endblock %}
 
 {% block stylesheets %}
     {{ parent() }}
@@ -117,9 +118,7 @@
     </style>
 {% endblock %}
 
-{% block body %}
-    <h1>Content Liste</h1>
-
+{% block main %}
     <div class="box" style="max-width: 400px">
         {% macro menu_links(nodes, d, id) %}
             {% for n in nodes %}

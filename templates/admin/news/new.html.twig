@@ -1,9 +1,45 @@
-{% extends 'base.html.twig' %}
+{% extends 'admin/adminBase.html.twig' %}
 
-{% block title %}KLMS - News{% endblock %}
+{% block title %}KLMS - Admin{% endblock %}
+{% block siteheading %}<i class="far fa-newspaper"></i> News: Neue News{% endblock %}
+{% block main %}
+    {{ form_start(form) }}
+    {% if not form.vars.valid %}
+        <div class="alert alert-error">
+            {{ form_errors(form) }}
+        </div>
+    {% endif %}
 
-{% block body %}
-    <h1>Neue News</h1>
+    <div class="row">
+        <div class="col mb-4">
+            <div class="card">
+                <div class="card-body">
+                    {{ form_row(form.title) }}
+                </div>
+            </div>
+        </div>
+    </div>
 
-    {{ form(form) }}
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-body">
+                    {{ form_row(form.content, {'attr': {'class': 'wysiwyg'}}) }}
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    {{ form_row(form.publishedFrom) }}
+                    {{ form_row(form.publishedTo) }}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+    </div>
+    <hr>
+    {{ form_end(form) }}
 {% endblock %}

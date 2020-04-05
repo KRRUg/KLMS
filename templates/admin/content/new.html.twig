@@ -1,9 +1,7 @@
-{% extends 'base.html.twig' %}
+{% extends 'admin/adminBase.html.twig' %}
 
-{% block title %}KLMS - Content{% endblock %}
-
-{% block body %}
-    <h1>Content admin</h1>
-
+{% block title %}KLMS - Admin{% endblock %}
+{% block siteheading %}<i class="far fa-file-alt"></i> Content Neu{% endblock %}
+{% block main %}
     {{ form(form) }}
 {% endblock %}

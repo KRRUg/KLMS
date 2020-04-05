@@ -1,9 +1,24 @@
-{% extends 'base.html.twig' %}
+{% extends 'admin/adminBase.html.twig' %}
 
 {% block title %}KLMS - Admin{% endblock %}
-
-{% block body %}
-    <h1>Admin</h1>
-    <a href="{{ path('admin_news') }}"> News </a><br/>
-    <a href="{{ path('admin_content') }}"> Content </a>
+{% block siteheading %}<i class="fas fa-home"></i> Dashboard{% endblock %}
+{% block main %}
+    <div class="row">
+        <div class="col">
+            <a  href="{{ path('admin_news') }}" class="card">
+                <div class="card-body text-center">
+                    <h3><i class="far fa-newspaper"></i></h3>
+                    News 
+                </div>
+            </a>
+        </div>
+        <div class="col">
+            <a href="{{ path('admin_content') }}" class="card">
+                <div class="card-body text-center">
+                    <h3><i class="far fa-file-alt"></i></h3> 
+                    Content 
+                </div>
+            </a>
+        </div>
+    </div>
 {% endblock %}
