@@ -13,6 +13,3 @@ require('../css/_scss/bootstrap-krru.scss');
 require('@fortawesome/fontawesome-free/css/all.min.css');
 
 //Images
-require('../images/test_content_pic.jpg');
-require('../images/header_bg.jpg');
-require('../images/krru-white.png');
