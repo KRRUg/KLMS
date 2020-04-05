@@ -1,0 +1,35 @@
+{% extends 'base.html.twig' %}
+{% block body %}
+    <div class="container-fluid">
+        <header class="row bg-white shadow">
+            <div class="logo col-xl-2 col-md-3">
+                <a class="p-3 d-block text-body" href="/admin"><i class="fas fa-ethernet"></i> KLMS</a>
+            </div>
+            <div class="col-xl-10 col-md-9">
+                <nav class="navbar navbar-light shadow-none">
+                    <span class="navbar-brand mb-0 h1">{% block siteheading %}{% endblock %}</span>
+                </nav>
+            </div>
+        </header>
+        <div id="admin-wrap" class="row">
+            <div class="sidebar col-xl-2 col-md-3 py-3 shadow">
+                {% block sidenav %}
+                    {% include 'admin/components/sidenav.html.twig' %}
+                {% endblock %}
+            </div>
+            <main id="main" class="col-xl-10 col-md-9 pb-5">
+                <div id="topbar" class="row bg-dark text-white mb-3">
+                    {% block topbar %}
+                        {% include 'admin/components/topbar.html.twig' %}
+                    {% endblock %}
+                </div>
+                {% block main %}{% endblock %}
+            </main>
+        </div>
+    </div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    {{ encore_entry_script_tags('admin') }}
+{% endblock %}
