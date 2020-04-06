@@ -8,6 +8,8 @@ use App\Exception\UserServiceException;
 use App\Repository\UserAdminsRepository;
 use App\Repository\UserGamerRepository;
 use App\Security\User;
+use App\Security\UserInfo;
+use Doctrine\Common\Annotations\Annotation\Required;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpClient\HttpClient;
@@ -182,8 +184,9 @@ class UserService
     }
 
     /**
-     * @param string $username
-     * @return User|null
+     * Requests a full user object from IDM, only to be used if up-to-date data is required (e.g. for admin purpose).
+     * @param string $username Either email address of uuid of the user to search for.
+     * @return User|null The user object, if it exits, null otherwise.
      */
     public function getUser(string $username) : ?User
     {
@@ -196,15 +199,31 @@ class UserService
     }
 
     /**
+     * Returns all users that match a set of uuids. This function makes an IDM access, only to be used if up-to-date data is required (e.g. for admin purpose).
      * @param array $uuids Ids to get user for.
      * @return User[] Array of users.
      */
-    public function getUserByUuid(array $uuids) : array
+    public function getUsersByUuid(array $uuids) : ?array
     {
         if (empty($uuids))
             return [];
 
         $result = $this->request('USERS', null, ["uuid" => $uuids]);
-        return  $this->responseToUsers($result);
+        if ($result === false) {
+            return null;
+        } else {
+            return  $this->responseToUsers($result);
+        }
+    }
+
+    /**
+     * Returns all users that match a set of uuids. This function returns a cached UserInfo.
+     * @param array $uuids Ids to get user for.
+     * @return UserInfo[] Array of user infos.
+     */
+    public function getUsersInfoByUuid(array $uuids) : array
+    {
+        // TODO make a cache lookup here
+        return $this->getUsersByUuid($uuids);
     }
 }

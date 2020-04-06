@@ -96,10 +96,18 @@ class GamerService
         $this->em->flush();
     }
 
-    public function getGamerWithStatus()
+    public function getRegisteredGamer()
     {
         $gamer = $this->repo->findAll();
+        $gamer = array_filter($gamer, function (UserGamer $gamer) { return $gamer->hasRegistered(); });
         $gamer_guid = array_map(function (UserGamer $gamer) { return $gamer->getId(); }, $gamer);
-        return $this->userService->getUserByUuid($gamer_guid);
+        return $this->userService->getUsersByUuid($gamer_guid);
+    }
+
+    public function getRegisteredGamerWithStatus()
+    {
+        $gamer = $this->getRegisteredGamer();
+        $gamer = array_map(function (User $user) { return ['user' => $user, 'status' => $this->repo->findByUser($user)]; }, $gamer);
+        return $gamer;
     }
 }
