@@ -11,6 +11,12 @@ use App\Security\User;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpClient\HttpClient;
+use Symfony\Component\PropertyInfo\Extractor\ReflectionExtractor;
+use Symfony\Component\Serializer\Encoder\JsonEncoder;
+use Symfony\Component\Serializer\Normalizer\ArrayDenormalizer;
+use Symfony\Component\Serializer\Normalizer\DateTimeNormalizer;
+use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
+use Symfony\Component\Serializer\Serializer;
 use Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\DecodingExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\RedirectionExceptionInterface;
@@ -84,11 +90,12 @@ class UserService
                     'json' => $content,
                 ]
             );
+
             if ($response->getStatusCode() === 404) {
                 return false;
             }
-            // TODO this call converts boolean to odd types (?int)
-            return $response->toArray()['data'];
+
+            return $response->getContent();
 
         } catch (ClientExceptionInterface $e) {
             // 4xx return code (but 404 which is an expected)
@@ -119,17 +126,17 @@ class UserService
         if ($result === false) {
             return false;
         } else {
-            return $result['email'] === $email;
+            return true;
         }
     }
 
-    private function loadAdminRoles(User $user, bool $superAdmin = false)
+    private function loadAdminRoles(User $user)
     {
         $userGuid = $user->getUuid();
         $roles = [];
 
         // TODO extend admin table with roles
-        if ($superAdmin || $this->ar->find($userGuid)) {
+        if ($user->getIsSuperadmin() || $this->ar->find($userGuid)) {
             array_push($roles, "ROLE_ADMIN");
         }
         $user->addRoles($roles);
@@ -150,15 +157,27 @@ class UserService
         $user->addRoles($roles);
     }
 
-    private function responseToUser(array $result) : ?User
+    private function responseToUser(string $response) : User
     {
-        // TODO do deserialize
-        $user = new User();
-        $user->setUsername($result['email']);
-        $user->setUuid($result['uuid']);
-        $user->setClans([]);
-        $this->loadAdminRoles($user, $result['isSuperadmin']);
-        $this->loadUserRoles($user);
+        $users = $this->responseToUsers("[".$response."]");
+        if (count($users) != 1)
+            throw new UserServiceException("Invalid response.");
+        return $users[0];
+    }
+
+    private function responseToUsers(string $response) : array
+    {
+        $serializer = new Serializer([new ArrayDenormalizer(), new DateTimeNormalizer(), new ObjectNormalizer(null, null, null, new ReflectionExtractor() )], [new JsonEncoder()]);
+        try{
+            $user = $serializer->deserialize($response, User::class."[]", 'json');
+        } catch (\RuntimeException $e) {
+            throw new UserServiceException("Invalid response.", null, $e);
+        }
+
+        foreach ($user as $u) {
+            $this->loadUserRoles($u);
+            $this->loadAdminRoles($u);
+        }
         return $user;
     }
 
@@ -186,7 +205,6 @@ class UserService
             return [];
 
         $result = $this->request('USERS', null, ["uuid" => $uuids]);
-        array_map(array($this, 'responseToUser'), $result);
-        return $result;
+        return  $this->responseToUsers($result);
     }
 }
