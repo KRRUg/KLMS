@@ -2,48 +2,20 @@
 
 namespace App\Security;
 
-use App\Repository\UserAdminsRepository;
-use App\Repository\UserGamerRepository;
-use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Component\HttpClient\Exception\ClientException;
+use App\Service\UserService;
 use Symfony\Component\Security\Core\Exception\UnsupportedUserException;
 use Symfony\Component\Security\Core\Exception\UsernameNotFoundException;
-use Symfony\Component\Security\Core\User\PasswordUpgraderInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Core\User\UserProviderInterface;
-use Symfony\Component\HttpClient\HttpClient;
-use Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface;
-use Symfony\Contracts\HttpClient\Exception\DecodingExceptionInterface;
-use Symfony\Contracts\HttpClient\Exception\RedirectionExceptionInterface;
-use Symfony\Contracts\HttpClient\Exception\ServerExceptionInterface;
-use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
 
 
-class UserProvider implements UserProviderInterface, PasswordUpgraderInterface
+class UserProvider implements UserProviderInterface
 {
-    private $ar;
-    private $gr;
+    private $userService;
 
-    public function __construct(UserAdminsRepository $ar, UserGamerRepository $gr)
+    public function __construct(UserService $userService)
     {
-        $this->ar = $ar;
-        $this->gr = $gr;
-    }
-
-    private function loadUserRoles($userGuid)
-    {
-        $ret = [];
-        if ($this->ar->find($userGuid)) {
-            array_push($ret, "ROLE_ADMIN");
-        }
-        $gamer = $this->gr->find($userGuid);
-        if ($gamer) {
-            if ($gamer->getPayed()) {
-                array_push($ret, "ROLE_PAYED_USER");
-            }
-            // TODO check if user has seat,...
-        }
-        return $ret;
+        $this->userService = $userService;
     }
 
     /**
@@ -56,11 +28,7 @@ class UserProvider implements UserProviderInterface, PasswordUpgraderInterface
      * @param $username
      * @return UserInterface
      *
-     * @throws ClientExceptionInterface
-     * @throws DecodingExceptionInterface
-     * @throws RedirectionExceptionInterface
-     * @throws ServerExceptionInterface
-     * @throws TransportExceptionInterface
+     * @throws UsernameNotFoundException
      */
     public function loadUserByUsername($username)
     {
@@ -68,31 +36,11 @@ class UserProvider implements UserProviderInterface, PasswordUpgraderInterface
         // The $username argument may not actually be a username:
         // it is whatever value is being returned by the getUsername()
         // method in your User class.
-        $client = HttpClient::create();
-        $response = $client->request('GET', "{$_ENV['KLMS_IDM_URL']}/api/users/{$username}", [
-            'headers' => [
-                'X-API-KEY' => $_ENV['KLMS_IDM_APIKEY'],
-            ],
-        ]);
-
-        //TODO: improve ErrorHandling
-        try {
-            $content = $response->toArray();
-
-            if ($response->getStatusCode() == 200) {
-                $user = new User();
-                $user->setUsername($content['data'][0]['email']);
-                $user->setUuid($content['data'][0]['uuid']);
-                $user->setClans([]);
-
-                return $user;
-            } else {
-                throw new \Exception('Unexpected Error occurred!');
-            }
-
-        } catch (ClientException $exception) {
+        $user = $this->userService->getUser($username);
+        if (empty($user)) {
             throw new UsernameNotFoundException();
         }
+        return $user;
     }
 
     /**
@@ -126,15 +74,5 @@ class UserProvider implements UserProviderInterface, PasswordUpgraderInterface
     public function supportsClass($class)
     {
         return User::class === $class;
-    }
-
-    /**
-     * Upgrades the encoded password of a user, typically for using a better hash algorithm.
-     */
-    public function upgradePassword(UserInterface $user, string $newEncodedPassword): void
-    {
-        // TODO: when encoded passwords are in use, this method should:
-        // 1. persist the new password in the user storage
-        // 2. update the $user object with $user->setPassword($newEncodedPassword);
     }
 }

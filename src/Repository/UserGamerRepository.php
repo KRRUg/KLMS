@@ -3,8 +3,10 @@
 namespace App\Repository;
 
 use App\Entity\UserGamer;
+use App\Security\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Common\Persistence\ManagerRegistry;
+use Doctrine\ORM\NonUniqueResultException;
 
 /**
  * @method UserGamer|null find($id, $lockMode = null, $lockVersion = null)
@@ -19,32 +21,17 @@ class UserGamerRepository extends ServiceEntityRepository
         parent::__construct($registry, UserGamer::class);
     }
 
-    // /**
-    //  * @return UserGamer[] Returns an array of UserGamer objects
-    //  */
-    /*
-    public function findByExampleField($value)
+    public function findByUser(User $user)
     {
-        return $this->createQueryBuilder('u')
-            ->andWhere('u.exampleField = :val')
-            ->setParameter('val', $value)
-            ->orderBy('u.id', 'ASC')
-            ->setMaxResults(10)
-            ->getQuery()
-            ->getResult()
-        ;
+        try {
+            return $this->createQueryBuilder('u')
+                ->andWhere('u.guid = :uuid')
+                ->setParameter('uuid', $user->getUuid())
+                ->getQuery()
+                ->getOneOrNullResult();
+        } catch (NonUniqueResultException $e) {
+            // unreachable as we are selecting the primary key
+            return null;
+        }
     }
-    */
-
-    /*
-    public function findOneBySomeField($value): ?UserGamer
-    {
-        return $this->createQueryBuilder('u')
-            ->andWhere('u.exampleField = :val')
-            ->setParameter('val', $value)
-            ->getQuery()
-            ->getOneOrNullResult()
-        ;
-    }
-    */
 }
