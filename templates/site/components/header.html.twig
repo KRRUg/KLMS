@@ -1,31 +1,13 @@
-{% block headerContent %}
-    <div class="jumbotron jumbotron-fluid">
-        <div class="container">
-            <h1 class="display-4">Welcome!</h1>
-            <p class="lead">Come to the dark side - We have cookies.</p>
-        </div>
+<div class="head-wrap {{ css_prefix|default('') }}" class=""  style="background-image: url({{ asset("build/images/header.jpg") }})">
+    <div class="head-content container">
+        <img class="logo mb-4" src="{{ asset("build/images/logo-white.png") }}" alt="KRRU Logo">
+        {% block headerContent %}
+        {% endblock %}
     </div>
-{% endblock %}
+</div>
 
 {% block nav %}
     <div class="container">
-        <nav id="main-nav" class="row navbar navbar-expand-lg navbar-dark bg-dark">
-            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#main-nav-content" aria-controls="main-nav-content" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-
-            <div class="collapse navbar-collapse" id="main-nav-content">
-                <ul class="navbar-nav mr-auto">
-                    {% for element in nav.getNav() %}
-                        <li class="nav-item">
-                            <a class="nav-link" href="#">{{ element }}</a>
-                        </li>
-                    {% endfor %}
-                </ul>
-            </div>
-        </nav>
-        Username: {{ app.user.username | default(" not logged in") }} <a href="/logout">logout</a>
-                {# ToDO: Nav dynamic by Makro recursion see #}
-                {% include 'navigation.html.twig' %}
+        {%  include 'site/components/nav/navMain.html.twig' %}
     </div>
 {% endblock %}

@@ -1,18 +1,40 @@
-{% extends 'base.html.twig' %}
+{% extends 'admin/adminBase.html.twig' %}
 
-{% block title %}KLMS - News{% endblock %}
-
-{% block body %}
-    <h1>News Liste</h1>
-
-    <ul>
-        {% for newsentry in news %}
-        <li>
-            {{ newsentry.title }}: {{ newsentry.content }} :
-            <a href="{{ path('admin_news_edit', {'id' : newsentry.id}) }}"> bearbeiten </a>
-            <a href="{{ path('admin_news_delete', {'id' : newsentry.id}) }}">loeschen</a>
-        </li>
-        {% endfor %}
-    </ul>
-    <a href="{{ path('admin_news_new') }}">neu</a>
+{% block title %}KLMS - Admin{% endblock %}
+{% block siteheading %}<i class="far fa-newspaper"></i> News{% endblock %}
+{% block main %}
+    <div class="row mb-4">
+        <div class="col-12">
+            <a class="btn btn-success" href="{{ path('admin_news_new') }}"><i class="fas fa-plus"></i> Anlegen</a>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th></th>
+                            <th>Titel</th>
+                            <th>Options</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for newsentry in news %}
+                            <tr>
+                                <td><input type="checkbox"/></td>
+                                <td>
+                                    <a href="{{ path('admin_news_edit', {'id' : newsentry.id}) }}" title="Bearbeiten {{ newsentry.title }}"> {{ newsentry.title }}</a><br>
+                                    <small class="text-muted">{{ newsentry.content }}</small>
+                                </td>
+                                <td>
+                                    <a class="btn btn-outline-dark" href="{{ path('admin_news_delete', {'id' : newsentry.id}) }}" title="Löschen {{ newsentry.title }}"><i class="fas fa-trash-alt"></i></a>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
 {% endblock %}

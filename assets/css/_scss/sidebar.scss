@@ -1,0 +1,29 @@
+.sidebar {
+    position: relative;
+    top: 0;
+    z-index: 1000;
+    background-color: $dark;
+    box-shadow: $box-shadow;
+    overflow: hidden;
+
+    @media (min-width: map-get($grid-breakpoints, md)) {
+        transition: all .3s ease;
+        min-height:calc(100vh - 3.5rem);
+        padding: 1rem 0;
+    }
+
+    .nav.flex-column {
+        .nav-item {
+            border-bottom: 1px solid $black;
+            
+            
+            .nav-link {
+                padding: .75rem 0;
+                
+                i {
+                    padding:0 1rem;
+                }
+            }
+        }
+    }
+}
