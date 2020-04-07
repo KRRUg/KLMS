@@ -56,6 +56,11 @@ class EMailTemplate
      */
     private $emailSending;
 
+    /**
+     * @ORM\Column(type="string", length=255)
+     */
+    private $DesignFile;
+
 
     public function __construct()
     {
@@ -195,6 +200,18 @@ class EMailTemplate
         if ($emailSending->getTemplate() !== $newTemplate) {
             $emailSending->setTemplate($newTemplate);
         }
+
+        return $this;
+    }
+
+    public function getDesignFile(): ?string
+    {
+        return $this->DesignFile;
+    }
+
+    public function setDesignFile(string $DesignFile): self
+    {
+        $this->DesignFile = $DesignFile;
 
         return $this;
     }

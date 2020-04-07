@@ -159,7 +159,7 @@ class EMailService
     }
 
     //TODO: private machen!
-    public function addRecipient($user = null) // TODO: Dann mal mit echten UserDaten füllen
+    public function addRecipient(User $user) // TODO: Dann mal mit echten UserDaten füllen
     {
         if ($user == null) {
             $recipient = $this->generateTestRecipient();
@@ -189,17 +189,6 @@ class EMailService
     /*
      * Sending methods
      */
-    //DEPRECATED: sendAll
-    //TODO Prüfen ob noch gebraucht wird
-    public function sendAll(EMailTemplate $template) //
-    {
-        if (count($this->recipients) <= 0) {
-            throw new \Exception("Recipient list is empty! ");
-        }
-        foreach ($this->recipients as $recipient) {
-            $this->sendEMail($template, $recipient);
-        }
-    }
 
     public function sendEmailTasks($limit = null)
     {

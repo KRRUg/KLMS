@@ -24,7 +24,7 @@ class EMailController extends AbstractController
 {
 
     /**
-     * @Route("/admin/email/", name="admin_email")
+     * @Route("/email/", name="email")
      * @param EMailTemplateRepository $repository
      * @return Response
      */
@@ -37,7 +37,7 @@ class EMailController extends AbstractController
     }
 
     /**
-     * @Route("/admin/email/sendings", name="admin_email_sendings")
+     * @Route("/email/sendings", name="email_sendings")
      * @param EMailSendingRepository $repository
      * @return Response
      */
@@ -50,7 +50,7 @@ class EMailController extends AbstractController
     }
 
     /**
-     * @Route("/admin/email/new", name="admin_email_new")
+     * @Route("/email/new", name="email_new")
      * @param Request $request
      * @return RedirectResponse|Response
      */
@@ -70,7 +70,7 @@ class EMailController extends AbstractController
     }
 
     /**
-     * @Route("/admin/email/testsending/{id}", name="admin_email_testsending")
+     * @Route("/email/testsending/{id}", name="email_testsending")
      * @param EMailTemplate $template
      * @param EMailService $mailService
      * @param Request $request
@@ -92,7 +92,7 @@ class EMailController extends AbstractController
     }
 
     /**
-     * @Route("/admin/email/{id}", name="admin_email_show")
+     * @Route("/email/{id}", name="email_show")
      * @param EMailTemplate $template
      * @param EMailService $mailService
      * @return Response
@@ -104,13 +104,14 @@ class EMailController extends AbstractController
     }
 
     /**
-     * @Route("/admin/email/send/{id}", name="admin_email_send")
+     * @Route("/email/send/{id}", name="email_send")
      * @param EMailTemplate $template
      * @param EMailService $mailService
      * @return Response
      */
     public function send(EMailTemplate $template, EMailService $mailService)
     {
+
         $recipient = new EMailRecipient(1, 'Andi', 'mrandibilbao@gmail.com');
         $mailService->sendSingleEmail($template, $recipient);
         return $this->render('admin/email/show.html.twig', [
@@ -121,7 +122,7 @@ class EMailController extends AbstractController
 
 
     /**
-     * @Route("/admin/email/edit/{id}", name="admin_email_edit")
+     * @Route("/email/edit/{id}", name="email_edit")
      * @param EMailTemplate $template
      * @param Request $request
      * @return RedirectResponse|Response
@@ -147,7 +148,7 @@ class EMailController extends AbstractController
     }
 
     /**
-     * @Route("/admin/email/template/delete/{id}", name="admin_email_delete")
+     * @Route("/email/template/delete/{id}", name="email_delete")
      * @param EMailTemplate $template
      * @param EMailService $mailService
      * @return RedirectResponse
@@ -159,7 +160,7 @@ class EMailController extends AbstractController
     }
 
     /**
-     * @Route("/admin/email/sending/delete/{id}", name="admin_email_sending_delete")
+     * @Route("/email/sending/delete/{id}", name="email_sending_delete")
      * @param EmailSending $sending
      * @param EMailService $mailService
      * @return RedirectResponse
@@ -172,7 +173,7 @@ class EMailController extends AbstractController
 
 
     /**
-     * @Route("/admin/email/massSendingTest/do", name="admin_email_masssendingtest")
+     * @Route("/email/massSendingTest/do", name="email_masssendingtest")
      * @param EMailService $mailService
      * @return RedirectResponse
      */
@@ -184,7 +185,7 @@ class EMailController extends AbstractController
     }
 
     /**
-     * @Route("/admin/email/applicationhook/test", name="admin_email_applicationhook_test")
+     * @Route("/email/applicationhook/test", name="email_applicationhook_test")
      * @param EMailService $mailService
      * @return RedirectResponse
      */
@@ -196,7 +197,7 @@ class EMailController extends AbstractController
     }
 
     /**
-     * @Route("/admin/email/methodcall/test", name="admin_email_methodcall_test")
+     * @Route("/email/methodcall/test", name="email_methodcall_test")
      * @param EMailService $mailService
      */
     public function methodCallTest(EMailService $mailService)
