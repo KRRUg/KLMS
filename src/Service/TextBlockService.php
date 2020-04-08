@@ -15,9 +15,7 @@ class TextBlockService
     ///////////////////////////////////////////////
     const TEXT_BLOCK_KEYS = [
         "AGB" => "AGB",
-        "ABOUT" => "About",
-        "BOTTOM_LEFT" => "Homepage links unten",
-        "BOTTOM_RIGHT" => "Homepage rechts unten",
+        "ABOUT_US" => "Über uns, homepage links unten",
         // extend here
     ];
 

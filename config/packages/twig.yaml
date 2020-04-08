@@ -6,3 +6,4 @@ twig:
     form_themes: ['bootstrap_4_layout.html.twig']
     globals:
         nav: '@App\Service\NavService'
+        textblock: '@App\Service\TextBlockService'
