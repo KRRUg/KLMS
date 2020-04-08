@@ -9,11 +9,11 @@ use App\Repository\UserAdminsRepository;
 use App\Repository\UserGamerRepository;
 use App\Security\User;
 use App\Security\UserInfo;
-use Doctrine\Common\Annotations\Annotation\Required;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpClient\HttpClient;
 use Symfony\Component\PropertyInfo\Extractor\ReflectionExtractor;
+use Symfony\Component\Security\Core\Security;
 use Symfony\Component\Serializer\Encoder\JsonEncoder;
 use Symfony\Component\Serializer\Normalizer\ArrayDenormalizer;
 use Symfony\Component\Serializer\Normalizer\DateTimeNormalizer;
@@ -25,14 +25,16 @@ use Symfony\Contracts\HttpClient\Exception\RedirectionExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\ServerExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
 
-class UserService
+final class UserService
 {
     private $logger;
+    private $security;
     private $em;
     private $ar;
     private $gr;
 
-    public function __construct(UserAdminsRepository $ar,
+    public function __construct(Security $security,
+                                UserAdminsRepository $ar,
                                 UserGamerRepository $gr,
                                 EntityManagerInterface $em,
                                 LoggerInterface $logger)
@@ -40,6 +42,7 @@ class UserService
         $this->ar = $ar;
         $this->gr = $gr;
         $this->em = $em;
+        $this->security = $security;
         $this->logger = $logger;
     }
 
@@ -111,6 +114,15 @@ class UserService
         }
 
         throw new UserServiceException();
+    }
+
+    public function getCurrentUser(): User
+    {
+        $user = $this->security->getUser();
+        if (empty($user) || !($user instanceof User))
+            return null;
+
+        return $user;
     }
 
     /**

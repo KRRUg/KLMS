@@ -3,7 +3,7 @@
 namespace App\Repository;
 
 use App\Entity\UserAdmin;
-use App\Security\User;
+use App\Security\UserInfo;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Common\Persistence\ManagerRegistry;
 use Doctrine\ORM\NonUniqueResultException;
@@ -21,7 +21,7 @@ class UserAdminsRepository extends ServiceEntityRepository
         parent::__construct($registry, UserAdmin::class);
     }
 
-    public function findByUser(User $user) : ?UserAdmin
+    public function findByUser(UserInfo $user) : ?UserAdmin
     {
         try {
             return $this->createQueryBuilder('u')
