@@ -5,4 +5,7 @@
   <li class="nav-item">
     <a class="nav-link {% if app.request.get('_route') == 'admin_content' %}active{% endif %}" href="{{ path('admin_content') }}"><i class="far fa-file-alt"></i> Content </a>
   </li>
+  <li class="nav-item">
+    <a class="nav-link {% if app.request.get('_route') == 'admin_textblock' %}active{% endif %}" href="{{ path('admin_textblock') }}"><i class="far fa-file-alt"></i> Textblöcke </a>
+  </li>
 </ul>
