@@ -54,7 +54,6 @@
 .env.local
 /nbproject/
 .idea
-.php_cs.cache
 
 #Ignore NodeJS Modules
 /node_modules
