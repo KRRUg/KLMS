@@ -1,0 +1,37 @@
+{% extends 'admin/adminBase.html.twig' %}
+
+{% block title %}KLMS - Admin{% endblock %}
+{% block siteheading %}<i class="far fa-file-alt"></i> Textblöcke{% endblock %}
+{% block main %}
+    {{ form_start(form) }}
+    {% if not form.vars.valid %}
+        <div class="alert alert-error">
+            {{ form_errors(form) }}
+        </div>
+    {% endif %}
+
+    <div class="row">
+        <div class="col mb-4">
+            <div class="card">
+                <div class="card-body">
+                    Textblock <span class="text-primary">{{ key }}</span><br/>
+                    <small class="text-muted">{{ desc }}</small>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col mb-4">
+            <div class="card">
+                <div class="card-body">
+                    {{ form_row(form.text, {'attr': {'class': 'wysiwyg'}}) }}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+    </div>
+    <hr>
+    {{ form_end(form) }}
+{% endblock %}
