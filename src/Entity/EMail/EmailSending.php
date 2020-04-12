@@ -11,7 +11,7 @@ use Symfony\Component\Validator\Constraints\DateTime;
 /**
  * @property ArrayCollection emailSendingTasks
  * @property ArrayCollection Recipient
- * @ORM\Entity(repositoryClass="App\Repository\Admin\EMail\EMailSendingRepository")
+ * @ORM\Entity(repositoryClass="App\Repository\EMail\EMailSendingRepository")
  * @ORM\HasLifecycleCallbacks
  */
 class EmailSending
@@ -44,7 +44,7 @@ class EmailSending
 
 
     /**
-     * @ORM\OneToMany(targetEntity="App\Entity\Admin\EMail\EmailSendingTask", mappedBy="emailSending")
+     * @ORM\OneToMany(targetEntity="App\Entity\EMail\EmailSendingTask", mappedBy="emailSending")
      */
     private $EMailSendingTask;
 
@@ -54,7 +54,7 @@ class EmailSending
     private $sent;
 
     /**
-     * @ORM\OneToOne(targetEntity="App\Entity\Admin\EMail\EMailTemplate", inversedBy="emailSending", cascade={"persist", "remove"})
+     * @ORM\OneToOne(targetEntity="App\Entity\EMail\EMailTemplate", inversedBy="emailSending", cascade={"persist", "remove"})
      */
     private $template;
 

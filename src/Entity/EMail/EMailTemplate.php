@@ -9,7 +9,7 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * @ORM\Entity(repositoryClass="App\Repository\Admin\EMail\EMailTemplateRepository")
+ * @ORM\Entity(repositoryClass="App\Repository\EMail\EMailTemplateRepository")
  * @ORM\HasLifecycleCallbacks
  */
 class EMailTemplate
@@ -52,7 +52,7 @@ class EMailTemplate
     private $body = '';
 
     /**
-     * @ORM\OneToOne(targetEntity="App\Entity\Admin\EMail\EmailSending", mappedBy="template", cascade={"persist", "remove"})
+     * @ORM\OneToOne(targetEntity="App\Entity\EMail\EmailSending", mappedBy="template", cascade={"persist", "remove"})
      */
     private $emailSending;
 

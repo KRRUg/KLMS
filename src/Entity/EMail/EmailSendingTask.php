@@ -8,7 +8,7 @@ use DateTimeInterface;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * @ORM\Entity(repositoryClass="App\Repository\Admin\EMail\EmailSendingTaskRepository")
+ * @ORM\Entity(repositoryClass="App\Repository\EMail\EmailSendingTaskRepository")
  * @ORM\HasLifecycleCallbacks
  */
 class EmailSendingTask
@@ -55,7 +55,7 @@ class EmailSendingTask
     private $sent;
 
     /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\Admin\EMail\EmailSending", inversedBy="EMailSendingTask")
+     * @ORM\ManyToOne(targetEntity="App\Entity\EMail\EmailSending", inversedBy="EMailSendingTask")
      * @ORM\JoinColumn(nullable=false)
      */
     private $emailSending;
