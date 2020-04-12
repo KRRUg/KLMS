@@ -2,13 +2,13 @@
 
 namespace App\Controller\Admin;
 
-use App\Entity\Admin\EMail\EmailSending;
-use App\Entity\Admin\EMail\EMailTemplate;
+use App\Entity\EMail\EmailSending;
+use App\Entity\EMail\EMailTemplate;
 use App\Entity\HelperEntities\EMailRecipient;
 use App\Form\EMailSendingType;
 use App\Form\EmailTemplateType;
-use App\Repository\Admin\EMail\EMailSendingRepository;
-use App\Repository\Admin\EMail\EMailTemplateRepository;
+use App\Repository\EMail\EMailSendingRepository;
+use App\Repository\EMail\EMailTemplateRepository;
 use App\Service\EMailService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -207,6 +207,16 @@ class EMailController extends AbstractController
         $testData = $testRecipient->{$methodName}();
         //$testData = call_user_func([$testRecipient, 'generateTestLinkHash']);
         dd($testData);
+    }
+
+    /**
+     * @Route("email/design/test",name="email_design_test")
+     * @return Response
+     */
+    public function EMailDesignTest()
+    {
+        return $this->render('email/REGISTRATION_CONFIRMATION.html.twig');
+
     }
 
 }
