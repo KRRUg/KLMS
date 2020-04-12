@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Repository\Admin\EMail;
+namespace App\Repository\EMail;
 
-use App\Entity\Admin\EMail\EMailTemplate;
+use App\Entity\EMail\EMailTemplate;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Common\Persistence\ManagerRegistry;
 

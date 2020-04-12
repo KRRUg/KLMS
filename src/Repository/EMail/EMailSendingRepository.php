@@ -1,26 +1,26 @@
 <?php
 
-namespace App\Repository\Admin\EMail;
+namespace App\Repository\EMail;
 
-use App\Entity\Admin\EMail\EmailSendingTask;
+use App\Entity\EMail\EmailSending;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Common\Persistence\ManagerRegistry;
 
 /**
- * @method EmailSendingTask|null find($id, $lockMode = null, $lockVersion = null)
- * @method EmailSendingTask|null findOneBy(array $criteria, array $orderBy = null)
- * @method EmailSendingTask[]    findAll()
- * @method EmailSendingTask[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
+ * @method EmailSending|null find($id, $lockMode = null, $lockVersion = null)
+ * @method EmailSending|null findOneBy(array $criteria, array $orderBy = null)
+ * @method EmailSending[]    findAll()
+ * @method EmailSending[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  */
-class EmailSendingTaskRepository extends ServiceEntityRepository
+class EMailSendingRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
     {
-        parent::__construct($registry, EmailSendingTask::class);
+        parent::__construct($registry, EmailSending::class);
     }
 
     // /**
-    //  * @return EmailSendingRecipient[] Returns an array of EmailSendingRecipient objects
+    //  * @return emailQueue[] Returns an array of emailQueue objects
     //  */
     /*
     public function findByExampleField($value)
@@ -37,7 +37,7 @@ class EmailSendingTaskRepository extends ServiceEntityRepository
     */
 
     /*
-    public function findOneBySomeField($value): ?EmailSendingRecipient
+    public function findOneBySomeField($value): ?emailQueue
     {
         return $this->createQueryBuilder('e')
             ->andWhere('e.exampleField = :val')

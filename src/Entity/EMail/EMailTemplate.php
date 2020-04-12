@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Entity\Admin\EMail;
+namespace App\Entity\EMail;
 
 use DateTime;
 use DateTimeInterface;

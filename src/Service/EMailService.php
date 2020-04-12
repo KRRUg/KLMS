@@ -4,17 +4,18 @@
 namespace App\Service;
 
 
-use App\Entity\Admin\EMail\EmailSending;
-use App\Entity\Admin\EMail\EmailSendingTask;
-use App\Entity\Admin\EMail\EMailTemplate;
+use App\Entity\EMail\EmailSending;
+use App\Entity\EMail\EmailSendingTask;
+use App\Entity\EMail\EMailTemplate;
 use App\Entity\HelperEntities\EMailRecipient;
-use App\Repository\Admin\EMail\EmailSendingTaskRepository;
-use App\Repository\Admin\EMail\EMailSendingRepository;
+use App\Repository\EMail\EmailSendingTaskRepository;
+use App\Repository\EMail\EMailSendingRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Mime\Address;
 use Symfony\Component\Mime\Email;
+use App\Security\User;
 
 /**
  * Class EMailService
@@ -165,7 +166,7 @@ class EMailService
             $recipient = $this->generateTestRecipient();
             $this->isInTestMode = true;
         } else {
-            $recipient = new EMailRecipient($user->id, $user->name, $user->email);
+            $recipient = new EMailRecipient($user->getUuid(), $user->getUsername(), $user->getEmail());
         }
         array_push($this->recipients, $recipient);
     }
