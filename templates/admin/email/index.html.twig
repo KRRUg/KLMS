@@ -45,7 +45,8 @@
 
                                 {% if template.applicationHooked %}
                                     <span class="fa fa-exclamation-triangle" style="color: red">
-                                    </span> ApplicationHook! {{ template.applicationHook | upper }}
+                                    </span> ApplicationHook!<br>
+                                    {{ template.applicationHook | upper }}
                                 {% endif %}
                                 {% if not template.isPublished %}
                                     <br>
