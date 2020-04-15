@@ -7,6 +7,7 @@ namespace App\Service;
 use App\Entity\EMail\EmailSendingTask;
 use App\Entity\EMail\EMailTemplate;
 use App\Entity\EMail\EMailRecipient;
+use App\Exception\EMailServiceException;
 use App\Repository\EMail\EmailSendingTaskRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
@@ -33,8 +34,13 @@ class EMailService
 	protected $tasks;
 	protected $twig;
 
-	const APPLICATIONHOOK_DESIGNS = ["REGISTRATION_CONFIRMATION" => "REGISTRATION_CONFIRMATION.html.twig"];
-	const DESIGNS = ["REGISTRATION_CONFIRMATION" => "REGISTRATION_CONFIRMATION.html.twig"];
+	const APPLICATIONHOOK_DESIGNS = [
+		"-" => null,
+		"REGISTRATION_CONFIRMATION" => "/email/REGISTRATION_CONFIRMATION.html.twig"
+	];
+	const NEWSLETTER_DESIGNS = [
+		"STANDARD" => "/email/STANDARD.html.twig",
+	];
 
 	public function __construct(MailerInterface $mailer,
 	                            LoggerInterface $logger,
@@ -105,11 +111,9 @@ class EMailService
 		$email->setBody($text);
 		$email->setSubject($subject);
 
-		if (!empty($template->getDesignFile())) {
-			//TODO twig render eventuell mit email render tauschen
-			$html = $this->twig->render($email->getDesignFile(), ["template" => $email, "user" => $user]);
-			$email->setBody($html);
-		}
+		//TODO twig render eventuell mit email render tauschen
+		$html = $this->twig->render($this->getDesignFile($email), ["template" => $email, "user" => $user]);
+		$email->setBody($html);
 
 		return $email;
 	}
@@ -118,7 +122,7 @@ class EMailService
 	{
 		$errors = [];
 		$recipientData = $mailRecipient->getDataArray();
-		preg_match_all('/{{2}.*}{2}/', $text, $matches);
+		preg_match_all('/({{2}([^}]+)}{2})/', $text, $matches);
 		if (isset($matches[0]) && count($matches[0])) {
 			foreach ($matches[0] as $match) {
 				$variableName = str_replace('{', '', $match);
@@ -228,7 +232,7 @@ class EMailService
 	{
 	}
 
-		public function sendSingleEmail(EMailTemplate $template, User $user)
+	public function sendSingleEmail(EMailTemplate $template, User $user)
 	{
 		$this->sendEMail($template, $user);
 	}
@@ -269,5 +273,18 @@ class EMailService
 			$this->em->remove($template);
 			$this->em->flush();
 		}
+	}
+
+	private function getDesignFile(EMailTemplate $template): string
+	{
+		$design = $template->getDesignFile();
+		if ($template->isApplicationHooked()) {
+			$design = $template->getApplicationHook();
+		}
+
+		if ($design == null || empty($design)) {
+			throw  new EMailServiceException("In template used design does not exist!");
+		}
+		return $design;
 	}
 }

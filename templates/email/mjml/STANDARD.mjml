@@ -30,38 +30,13 @@
       <mj-section background-color="#d7dde5" background-url="{{ absolute_url(asset('build/images/EMail/background_heading.jpg')) }}" vertical-align="middle" background-size="cover" full-width="full-width" background-repeat="no-repeat">
         <mj-column width="100%" vertical-align="middle">
           <mj-text align="center" font-size="14px" color="#45474e" padding-bottom="10px" padding-top="45px">
-            <span style="font-size: 30px; line-height: 30px;">Danke für deine Anmeldung</span></mj-text>
-
-          <mj-image src="{{ absolute_url(asset('build/images/EMail/liebe.png')) }}" alt="" width="100px" align="center" />
-
+            <span style="font-size: 30px; line-height: 30px;">{{ template.subject}}</span></mj-text>
           <mj-divider border-color="#fff" border-style="solid" border-width="1px" padding-left="100px" padding-right="100px" padding-bottom="20px" padding-top="20px"></mj-divider>
-          <mj-text color="#343a40" font-size="14px" font-weight="bold">
-            Hallo {{user.nickname | default ('')}}!
-          </mj-text>
           <mj-text color="#343a40" font-size="14px" padding-bottom="30px">
-            Wir freuen uns, dich auf unserer Plattform begrüßen zu dürfen.<br><br>
-            Bitte bestätige deine E-Mail Adresse mit folgendem Link, damit wir sicher sein können, dass du dich bei uns registriert hast.
-          </mj-text>
-          <mj-button align="center" background-color="#e67925" color="#fff" border-radius="24px" href="https://mjml.io" font-family="Ubuntu, Helvetica, Arial, sans-serif, Helvetica, Arial, sans-serif" padding-bottom="45px" padding-top="10px">E-Mail Adresse bestätigen</mj-button>
-        </mj-column>
-      </mj-section>
-      <mj-raw>
-        {% if template.body is not empty %}
-      </mj-raw>
-
-      <mj-section background-color="#e67925" full-width="full-width">
-        <mj-column width="100%">
-          <mj-text color="#fff" font-size="14px">
             {{template.body | raw}}
           </mj-text>
         </mj-column>
       </mj-section>
-      <mj-raw> 
-        {% endif %}s
-      </mj-raw>
-
-
-
 
       <mj-section background-color="#343a40" full-width="full-width">
         <mj-column width="100%" vertical-align="middle">
