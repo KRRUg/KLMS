@@ -1,52 +1,94 @@
-{% extends 'base.html.twig' %}
+{% extends 'admin/adminBase.html.twig' %}
 
-{% block title %}Hello AdministrationController!{% endblock %}
+{% block title %}KLMS - Admin{% endblock %}
+{% block siteheading %}<i class="far fa-envelope"></i> E-Mails{% endblock %}
+{% block main %}
 
-{% block body %}
 
-    <style xmlns="http://www.w3.org/1999/html">
-        .example-wrapper {
-            margin: 1em auto;
-            max-width: 800px;
-            width: 95%;
-            font: 18px/1.5 sans-serif;
-        }
+    <div class="row mb-4">
+        <div class="col-12">
+            <a class="btn btn-success" href="{{ path('admin_email_new') }}"><i class="fas fa-plus"></i> Anlegen</a>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <table class="table">
+                    <thead>
+                    <tr>
+                        <th></th>
+                        <th>Titel</th>
+                        <th>Status</th>
+                        <th>Options</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for  template in templates %}
+                        <tr>
+                            <td><input type="checkbox"/></td>
+                            <td>
 
-        .example-wrapper code {
-            background: #F5F5F5;
-            padding: 2px 6px;
-        }
-    </style>
-    {% include('admin/email/includes/menu.html.twig') %}
-    <div class="example-wrapper">
-        <h1>Template Übersicht! ✅</h1>
+                                {% if template.isEditable %}
+                                    <a href="{{ path('admin_email_edit', {'id' : template.id}) }}"
+                                       title="Bearbeiten {{ template.name }} ">{{ template.name }}</a>
+                                {% else %}
+                                    {{ template.name }}
+                                    <small class="text-muted">nicht editierbar</small>
+                                {% endif %}
+                                <br>
+                                <small class="text-muted"><b>{{ template.subject }}</b></small>
+                                <br>
+                                <small class="text-muted">{{ template.body | striptags|slice(0, 40) }}</small>
 
-        <table>
-            <tr>
-                <th>Name</th>
-                <th>Aktionen</th>
-            </tr>
-            {% for  template in templates %}
-                <tr>
-                    <td>     {{ template.name }}</td>
-                    <td><a href="{{ path('admin_email_show', {'id' : template.id}) }}"
-                           id="{{ template.id }}">anzeigen</a>
-                        | <a href="{{ path('admin_email_send', {'id' : template.id}) }}" id="{{ template.id }}">test</a>
-                        {% if template.isDeleteable %}
-                            | <a href="{{ path('admin_email_delete', {'id' : template.id}) }}" id="{{ template.id }}">löschen</a>
-                        {% endif %}
-                        {% if template.isEditable %}
-                            | <a href="{{ path('admin_email_edit', {'id' : template.id}) }}"
-                                 id="{{ template.id }}">edit</a>
-                        {% endif %}
-                        {% if  template.isPublished %}
-                            | <a href="{{ path('admin_email_testsending', {'id' : template.id}) }}"
-                                 id="{{ template.id }}">
-                            Neue Sendung</a>
-                        {% endif %}
-                    </td>
-                </tr>
-            {% endfor %}
-        </table>
+                            </td>
+                            <td>
+
+                                {% if template.applicationHooked %}
+                                    <span class="fa fa-exclamation-triangle" style="color: red">
+                                    </span> ApplicationHook! {{ template.applicationHook | upper }}
+                                {% endif %}
+                                {% if not template.isPublished %}
+                                    <br>
+                                    <span class="fa fa-lock" style="color: red"></span> Template noch nicht freigegeben!
+                                {% endif %}
+
+                                {% if not template.applicationHooked %}
+                                    <br>
+                                    {{ template.completedEmailSendingTasks | length }}/{{ template.emailSendingTasks | length }} versandt
+                                {% endif %}
+
+                            </td>
+                            <td>
+                                <a class="btn btn-outline-dark"
+                                   href="{{ path('admin_email_show', {'id' : template.id}) }}" title="Anzeigen">
+                                    <i class="fas fa-eye"></i></a>
+
+                                <a class="btn btn-outline-dark"
+                                   href="{{ path('admin_email_send_testmail', {'id' : template.id}) }}"
+                                   title="Test E-Mail senden">
+                                    <i class="fas fa-vial"></i></a>
+
+                                <a class="btn btn-outline-dark"
+                                   href="{{ path('admin_email_delete', {'id' : template.id}) }}"
+                                   title="Empfänger bearbeiten">
+                                    <i class="fas fa-user-edit"></i></a>
+
+                                <a class="btn btn-outline-dark
+                                {% if not template.isDeletable %} disabled {% endif %}"
+                                   href="{{ path('admin_email_delete', {'id' : template.id}) }}" title="Löschen">
+                                    <i class="fas fa-trash-alt"></i></a>
+
+                                <a class="btn btn-outline-dark
+                                {% if not template.isManualSendable %} disabled {% endif %}"
+                                   href="{{ path('admin_email_template_createsendingtasks', {'id' : template.id}) }}"
+                                   title="Sendung erstellen">
+                                    <i class="fas fa-paper-plane"></i> versenden</a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
     </div>
 {% endblock %}

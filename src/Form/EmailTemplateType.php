@@ -2,7 +2,7 @@
 
 namespace App\Form;
 
-use App\Entity\Admin\EMail\EMailTemplate;
+use App\Entity\EMail\EMailTemplate;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\FormBuilderInterface;
@@ -15,7 +15,7 @@ class EmailTemplateType extends AbstractType
         $builder
             ->add('name')
             ->add('subject')
-            ->add('body')
+            ->add('body')->setRequired(false)->setEmptyData('')
             //->add('last_modified')
             //->add('created')
             ->add('isPublished')

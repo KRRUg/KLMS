@@ -4,18 +4,18 @@
 namespace App\Service;
 
 
-use App\Entity\EMail\EmailSending;
 use App\Entity\EMail\EmailSendingTask;
 use App\Entity\EMail\EMailTemplate;
-use App\Entity\HelperEntities\EMailRecipient;
+use App\Entity\EMail\EMailRecipient;
 use App\Repository\EMail\EmailSendingTaskRepository;
-use App\Repository\EMail\EMailSendingRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use Exception;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Mime\Address;
 use Symfony\Component\Mime\Email;
 use App\Security\User;
+use Twig\Environment;
 
 /**
  * Class EMailService
@@ -24,299 +24,250 @@ use App\Security\User;
 //TODO: Exceptions abfangen
 class EMailService
 {
-    protected $mailer;
-    protected $senderAddress;
-    protected $recipients = [];
-    protected $sendingRecipients;
-    protected $em;
-    protected $logger;
-    protected $tasks;
-    protected $sendings;
-    protected $queueSending = false;
-    protected $testRecipient;
-    protected $isInTestMode;
+	protected $mailer;
+	protected $senderAddress;
+	protected $userService;
+	protected $users = [];
+	protected $em;
+	protected $logger;
+	protected $tasks;
+	protected $twig;
 
-    public function __construct(
-        MailerInterface $mailer,
-        LoggerInterface $logger,
-        EMailSendingRepository $sendingRepository,
-        EmailSendingTaskRepository $emailSendingTaskRepository,
-        EntityManagerInterface $em
-    )
-    {
-        $this->mailer = $mailer;
-        $this->queueSending = $_ENV['MAILER_QUEUESENDING'] == 'true';
-        $mailAddress = $_ENV['MAILER_DEFAULT_SENDER_EMAIL'];
-        $mailName = $_ENV['MAILER_DEFAULT_SENDER_NAME'];
-        $this->senderAddress = new Address($mailAddress, $mailName);
-        $this->logger = $logger;
-        $this->em = $em;
-        //repos
-        $this->tasks = $emailSendingTaskRepository;
-        $this->sendings = $sendingRepository;
-    }
+	const APPLICATIONHOOK_DESIGNS = ["REGISTRATION_CONFIRMATION" => "REGISTRATION_CONFIRMATION.html.twig"];
+	const DESIGNS = ["REGISTRATION_CONFIRMATION" => "REGISTRATION_CONFIRMATION.html.twig"];
 
-    /*
-     * Sending + Sending Task Verwaltung
-     */
-    public function createSending(EmailSending $sending, EMailTemplate $template, $clone = true)
-    {
-        // Erstellt ein neues Template mit, dann kann nichts passieren, wenn ein Template während einer Aussendung geändert wird
-        ///Bei ApplicationHook kein Sending kopieren!
-        if ($clone && !$sending->isApplicationHooked())
-            $template = clone $template;
+	public function __construct(MailerInterface $mailer,
+	                            LoggerInterface $logger,
+	                            EmailSendingTaskRepository $emailSendingTaskRepository,
+	                            EntityManagerInterface $em,
+	                            Environment $twig,
+	                            UserService $userService)
+	{
+		$this->mailer = $mailer;
+		$this->userService = $userService;
+		$mailAddress = $_ENV['MAILER_DEFAULT_SENDER_EMAIL'];
+		$mailName = $_ENV['MAILER_DEFAULT_SENDER_NAME'];
+		$this->senderAddress = new Address($mailAddress, $mailName);
+		$this->logger = $logger;
+		$this->em = $em;
+		//repos
+		$this->tasks = $emailSendingTaskRepository;
+		$this->twig = $twig;
+	}
 
-        $this->em->persist($template);
-        $sending->setTemplate($template);
-        $this->em->persist($sending);
+	public function createSendingTasks(EMailTemplate $template)
+	{
+		foreach ($this->users as $user) {
+			$task = new EmailSendingTask();
+			$task->setRecipientId($user);
+			$task->setIsSendable(true);
+			$this->em->persist($task);
+			$template->addEmailSendingTask($task);
+		}
+		$this->em->flush();
+	}
 
-        //Keine sendinglist, weil ApplicationHook nur Single-Mail ist
-        if (!$sending->isApplicationHooked()) {
-            //Welchen Gruppen??
-            $this->getPossibleEmailRecipients();
-            $this->createSendingTasks($sending);
-        }
+	public function getPossibleEmailRecipients($group = null)
+	{
+		//TODO: Mockdaten gegen echte Daten austauschen
+		$usersToFind = [
+			'00000000-0000-0000-0000-000000000000',
+			'00000000-0000-0000-0000-000000000001',
+			'00000000-0000-0000-0000-000000000002',
+			'00000000-0000-0000-0000-000000000003',
+			'00000000-0000-0000-0000-000000000004',
+		];
+		$users = $this->userService->getUsersByUuid($usersToFind);
 
+		foreach ($users as $user) {
+			$this->addRecipient($user);
+		}
 
-        $this->em->persist($sending);
-        $this->em->flush();
-        return $sending;
-    }
+		return $this->users;
+	}
 
-    /**
-     * @param EmailSending $sending
-     */
-    private function createSendingTasks(EmailSending $sending)
-    {
-        foreach ($this->recipients as $recipient) {
-            $task = new EmailSendingTask();
-            $task->setRecipient($recipient);
-            $task->setIsSendable(true);
-            $this->em->persist($task);
-            $sending->addEmailSendingTask($task);
-        }
-        $this->em->flush();
-    }
+	/*
+	 * Helper Methods
+	 */
 
-    public function stopSending(EmailSending $sending)
-    {
-        $tasks = $sending->getEMailSendingTask();
-        foreach ($tasks as $task) {
-            if ($task->getIsSent() == false) {
-                $task->setIsSendable('false');
-                $this->em->persist($task);
-                //sofort flushen, damit keine EMails mehr ausgesendet werden können
-                $this->em->flush();
-            }
-        }
-    }
+	public function renderTemplate(EMailTemplate $template, User $user): EMailTemplate
+	{
 
-    //TODO: Mockdaten gegen echte Daten austauschen
-    public function getPossibleEmailRecipients($group = null)
-    {
-        for ($i = 0; $i < 50; $i++) {
-            $this->addRecipient();
-        }
-        return $this->recipients;
-    }
+		$recipient = new EMailRecipient($user);
+		$text = $template->getBody();
+		$subject = $template->getSubject();
 
-    /*
-     * Helper Methods
-     */
+		$text = $this->replaceVariableTokens($text, $recipient);
+		$subject = $this->replaceVariableTokens($subject, $recipient);
 
-    public function previewTemplate(EMailTemplate $template)
-    {
-        $this->addRecipient();
-        $html = $template->getBody();
-        $testRecipient = $this->generateTestRecipient();
-        $html = $this->replaceVariableTokens($html, $testRecipient);
-        $template->setSubject($this->replaceVariableTokens($template->getSubject(), $testRecipient));
-        $template->setBody($html);
-        return $template;
-    }
+		//template auf E-Mail clonen, damit es verändert werden kann
+		$email = clone $template;
+		$email->setBody($text);
+		$email->setSubject($subject);
 
-    private function replaceVariableTokens($text, EMailRecipient $mailRecipient)
-    {
-        $errors = [];
-        $recipientData = $mailRecipient->getDataArray();
-        preg_match_all('/{{2}.*}{2}/', $text, $matches);
-        if (isset($matches[0]) && count($matches[0])) {
-            foreach ($matches[0] as $match) {
-                $variableName = str_replace('{', '', $match);
-                $variableName = str_replace('}', '', $variableName);
-                $variableName = trim(strtolower($variableName));
-                $filled = $recipientData[$variableName];
-                if (empty($filled)) {
-                    $error = "Variable $variableName not valid: " . sprintf($mailRecipient);
-                    $this->logger->error($error);
-                    array_push($errors, $error);
-                }
-                if (count($errors) > 0)
-                    throw  new  \Exception("MailData is not valid: " . implode(',', $errors));
-                $text = str_replace($match, $filled, $text);
-            }
-        }
-        return $text;
-    }
+		if (!empty($template->getDesignFile())) {
+			//TODO twig render eventuell mit email render tauschen
+			$html = $this->twig->render($email->getDesignFile(), ["template" => $email, "user" => $user]);
+			$email->setBody($html);
+		}
 
-    //TODO: private machen!
-    public function addRecipient(User $user) // TODO: Dann mal mit echten UserDaten füllen
-    {
-        if ($user == null) {
-            $recipient = $this->generateTestRecipient();
-            $this->isInTestMode = true;
-        } else {
-            $recipient = new EMailRecipient($user->getUuid(), $user->getUsername(), $user->getEmail());
-        }
-        array_push($this->recipients, $recipient);
-    }
+		return $email;
+	}
 
-    private function removeRecipients()
-    {
-        $this->recipients = [];
-    }
+	private function replaceVariableTokens($text, EMailRecipient $mailRecipient)
+	{
+		$errors = [];
+		$recipientData = $mailRecipient->getDataArray();
+		preg_match_all('/{{2}.*}{2}/', $text, $matches);
+		if (isset($matches[0]) && count($matches[0])) {
+			foreach ($matches[0] as $match) {
+				$variableName = str_replace('{', '', $match);
+				$variableName = str_replace('}', '', $variableName);
+				$variableName = trim(strtolower($variableName));
+				$filled = $recipientData[$variableName];
+				if (empty($filled)) {
+					$error = "Variable $variableName not valid: " . sprintf($mailRecipient);
+					$this->logger->error($error);
+					array_push($errors, $error);
+				}
+				if (count($errors) > 0)
+					throw  new  Exception("MailData is not valid: " . implode(',', $errors));
+				$text = str_replace($match, $filled, $text);
+			}
+		}
+		return $text;
+	}
 
-    public function getTemplateVariables()
-    {
-        $testRecipient = $this->generateTestRecipient();
-        return $testRecipient->getDataArray();
-    }
+	private function addRecipient(User $user = null)
+	{
+		if ($user == null) {
+			$recipient = $this->generateTestRecipient();
+		} else {
+			$recipient = new EMailRecipient($user);
+		}
+		array_push($this->users, $recipient);
+	}
 
-    private function generateTestRecipient()
-    {
-        return new  EMailRecipient(md5(rand()), 'Name ' . rand(), 'hansi' . rand() . '@krru.at');
-    }
+	public function getTemplateVariables()
+	{
+		$testRecipient = $this->generateTestRecipient();
+		return $testRecipient->getDataArray();
+	}
 
-    /*
-     * Sending methods
-     */
+	private function generateTestRecipient()
+	{
+		$user = new User();
+		$user->setUuid("0325a40e-a254-4c2f-be60-97e73307b720");
+		$user->setNickname("Testie");
+		$user->setFirstname("Testine");
+		$user->setSurname("Tester");
+		$user->setEmail("testine.tester@test.com");
+		return new  EMailRecipient($user);
+	}
 
-    public function sendEmailTasks($limit = null)
-    {
-        $tasks = $this->tasks->findBy(['isSent' => false, 'isSendable' => true], ['created' => 'ASC'], $limit);
-        $lastSending = null;
-        $template = null;
-        foreach ($tasks as $task) {
-            $sending = $task->getEMailSending();
-
-            //Template nur neu lkaden, wenn sich das Sending geändert hat
-            if ($sending != $lastSending) {
-                $template = $sending->getTemplate();
-            } else {
-                //prüfen ob alle gesendet wurden, dann sending closen
-                $opentasks = $this->tasks->findBy(['emailSending' => $lastSending, 'isSent' => false, 'isSendable' => true], ['created' => 'ASC']);
-                if (count($opentasks) == 0) {
-                    $sending->setSent();
-                    $this->em->persist($sending);
-                    $this->em->flush();
-                }
-            }
-            if ($sending != $lastSending) {
-                if ($lastSending == null)
-                    $this->setSendingStatus($sending);
-                else
-                    $this->setSendingStatus($lastSending);
-            }
-
-            $lastSending = $sending;
-
-            if ($sending->getReadyToSend() && $template->getIsPublished()) {
-                $recipient = $task->getRecipient();
-                $sendingError = $this->sendEMail($template, $recipient);
-                if ($sendingError == null) {
-                    $task->setIsSent();
-                    $this->em->persist($task);
-                    $this->em->flush();
-                }
-            }
-        }
-
-    }
-
-    public function sendByApplicationHook(string $applicationHook, EMailRecipient $recipient)
-    {
-        $sending = $this->sendings->findOneBy(['ApplicationHook' => $applicationHook]);
-        $template = $sending->getTemplate();
-        $this->sendSingleEmail($template, $recipient);
-    }
-
-    public function repairSendingStats()
-    {
-        foreach ($this->sendings->findAll() as $sending) {
-            $this->setSendingStatus($sending);
-        }
-    }
-
-    private function setSendingStatus(EmailSending $sending)
-    {
-        //prüfen ob alle gesendet wurden, dann sending closen
-        $opentasks = $this->tasks->findBy(['emailSending' => $sending, 'isSent' => false, 'isSendable' => true], ['created' => 'ASC']);
-        if ($opentasks == null || count($opentasks) == 0) {
-            $lastTask = $this->tasks->findOneBy(['emailSending' => $sending], ['sent' => 'DESC']);
-            if ($lastTask != null)
-                $sending->setSent($lastTask->getSent());
-            $this->em->persist($sending);
-            $this->em->flush();
-        }
-    }
-
-    public function sendSingleEmail(EMailTemplate $template, EMailRecipient $mailRecipient)
-    {
-        $this->sendEMail($template, $mailRecipient);
-    }
-
-    private function sendEMail(EMailTemplate $template, EMailRecipient $recipient)
-    {
-        $error = null;
-        if ($this->isInTestMode) {
-            $error = "Sending was in Test-Mode or no User was given!";
-            $this->logger->alert($error);
-        }
-        if ($error != null)
-            return $error;
-        try {
-            $text = $this->replaceVariableTokens($template->getBody(), $recipient);
-            $subject = $this->replaceVariableTokens($template->getSubject(), $recipient);
-            $email = (new Email())
-                ->from($this->senderAddress)
-                ->to($recipient->getAddressObject())
-                ->subject($subject)
-                ->text(strip_tags($text))
-                ->html($text);
-            $this->mailer->send($email);
-        } catch (\Exception $e) {
-            $this->logger->error($e);
-            $error = $e;
-        } finally {
-            return $error;
-        }
-    }
-
-    public function deleteTemplate(EMailTemplate $template)
-    {
-        if ($template->getIsDeleteable()) {
-            $this->deleteSending($template->getEmailSending());
-            $this->em->remove($template);
-            $this->em->flush();
-        }
-    }
-
-    public function deleteSending(EmailSending $sending = null)
-    {
-        if ($sending != null && $sending->getIsDeleteable()) {
-            $this->deleteSendingTasks($sending);
-            $this->em->remove($sending);
-            $this->em->flush();
-        }
-    }
-
-    private function deleteSendingTasks(EmailSending $sending)
-    {
-        $tasks = $sending->getEMailSendingTask();
-        foreach ($tasks as $task) {
-            $this->em->remove($task);
-        }
-    }
+	/*
+	 * Sending methods
+	 */
+	/**
+	 * @param EMailTemplate|null $template
+	 * @param null $limit
+	 *
+	 * @return EmailSendingTask[]
+	 */
+	private function getSendableEMailTasks(EMailTemplate $template = null)
+	{
+		if ($template != null && $template->getIsPublished()) {
+			$tasks = $this->tasks->findBy(['EMailTemplate' => $template, 'isSent' => false, 'isSendable' => true], ['created' => 'ASC']);
+		} else {
+			$tasks = $this->tasks->findBy(['isSent' => false, 'isSendable' => true], ['created' => 'ASC']);
+		}
+		return $tasks;
+	}
 
 
+	public function sendEmailTasks(EMailTemplate $template = null)
+	{
+
+		$tasks = $this->getSendableEMailTasks($template);
+
+		//UserIds von IDM holen
+		$userIds = array_map(function (EmailSendingTask $task) {
+			return $task->getRecipientId();
+		}, $tasks);
+		$users = $this->userService->getUsersByUuid($userIds);
+
+		//lookup bauen, damit nachher schnell gesucht werden kann
+		$userLookup = [];
+		foreach ($users as $user) {
+			$userLookup[$user->getUuid()] = $user;
+		}
+
+		foreach ($tasks as $task) {
+			//wenn template mitgegeben, kommen nur Tasks aus dem Template, wenn nicht(Multi Template sending), dann sucht sich der Task sein Template
+			if ($template == null)
+				$template = $task->getEMailTemplate();
+
+			if ($template->getIsManualSendable()) {
+				$recipientId = $task->getRecipientId();
+				$recipient = $userLookup[$recipientId];
+
+				//email Versand versuchen
+				$sendingError = $this->sendEMail($template, $recipient);
+				if ($sendingError == null) { //TODO auf Exceptions umbauen
+					$task->setIsSent();
+					$this->em->persist($task);
+					$this->em->flush();
+				}
+			}
+		}
+	}
+
+//TODO Application Hooking fertig machen
+	public
+	function sendByApplicationHook(string $applicationHook, User $user)
+	{
+	}
+
+		public function sendSingleEmail(EMailTemplate $template, User $user)
+	{
+		$this->sendEMail($template, $user);
+	}
+
+	private function sendEMail(EMailTemplate $template, User $user)
+	{
+		$recipient = new EMailRecipient($user);
+		$error = null;
+
+		if ($recipient == null || empty($recipient->getEmailAddress())) {
+			$error = "No email adress was given or user object was null";
+		}
+		if ($error != null)
+			return $error;
+		try {
+			$template = $this->renderTemplate($template, $user);
+			$email = (new Email())->from($this->senderAddress)
+			                      ->to($recipient->getAddressObject())
+			                      ->subject($template->getSubject())
+			                      ->text(strip_tags($template->getBody()))// TODO Lösung für Text-only finden
+			                      ->html($template->getBody());
+			$this->mailer->send($email);
+		} catch (Exception $e) {
+			$this->logger->error($e);
+			$error = $e;
+		} finally {
+			return $error;
+		}
+	}
+
+	public function deleteTemplate(EMailTemplate $template)
+	{
+		if ($template->getIsDeletable()) {
+			//Alle Tasks löschen
+			$template->getEmailSendingTasks()->forAll(function (EmailSendingTask $task) {
+				$this->em->remove($task);
+			});
+			$this->em->remove($template);
+			$this->em->flush();
+		}
+	}
 }

@@ -1,36 +1,25 @@
-{% extends 'base.html.twig' %}
+{% extends 'admin/adminBase.html.twig' %}
 
-{% block title %}Hello AdministrationController!{% endblock %}
+{% block title %}KLMS - Admin{% endblock %}
+{% block siteheading %}<i class="far fa-newspaper"></i> News: Neue News{% endblock %}
+{% block main %}
 
-{% block body %}
-    <style>
-        .example-wrapper {
-            margin: 1em auto;
-            max-width: 800px;
-            width: 95%;
-            font: 18px/1.5 sans-serif;
-        }
-
-        .example-wrapper code {
-            background: #F5F5F5;
-            padding: 2px 6px;
-        }
-    </style>
-    <script src="https://cdn.tiny.cloud/1/no-api-key/tinymce/5/tinymce.min.js" referrerpolicy="origin"></script>
-    <script>
-        tinymce.init({
-            selector: 'textarea',
-            setup: function (editor) {
-                editor.on('change', function (e) {
-                    editor.save();
-                })
-            }
-        });
-    </script>
     {% include('admin/email/includes/menu.html.twig') %}
     <div class="example-wrapper">
-        <h1>Hello ! ✅</h1>
+        <div class="row">
+            <div class="col-9">{{ form(form) }}</div>
+            <div class="col-3">
+                <h3>Verwendbare Felder</h3>
 
-        {{ form(form) }}
+                {% for key,field in availableFields %}
+                    <p>
+                        &#123;&#123;{{ key }}&#125;&#125;<br>
+                        <small>{{ field }}</small>
+                    </p>
+                {% endfor %}
+
+            </div>
+        </div>
+
     </div>
 {% endblock %}

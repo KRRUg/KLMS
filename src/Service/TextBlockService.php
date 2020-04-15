@@ -16,6 +16,9 @@ class TextBlockService
     const TEXT_BLOCK_KEYS = [
         "AGB" => "AGB",
         "ABOUT_US" => "Über uns, homepage links unten",
+
+        "ORGANISATION_NAME" => "Organisationsname / Vereinsname"
+
         // extend here
     ];
 

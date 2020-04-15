@@ -4,35 +4,37 @@
 
 {% block body %}
     <style>
-        .example-wrapper {
-            margin: 1em auto;
+        .wrapper {
+            margin: 0em auto;
             max-width: 800px;
             width: 95%;
             font: 18px/1.5 sans-serif;
+            background-color: #FFFFFF;
         }
 
-        .example-wrapper code {
-            background: #F5F5F5;
-            padding: 2px 6px;
-        }
+
     </style>
-    {% include('admin/email/includes/menu.html.twig') %}
-    <div class="example-wrapper">
-        <h1>EMail Voransicht ✅</h1>
+
+    <div style="background-color: #FFFFFF">
 
 
-        <div>
+        <div class="wrapper">
+            <h1>EMail Voransicht</h1>
+            <button onclick="history.back()">Zurück</button>
+
             <div>
-                <b> Betreff:</b>
+                <div>
+                    <b> Betreff:</b>
+                </div>
+                {{ template.subject }}
             </div>
-            {{ template.subject }}
-        </div>
 
-        <div>
-            <b>Nachricht:</b>
-        </div>
-        <div>
-            {{ template.body | raw }}
+            <div>
+                <b>Nachricht:</b>
+            </div>
+            <div>
+                {{ template.body | raw }}
+            </div>
         </div>
     </div>
 {% endblock %}

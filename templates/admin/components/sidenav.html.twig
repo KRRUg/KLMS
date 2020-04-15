@@ -8,4 +8,7 @@
   <li class="nav-item">
     <a class="nav-link {% if app.request.get('_route') == 'admin_textblock' %}active{% endif %}" href="{{ path('admin_textblock') }}"><i class="far fa-file-alt"></i> Textblöcke </a>
   </li>
+  <li class="nav-item">
+    <a class="nav-link {% if app.request.get('_route') == 'admin_textblock' %}active{% endif %}" href="{{ path('admin_email') }}"><i class="far fa-envelope"></i> E-Mails </a>
+  </li>
 </ul>

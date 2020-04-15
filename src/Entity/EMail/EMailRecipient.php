@@ -1,9 +1,10 @@
 <?php
 
 
-namespace App\Entity\HelperEntities;
+namespace App\Entity\EMail;
 
 
+use App\Security\User;
 use Symfony\Component\Mime\Address;
 
 class EMailRecipient
@@ -11,13 +12,15 @@ class EMailRecipient
     private $id;
     private $emailAddress;
     private $name;
+    private $nickname;
 
 
-    public function __construct($id, $name, $emailAddress)
+    public function __construct(User $user)
     {
-        $this->id = $id;
-        $this->name = $name;
-        $this->emailAddress = $emailAddress;
+        $this->id = $user->getUuid();
+        $this->name = $user->getFirstname() . ' ' . $user->getSurname();
+        $this->emailAddress = $user->getEmail();
+        $this->nickname = $user->getNickname();
     }
 
     /**
@@ -54,9 +57,21 @@ class EMailRecipient
         $dataset = [
             "id" => $this->id,
             "name" => $this->name,
-            "email" => $this->emailAddress
+            "email" => $this->emailAddress,
+            "nickname" => $this->nickname
         ];
         return array_change_key_case($dataset, CASE_LOWER);
+    }
+
+    public function printDataset(): string
+    {
+        $output = "";
+        $dataset = $this->getDataArray();
+        ksort($dataset);
+        foreach ($dataset as $key => $value) {
+            $output .= "$key: $value \n ";
+        }
+        return $output;
     }
 
 
