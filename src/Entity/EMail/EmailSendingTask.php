@@ -5,10 +5,19 @@ namespace App\Entity\EMail;
 use DateTime;
 use DateTimeInterface;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\EMail\EmailSendingTaskRepository")
  * @ORM\HasLifecycleCallbacks
+ * @ORM\Table(
+ *      name="email_sending_task",
+ *      uniqueConstraints={@ORM\UniqueConstraint(columns={"user_id", "email_template_id"})}
+ * )
+ * @UniqueEntity(
+ *      fields={"user_id", "email_template_id"},
+ *      message="League for given country already exists in database."
+ * )
  */
 class EmailSendingTask
 {
