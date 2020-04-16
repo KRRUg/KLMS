@@ -4,18 +4,18 @@
 namespace App\Service;
 
 
+use App\Entity\EMail\EMailRecipient;
 use App\Entity\EMail\EmailSendingTask;
 use App\Entity\EMail\EMailTemplate;
-use App\Entity\EMail\EMailRecipient;
 use App\Exception\EMailServiceException;
 use App\Repository\EMail\EmailSendingTaskRepository;
+use App\Security\User;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Mime\Address;
 use Symfony\Component\Mime\Email;
-use App\Security\User;
 use Twig\Environment;
 
 /**
@@ -25,6 +25,14 @@ use Twig\Environment;
 //TODO: Exceptions abfangen
 class EMailService
 {
+	const APPLICATIONHOOK_DESIGNS = [
+		"-" => null,
+		"REGISTRATION_CONFIRMATION" => "/email/REGISTRATION_CONFIRMATION.html.twig"
+	];
+	const NEWSLETTER_DESIGNS = [
+		"STANDARD" => "/email/STANDARD.html.twig",
+	];
+
 	protected $mailer;
 	protected $senderAddress;
 	protected $userService;
@@ -33,14 +41,6 @@ class EMailService
 	protected $logger;
 	protected $tasks;
 	protected $twig;
-
-	const APPLICATIONHOOK_DESIGNS = [
-		"-" => null,
-		"REGISTRATION_CONFIRMATION" => "/email/REGISTRATION_CONFIRMATION.html.twig"
-	];
-	const NEWSLETTER_DESIGNS = [
-		"STANDARD" => "/email/STANDARD.html.twig",
-	];
 
 	public function __construct(MailerInterface $mailer,
 	                            LoggerInterface $logger,
@@ -92,73 +92,17 @@ class EMailService
 		return $this->users;
 	}
 
-	/*
-	 * Helper Methods
-	 */
-
-	public function renderTemplate(EMailTemplate $template, User $user): EMailTemplate
-	{
-
-		$recipient = new EMailRecipient($user);
-		$text = $template->getBody();
-		$subject = $template->getSubject();
-
-		$text = $this->replaceVariableTokens($text, $recipient);
-		$subject = $this->replaceVariableTokens($subject, $recipient);
-
-		//template auf E-Mail clonen, damit es verändert werden kann
-		$email = clone $template;
-		$email->setBody($text);
-		$email->setSubject($subject);
-
-		//TODO twig render eventuell mit email render tauschen
-		$html = $this->twig->render($this->getDesignFile($email), ["template" => $email, "user" => $user]);
-		$email->setBody($html);
-
-		return $email;
-	}
-
-	private function replaceVariableTokens($text, EMailRecipient $mailRecipient)
-	{
-		$errors = [];
-		$recipientData = $mailRecipient->getDataArray();
-		preg_match_all('/({{2}([^}]+)}{2})/', $text, $matches);
-		if (isset($matches[0]) && count($matches[0])) {
-			foreach ($matches[0] as $match) {
-				$variableName = str_replace('{', '', $match);
-				$variableName = str_replace('}', '', $variableName);
-				$variableName = trim(strtolower($variableName));
-				$filled = $recipientData[$variableName];
-				if (empty($filled)) {
-					$error = "Variable $variableName not valid: " . sprintf($mailRecipient);
-					$this->logger->error($error);
-					array_push($errors, $error);
-				}
-				if (count($errors) > 0)
-					throw  new  Exception("MailData is not valid: " . implode(',', $errors));
-				$text = str_replace($match, $filled, $text);
-			}
-		}
-		return $text;
-	}
-
 	private function addRecipient(User $user = null)
 	{
 		if ($user == null) {
-			$recipient = $this->generateTestRecipient();
+			$recipient = $this->getTestRecipient();
 		} else {
 			$recipient = new EMailRecipient($user);
 		}
 		array_push($this->users, $recipient);
 	}
 
-	public function getTemplateVariables()
-	{
-		$testRecipient = $this->generateTestRecipient();
-		return $testRecipient->getDataArray();
-	}
-
-	private function generateTestRecipient()
+	private function getTestRecipient()
 	{
 		$user = new User();
 		$user->setUuid("0325a40e-a254-4c2f-be60-97e73307b720");
@@ -169,25 +113,11 @@ class EMailService
 		return new  EMailRecipient($user);
 	}
 
-	/*
-	 * Sending methods
-	 */
-	/**
-	 * @param EMailTemplate|null $template
-	 * @param null $limit
-	 *
-	 * @return EmailSendingTask[]
-	 */
-	private function getSendableEMailTasks(EMailTemplate $template = null)
+	public function getTemplateVariables()
 	{
-		if ($template != null && $template->getIsPublished()) {
-			$tasks = $this->tasks->findBy(['EMailTemplate' => $template, 'isSent' => false, 'isSendable' => true], ['created' => 'ASC']);
-		} else {
-			$tasks = $this->tasks->findBy(['isSent' => false, 'isSendable' => true], ['created' => 'ASC']);
-		}
-		return $tasks;
+		$testRecipient = $this->getTestRecipient();
+		return $testRecipient->getDataArray();
 	}
-
 
 	public function sendEmailTasks(EMailTemplate $template = null)
 	{
@@ -226,16 +156,25 @@ class EMailService
 		}
 	}
 
-//TODO Application Hooking fertig machen
-	public
-	function sendByApplicationHook(string $applicationHook, User $user)
+	/**
+	 * @param EMailTemplate|null $template
+	 * @param null $limit
+	 *
+	 * @return EmailSendingTask[]
+	 */
+	private function getSendableEMailTasks(EMailTemplate $template = null)
 	{
+		if ($template != null && $template->getIsPublished()) {
+			$tasks = $this->tasks->findBy(['EMailTemplate' => $template, 'isSent' => false, 'isSendable' => true], ['created' => 'ASC']);
+		} else {
+			$tasks = $this->tasks->findBy(['isSent' => false, 'isSendable' => true], ['created' => 'ASC']);
+		}
+		return $tasks;
 	}
 
-	public function sendSingleEmail(EMailTemplate $template, User $user)
-	{
-		$this->sendEMail($template, $user);
-	}
+	/*
+	 * Sending methods
+	 */
 
 	private function sendEMail(EMailTemplate $template, User $user)
 	{
@@ -263,16 +202,51 @@ class EMailService
 		}
 	}
 
-	public function deleteTemplate(EMailTemplate $template)
+	public function renderTemplate(EMailTemplate $template, User $user): EMailTemplate
 	{
-		if ($template->getIsDeletable()) {
-			//Alle Tasks löschen
-			$template->getEmailSendingTasks()->forAll(function (EmailSendingTask $task) {
-				$this->em->remove($task);
-			});
-			$this->em->remove($template);
-			$this->em->flush();
+
+		$recipient = new EMailRecipient($user);
+		$text = $template->getBody();
+		$subject = $template->getSubject();
+
+		$text = $this->replaceVariableTokens($text, $recipient);
+		$subject = $this->replaceVariableTokens($subject, $recipient);
+
+		//template auf E-Mail clonen, damit es verändert werden kann
+		$email = clone $template;
+		$email->setBody($text);
+		$email->setSubject($subject);
+
+		//TODO twig render eventuell mit email render tauschen
+		$html = $this->twig->render($this->getDesignFile($email), ["template" => $email, "user" => $user]);
+		$email->setBody($html);
+
+		return $email;
+	}
+
+
+	private function replaceVariableTokens($text, EMailRecipient $mailRecipient)
+	{
+		$errors = [];
+		$recipientData = $mailRecipient->getDataArray();
+		preg_match_all('/({{2}([^}]+)}{2})/', $text, $matches);
+		if (isset($matches[0]) && count($matches[0])) {
+			foreach ($matches[0] as $match) {
+				$variableName = str_replace('{', '', $match);
+				$variableName = str_replace('}', '', $variableName);
+				$variableName = trim(strtolower($variableName));
+				$filled = $recipientData[$variableName];
+				if (empty($filled)) {
+					$error = "Variable $variableName not valid: " . sprintf($mailRecipient);
+					$this->logger->error($error);
+					array_push($errors, $error);
+				}
+				if (count($errors) > 0)
+					throw  new  Exception("MailData is not valid: " . implode(',', $errors));
+				$text = str_replace($match, $filled, $text);
+			}
 		}
+		return $text;
 	}
 
 	private function getDesignFile(EMailTemplate $template): string
@@ -286,5 +260,27 @@ class EMailService
 			throw  new EMailServiceException("In template used design does not exist!");
 		}
 		return $design;
+	}
+
+	public
+	function sendByApplicationHook(string $applicationHook, User $user)
+	{
+	}
+
+	public function sendSingleEmail(EMailTemplate $template, User $user)
+	{
+		$this->sendEMail($template, $user);
+	}
+
+	public function deleteTemplate(EMailTemplate $template)
+	{
+		if ($template->getIsDeletable()) {
+			//Alle Tasks löschen
+			$template->getEmailSendingTasks()->forAll(function (EmailSendingTask $task) {
+				$this->em->remove($task);
+			});
+			$this->em->remove($template);
+			$this->em->flush();
+		}
 	}
 }

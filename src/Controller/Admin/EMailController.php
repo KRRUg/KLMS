@@ -2,18 +2,16 @@
 
 namespace App\Controller\Admin;
 
-use App\Entity\EMail\EmailSending;
-use App\Entity\EMail\EMailTemplate;
 use App\Entity\EMail\EMailRecipient;
+use App\Entity\EMail\EMailTemplate;
 use App\Form\EmailTemplateType;
-use App\Repository\EMail\EMailSendingRepository;
 use App\Repository\EMail\EMailTemplateRepository;
 use App\Service\EMailService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\RedirectResponse;
-use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\Request;
-use \Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Annotation\Route;
 
 /**
  * Class EMailController
