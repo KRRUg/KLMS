@@ -80,9 +80,9 @@ class EmailSendingTask
 		return $this->userId;
 	}
 
-	public function setRecipientId(EMailRecipient $Recipient): self
+	public function setRecipientId(string $userId): self
 	{
-		$this->userId = $Recipient->getId();
+		$this->userId = $userId;
 		return $this;
 	}
 
@@ -99,18 +99,12 @@ class EmailSendingTask
 		return $this;
 	}
 
-	public function getCreated(): ?DateTimeInterface
+	private function setSent(DateTimeInterface $sent): self
 	{
-		return $this->created;
-	}
-
-	public function setCreated(DateTimeInterface $created): self
-	{
-		$this->created = $created;
+		$this->sent = $sent;
 
 		return $this;
 	}
-
 
 	public function getLastModified(): ?DateTimeInterface
 	{
@@ -137,6 +131,18 @@ class EmailSendingTask
 		}
 	}
 
+	public function getCreated(): ?DateTimeInterface
+	{
+		return $this->created;
+	}
+
+	public function setCreated(DateTimeInterface $created): self
+	{
+		$this->created = $created;
+
+		return $this;
+	}
+
 	public function getIsSendable(): ?bool
 	{
 		return $this->isSendable;
@@ -153,14 +159,6 @@ class EmailSendingTask
 	{
 		return $this->sent;
 	}
-
-	private function setSent(DateTimeInterface $sent): self
-	{
-		$this->sent = $sent;
-
-		return $this;
-	}
-
 
 	public function getEMailTemplate(): ?EMailTemplate
 	{

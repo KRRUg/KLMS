@@ -68,8 +68,11 @@ class EMailController extends AbstractController
 	{
 		//TODO Usergruppe empfangen
 		$mailService->getPossibleEmailRecipients();
-		$mailService->createSendingTasks($template);
+		$errors = $mailService->createSendingTasks($template);
 		$mailService->sendEmailTasks($template);
+		foreach ($errors as $error) {
+			$this->addFlash('error', $error);
+		}
 		return $this->redirectToRoute('admin_email');
 	}
 
@@ -114,18 +117,15 @@ class EMailController extends AbstractController
 	public function editTemplate(EMailTemplate $template, Request $request, EMailTemplateRepository $repository)
 	{
 		if (!$repository->hasTemplateAccess($this->getUser(), $template)) // TODO durch AccessDeniedHandler ersetzten sobald verfügbar
+		{
+			$this->addFlash('warning', "Keine Rechte für Applikations-E-Mails");
 			return $this->redirectToRoute('admin_email');
-
-		$template->setIsPublished(false);
-
+		}
 		$form = $this->createForm(EmailTemplateType::class, $template);
 		$form->handleRequest($request);
 
-		$em = $this->getDoctrine()->getManager();
-		$em->persist($template);
-		$em->flush();
-
 		if ($form->isSubmitted() && $form->isValid()) {
+			$em = $this->getDoctrine()->getManager();
 			$template = $form->getData();
 			$em->persist($template);
 			$em->flush();
@@ -149,5 +149,4 @@ class EMailController extends AbstractController
 		$mailService->deleteTemplate($template);
 		return $this->redirectToRoute('admin_email');
 	}
-
 }

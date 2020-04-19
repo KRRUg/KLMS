@@ -1,0 +1,107 @@
+<mjml>
+  <mj-body background-color="#56606a">
+    <mj-wrapper>
+
+
+      <mj-section background-color="#343a40">
+        <mj-column width="66.66666666666666%" vertical-align="middle">
+          <mj-text align="left" font-size="11px" padding-bottom="0px" padding-top="0"><span style="font-size: 11px; color: #fff ">KRRU Lan Management System</span></mj-text>
+        </mj-column>
+        <mj-column width="33.33333333333333%" vertical-align="middle">
+          <mj-text align="right" font-size="11px" padding-bottom="0px" padding-top="0"><span style="font-size: 11px; color: #fff"><a href="https://mjml.io" style="text-decoration: none; color: inherit;">E-Mail im Webbrowser anzeigen</a></span></mj-text>
+        </mj-column>
+      </mj-section>
+
+      <mj-section background-color="#e67925" full-width="full-width" background-url="{{ absolute_url(asset('build/images/header.jpg')) }}" background-size="100%">
+        <mj-column vertical-align="middle" width="33.3333%">
+
+          <!-- Logo Image-->
+          <mj-image src="{{ absolute_url(asset('build/images/logo-white.png')) }}" alt="" padding-bottom="0px" padding-top="10px"></mj-image>
+        </mj-column>
+        <mj-column width="66.6666%">
+          <mj-text align="center" color="#ffffff" font-size="18px" padding-bottom="10px">KRRU Lan Management System</mj-text>
+        </mj-column>
+      </mj-section>
+
+      <!-- Header Ende -->
+      <!-- Body Start -->
+
+
+      <mj-section background-color="#d7dde5" background-url="{{ absolute_url(asset('build/images/EMail/background_heading.jpg')) }}" vertical-align="middle" background-size="cover" full-width="full-width" background-repeat="no-repeat">
+        <mj-column width="100%" vertical-align="middle">
+          <mj-text align="center" font-size="14px" color="#45474e" padding-bottom="10px" padding-top="45px">
+            <span style="font-size: 30px; line-height: 30px;">Fehler in der Anwendung {{payload.error.step}}</span></mj-text>
+
+          <mj-image src="{{ absolute_url(asset('build/images/EMail/liebe.png')) }}" alt="" width="100px" align="center" />
+
+          <mj-divider border-color="#fff" border-style="solid" border-width="1px" padding-left="100px" padding-right="100px" padding-bottom="20px" padding-top="20px"></mj-divider>
+          <mj-text color="#343a40" font-size="14px" font-weight="bold">
+            Hallo {{user.nickname | default ('')}}!
+          </mj-text>
+          <mj-raw>
+            {% if template.body is not empty %}
+          </mj-raw>
+          <mj-text color="#343a40" font-size="14px" padding-bottom="30px">
+            {{template.body | raw}}
+          </mj-text>
+          <mj-raw>
+            {% endif %}
+          </mj-raw>
+        </mj-column>
+      </mj-section>
+
+
+      <mj-section background-color="#e67925" full-width="full-width">
+        <mj-column width="100%">
+          <mj-text color="#fff" font-size="14px">
+
+
+
+            <mj-raw>
+              {% if payload is not empty %}
+              {% for key,field in payload %}
+            </mj-raw>
+            <p>
+              {{ key }}: <small>{{ field }}</small>
+            </p>
+            <mj-raw>
+              {% endfor %}
+              {% endif %}
+            </mj-raw>
+
+          </mj-text>
+        </mj-column>
+      </mj-section>
+
+
+
+
+
+      <mj-section background-color="#343a40" full-width="full-width">
+        <mj-column width="100%" vertical-align="middle">
+          <mj-text align="center" color="#ffffff">
+            <!-- <a href="https://mjml.io" style="text-decoration: none; color: inherit;">Einzahlung</a>&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;-->
+            <a href="https://mjml.io" style="text-decoration: none; color: inherit;">FAQ</a>&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;&#xA0;
+            <a href="https://mjml.io" style="text-decoration: none; color: inherit;">Kontakt</a>
+          </mj-text>
+        </mj-column>
+      </mj-section>
+
+      <!-- Body Ende -->
+
+      <!-- Footer Start -->
+      <mj-section full-width="full-width">
+        <mj-column width="100%" vertical-align="middle">
+          <mj-text align="center" font-size="11px" padding-bottom="0px" padding-top="0px" color="#fff">
+            <a href="#" style="text-decoration: none; color: inherit;">Impressum</a> &#xA0;&#xA0;&#xA0; | &#xA0;&#xA0;&#xA0; <a href="#" style="text-decoration: none; color: inherit;">Unsubscribe</a>
+          </mj-text>
+        </mj-column>
+      </mj-section>
+
+
+      <!-- Footer Ende -->
+
+    </mj-wrapper>
+
+  </mj-body>
+</mjml>

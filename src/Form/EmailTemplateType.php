@@ -9,7 +9,6 @@ use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
-use Vich\UploaderBundle\Entity\File;
 
 class EmailTemplateType extends AbstractType
 {
@@ -18,15 +17,13 @@ class EmailTemplateType extends AbstractType
 		$builder
 			->add('name')
 			->add('subject')
-			->add('body')->setRequired(false)->setEmptyData('')
-			//->add('last_modified')
-			//->add('created')
+			->add('body')
 			->add('designFile', ChoiceType::class, [
 				'choices' => EMailService::NEWSLETTER_DESIGNS,
 				'label' => 'Designfile'
 			])
 			->add('applicationHook', ChoiceType::class, [
-				'choices' => EMailService::APPLICATIONHOOK_DESIGNS])
+				'choices' => EMailService::APPLICATIONHOOKS])
 			->add('isPublished')
 			->add('save', SubmitType::class, ["label" => "speichern"]);
 	}

@@ -12,6 +12,15 @@
     </div>
     <div class="row">
         <div class="col-12">
+            {% for message in app.flashes('error') %}
+                <div class="flash-error alert alert-danger  alert-dismissible fade show ">
+                    <!-- TODO mit coffee besprechen, eine ebene höher ziehen -->
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                    {{ message }}
+                </div>
+            {% endfor %}
             <div class="card">
                 <table class="table">
                     <thead>
@@ -48,7 +57,7 @@
                                     </span> ApplicationHook!<br>
                                     {{ template.applicationHook | upper }}
                                 {% endif %}
-                                {% if not template.isPublished %}
+                                {% if not template.isPublished and not template.isApplicationHooked %}
                                     <br>
                                     <span class="fa fa-lock" style="color: red"></span> Template noch nicht freigegeben!
                                 {% endif %}
@@ -69,8 +78,9 @@
                                    title="Test E-Mail senden">
                                     <i class="fas fa-vial"></i></a>
 
-                                <a class="btn btn-outline-dark"
-                                   href="{{ path('admin_email_delete', {'id' : template.id}) }}"
+                                <a class="btn btn-outline-dark
+                                {% if  template.isApplicationHooked %} disabled {% endif %}"
+                                   href="{{ path('admin_email_show', {'id' : template.id}) }}"
                                    title="Empfänger bearbeiten">
                                     <i class="fas fa-user-edit"></i></a>
 

@@ -47,7 +47,7 @@ class EMailTemplate
 	private $isPublished;
 
 	/**
-	 * @ORM\Column(type="text")
+	 * @ORM\Column(type="text", nullable=true)
 	 */
 	private $body = '';
 
@@ -58,9 +58,9 @@ class EMailTemplate
 	private $DesignFile;
 
 	/**
-	 * @ORM\Column(type="string", length=255, nullable=true)
+	 * @ORM\Column(type="string", length=255, nullable=true, unique=true)
 	 */
-	private $ApplicationHook;
+	private $applicationHook;
 
 	/**
 	 * @ORM\OneToMany(targetEntity="App\Entity\EMail\EmailSendingTask", mappedBy="EMailTemplate")
@@ -114,6 +114,18 @@ class EMailTemplate
 		return $this;
 	}
 
+	/**
+	 * @ORM\PrePersist()
+	 * @ORM\PreUpdate()
+	 */
+	public function updateModifiedDatetime()
+	{
+		// update the modified time and creation time
+		$this->setLastModified(new DateTime());
+		if ($this->getCreated() === null) {
+			$this->setCreated(new DateTime());
+		}
+	}
 
 	public function getCreated(): ?DateTimeInterface
 	{
@@ -128,16 +140,44 @@ class EMailTemplate
 	}
 
 	/**
-	 * @ORM\PrePersist()
-	 * @ORM\PreUpdate()
+	 * @return bool
 	 */
-	public function updateModifiedDatetime()
+	public function getIsManualSendable(): bool
 	{
-		// update the modified time and creation time
-		$this->setLastModified(new DateTime());
-		if ($this->getCreated() === null) {
-			$this->setCreated(new DateTime());
-		}
+		return $this->isPublished && !$this->isApplicationHooked();
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isApplicationHooked()
+	{
+		return $this->getApplicationHook() != null && !empty($this->getApplicationHook());
+	}
+
+	/**
+	 * @return string|null
+	 */
+	public function getApplicationHook(): ?string
+	{
+		return $this->applicationHook;
+	}
+
+	public function setApplicationHook(?string $ApplicationHookName): self
+	{
+		$this->applicationHook = $ApplicationHookName;
+		return $this;
+	}
+
+	public function getBody(): ?string
+	{
+		return $this->body;
+	}
+
+	public function setBody(string $body = null): self
+	{
+		$this->body = $body ?? '';
+		return $this;
 	}
 
 	public function getIsPublished(): ?bool
@@ -148,26 +188,6 @@ class EMailTemplate
 	public function setIsPublished(bool $published): self
 	{
 		$this->isPublished = $published;
-		return $this;
-	}
-
-	/**
-	 * @return bool
-	 */
-	public function getIsManualSendable(): bool
-	{
-		return $this->isPublished && !$this->isApplicationHooked();
-	}
-
-	public function getBody(): ?string
-	{
-		return $this->body;
-	}
-
-	public function setBody(string $body = null): self
-	{
-		$this->body = $body;
-
 		return $this;
 	}
 
@@ -212,29 +232,6 @@ class EMailTemplate
 	public function setDesignFile(string $DesignFile): self
 	{
 		$this->DesignFile = $DesignFile;
-
-		return $this;
-	}
-
-	/**
-	 * @return bool
-	 */
-	public function isApplicationHooked()
-	{
-		return $this->getApplicationHook() != null && !empty($this->getApplicationHook());
-	}
-
-	/**
-	 * @return string|null
-	 */
-	public function getApplicationHook(): ?string
-	{
-		return $this->ApplicationHook;
-	}
-
-	public function setApplicationHook(?string $ApplicationHookName): self
-	{
-		$this->ApplicationHook = $ApplicationHookName;
 
 		return $this;
 	}

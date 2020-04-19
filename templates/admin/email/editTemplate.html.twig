@@ -4,33 +4,34 @@
 {% block siteheading %}<i class="far fa-envelope"></i> E-Mail: Neuer Newsletter{% endblock %}
 {% block main %}
 
+    <div class="row">
+        <div class="col-9">
 
-    <div class="example-wrapper">
-
-        <div class="row">
-            <div class="col-9">
-                {{ form_start(form) }}
-                {{ form_row(form.name) }}
-                {{ form_row(form.subject) }}
-                {{ form_row(form.designFile) }}
-                <br>
-                {{ form_row(form.body, {'attr': {'class': 'wysiwyg'}}) }}
-                <br>
-                {{ form_row(form.isPublished) }}
-                {{ form_end(form) }}
-            </div>
-            <div class="col-3">
-                <h3>Verwendbare Felder</h3>
-
-                {% for key,field in availableFields %}
-                    <p>
-                        &#123;&#123;{{ key }}&#125;&#125;<br>
-                        <small>{{ field }}</small>
-                    </p>
-                {% endfor %}
-
-            </div>
+            {{ form_start(form) }}
+            {% if not form.vars.valid %}
+                <div class="alert alert-error">
+                    {{ form_errors(form) }}
+                </div>
+            {% endif %}
+            {{ form_row(form.name) }}
+            {{ form_row(form.subject) }}
+            {{ form_row(form.designFile) }}
+            <br>
+            {{ form_row(form.body, {'attr': {'class': 'wysiwyg'}}) }}
+            <br>
+            {{ form_row(form.isPublished) }}
+            {{ form_end(form) }}
         </div>
+        <div class="col-3">
+            <h3>Verwendbare Felder</h3>
 
+            {% for key,field in availableFields %}
+                <p>
+                    &#123;&#123;{{ key }}&#125;&#125;<br>
+                    <small>{{ field }}</small>
+                </p>
+            {% endfor %}
+
+        </div>
     </div>
 {% endblock %}
