@@ -19,13 +19,13 @@
     </nav>
     <div class="tab-content" id="nav-tabContent" style="margin-top: 20px">
         <div class="tab-pane fade  " id="nav-templates" role="tabpanel" aria-labelledby="nav-templates-tab">
-            {% include('admin/email/templates.html.twig') %}
+            {% include 'admin/email/templates.html.twig' with {'templates' : templates} %}
         </div>
         <div class="tab-pane fade show active" id="nav-sendings" role="tabpanel" aria-labelledby="nav-sendings-tab">
             {% include('admin/email/sendings.html.twig') %}
         </div>
         <div class="tab-pane fade" id="nav-applicationHooks" role="tabpanel" aria-labelledby="nav-applicationHooks-tab">
-            3
+            {% include 'admin/email/templates.html.twig' with {'templates' : applicationHooks} %}
         </div>
     </div>
 {% endblock %}
