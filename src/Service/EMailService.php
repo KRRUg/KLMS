@@ -5,13 +5,13 @@ namespace App\Service;
 
 
 use App\Entity\EMail\EMailRecipient;
+use App\Entity\EMail\EmailSending;
 use App\Entity\EMail\EmailSendingTask;
 use App\Entity\EMail\EMailTemplate;
 use App\Repository\EMail\EmailSendingTaskRepository;
 use App\Repository\EMail\EMailTemplateRepository;
 use App\Security\User;
 use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
 use Psr\Log\LoggerInterface;
@@ -194,42 +194,39 @@ class EMailService
 		return $design;
 	}
 
-	public function createSendingTasks(EMailTemplate $template)
+	public function createSending(EMailTemplate $template, string $userGroupName = null)
 	{
-		$errors = [];
-		$sentTaskUserIds = $template->getEmailSendingTasks()->map(function (EmailSendingTask $task) {
-			return $task->getRecipientId();
-		});
-		$userIds = $this->usersForActiveSending->map(function (EMailRecipient $recipient) {
-			return $recipient->getId();
-		});
-		$diff = array_diff($userIds->toArray(), $sentTaskUserIds->toArray());
+		$userGroupName = $userGroupName ?? 'TEST'; //TODO ausbauen, wenn mal Gruppen verfügbar sind
 
-		if (count($diff) == 0) {
-			array_push($errors, "Sending Task for recipients already created, no more recipients without E-Mail sending");
-		}
+		$sending = new  EmailSending();
+		$sending->setEMailTemplate(clone $template)
+		        ->setRecipientGroup($userGroupName)
+		        ->setStatus("created");
 
-		try {
-			foreach ($diff as $user) {
-				$task = new EmailSendingTask();
-				$task->setRecipientId($user);
-				$task->setIsSendable(true);
-				$this->em->persist($task);
-				$template->addEmailSendingTask($task);
-			}
-			$this->em->flush();
+		$this->em->persist($sending);
+		$this->em->flush();
 
-		} catch (UniqueConstraintViolationException $e) {
-			$error = $template->getName() . "[" . $template->getId() . "] => " . $task->getRecipientId() . " already exists for email,  Process was not successful!";
-			array_push($errors, $error);
-			$this->logger->warning($error);
-		}
-		return $errors;
 	}
 
-	public function getPossibleEmailRecipients($group = null): ArrayCollection
+	public function createSendingTasks(EmailSending $sending)
+	{
+		//User holen
+
+		$users = $this->getPossibleEmailRecipients($sending->getRecipientGroup());
+		$template = $sending->getEMailTemplate();
+		$sending->setStatus('Empfänger werden geladen');
+		$this->em->persist($sending);
+		$this->em->flush();
+
+		foreach ($users as $user) {
+			$this->sendEMail($template, $user);
+		}
+	}
+
+	private function getPossibleEmailRecipients($group = null): ArrayCollection
 	{
 		//TODO: Mockdaten gegen echte Daten austauschen
+		//$usersToFind = hatasSuperMethodeZumAbholenDerUserAusDenUsergruppen();
 		$usersToFind = [
 			'00000000-0000-0000-0000-000000000000',
 			'00000000-0000-0000-0000-000000000001',
@@ -237,46 +234,17 @@ class EMailService
 			'00000000-0000-0000-0000-000000000003',
 			'00000000-0000-0000-0000-000000000004',
 		];
-		$users = $this->userService->getUsersByUuid($usersToFind);
+		$this->usersForActiveSending = $this->userService->getUsersByUuid($usersToFind);
 
-		foreach ($users as $user) {
-			$this->addRecipient($user);
-		}
-
-		return $this->usersForActiveSending;
+		return new ArrayCollection($this->usersForActiveSending);
 	}
 
 	/*
 	 * Sending methods
 	 */
 
-	private function addRecipient(User $user)
+	public function sendEmailTasks(EMailTemplate $template = null) //DEPRECATED
 	{
-		if ($user != null) {
-			$this->usersForActiveSending->add(new EMailRecipient($user));
-		}
-	}
-
-	public function getTemplateVariables()
-	{
-		$testRecipient = $this->getTestRecipient();
-		return $testRecipient->getDataArray();
-	}
-
-	private function getTestRecipient()
-	{
-		$user = new User();
-		$user->setUuid("0325a40e-a254-4c2f-be60-97e73307b720");
-		$user->setNickname("Testie");
-		$user->setFirstname("Testine");
-		$user->setSurname("Tester");
-		$user->setEmail("testine.tester@test.com");
-		return new  EMailRecipient($user);
-	}
-
-	public function sendEmailTasks(EMailTemplate $template = null)
-	{
-
 		$tasks = $this->getSendableEMailTasks($template);
 
 		//UserIds von IDM holen
@@ -317,7 +285,7 @@ class EMailService
 	 *
 	 * @return EmailSendingTask[]
 	 */
-	private function getSendableEMailTasks(EMailTemplate $template = null)
+	private function getSendableEMailTasks(EMailTemplate $template = null) //DEPRECATED
 	{
 		if ($template != null && $template->getIsPublished()) {
 			$tasks = $this->tasks->findBy(['EMailTemplate' => $template, 'isSent' => false, 'isSendable' => true], ['created' => 'ASC']);
@@ -341,6 +309,21 @@ class EMailService
 			});
 			$this->em->remove($template);
 			$this->em->flush();
+		}
+	}
+
+	public function deleteSending(EmailSending $sending)
+	{
+		if ($sending->getIsDeletable()) {
+			$this->em->remove($sending);
+			$this->em->flush();
+		}
+	}
+
+	private function addRecipient(User $user)
+	{
+		if ($user != null) {
+			$this->usersForActiveSending->add(new EMailRecipient($user));
 		}
 	}
 }

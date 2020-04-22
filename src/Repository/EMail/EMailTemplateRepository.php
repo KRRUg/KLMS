@@ -20,12 +20,6 @@ class EMailTemplateRepository extends ServiceEntityRepository
 		parent::__construct($registry, EMailTemplate::class);
 	}
 
-	public function hasTemplateAccess(User $user, EMailTemplate $template = null): bool
-	{
-
-		return  $template != null && !$template->isApplicationHooked() || array_key_exists("ROLE_ADMIN_APPLICATION_EMAILS", $user->getRoles()) || $_ENV['APP_ENV'] == 'dev';
-	}
-
 	public function findAllByRole(User $user): array
 	{
 		if ($this->hasTemplateAccess($user, null)) {
@@ -34,6 +28,42 @@ class EMailTemplateRepository extends ServiceEntityRepository
 			$templates = $this->findBy(['ApplicationHook' => null]);
 		}
 		return $templates;
+	}
+
+	public function hasTemplateAccess(User $user, EMailTemplate $template = null): bool
+	{
+
+		return $template != null && !$template->isApplicationHooked() || array_key_exists("ROLE_ADMIN_APPLICATION_EMAILS", $user->getRoles()) || $_ENV['APP_ENV'] == 'dev';
+	}
+
+	public function findAllTemplatesWithoutSendings()
+	{
+		return $this->createQueryBuilderTemplatesWithoutSendings()
+		            ->orderBy('emailTemplate.created', 'DESC')
+		            ->getQuery()
+		            ->execute();
+	}
+
+	private function createQueryBuilderTemplatesWithoutSendings()
+	{
+		return $this->createQueryBuilderNewsletterTemplates()
+		            ->leftJoin('emailTemplate.emailSending', 'emailSending')
+		            ->andwhere('emailSending is null');
+
+	}
+
+	public function createQueryBuilderNewsletterTemplates()
+	{
+		return $this->createQueryBuilder('emailTemplate')
+		            ->andWhere('emailTemplate.applicationHook is null or emailTemplate.applicationHook = \'\'');
+
+	}
+
+	public function createQueryBuilderApplicationHookTemplates()
+	{
+		return $this->createQueryBuilder('emailTemplate')
+		            ->andWhere('emailTemplate.applicationHook is not null and emailTemplate.applicationHook > \'\'');
+
 	}
 
 

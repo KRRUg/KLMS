@@ -3,8 +3,11 @@
 namespace App\Controller\Admin;
 
 use App\Entity\EMail\EMailRecipient;
+use App\Entity\EMail\EmailSending;
 use App\Entity\EMail\EMailTemplate;
+use App\Form\EMailSendingType;
 use App\Form\EmailTemplateType;
+use App\Repository\EMail\EmailSendingRepository;
 use App\Repository\EMail\EMailTemplateRepository;
 use App\Service\EMailService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -23,14 +26,18 @@ class EMailController extends AbstractController
 
 	/**
 	 * @Route("/email/", name="email")
-	 * @param EMailTemplateRepository $repository
+	 * @param EMailTemplateRepository $templateRepository
+	 *
+	 * @param EmailSendingRepository $sendingRepository
 	 *
 	 * @return Response
 	 */
-	public function index(EMailTemplateRepository $repository)
+	public function index(EMailTemplateRepository $templateRepository, EmailSendingRepository $sendingRepository)
 	{
-		$templates = $repository->findAllByRole($this->getUser());
-		return $this->render('admin/email/index.html.twig', ['templates' => $templates]);
+		$templates = $templateRepository->findAllTemplatesWithoutSendings();
+		//$templates = $templateRepository->findAllByRole($this->getUser());
+		$sendings = $sendingRepository->findAll();
+		return $this->render('admin/email/index.html.twig', ['templates' => $templates, 'sendings' => $sendings]);
 	}
 
 	/**
@@ -58,21 +65,16 @@ class EMailController extends AbstractController
 	}
 
 	/**
-	 * @Route("/email/template/{id}/createsendingtasks/", name="email_template_createsendingtasks")
-	 * @param EMailTemplate $template
+	 * @Route("/email/sending/{id}/send/", name="email_sending_send")
 	 * @param EMailService $mailService
+	 * @param EmailSending $sending
 	 *
 	 * @return RedirectResponse|Response
 	 */
-	public function createSendingTasks(EMailService $mailService, EMailTemplate $template)
+	public function createSendingTasks(EMailService $mailService, EmailSending $sending)
 	{
+		$mailService->createSendingTasks($sending);
 		//TODO Usergruppe empfangen
-		$mailService->getPossibleEmailRecipients();
-		$errors = $mailService->createSendingTasks($template);
-		$mailService->sendEmailTasks($template);
-		foreach ($errors as $error) {
-			$this->addFlash('error', $error);
-		}
 		return $this->redirectToRoute('admin_email');
 	}
 
@@ -148,5 +150,55 @@ class EMailController extends AbstractController
 	{
 		$mailService->deleteTemplate($template);
 		return $this->redirectToRoute('admin_email');
+	}
+
+	/**
+	 * @Route("/email/sending/delete/{id}", name="email_sending_delete")
+	 * @param EmailSending $sending
+	 * @param EMailService $mailService
+	 *
+	 * @return RedirectResponse
+	 */
+	public function deleteSending(EmailSending $sending, EMailService $mailService)
+	{
+		$mailService->deleteSending($sending);
+		return $this->redirectToRoute('admin_email');
+	}
+
+
+	/**
+	 * @Route("/email/sending/new/{id}", name="email_sending_new")
+	 * @param EMailTemplate $template
+	 * @param EMailService $mailService
+	 * @param Request $request
+	 *
+	 * @return void
+	 */
+	public function newSending(EMailTemplate $template, EMailService $mailService, Request $request)
+	{
+		$mailService->createSending($template, null);
+		return $this->redirectToRoute('admin_email');
+	}
+
+	/**
+	 * @Route("/email/sending/edit/{id}", name="email_sending_edit")
+	 * @param EmailSending $sending
+	 * @param Request $request
+	 *
+	 * @return RedirectResponse|Response
+	 */
+	public function editSending(EmailSending $sending, Request $request)
+	{
+		$form = $this->createForm(EMailSendingType::class, $sending);
+		$form->handleRequest($request);
+
+		if ($form->isSubmitted() && $form->isValid()) {
+			$em = $this->getDoctrine()->getManager();
+			$sending = $form->getData();
+			$em->persist($sending);
+			$em->flush();
+			return $this->redirectToRoute('admin_email');
+		}
+		return $this->render('admin/email/editSending.html.twig', ["form" => $form->createView()]);
 	}
 }

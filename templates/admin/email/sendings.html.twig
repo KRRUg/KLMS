@@ -1,0 +1,98 @@
+<div class="row mb-4">
+    <div class="col-12">
+    </div>
+</div>
+<div class="row">
+    <div class="col-12">
+        {% for message in app.flashes('error') %}
+            <div class="flash-error alert alert-danger  alert-dismissible fade show ">
+                <!-- TODO mit coffee besprechen, eine ebene höher ziehen -->
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                {{ message }}
+            </div>
+        {% endfor %}
+        <div class="card">
+            <table class="table">
+                <thead>
+                <tr>
+                    <th></th>
+                    <th>Titel</th>
+                    <th>Empfänger</th>
+                    <th>Status</th>
+                    <th>Options</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for  sending in sendings %}
+                    <tr>
+                        <td><input type="checkbox"/></td>
+                        <td>
+
+                            {% if sending.isEditable %}
+                                <a href="{{ path('admin_email_edit', {'id' : sending.eMailTemplate.id}) }}"
+                                   title="Bearbeiten {{ sending.eMailTemplate.name }} ">{{ sending.eMailTemplate.name }}</a>
+                            {% else %}
+                                {{ sending.eMailTemplate.name }}
+                                <small class="text-muted">nicht editierbar</small>
+                            {% endif %}
+                            <br>
+                            <small class="text-muted"><b>{{ sending.eMailTemplate.subject }}</b></small>
+                            <br>
+                            <small class="text-muted">{{ sending.eMailTemplate.body | striptags|slice(0, 40) }}</small>
+
+                        </td>
+                        <td>
+                            {% if sending.recipientGroup is defined %}
+                                Gruppe: {{ sending.recipientGroup }}
+                            {% else %}
+                                <span class="fa fa-exclamation-triangle fa-warning"></span> Noch keine Emfangsliste ausgewählt!
+                            {% endif %}
+                        </td>
+
+                        <td>
+
+
+                            {% if not sending.isPublished %}
+                                <br>
+                                <span class="fa fa-lock fa-warning"></span> Sendung noch nicht freigegeben!
+                            {% endif %}
+
+
+                        </td>
+                        <td>
+                            <a class="btn btn-outline-dark"
+                               href="{{ path('admin_email_show', {'id' : sending.eMailTemplate.id}) }}"
+                               title="Anzeigen">
+                                <i class="fas fa-eye"></i></a>
+
+                            <a class="btn btn-outline-dark"
+                               href="{{ path('admin_email_send_testmail', {'id' : sending.eMailTemplate.id}) }}"
+                               title="Test E-Mail senden">
+                                <i class="fas fa-vial"></i></a>
+
+                            <a class="btn btn-outline-dark
+                                {% if  sending.eMailTemplate.isApplicationHooked %} disabled {% endif %}"
+                               href="{{ path('admin_email_show', {'id' : sending.id}) }}"
+                               title="Empfänger bearbeiten">
+                                <i class="fas fa-user-edit"></i></a>
+
+                            <a class="btn btn-outline-dark
+                                {% if not sending.isDeletable %} disabled {% endif %}"
+                               href="{{ path('admin_email_sending_delete', {'id' : sending.id}) }}" title="Löschen">
+                                <i class="fas fa-trash-alt"></i></a>
+
+                            <a class="btn btn-outline-dark"
+                               href="{{ path('admin_email_sending_send', {'id' : sending.id}) }}" title=" Sendung
+                               erstellen">
+                            <i class="fas fa-paper-plane"></i> versenden</a>
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
