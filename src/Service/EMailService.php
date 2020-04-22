@@ -8,13 +8,17 @@ use App\Entity\EMail\EMailRecipient;
 use App\Entity\EMail\EmailSending;
 use App\Entity\EMail\EmailSendingTask;
 use App\Entity\EMail\EMailTemplate;
+use App\Repository\EMail\EmailSendingRepository;
 use App\Repository\EMail\EmailSendingTaskRepository;
 use App\Repository\EMail\EMailTemplateRepository;
 use App\Security\User;
+use DateTime;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\Console\Style\SymfonyStyle;
+use Symfony\Component\Mailer\Exception\TransportExceptionInterface;
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Mime\Address;
 use Symfony\Component\Mime\Email;
@@ -39,9 +43,9 @@ class EMailService
 	protected $mailer;
 	protected $senderAddress;
 	protected $userService;
-	protected $usersForActiveSending;
 	protected $em;
 	protected $templateRepository;
+	protected $sendingRepository;
 	protected $logger;
 	protected $tasks;
 	protected $twig;
@@ -51,6 +55,7 @@ class EMailService
 	                            LoggerInterface $logger,
 	                            EmailSendingTaskRepository $emailSendingTaskRepository,
 	                            EMailTemplateRepository $templateRepository,
+	                            EmailSendingRepository $sendingRepository,
 	                            EntityManagerInterface $em,
 	                            Environment $twig,
 	                            UserService $userService)
@@ -65,8 +70,8 @@ class EMailService
 		//repos
 		$this->tasks = $emailSendingTaskRepository;
 		$this->templateRepository = $templateRepository;
+		$this->sendingRepository = $sendingRepository;
 		$this->twig = $twig;
-		$this->usersForActiveSending = new ArrayCollection();
 		$this->systemMessageUser = $userService->getUsersInfoByUuid([$_ENV["MAILER_SYSTEM_MESSAGE_USER_GUUID"]])[0];
 	}
 
@@ -123,6 +128,9 @@ class EMailService
 			                      ->html($template->getBody());
 			$this->mailer->send($email);
 		} catch (Exception $e) {
+			$this->logger->error($e);
+			$error = $e;
+		} catch (TransportExceptionInterface $e) {
 			$this->logger->error($e);
 			$error = $e;
 		} finally {
@@ -201,27 +209,61 @@ class EMailService
 		$sending = new  EmailSending();
 		$sending->setEMailTemplate(clone $template)
 		        ->setRecipientGroup($userGroupName)
-		        ->setStatus("created");
+		        ->setStatus("Sendung erstellt");
 
 		$this->em->persist($sending);
 		$this->em->flush();
 
 	}
 
-	public function createSendingTasks(EmailSending $sending)
+	public function createSendingTasksAllSendings(SymfonyStyle $io = null)
+	{
+
+		$sendings = $this->sendingRepository->findNewsletterSendable();
+		if (count($sendings) == 0) {
+			$io->note("No sendable newsletters found");
+		}
+		foreach ($sendings as $sending) {
+			if ($sending->getStartTime() <= new  DateTime()) {
+				$sendingName = $sending->getEMailTemplate()->getName() . ' for UserGroup ' . $sending->getRecipientGroup();
+				$io->note("Starting: $sendingName");
+				$countGenerated = $this->createSendingTasks($sending);
+				$io->note("Finished: $sendingName $countGenerated Mails generated");
+				$sending->setStatus('E-Mail Jobs generiert, beginne mit Versendung.');
+				$this->em->persist($sending);
+				$this->em->flush();
+			}
+		}
+	}
+
+	public function createSendingTasks(EmailSending $sending): int
 	{
 		//User holen
-
+		$generatedCount = 0;
+		$errorCount = 0;
 		$users = $this->getPossibleEmailRecipients($sending->getRecipientGroup());
 		$template = $sending->getEMailTemplate();
 		$sending->setStatus('Empfänger werden geladen');
+		$sending->setIsInSending(true);
+		$sending->setRecipientCount($users->count());
 		$this->em->persist($sending);
 		$this->em->flush();
 
 		foreach ($users as $user) {
-			$this->sendEMail($template, $user);
+			if ($this->sendEMail($template, $user) == null) {
+				$generatedCount++;
+			} else {
+				$errorCount++;
+			};
 		}
+		$sending->setRecipientCountGenerated($generatedCount);
+		$sending->setErrorCount($errorCount);
+		$this->em->persist($sending);
+		$this->em->flush();
+
+		return $generatedCount;
 	}
+
 
 	private function getPossibleEmailRecipients($group = null): ArrayCollection
 	{
@@ -234,9 +276,8 @@ class EMailService
 			'00000000-0000-0000-0000-000000000003',
 			'00000000-0000-0000-0000-000000000004',
 		];
-		$this->usersForActiveSending = $this->userService->getUsersByUuid($usersToFind);
-
-		return new ArrayCollection($this->usersForActiveSending);
+		$users = $this->userService->getUsersByUuid($usersToFind);
+		return new ArrayCollection($users);
 	}
 
 	/*
@@ -317,13 +358,6 @@ class EMailService
 		if ($sending->getIsDeletable()) {
 			$this->em->remove($sending);
 			$this->em->flush();
-		}
-	}
-
-	private function addRecipient(User $user)
-	{
-		if ($user != null) {
-			$this->usersForActiveSending->add(new EMailRecipient($user));
 		}
 	}
 }

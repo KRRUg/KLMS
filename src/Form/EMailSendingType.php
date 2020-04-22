@@ -30,13 +30,13 @@ class EMailSendingType extends AbstractType
 				'choice_label' => 'name'
 			])*/
 			->add('recipientGroup')
-			->add('status')
+			//->add('status')
 			//->add('created')
 			->add('startTime')
 			//->add('recipientCount')
 			//->add('recipientCountSent')
 			//->add('recipientCountGenerated')
-			->add('isPublished')
+			//->add('isPublished')
 			->add('save', SubmitType::class, ["label" => "speichern"]);
 	}
 

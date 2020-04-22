@@ -52,14 +52,26 @@ class EMailTemplateRepository extends ServiceEntityRepository
 
 	}
 
-	public function createQueryBuilderNewsletterTemplates()
+	private function createQueryBuilderNewsletterTemplates()
 	{
 		return $this->createQueryBuilder('emailTemplate')
 		            ->andWhere('emailTemplate.applicationHook is null or emailTemplate.applicationHook = \'\'');
 
 	}
 
-	public function createQueryBuilderApplicationHookTemplates()
+	/**
+	 * @return EMailTemplate[]
+	 */
+
+	public function findAllWithApplicationHook(): array
+	{
+		return $this->createQueryBuilderApplicationHookTemplates()
+		            ->orderBy('emailTemplate.name', 'ASC')
+		            ->getQuery()
+		            ->execute();
+	}
+
+	private function createQueryBuilderApplicationHookTemplates()
 	{
 		return $this->createQueryBuilder('emailTemplate')
 		            ->andWhere('emailTemplate.applicationHook is not null and emailTemplate.applicationHook > \'\'');

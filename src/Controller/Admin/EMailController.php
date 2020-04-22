@@ -10,6 +10,7 @@ use App\Form\EmailTemplateType;
 use App\Repository\EMail\EmailSendingRepository;
 use App\Repository\EMail\EMailTemplateRepository;
 use App\Service\EMailService;
+use DateTime;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -37,7 +38,8 @@ class EMailController extends AbstractController
 		$templates = $templateRepository->findAllTemplatesWithoutSendings();
 		//$templates = $templateRepository->findAllByRole($this->getUser());
 		$sendings = $sendingRepository->findAll();
-		return $this->render('admin/email/index.html.twig', ['templates' => $templates, 'sendings' => $sendings]);
+		$applicationHookTemplates = $templateRepository->findAllWithApplicationHook();
+		return $this->render('admin/email/index.html.twig', ['templates' => $templates, 'sendings' => $sendings, 'applicationHooks' => $applicationHookTemplates]);
 	}
 
 	/**
@@ -177,6 +179,52 @@ class EMailController extends AbstractController
 	public function newSending(EMailTemplate $template, EMailService $mailService, Request $request)
 	{
 		$mailService->createSending($template, null);
+		return $this->redirectToRoute('admin_email');
+	}
+
+	/**
+	 * @Route("/email/sending/unpublish/{id}", name="email_sending_unpublish")
+	 * @param EmailSending $sending
+	 * @param Request $request
+	 *
+	 * @return RedirectResponse
+	 */
+	public function unPublishSending(EmailSending $sending, Request $request)
+	{
+		if ($sending->getIsUnpublishable()) {
+			$sending->setIsPublished(false);
+			$sending->setStatus('Freigabe zuzrückgezogen');
+			$em = $this->getDoctrine()->getManager();
+			$em->persist($sending);
+			$em->flush();
+		}
+		return $this->redirectToRoute('admin_email');
+	}
+
+	/**
+	 * @Route("/email/sending/publish/{id}", name="email_sending_publish")
+	 * @param EmailSending $sending
+	 * @param Request $request
+	 *
+	 * @return RedirectResponse
+	 * @throws \Exception
+	 */
+	public function publishSending(EmailSending $sending, Request $request)
+	{
+		$now = new DateTime();
+		if ($sending->getIsPublishable()) {
+			$sending->setIsPublished(true);
+			$sending->setStatus('Freigabe erteilt');
+
+			if ($sending->getStartTime() == null || $sending->getStartTime() < $now) {
+				$sending->setStartTime($now->modify('+15 minutes'));
+				//$sending->setStatus('Zeit auf ' . date_format($now, 'd.m.Y H:i') . ' gesetzt');
+			}
+
+			$em = $this->getDoctrine()->getManager();
+			$em->persist($sending);
+			$em->flush();
+		}
 		return $this->redirectToRoute('admin_email');
 	}
 

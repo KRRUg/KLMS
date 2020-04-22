@@ -31,7 +31,7 @@ class EmailSending
 	private $recipientGroup;
 
 	/**
-	 * @ORM\Column(type="string", length=255)
+	 * @ORM\Column(type="string", length=255,nullable=true)
 	 */
 	private $status;
 
@@ -51,10 +51,6 @@ class EmailSending
 	 */
 	private $recipientCount = 0;
 
-	/**
-	 * @ORM\Column(type="integer")
-	 */
-	private $recipientCountSent = 0;
 
 	/**
 	 * @ORM\Column(type="integer")
@@ -65,6 +61,16 @@ class EmailSending
 	 * @ORM\Column(type="boolean")
 	 */
 	private $isPublished = false;
+
+	/**
+	 * @ORM\Column(type="boolean")
+	 */
+	private $isInSending = false;
+
+	/**
+	 * @ORM\Column(type="integer")
+	 */
+	private $errorCount = 0;
 
 	public function getId(): ?int
 	{
@@ -100,10 +106,15 @@ class EmailSending
 		return $this->status;
 	}
 
-	public function setStatus(string $status): self
+	public function setStatus(string $status = null): self
 	{
+		/*if ($this->status != null) {
+			$this->status .= " => " . $status . "\n";
+		} else {
+			$this->status = $status . "\n";
+		}
+		*/
 		$this->status = $status;
-
 		return $this;
 	}
 
@@ -136,7 +147,7 @@ class EmailSending
 		return $this->startTime;
 	}
 
-	public function setStartTime(DateTimeInterface $startTime): self
+	public function setStartTime(DateTimeInterface $startTime = null): self
 	{
 		$this->startTime = $startTime;
 
@@ -155,17 +166,6 @@ class EmailSending
 		return $this;
 	}
 
-	public function getRecipientCountSent(): ?int
-	{
-		return $this->recipientCountSent;
-	}
-
-	public function setRecipientCountSent(int $recipientCountSent): self
-	{
-		$this->recipientCountSent = $recipientCountSent;
-
-		return $this;
-	}
 
 	public function getRecipientCountGenerated(): ?int
 	{
@@ -179,6 +179,41 @@ class EmailSending
 		return $this;
 	}
 
+	public function getIsEditable()
+	{
+		return $this->getIsDeletable();
+		return true;//TODO implementieren!
+	}
+
+	public function getIsDeletable()
+	{
+		return !$this->getIsInSending();
+	}
+
+//Calculated Properties
+
+	public function getIsInSending(): ?bool
+	{
+		return $this->isInSending;
+	}
+
+	public function setIsInSending(bool $isInSending): self
+	{
+		$this->isInSending = $isInSending;
+
+		return $this;
+	}
+
+	public function getIsPublishable()
+	{
+		return !$this->isPublished;
+	}
+
+	public function getIsUnpublishable()
+	{
+		return $this->getIsPublished() && !$this->getIsInSending();
+	}
+
 	public function getIsPublished(): ?bool
 	{
 		return $this->isPublished;
@@ -187,19 +222,24 @@ class EmailSending
 	public function setIsPublished(bool $isPublished): self
 	{
 		$this->isPublished = $isPublished;
-
 		return $this;
 	}
 
-//Calculated Properties
-	public function getIsEditable()
+	public function getIsActiveSending()
 	{
-		return true;//TODO implementieren!
+		return $this->startTime != null && $this->startTime <= new DateTime() || $this->getIsInSending();
 	}
 
-	public function getIsDeletable()
+	public function getErrorCount(): ?int
 	{
-		return true;//TODO implementieren!
+		return $this->errorCount;
+	}
+
+	public function setErrorCount(int $errorCount): self
+	{
+		$this->errorCount = $errorCount;
+
+		return $this;
 	}
 
 

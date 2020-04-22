@@ -26,13 +26,14 @@ class GenerateEMailSendingTasksCommand extends Command
 	protected function configure()
 	{
 		$this
-			->setDescription('Add a short description for your command')
-			->addArgument('sendingTaskId', InputArgument::OPTIONAL, 'ID OF THE SENDING OPTIONAL, IF NULL ALL WHICH HAS TO BE RENDERED WILL BE RENDERED')//->addOption('option1', null, InputOption::VALUE_NONE, 'Option description')
+			->setDescription('Fills the messege queue with newsletter emails')
+			->addArgument('sendingId', InputArgument::OPTIONAL, 'ID OF THE SENDING OPTIONAL, IF NULL ALL WHICH HAS TO BE RENDERED WILL BE RENDERED')//->addOption('option1', null, InputOption::VALUE_NONE, 'Option description')
 		;
 	}
 
 	protected function execute(InputInterface $input, OutputInterface $output): int
 	{
+		$returnCode = 0;
 		$io = new SymfonyStyle($input, $output);
 		$sendingId = $input->getArgument('sendingId');
 
@@ -44,14 +45,14 @@ class GenerateEMailSendingTasksCommand extends Command
 				$io->note(sprintf('Generating E-Mails for SENDING ID: %s', $sendingId));
 				$this->mailService->createSendingTasks($sending);
 				$io->success('E-Mail queue has been filled with sending jobs');
-				$returnCode = 0;
+
 			} else {
 				$io->error('SENDING ID was not found');
 				$returnCode = 1;
 			}
-
-
+		} else {
+			$this->mailService->createSendingTasksAllSendings($io);
 		}
-		return $returnCode = 0;
+		return $returnCode;
 	}
 }

@@ -45,7 +45,19 @@
                         </td>
                         <td>
                             {% if sending.recipientGroup is defined %}
-                                Gruppe: {{ sending.recipientGroup }}
+                                Gruppe: {{ sending.recipientGroup }} <br>
+                                {{ sending.recipientCountGenerated | default(0) }}
+                                <small class="text-info"> generiert</small>
+                                <br>
+
+                                {{ sending.recipientCount | default(0) }}
+                                <small class="text-info"> Empfänger</small>
+                                <br>
+                                {{ sending.errorCount | default(0) }}
+                                <small class="text-info"> Fehler</small>
+                                <br>
+
+
                             {% else %}
                                 <span class="fa fa-exclamation-triangle fa-warning"></span> Noch keine Emfangsliste ausgewählt!
                             {% endif %}
@@ -53,12 +65,17 @@
 
                         <td>
 
-
+                            Status Info: {{ sending.status | default('') | nl2br }}<br>
                             {% if not sending.isPublished %}
-                                <br>
-                                <span class="fa fa-lock fa-warning"></span> Sendung noch nicht freigegeben!
+                                <span class="fa fa-lock fa-warning"></span> Sendung noch nicht freigegeben!<br>
+                            {% else %}
+                                <b>Geplanter Versandstart:</b>
+                                {% if sending.IsActiveSending %}
+                                    Sendung bereits aktiv
+                                {% else %}
+                                    {{ sending.startTime | date('d.m.Y - H:i') }}<br>
+                                {% endif %}
                             {% endif %}
-
 
                         </td>
                         <td>
@@ -73,20 +90,34 @@
                                 <i class="fas fa-vial"></i></a>
 
                             <a class="btn btn-outline-dark
-                                {% if  sending.eMailTemplate.isApplicationHooked %} disabled {% endif %}"
-                               href="{{ path('admin_email_show', {'id' : sending.id}) }}"
-                               title="Empfänger bearbeiten">
-                                <i class="fas fa-user-edit"></i></a>
+                                {% if  not sending.isEditable %} disabled {% endif %}"
+                               href="{{ path('admin_email_sending_edit', {'id' : sending.id}) }}"
+                               title="Sendung bearbeiten">
+                                <i class="fas fa-users-cog"></i></a>
+
+                            <a class="btn btn-outline-dark
+                                {% if  not sending.eMailTemplate.isEditable %} disabled {% endif %}"
+                               href="{{ path('admin_email_edit', {'id' : sending.id}) }}"
+                               title="Sendung bearbeiten">
+                                <i class="fas fa-file-word"></i></a>
 
                             <a class="btn btn-outline-dark
                                 {% if not sending.isDeletable %} disabled {% endif %}"
                                href="{{ path('admin_email_sending_delete', {'id' : sending.id}) }}" title="Löschen">
                                 <i class="fas fa-trash-alt"></i></a>
 
-                            <a class="btn btn-outline-dark"
-                               href="{{ path('admin_email_sending_send', {'id' : sending.id}) }}" title=" Sendung
-                               erstellen">
-                            <i class="fas fa-paper-plane"></i> versenden</a>
+                            {% if  sending.isPublishable %}
+                                <a class="btn btn-outline-dark"
+                                   href="{{ path('admin_email_sending_publish', {'id' : sending.id}) }}"
+                                   title="Sendung erstellen">
+                                    <i class="fas fa-check"></i> freigeben</a>
+                            {% elseif sending.isUnpublishable %}
+                                <a class="btn btn-warning"
+                                   href="{{ path('admin_email_sending_unpublish', {'id': sending.id}) }}"
+                                   title="Sendung freigegeben">
+                                    <i class="fas fa-check"></i> Freigabe zurücknehmen</a>
+                            {% else %}
+                            {% endif %}
                         </td>
                     </tr>
                 {% endfor %}

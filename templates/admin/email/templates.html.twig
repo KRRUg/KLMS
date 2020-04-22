@@ -56,10 +56,6 @@
                                     <span class="fa fa-lock" style="color: red"></span> Template noch nicht freigegeben!
                                 {% endif %}
 
-                                {% if not template.applicationHooked %}
-                                    <br>
-                                    {{ template.completedEmailSendingTasks | length }}/{{ template.emailSendingTasks | length }} versandt
-                                {% endif %}
 
                             </td>
                             <td>
