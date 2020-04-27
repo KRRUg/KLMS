@@ -69,14 +69,5 @@ yarn-error.log
 public/images
 symfony.lock
 yarn.lock
-assets/images/EMail/liste.png
-assets/images/EMail/controller.jpg
-assets/images/EMail/computer_netzwerk.png
-assets/images/EMail/Quellenangabe.txt
-assets/images/EMail/stuhl.png
-assets/images/EMail/liebe.png
-assets/images/EMail/background_heading.jpg
-assets/images/EMail/spielcontroller.png
-assets/images/EMail/computer.png
-assets/images/EMail/strassenschild.png
-assets/images/EMail/geld.png
+assets/images/EMail/*
+composer.lock
