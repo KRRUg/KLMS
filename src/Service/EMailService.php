@@ -34,7 +34,8 @@ class EMailService
 	const APPLICATIONHOOKS = [
 		"-" => null,
 		"REGISTRATION_CONFIRMATION" => "/email/REGISTRATION_CONFIRMATION.html.twig",
-		"ADMIN_ERRORMAIL" => "/email/ADMIN_ERRORMAIL.html.twig"
+		"ADMIN_ERRORMAIL" => "/email/ADMIN_ERRORMAIL.html.twig",
+		"CONTACT" => "/email/CONTACT.html.twig",
 	];
 	const NEWSLETTER_DESIGNS = [
 		"STANDARD" => "/email/STANDARD.html.twig",
