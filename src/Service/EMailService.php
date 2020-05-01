@@ -35,8 +35,6 @@ class EMailService
 		"-" => null,
 		"REGISTRATION_CONFIRMATION" => "/email/REGISTRATION_CONFIRMATION.html.twig",
 		"ADMIN_ERRORMAIL" => "/email/ADMIN_ERRORMAIL.html.twig",
-		"CONTACT_TO_ADMIN" => "/email/CONTACT_TO_ADMIN.html.twig",
-		"CONTACT_TO_USER" => "/email/CONTACT_TO_USER.html.twig",
 	];
 	const NEWSLETTER_DESIGNS = [
 		"STANDARD" => "/email/STANDARD.html.twig",
