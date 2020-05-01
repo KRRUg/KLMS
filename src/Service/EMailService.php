@@ -368,7 +368,7 @@ class EMailService
 	{
 		$error = null;
 		$text = "";
-		$text .= "<b>Name:</b>" . $data["firstname"] . $data["surname"] . "<br>";
+		$text .= "<b>Name:</b>" . $data["firstname"] .' '. $data["surname"] . "<br>";
 		$text .= "<b>E-Mail:</b> " . $data["email"] . "<br>";
 		$text .= "<b>Subject: </b>" . $data["subject"] . "<br>";
 		$text .= "<b>Message: </b>" . $data["message"] . "<br>";
