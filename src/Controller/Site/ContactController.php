@@ -27,6 +27,7 @@ class ContactController extends AbstractController
 		if ($form->isSubmitted() && $form->isValid()) {
 
 			$mailService->sendContactEMail($form->getData());
+			return $this->render('site/contact/thanks.html.twig');
 		}
 		return $this->render('site/contact/form.html.twig', ['form' => $form->createView()]);
 	}
