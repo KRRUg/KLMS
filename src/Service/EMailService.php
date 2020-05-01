@@ -74,7 +74,7 @@ class EMailService
 		$this->templateRepository = $templateRepository;
 		$this->sendingRepository = $sendingRepository;
 		$this->twig = $twig;
-		$this->systemMessageUser = $userService->getUsersInfoByUuid([$_ENV["MAILER_SYSTEM_MESSAGE_USER_GUUID"]])[0];
+		$this->systemMessageUser = $userService->getUsersInfoByUuid([$_ENV["MAILER_SYSTEM_MESSAGE_USER_GUID"]])[0];
 	}
 
 	public function sendByApplicationHook(string $applicationHook, User $user, string $stepname = null, array $payload = null)
@@ -362,4 +362,33 @@ class EMailService
 			$this->em->flush();
 		}
 	}
+
+
+	public function sendContactEMail($data): ?string
+	{
+		$error = null;
+		$text = "";
+		$text .= "<b>Name:</b>" . $data["firstname"] . $data["surname"] . "<br>";
+		$text .= "<b>E-Mail:</b> " . $data["email"] . "<br>";
+		$text .= "<b>Subject: </b>" . $data["subject"] . "<br>";
+		$text .= "<b>Message: </b>" . $data["message"] . "<br>";
+
+		try {
+			$email = (new Email())->from($this->senderAddress)
+			                      ->to($this->senderAddress)
+			                      ->subject('Kontaktanfrage')
+			                      ->html($text);
+			$this->mailer->send($email);
+		} catch (Exception $e) {
+			$this->logger->error($e);
+			$error = $e;
+		} catch (TransportExceptionInterface $e) {
+			$this->logger->error($e);
+			$error = $e;
+		} finally {
+			return $error;
+		}
+	}
+
+
 }
