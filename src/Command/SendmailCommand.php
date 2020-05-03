@@ -10,9 +10,9 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
-class GenerateEMailSendingTasksCommand extends Command
+class SendmailCommand extends Command
 {
-	protected static $defaultName = 'GenerateEMailSendingTasks';
+	protected static $defaultName = 'klms:service:sendmail';
 	protected $mailService;
 	protected $sendingRepository;
 
