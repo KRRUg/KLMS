@@ -9,6 +9,7 @@
                 {% if app.user.username is defined %}
                     {{ app.user.username }} <a href="/logout">logout</a>
                 {% else %}
+                    {%  include 'site/components/topBar/loginDropdown.html.twig' %}
                     <a class="btn btn-link" href="/login">
                         <i class="fas fa-user-circle"></i> Anmelden
                     </a>
