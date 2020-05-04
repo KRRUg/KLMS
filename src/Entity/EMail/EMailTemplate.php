@@ -62,11 +62,6 @@ class EMailTemplate
 	 */
 	private $applicationHook;
 
-	/**
-	 * @ORM\OneToMany(targetEntity="App\Entity\EMail\EmailSendingTask", mappedBy="EMailTemplate")
-	 */
-	private $emailSendingTasks;
-
     /**
      * @ORM\OneToOne(targetEntity="App\Entity\EMail\EmailSending", mappedBy="EMailTemplate", cascade={"persist", "remove"})
      */
@@ -75,7 +70,6 @@ class EMailTemplate
 
 	public function __construct()
          	{
-         		$this->emailSendingTasks = new ArrayCollection();
          	}
 
 	public function getId(): ?int
@@ -203,31 +197,9 @@ class EMailTemplate
 
 	public function getIsDeletable(): ?bool
          	{
-         		$sentTasks = $this->getEmailSendingTasks()->filter(function (EmailSendingTask $task) {
-         			return $task->getIsSent();
-         		})->count();
-         		return $sentTasks == 0 and !$this->isApplicationHooked();
+             		return!$this->isApplicationHooked();
          	}
 
-	/**
-	 * @return Collection|EmailSendingTask[]
-	 */
-	public function getEmailSendingTasks(): Collection
-         	{
-         		return $this->emailSendingTasks;
-         	}
-
-	/**
-	 * @return Collection|EmailSendingTask[]
-	 */
-	public function getCompletedEmailSendingTasks(): Collection
-         	{
-         		$sendingTasks = $this->getEmailSendingTasks()->filter(function (EmailSendingTask $t) {
-         			return $t->getIsSent();
-         		});
-         
-         		return $sendingTasks;
-         	}
 
 	public function getDesignFile(): ?string
          	{
@@ -237,29 +209,6 @@ class EMailTemplate
 	public function setDesignFile(string $DesignFile): self
          	{
          		$this->DesignFile = $DesignFile;
-         
-         		return $this;
-         	}
-
-	public function addEmailSendingTask(EmailSendingTask $emailSendingTask): self
-         	{
-         		if (!$this->emailSendingTasks->contains($emailSendingTask)) {
-         			$this->emailSendingTasks[] = $emailSendingTask;
-         			$emailSendingTask->setEMailTemplate($this);
-         		}
-         
-         		return $this;
-         	}
-
-	public function removeEmailSendingTask(EmailSendingTask $emailSendingTask): self
-         	{
-         		if ($this->emailSendingTasks->contains($emailSendingTask)) {
-         			$this->emailSendingTasks->removeElement($emailSendingTask);
-         			// set the owning side to null (unless already changed)
-         			if ($emailSendingTask->getEMailTemplate() === $this) {
-         				$emailSendingTask->setEMailTemplate(null);
-         			}
-         		}
          
          		return $this;
          	}

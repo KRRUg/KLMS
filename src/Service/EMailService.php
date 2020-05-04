@@ -6,10 +6,8 @@ namespace App\Service;
 
 use App\Entity\EMail\EMailRecipient;
 use App\Entity\EMail\EmailSending;
-use App\Entity\EMail\EmailSendingTask;
 use App\Entity\EMail\EMailTemplate;
 use App\Repository\EMail\EmailSendingRepository;
-use App\Repository\EMail\EmailSendingTaskRepository;
 use App\Repository\EMail\EMailTemplateRepository;
 use App\Security\User;
 use DateTime;
@@ -53,7 +51,6 @@ class EMailService
 
 	public function __construct(MailerInterface $mailer,
 	                            LoggerInterface $logger,
-	                            EmailSendingTaskRepository $emailSendingTaskRepository,
 	                            EMailTemplateRepository $templateRepository,
 	                            EmailSendingRepository $sendingRepository,
 	                            EntityManagerInterface $em,
@@ -68,7 +65,6 @@ class EMailService
 		$this->logger = $logger;
 		$this->em = $em;
 		//repos
-		$this->tasks = $emailSendingTaskRepository;
 		$this->templateRepository = $templateRepository;
 		$this->sendingRepository = $sendingRepository;
 		$this->twig = $twig;
@@ -280,61 +276,6 @@ class EMailService
 		return new ArrayCollection($users);
 	}
 
-	/*
-	 * Sending methods
-	 */
-
-	public function sendEmailTasks(EMailTemplate $template = null) //DEPRECATED
-	{
-		$tasks = $this->getSendableEMailTasks($template);
-
-		//UserIds von IDM holen
-		$userIds = array_map(function (EmailSendingTask $task) {
-			return $task->getRecipientId();
-		}, $tasks);
-		$users = $this->userService->getUsersByUuid($userIds);
-
-		//lookup bauen, damit nachher schnell gesucht werden kann
-		$userLookup = [];
-		foreach ($users as $user) {
-			$userLookup[$user->getUuid()] = $user;
-		}
-
-		foreach ($tasks as $task) {
-			//wenn template mitgegeben, kommen nur Tasks aus dem Template, wenn nicht(Multi Template sending), dann sucht sich der Task sein Template
-			if ($template == null)
-				$template = $task->getEMailTemplate();
-
-			if ($template->getIsManualSendable()) {
-				$recipientId = $task->getRecipientId();
-				$recipient = $userLookup[$recipientId];
-
-				//email Versand versuchen
-				$sendingError = $this->sendEMail($template, $recipient);
-				if ($sendingError == null) { //TODO auf Exceptions umbauen
-					$task->setIsSent();
-					$this->em->persist($task);
-					$this->em->flush();
-				}
-			}
-		}
-	}
-
-	/**
-	 * @param EMailTemplate|null $template
-	 * @param null $limit
-	 *
-	 * @return EmailSendingTask[]
-	 */
-	private function getSendableEMailTasks(EMailTemplate $template = null) //DEPRECATED
-	{
-		if ($template != null && $template->getIsPublished()) {
-			$tasks = $this->tasks->findBy(['EMailTemplate' => $template, 'isSent' => false, 'isSendable' => true], ['created' => 'ASC']);
-		} else {
-			$tasks = $this->tasks->findBy(['isSent' => false, 'isSendable' => true], ['created' => 'ASC']);
-		}
-		return $tasks;
-	}
 
 	public function sendSingleEmail(EMailTemplate $template, User $user)
 	{
@@ -344,10 +285,6 @@ class EMailService
 	public function deleteTemplate(EMailTemplate $template)
 	{
 		if ($template->getIsDeletable()) {
-			//Alle Tasks löschen
-			$template->getEmailSendingTasks()->forAll(function (EmailSendingTask $task) {
-				$this->em->remove($task);
-			});
 			$this->em->remove($template);
 			$this->em->flush();
 		}
