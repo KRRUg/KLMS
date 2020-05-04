@@ -1,0 +1,15 @@
+.card-avatar {
+    position:relative;
+    left:50%;
+    margin-left:-$card-avatar-size / 2;
+    margin-top: -$card-avatar-size / 2;
+    width: $card-avatar-size;
+    height: $card-avatar-size;
+    line-height: $card-avatar-size;
+    font-size: $card-avatar-size * 0.6;
+    text-align: center;    
+}
+
+.mt-avatar {
+    margin-top: $card-avatar-size*0.75;
+}

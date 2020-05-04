@@ -28,13 +28,10 @@ $box-shadow-xl: 0 25.6px 57.6px 0 rgba($shadow-color,.22),0 4.8px 14.4px 0 rgba(
 
 @import '../../../node_modules/bootstrap/scss/bootstrap.scss';
 
-.dropdown-menu-lg {
-    min-width: $dropdown-min-width * 2;
-}
-
 @import 'header.scss';
 @import 'navigation.scss';
 @import 'sidebar.scss';
+@import 'card.scss';
 
 footer {
     box-shadow: $box-shadow;
@@ -53,4 +50,9 @@ footer {
         height:15rem;
         overflow:hidden;
     }
+}
+
+
+.dropdown-menu-lg {
+    min-width: $dropdown-min-width * 2;
 }

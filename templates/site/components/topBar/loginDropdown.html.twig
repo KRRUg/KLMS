@@ -1,0 +1,40 @@
+<div class="dropdown d-inline-block">
+    <button type="button" id="dropdownMenu1" data-toggle="dropdown" class="btn btn-link dropdown-toggle">
+        <i class="fas fa-user-circle"></i> Anmelden
+    </button>
+    <ul class="dropdown-menu dropdown-menu-lg dropdown-menu-right mt-0 p-0">
+        <li class="px-4 py-3">
+            <form action="/login" method="post" class="form login-form" role="form" >
+                <h4 class="text-center font-weight-normal mb-3">Anmeldung</h4>
+                <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}" >
+                <div class="form-group">
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text" id="logon-user-addon"><i class="fas fa-user"></i> </span>
+                        </div>
+                        <input type="text" class="form-control" id="inputUsername" name="username" placeholder="Username" aria-label="Username" aria-describedby="logon-user-addon">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text" id="logon-password-addon"><i class="fas fa-key"></i> </span>
+                        </div>
+                        <input type="password" class="form-control" id="inputPassword" name="password"  placeholder="Password" aria-label="Password" aria-describedby="logon-password-addon">
+                    </div>
+                    <small class="form-text text-right"><a href="{# TODO: Link Passwort vergessen einbauen #}" data-toggle="modal" data-target="#modalPassword">Passwort vergessen?</a></small>
+                </div>
+                <div class="form-group">
+                    <button type="submit" class="btn btn-primary btn-block">Login</button>
+                </div>
+                <div class="form-group form-check custom-control custom-checkbox">
+                    <input type="checkbox" class="form-check-input custom-control-input" id="input-remember-me" name="_remember_me">
+                    <label class="form-check-label custom-control-label" for="input-remember-me">Angemeldet bleiben</label>
+                </div>
+            </form>
+        </li>
+        <li class="p-3 text-center bg-dark text-light">
+            Neu? <a href="/register">Account erstellen</a>
+        </li>
+    </ul>
+</div>
