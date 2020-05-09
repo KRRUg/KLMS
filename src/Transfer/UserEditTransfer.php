@@ -108,7 +108,10 @@ final class UserEditTransfer
      */
     public $statements;
 
-
+    /**
+     * @var int
+     */
+    public $status;
 
     public static function fromUser(User $user): self
     {
@@ -129,6 +132,7 @@ final class UserEditTransfer
         $transfer->hardware = $user->getHardware();
         $transfer->infoMails = $user->getInfoMails();
         $transfer->statements = $user->getStatements();
+        $transfer->status = $user->getStatus();
 
 
         return $transfer;

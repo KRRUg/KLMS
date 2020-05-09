@@ -196,9 +196,7 @@ class UserService
 
     private function requestToUserEdit(User $user) : UserEditTransfer
     {
-        $serializer = new Serializer([new ArrayDenormalizer(), new DateTimeNormalizer(), new ObjectNormalizer(null, null, null, new ReflectionExtractor() )], [new JsonEncoder()]);
         try{
-            //$user = $serializer->deserialize($response, User::class."[]", 'json');
             $data = UserEditTransfer::fromUser($user);
         } catch (\RuntimeException $e) {
             throw new UserServiceException("Invalid request.", null, $e);
@@ -219,6 +217,22 @@ class UserService
             return null;
         } else {
             return $this->responseToUser($result);
+        }
+    }
+
+    /**
+     * Requests all User Objects from IDM, only to be used if up-to-date data is required (e.g. for admin purpose).
+     * @param integer $page the Page to be requested (1 Page = 50 Users) WIP.
+     * @return User[]|null The user object, if it exits, null otherwise.
+     */
+    public function getAllUsers(int $page = 1) : ?array
+    {
+        // TODO: implement Pagination
+        $result = $this->request('USER', null);
+        if ($result === false) {
+            return null;
+        } else {
+            return $this->responseToUsers($result);
         }
     }
 
@@ -301,5 +315,15 @@ class UserService
     {
         // TODO make a cache lookup here
         return $this->getUsersByUuid($uuids);
+    }
+
+    /**
+     * Returns all users. This function returns a cached UserInfo.
+     * @return UserInfo[] Array of user infos.
+     */
+    public function getAllUsersInfoByUuid() : array
+    {
+        // TODO make a cache lookup here
+        return $this->getAllUsersInfoByUuid();
     }
 }

@@ -12,6 +12,10 @@
         <td>{{ user.email }}</td>
     </tr>
     <tr>
+        <td>KLMS ID</td>
+        <td>{{ user.id }}</td>
+    </tr>
+    <tr>
     <td>Firstname</td>
         <td>{{ user.firstname }}</td>
     </tr>
@@ -78,6 +82,7 @@
         </tr>
         </thead>
     {% for clan in user.clans %}
+        {# TODO: Hyperlink to ClanShow #}
     <tr>
         <td>{{ clan.clan.name }}</td>
         <td>{{ clan.clan.description }}</td>
