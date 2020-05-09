@@ -1,0 +1,11 @@
+{% extends 'site/siteBase.html.twig' %}
+
+{% block main %}
+        <span id="emailvalidation"></span>
+        {{ form(form) }}
+        <span id="nicknamevalidation"></span>
+{% endblock %}
+{% block javascripts %}
+        {{ parent() }}
+        {{ encore_entry_script_tags('userRegister') }}
+{% endblock %}

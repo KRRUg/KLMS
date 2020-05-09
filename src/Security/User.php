@@ -47,6 +47,8 @@ final class User extends UserInfo implements UserInterface
 
     private $statements;
 
+    private $emailConfirmed;
+
     public function getEmail(): string
     {
         return $this->email;
@@ -247,6 +249,18 @@ final class User extends UserInfo implements UserInterface
     public function setStatements(?string $statements): self
     {
         $this->statements = $statements;
+
+        return $this;
+    }
+
+    public function getEmailConfirmed(): ?bool
+    {
+        return $this->emailConfirmed;
+    }
+
+    public function setEmailConfirmed(bool $emailConfirmed): self
+    {
+        $this->emailConfirmed = $emailConfirmed;
 
         return $this;
     }

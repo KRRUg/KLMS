@@ -9,10 +9,12 @@ use App\Repository\UserAdminsRepository;
 use App\Repository\UserGamerRepository;
 use App\Security\User;
 use App\Security\UserInfo;
+use App\Transfer\UserEditTransfer;
 use Doctrine\Common\Annotations\Annotation\Required;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpClient\HttpClient;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\PropertyInfo\Extractor\ReflectionExtractor;
 use Symfony\Component\Serializer\Encoder\JsonEncoder;
 use Symfony\Component\Serializer\Normalizer\ArrayDenormalizer;
@@ -31,6 +33,10 @@ class UserService
     private $em;
     private $ar;
     private $gr;
+    /**
+     * @var int
+     */
+    private $statusCode;
 
     public function __construct(UserAdminsRepository $ar,
                                 UserGamerRepository $gr,
@@ -47,8 +53,11 @@ class UserService
     const PATH = 1;
     const ENDPOINTS = [
         'USER'  => [self::PATH => 'users',           self::METHOD => 'GET' ],
-        'USERS' => [self::PATH => 'users/search',    self::METHOD => 'POST'],
+        'USERS' => [self::PATH => 'users/search',    self::METHOD => 'POST'],//
         'AUTH'  => [self::PATH => 'users/authorize', self::METHOD => 'POST'],
+        'REGISTER' => [self::PATH => 'users/register',    self::METHOD => 'POST'],
+        'USEREDIT' => [self::PATH => 'users',    self::METHOD => 'PATCH'],
+        'USERCHECK' => [self::PATH => 'users/check',    self::METHOD => 'POST'],
     ];
 
     private function getClient()
@@ -76,12 +85,12 @@ class UserService
     /**
      * @param string $endpoint Endpoint identifier (see self::ENDPOINTS)
      * @param string|null $param REST url parameter
-     * @param array $content The content of the request (will be encoded as JSON for the request)
+     * @param array|mixed $content The content of the request (will be encoded as JSON for the request)
      * @return bool|mixed Returns false on 404 or error, the data result otherwise
      *
      * @throws
      */
-    private function request(string $endpoint, ?string $param = null, array $content = [])
+    private function request(string $endpoint, ?string $param = null, $content = [])
     {
         try {
             $method = $this->getMethod($endpoint);
@@ -92,6 +101,8 @@ class UserService
                     'json' => $content,
                 ]
             );
+            
+            $this->statusCode = $response->getStatusCode();
 
             if ($response->getStatusCode() === 404) {
                 return false;
@@ -183,6 +194,19 @@ class UserService
         return $user;
     }
 
+    private function requestToUserEdit(User $user) : UserEditTransfer
+    {
+        $serializer = new Serializer([new ArrayDenormalizer(), new DateTimeNormalizer(), new ObjectNormalizer(null, null, null, new ReflectionExtractor() )], [new JsonEncoder()]);
+        try{
+            //$user = $serializer->deserialize($response, User::class."[]", 'json');
+            $data = UserEditTransfer::fromUser($user);
+        } catch (\RuntimeException $e) {
+            throw new UserServiceException("Invalid request.", null, $e);
+        }
+
+        return $data;
+    }
+
     /**
      * Requests a full user object from IDM, only to be used if up-to-date data is required (e.g. for admin purpose).
      * @param string $username Either email address of uuid of the user to search for.
@@ -213,6 +237,58 @@ class UserService
             return null;
         } else {
             return  $this->responseToUsers($result);
+        }
+    }
+
+    /**
+     * Registers a User in the IDM
+     * @param array $userdata See UserRegisterType for Fields.
+     * @return bool True if the Registration was successful, otherwise return false.
+     */
+    public function registerUser(array $userdata) : bool
+    {
+        $result = $this->request('REGISTER', null, $userdata);
+        if ($result === false) {
+            return false;
+        } else {
+            return true;
+        }
+    }
+
+    /**
+     * Edits a User in the IDM
+     * @param User $user
+     * @return bool True if the Edit was successful, otherwise return false.
+     */
+    public function editUser(User $user) : bool
+    {
+        // TODO: Throw an Exception when there was a ValidationError ServerSide and show the fancy Error in the Frontend
+        $userdata = $this->requestToUserEdit($user);
+        $result = $this->request('USEREDIT', $user->getUuid(), $userdata);
+        if ($result === false) {
+            return false;
+        } else {
+            return true;
+        }
+    }
+
+    /**
+     * Checks if a Nickname or an EMail is already used.
+     * @param string $data The Nickname/EMail to be checked against the IDM.
+     * @return bool true if the Nickname/EMail is NOT used already.
+     */
+    public function checkUserAvailability($data) : bool
+    {
+        if(false != filter_var($data, FILTER_VALIDATE_EMAIL)) {
+            $mode = 'email';
+        } else {
+            $mode = 'nickname';
+        }
+        $result = $this->request('USERCHECK', null, ['mode' => $mode, 'name' => $data] );
+        if ($this->statusCode === RESPONSE::HTTP_NOT_FOUND) {
+            return true;
+        } else {
+            return false;
         }
     }
 

@@ -8,7 +8,11 @@
                 
                 {% if app.user.username is defined %}
                     {{ app.user.username }} <a href="/logout">logout</a>
+                    <a href="{{ path('user_profile') }}">Profil</a>
                 {% else %}
+                    <a class="btn btn-link" href="{{ path('register') }}">
+                        <i class="fas fa-user-plus"></i> Registrieren
+                    </a>
                     <a class="btn btn-link" href="/login">
                         <i class="fas fa-user-circle"></i> Anmelden
                     </a>
