@@ -4,7 +4,7 @@
     </button>
     <ul class="dropdown-menu dropdown-menu-lg dropdown-menu-right mt-0 p-0">
         <li class="px-4 py-3">
-            <form action="/login" method="post" class="form login-form" role="form" >
+            <form action="{{ path('app_login') }}" method="post" class="form login-form" role="form" >
                 <h4 class="text-center font-weight-normal mb-3">Anmeldung</h4>
                 <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}" >
                 <div class="form-group">
@@ -34,7 +34,7 @@
             </form>
         </li>
         <li class="p-3 text-center bg-dark text-light">
-            Neu? <a href="/register">Account erstellen</a>
+            Neu? <a href="{{ path('register') }}">Account erstellen</a>
         </li>
     </ul>
 </div>
