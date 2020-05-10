@@ -49,6 +49,19 @@ class UserController extends AbstractController
     }
 
     /**
+     * @Route("/user/{uuid}", name="user_show", requirements= {"uuid"="[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}"})
+     */
+    public function userShow(string $uuid)
+    {
+
+        $user = $this->userService->getUser($uuid);
+
+        return $this->render('site/user/show.html.twig', [
+            'user' => $user,
+        ]);
+    }
+
+    /**
      * @Route("/user/profile/edit", name="user_profile_edit")
      */
     public function userProfileEdit(Request $request, FlashBagInterface $flashBag)
