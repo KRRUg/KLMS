@@ -1,0 +1,97 @@
+{% extends 'site/siteBase.html.twig' %}
+
+{% block main %}
+    <a href="{{ path('user_profile_edit') }}">Editieren</a>
+<table>
+    <tr>
+        <td>Nickname</td>
+        <td>{{ user.nickname }}</td>
+    </tr>
+    <tr>
+    <td>EMail</td>
+        <td>{{ user.email }}</td>
+    </tr>
+    <tr>
+        <td>KLMS ID</td>
+        <td>{{ user.id }}</td>
+    </tr>
+    <tr>
+    <td>Firstname</td>
+        <td>{{ user.firstname }}</td>
+    </tr>
+    <tr>
+    <td>Surname</td>
+        <td>{{ user.surname }}</td>
+    </tr>
+    <tr>
+    <td>Postcode</td>
+        <td>{{ user.postcode }}</td>
+    </tr>
+    <tr>
+    <td>City</td>
+        <td>{{ user.city }}</td>
+    </tr>
+    <tr>
+    <td>Street</td>
+        <td>{{ user.street }}</td>
+    </tr>
+    <tr>
+    <td>Country</td>
+        <td>{{ user.country }}</td>
+    </tr>
+    <tr>
+    <td>Phone</td>
+        <td>{{ user.phone }}</td>
+    </tr>
+    <tr>
+    <td>Gender</td>
+        <td>{{ user.gender }}</td>
+    </tr>
+    <tr>
+    <td>Website</td>
+        <td>{{ user.website }}</td>
+    </tr>
+    <tr>
+    <td>SteamAccount</td>
+        <td>{{ user.steamaccount }}</td>
+    </tr>
+    <tr>
+    <td>registered At</td>
+        <td>{{ user.registeredAt|date}}</td>
+    </tr>
+    <tr>
+    <td>Hardware</td>
+        <td>{{ user.hardware }}</td>
+    </tr>
+    <tr>
+    <td>Statements</td>
+        <td>{{ user.statements }}</td>
+    </tr>
+    <tr>
+</table>
+
+    <h2>Clans</h2>
+    <table>
+        <thead>
+        <tr>
+            <td>Name</td>
+            <td>Beschreibung</td>
+            <td>Tag</td>
+            <td>Website</td>
+            <td>Admin?</td>
+        </tr>
+        </thead>
+    {% for clan in user.clans %}
+        {# TODO: Hyperlink to ClanShow #}
+    <tr>
+        <td>{{ clan.clan.name }}</td>
+        <td>{{ clan.clan.description }}</td>
+        <td>{{ clan.clan.clantag }}</td>
+        <td>{{ clan.clan.website }}</td>
+        <td>{% if clan.admin == 1 %}Ja{% else %}Nein{% endif %}</td>
+    </tr>
+    {% endfor %}
+    </table>
+
+
+{% endblock %}
