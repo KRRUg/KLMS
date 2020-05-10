@@ -5,14 +5,18 @@ namespace App\Service;
 
 
 use App\Exception\UserServiceException;
+use App\Model\ClanModel;
+use App\Model\UserClanModel;
 use App\Repository\UserAdminsRepository;
 use App\Repository\UserGamerRepository;
 use App\Security\User;
 use App\Security\UserInfo;
+use App\Transfer\ClanEditTransfer;
 use App\Transfer\UserEditTransfer;
 use Doctrine\Common\Annotations\Annotation\Required;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
+use Ramsey\Uuid\Uuid;
 use Symfony\Component\HttpClient\HttpClient;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\PropertyInfo\Extractor\ReflectionExtractor;
@@ -58,6 +62,14 @@ class UserService
         'REGISTER' => [self::PATH => 'users/register',    self::METHOD => 'POST'],
         'USEREDIT' => [self::PATH => 'users',    self::METHOD => 'PATCH'],
         'USERCHECK' => [self::PATH => 'users/check',    self::METHOD => 'POST'],
+        'CLANCREATE' => [self::PATH => 'clans',    self::METHOD => 'POST'],
+        'CLAN' => [self::PATH => 'clans',    self::METHOD => 'GET'],
+        'CLANEDIT' => [self::PATH => 'clans',    self::METHOD => 'PATCH'],
+        'CLANDELETE' => [self::PATH => 'clans',    self::METHOD => 'DELETE'],
+        'CLANUSERADD' => [self::PATH => 'clans',    self::METHOD => 'PATCH'], // /clans/{uuid}/users
+        'CLANUSERREMOVE' => [self::PATH => 'clans',    self::METHOD => 'DELETE'], // /clans/{uuid}/users
+        'CLANCHECK' => [self::PATH => 'clans/check',    self::METHOD => 'POST'],
+
     ];
 
     private function getClient()
@@ -170,6 +182,50 @@ class UserService
         $user->addRoles($roles);
     }
 
+    private function loadUserClans(User $user)
+    {
+
+        $userclans = [];
+        foreach ($user->getClans() as $k) {
+            $clan = new ClanModel();
+            $clan->setUuid(Uuid::fromString($k['clan']['uuid']));
+            $clan->setName($k['clan']['name']);
+            $clan->setClantag($k['clan']['clantag']);
+            $clan->setWebsite($k['clan']['website']);
+            $clan->setDescription($k['clan']['description']);
+
+            $userclan = new UserClanModel();
+            $userclan->setAdmin($k['admin']);
+            $userclan->setClan($clan);
+
+            $userclans[] = $userclan;
+        }
+
+        $user->setClans($userclans);
+
+    }
+
+    private function loadClanUsers(ClanModel $clan) {
+        $userclans = [];
+
+        foreach($clan->getUsers() as $k) {
+            $user = new User();
+            $user->setEmail($k['user']['email']);
+            $user->setNickname($k['user']['nickname']);
+            $user->setStatus($k['user']['status']);
+            $user->setUuid($k['user']['uuid']);
+            $user->setId($k['user']['id']);
+
+            $userclan = new UserClanModel();
+            $userclan->setAdmin($k['admin']);
+            $userclan->setUser($user);
+
+            $userclans[] = $userclan;
+        }
+
+        $clan->setUsers($userclans);
+    }
+
     private function responseToUser(string $response) : User
     {
         $users = $this->responseToUsers("[".$response."]");
@@ -190,8 +246,32 @@ class UserService
         foreach ($user as $u) {
             $this->loadUserRoles($u);
             $this->loadAdminRoles($u);
+            $this->loadUserClans($u);
         }
         return $user;
+    }
+
+    private function responseToClan(string $response) : ClanModel
+    {
+        $clans = $this->responseToClans("[".$response."]");
+        if (count($clans) != 1)
+            throw new UserServiceException("Invalid response.");
+        return $clans[0];
+    }
+
+    private function responseToClans(string $response) : array
+    {
+        $serializer = new Serializer([new ArrayDenormalizer(), new DateTimeNormalizer(), new ObjectNormalizer(null, null, null, new ReflectionExtractor() )], [new JsonEncoder()]);
+        try{
+            $clan = $serializer->deserialize($response, ClanModel::class."[]", 'json');
+        } catch (\RuntimeException $e) {
+            throw new UserServiceException("Invalid response.", null, $e);
+        }
+
+        foreach ($clan as $c) {
+            $this->loadClanUsers($c);
+        }
+        return $clan;
     }
 
     private function requestToUserEdit(User $user) : UserEditTransfer
@@ -203,6 +283,65 @@ class UserService
         }
 
         return $data;
+    }
+
+    private function requestToClanEdit(ClanModel $clan) : ClanEditTransfer
+    {
+        try{
+            $data = ClanEditTransfer::fromClan($clan);
+        } catch (\RuntimeException $e) {
+            throw new UserServiceException("Invalid request.", null, $e);
+        }
+
+        return $data;
+    }
+
+    /**
+     * Requests a full Clan object from IDM, only to be used if up-to-date data is required (e.g. for admin purpose).
+     * @param string $clanuuid UUID of the Clan to search for.
+     * @return ClanModel|null The Clan object, if it exits, null otherwise.
+     */
+    public function getClan(string $clanuuid) : ?ClanModel
+    {
+        $result = $this->request('CLAN', $clanuuid);
+        if ($result === false) {
+            return null;
+        } else {
+            return $this->responseToClan($result);
+        }
+    }
+
+    /**
+     * Requests all Clan Objects from IDM, only to be used if up-to-date data is required (e.g. for admin purpose).
+     * @param integer $page the Page to be requested (1 Page = 50 Clans) WIP.
+     * @return ClanModel[]|null The Clan object Collection, if it exits, null otherwise.
+     */
+    public function getAllClans(int $page = 1) : ?array
+    {
+        // TODO: implement Pagination
+        $result = $this->request('CLAN', null);
+        if ($result === false) {
+            return null;
+        } else {
+            return $this->responseToClans($result);
+        }
+    }
+
+    /**
+     * Edits a Clan in the IDM
+     * @param ClanModel $clan
+     * @return bool True if the Edit was successful, otherwise return false.
+     */
+    public function editClan(ClanModel $clan) : bool
+    {
+        // TODO: Throw an Exception when there was a ValidationError ServerSide and show the fancy Error in the Frontend
+        $clandata = $this->requestToClanEdit($clan);
+        $result = $this->request('CLANEDIT', $clan->getUuid(), $clandata);
+        if ($result === false) {
+            return false;
+        } else {
+            return true;
+        }
     }
 
     /**
@@ -223,7 +362,7 @@ class UserService
     /**
      * Requests all User Objects from IDM, only to be used if up-to-date data is required (e.g. for admin purpose).
      * @param integer $page the Page to be requested (1 Page = 50 Users) WIP.
-     * @return User[]|null The user object, if it exits, null otherwise.
+     * @return User[]|null The user object Collection, if it exits, null otherwise.
      */
     public function getAllUsers(int $page = 1) : ?array
     {
@@ -299,6 +438,22 @@ class UserService
             $mode = 'nickname';
         }
         $result = $this->request('USERCHECK', null, ['mode' => $mode, 'name' => $data] );
+        if ($this->statusCode === RESPONSE::HTTP_NOT_FOUND) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    /**
+     * Checks if a Clanname or an Clantag is already used.
+     * @param string $data The Name/Tag to be checked against the IDM.
+     * @param string $mode The Mode if its a Name or a Tag (clantag/clanname)
+     * @return bool true if the Name/Tag is NOT used already.
+     */
+    public function checkClanAvailability(string $data, string $mode) : bool
+    {
+        $result = $this->request('CLANCHECK', null, ['mode' => $mode, 'name' => $data] );
         if ($this->statusCode === RESPONSE::HTTP_NOT_FOUND) {
             return true;
         } else {

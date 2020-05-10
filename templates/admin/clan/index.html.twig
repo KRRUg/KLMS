@@ -1,0 +1,27 @@
+{% extends 'admin/adminBase.html.twig' %}
+
+{% block title %}KLMS - Admin{% endblock %}
+{% block siteheading %}<i class="far fa-file-alt"></i> Clans{% endblock %}
+{% block main %}
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <table class="table table-striped">
+                    <tr>
+                        <th>Clans</th>
+                    </tr>
+                    {% for clan in clans %}
+                        <tr>
+                            <td>{{ clan.name }}</td>
+                            <td>
+                                <a href="{{ path('admin_clan_show', {'uuid' : clan.uuid}) }}">anzeigen</a>
+                                <a href="{{ path('admin_clan_edit', {'uuid' : clan.uuid}) }}">editieren</a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </table>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+

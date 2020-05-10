@@ -2,6 +2,9 @@
 
 namespace App\Security;
 
+use App\Model\UserClanModel;
+
+
 /**
  * User information to be cached in KLMS. This class contains everything that is required in user to user interaction
  * (e.g. seatmap)
@@ -13,7 +16,10 @@ class UserInfo
 
     protected $nickname;
 
-    protected $clans = [];
+    /**
+     * @var UserClanModel[]
+     */
+    protected $clans;
 
     public function getNickname() : string
     {
@@ -39,6 +45,9 @@ class UserInfo
         return $this;
     }
 
+    /**
+     * @return UserClanModel[]
+     */
     public function getClans(): array
     {
         return $this->clans;
