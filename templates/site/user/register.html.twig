@@ -1,11 +1,35 @@
 {% extends 'site/siteBase.html.twig' %}
 
+{% block title %}Registrieren{% endblock %}
+
 {% block main %}
-        <span id="emailvalidation"></span>
-        {{ form(form) }}
-        <span id="nicknamevalidation"></span>
+    <div class="container">
+        <div class="card mb-4 mt-avatar col-md-8 offset-md-2">
+            <div class="card-avatar bg-primary rounded-circle">
+                <i class="fas fa-user-plus text-white"></i>
+            </div>
+            <div class="card-body">
+                <h1 class=" h3 card-title text-center">Registrieren</h1>
+                {{ form_start(form) }}
+                {% if not form.vars.valid %}
+                    <div class="alert alert-danger">
+                        <i class="fas fa-exclamation-circle"></i> {{ form_errors(form) }}
+                    </div>
+                {% endif %}
+                {{ form_row(form.email, {'input_group_prepend' : '<i class="far fa-envelope"></i>'}) }}
+                {{ form_row(form.nickname, {'input_group_prepend' : '<i class="fas fa-headset"></i>'}) }}
+                {{ form_row(form.plainPassword, {'input_group_prepend' : '<i class="fas fa-key"></i>'}) }}
+                {{ form_end(form) }}
+            </div>
+        </div>
+    </div>
+
+    <!--  OLD -->
+    <span id="emailvalidation"></span>
+    
+    <span id="nicknamevalidation"></span>
 {% endblock %}
 {% block javascripts %}
-        {{ parent() }}
-        {{ encore_entry_script_tags('userRegister') }}
+    {{ parent() }}
+    {{ encore_entry_script_tags('userRegister') }}
 {% endblock %}
