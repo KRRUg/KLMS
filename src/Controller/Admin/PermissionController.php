@@ -29,6 +29,7 @@ class PermissionController extends AbstractController
 
         return $this->render('admin/permission/index.html.twig', [
             'admins' => $local_admins,
+            'permissions' => PermissionService::PERMISSIONS,
         ]);
     }
 }

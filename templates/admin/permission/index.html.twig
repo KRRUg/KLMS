@@ -2,7 +2,16 @@
 
 {% block title %}KLMS - Admin{% endblock %}
 {% block siteheading %}<i class="fas fa-key"></i> Berechtigungen{% endblock %}
+{% block javascripts %}
+    {{ parent() }}
+    {{ encore_entry_script_tags('permission') }}
+{% endblock %}
 {% block main %}
+    <div class="row mb-4">
+        <div class="col-12">
+            <button class="btn btn-success" data-toggle="modal" data-target="#editModal" id="new"><i class="fas fa-plus"></i> Neuer Admin</button>
+        </div>
+    </div>
     <div class="row">
         <div class="col-12">
             <div class="card">
@@ -15,21 +24,65 @@
                     </thead>
                     <tbody>
                     {% for id, admin in admins %}
-                        {% set user, permissions = admin[0], admin[1] %}
+                        {% set user, perm = admin[0], admin[1] %}
                         <tr>
                             <td>
-                                <span>{{ user.getNickname() }}</span><br>
+                                <a href="" data-toggle="modal" data-target="#editModal"
+                                   data-name="{{ user.getNickname() }}"
+                                   data-id="{{ user.getUuid() }}"
+                                   data-perm="{{ perm | json_encode }}"
+                                >
+                                    {{ user.getNickname() }}
+                                </a><br>
                                 <small class="text-muted">{{ user.getEmail() }}</small>
                             </td>
                             <td>
-                                {% for perm in permissions%}
-                                    <span>{{ perm }}</span><br/>
+                                {% for p in perm %}
+                                    <span>{{ p }}</span><br/>
                                 {% endfor %}
                             </td>
                         </tr>
                     {% endfor %}
                     </tbody>
                 </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="editModal" tabindex="-1" role="dialog">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <form method="post" id="perm-form">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Berechtigungen bearbeiten</h5>
+                    </div>
+                    <div class="modal-body">
+                        <div class="form-group row">
+                            <label for="user-name" class="col-sm-3 col-form-label">User</label>
+                            <div class="col-sm-10">
+                                <input id="user-name" class="form-control">
+                            </div>
+                        </div>
+                        <fieldset class="form-group" id="perm">
+                            <div class="row">
+                                <legend class="col-form-label col-sm-3 pt-0">Berechtigungen</legend>
+                                <div class="col-sm-10">
+                                    {% for p in permissions %}
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" name="perm-checkbox" id="perm-{{ p | lower }}" value="{{ p }}">
+                                            <label class="form-check-label" for="perm-{{ p | lower }}" class="col-form-label">{{ p }}</label>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </fieldset>
+                    </div>
+                    <div class="modal-footer">
+                        <input type="hidden" id="id"/>
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Abbrechen</button>
+                        <button type="submit" class="btn btn-primary">Speichern</button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
