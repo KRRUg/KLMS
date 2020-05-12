@@ -4,6 +4,7 @@
 namespace App\Service;
 
 
+use App\Entity\UserAdmin;
 use App\Exception\UserServiceException;
 use App\Repository\UserAdminsRepository;
 use App\Repository\UserGamerRepository;
@@ -146,14 +147,22 @@ final class UserService
 
     private function loadAdminRoles(User $user)
     {
-        $userGuid = $user->getUuid();
-        $roles = [];
-
-        // TODO extend admin table with roles
-        if ($user->getIsSuperadmin() || $this->ar->find($userGuid)) {
-            array_push($roles, "ROLE_ADMIN");
+        $userAdmin = $this->ar->findByUser($user);
+        if ($user->getIsSuperadmin()) {
+            if (empty($userAdmin)) {
+                $userAdmin = new UserAdmin($user->getUuid());
+            }
+            if (!empty(array_diff(PermissionService::PERMISSIONS, $userAdmin->getPermissions()))) {
+                $userAdmin->setPermissions(PermissionService::PERMISSIONS);
+                $this->em->persist($userAdmin);
+                $this->em->flush();
+            }
         }
-        $user->addRoles($roles);
+        if (!empty($userAdmin) && !empty($userAdmin->getPermissions())) {
+            $roles = array_map(function (string $p) { return "ROLE_" . $p; }, $userAdmin->getPermissions());
+            array_push($roles, "ROLE_ADMIN");
+            $user->addRoles($roles);
+        }
     }
 
     private function loadUserRoles(User $user)
@@ -213,29 +222,34 @@ final class UserService
     /**
      * Returns all users that match a set of uuids. This function makes an IDM access, only to be used if up-to-date data is required (e.g. for admin purpose).
      * @param array $uuids Ids to get user for.
+     * @param bool $assoc Returns an associative array "uuid => User"
      * @return User[] Array of users.
      */
-    public function getUsersByUuid(array $uuids) : ?array
+    public function getUsersByUuid(array $uuids, bool $assoc = false) : ?array
     {
         if (empty($uuids))
             return [];
 
         $result = $this->request('USERS', null, ["uuid" => $uuids]);
-        if ($result === false) {
-            return null;
+        $result = $this->responseToUsers($result);
+
+        if ($assoc) {
+            $keys = array_map(function ($u) {return $u->getUuid(); }, $result);
+            return array_combine($keys, $result);
         } else {
-            return  $this->responseToUsers($result);
+            return $result;
         }
     }
 
     /**
      * Returns all users that match a set of uuids. This function returns a cached UserInfo.
      * @param array $uuids Ids to get user for.
+     * @param bool $assoc Returns an associative array "uuid => UserInfo"
      * @return UserInfo[] Array of user infos.
      */
-    public function getUsersInfoByUuid(array $uuids) : array
+    public function getUserInfosByUuid(array $uuids, bool $assoc = false) : array
     {
         // TODO make a cache lookup here
-        return $this->getUsersByUuid($uuids);
+        return $this->getUsersByUuid($uuids, $assoc);
     }
 }

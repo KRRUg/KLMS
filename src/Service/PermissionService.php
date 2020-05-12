@@ -10,21 +10,24 @@ use App\Repository\UserAdminsRepository;
 use App\Security\UserInfo;
 use Doctrine\ORM\EntityManagerInterface;
 
-class AdminManagementService
+final class PermissionService
 {
     ////////////////////////////////////////////////
     /// Admin roles names
     ///////////////////////////////////////////////
-    const ADMIN_SUPER = "ADMIN_SUPER";
-    const ADMIN_CONTENT = "ADMIN_CONTENT";
-    const ADMIN_ADMISSION = "ADMIN_ADMISSION";
-    const ADMIN_NEWS = "ADMIN_NEWS";
+    const ADMIN_SUPER = "ADMIN_SUPER";         // May grant admin rights to other uses
+    const ADMIN_CONTENT = "ADMIN_CONTENT";     // May edit page content and navigation
+    const ADMIN_ADMISSION = "ADMIN_ADMISSION"; // May edit users registration state
+    const ADMIN_NEWS = "ADMIN_NEWS";           // May edit and publish news
+    const ADMIN_MAIL = "ADMIN_MAIL";           // May edit and send newsletters and emails
+    // extend here
 
     const PERMISSIONS = [
         self::ADMIN_SUPER,
         self::ADMIN_CONTENT,
         self::ADMIN_ADMISSION,
         self::ADMIN_NEWS,
+        self::ADMIN_MAIL,
         // extend here
     ];
 
@@ -86,24 +89,48 @@ class AdminManagementService
         if (empty($user)) {
             $user = $this->userService->getCurrentUser();
         }
-        if (empty($user) || !$this->hasPermission($user, $permission)) {
+        if (empty($user) || !$this->hasPermission($permission, $user)) {
             throw new PermissionException($permission);
         }
     }
 
-    public function grantPermission(string $permisison, UserInfo $user)
+    public function grantPermission(string $permission, UserInfo $user)
     {
         $this->checkAndThrow(self::ADMIN_SUPER);
 
-        if (!$this->validPermission($permisison))
+        if (!$this->validPermission($permission))
             return;
 
         $admin = $this->repo->findByUser($user);
         if (empty($admin)) {
             $admin = new UserAdmin($user->getUuid());
         }
-        $admin->addPermisison($permisison);
+        $admin->addPermisison($permission);
         $this->em->persist($admin);
         $this->em->flush();
+    }
+
+    public function getPermissions(UserInfo $user) : array
+    {
+        $ret = $this->repo->findByUser($user)->getPermissions();
+        if (empty($ret))
+            return [];
+        return $ret;
+    }
+
+    public function getAdmins() : array
+    {
+        $admins = $this->repo->findAll();
+        $admins = array_filter($admins, function (UserAdmin $a) { return !empty($a->getPermissions()); });
+        $ids = array_map(function (UserAdmin $a) {return $a->getId(); }, $admins);
+        $users = $this->userService->getUsersByUuid($ids, true);
+
+        $ret = [];
+        foreach ($admins as $admin) {
+            $u = $users[$admin->getId()];
+            $p = $admin->getPermissions();
+            $ret[$u->getUuid()] = array($u, $p);
+        }
+        return $ret;
     }
 }

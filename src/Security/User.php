@@ -11,8 +11,6 @@ use Symfony\Component\Validator\Constraints as Assert;
  */
 final class User extends UserInfo implements UserInterface
 {
-    private $email;
-
     private $roles = [];
 
     private $firstname;
@@ -47,17 +45,6 @@ final class User extends UserInfo implements UserInterface
 
     private $statements;
 
-    public function getEmail(): string
-    {
-        return $this->email;
-    }
-
-    public function setEmail(?string $email): self
-    {
-        $this->email = $email;
-
-        return $this;
-    }
 
     public function getFirstname(): ?string
     {

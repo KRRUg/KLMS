@@ -1,11 +1,20 @@
 <ul class="nav flex-column">
+  {% if is_granted('ROLE_ADMIN_NEWS') %}
   <li class="nav-item">
     <a class="nav-link {% if app.request.get('_route') == 'admin_news' %}active{% endif %}" href="{{ path('admin_news') }}"><i class="far fa-newspaper"></i> News </a>
   </li>
+  {% endif %}
+  {% if is_granted('ROLE_ADMIN_CONTENT') %}
   <li class="nav-item">
     <a class="nav-link {% if app.request.get('_route') == 'admin_content' %}active{% endif %}" href="{{ path('admin_content') }}"><i class="far fa-file-alt"></i> Content </a>
   </li>
   <li class="nav-item">
     <a class="nav-link {% if app.request.get('_route') == 'admin_textblock' %}active{% endif %}" href="{{ path('admin_textblock') }}"><i class="far fa-file-alt"></i> Textblöcke </a>
   </li>
+  {% endif %}
+  {% if is_granted('ROLE_ADMIN_SUPER') %}
+    <li class="nav-item">
+      <a class="nav-link {% if app.request.get('_route') == 'admin_permission' %}active{% endif %}" href="{{ path('admin_permission') }}"><i class="fas fa-key"></i> Berechtigungen </a>
+    </li>
+  {% endif %}
 </ul>
