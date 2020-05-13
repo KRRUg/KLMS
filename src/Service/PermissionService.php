@@ -94,12 +94,12 @@ final class PermissionService
         }
     }
 
-    public function grantPermission(string $permission, UserInfo $user)
+    public function grantPermission(string $permission, UserInfo $user) : bool
     {
         $this->checkAndThrow(self::ADMIN_SUPER);
 
         if (!$this->validPermission($permission))
-            return;
+            return false;
 
         $admin = $this->repo->findByUser($user);
         if (empty($admin)) {
@@ -108,6 +108,7 @@ final class PermissionService
         $admin->addPermisison($permission);
         $this->em->persist($admin);
         $this->em->flush();
+        return true;
     }
 
     public function getPermissions(UserInfo $user) : array
@@ -116,6 +117,36 @@ final class PermissionService
         if (empty($ret))
             return [];
         return $ret;
+    }
+
+    public function setPermissions(UserInfo $user, array $permissions) : bool
+    {
+        $this->checkAndThrow(self::ADMIN_SUPER);
+
+        if (is_null($permissions))
+            return false;
+
+        if (count(array_diff($permissions, self::PERMISSIONS)) > 0)
+            return false;
+
+        $admin = $this->repo->findByUser($user);
+
+        if (empty($admin) && empty($permissions))
+            return true;
+
+        if (empty($permissions)) {
+            $this->em->remove($admin);
+            $this->em->flush();
+            return true;
+        }
+
+        if(empty($admin))
+            $admin = new UserAdmin($user->getUuid());
+
+        $admin->setPermissions($permissions);
+        $this->em->persist($admin);
+        $this->em->flush();
+        return true;
     }
 
     public function getAdmins() : array

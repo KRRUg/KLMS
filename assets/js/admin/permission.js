@@ -7,16 +7,15 @@ $('#editModal').on('show.bs.modal', function (event) {
 
     modal.find('form').trigger('reset');
     if (button.attr('id') === "new") {
-        modal.find('#user-name').prop('readonly', false);
+        modal.find('#user').prop('readonly', false);
     } else {
         let id = button.data('id');
         let name = button.data('name');
         let perm = button.data('perm');
 
-        modal.find('#user-name').val(name).prop('readonly', true);
-        modal.find('#id').val(id);
+        modal.find('#user').val(name).prop('readonly', true);
         for (let k in perm) {
-            modal.find('#perm-' + perm[k].toLowerCase()).prop('checked', true);
+            modal.find('#perm_' + k).prop('checked', true);
         }
     }
 });

@@ -220,17 +220,17 @@ final class UserService
     }
 
     /**
-     * Returns all users that match a set of uuids. This function makes an IDM access, only to be used if up-to-date data is required (e.g. for admin purpose).
-     * @param array $uuids Ids to get user for.
+     * @param string $key what criteria to look for
+     * @param mixed $value value to look for
      * @param bool $assoc Returns an associative array "uuid => User"
-     * @return User[] Array of users.
+     * @return User[] users matching the criteria
      */
-    public function getUsersByUuid(array $uuids, bool $assoc = false) : ?array
+    private function searchFor(string $key, $value, bool $assoc = false) : array
     {
-        if (empty($uuids))
+        if (empty($value))
             return [];
 
-        $result = $this->request('USERS', null, ["uuid" => $uuids]);
+        $result = $this->request('USERS', null, [$key => $value]);
         $result = $this->responseToUsers($result);
 
         if ($assoc) {
@@ -239,6 +239,17 @@ final class UserService
         } else {
             return $result;
         }
+    }
+
+    /**
+     * Returns all users that match a set of uuids. This function makes an IDM access, only to be used if up-to-date data is required (e.g. for admin purpose).
+     * @param array $uuids Ids to get user for.
+     * @param bool $assoc Returns an associative array "uuid => User"
+     * @return User[] Array of users.
+     */
+    public function getUsersByUuid(array $uuids, bool $assoc = false) : ?array
+    {
+        return $this->searchFor("uuid", $uuids, $assoc);
     }
 
     /**
@@ -251,5 +262,16 @@ final class UserService
     {
         // TODO make a cache lookup here
         return $this->getUsersByUuid($uuids, $assoc);
+    }
+
+    public function getUsersByNickname(string $nickname, bool $assoc = false) : array
+    {
+        return $this->searchFor("nickname", $nickname, $assoc);
+    }
+
+    public function getUserInfosByNickname(string $nickname, bool $assoc = false) : array
+    {
+        // TODO make a cache lookup here
+        return $this->getUsersByNickname($nickname, $assoc);
     }
 }
