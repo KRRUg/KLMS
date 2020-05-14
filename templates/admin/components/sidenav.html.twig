@@ -14,7 +14,7 @@
   {% endif %}
   {% if is_granted('ROLE_ADMIN_SUPER') %}
     <li class="nav-item">
-      <a class="nav-link {% if app.request.get('_route') == 'admin_permission' %}active{% endif %}" href="{{ path('admin_permission') }}"><i class="fas fa-key"></i> Berechtigungen </a>
+      <a class="nav-link {% if app.request.get('_route') == 'admin_permission' %}active{% endif %}" href="{{ path('admin_permission_index') }}"><i class="fas fa-key"></i> Berechtigungen </a>
     </li>
   {% endif %}
 </ul>

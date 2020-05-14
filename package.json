@@ -11,6 +11,7 @@
     "bootstrap": "^4.4.1",
     "core-js": "^3.6.5",
     "jquery": "^3.4.1",
+    "jquery-serializejson": "^2.9.0",
     "popper.js": "^1.16.1",
     "tinymce": "^5.2.1"
   }

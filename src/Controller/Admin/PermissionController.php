@@ -2,19 +2,21 @@
 
 namespace App\Controller\Admin;
 
+use App\Controller\BaseController;
 use App\Form\PermissionType;
 use App\Service\PermissionService;
 use App\Service\UserService;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\FormError;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
+ * @Route("/permission", name="permission_")
  * @IsGranted("ROLE_ADMIN_SUPER")
  */
-class PermissionController extends AbstractController
+class PermissionController extends BaseController
 {
     private $permissionService;
     private $userService;
@@ -26,11 +28,14 @@ class PermissionController extends AbstractController
     }
 
     /**
-     * @Route("/permission", name="permission", methods={"GET"})
+     * @Route("/", name="index", methods={"GET"})
      */
     public function index()
     {
         $local_admins = $this->permissionService->getAdmins();
+        uasort($local_admins, function ($a, $b) {
+            return $a[0]->getNickname() < $b[0]->getNickname() ? -1 : 1;
+        });
         $form = $this->createForm(PermissionType::class);
         return $this->render('admin/permission/index.html.twig', [
             'admins' => $local_admins,
@@ -40,35 +45,53 @@ class PermissionController extends AbstractController
     }
 
     /**
-     * @Route("/permission", name="permission_edit", methods={"POST"})
+     * @Route("/", name="create", methods={"POST"})
      */
-    public function post(Request $request)
+    public function update(Request $request)
     {
-        $form = $this->createForm(PermissionType::class);
+        $data = json_decode($request->getContent(), true);
+        if ($data === null) {
+            throw new BadRequestHttpException('Invalid JSON');
+        }
 
-        $form->handleRequest($request);
-        if ($form->isSubmitted() && $form->isValid()) {
-            // TODO remove this temporary solution
-            $data = $form->getData();
-            $user = $this->userService->getUsersByNickname($data['user']);
-            if (empty($user)){
-                $form->get('user')->addError(new FormError("Benutzer nicht gefunden."));
-            } else {
-                $user = $user[0];
-                if (!$this->permissionService->setPermissions($user, $data['perm'])) {
-                    $form->get('perm')->addError(new FormError("Invalide Berechtigungen gesetzt"));
-                }
+        $form = $this->createForm(PermissionType::class);
+        $form->submit($data);
+        if (!$form->isValid()) {
+            $errors = $this->getErrorsFromForm($form);
+
+            return $this->createApiResponse([
+                'errors' => $errors
+            ], 400);
+        }
+
+        // TODO remove this temporary solution
+        $data = $form->getData();
+        $user = $this->userService->getUsersByNickname($data['user']);
+        if (empty($user)){
+            $form->get('user')->addError(new FormError("Benutzer nicht gefunden."));
+        } else {
+            $user = $user[0];
+            if (!$this->permissionService->setPermissions($user, $data['perm'])) {
+                $form->get('perm')->addError(new FormError("Invalide Berechtigungen gesetzt"));
             }
         }
+
         if (!$form->isValid()){
-            $local_admins = $this->permissionService->getAdmins();
-            return $this->render('admin/permission/index.html.twig', [
-                'admins' => $local_admins,
-                'form' => $form->createView(),
-                'show' => true
-            ]);
+            $errors = $this->getErrorsFromForm($form);
+
+            return $this->createApiResponse([
+                'errors' => $errors
+            ], 400);
         }
 
-        return $this->redirectToRoute("admin_permission");
+        return $this->createApiResponse([]);
     }
+
+//    /**
+//     * @Route("/{id}", name="get", methods={"GET"})
+//     */
+//    public function get()
+//    {
+//
+//    }
 }
