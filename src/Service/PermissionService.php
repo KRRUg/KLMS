@@ -48,13 +48,10 @@ final class PermissionService
         return in_array($permission, self::PERMISSIONS);
     }
 
-    public function hasPermission(string $permission, UserInfo $user = null): bool
+    public function hasPermission(string $permission, UserInfo $user): bool
     {
         if (!$this->validPermission($permission)) {
             return false;
-        }
-        if (empty($user)) {
-            $user = $this->userService->getCurrentUser();
         }
         if (empty($user)) {
             return false;
@@ -66,32 +63,38 @@ final class PermissionService
         return in_array($permission, $admin->getPermissions());
     }
 
-    public function isUserAdmin(UserInfo $user = null): bool
+    public function hasSessionPermission(string $permission): bool
     {
-        if (empty($user)) {
-            $user = $this->userService->getCurrentUser();
+        if (!$this->validPermission($permission)) {
+            return false;
         }
+        $role = "ROLE_" . $permission;
+        $user = $this->userService->getCurrentUser();
         if (empty($user)) {
             return false;
         }
-        $admin = $this->repo->findByUser($user);
-        return !empty($admin) && count($admin->getPermissions()) > 0;
+        return $user->hasRole($role);
     }
 
     /**
      * Checks if a user has a certain permission
      * @param string $permission
-     * @param UserInfo $user The User to check. When empty, check current user.
      * @throws PermissionException If $user has not $permission
      */
-    public function checkAndThrow(string $permission, UserInfo $user = null)
+    public function checkAndThrow(string $permission)
     {
-        if (empty($user)) {
-            $user = $this->userService->getCurrentUser();
-        }
-        if (empty($user) || !$this->hasPermission($permission, $user)) {
+        if (!$this->hasSessionPermission($permission)) {
             throw new PermissionException($permission);
         }
+    }
+
+    public function isSessionAdmin(): bool
+    {
+        $user = $this->userService->getCurrentUser();
+        if (empty($user)) {
+            return false;
+        }
+        return $user->hasRole("ROLE_ADMIN");
     }
 
     public function grantPermission(string $permission, UserInfo $user) : bool

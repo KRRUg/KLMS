@@ -71,7 +71,6 @@ class PermissionController extends BaseController
             ], 400);
         }
 
-        // TODO current user is not allowed to remove super permission
         // TODO remove this temporary solution
         $data = $form->getData();
         $user = $this->userService->getUsersByNickname($data['user']);
