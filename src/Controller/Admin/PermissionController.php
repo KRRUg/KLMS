@@ -30,18 +30,25 @@ class PermissionController extends BaseController
     /**
      * @Route("/", name="index", methods={"GET"})
      */
-    public function index()
+    public function index(Request $request)
     {
         $local_admins = $this->permissionService->getAdmins();
         uasort($local_admins, function ($a, $b) {
             return $a[0]->getNickname() < $b[0]->getNickname() ? -1 : 1;
         });
-        $form = $this->createForm(PermissionType::class);
-        return $this->render('admin/permission/index.html.twig', [
-            'admins' => $local_admins,
-            'form' => $form->createView(),
-            'show' => false
-        ]);
+
+        if ($this->acceptsJson($request)){
+            return $this->createApiResponse(
+                array_values($local_admins)
+            );
+        } else {
+            $form = $this->createForm(PermissionType::class);
+            return $this->render('admin/permission/index.html.twig', [
+                'admins' => $local_admins,
+                'form' => $form->createView(),
+                'show' => false
+            ]);
+        }
     }
 
     /**
@@ -64,6 +71,7 @@ class PermissionController extends BaseController
             ], 400);
         }
 
+        // TODO current user is not allowed to remove super permission
         // TODO remove this temporary solution
         $data = $form->getData();
         $user = $this->userService->getUsersByNickname($data['user']);
@@ -86,12 +94,4 @@ class PermissionController extends BaseController
 
         return $this->createApiResponse([]);
     }
-
-//    /**
-//     * @Route("/{id}", name="get", methods={"GET"})
-//     */
-//    public function get()
-//    {
-//
-//    }
 }

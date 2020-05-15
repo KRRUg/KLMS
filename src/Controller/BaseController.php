@@ -7,9 +7,15 @@ namespace App\Controller;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
 
 abstract class BaseController extends AbstractController
 {
+    protected function acceptsJson(Request $request)
+    {
+        return in_array('application/json', $request->getAcceptableContentTypes());
+    }
+
     /**
      * @param mixed $data Usually an object you want to serialize
      * @param int $statusCode
