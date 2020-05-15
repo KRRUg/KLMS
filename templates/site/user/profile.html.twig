@@ -1,97 +1,91 @@
 {% extends 'site/siteBase.html.twig' %}
 
+{% block title %}Mein Profil{% endblock %}
+
 {% block main %}
-    <a href="{{ path('user_profile_edit') }}">Editieren</a>
-<table>
-    <tr>
-        <td>Nickname</td>
-        <td>{{ user.nickname }}</td>
-    </tr>
-    <tr>
-    <td>EMail</td>
-        <td>{{ user.email }}</td>
-    </tr>
-    <tr>
-        <td>KLMS ID</td>
-        <td>{{ user.id }}</td>
-    </tr>
-    <tr>
-    <td>Firstname</td>
-        <td>{{ user.firstname }}</td>
-    </tr>
-    <tr>
-    <td>Surname</td>
-        <td>{{ user.surname }}</td>
-    </tr>
-    <tr>
-    <td>Postcode</td>
-        <td>{{ user.postcode }}</td>
-    </tr>
-    <tr>
-    <td>City</td>
-        <td>{{ user.city }}</td>
-    </tr>
-    <tr>
-    <td>Street</td>
-        <td>{{ user.street }}</td>
-    </tr>
-    <tr>
-    <td>Country</td>
-        <td>{{ user.country }}</td>
-    </tr>
-    <tr>
-    <td>Phone</td>
-        <td>{{ user.phone }}</td>
-    </tr>
-    <tr>
-    <td>Gender</td>
-        <td>{{ user.gender }}</td>
-    </tr>
-    <tr>
-    <td>Website</td>
-        <td>{{ user.website }}</td>
-    </tr>
-    <tr>
-    <td>SteamAccount</td>
-        <td>{{ user.steamaccount }}</td>
-    </tr>
-    <tr>
-    <td>registered At</td>
-        <td>{{ user.registeredAt|date}}</td>
-    </tr>
-    <tr>
-    <td>Hardware</td>
-        <td>{{ user.hardware }}</td>
-    </tr>
-    <tr>
-    <td>Statements</td>
-        <td>{{ user.statements }}</td>
-    </tr>
-    <tr>
-</table>
-
-    <h2>Clans</h2>
-    <table>
-        <thead>
-        <tr>
-            <td>Name</td>
-            <td>Beschreibung</td>
-            <td>Tag</td>
-            <td>Website</td>
-            <td>Admin?</td>
-        </tr>
-        </thead>
-    {% for clan in user.clans %}
-        {# TODO: Hyperlink to ClanShow #}
-    <tr>
-        <td>{{ clan.clan.name }}</td>
-        <td>{{ clan.clan.description }}</td>
-        <td>{{ clan.clan.clantag }}</td>
-        <td>{{ clan.clan.website }}</td>
-        <td>{% if clan.admin == 1 %}Ja{% else %}Nein{% endif %}</td>
-    </tr>
-    {% endfor %}
-    </table>
-
-
+    <div class="container">
+        <div class="card mb-3">
+            <div class="row no-gutters">
+                <div class="col-sm-4 col-lg-2 bg-dark text-light text-center">
+                    <!--<img class="card-img" /> -->
+                    <i class="mt-3 fas fa-user-circle fa-9x"></i>
+                </div>
+                <div class="col-sm-8 col-lg-10">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between w-100">
+                            <div class="p-1">
+                                <a href="{{ path('user_profile_edit') }}"><i class="fas fa-user-edit"></i> Profil bearbeiten</a>   
+                            </div>
+                            <div class="py-1">
+                                <span class="badge badge-primary">KLMS ID: #{{ user.id }}</span>
+                            </div>
+                        </div>
+                        <h1 class="card-title">{{ user.nickname }} &nbsp;<small class="text-muted d-block d-lg-inline">{{ user.firstname }} {{ user.surname }}</small></h1>
+                        <div class="card-text mb-3">
+                            {{ user.statements }}
+                        </div>
+                        <div class="card-text">
+                            <h3>Clans <a href="#" class="px-2" style="font-size:1rem;">Clan beitreten</a></h3>
+                            <div class="row">
+                                {% for clan in user.clans %}
+                                    <div class="col-sm-4">
+                                        {% include 'site/components/cards/cardClanPreview.html.twig' with {'clan': clan.clan, 'isClanAdmin' : clan.admin} %}
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item">
+                                <i class="far fa-envelope fa-fw mr-3" title="E-Mail Adresse"></i>{{ user.email }}
+                            </li>
+                            {% if user.street != '' or user.street != '' or user.city != '' or user.country != '' %}
+                                <li class="list-group-item">
+                                    <div class="d-flex w-100">
+                                        <div class="mr-3 flex-shrink-1">
+                                            <i class="fas fa-map-marked-alt" title="Adresse"></i>
+                                        </div>
+                                        <div class="w-100">
+                                            <p class="m-0">
+                                                {% if user.street != '' %}{{ user.street }} <br>{% endif %}
+                                                {% if user.postcode != '' or user.city != ''%}{{ user.postcode }} {{ user.city }}<br>{% endif %}
+                                                {{ user.country }}
+                                            </p>
+                                        </div>
+                                    </div>
+                                </li>
+                            {% endif %}
+                            {% if user.phone != '' %}
+                                <li class="list-group-item">
+                                    <i class="fas fa-mobile-alt fa-fw mr-3" title="Telefonnummer"></i><a href="tel:{{ user.phone }}">{{ user.phone }}</a>
+                                </li>
+                            {% endif %}
+                            {% if user.steamaccount != '' %}
+                                <li class="list-group-item">
+                                    <i class="fab fa-steam fa-fw mr-3" title="Steam Account"></i>{{ user.steamaccount }}
+                                </li>
+                            {% endif %}
+                            {% if user.website != '' %}
+                                <li class="list-group-item">
+                                    <i class="fas fa-globe fa-fw mr-3" title="Webseite"></i><a href="{{ user.website }}" target="_blank">{{ user.website }}</a>
+                                </li>
+                            {% endif %}
+                            {% if user.hardware != '' %}
+                                <li class="list-group-item">
+                                    <i class="fas fa-desktop fa-fw mr-3" title="Hardware"></i>{{ user.hardware }}
+                                </li>
+                            {% endif %}
+                            {% if user.gender != '' %}
+                                <li class="list-group-item">
+                                    <i class="fas fa-venus-mars fa-fw mr-3" title="Geschlecht"></i>{{ user.gender }}
+                                </li>
+                            {% endif %}
+                            <li class="list-group-item">
+                                <i class="fas fa-clock fa-fw mr-3" title="dabei seit"></i>{{ user.registeredAt|date }}
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 {% endblock %}

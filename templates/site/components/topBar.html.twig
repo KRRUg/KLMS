@@ -2,9 +2,8 @@
     <div class="container">
         <div class="row">
             <div class="col text-right">
-                {# TODO: Check if user is Admin #}
-                {% if app.user.username is defined %}
-                    <a class="btn btn-link" href="{{ path('admin_dashboard') }}/admin">
+                {% if is_granted('ROLE_ADMIN') %}
+                    <a class="btn btn-link" href="{{ path('admin_dashboard') }}">
                         <i class="fas fa-cogs"></i> Admin
                     </a>
                 {% endif %}
