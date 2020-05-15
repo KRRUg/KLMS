@@ -13,7 +13,7 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
- * @Route("/permission", name="permission_")
+ * @Route("/permission", name="permission")
  * @IsGranted("ROLE_ADMIN_SUPER")
  */
 class PermissionController extends BaseController
@@ -28,7 +28,7 @@ class PermissionController extends BaseController
     }
 
     /**
-     * @Route("/", name="index", methods={"GET"})
+     * @Route("/", name="", methods={"GET"})
      */
     public function index(Request $request)
     {
@@ -52,7 +52,7 @@ class PermissionController extends BaseController
     }
 
     /**
-     * @Route("/", name="create", methods={"POST"})
+     * @Route("/", name="_edit", methods={"POST"})
      */
     public function update(Request $request)
     {

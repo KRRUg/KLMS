@@ -11,7 +11,12 @@ use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 
+/**
+ * @Route("/content", name="content")
+ * @IsGranted("ROLE_ADMIN_CONTENT")
+ */
 class ContentController extends AbstractController
 {
     private $nav;
@@ -72,7 +77,7 @@ class ContentController extends AbstractController
     }
 
     /**
-     * @Route("/content", name="content")
+     * @Route("/", name="")
      */
     public function index(Request $request, NavigationRepository $navigationRepository) {
 
