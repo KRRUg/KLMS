@@ -2,11 +2,12 @@
     <div class="container">
         <div class="row">
             <div class="col text-right">
-                <a class="btn btn-link" href="/admin">
-                    <i class="fas fa-cogs"></i> Admin
-                </a>
-                
-                {% if app.user.username is defined %}
+                {% if is_granted('IS_AUTHENTICATED_FULLY') %}
+                    {% if is_granted('ROLE_ADMIN') %}
+                        <a class="btn btn-link" href="/admin">
+                            <i class="fas fa-cogs"></i> Admin
+                        </a>
+                    {% endif %}
                     {{ app.user.username }} <a href="/logout">logout</a>
                 {% else %}
                     <a class="btn btn-link" href="/login">
