@@ -3,7 +3,9 @@
 
 namespace App\Exception;
 
-class PermissionException extends \RuntimeException
+use Symfony\Component\Security\Core\Exception\AccessDeniedException;
+
+class PermissionException extends AccessDeniedException
 {
     public $missing_permission;
 
