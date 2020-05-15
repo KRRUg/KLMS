@@ -87,9 +87,11 @@ $.extend(EditModal.prototype, {
             let perm = button.data('perm');
 
             this.$form.find('#user').val(name).prop('readonly', true);
-            for (let k in perm) {
-                this.$form.find('#perm_' + k).prop('checked', true);
-            }
+            this.$form.find('input[name="perm[]"]')
+                .each((i,k)=> {
+                    let $k = $(k);
+                    $k.prop('checked', perm.includes($k.val()));
+                });
         }
     },
 
@@ -149,5 +151,5 @@ $.extend(EditModal.prototype, {
 $(document).ready(() => {
     const ut = new UserTable($('#userTable'));
     const em = new EditModal($('#editModal'), ut.updateTable.bind(ut));
-    ut.updateTable();
+    //ut.updateTable();
 });
