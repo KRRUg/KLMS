@@ -77,7 +77,7 @@ class ContentController extends AbstractController
     }
 
     /**
-     * @Route("/", name="")
+     * @Route("", name="")
      */
     public function index(Request $request, NavigationRepository $navigationRepository) {
 

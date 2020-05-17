@@ -18,7 +18,7 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 class NewsController extends AbstractController
 {
     /**
-     * @Route("/", name="")
+     * @Route("", name="")
      */
     public function index(NewsRepository $newsEntryRepository) {
         $news = $newsEntryRepository->findAll();

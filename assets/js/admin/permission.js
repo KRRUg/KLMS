@@ -38,8 +38,10 @@ $.extend(UserTable.prototype, {
     },
 
     _loadData() {
+        let url = window.location.href + '.json';
         return new Promise((resolve, reject) => {
             $.ajax({
+                url: url,
                 method: 'GET',
                 dataType: 'json'
             }).then((data) => {
@@ -151,5 +153,4 @@ $.extend(EditModal.prototype, {
 $(document).ready(() => {
     const ut = new UserTable($('#userTable'));
     const em = new EditModal($('#editModal'), ut.updateTable.bind(ut));
-    //ut.updateTable();
 });

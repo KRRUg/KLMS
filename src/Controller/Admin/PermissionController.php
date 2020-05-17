@@ -28,7 +28,7 @@ class PermissionController extends BaseController
     }
 
     /**
-     * @Route("/", name="", methods={"GET"})
+     * @Route(".{_format}", name="", defaults={"_format"="html"}, methods={"GET"})
      */
     public function index(Request $request)
     {
@@ -37,7 +37,7 @@ class PermissionController extends BaseController
             return $a[0]->getNickname() < $b[0]->getNickname() ? -1 : 1;
         });
 
-        if ($this->acceptsJson($request)){
+        if ($request->getRequestFormat() === 'json') {
             return $this->createApiResponse(
                 array_values($local_admins)
             );
@@ -52,7 +52,7 @@ class PermissionController extends BaseController
     }
 
     /**
-     * @Route("/", name="_edit", methods={"POST"})
+     * @Route("", name="_edit", methods={"POST"})
      */
     public function update(Request $request)
     {

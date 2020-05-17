@@ -27,7 +27,7 @@ class GamerController extends AbstractController
     }
 
     /**
-     * @Route("/", name="")
+     * @Route("", name="")
      */
     public function index(Request $request)
     {
