@@ -101,20 +101,19 @@ class UserService
             $path = $this->getPath($endpoint, $slug);
             $this->logger->debug("Sent {$method} request to {$path}");
             $client = $this->getClient();
-            if ($method === "POST") {
-                $response = $client->request($method, $path,
-                    [
-                        'json' => $content,
-                    ]
-                );
-            } elseif ($method = "GET") {
+
+            if ($method === "GET") {
                 $response = $client->request($method, $path,
                     [
                         'query' => $content,
                     ]
                 );
             } else {
-                throw new UserServiceException("Unknown HTTP method");
+                $response = $client->request($method, $path,
+                    [
+                        'json' => $content,
+                    ]
+                );
             }
 
             if ($response->getStatusCode() === 404) {
