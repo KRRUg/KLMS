@@ -3,7 +3,9 @@
 
 namespace App\Controller\API;
 
+use App\Security\User;
 use App\Service\UserService;
+use App\Transfer\Error;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -33,6 +35,24 @@ class UserController extends AbstractController
         $fullInfo = $request->query->getBoolean('fullUser', false);
 
         $ret = $this->userService->queryUsers($search, $page, $limit);
+
+        if (empty($ret)) {
+            return new JsonResponse(Error::withMessage("Not Found"), 404);
+        }
+
+        if ($fullInfo) {
+            $this->denyAccessUnlessGranted('ROLE_ADMIN');
+        } else {
+            $ret->items = array_map(function (User $user) {
+                return [
+                    'email' => $user->getUsername(),
+                    'nickname' => $user->getNickname(),
+                    'firstname' => $user->getFirstname(),
+                    'surname' => $user->getSurname(),
+                ];
+            }, $ret->items);
+        }
+
         return new JsonResponse(json_encode($ret), 200, [], true);
     }
 }

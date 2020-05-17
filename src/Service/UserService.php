@@ -245,6 +245,8 @@ class UserService
             $q['limit'] = $limit;
 
         $response = $this->request('USER', null, $q);
+        if (!$response)
+            return false;
         return $this->responseToPagedUsers($response);
     }
 
