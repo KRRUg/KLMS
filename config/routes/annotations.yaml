@@ -8,6 +8,12 @@ admin:
     name_prefix: admin_
     type: annotation
 
+api:
+    resource: ../../src/Controller/API
+    prefix: /api
+    name_prefix: api_
+    type: annotation
+
 kernel:
     resource: ../../src/Kernel.php
     type: annotation
