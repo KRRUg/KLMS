@@ -49,6 +49,7 @@ class UserController extends AbstractController
                     'nickname' => $user->getNickname(),
                     'firstname' => $user->getFirstname(),
                     'surname' => $user->getSurname(),
+                    // TODO add Names of clans once there is a class
                 ];
             }, $ret->items);
         }

@@ -23,20 +23,11 @@ final class PaginationCollection
      * @Groups({"dto"})
      */
     public $items;
-    /**
-     * @Groups({"dto"})
-     */
-    public $_links = array();
 
     public function __construct(array $items, int $total)
     {
         $this->items = $items;
         $this->total = $total;
         $this->count = count($items);
-    }
-
-    public function addLink($ref, $url)
-    {
-        $this->_links[$ref] = $url;
     }
 }
