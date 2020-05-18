@@ -35,6 +35,14 @@
     </div>
     <hr>
     {{ form_rest(form) }}
-    <button type="submit" id="news_save" class="btn-primary btn">Speichern</button>
+    <div class="float-left">
+        <a class="btn btn-secondary" href="{{ path('admin_content') }}">Abbrechen</a>
+    </div>
+    <div class="float-right">
+        {% if id is defined %}
+            <a class="btn btn-secondary" href="{{ path('admin_content_delete', {'id' : id}) }}"><i class="fas fa-trash-alt"></i> Löschen</a>
+        {% endif %}
+        <button type="submit" id="news_save" class="btn-primary btn">Speichern</button>
+    </div>
     {{ form_end(form) }}
 {% endblock %}

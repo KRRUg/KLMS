@@ -5,6 +5,7 @@ namespace App\Form;
 use App\Entity\News;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
+use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Vich\UploaderBundle\Form\Type\VichImageType;
@@ -15,7 +16,7 @@ class NewsType extends AbstractType
     {
         $builder
             ->add('title')
-            ->add('content')
+            ->add('content', TextareaType::class, ['required' => false, 'empty_data' => ''])
             ->add('publishedFrom')
             ->add('publishedTo')
         ;

@@ -9,6 +9,7 @@ use Vich\UploaderBundle\Entity\File as EmbeddedFile;
 use Vich\UploaderBundle\Mapping\Annotation as Vich;
 
 // TODO add created user and last modified by user
+// TODO assert that published from <= published to
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\NewsRepository")
@@ -192,6 +193,13 @@ class News
         $this->publishedTo = $publishedTo;
 
         return $this;
+    }
+
+    public function isActive(): bool
+    {
+        $now = new \DateTime();
+        return (empty($this->getPublishedFrom()) || $this->getPublishedFrom() <= $now)
+            && (empty($this->getPublishedTo()) || $this->getPublishedTo() >= $now);
     }
 
     /**

@@ -1,7 +1,7 @@
 {% extends 'admin/adminBase.html.twig' %}
 
 {% block title %}KLMS - Admin{% endblock %}
-{% block siteheading %}<i class="far fa-newspaper"></i> News: Neue News{% endblock %}
+{% block siteheading %}<i class="far fa-newspaper"></i> News {% if id is defined %}bearbeiten{% else %}erstellen{% endif %}{% endblock %}
 {% block main %}
     {{ form_start(form) }}
     {% if not form.vars.valid %}
@@ -24,7 +24,7 @@
         <div class="col-md-8">
             <div class="card">
                 <div class="card-body">
-                    {{ form_row(form.content, {'attr': {'class': 'wysiwyg'}}) }}
+                   {{ form_row(form.content, {'attr': {'class': 'wysiwyg'}}) }}
                 </div>
             </div>
         </div>
@@ -42,6 +42,14 @@
     </div>
     <hr>
     {{ form_rest(form) }}
-    <button type="submit" id="news_save" class="btn-primary btn">Speichern</button>
+    <div class="float-left">
+        <a class="btn btn-secondary" href="{{ path('admin_news') }}">Abbrechen</a>
+    </div>
+    <div class="float-right">
+        {% if id is defined %}
+        <a class="btn btn-secondary" href="{{ path('admin_news_delete', {'id' : id}) }}"><i class="fas fa-trash-alt"></i> Löschen</a>
+        {% endif %}
+        <button type="submit" id="news_save" class="btn-primary btn">Speichern</button>
+    </div>
     {{ form_end(form) }}
 {% endblock %}

@@ -3,6 +3,7 @@
 namespace App\Controller\Admin;
 
 use App\Entity\Content;
+use App\Exception\ServiceException;
 use App\Form\ContentType;
 use App\Service\ContentService;
 use Psr\Log\LoggerInterface;
@@ -35,7 +36,8 @@ class ContentController extends AbstractController
      */
     public function index()
     {
-        $content = $this->contentService->getContent();
+        $content = $this->contentService->getAll();
+        ksort($content);
 
         return $this->render('admin/content/index.html.twig', [
             'content' => $content
@@ -51,18 +53,45 @@ class ContentController extends AbstractController
         $form = $this->createForm(ContentType::class, $content);
 
         $form->handleRequest($request);
-
         if ($form->isSubmitted() && $form->isValid()) {
-            $news = $form->getData();
-            $em = $this->getDoctrine()->getManager();
-            $em->persist($news);
-            $em->flush();
+            $this->contentService->save($form->getData());
             return $this->redirectToRoute("admin_content");
         }
 
         return $this->render("admin/content/new.html.twig", [
-            'method' => 'Update',
+            'id' => $content->getId(),
             'form' => $form->createView()
         ]);
+    }
+
+    /**
+     * @Route("/new", name="_new", methods={"GET","POST"})
+     */
+    public function new(Request $request)
+    {
+        $form = $this->createForm(ContentType::class);
+
+        $form->handleRequest($request);
+        if ($form->isSubmitted() && $form->isValid()) {
+            $this->contentService->save($form->getData());
+            return $this->redirectToRoute("admin_content");
+        }
+
+        return $this->render("admin/content/new.html.twig", [
+            'form' => $form->createView()
+        ]);
+    }
+
+    /**
+     * @Route("/news/delete/{id}", name="_delete")
+     * @ParamConverter()
+     */
+    public function delete(Content $content) {
+        try{
+            $this->contentService->delete($content);
+        } catch (ServiceException $e) {
+            // TODO show error in frontend
+        }
+        return $this->redirectToRoute("admin_content");
     }
 }

@@ -14,22 +14,17 @@
                 <table class="table">
                     <thead>
                         <tr>
-                            <th></th>
-                            <th>Titel</th>
-                            <th>Options</th>
+                            <th class="col-md-1">#</th>
+                            <th class="col-md-8">Titel</th>
+                            <th class="col-md-3">Aktiv</th>
                         </tr>
                     </thead>
                     <tbody>
                         {% for newsentry in news %}
                             <tr>
-                                <td><input type="checkbox"/></td>
-                                <td>
-                                    <a href="{{ path('admin_news_edit', {'id' : newsentry.id}) }}" title="Bearbeiten {{ newsentry.title }}"> {{ newsentry.title }}</a><br>
-                                    <small class="text-muted">{{ newsentry.content }}</small>
-                                </td>
-                                <td>
-                                    <a class="btn btn-outline-dark" href="{{ path('admin_news_delete', {'id' : newsentry.id}) }}" title="Löschen {{ newsentry.title }}"><i class="fas fa-trash-alt"></i></a>
-                                </td>
+                                <td>{{ newsentry.getId() }}</td>
+                                <td><a href="{{ path('admin_news_edit', {'id' : newsentry.id}) }}" title="Bearbeiten {{ newsentry.title }}"> {{ newsentry.title }}</a></td>
+                                <td>{% if newsentry.isActive() %}<span>aktiv</span>{% endif %}</td>
                             </tr>
                         {% endfor %}
                     </tbody>

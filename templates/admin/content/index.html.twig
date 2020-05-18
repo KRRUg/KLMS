@@ -6,7 +6,7 @@
 {% block main %}
     <div class="row mb-4">
         <div class="col-12">
-            <button class="btn btn-success" id="new"><i class="fas fa-plus"></i> Anlegen</button>
+            <a class="btn btn-success" id="new" href="{{ path('admin_content_new') }}"><i class="fas fa-plus"></i> Anlegen</a>
         </div>
     </div>
     <div class="row">
@@ -15,7 +15,7 @@
                 <table class="table" id="userTable">
                     <thead>
                     <tr>
-                        <th class="col-md-1">Id</th>
+                        <th class="col-md-1">#</th>
                         <th class="col-md-8">Titel</th>
                         <th class="col-md-3">Aktiv</th>
                     </tr>

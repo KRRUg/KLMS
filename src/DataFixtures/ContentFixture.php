@@ -26,6 +26,7 @@ class ContentFixture extends Fixture
         $content[1]->setAlias("info");
         $content[2] = new Content();
         $content[2]->setTitle("Das Kulturzentrum");
+        $content[2]->setDescription("Beschreibung des Kulturzentrum");
         $content[2]->setContent("Wir haben ein paar Sessel gefunden.");
         $content[3] = new Content();
         $content[3]->setTitle("Catering");
