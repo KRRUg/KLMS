@@ -26,7 +26,6 @@ class NewsType extends AbstractType
             'image_uri' => true,
             'asset_helper' => true
         ]);
-        $builder->add('save', SubmitType::class, ['label' => 'Speichern']);
     }
 
     public function configureOptions(OptionsResolver $resolver)

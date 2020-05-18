@@ -3,5 +3,38 @@
 {% block title %}KLMS - Admin{% endblock %}
 {% block siteheading %}<i class="far fa-file-alt"></i> Content Neu{% endblock %}
 {% block main %}
-    {{ form(form) }}
+    {{ form_start(form) }}
+    {% if not form.vars.valid %}
+        <div class="alert alert-error">
+            {{ form_errors(form) }}
+        </div>
+    {% endif %}
+
+    <div class="row">
+        <div class="col mb-4">
+            <div class="card">
+                <div class="card-body">
+                    {{ form_row(form.title) }}
+                    {{ form_row(form.description) }}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col mb-4">
+            <div class="card">
+                <div class="card-body">
+                    {{ form_row(form.content, {'attr': {'class': 'wysiwyg'}}) }}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+    </div>
+    <hr>
+    {{ form_rest(form) }}
+    <button type="submit" id="news_save" class="btn-primary btn">Speichern</button>
+    {{ form_end(form) }}
 {% endblock %}

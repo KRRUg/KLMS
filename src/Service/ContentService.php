@@ -34,6 +34,7 @@ class ContentService
         foreach ($allTheContent as $content) {
             $ret[$content->getId()] = $content;
         }
+        ksort($ret);
         return $ret;
     }
 }
