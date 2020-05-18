@@ -58,7 +58,7 @@ class ContentController extends AbstractController
             return $this->redirectToRoute("admin_content");
         }
 
-        return $this->render("admin/content/new.html.twig", [
+        return $this->render("admin/content/edit.html.twig", [
             'id' => $content->getId(),
             'form' => $form->createView()
         ]);
@@ -77,7 +77,7 @@ class ContentController extends AbstractController
             return $this->redirectToRoute("admin_content");
         }
 
-        return $this->render("admin/content/new.html.twig", [
+        return $this->render("admin/content/edit.html.twig", [
             'form' => $form->createView()
         ]);
     }

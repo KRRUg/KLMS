@@ -46,7 +46,7 @@ class NewsController extends AbstractController
             return $this->redirectToRoute("admin_news");
         }
 
-        return $this->render("admin/news/new.html.twig", [
+        return $this->render("admin/news/edit.html.twig", [
             'form' => $form->createView()
         ]);
     }
@@ -73,7 +73,7 @@ class NewsController extends AbstractController
             return $this->redirectToRoute("admin_news");
         }
 
-        return $this->render("admin/news/new.html.twig", [
+        return $this->render("admin/news/edit.html.twig", [
             'id' => $news->getId(),
             'form' => $form->createView()
         ]);
