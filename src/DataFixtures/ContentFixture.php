@@ -91,13 +91,6 @@ class ContentFixture extends Fixture
             ->setOrder(2)
             ->setContent($content[2]);
 
-        $admin = new NavigationNodeGeneric();
-        $admin
-            ->setParent($root)
-            ->setName("Admin")
-            ->setPath('/admin')
-            ->setOrder(2);
-
         $manager->persist($root);
         $manager->persist($home);
         $manager->persist($lan);
@@ -106,7 +99,6 @@ class ContentFixture extends Fixture
         $manager->persist($lan_facts_catering);
         $manager->persist($lan_faq);
         $manager->persist($lan_loc);
-        $manager->persist($admin);
 
         // Generate Textblocks
         $tb_about = new TextBlock("ABOUT_US");
