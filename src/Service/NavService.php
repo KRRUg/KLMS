@@ -3,10 +3,12 @@
 
 namespace App\Service;
 
+use App\Entity\Content;
 use App\Entity\NavigationNode;
 use App\Entity\NavigationNodeContent;
 use App\Entity\NavigationNodeEmpty;
 use App\Entity\NavigationNodeGeneric;
+use App\Repository\NavigationRepository;
 use Doctrine\ORM\EntityManagerInterface;
 
 class NavService
@@ -14,10 +16,10 @@ class NavService
     private $em;
     private $rep;
 
-    public function __construct(EntityManagerInterface $em)
+    public function __construct(EntityManagerInterface $em, NavigationRepository $rep)
     {
         $this->em = $em;
-        $this->rep = $em->getRepository(NavigationNode::class);
+        $this->rep = $rep;
     }
 
     private function swapOrder(NavigationNode $n1, NavigationNode $n2)
@@ -102,6 +104,21 @@ class NavService
             $this->fixOrder($n);
         }
         $this->em->persist($node);
+    }
+
+    /**
+     * @param Content $content The content object to check
+     * @return array All NavigationNode Items that refere to this content
+     */
+    public function getByContent(Content $c) : array
+    {
+        $nodes =  $this->rep->fildAllContent();
+        $ret = array();
+        foreach ($nodes as $node) {
+            if ($node->getContent() === $c)
+                $ret[] = $node;
+        }
+        return $ret;
     }
 
     public function getNav()

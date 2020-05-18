@@ -2,6 +2,7 @@
 
 namespace App\Repository;
 
+use App\Entity\Content;
 use App\Entity\NavigationNode;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Common\Persistence\ManagerRegistry;
@@ -42,32 +43,13 @@ class NavigationRepository extends ServiceEntityRepository
             ->filter(function ($node) { return $node->getParent() !== $node; });
     }
 
-    // /**
-    //  * @return NavigationNode[] Returns an array of NavigationNode objects
-    //  */
-    /*
-    public function findByExampleField($value)
+    public function fildAllContent()
     {
         return $this->createQueryBuilder('n')
-            ->andWhere('n.exampleField = :val')
-            ->setParameter('val', $value)
+            ->where('n INSTANCE OF App\Entity\NavigationNodeContent')
             ->orderBy('n.id', 'ASC')
-            ->setMaxResults(10)
             ->getQuery()
             ->getResult()
-        ;
+            ;
     }
-    */
-
-    /*
-    public function findOneBySomeField($value): ?NavigationNode
-    {
-        return $this->createQueryBuilder('n')
-            ->andWhere('n.exampleField = :val')
-            ->setParameter('val', $value)
-            ->getQuery()
-            ->getOneOrNullResult()
-        ;
-    }
-    */
 }
