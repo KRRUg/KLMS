@@ -32,6 +32,17 @@ class NavigationController extends AbstractController
         $this->contentService = $contentService;
     }
 
+    /**
+     * @Route("", name="", methods={"GET"})
+     */
+    public function index()
+    {
+        $main = $this->navService->getNav();
+        return $this->render('admin/navigation/index.html.twig', [
+            'tree' => $main,
+        ]);
+    }
+
     //    private $nav;
     //
     //    private $logger;
