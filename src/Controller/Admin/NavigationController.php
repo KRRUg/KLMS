@@ -4,16 +4,19 @@
 namespace App\Controller\Admin;
 
 
+use App\Controller\BaseController;
 use App\Service\ContentService;
 use App\Service\NavService;
 use Psr\Log\LoggerInterface;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
  * @Route("/navigation", name="navigation")
  */
-class NavigationController extends AbstractController
+class NavigationController extends BaseController
 {
     private $logger;
     private $navService;
@@ -33,14 +36,20 @@ class NavigationController extends AbstractController
     }
 
     /**
-     * @Route("", name="", methods={"GET"})
+     * @Route(".{_format}", name="", defaults={"_format"="html"}, methods={"GET"})
      */
-    public function index()
+    public function index(Request $request)
     {
         $main = $this->navService->getNav();
-        return $this->render('admin/navigation/index.html.twig', [
-            'tree' => $main,
-        ]);
+        if ($request->getRequestFormat() === 'html') {
+            return $this->render('admin/navigation/index.html.twig', [
+                'tree' => $main,
+            ]);
+        } elseif ($request->getRequestFormat() === 'json') {
+            return new JsonResponse($this->navService->getNavArray());
+        } else {
+            throw new NotFoundHttpException("Unsupported format extension");
+        }
     }
 
     //    private $nav;

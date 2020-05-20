@@ -112,7 +112,7 @@ class NavService
      */
     public function getByContent(Content $c) : array
     {
-        $nodes =  $this->rep->fildAllContent();
+        $nodes =  $this->rep->findAllContent();
         $ret = array();
         foreach ($nodes as $node) {
             if ($node->getContent() === $c)
@@ -121,8 +121,34 @@ class NavService
         return $ret;
     }
 
+    /**
+     * @param NavigationNode $node
+     * @return array Associative array of node and children recursively
+     */
+    public static function toArray(NavigationNode $node) : array
+    {
+        $children = array();
+        foreach ($node->getChildNodes() as $child) {
+            $children[] = self::toArray($child);
+        }
+        //usort($children, function ($n1, $n2) { return $n1['order'] - $n2['order']; });
+        return [
+            'id' => $node->getId(),
+            'path' => $node->getPath(),
+            //'order' => $node->getOrder(),
+            'type' => $node->getType(),
+            'target' => $node->getTargetId(),
+            'children' => $children
+        ];
+    }
+
     public function getNav()
     {
-        return $this->rep->getRootChildren();
+        return $this->rep->getRoot()->getChildNodes();
+    }
+
+    public function getNavArray()
+    {
+        return self::toArray($this->rep->getRoot());
     }
 }

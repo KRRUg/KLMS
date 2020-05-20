@@ -62,6 +62,8 @@ abstract class NavigationNode
 
     abstract public function getType(): ?string;
 
+    abstract public function getTargetId(): ?int;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -162,6 +164,11 @@ class NavigationNodeRoot extends NavigationNode
     {
         return null;
     }
+
+    public function getTargetId(): ?int
+    {
+        return null;
+    }
 }
 
 /**
@@ -208,6 +215,11 @@ class NavigationNodeContent extends NavigationNode
     {
         return 'content';
     }
+
+    public function getTargetId(): ?int
+    {
+        return $this->content->getId();
+    }
 }
 
 /**
@@ -223,6 +235,11 @@ class NavigationNodeEmpty extends NavigationNode
     public function getType(): ?string
     {
         return 'empty';
+    }
+
+    public function getTargetId(): ?int
+    {
+        return null;
     }
 }
 
@@ -258,5 +275,10 @@ class NavigationNodeGeneric extends NavigationNode
     public function getType(): ?string
     {
         return 'path';
+    }
+
+    public function getTargetId(): ?int
+    {
+        return null;
     }
 }

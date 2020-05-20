@@ -35,15 +35,7 @@ class NavigationRepository extends ServiceEntityRepository
         }
     }
 
-    public function getRootChildren()
-    {
-        return $this
-            ->getRoot()
-            ->getChildNodes()
-            ->filter(function ($node) { return $node->getParent() !== $node; });
-    }
-
-    public function fildAllContent()
+    public function findAllContent()
     {
         return $this->createQueryBuilder('n')
             ->where('n INSTANCE OF App\Entity\NavigationNodeContent')
