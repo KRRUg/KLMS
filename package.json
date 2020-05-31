@@ -12,6 +12,7 @@
     "jquery": "^3.4.1",
     "popper.js": "^1.16.1",
     "select2": "^4.0.13",
+    "select2-bootstrap4-theme": "^1.0.0",
     "tinymce": "^5.2.1"
   }
 }
