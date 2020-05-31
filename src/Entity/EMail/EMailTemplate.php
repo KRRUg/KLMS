@@ -44,7 +44,7 @@ class EMailTemplate
 	/**
 	 * @ORM\Column(type="boolean")
 	 */
-	private $isPublished;
+	private $isPublished = true;
 
 	/**
 	 * @ORM\Column(type="text", nullable=true)
