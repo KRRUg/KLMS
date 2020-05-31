@@ -5,11 +5,14 @@ namespace App\Controller\Admin;
 
 
 use App\Controller\BaseController;
+use App\Entity\NavigationNode;
 use App\Service\ContentService;
 use App\Service\NavService;
 use Psr\Log\LoggerInterface;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -46,10 +49,58 @@ class NavigationController extends BaseController
                 'tree' => $main,
             ]);
         } elseif ($request->getRequestFormat() === 'json') {
-            return new JsonResponse($this->navService->getNavArray());
+            return $this->apiResponse($this->navService->getNavArray());
         } else {
-            throw new NotFoundHttpException("Unsupported format extension");
+            return $this->createNotFoundException("Unsupported format extension");
         }
+    }
+
+    /**
+     * @Route("", methods={"POST"})
+     */
+    public function create(Request $request)
+    {
+        $data = json_decode($request->getContent(), true);
+        if ($data === null) {
+            return $this->createBadRequestException();
+        }
+    }
+
+    /**
+     * @Route("/{id}", name="_move", methods={"POST"})
+     * @ParamConverter()
+     */
+    public function move(Request $request, NavigationNode $node)
+    {
+        $data = json_decode($request->getContent(), true);
+        if ($data === null) {
+            return $this->createBadRequestException();
+        }
+        $parent = $data['parent'];
+        $pos = $data['pos'];
+        if (empty($parent) && empty($pos)) {
+            // nothing to do
+            return $this->apiResponse();
+        }
+
+        $parent = empty($parent) ? $node->getParent() : $this->navService->getById($parent);
+        $pos = empty($pos) ? $node->getOrder() : intval($pos);
+        if (empty($pos) || empty($parent)) {
+            return $this->apiError("Invalid pos or parent");
+        }
+
+        $this->navService->moveNode($node, $parent, $pos);
+        return $this->apiResponse();
+    }
+
+    /**
+     * @Route("/{id}", name="_delete", methods={"DELETE"})
+     * @ParamConverter()
+     */
+    public function delete(Request $request, NavigationNode $node)
+    {
+        $this->navService->removeNode($node);
+        return $this->apiResponse([]);
     }
 
     //    private $nav;

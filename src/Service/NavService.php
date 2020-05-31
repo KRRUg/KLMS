@@ -22,29 +22,28 @@ class NavService
         $this->rep = $rep;
     }
 
-    private function swapOrder(NavigationNode $n1, NavigationNode $n2)
+    public function moveNode(NavigationNode $node, NavigationNode $parent, int $pos)
     {
-        $tmp = $n1->getOrder();
-        $n1->setOrder($n2->getOrder());
-        $n2->setOrder($tmp);
-        $this->em->persist($n1);
-        $this->em->persist($n2);
-        $this->em->flush();
-    }
-
-    public function moveNode(NavigationNode $node, bool $up)
-    {
-        $ofs = $up ? -1 : 1;
-        $parent = $node->getParent();
-        $this->fixOrder($parent);
-        $nodes = $parent->getChildNodes();
-        foreach ($nodes as $n) {
-            if ($n->getOrder() == $node->getOrder() + $ofs) {
-                $this->swapOrder($n, $node);
-                return true;
+        $this->em->beginTransaction();
+        $oldParent = $node->getParent();
+        if ($parent !== $oldParent) {
+            $oldParent->removeChildNode($node);
+            $this->fixOrder($oldParent);
+        }
+        foreach ($parent->getChildNodes() as $child) {
+            $o = $child->getOrder();
+            if ($o >= $pos) {
+                $child->setOrder($o + 1);
             }
         }
-        return false;
+        $node->setOrder($pos);
+        $parent->addChildNode($node);
+        $this->em->persist($node);
+        $this->em->persist($parent);
+        // TODO might not work
+        $this->fixOrder($parent);
+        $this->em->flush();
+        $this->em->commit();
     }
 
     public function newNode(NavigationNode $parent, ?string $type) : ?NavigationNode
@@ -131,11 +130,10 @@ class NavService
         foreach ($node->getChildNodes() as $child) {
             $children[] = self::toArray($child);
         }
-        //usort($children, function ($n1, $n2) { return $n1['order'] - $n2['order']; });
         return [
             'id' => $node->getId(),
+            'name' => $node->getName(),
             'path' => $node->getPath(),
-            //'order' => $node->getOrder(),
             'type' => $node->getType(),
             'target' => $node->getTargetId(),
             'children' => $children

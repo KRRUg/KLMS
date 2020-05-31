@@ -3,6 +3,11 @@
 {% block title %}KLMS - Admin{% endblock %}
 {% block siteheading %}<i class="fas fa-map-signs"></i> Navigation{% endblock %}
 
+{% block javascripts %}
+    {{ parent() }}
+    {{ encore_entry_script_tags('navigation') }}
+{% endblock %}
+
 {% block stylesheets %}
     {{ parent() }}
 
@@ -108,22 +113,22 @@
 {% endblock %}
 
 {% block main %}
-<div>
+<div id="navTree">
     {% macro menu_links(nodes, d) %}
         {% for n in nodes %}
             <li>
                 <a href="{{ path('admin_content', {'id' : n.getId() }) }}">{{ n.getName() }}</a>
                     <div class="icons" >
-                            <span class="option"><b>+</b>
-                                <div class="tooltip">
-                                    <form method="post" action="{{ path('admin_content', {'id' : n.getId()}) }}">
-                                        <input type="hidden" name="action" value="add"/>
-                                        <button name="type" value="content">content</button><br/>
-                                        <button name="type" value="path">path</button><br/>
-                                        <button name="type" value="empty">empty</button>
-                                    </form>
-                                </div>
-                            </span>
+                        <span class="option"><b>+</b>
+                            <div class="tooltip">
+                                <form method="post" action="{{ path('admin_content', {'id' : n.getId()}) }}">
+                                    <input type="hidden" name="action" value="add"/>
+                                    <button name="type" value="content">content</button><br/>
+                                    <button name="type" value="path">path</button><br/>
+                                    <button name="type" value="empty">empty</button>
+                                </form>
+                            </div>
+                        </span>
                         <form method="post" action="{{ path('admin_content', {'id' : n.getId()}) }}">
                             <button type="submit" name="action" value="up">&#x25b2;</button>
                             <button type="submit" name="action" value="down">&#x25bc;</button>
