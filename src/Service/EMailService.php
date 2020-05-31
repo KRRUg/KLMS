@@ -263,7 +263,6 @@ class EMailService
         return $generatedCount;
     }
 
-
     private function getPossibleEmailRecipients($group = null): ArrayCollection
     {
         //TODO: Mockdaten gegen echte Daten austauschen
@@ -279,6 +278,18 @@ class EMailService
         return new ArrayCollection($users);
     }
 
+    public function getEmailRecipientGroups()
+    {
+        return [
+            'TEST0' => '00000000-0000-0000-0000-000000000000',
+            'TEST1' => '00000000-0000-0000-0000-000000000000',
+            'TEST2' => '00000000-0000-0000-0000-000000000000',
+            'TEST3' => '00000000-0000-0000-0000-000000000000',
+            'TEST4' => '00000000-0000-0000-0000-000000000000',
+            'TEST5' => '00000000-0000-0000-0000-000000000000',
+            'TEST6' => '00000000-0000-0000-0000-000000000000'
+        ];
+    }
 
     public function sendSingleEmail(EMailTemplate $template, User $user)
     {
