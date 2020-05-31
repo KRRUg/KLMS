@@ -30,7 +30,9 @@ $(document).ready(function () {
 
 function initSelect2() {
     $('.select2-enable').each(function () {
-        var remoteUrl = $(this).attr('data-remote-target');
+        const PAGINIATION_LIMIT = 10;
+        let remoteUrl = $(this).attr('data-remote-target');
+
         $(this).select2({
             placeholder: 'User suchen...',
             language: 'de',
@@ -40,22 +42,29 @@ function initSelect2() {
             ajax: {
                 url: remoteUrl,
                 data: function (params) {
-                    var query = {
+                    // Query parameters will be ?search=[term]&page=[page]
+                    return {
                         q: params.term,
                         page: params.page || 1,
-                        limit: 5
+                        limit: PAGINIATION_LIMIT
                     };
-
-                    // Query parameters will be ?search=[term]&page=[page]
-                    return query;
                 },
                 processResults: function (data, params) {
                     params.page = params.page || 1;
-
+                    let foo = $.map(data.items, (val) => {
+                        let name = val.nickname;
+                        if (val.firstname && val.surname) {
+                            name = name + '(' + val.firstname + ' ' + val.surname + ')';
+                        }
+                        return {
+                            id: val.uuid,
+                            text: name,
+                        };
+                    });
                     return {
-                        results: data.results,
+                        results: foo,
                         pagination: {
-                            more: (params.page * 10) < data.count_filtered
+                            more: (params.page * PAGINIATION_LIMIT) < data.total
                         }
                     };
                 },
