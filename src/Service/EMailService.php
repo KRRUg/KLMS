@@ -48,7 +48,6 @@ class EMailService
     protected $templateRepository;
     protected $sendingRepository;
     protected $logger;
-    protected $tasks;
     protected $twig;
     protected $systemMessageUser;
 
@@ -203,16 +202,31 @@ class EMailService
 
     public function createSending(EMailTemplate $template, string $userGroupName = null)
     {
-        $userGroupName = $userGroupName ?? 'TEST'; //TODO ausbauen, wenn mal Gruppen verfügbar sind
+        $userGroup = array_search($userGroupName, $this->getEmailRecipientGroups());
+        //Wenn keine Usergruppe mit diesem wert gefunden wurde, dann erste nehmen
+        $userGroup = $userGroup === false ? array_values($this->getEmailRecipientGroups() )[0] : $userGroup;
 
         $sending = new  EmailSending();
         $sending->setEMailTemplate(clone $template)
-            ->setRecipientGroup($userGroupName)
+            ->setRecipientGroup($userGroup)
             ->setStatus("Sendung erstellt");
 
         $this->em->persist($sending);
         $this->em->flush();
 
+    }
+
+    public function getEmailRecipientGroups()
+    {
+        return [
+            'TEST0' => '00000000-0000-0000-0000-000000000000',
+            'TEST1' => '00000000-0000-0000-0000-000000000000',
+            'TEST2' => '00000000-0000-0000-0000-000000000000',
+            'TEST3' => '00000000-0000-0000-0000-000000000000',
+            'TEST4' => '00000000-0000-0000-0000-000000000000',
+            'TEST5' => '00000000-0000-0000-0000-000000000000',
+            'TEST6' => '00000000-0000-0000-0000-000000000000'
+        ];
     }
 
     public function createSendingTasksAllSendings(SymfonyStyle $io = null)
@@ -276,19 +290,6 @@ class EMailService
         ];
         $users = $this->userService->getUsersByUuid($usersToFind);
         return new ArrayCollection($users);
-    }
-
-    public function getEmailRecipientGroups()
-    {
-        return [
-            'TEST0' => '00000000-0000-0000-0000-000000000000',
-            'TEST1' => '00000000-0000-0000-0000-000000000000',
-            'TEST2' => '00000000-0000-0000-0000-000000000000',
-            'TEST3' => '00000000-0000-0000-0000-000000000000',
-            'TEST4' => '00000000-0000-0000-0000-000000000000',
-            'TEST5' => '00000000-0000-0000-0000-000000000000',
-            'TEST6' => '00000000-0000-0000-0000-000000000000'
-        ];
     }
 
     public function sendSingleEmail(EMailTemplate $template, User $user)
