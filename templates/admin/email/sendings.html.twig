@@ -87,7 +87,7 @@
                             <a class="btn btn-outline-dark"
                                href="{{ path('admin_email_send_testmail', {'id' : sending.eMailTemplate.id}) }}"
                                title="Test E-Mail senden">
-                                <i class="fas fa-vial"></i></a>
+                                <i class="fas fa-envelope"></i></a>
 
                             <a class="btn btn-outline-dark
                                 {% if  not sending.isEditable %} disabled {% endif %}"
@@ -98,7 +98,7 @@
                             <a class="btn btn-outline-dark
                                 {% if  not sending.isEditable %} disabled {% endif %}"
                                href="{{ path('admin_email_edit', {'id' : sending.eMailTemplate.id}) }}"
-                               title="Sendung bearbeiten">
+                               title="Text bearbeiten">
                                 <i class="fas fa-file-word"></i></a>
 
                             <a class="btn btn-outline-dark

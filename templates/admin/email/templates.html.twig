@@ -1,90 +1,90 @@
-
-    <div class="row mb-4">
-        <div class="col-12">
-            <a class="btn btn-success" href="{{ path('admin_email_new') }}"><i class="fas fa-plus"></i> Anlegen</a>
-        </div>
+<div class="row mb-4">
+    <div class="col-12">
+        <a class="btn btn-success" href="{{ path('admin_email_new') }}"><i class="fas fa-plus"></i> Anlegen</a>
     </div>
-    <div class="row">
-        <div class="col-12">
-            {% for message in app.flashes('error') %}
-                <div class="flash-error alert alert-danger  alert-dismissible fade show ">
-                    <!-- TODO mit coffee besprechen, eine ebene höher ziehen -->
-                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                    {{ message }}
-                </div>
-            {% endfor %}
-            <div class="card">
-                <table class="table">
-                    <thead>
+</div>
+<div class="row">
+    <div class="col-12">
+        {% for message in app.flashes('error') %}
+            <div class="flash-error alert alert-danger  alert-dismissible fade show ">
+                <!-- TODO mit coffee besprechen, eine ebene höher ziehen -->
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                {{ message }}
+            </div>
+        {% endfor %}
+        <div class="card">
+            <table class="table">
+                <thead>
+                <tr>
+                    <th></th>
+                    <th>Titel</th>
+                    <th>Status</th>
+                    <th>Options</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for  template in templates %}
                     <tr>
-                        <th></th>
-                        <th>Titel</th>
-                        <th>Status</th>
-                        <th>Options</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    {% for  template in templates %}
-                        <tr>
-                            <td><input type="checkbox"/></td>
-                            <td>
+                        <td><input type="checkbox"/></td>
+                        <td>
 
-                                {% if template.isEditable %}
-                                    <a href="{{ path('admin_email_edit', {'id' : template.id}) }}"
-                                       title="Bearbeiten {{ template.name }} ">{{ template.name }}</a>
-                                {% else %}
-                                    {{ template.name }}
-                                    <small class="text-muted">nicht editierbar</small>
-                                {% endif %}
-                                <br>
-                                <small class="text-muted"><b>{{ template.subject }}</b></small>
-                                <br>
-                                <small class="text-muted">{{ template.body | striptags|slice(0, 40) }}</small>
+                            {% if template.isEditable %}
+                                <a href="{{ path('admin_email_edit', {'id' : template.id}) }}"
+                                   title="Bearbeiten {{ template.name }} ">{{ template.name }}</a>
+                            {% else %}
+                                {{ template.name }}
+                                <small class="text-muted">nicht editierbar</small>
+                            {% endif %}
+                            <br>
+                            <small class="text-muted"><b>{{ template.subject }}</b></small>
+                            <br>
+                            <small class="text-muted">{{ template.body | striptags|slice(0, 40) }}</small>
 
-                            </td>
-                            <td>
+                        </td>
+                        <td>
 
-                                {% if template.applicationHooked %}
-                                    <span class="fa fa-exclamation-triangle" style="color: red">
+                            {% if template.applicationHooked %}
+                                <span class="fa fa-exclamation-triangle" style="color: red">
                                     </span> ApplicationHook!<br>
-                                    {{ template.applicationHook | upper }}
-                                {% endif %}
-                                {% if not template.isPublished and not template.isApplicationHooked %}
-                                    <br>
-                                    <span class="fa fa-lock" style="color: red"></span> Template noch nicht freigegeben!
-                                {% endif %}
+                                {{ template.applicationHook | upper }}
+                            {% endif %}
+                            {% if not template.isPublished and not template.isApplicationHooked %}
+                                <br>
+                                <span class="fa fa-lock" style="color: red"></span> Template noch nicht freigegeben!
+                            {% endif %}
 
 
-                            </td>
-                            <td>
+                        </td>
+                        <td>
+                            <a class="btn btn-outline-dark"
+                               href="{{ path('admin_email_show', {'id' : template.id}) }}" title="Anzeigen">
+                                <i class="fas fa-eye"></i></a>
+
+                            <a class="btn btn-outline-dark"
+                               href="{{ path('admin_email_send_testmail', {'id' : template.id}) }}"
+                               title="Test E-Mail senden">
+                                <i class="fas fa-envelope"></i></a>
+
+                            {% if  template.isDeletable %}
                                 <a class="btn btn-outline-dark"
-                                   href="{{ path('admin_email_show', {'id' : template.id}) }}" title="Anzeigen">
-                                    <i class="fas fa-eye"></i></a>
-
-                                <a class="btn btn-outline-dark"
-                                   href="{{ path('admin_email_send_testmail', {'id' : template.id}) }}"
-                                   title="Test E-Mail senden">
-                                    <i class="fas fa-vial"></i></a>
-
-
-                                <a class="btn btn-outline-dark
-                                {% if not template.isDeletable %} disabled {% endif %}"
                                    href="{{ path('admin_email_delete', {'id' : template.id}) }}" title="Löschen">
                                     <i class="fas fa-trash-alt"></i></a>
+                            {% endif %}
+                            {% if  template.isManualSendable %}
+                                <a class="btn btn-outline-dark"
 
-                                <a class="btn btn-outline-dark
-                                {% if not template.isManualSendable %} disabled {% endif %}"
                                    href="{{ path('admin_email_sending_new', {'id' : template.id}) }}"
                                    title="Sendung erstellen">
                                     <i class="fas fa-paper-plane"></i> Sendung erstellen</a>
-                            </td>
-                        </tr>
-                    {% endfor %}
-                    </tbody>
-                </table>
-            </div>
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
         </div>
     </div>
+</div>
 
