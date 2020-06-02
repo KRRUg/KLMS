@@ -2,24 +2,21 @@
 
 {% block title %}KLMS - Admin{% endblock %}
 {% block siteheading %}<i class="fas fa-key"></i> Berechtigungen{% endblock %}
-{% block javascripts %}
-    {{ parent() }}
-    {{ encore_entry_script_tags('permission') }}
-{% endblock %}
+
 {% block main %}
     <div class="row mb-4">
         <div class="col-12">
-            <button class="btn btn-success" data-toggle="modal" data-target="#editModal" id="new"><i class="fas fa-plus"></i> Neuer Admin</button>
+            <button class="btn btn-success" data-toggle="modal" data-target="#editModal" id="new"><i class="fas fa-plus"></i> Admin hinzufügen</button>
         </div>
     </div>
     <div class="row">
         <div class="col-12">
             <div class="card">
-                <table class="table" id="userTable">
+                <table class="table data-table" id="userTable">
                     <thead>
                     <tr>
-                        <th class="col-md-4">User</th>
-                        <th class="col-md-1">Berechtigungen</th>
+                        <th>User</th>
+                        <th>Berechtigungen</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -27,7 +24,7 @@
                         {% set user, perm = admin[0], admin[1] %}
                         <tr>
                             <td>
-                                <a href="" data-toggle="modal" data-target="#editModal"
+                                <a href="#" data-toggle="modal" data-target="#editModal"
                                    data-name="{{ user.getNickname() }}"
                                    data-id="{{ user.getUuid() }}"
                                    data-perm="{{ perm | json_encode }}"
@@ -72,4 +69,9 @@
             </div>
         </div>
     </div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    {{ encore_entry_script_tags('permission') }}
 {% endblock %}

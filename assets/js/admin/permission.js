@@ -2,7 +2,7 @@ const $ = require('jquery');
 require('jquery-serializejson');
 require('bootstrap');
 
-let UserTable = function($wrapper) {
+let UserTable = function ($wrapper) {
     this.$table = $wrapper;
     this.$body = $wrapper.find('tbody');
 };
@@ -10,8 +10,10 @@ let UserTable = function($wrapper) {
 $.extend(UserTable.prototype, {
     updateTable() {
         this._loadData()
-            .then((data) => this._fillTable(data))
-            .catch((error) => { console.log(error); });
+                .then((data) => this._fillTable(data))
+                .catch((error) => {
+                    console.log(error);
+                });
     },
 
     _fillTable(data) {
@@ -29,7 +31,7 @@ $.extend(UserTable.prototype, {
             $td1.append($('<br/><small class="text-muted">' + user.email + '</small>'));
             let $td2 = $('<td>');
             for (j in perm) {
-                $td2.append($('<span>'+ perm[j] + '</span><br/>'));
+                $td2.append($('<span>' + perm[j] + '</span><br/>'));
             }
             $tr.append($td1);
             $tr.append($td2);
@@ -54,26 +56,26 @@ $.extend(UserTable.prototype, {
     }
 });
 
-let EditModal = function($wrapper, onupdate) {
+let EditModal = function ($wrapper, onupdate) {
     this.$modal = $wrapper;
     this.$form = $wrapper.find('form');
     this.onupdate = onupdate;
 
     this.$modal.on(
-        'show.bs.modal',
-        this.handleModalShow.bind(this)
-    );
+            'show.bs.modal',
+            this.handleModalShow.bind(this)
+            );
 
     this.$modal.on(
-        'hide.bs.modal',
-        this.handleModalHide.bind(this)
-    );
+            'hide.bs.modal',
+            this.handleModalHide.bind(this)
+            );
 
     this.$modal.on(
-        'submit',
-        'form',
-        this.handleFormSubmit.bind(this)
-    );
+            'submit',
+            'form',
+            this.handleFormSubmit.bind(this)
+            );
 };
 
 $.extend(EditModal.prototype, {
@@ -90,10 +92,10 @@ $.extend(EditModal.prototype, {
 
             this.$form.find('#user').val(name).prop('readonly', true);
             this.$form.find('input[name="perm[]"]')
-                .each((i,k)=> {
-                    let $k = $(k);
-                    $k.prop('checked', perm.includes($k.val()));
-                });
+                    .each((i, k) => {
+                        let $k = $(k);
+                        $k.prop('checked', perm.includes($k.val()));
+                    });
         }
     },
 
@@ -104,12 +106,12 @@ $.extend(EditModal.prototype, {
         e.preventDefault();
         let $form = $(e.currentTarget);
         this._saveData($form.serializeJSON())
-            .then(() => {
-                this.onupdate();
-                this.$modal.modal('hide');
-            }).catch((errorData) => {
-                this._mapErrorsToForm(errorData);
-            });
+                .then(() => {
+                    this.onupdate();
+                    this.$modal.modal('hide');
+                }).catch((errorData) => {
+            this._mapErrorsToForm(errorData);
+        });
     },
 
     _saveData(data) {
@@ -150,7 +152,47 @@ $.extend(EditModal.prototype, {
     },
 });
 
+function renderUser(user) {
+    let renderString = '<a href="#" data-toggle="modal" data-target="#editModal">' + user.nickname + '</a>';
+    renderString += '<br/><small class="text-muted">' + user.email + '</small>';
+    return renderString;
+}
+
+function renderPermissions(permissions) {
+    let renderString = '';
+    for (i in permissions) {
+        renderString += '<span>' + permissions[i] + '</span><br/>';
+    }
+    return renderString;
+}
+
 $(document).ready(() => {
-    const ut = new UserTable($('#userTable'));
-    const em = new EditModal($('#editModal'), ut.updateTable.bind(ut));
+    //const ut = new UserTable($('#userTable'));
+    //const em = new EditModal($('#editModal'), ut.updateTable.bind(ut));
+    $('#userTable').DataTable({
+        searchHighlight: true,
+        ajax: {
+            url: "http://localhost:8000/admin/permission.json",
+            dataSrc: ""
+        },
+        columns: [
+            {data: 0},
+            {data: 1}
+        ],
+        columnDefs: [
+            {
+                "targets": 0,
+                "render": function (data, type, row) {
+                    return renderUser(data);
+                }
+            },
+            {
+                "targets": 1,
+                "render": function (data, type, row) {
+                    return renderPermissions(data);
+                }
+            }]
+    });
+
+
 });

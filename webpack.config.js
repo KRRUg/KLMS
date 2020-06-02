@@ -34,6 +34,9 @@ Encore
         // but, you probably want this, unless you're building a single-page app
         .enableSingleRuntimeChunk()
 
+        //Need to disable AMD-Loader with imports-loader for DataTables to work
+        .addLoader({ test: /datatables\.net.*/, loader: 'imports-loader?define=>false' })
+
         /*
          * FEATURE CONFIG
          *

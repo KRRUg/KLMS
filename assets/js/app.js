@@ -4,7 +4,6 @@
 require('jquery');
 require('bootstrap');
 require('../css/_scss/bootstrap-krru.scss');
-
 require('@fortawesome/fontawesome-free/css/all.min.css');
 
 let select2 = require('./modules/select2.js');
