@@ -1,7 +1,4 @@
-let tinymce = require('./modules/tinymce.js');
-import 'mark.js';
-import 'mark.js/dist/jquery.mark.js';
-import './modules/dataTables/dataTables.js';
+let tinymce = require('./modules/tinymce/tinymce.js');
 
 $( document ).ready(function() {
     console.log("Admin module loaded!");

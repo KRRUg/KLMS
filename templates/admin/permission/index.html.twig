@@ -12,34 +12,14 @@
     <div class="row">
         <div class="col-12">
             <div class="card">
-                <table class="table data-table" id="userTable">
+                <table class="table" id="userTable" data-remote-target="{{ path('admin_permission') }}.json">
                     <thead>
-                    <tr>
-                        <th>User</th>
-                        <th>Berechtigungen</th>
-                    </tr>
+                        <tr>
+                            <th>User</th>
+                            <th>Berechtigungen</th>
+                        </tr>
                     </thead>
                     <tbody>
-                    {% for id, admin in admins %}
-                        {% set user, perm = admin[0], admin[1] %}
-                        <tr>
-                            <td>
-                                <a href="#" data-toggle="modal" data-target="#editModal"
-                                   data-name="{{ user.getNickname() }}"
-                                   data-id="{{ user.getUuid() }}"
-                                   data-perm="{{ perm | json_encode }}"
-                                >
-                                    {{ user.getNickname() }}
-                                </a><br>
-                                <small class="text-muted">{{ user.getEmail() }}</small>
-                            </td>
-                            <td>
-                                {% for p in perm %}
-                                    <span>{{ p }}</span><br/>
-                                {% endfor %}
-                            </td>
-                        </tr>
-                    {% endfor %}
                     </tbody>
                 </table>
             </div>
@@ -50,21 +30,21 @@
         <div class="modal-dialog modal-dialog-centered" role="document">
             <div class="modal-content">
                 {{ form_start(form) }}
-                    <div class="modal-header">
-                        <h5 class="modal-title">Berechtigungen bearbeiten</h5>
+                <div class="modal-header">
+                    <h5 class="modal-title">Admin hinzufügen</h5>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        {{ form_row(form.user, {'attr': {'class': 'select2-enable', 'data-remote-target': path('api_users')}}) }}
                     </div>
-                    <div class="modal-body">
-                        <div class="form-group">
-                            {{ form_row(form.user, {'attr': {'class': 'select2-enable', 'data-remote-target': path('api_users')}}) }}
-                        </div>
-                        <div class="form-group" id="perm">
-                            {{ form_row(form.perm) }}
-                        </div>
+                    <div class="form-group" id="perm">
+                        {{ form_row(form.perm) }}
                     </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Abbrechen</button>
-                        <button type="submit" class="btn btn-primary">Speichern</button>
-                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Abbrechen</button>
+                    <button type="submit" class="btn btn-primary">Speichern</button>
+                </div>
                 {{ form_end(form) }}
             </div>
         </div>
@@ -75,3 +55,8 @@
     {{ parent() }}
     {{ encore_entry_script_tags('permission') }}
 {% endblock %}
+
+Notfalls mach mas halt derweil fix
+
+Copy paste alles raus kopieren
+

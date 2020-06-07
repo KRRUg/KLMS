@@ -1,61 +1,66 @@
 const $ = require('jquery');
-require('jquery-serializejson');
-require('bootstrap');
+
+const dT = require('../modules/dataTables/dataTables.js');
 
 let UserTable = function ($wrapper) {
-    this.$table = $wrapper;
-    this.$body = $wrapper.find('tbody');
+    this.remoteTarget = $wrapper.attr('data-remote-target');
+
+    this.$table = $wrapper.DataTable({
+        searchHighlight: true,
+        language : dT.dataTableLang,
+        ajax: {
+            url: this.remoteTarget,
+            dataSrc: ""
+        },
+        columns: [
+            {data: 0},
+            {data: 1}
+        ],
+        columnDefs: [
+            {
+                "targets": 0,
+                "render": this._renderUser.bind(this)
+            },
+            {
+                "targets": 1,
+                "render": this._renderPermissions.bind(this)
+            }]
+    });
 };
 
 $.extend(UserTable.prototype, {
-    updateTable() {
-        this._loadData()
-                .then((data) => this._fillTable(data))
-                .catch((error) => {
-                    console.log(error);
-                });
+    reloadDataTable() {
+        this.$table.ajax.reload();
     },
 
-    _fillTable(data) {
-        this.$body.empty();
-        // TODO replace me with DataTable
-        for (let i in data) {
-            let user = data[i][0];
-            let perm = data[i][1];
-            let $tr = $('<tr>');
-            let $td1 = $('<td>');
-            let $a = $('<a href="" data-toggle="modal" data-target="#editModal">' + user.nickname + '</a>');
-            $a.data('name', user.nickname);
-            $a.data('perm', perm);
-            $td1.append($a);
-            $td1.append($('<br/><small class="text-muted">' + user.email + '</small>'));
-            let $td2 = $('<td>');
-            for (j in perm) {
-                $td2.append($('<span>' + perm[j] + '</span><br/>'));
-            }
-            $tr.append($td1);
-            $tr.append($td2);
-            this.$body.append($tr);
+    _renderUser(user) {
+        let $render = $('<div>');
+
+        let $anchor = $('<a href="#" data-toggle="modal" data-target="#editModal">');
+        $anchor.attr('data-id', user.uuid);
+        $anchor.text(user.nickname);
+
+        let $mail = $('<small class="text-muted">');
+        $mail.text(user.email);
+
+        $render.append($anchor);
+        $render.append('<br/>');
+        $render.append($mail);
+
+        return $render.html();
+    },
+
+    _renderPermissions(permissions) {
+        let renderString = '';
+        for (i in permissions) {
+            renderString += '<span>' + permissions[i] + '</span><br/>';
         }
+        return renderString;
     },
-
-    _loadData() {
-        let url = window.location.href + '.json';
-        return new Promise((resolve, reject) => {
-            $.ajax({
-                url: url,
-                method: 'GET',
-                dataType: 'json'
-            }).then((data) => {
-                resolve(data);
-            }).catch((jqXHR) => {
-                let errorData = JSON.parse(jqXHR.responseText);
-                reject(errorData.errors);
-            });
-        });
-    }
 });
 
+
+//TODO: Move to own js File + modal component
 let EditModal = function ($wrapper, onupdate) {
     this.$modal = $wrapper;
     this.$form = $wrapper.find('form');
@@ -152,47 +157,7 @@ $.extend(EditModal.prototype, {
     },
 });
 
-function renderUser(user) {
-    let renderString = '<a href="#" data-toggle="modal" data-target="#editModal">' + user.nickname + '</a>';
-    renderString += '<br/><small class="text-muted">' + user.email + '</small>';
-    return renderString;
-}
-
-function renderPermissions(permissions) {
-    let renderString = '';
-    for (i in permissions) {
-        renderString += '<span>' + permissions[i] + '</span><br/>';
-    }
-    return renderString;
-}
-
 $(document).ready(() => {
-    //const ut = new UserTable($('#userTable'));
+    const ut = new UserTable($('#userTable'));
     //const em = new EditModal($('#editModal'), ut.updateTable.bind(ut));
-    $('#userTable').DataTable({
-        searchHighlight: true,
-        ajax: {
-            url: "http://localhost:8000/admin/permission.json",
-            dataSrc: ""
-        },
-        columns: [
-            {data: 0},
-            {data: 1}
-        ],
-        columnDefs: [
-            {
-                "targets": 0,
-                "render": function (data, type, row) {
-                    return renderUser(data);
-                }
-            },
-            {
-                "targets": 1,
-                "render": function (data, type, row) {
-                    return renderPermissions(data);
-                }
-            }]
-    });
-
-
 });
