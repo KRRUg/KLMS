@@ -3,19 +3,23 @@ require('select2/dist/css/select2.css');
 require('select2-bootstrap4-theme/dist/select2-bootstrap4.min.css');
 require('select2/dist/js/i18n/de.js');
 
+import 'mark.js';
+import 'mark.js/dist/jquery.mark.js';
+
 export function init() {
     $('.select2-enable').each(function () {
         const PAGINIATION_LIMIT = 10;
-        let remoteUrl = $(this).attr('data-remote-target');
+        let $remoteUrl = $(this).attr('data-remote-target');
+        let $target = $(this);
 
-        $(this).select2({
+        $target.select2({
             placeholder: 'User suchen...',
             language: 'de',
             theme: 'bootstrap4',
             allowClear: true,
             minimumInputLength: 2,
             ajax: {
-                url: remoteUrl,
+                url: $remoteUrl,
                 data: function (params) {
                     // Query parameters will be ?search=[term]&page=[page]
                     return {
@@ -27,13 +31,10 @@ export function init() {
                 processResults: function (data, params) {
                     params.page = params.page || 1;
                     let foo = $.map(data.items, (val) => {
-                        let name = val.nickname;
-                        if (val.firstname && val.surname) {
-                            name = name + '(' + val.firstname + ' ' + val.surname + ')';
-                        }
                         return {
                             id: val.uuid,
-                            text: name,
+                            text: val.nickname,
+                            user: val
                         };
                     });
                     return {
@@ -44,8 +45,32 @@ export function init() {
                     };
                 },
                 dataType: 'json',
-                delay: 700,
-                cache: true
+                delay: 700
+            },
+            templateResult: function (item) {
+                if (item.loading) {
+                    return item.text;
+                }
+                
+                //TODO: Make own rendering function
+                let $render = $('<div>');
+                let $title = $('<strong>').text(item.text);
+                $render.append($title);
+                
+                if (item.user.firstname || item.user.surname) {
+                    let $name = $('<span class="px-2">').text(item.user.firstname + ' ' + item.user.surname);
+                    $render.append($name);
+                }
+                
+                $render.append('<br />');
+                
+                let $mail = $('<small>').text(item.user.email);
+                $render.append($mail);
+                
+                let searchTerm = $target.data("select2").dropdown.$search.val();
+                $render.mark(searchTerm); 
+                
+                return $render;
             }
         });
     });
