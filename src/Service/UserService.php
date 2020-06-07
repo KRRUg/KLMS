@@ -11,6 +11,7 @@ use App\Repository\UserAdminsRepository;
 use App\Repository\UserGamerRepository;
 use App\Security\User;
 use App\Security\UserInfo;
+use App\Transfer\PaginationCollection;
 use App\Transfer\ClanEditTransfer;
 use App\Transfer\UserEditTransfer;
 use Doctrine\Common\Annotations\Annotation\Required;
@@ -21,6 +22,7 @@ use Symfony\Component\HttpClient\HttpClient;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\PropertyInfo\Extractor\ReflectionExtractor;
 use Symfony\Component\Serializer\Encoder\JsonEncoder;
+use Symfony\Component\Serializer\Exception\ExceptionInterface;
 use Symfony\Component\Serializer\Normalizer\ArrayDenormalizer;
 use Symfony\Component\Serializer\Normalizer\DateTimeNormalizer;
 use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
@@ -57,7 +59,7 @@ class UserService
     const PATH = 1;
     const ENDPOINTS = [
         'USER'  => [self::PATH => 'users',           self::METHOD => 'GET' ],
-        'USERS' => [self::PATH => 'users/search',    self::METHOD => 'POST'],//
+        'USERS' => [self::PATH => 'users/search',    self::METHOD => 'POST'],
         'AUTH'  => [self::PATH => 'users/authorize', self::METHOD => 'POST'],
         'REGISTER' => [self::PATH => 'users/register',    self::METHOD => 'POST'],
         'USEREDIT' => [self::PATH => 'users',    self::METHOD => 'PATCH'],
@@ -72,6 +74,17 @@ class UserService
 
     ];
 
+    static $serializer = null;
+
+    private static function getSerializer()
+    {
+        if (empty(self::$serializer)) {
+            self::$serializer = new Serializer([new ArrayDenormalizer(), new DateTimeNormalizer(), new ObjectNormalizer(null, null, null, new ReflectionExtractor() )], [new JsonEncoder()]);
+        }
+
+        return self::$serializer;
+    }
+
     private function getClient()
     {
         return HttpClient::create([
@@ -79,14 +92,14 @@ class UserService
         ]);
     }
 
-    private function getPath(string $endpoint, ?string $param = null)
+    private function getPath(string $endpoint, ?string $slug = null)
     {
-        $path = self::ENDPOINTS[$endpoint][self::PATH];
-        if (empty($param)) {
-            return "{$_ENV['KLMS_IDM_URL']}/api/{$path}";
-        } else {
-            return "{$_ENV['KLMS_IDM_URL']}/api/{$path}/{$param}";
+        $url = "{$_ENV['KLMS_IDM_URL']}/api/";
+        $url = $url . self::ENDPOINTS[$endpoint][self::PATH];
+        if (!empty($slug)) {
+            $url = $url . "/{$slug}";
         }
+        return $url;
     }
 
     private function getMethod(string $endpoint)
@@ -96,24 +109,34 @@ class UserService
 
     /**
      * @param string $endpoint Endpoint identifier (see self::ENDPOINTS)
-     * @param string|null $param REST url parameter
+     * @param string|null $slug REST url parameter
      * @param array|mixed $content The content of the request (will be encoded as JSON for the request)
      * @return bool|mixed Returns false on 404 or error, the data result otherwise
      *
      * @throws
      */
-    private function request(string $endpoint, ?string $param = null, $content = [])
+    private function request(string $endpoint, ?string $slug = null, $content = [])
     {
         try {
             $method = $this->getMethod($endpoint);
-            $path = $this->getPath($endpoint, $param);
+            $path = $this->getPath($endpoint, $slug);
             $this->logger->debug("Sent {$method} request to {$path}");
-            $response = $this->getClient()->request($method, $path,
-                [
-                    'json' => $content,
-                ]
-            );
-            
+            $client = $this->getClient();
+
+            if ($method === "GET") {
+                $response = $client->request($method, $path,
+                    [
+                        'query' => $content,
+                    ]
+                );
+            } else {
+                $response = $client->request($method, $path,
+                    [
+                        'json' => $content,
+                    ]
+                );
+            }
+
             $this->statusCode = $response->getStatusCode();
 
             if ($response->getStatusCode() === 404) {
@@ -237,7 +260,7 @@ class UserService
 
     private function responseToUsers(string $response) : array
     {
-        $serializer = new Serializer([new ArrayDenormalizer(), new DateTimeNormalizer(), new ObjectNormalizer(null, null, null, new ReflectionExtractor() )], [new JsonEncoder()]);
+        $serializer = self::getSerializer();
         try{
             $user = $serializer->deserialize($response, User::class."[]", 'json');
         } catch (\RuntimeException $e) {
@@ -250,6 +273,18 @@ class UserService
             $this->loadUserClans($u);
         }
         return $user;
+    }
+
+    private function responseToPagedUsers(string $response)
+    {
+        $serializer = self::getSerializer();
+        try{
+            $ret = $serializer->deserialize($response, PaginationCollection::class, 'json');
+            $ret->items = $serializer->denormalize($ret->items, User::class."[]");
+        } catch (\RuntimeException | ExceptionInterface $e) {
+            throw new UserServiceException("Invalid response.", null, $e);
+        }
+        return $ret;
     }
 
     private function responseToClan(string $response) : ClanModel
@@ -358,6 +393,22 @@ class UserService
         } else {
             return $this->responseToUser($result);
         }
+    }
+
+    public function queryUsers(string $query = null, int $page = null, int $limit = null)
+    {
+        $q = array();
+        if (!empty($query))
+            $q['q'] = $query;
+        if (!empty($page))
+            $q['page'] = $page;
+        if (!empty($limit))
+            $q['limit'] = $limit;
+
+        $response = $this->request('USER', null, $q);
+        if (!$response)
+            return false;
+        return $this->responseToPagedUsers($response);
     }
 
     /**
