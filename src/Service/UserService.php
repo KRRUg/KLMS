@@ -185,6 +185,7 @@ class UserService
     private function loadUserClans(User $user)
     {
 
+        // TODO: deserialize with Symfony Serializer (nested Objects)
         $userclans = [];
         foreach ($user->getClans() as $k) {
             $clan = new ClanModel();
