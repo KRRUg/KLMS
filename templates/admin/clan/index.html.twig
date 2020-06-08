@@ -16,6 +16,8 @@
                             <td>
                                 <a href="{{ path('admin_clan_show', {'uuid' : clan.uuid}) }}">anzeigen</a>
                                 <a href="{{ path('admin_clan_edit', {'uuid' : clan.uuid}) }}">editieren</a>
+                                <a href="{{ path('admin_clan_delete', {'uuid' : clan.uuid}) }}">löschen</a> {# TODO: implement SweetAlert2? "Sind sie Sicher?" Modal #}
+                                <a href="{{ path('admin_clan_member_show', {'uuid' : clan.uuid}) }}">Mitgliederverwaltung</a>
                             </td>
                         </tr>
                     {% endfor %}

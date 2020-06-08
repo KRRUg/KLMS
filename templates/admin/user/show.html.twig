@@ -95,8 +95,7 @@
         </thead>
         {% for clan in user.clans %}
             <tr>
-                {# TODO: Hyperlink to ClanShow #}
-                <td>{{ clan.clan.name }}</td>
+                <td><a href="{{ path('admin_clan_show', {'uuid' : clan.clan.uuid}) }}">{{ clan.clan.name }}</a></td>
                 <td>{{ clan.clan.description }}</td>
                 <td>{{ clan.clan.clantag }}</td>
                 <td>{{ clan.clan.website }}</td>

@@ -18,5 +18,22 @@
                 <td>{{ clan.clantag }}</td>
                 <td>{{ clan.website }}</td>
     </table>
+    <br /><h1>Users</h1>
+    <table>
+        <thead>
+        <tr>
+            <td>User</td>
+        </tr>
+        </thead>
+        <tbody>
+            {% for user in clan.users %}
+                <tr>
+                    <td>
+                        <a href="{{ path('admin_user_show', {'uuid' : user.user.uuid}) }}">{{ user.user.nickname }}</a>
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
 {% endblock %}
 

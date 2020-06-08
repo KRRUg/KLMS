@@ -121,9 +121,9 @@ class ClanModel
     }
 
     /**
-     * @return array|UserClanModel[]
+     * @return null|array|UserClanModel[]
      */
-    public function getUsers(): array
+    public function getUsers(): ?array
     {
         return $this->users;
     }

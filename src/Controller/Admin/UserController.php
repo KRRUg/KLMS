@@ -28,10 +28,11 @@ class UserController extends AbstractController
      */
     public function index()
     {
-        $users = $this->userService->getAllUsers();
+        $users = $this->userService->queryUsers(null, null, 999999);
         return $this->render('admin/user/index.html.twig', [
             'users' => $users,
         ]);
+
     }
 
     /**

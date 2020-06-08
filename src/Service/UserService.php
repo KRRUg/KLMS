@@ -232,19 +232,21 @@ class UserService
     private function loadClanUsers(ClanModel $clan) {
         $userclans = [];
 
-        foreach($clan->getUsers() as $k) {
-            $user = new User();
-            $user->setEmail($k['user']['email']);
-            $user->setNickname($k['user']['nickname']);
-            $user->setStatus($k['user']['status']);
-            $user->setUuid($k['user']['uuid']);
-            $user->setId($k['user']['id']);
+        if(!empty($clan->getUsers())) {
+            foreach ($clan->getUsers() as $k) {
+                $user = new User();
+                $user->setEmail($k['user']['email']);
+                $user->setNickname($k['user']['nickname']);
+                $user->setStatus($k['user']['status']);
+                $user->setUuid($k['user']['uuid']);
+                $user->setId($k['user']['id']);
 
-            $userclan = new UserClanModel();
-            $userclan->setAdmin($k['admin']);
-            $userclan->setUser($user);
+                $userclan = new UserClanModel();
+                $userclan->setAdmin($k['admin']);
+                $userclan->setUser($user);
 
-            $userclans[] = $userclan;
+                $userclans[] = $userclan;
+            }
         }
 
         $clan->setUsers($userclans);
@@ -352,10 +354,15 @@ class UserService
      * @param integer $page the Page to be requested (1 Page = 50 Clans) WIP.
      * @return ClanModel[]|null The Clan object Collection, if it exits, null otherwise.
      */
-    public function getAllClans(int $page = 1) : ?array
+    public function getAllClans(int $page = 1, bool $fullInfo = false) : ?array
     {
         // TODO: implement Pagination
-        $result = $this->request('CLAN', null);
+        if($fullInfo) {
+            $select = null;
+        } else {
+            $select = ['select' => 'list'];
+        }
+        $result = $this->request('CLAN', null, $select);
         if ($result === false) {
             return null;
         } else {
@@ -395,6 +402,11 @@ class UserService
         }
     }
 
+    /**
+     * Requests all User Objects from IDM, only to be used if up-to-date data is required (e.g. for admin purpose).
+     * @param integer $page the Page to be requested (1 Page = 50 Users) WIP.
+     * @return User[]|null The user object Collection, if it exits, null otherwise.
+     */
     public function queryUsers(string $query = null, int $page = null, int $limit = null)
     {
         $q = array();
@@ -409,22 +421,6 @@ class UserService
         if (!$response)
             return false;
         return $this->responseToPagedUsers($response);
-    }
-
-    /**
-     * Requests all User Objects from IDM, only to be used if up-to-date data is required (e.g. for admin purpose).
-     * @param integer $page the Page to be requested (1 Page = 50 Users) WIP.
-     * @return User[]|null The user object Collection, if it exits, null otherwise.
-     */
-    public function getAllUsers(int $page = 1) : ?array
-    {
-        // TODO: implement Pagination
-        $result = $this->request('USER', null);
-        if ($result === false) {
-            return null;
-        } else {
-            return $this->responseToUsers($result);
-        }
     }
 
     /**

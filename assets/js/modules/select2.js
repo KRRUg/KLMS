@@ -14,6 +14,7 @@ export function init() {
             theme: 'bootstrap4',
             allowClear: true,
             minimumInputLength: 2,
+            dropdownAutoWidth : true,
             ajax: {
                 url: remoteUrl,
                 data: function (params) {
