@@ -1,13 +1,12 @@
-const $ = require('jquery');
-
-const dT = require('../modules/dataTables/dataTables.js');
+import $ from 'jquery';
+import dTLang from '../modules/dataTables/dataTables.js';
 
 let UserTable = function ($wrapper) {
     this.remoteTarget = $wrapper.attr('data-remote-target');
 
     this.$table = $wrapper.DataTable({
         searchHighlight: true,
-        language : dT.dataTableLang,
+        language : dTLang,
         ajax: {
             url: this.remoteTarget,
             dataSrc: ""
@@ -52,7 +51,7 @@ $.extend(UserTable.prototype, {
 
     _renderPermissions(permissions) {
         let renderString = '';
-        for (i in permissions) {
+        for (let i in permissions) {
             renderString += '<span>' + permissions[i] + '</span><br/>';
         }
         return renderString;

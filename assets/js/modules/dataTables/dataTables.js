@@ -1,7 +1,8 @@
-require('datatables.net-bs4')(window, $);
+import $ from 'jquery';
+import dt from 'datatables.net-bs4';
+dt(window, $);
 
-require('./plugins/dataTables.searchHighlight');
+import './plugins/dataTables.searchHighlight';
 
 import dataTables_DE from './langs/de.json';
-
-export const dataTableLang = dataTables_DE;
+export default dataTables_DE;

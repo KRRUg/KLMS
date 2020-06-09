@@ -1,12 +1,12 @@
-require('select2');
-require('select2/dist/css/select2.css');
-require('select2-bootstrap4-theme/dist/select2-bootstrap4.min.css');
-require('select2/dist/js/i18n/de.js');
+import $ from 'jquery';
+
+import 'select2';
+import 'select2/dist/js/i18n/de.js';
 
 import 'mark.js';
 import 'mark.js/dist/jquery.mark.js';
 
-export function init() {
+export default function() {
     $('.select2-enable').each(function () {
         const PAGINIATION_LIMIT = 10;
         let $remoteUrl = $(this).attr('data-remote-target');

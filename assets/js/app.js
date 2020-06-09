@@ -1,19 +1,17 @@
-// Shared JS File
+import '../css/app.scss';
 
-//Import Bootstrap4
-import 'jquery';
+//Shared JS
+import $ from 'jquery';
 import 'bootstrap';
-import '../css/_scss/bootstrap-krru.scss';
-import '@fortawesome/fontawesome-free/css/all.min.css';
 
 import 'mark.js';
 import 'mark.js/dist/jquery.mark.js';
 import './modules/dataTables/dataTables.js';
 
-let select2 = require('./modules/select2/select2.js');
+import select2Init from './modules/select2/select2';
 
 $(document).ready(function () {
     console.log("App module loaded!");
-    select2.init();
+    select2Init();
 });
 
