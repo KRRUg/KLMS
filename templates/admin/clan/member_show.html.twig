@@ -52,17 +52,6 @@
                     </td>
                     <td>
                         {# TODO: move to AJAX #}
-                        {% if user.admin %}
-                            <form action="{{ path('admin_clan_member_demote', {'uuid' : clan.uuid}) }}" method="post">
-                                <input type="hidden" name="user_uuid" value="{{ user.user.uuid }}" />
-                                <input type="submit" value="Demoten" />
-                            </form>
-                        {% else %}
-                            <form action="{{ path('admin_clan_member_promote', {'uuid' : clan.uuid}) }}" method="post">
-                                <input type="hidden" name="user_uuid" value="{{ user.user.uuid }}" />
-                                <input type="submit" value="Promoten" />
-                            </form>
-                        {% endif %}
                         <form action="{{ path('admin_clan_member_remove', {'uuid' : clan.uuid}) }}" method="post">
                             <input type="hidden" name="user_uuid" value="{{ user.user.uuid }}" />
                             <input type="submit" value="Entfernen" />

@@ -11,6 +11,8 @@ use App\Repository\UserAdminsRepository;
 use App\Repository\UserGamerRepository;
 use App\Security\User;
 use App\Security\UserInfo;
+use App\Transfer\ClanMemberAdd;
+use App\Transfer\ClanMemberRemove;
 use App\Transfer\PaginationCollection;
 use App\Transfer\ClanEditTransfer;
 use App\Transfer\UserEditTransfer;
@@ -72,6 +74,11 @@ class UserService
         'CLANUSERREMOVE' => [self::PATH => 'clans',    self::METHOD => 'DELETE'], // /clans/{uuid}/users
         'CLANCHECK' => [self::PATH => 'clans/check',    self::METHOD => 'POST'],
 
+    ];
+
+    const CLANRANKS = [
+        'ADMIN',
+        'MEMBER'
     ];
 
     static $serializer = null;
@@ -210,26 +217,29 @@ class UserService
 
         // TODO: deserialize with Symfony Serializer (nested Objects)
         $userclans = [];
-        foreach ($user->getClans() as $k) {
-            $clan = new ClanModel();
-            $clan->setUuid(Uuid::fromString($k['clan']['uuid']));
-            $clan->setName($k['clan']['name']);
-            $clan->setClantag($k['clan']['clantag']);
-            $clan->setWebsite($k['clan']['website']);
-            $clan->setDescription($k['clan']['description']);
 
-            $userclan = new UserClanModel();
-            $userclan->setAdmin($k['admin']);
-            $userclan->setClan($clan);
+        if(!empty($user->getClans())) {
+            foreach ($user->getClans() as $k) {
+                $clan = new ClanModel();
+                $clan->setUuid(Uuid::fromString($k['clan']['uuid']));
+                $clan->setName($k['clan']['name']);
+                $clan->setClantag($k['clan']['clantag']);
+                $clan->setWebsite($k['clan']['website']);
+                $clan->setDescription($k['clan']['description']);
 
-            $userclans[] = $userclan;
+                $userclan = new UserClanModel();
+                $userclan->setAdmin($k['admin']);
+                $userclan->setClan($clan);
+
+                $userclans[] = $userclan;
+            }
+
+            $user->setClans($userclans);
         }
-
-        $user->setClans($userclans);
-
     }
 
     private function loadClanUsers(ClanModel $clan) {
+        // TODO: deserialize with Symfony Serializer (nested Objects)
         $userclans = [];
 
         if(!empty($clan->getUsers())) {
@@ -335,6 +345,38 @@ class UserService
     }
 
     /**
+     * @param User[] $users
+     * @param string|null $joinPassword
+     * @return ClanMemberAdd
+     */
+    private function requestToClanMemberAdd(array $users, string $joinPassword = null) : ClanMemberAdd
+    {
+        try{
+            $data = ClanMemberAdd::fromUsers($users, $joinPassword);
+        } catch (\RuntimeException $e) {
+            throw new UserServiceException("Invalid request.", null, $e);
+        }
+
+        return $data;
+    }
+
+    /**
+     * @param User[] $users
+     * @param bool $strictmode
+     * @return ClanMemberRemove
+     */
+    private function requestToClanMemberRemove(array $users, bool $strictmode) : ClanMemberRemove
+    {
+        try{
+            $data = ClanMemberRemove::fromUsers($users, $strictmode);
+        } catch (\RuntimeException $e) {
+            throw new UserServiceException("Invalid request.", null, $e);
+        }
+
+        return $data;
+    }
+
+    /**
      * Requests a full Clan object from IDM, only to be used if up-to-date data is required (e.g. for admin purpose).
      * @param string $clanuuid UUID of the Clan to search for.
      * @return ClanModel|null The Clan object, if it exits, null otherwise.
@@ -380,6 +422,60 @@ class UserService
         // TODO: Throw an Exception when there was a ValidationError ServerSide and show the fancy Error in the Frontend
         $clandata = $this->requestToClanEdit($clan);
         $result = $this->request('CLANEDIT', $clan->getUuid(), $clandata);
+        if ($result === false) {
+            return false;
+        } else {
+            return true;
+        }
+    }
+
+    /**
+     * Adds Users to a Clan in IDM
+     * @param ClanModel $clan
+     * @param User[] $users
+     * @return bool True if the UserAdd was successful, otherwise return false.
+     */
+    public function addClanMember(ClanModel $clan, array $users) : bool
+    {
+        // TODO: Throw an Exception when there was a ValidationError ServerSide and show the fancy Error in the Frontend
+        $clandata = $this->requestToClanMemberAdd($users);
+        $result = $this->request('CLANUSERADD', $clan->getUuid() . '/users', $clandata);
+        if ($result === false) {
+            return false;
+        } else {
+            return true;
+        }
+    }
+
+    /**
+     * Removes Users from a Clan in IDM
+     * @param ClanModel $clan
+     * @param User[] $users
+     * @param bool $strictmode for non-Admin Requests, so you cannot remove the last Owner
+     * @return bool True if the UserRemove was successful, otherwise return false.
+     */
+    public function removeClanMember(ClanModel $clan, array $users, bool $strictmode = true) : bool
+    {
+        // TODO: Throw an Exception when there was a ValidationError ServerSide and show the fancy Error in the Frontend
+        $clandata = $this->requestToClanMemberRemove($users, $strictmode);
+        dump($clandata);
+        $result = $this->request('CLANUSERREMOVE', $clan->getUuid() . '/users', $clandata);
+        if ($result === false) {
+            return false;
+        } else {
+            return true;
+        }
+    }
+
+    /**
+     * Deletes a Clan in the IDM
+     * @param ClanModel $clan
+     * @return bool True if the Delete was successful, otherwise return false.
+     */
+    public function deleteClan(ClanModel $clan) : bool
+    {
+        // TODO: Throw an Exception when there was a ValidationError ServerSide and show the fancy Error in the Frontend
+        $result = $this->request('CLANDELETE', $clan->getUuid());
         if ($result === false) {
             return false;
         } else {

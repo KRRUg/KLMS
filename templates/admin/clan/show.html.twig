@@ -23,6 +23,7 @@
         <thead>
         <tr>
             <td>User</td>
+            <td>Rang</td>
         </tr>
         </thead>
         <tbody>
@@ -30,6 +31,13 @@
                 <tr>
                     <td>
                         <a href="{{ path('admin_user_show', {'uuid' : user.user.uuid}) }}">{{ user.user.nickname }}</a>
+                    </td>
+                    <td>
+                        {% if user.admin %}
+                            Admin
+                        {% else %}
+                            Mitglied
+                        {% endif %}
                     </td>
                 </tr>
             {% endfor %}

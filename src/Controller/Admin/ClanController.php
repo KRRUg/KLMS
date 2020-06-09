@@ -13,6 +13,8 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class ClanController extends AbstractController
 {
+    //TODO: Change ClanController and UserService to only require Clan UUID where necessary to reduce IDM Calls
+
     /**
      * @var UserService
      */
@@ -67,6 +69,14 @@ class ClanController extends AbstractController
                 ]);
             }
 
+            foreach ($clanform->getUsers() as $user) {
+                if(in_array($user->getUser()->getUuid(), $form->get('admins')->getData())) {
+                    $user->setAdmin(true);
+                } else {
+                    $user->setAdmin(false);
+                }
+            }
+
             if ($this->userService->editClan($clanform)) {
 
                 $flashBag->add('info', 'Clan erfolgreich bearbeitet!');
@@ -112,7 +122,6 @@ class ClanController extends AbstractController
             return $this->createNotFoundException('Clan not found');
         }
 
-        //FIXME: implement UserService Endpoint
         if ($this->userService->deleteClan($clan)) {
             $flashBag->add('info', 'Clan erfolgreich gelöscht!');
         } else {
@@ -136,64 +145,6 @@ class ClanController extends AbstractController
     }
 
     /**
-     * @Route("/clan/{uuid}/member/promote", name="clan_member_promote", methods={"POST"})
-     */
-    public function promoteMember(string $uuid, Request $request, FlashBagInterface $flashBag)
-    {
-        $clan = $this->userService->getClan($uuid);
-
-        if(empty($request->request->get('user_uuid'))) {
-            $this->createNotFoundException('No User supplied in POST (user_uuid)');
-        }
-
-        $user = $this->userService->getUser($request->request->get('user_uuid'));
-
-        if(!$user) {
-            $this->createNotFoundException('User supplied in POST not found or invalid');
-        }
-
-        $nickname = $user->getNickname();
-
-        //FIXME: implement UserService Endpoint
-        if ($this->userService->promoteClanMember($clan, $user)) {
-            $flashBag->add('info', "User ${$nickname} erfolgreich promoted!");
-        } else {
-            $flashBag->add('error', 'Es ist ein unerwarteter Fehler aufgetreten');
-        }
-
-        return $this->redirectToRoute('admin_clan_member_show', ['uuid' => $clan->getUuid()]);
-    }
-
-    /**
-     * @Route("/clan/{uuid}/member/demote", name="clan_member_demote", methods={"POST"})
-     */
-    public function demoteMember(string $uuid, Request $request, FlashBagInterface $flashBag)
-    {
-        $clan = $this->userService->getClan($uuid);
-
-        if(empty($request->request->get('user_uuid'))) {
-            $this->createNotFoundException('No User supplied in POST (user_uuid)');
-        }
-
-        $user = $this->userService->getUser($request->request->get('user_uuid'));
-
-        if(!$user) {
-            $this->createNotFoundException('User supplied in POST not found or invalid');
-        }
-
-        $nickname = $user->getNickname();
-
-        //FIXME: implement UserService Endpoint
-        if ($this->userService->demoteClanMember($clan, $user)) {
-            $flashBag->add('info', "User ${$nickname} erfolgreich demoted!");
-        } else {
-            $flashBag->add('error', 'Es ist ein unerwarteter Fehler aufgetreten');
-        }
-
-        return $this->redirectToRoute('admin_clan_member_show', ['uuid' => $clan->getUuid()]);
-    }
-
-    /**
      * @Route("/clan/{uuid}/member/add", name="clan_member_add", methods={"POST"})
      */
     public function addMember(string $uuid, Request $request, FlashBagInterface $flashBag)
@@ -210,25 +161,10 @@ class ClanController extends AbstractController
             $this->createNotFoundException('User supplied in POST not found or invalid');
         }
 
-        // Check if the User is not part of the Clan
-        $found = false;
-        //TODO: add IDM Search Endpoint that can search for a specific User in a Clan and vice versa
-        foreach($user->getClans() as $userClanModel) {
-            if($userClanModel->getClan()->getUuid() === $clan->getUuid()) {
-                $found = true;
-                break;
-            }
-        }
-
-        if($found) {
-            throw new \Exception('Cannot add ClanMember that is already part of the Clan');
-        }
-
         $nickname = $user->getNickname();
 
-        //FIXME: implement UserService Endpoint
-        if ($this->userService->addClanMember($clan, $user)) {
-            $flashBag->add('info', "User ${$nickname} erfolgreich zum Clan hinzugefügt!");
+        if ($this->userService->addClanMember($clan, array($user))) {
+            $flashBag->add('info', "User {$nickname} erfolgreich zum Clan hinzugefügt!");
         } else {
             $flashBag->add('error', 'Es ist ein unerwarteter Fehler aufgetreten');
         }
@@ -253,25 +189,10 @@ class ClanController extends AbstractController
             $this->createNotFoundException('User supplied in POST not found or invalid');
         }
 
-        // Check if the User is even part of the Clan
-        $found = false;
-        //TODO: add IDM Search Endpoint that can search for a specific User in a Clan and vice versa
-        foreach($user->getClans() as $userClanModel) {
-            if($userClanModel->getClan()->getUuid() === $clan->getUuid()) {
-                $found = true;
-                break;
-            }
-        }
-
-        if(!$found) {
-            throw new \Exception('Cannot remove ClanMember that is not part of the Clan');
-        }
-
         $nickname = $user->getNickname();
 
-        //FIXME: implement UserService Endpoint
-        if ($this->userService->removeClanMember($clan, $user)) {
-            $flashBag->add('info', "User ${$nickname} erfolgreich aus dem Clan entfernt!");
+        if ($this->userService->removeClanMember($clan, array($user))) {
+            $flashBag->add('info', "User {$nickname} erfolgreich aus dem Clan entfernt!");
         } else {
             $flashBag->add('error', 'Es ist ein unerwarteter Fehler aufgetreten');
         }
