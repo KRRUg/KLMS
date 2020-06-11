@@ -11,12 +11,12 @@ use App\Repository\UserAdminsRepository;
 use App\Repository\UserGamerRepository;
 use App\Security\User;
 use App\Security\UserInfo;
+use App\Transfer\ClanCreateTransfer;
 use App\Transfer\ClanMemberAdd;
 use App\Transfer\ClanMemberRemove;
 use App\Transfer\PaginationCollection;
 use App\Transfer\ClanEditTransfer;
 use App\Transfer\UserEditTransfer;
-use Doctrine\Common\Annotations\Annotation\Required;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 use Ramsey\Uuid\Uuid;
@@ -74,11 +74,6 @@ class UserService
         'CLANUSERREMOVE' => [self::PATH => 'clans',    self::METHOD => 'DELETE'], // /clans/{uuid}/users
         'CLANCHECK' => [self::PATH => 'clans/check',    self::METHOD => 'POST'],
 
-    ];
-
-    const CLANRANKS = [
-        'ADMIN',
-        'MEMBER'
     ];
 
     static $serializer = null;
@@ -309,7 +304,7 @@ class UserService
 
     private function responseToClans(string $response) : array
     {
-        $serializer = new Serializer([new ArrayDenormalizer(), new DateTimeNormalizer(), new ObjectNormalizer(null, null, null, new ReflectionExtractor() )], [new JsonEncoder()]);
+        $serializer = self::getSerializer();
         try{
             $clan = $serializer->deserialize($response, ClanModel::class."[]", 'json');
         } catch (\RuntimeException $e) {
@@ -379,11 +374,14 @@ class UserService
     /**
      * Requests a full Clan object from IDM, only to be used if up-to-date data is required (e.g. for admin purpose).
      * @param string $clanuuid UUID of the Clan to search for.
+     * @param bool $inactive Also retrieves Clans that are either inactive or have no Users attached to them.
      * @return ClanModel|null The Clan object, if it exits, null otherwise.
      */
-    public function getClan(string $clanuuid) : ?ClanModel
+    public function getClan(string $clanuuid, bool $inactive = false) : ?ClanModel
     {
-        $result = $this->request('CLAN', $clanuuid);
+        $queryparams = ['all' => $inactive];
+
+        $result = $this->request('CLAN', $clanuuid, $queryparams);
         if ($result === false) {
             return null;
         } else {
@@ -394,6 +392,7 @@ class UserService
     /**
      * Requests all Clan Objects from IDM, only to be used if up-to-date data is required (e.g. for admin purpose).
      * @param integer $page the Page to be requested (1 Page = 50 Clans) WIP.
+     * @param bool $fullInfo
      * @return ClanModel[]|null The Clan object Collection, if it exits, null otherwise.
      */
     public function getAllClans(int $page = 1, bool $fullInfo = false) : ?array
@@ -426,6 +425,27 @@ class UserService
             return false;
         } else {
             return true;
+        }
+    }
+
+    /**
+     * Creates a Clan in the IDM
+     * @param ClanCreateTransfer $clan
+     * @param string|null $adminuuid
+     * @return ClanModel|bool Returns the created Clan when successful, otherwise false.
+     */
+    public function createClan(ClanCreateTransfer $clan, string $adminuuid = null) : ?ClanModel
+    {
+        if(null !== $adminuuid) {
+            $clan->user = $adminuuid;
+        }
+
+        // TODO: Throw an Exception when there was a ValidationError ServerSide and show the fancy Error in the Frontend
+        $result = $this->request('CLANCREATE', null, $clan);
+        if ($result === false) {
+            return false;
+        } else {
+            return $this->responseToClan($result);
         }
     }
 
@@ -499,9 +519,11 @@ class UserService
     }
 
     /**
-     * Requests all User Objects from IDM, only to be used if up-to-date data is required (e.g. for admin purpose).
-     * @param integer $page the Page to be requested (1 Page = 50 Users) WIP.
-     * @return User[]|null The user object Collection, if it exits, null otherwise.
+     * Requests User Objects from IDM, only to be used if up-to-date data is required (e.g. for admin purpose).
+     * @param string|null $query If no Query is supplied, all Users are returned.
+     * @param integer $page the Page to be requested (default Page 1).
+     * @param int|null $limit the Items per Page (Defaults to 10 Items).
+     * @return User[]|bool The user object Collection, if it exits, null otherwise.
      */
     public function queryUsers(string $query = null, int $page = null, int $limit = null)
     {

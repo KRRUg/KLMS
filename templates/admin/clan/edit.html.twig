@@ -4,5 +4,51 @@
 {% block siteheading %}<i class="far fa-file-alt"></i> Clan{% endblock %}
 {% block main %}
     {{  form(form) }}
+
+    <br />
+    User hinzufügen
+    <form method="post" action="{{ path('admin_clan_member_add', {'uuid' : clan.uuid}) }}">
+        {# TODO: set fullUser to True once it's working #}
+        <select style="width: 30%;" class="select2-enable" data-remote-target="{{ path('api_users', {'fullUser' : false}) }}" name="user_uuid">
+        </select>
+        <input type="submit" value="User hinzufügen"/>
+    </form>
+    <br />
+    <br />
+
+    <h1>Users</h1>
+    <table>
+        <thead>
+        <tr>
+            <td>User</td>
+            <td>Rang</td>
+            <td>Aktionen</td>
+        </tr>
+        </thead>
+        <tbody>
+        {% for user in clan.users %}
+            <tr>
+                <td>
+                    <a href="{{ path('admin_user_show', {'uuid' : user.user.uuid}) }}">{{ user.user.nickname }}</a>
+                </td>
+                <td>
+                    {% if user.admin %}
+                        Admin
+                    {% else %}
+                        Mitglied
+                    {% endif %}
+                </td>
+                <td>
+                    {# TODO: move to AJAX #}
+                    <form action="{{ path('admin_clan_member_remove', {'uuid' : clan.uuid}) }}" method="post">
+                        <input type="hidden" name="user_uuid" value="{{ user.user.uuid }}" />
+                        <input type="submit" value="Entfernen" />
+                    </form>
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
 {% endblock %}
 
