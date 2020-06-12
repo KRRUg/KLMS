@@ -1,0 +1,11 @@
+{% extends 'site/siteBase.html.twig' %}
+
+{% block title %}Clan{% endblock %}
+
+{% block main %}
+    {{ dump(clan) }}
+
+    {% if isClanAdmin %}
+        <a class="btn btn-primary" role="button" href="{{ path('clan_edit', {'uuid' : clan.uuid}) }}">Bearbeiten</a>
+    {% endif %}
+{% endblock %}

@@ -36,7 +36,8 @@ class ClanController extends AbstractController
      */
     public function index()
     {
-        $clans = $this->userService->getAllClans();
+        //TODO: implement Client Pagination
+        $clans = $this->userService->queryClans(null, null, 999999);
         return $this->render('admin/clan/index.html.twig', [
             'clans' => $clans,
         ]);
@@ -70,7 +71,7 @@ class ClanController extends AbstractController
             }
 
             if (!$this->userService->checkClanAvailability($clanform->clantag, 'clantag')) {
-                $form->get('name')->addError(new FormError('Clantag wird bereits benutzt!'));
+                $form->get('clantag')->addError(new FormError('Clantag wird bereits benutzt!'));
 
                 return $this->render('admin/clan/create.html.twig', [
                     'form' => $form->createView(),
@@ -127,7 +128,7 @@ class ClanController extends AbstractController
             }
 
             if (!$this->userService->checkClanAvailability($clanform->getClantag(), 'clantag') && $clanform->getClantag() !== $clan->getClantag()) {
-                $form->get('name')->addError(new FormError('Clantag wird bereits benutzt!'));
+                $form->get('clantag')->addError(new FormError('Clantag wird bereits benutzt!'));
 
                 return $this->render('admin/clan/edit.html.twig', [
                     'form' => $form->createView(),

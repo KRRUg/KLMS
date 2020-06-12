@@ -5,12 +5,13 @@
 {% block main %}
     <div class="row">
         <div class="col-12">
+            <a role="button" class="btn btn-primary" href="{{ path('admin_clan_create') }}">Clan erstellen</a>
             <div class="card">
                 <table class="table table-striped">
                     <tr>
                         <th>Clans</th>
                     </tr>
-                    {% for clan in clans %}
+                    {% for clan in clans.items %}
                         <tr>
                             <td>{{ clan.name }}</td>
                             <td>

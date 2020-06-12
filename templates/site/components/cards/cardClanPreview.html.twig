@@ -15,7 +15,11 @@
                         <i class="fas fa-user" title="Clan Mitglied"></i>
                     {% endif %}
                 </span>
-                <h4 class="card-title mb-1">{{ clan.name }}</h4>
+                <h4 class="card-title mb-1">
+                    <a href="{{ path('clan_show', {'uuid' : clan.uuid}) }}">
+                        {{ clan.name }}
+                    </a>
+                </h4>
                 <p class="card-text">
                     {{ clan.description }} <br>
                     <a href="{{ clan.website }}" target="blank">{{ clan.website }}</a>

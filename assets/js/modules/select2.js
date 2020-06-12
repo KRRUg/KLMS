@@ -5,11 +5,15 @@ require('select2/dist/js/i18n/de.js');
 
 export function init() {
     $('.select2-enable').each(function () {
-        const PAGINIATION_LIMIT = 10;
+        const PAGINATION_LIMIT = 10;
         let remoteUrl = $(this).attr('data-remote-target');
+        let label = 'User suchen...'
+        if(typeof ($(this).attr('data-label') !== 'undefined')) {
+            label = $(this).attr('data-label');
+        }
 
         $(this).select2({
-            placeholder: 'User suchen...',
+            placeholder: label,
             language: 'de',
             theme: 'bootstrap4',
             allowClear: true,
@@ -22,7 +26,7 @@ export function init() {
                     return {
                         q: params.term,
                         page: params.page || 1,
-                        limit: PAGINIATION_LIMIT
+                        limit: PAGINATION_LIMIT
                     };
                 },
                 processResults: function (data, params) {
@@ -40,7 +44,7 @@ export function init() {
                     return {
                         results: foo,
                         pagination: {
-                            more: (params.page * PAGINIATION_LIMIT) < data.total
+                            more: (params.page * PAGINATION_LIMIT) < data.total
                         }
                     };
                 },

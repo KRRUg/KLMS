@@ -28,6 +28,7 @@ class UserController extends AbstractController
      */
     public function index()
     {
+        //TODO: implement Client Pagination
         $users = $this->userService->queryUsers(null, null, 999999);
         return $this->render('admin/user/index.html.twig', [
             'users' => $users,

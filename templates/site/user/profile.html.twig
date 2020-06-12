@@ -25,7 +25,7 @@
                             {{ user.statements }}
                         </div>
                         <div class="card-text">
-                            <h3>Clans <a href="#" class="px-2" style="font-size:1rem;">Clan beitreten</a></h3>
+                            <h3>Clans <a href="{{ path('clan_join') }}" class="px-2" style="font-size:1rem;">Clan beitreten</a></h3>
                             <div class="row">
                                 {% for clan in user.clans %}
                                     <div class="col-sm-4">
