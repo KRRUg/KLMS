@@ -45,7 +45,7 @@ class ClanController extends AbstractController
     }
 
     /**
-     * @IsGranted('IS_AUTHENTICATED_REMEMBERED')
+     * @IsGranted("IS_AUTHENTICATED_REMEMBERED")
      * @Route("/clan/my", name="clan_my", methods={"GET"})
      */
     public function my()
@@ -58,7 +58,7 @@ class ClanController extends AbstractController
     }
 
     /**
-     * @IsGranted('IS_AUTHENTICATED_REMEMBERED')
+     * @IsGranted("IS_AUTHENTICATED_REMEMBERED")
      * @Route("/clan/join", name="clan_join", methods={"GET", "POST"})
      */
     public function join(Request $request, FlashBagInterface $flashBag)
@@ -107,7 +107,7 @@ class ClanController extends AbstractController
     }
 
     /**
-     * @IsGranted('IS_AUTHENTICATED_REMEMBERED')
+     * @IsGranted("IS_AUTHENTICATED_REMEMBERED")
      * @Route("/clan/create", name="clan_create", methods={"GET", "POST"})
      *
      * @return RedirectResponse|Response
@@ -161,7 +161,7 @@ class ClanController extends AbstractController
     }
 
     /**
-     * @IsGranted('IS_AUTHENTICATED_REMEMBERED')
+     * @IsGranted("IS_AUTHENTICATED_REMEMBERED")
      * @Route("/clan/{uuid}/edit", name="clan_edit", methods={"GET", "POST"})
      *
      * @return AccessDeniedException|RedirectResponse|Response
@@ -260,7 +260,7 @@ class ClanController extends AbstractController
     }
 
     /**
-     * @IsGranted('IS_AUTHENTICATED_REMEMBERED')
+     * @IsGranted("IS_AUTHENTICATED_REMEMBERED")
      * @Route("/clan/{uuid}", name="clan_delete", methods={"DELETE"})
      *
      * @return AccessDeniedException|RedirectResponse|NotFoundHttpException
@@ -299,7 +299,7 @@ class ClanController extends AbstractController
     }
 
     /**
-     * @IsGranted('IS_AUTHENTICATED_REMEMBERED')
+     * @IsGranted("IS_AUTHENTICATED_REMEMBERED")
      * @Route("/clan/{uuid}/member/remove", name="clan_member_remove", methods={"POST"})
      *
      * @return AccessDeniedException|NotFoundHttpException|RedirectResponse
