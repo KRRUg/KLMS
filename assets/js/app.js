@@ -1,5 +1,6 @@
 // Shared JS File
 
+require('./modules/sentry');
 //Import Bootstrap4
 require('jquery');
 require('bootstrap');

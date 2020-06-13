@@ -8,6 +8,7 @@
         "nyholm/psr7": "^1.2",
         "ramsey/uuid": "^4.0",
         "sensio/framework-extra-bundle": "^5.5",
+        "sentry/sentry-symfony": "^3.5",
         "symfony/asset": "4.4.*",
         "symfony/console": "4.4.*",
         "symfony/debug-pack": "^1.0",
