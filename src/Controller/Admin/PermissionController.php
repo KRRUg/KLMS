@@ -71,13 +71,11 @@ class PermissionController extends BaseController
             ], 400);
         }
 
-        // TODO remove this temporary solution
         $data = $form->getData();
-        $user = $this->userService->getUsersByNickname($data['user']);
+        $user = $data['user'];
         if (empty($user)){
             $form->get('user')->addError(new FormError("Benutzer nicht gefunden."));
         } else {
-            $user = $user[0];
             if (!$this->permissionService->setPermissions($user, $data['perm'])) {
                 $form->get('perm')->addError(new FormError("Invalide Berechtigungen gesetzt"));
             }

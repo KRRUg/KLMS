@@ -18,7 +18,7 @@ class PermissionType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
-            ->add('user', ChoiceType::class, [
+            ->add('user', UserSelectType::class, [
                     'multiple' => false,
                     'required' => true,
                 ]
