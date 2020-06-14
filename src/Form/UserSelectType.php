@@ -2,13 +2,16 @@
 
 namespace App\Form;
 
-use App\Helper\UserInfoTransformer;
+use App\Security\User;
+use App\Security\UserInfo;
 use App\Service\UserService;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\DataTransformerInterface;
+use Symfony\Component\Form\Exception\TransformationFailedException;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
-class UserSelectType extends AbstractType
+class UserSelectType extends AbstractType implements DataTransformerInterface
 {
     private $userService;
 
@@ -19,7 +22,7 @@ class UserSelectType extends AbstractType
 
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
-        $builder->addViewTransformer(new UserInfoTransformer($this->userService));
+        $builder->addViewTransformer($this);
     }
 
     public function configureOptions(OptionsResolver $resolver)
@@ -33,5 +36,32 @@ class UserSelectType extends AbstractType
     public function getBlockPrefix()
     {
         return 'select2';
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function transform($entity)
+    {
+        $data = array();
+        if (empty($entity)) {
+            return $data;
+        }
+
+        if (!($entity instanceof UserInfo || $entity instanceof User)) {
+            throw new TransformationFailedException('Unknown type to convert');
+        }
+
+        $data[$entity->getUuid()] = $entity->getUsername();
+        return $data;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function reverseTransform($value)
+    {
+        $ret = $this->userService->getUserInfosByUuid([$value]);
+        return $ret[0];
     }
 }
