@@ -3,7 +3,6 @@
 namespace App\Security;
 
 use App\Service\UserService;
-use Symfony\Component\HttpClient\HttpClient;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
@@ -24,13 +23,13 @@ class LoginFormAuthenticator extends AbstractFormLoginAuthenticator
 
     private $urlGenerator;
     private $csrfTokenManager;
-    private $idmService;
+    private $userService;
 
     public function __construct(UrlGeneratorInterface $urlGenerator, CsrfTokenManagerInterface $csrfTokenManager, UserService $idmService)
     {
         $this->urlGenerator = $urlGenerator;
         $this->csrfTokenManager = $csrfTokenManager;
-        $this->idmService = $idmService;
+        $this->userService = $idmService;
     }
 
     public function supports(Request $request)
@@ -65,7 +64,7 @@ class LoginFormAuthenticator extends AbstractFormLoginAuthenticator
         // You can do this by calling the user provider, or with custom logic here.
         $user = $userProvider->loadUserByUsername($credentials['username']);
 
-        if (!$user) {
+        if (empty($user)) {
             // fail authentication with a custom error
             throw new CustomUserMessageAuthenticationException('Username could not be found.');
         }
@@ -77,7 +76,7 @@ class LoginFormAuthenticator extends AbstractFormLoginAuthenticator
     {
         // Check the user's password or other credentials and return true or false
         // If there are no credentials to check, you can just return true
-        return $this->idmService->authenticate($credentials['username'], $credentials['password']);
+        return $this->userService->authenticate($credentials['username'], $credentials['password']);
     }
 
     public function onAuthenticationSuccess(Request $request, TokenInterface $token, $providerKey)

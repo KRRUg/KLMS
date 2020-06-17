@@ -7,8 +7,11 @@ namespace App\Service;
 use App\Entity\UserAdmin;
 use App\Exception\PermissionException;
 use App\Repository\UserAdminsRepository;
+use App\Security\LoginUser;
+use App\Security\User;
 use App\Security\UserInfo;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\Security\Core\Security;
 
 final class PermissionService
 {
@@ -34,12 +37,18 @@ final class PermissionService
     private $repo;
     private $em;
     private $userService;
+    private $security;
 
-    public function __construct(UserService $userService, EntityManagerInterface $em, UserAdminsRepository $repo)
-    {
+    public function __construct(
+        UserService $userService,
+        Security $security,
+        EntityManagerInterface $em,
+        UserAdminsRepository $repo
+    ) {
         $this->repo = $repo;
         $this->em = $em;
         $this->userService = $userService;
+        $this->security = $security;
     }
 
     public function validPermission(string $permission): bool
@@ -63,13 +72,22 @@ final class PermissionService
         return in_array($permission, $admin->getPermissions());
     }
 
+    private function getCurrentLoginUser(): LoginUser
+    {
+        $user = $this->security->getUser();
+        if (empty($user) || !($user instanceof LoginUser))
+            return null;
+
+        return $user;
+    }
+
     public function hasSessionPermission(string $permission): bool
     {
         if (!$this->validPermission($permission)) {
             return false;
         }
         $role = "ROLE_" . $permission;
-        $user = $this->userService->getCurrentUser();
+        $user = $this->getCurrentLoginUser();
         if (empty($user)) {
             return false;
         }
@@ -86,15 +104,6 @@ final class PermissionService
         if (!$this->hasSessionPermission($permission)) {
             throw new PermissionException($permission);
         }
-    }
-
-    public function isSessionAdmin(): bool
-    {
-        $user = $this->userService->getCurrentUser();
-        if (empty($user)) {
-            return false;
-        }
-        return $user->hasRole("ROLE_ADMIN");
     }
 
     public function grantPermission(string $permission, UserInfo $user) : bool
@@ -116,10 +125,10 @@ final class PermissionService
 
     public function getPermissions(UserInfo $user) : array
     {
-        $ret = $this->repo->findByUser($user)->getPermissions();
-        if (empty($ret))
+        $adminUser = $this->repo->findByUser($user);
+        if (empty($adminUser))
             return [];
-        return $ret;
+        return $adminUser->getPermissions();
     }
 
     public function setPermissions(UserInfo $user, array $permissions) : bool
@@ -166,5 +175,28 @@ final class PermissionService
             $ret[$u->getUuid()] = array($u, $p);
         }
         return $ret;
+    }
+
+    /**
+     * @param User $user The user to be logged in
+     * @return array The permissions of the User
+     */
+    public function handleLogin(User $user) : array
+    {
+        $userAdmin = $this->repo->findByUser($user);
+        if ($user->getIsSuperadmin()) {
+            if (empty($userAdmin)) {
+                $userAdmin = new UserAdmin($user->getUuid());
+            }
+            if (!empty(array_diff(PermissionService::PERMISSIONS, $userAdmin->getPermissions()))) {
+                $userAdmin->setPermissions(PermissionService::PERMISSIONS);
+                $this->em->persist($userAdmin);
+                $this->em->flush();
+            }
+        }
+        if (!empty($userAdmin)) {
+            return $userAdmin->getPermissions();
+        }
+        return [];
     }
 }
