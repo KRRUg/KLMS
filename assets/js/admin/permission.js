@@ -1,4 +1,5 @@
 import $ from 'jquery';
+import 'jquery-serializejson';
 import dTLang from '../modules/dataTables/dataTables.js';
 
 let UserTable = function ($wrapper) {
@@ -36,7 +37,7 @@ $.extend(UserTable.prototype, {
         let $render = $('<div>');
 
         let $anchor = $('<a href="#" data-toggle="modal" data-target="#editModal">');
-        $anchor.attr('data-id', user.uuid);
+        $anchor.attr('data-uuid', user.uuid);
         $anchor.text(user.nickname);
 
         let $mail = $('<small class="text-muted">');
@@ -58,12 +59,66 @@ $.extend(UserTable.prototype, {
     },
 });
 
+let NewModal = function($wrapper, onupdate) {
+    this.$modal = $wrapper;
+    this.$form = $wrapper.find('form');
+    this.onupdate = onupdate;
+    this.remoteTarget = $wrapper.data('remote-target');
 
-//TODO: Move to own js File + modal component
+    this.$modal.on(
+        'show.bs.modal',
+        this.handleModalShow.bind(this)
+    );
+
+    this.$modal.on(
+        'submit',
+        'form',
+        this.handleFormSubmit.bind(this)
+    );
+};
+
+$.extend(NewModal.prototype, {
+    handleModalShow(e) {
+        this.$form.trigger('reset');
+
+    },
+
+    handleFormSubmit(e) {
+        e.preventDefault();
+        let $form = $(e.currentTarget);
+
+        this._saveData($form.serializeJSON())
+            .then(() => {
+                this.onupdate();
+                this.$modal.modal('hide');
+            }).catch((errorData) => {
+            this._mapErrorsToForm(errorData);
+        });
+    },
+
+    _saveData(data) {
+        return new Promise((resolve, reject) => {
+            $.ajax({
+                url: this.remoteTarget,
+                method: 'POST',
+                contentType: 'application/json',
+                dataType: 'json',
+                data: JSON.stringify(data)
+            }).then((data, textStatus, jqXHR) => {
+                resolve();
+            }).catch((jqXHR) => {
+                let errorData = JSON.parse(jqXHR.responseText);
+                reject(errorData.errors);
+            });
+        });
+    },
+});
+
 let EditModal = function ($wrapper, onupdate) {
     this.$modal = $wrapper;
     this.$form = $wrapper.find('form');
     this.onupdate = onupdate;
+    this.remoteTarget = $wrapper.data('remote-target');
 
     this.$modal.on(
             'show.bs.modal',
@@ -84,43 +139,68 @@ let EditModal = function ($wrapper, onupdate) {
 
 $.extend(EditModal.prototype, {
     handleModalShow(e) {
-        let button = $(e.relatedTarget);
+        let $button = $(e.relatedTarget);
+        this.uuid = $button.data('uuid');
+
+        this.$modal.addClass('invisible');
+
         this.clearErrors();
         this.$form.trigger('reset');
-        if (button.attr('id') === "new") {
-            this.$form.find('#user').prop('readonly', false);
-        } else {
-            let id = button.data('id');
-            let name = button.data('name');
-            let perm = button.data('perm');
 
-            this.$form.find('#user').val(name).prop('readonly', true);
-            this.$form.find('input[name="perm[]"]')
-                    .each((i, k) => {
-                        let $k = $(k);
-                        $k.prop('checked', perm.includes($k.val()));
-                    });
-        }
+        this._getData()
+            .then((data) => {
+                this._mapJsonToForm(data);
+                this.$modal.removeClass('invisible');
+            }).catch(() => {
+                console.error('ajax requst problem')
+            });
     },
 
     handleModalHide(e) {
+        this.uuid = undefined;
+    },
+
+    _mapJsonToForm(data) {
+        let formName = this.$form.attr('name');
+        this.$modal.find('.userName').text(data.user.nickname);
+        this.$form.find('input[name="' + formName + '[perm][]"]')
+            .each((i, k) => {
+                let $k = $(k);
+                $k.prop('checked', data.perm.includes($k.val()));
+            });
     },
 
     handleFormSubmit(e) {
-        e.preventDefault();
-        let $form = $(e.currentTarget);
-        this._saveData($form.serializeJSON())
-                .then(() => {
-                    this.onupdate();
-                    this.$modal.modal('hide');
-                }).catch((errorData) => {
-            this._mapErrorsToForm(errorData);
+         e.preventDefault();
+         let $form = $(e.currentTarget);
+
+         this._saveData($form.serializeJSON())
+             .then(() => {
+                 this.onupdate();
+                 this.$modal.modal('hide');
+             }).catch((errorData) => {
+                 this._mapErrorsToForm(errorData);
+             });
+    },
+
+    _getData() {
+        return new Promise((resolve, reject) => {
+            $.ajax({
+                method: 'GET',
+                url: this.remoteTarget + '/' + this.uuid,
+                dataType: 'json',
+            }).then((data, textStatus, jqXHR) => {
+                resolve(data);
+            }).catch((jqXHR) => {
+                reject();
+            });
         });
     },
 
     _saveData(data) {
         return new Promise((resolve, reject) => {
             $.ajax({
+                url: this.remoteTarget + '/' + this.uuid,
                 method: 'POST',
                 contentType: 'application/json',
                 dataType: 'json',
@@ -158,5 +238,6 @@ $.extend(EditModal.prototype, {
 
 $(document).ready(() => {
     const ut = new UserTable($('#userTable'));
-    //const em = new EditModal($('#editModal'), ut.updateTable.bind(ut));
+    const em = new EditModal($('#editModal'), ut.reloadDataTable.bind(ut));
+    const nm = new NewModal($('#newModal'), ut.reloadDataTable.bind(ut));
 });

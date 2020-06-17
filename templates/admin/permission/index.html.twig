@@ -6,7 +6,7 @@
 {% block main %}
     <div class="row mb-4">
         <div class="col-12">
-            <button class="btn btn-success" data-toggle="modal" data-target="#editModal" id="new"><i class="fas fa-plus"></i> Admin hinzufügen</button>
+            <button class="btn btn-success" data-toggle="modal" data-target="#newModal" id="new"><i class="fas fa-plus"></i> Admin hinzufügen</button>
         </div>
     </div>
     <div class="row">
@@ -26,26 +26,47 @@
         </div>
     </div>
 
-    <div class="modal fade" id="editModal" tabindex="-1" role="dialog">
+    <div class="modal fade" id="newModal" data-remote-target="{{ path('admin_permission') }}" tabindex="-1" role="dialog">
         <div class="modal-dialog modal-dialog-centered" role="document">
             <div class="modal-content">
-                {{ form_start(form) }}
+                {{ form_start(form_add) }}
                 <div class="modal-header">
                     <h5 class="modal-title">Admin hinzufügen</h5>
                 </div>
                 <div class="modal-body">
                     <div class="form-group">
-                        {{ form_row(form.user) }}
+                        {{ form_row(form_add.user) }}
                     </div>
-                    <div class="form-group" id="perm">
-                        {{ form_row(form.perm) }}
+                    <div class="form-group">
+                        {{ form_row(form_add.perm) }}
                     </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Abbrechen</button>
                     <button type="submit" class="btn btn-primary">Speichern</button>
                 </div>
-                {{ form_end(form) }}
+                {{ form_end(form_add) }}
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="editModal" data-remote-target="{{ path('admin_permission') }}" tabindex="-1" role="dialog">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                {{ form_start(form_edit) }}
+                <div class="modal-header">
+                    <h5 class="modal-title"><span class="userName">Admin</span> bearbeiten</h5>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        {{ form_row(form_edit.perm) }}
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Abbrechen</button>
+                    <button type="submit" class="btn btn-primary">Speichern</button>
+                </div>
+                {{ form_end(form_edit) }}
             </div>
         </div>
     </div>

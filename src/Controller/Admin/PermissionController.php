@@ -42,27 +42,76 @@ class PermissionController extends BaseController
                 array_values($local_admins)
             );
         } else {
-            $form = $this->createForm(PermissionType::class);
+            $formEdit = $this->get('form.factory')->createNamed('edit', PermissionType::class, null, ['user_readonly' => true]);
+            $formNew  = $this->get('form.factory')->createNamed('new', PermissionType::class, null, ['user_readonly' => false]);
             return $this->render('admin/permission/index.html.twig', [
                 'admins' => $local_admins,
-                'form' => $form->createView(),
-                'show' => false
+                'form_edit' => $formEdit->createView(),
+                'form_add' => $formNew->createView(),
             ]);
         }
     }
 
     /**
-     * @Route("", name="_edit", methods={"POST"})
+     * @Route("", name="_add", methods={"POST"})
      */
-    public function update(Request $request)
-    {
+    public function addPermission(Request $request) {
         $data = json_decode($request->getContent(), true);
         if ($data === null) {
             throw new BadRequestHttpException('Invalid JSON');
         }
 
-        $form = $this->createForm(PermissionType::class);
-        $form->submit($data);
+        $form = $this->get('form.factory')->createNamed('new', PermissionType::class);
+        $form->submit($data[$form->getName()]);
+        if (!$form->isValid()) {
+            $errors = $this->getErrorsFromForm($form);
+            return $this->createApiResponse([
+                'errors' => $errors
+            ], 400);
+        }
+
+        $data = $form->getData();
+        if (!$this->permissionService->setPermissions($data['user'], $data['perm'])) {
+            $form->get('perm')->addError(new FormError("Invalide Berechtigungen gesetzt"));
+        }
+
+        return $this->createApiResponse([]);
+    }
+
+    /**
+     * @Route("/{id}", name="_get", methods={"GET"})
+     */
+    public function getPermission(Request $request, $id)
+    {
+        // TODO param converter for user id to userInfos
+        $user = $this->userService->getUserInfosByUuid([$id])[0];
+        if (empty($user)) {
+            return $this->createApiResponse([], 404);
+        }
+
+        $perm = $this->permissionService->getPermissions($user);
+        return $this->createApiResponse(['user' => $user, 'perm' => $perm]);
+    }
+
+    /**
+     * @Route("/{id}", name="_edit", methods={"POST"})
+     */
+    public function updatePermission(Request $request, $id)
+    {
+        // TODO param converter for user id to userInfos
+        $user = $this->userService->getUserInfosByUuid([$id])[0];
+
+        if (empty($user)) {
+            return $this->createApiResponse([], 404);
+        }
+
+        $data = json_decode($request->getContent(), true);
+        if ($data === null) {
+            throw new BadRequestHttpException('Invalid JSON');
+        }
+
+        $form = $this->get('form.factory')->createNamed('edit', PermissionType::class, null, ['user_readonly' => true]);
+        $form->submit($data[$form->getName()]);
         if (!$form->isValid()) {
             $errors = $this->getErrorsFromForm($form);
 
@@ -72,13 +121,8 @@ class PermissionController extends BaseController
         }
 
         $data = $form->getData();
-        $user = $data['user'];
-        if (empty($user)){
-            $form->get('user')->addError(new FormError("Benutzer nicht gefunden."));
-        } else {
-            if (!$this->permissionService->setPermissions($user, $data['perm'])) {
-                $form->get('perm')->addError(new FormError("Invalide Berechtigungen gesetzt"));
-            }
+        if (!$this->permissionService->setPermissions($user, $data['perm'])) {
+            $form->get('perm')->addError(new FormError("Invalide Berechtigungen gesetzt"));
         }
 
         if (!$form->isValid()){

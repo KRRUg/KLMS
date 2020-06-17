@@ -10,33 +10,30 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class PermissionType extends AbstractType
 {
-    public function getBlockPrefix()
-    {
-        return '';
-    }
-
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
-        $builder
-            ->add('user', UserSelectType::class, [
-                    'multiple' => false,
-                    'required' => true,
-                ]
-            )
-            ->add('perm', ChoiceType::class, [
-                    'choices'  => array_combine(PermissionService::PERMISSIONS, PermissionService::PERMISSIONS),
-                    'expanded' => true,
-                    'multiple' => true,
-                    'label' => 'Berechtigungen',
-                    'required' => true,
-                ]
-            );
+        if (!$options['user_readonly']) {
+            $builder->add('user', UserSelectType::class, [
+                        'multiple' => false,
+                        'required' => true,
+                    ]
+                );
+        }
+
+        $builder->add('perm', ChoiceType::class, [
+                'choices'  => array_combine(PermissionService::PERMISSIONS, PermissionService::PERMISSIONS),
+                'expanded' => true,
+                'multiple' => true,
+                'label' => 'Berechtigungen',
+                'required' => true,
+            ]
+        );
     }
 
     public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefaults([
-            // Configure your form options here
+            'user_readonly' => false,
         ]);
     }
 }

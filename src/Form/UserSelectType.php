@@ -2,6 +2,7 @@
 
 namespace App\Form;
 
+use App\Exception\UserServiceException;
 use App\Security\User;
 use App\Security\UserInfo;
 use App\Service\UserService;
@@ -61,7 +62,10 @@ class UserSelectType extends AbstractType implements DataTransformerInterface
      */
     public function reverseTransform($value)
     {
-        $ret = $this->userService->getUserInfosByUuid([$value]);
-        return $ret[0];
+        try {
+            return $this->userService->getUserInfosByUuid([$value])[0];
+        } catch (UserServiceException $e) {
+            throw new TransformationFailedException('Unknown type to convert');
+        }
     }
 }
