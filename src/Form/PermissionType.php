@@ -12,7 +12,7 @@ class PermissionType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
-        if (!$options['user_readonly']) {
+        if (!$options['include_user']) {
             $builder->add('user', UserSelectType::class, [
                         'multiple' => false,
                         'required' => true,
@@ -33,7 +33,7 @@ class PermissionType extends AbstractType
     public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefaults([
-            'user_readonly' => false,
+            'include_user' => false,
         ]);
     }
 }

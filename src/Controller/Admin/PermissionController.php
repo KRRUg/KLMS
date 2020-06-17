@@ -42,8 +42,8 @@ class PermissionController extends BaseController
                 array_values($local_admins)
             );
         } else {
-            $formEdit = $this->get('form.factory')->createNamed('edit', PermissionType::class, null, ['user_readonly' => true]);
-            $formNew  = $this->get('form.factory')->createNamed('new', PermissionType::class, null, ['user_readonly' => false]);
+            $formEdit = $this->get('form.factory')->createNamed('edit', PermissionType::class, null, ['include_user' => true]);
+            $formNew  = $this->get('form.factory')->createNamed('new', PermissionType::class, null, ['include_user' => false]);
             return $this->render('admin/permission/index.html.twig', [
                 'admins' => $local_admins,
                 'form_edit' => $formEdit->createView(),
@@ -110,7 +110,7 @@ class PermissionController extends BaseController
             throw new BadRequestHttpException('Invalid JSON');
         }
 
-        $form = $this->get('form.factory')->createNamed('edit', PermissionType::class, null, ['user_readonly' => true]);
+        $form = $this->get('form.factory')->createNamed('edit', PermissionType::class, null, ['include_user' => true]);
         $form->submit($data[$form->getName()]);
         if (!$form->isValid()) {
             $errors = $this->getErrorsFromForm($form);
