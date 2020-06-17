@@ -9,10 +9,8 @@ use Symfony\Component\Validator\Constraints as Assert;
  * Class User contains all User information. This class is intended for the currently logged in user and for admin usage only.
  * @package App\Security
  */
-final class User extends UserInfo implements UserInterface
+final class User extends UserInfo
 {
-    private $roles = [];
-
     private $firstname;
 
     private $surname;
@@ -236,69 +234,5 @@ final class User extends UserInfo implements UserInterface
         $this->statements = $statements;
 
         return $this;
-    }
-
-    /**
-     * @see UserInterface
-     */
-    public function getUsername()
-    {
-        return (string) $this->email;
-    }
-
-    /**
-     * @see UserInterface
-     */
-    public function getRoles(): array
-    {
-        $roles = $this->roles;
-        // guarantee every user at least has ROLE_USER
-        $roles[] = 'ROLE_USER';
-
-        return array_unique($roles);
-    }
-
-    public function setRoles(array $roles): self
-    {
-        $this->roles = $roles;
-
-        return $this;
-    }
-
-    public function addRoles(array $roles): self
-    {
-        $this->roles = array_merge($this->roles, $roles);
-
-        return $this;
-    }
-
-    public function hasRole(string $role): bool
-    {
-        return in_array($role, $this->roles);
-    }
-
-    /**
-     * @see UserInterface
-     */
-    public function getPassword()
-    {
-        // not needed for apps that do not check user passwords
-    }
-
-    /**
-     * @see UserInterface
-     */
-    public function getSalt()
-    {
-        // not needed for apps that do not check user passwords
-    }
-
-    /**
-     * @see UserInterface
-     */
-    public function eraseCredentials()
-    {
-        // If you store any temporary, sensitive data on the user, clear it here
-        // $this->plainPassword = null;
     }
 }
