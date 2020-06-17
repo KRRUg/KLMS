@@ -15,6 +15,11 @@ class UserAdmin
      */
     private $guid;
 
+    /**
+     * @ORM\Column(type="array")
+     */
+    private $permissions = [];
+
     public function __construct(string $guid)
     {
         $this->guid = $guid;
@@ -28,5 +33,28 @@ class UserAdmin
     public function setId(string $guid)
     {
         $this->guid = $guid;
+    }
+
+    public function hasPermisison(string $permission): bool
+    {
+        return in_array($permission, $this->permissions);
+    }
+
+    public function getPermissions(): ?array
+    {
+        return $this->permissions;
+    }
+
+    public function setPermissions(array $permissions): self
+    {
+        $this->permissions = $permissions;
+
+        return $this;
+    }
+
+    public function addPermisison(string $permission): self
+    {
+        if (!$this->hasPermisison($permission))
+            array_push($this->permissions, $permission);
     }
 }

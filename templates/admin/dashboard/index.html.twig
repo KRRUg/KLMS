@@ -3,22 +3,36 @@
 {% block title %}KLMS - Admin{% endblock %}
 {% block siteheading %}<i class="fas fa-home"></i> Dashboard{% endblock %}
 {% block main %}
-    <div class="row">
-        <div class="col">
-            <a  href="{{ path('admin_news') }}" class="card">
-                <div class="card-body text-center">
-                    <h3><i class="far fa-newspaper"></i></h3>
-                    News 
-                </div>
-            </a>
-        </div>
-        <div class="col">
-            <a href="{{ path('admin_content') }}" class="card">
-                <div class="card-body text-center">
-                    <h3><i class="far fa-file-alt"></i></h3> 
-                    Content 
-                </div>
-            </a>
-        </div>
-    </div>
+<div class="card-deck" >
+    {% if is_granted('ROLE_ADMIN_NEWS') %}
+        <a  href="{{ path('admin_news') }}" class="card">
+            <div class="card-body text-center">
+                <h3><i class="far fa-newspaper"></i></h3>
+                News
+            </div>
+        </a>
+    {% endif %}
+    {% if is_granted('ROLE_ADMIN_CONTENT') %}
+        <a href="{{ path('admin_content') }}" class="card">
+            <div class="card-body text-center">
+                <h3><i class="far fa-file-alt"></i></h3>
+                Content
+            </div>
+        </a>
+        <a href="{{ path('admin_textblock') }}" class="card">
+            <div class="card-body text-center">
+                <h3><i class="far fa-file-alt"></i></h3>
+                Textblöcke
+            </div>
+        </a>
+    {% endif %}
+    {% if is_granted('ROLE_ADMIN_SUPER') %}
+        <a  href="{{ path('admin_permission') }}" class="card">
+            <div class="card-body text-center">
+                <h3><i class="fas fa-key"></i></h3>
+                Berechtigungen
+            </div>
+        </a>
+    {% endif %}
+</div>
 {% endblock %}
