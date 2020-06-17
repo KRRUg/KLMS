@@ -29,7 +29,7 @@ class LoginFormAuthenticator extends AbstractFormLoginAuthenticator
     {
         $this->urlGenerator = $urlGenerator;
         $this->csrfTokenManager = $csrfTokenManager;
-        $this->userService = $idmService;
+        $this->userService = $userService;
     }
 
     public function supports(Request $request)
