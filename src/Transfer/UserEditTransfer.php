@@ -23,6 +23,8 @@ final class UserEditTransfer
      */
     public $nickname;
 
+    public $birthdate;
+
     /**
      * @Assert\Length(max="250")
      * @var string
@@ -118,6 +120,7 @@ final class UserEditTransfer
         $transfer = new self();
         $transfer->email = $user->getEmail();
         $transfer->nickname = $user->getNickname();
+        $transfer->birthdate = $user->getBirthdate();
         $transfer->firstname = $user->getFirstname();
         $transfer->surname = $user->getSurname();
         $transfer->postcode = $user->getPostcode();
