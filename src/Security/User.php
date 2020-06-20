@@ -44,6 +44,8 @@ final class User extends UserInfo implements UserInterface
 
     private $modifiedAt;
 
+    private $birthdate;
+
     private $hardware;
 
     /**
@@ -232,6 +234,18 @@ final class User extends UserInfo implements UserInterface
     public function setModifiedAt(\DateTime $modifiedAt): self
     {
         $this->modifiedAt = $modifiedAt;
+
+        return $this;
+    }
+
+    public function getBirthdate(): ?\DateTime
+    {
+        return $this->birthdate;
+    }
+
+    public function setBirthdate(\DateTime $birthdate): self
+    {
+        $this->birthdate = $birthdate;
 
         return $this;
     }

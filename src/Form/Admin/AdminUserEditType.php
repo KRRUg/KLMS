@@ -4,6 +4,7 @@ namespace App\Form\Admin;
 
 use App\Security\User;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\BirthdayType;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\DateTimeType;
 use Symfony\Component\Form\Extension\Core\Type\EmailType;
@@ -40,6 +41,7 @@ class AdminUserEditType extends AbstractType
             ->add('status')
             ->add('firstname')
             ->add('surname')
+            ->add('birthdate', BirthdayType::class)
             ->add('postcode')
             ->add('city')
             ->add('street')
