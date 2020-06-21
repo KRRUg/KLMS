@@ -1,8 +1,10 @@
-let tinymce = require('tinymce/tinymce');
+import tinymce from 'tinymce/tinymce';
 
-require('tinymce/themes/silver');
-require('tinymce/plugins/paste');
-require('tinymce/plugins/link');
+import 'tinymce/icons/default';
+import 'tinymce/themes/silver';
+
+import 'tinymce/plugins/paste';
+import 'tinymce/plugins/link';
 
 export function init() {
     tinymce.init({
