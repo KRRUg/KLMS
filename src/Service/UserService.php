@@ -4,9 +4,11 @@
 namespace App\Service;
 
 
+use App\Entity\UserAdmin;
 use App\Exception\UserServiceException;
 use App\Repository\UserAdminsRepository;
 use App\Repository\UserGamerRepository;
+use App\Security\LoginUser;
 use App\Security\User;
 use App\Security\UserInfo;
 use App\Transfer\PaginationCollection;
@@ -15,6 +17,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpClient\HttpClient;
 use Symfony\Component\PropertyInfo\Extractor\ReflectionExtractor;
+use Symfony\Component\Security\Core\Security;
 use Symfony\Component\Serializer\Encoder\JsonEncoder;
 use Symfony\Component\Serializer\Exception\ExceptionInterface;
 use Symfony\Component\Serializer\Normalizer\ArrayDenormalizer;
@@ -27,18 +30,19 @@ use Symfony\Contracts\HttpClient\Exception\RedirectionExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\ServerExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
 
-class UserService
+final class UserService
 {
     private $logger;
     private $em;
     private $ar;
     private $gr;
 
-    public function __construct(UserAdminsRepository $ar,
-                                UserGamerRepository $gr,
-                                EntityManagerInterface $em,
-                                LoggerInterface $logger)
-    {
+    public function __construct(
+        UserAdminsRepository $ar,
+        UserGamerRepository $gr,
+        EntityManagerInterface $em,
+        LoggerInterface $logger
+    ) {
         $this->ar = $ar;
         $this->gr = $gr;
         $this->em = $em;
@@ -155,33 +159,6 @@ class UserService
         }
     }
 
-    private function loadAdminRoles(User $user)
-    {
-        $userGuid = $user->getUuid();
-        $roles = [];
-
-        // TODO extend admin table with roles
-        if ($user->getIsSuperadmin() || $this->ar->find($userGuid)) {
-            array_push($roles, "ROLE_ADMIN");
-        }
-        $user->addRoles($roles);
-    }
-
-    private function loadUserRoles(User $user)
-    {
-        $userGuid = $user->getUuid();
-        $roles = [];
-
-        $gamer = $this->gr->find($userGuid);
-        if ($gamer) {
-            if ($gamer->getPayed()) {
-                array_push($roles, "ROLE_USER_PAYED");
-            }
-            // TODO check if user has seat,...
-        }
-        $user->addRoles($roles);
-    }
-
     private function responseToUser(string $response) : User
     {
         $users = $this->responseToUsers("[".$response."]");
@@ -199,10 +176,6 @@ class UserService
             throw new UserServiceException("Invalid response.", null, $e);
         }
 
-        foreach ($user as $u) {
-            $this->loadUserRoles($u);
-            $this->loadAdminRoles($u);
-        }
         return $user;
     }
 
@@ -250,31 +223,58 @@ class UserService
     }
 
     /**
-     * Returns all users that match a set of uuids. This function makes an IDM access, only to be used if up-to-date data is required (e.g. for admin purpose).
-     * @param array $uuids Ids to get user for.
-     * @return User[] Array of users.
+     * @param string $key what criteria to look for
+     * @param mixed $value value to look for
+     * @param bool $assoc Returns an associative array "uuid => User"
+     * @return User[] users matching the criteria
      */
-    public function getUsersByUuid(array $uuids) : ?array
+    private function searchFor(string $key, $value, bool $assoc = false) : array
     {
-        if (empty($uuids))
+        if (empty($value))
             return [];
 
-        $result = $this->request('USERS', null, ["uuid" => $uuids]);
-        if ($result === false) {
-            return null;
+        $result = $this->request('USERS', null, [$key => $value]);
+        $result = $this->responseToUsers($result);
+
+        if ($assoc) {
+            $keys = array_map(function ($u) {return $u->getUuid(); }, $result);
+            return array_combine($keys, $result);
         } else {
-            return  $this->responseToUsers($result);
+            return $result;
         }
+    }
+
+    /**
+     * Returns all users that match a set of uuids. This function makes an IDM access, only to be used if up-to-date data is required (e.g. for admin purpose).
+     * @param array $uuids Ids to get user for.
+     * @param bool $assoc Returns an associative array "uuid => User"
+     * @return User[] Array of users.
+     */
+    public function getUsersByUuid(array $uuids, bool $assoc = false) : ?array
+    {
+        return $this->searchFor("uuid", $uuids, $assoc);
     }
 
     /**
      * Returns all users that match a set of uuids. This function returns a cached UserInfo.
      * @param array $uuids Ids to get user for.
+     * @param bool $assoc Returns an associative array "uuid => UserInfo"
      * @return UserInfo[] Array of user infos.
      */
-    public function getUsersInfoByUuid(array $uuids) : array
+    public function getUserInfosByUuid(array $uuids, bool $assoc = false) : array
     {
         // TODO make a cache lookup here
-        return $this->getUsersByUuid($uuids);
+        return $this->getUsersByUuid($uuids, $assoc);
+    }
+
+    public function getUsersByNickname(string $nickname, bool $assoc = false) : array
+    {
+        return $this->searchFor("nickname", $nickname, $assoc);
+    }
+
+    public function getUserInfosByNickname(string $nickname, bool $assoc = false) : array
+    {
+        // TODO make a cache lookup here
+        return $this->getUsersByNickname($nickname, $assoc);
     }
 }

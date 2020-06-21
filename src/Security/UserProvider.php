@@ -3,6 +3,8 @@
 namespace App\Security;
 
 use App\Service\UserService;
+use App\Service\PermissionService;
+use App\Service\GamerService;
 use Symfony\Component\Security\Core\Exception\UnsupportedUserException;
 use Symfony\Component\Security\Core\Exception\UsernameNotFoundException;
 use Symfony\Component\Security\Core\User\UserInterface;
@@ -12,10 +14,40 @@ use Symfony\Component\Security\Core\User\UserProviderInterface;
 class UserProvider implements UserProviderInterface
 {
     private $userService;
+    private $permissionService;
+    private $gamerService;
 
-    public function __construct(UserService $userService)
-    {
+    public function __construct(
+        UserService $userService,
+        PermissionService $permissionService,
+        GamerService $gamerService
+    ) {
         $this->userService = $userService;
+        $this->permissionService = $permissionService;
+        $this->gamerService = $gamerService;
+    }
+
+    private function loadAdminRoles(LoginUser $user)
+    {
+        $perm = $this->permissionService->handleLogin($user->getUser());
+        if (!empty($perm)) {
+            $roles = array_map(function (string $p) { return "ROLE_" . $p; }, $perm);
+            array_push($roles, "ROLE_ADMIN");
+            $user->addRoles($roles);
+        }
+    }
+
+    private function loadUserRoles(LoginUser $user)
+    {
+        $roles = [];
+//        $gamer = $this->gr->find($userGuid);
+//        if ($gamer) {
+//            if ($gamer->getPayed()) {
+//                array_push($roles, "ROLE_USER_PAYED");
+//            }
+//            // check if user has seat,...
+//        }
+        $user->addRoles($roles);
     }
 
     /**
@@ -40,7 +72,11 @@ class UserProvider implements UserProviderInterface
         if (empty($user)) {
             throw new UsernameNotFoundException();
         }
-        return $user;
+
+        $lu = new LoginUser($user);
+        $this->loadUserRoles($lu);
+        $this->loadAdminRoles($lu);
+        return $lu;
     }
 
     /**
@@ -58,7 +94,7 @@ class UserProvider implements UserProviderInterface
      */
     public function refreshUser(UserInterface $user)
     {
-        if (!$user instanceof User) {
+        if (!$user instanceof LoginUser) {
             throw new UnsupportedUserException(sprintf('Invalid user class "%s".', get_class($user)));
         }
 
@@ -73,6 +109,6 @@ class UserProvider implements UserProviderInterface
      */
     public function supportsClass($class)
     {
-        return User::class === $class;
+        return LoginUser::class === $class;
     }
 }

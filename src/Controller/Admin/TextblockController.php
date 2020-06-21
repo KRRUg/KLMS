@@ -9,8 +9,12 @@ use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\HttpFoundation\Response;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 
+/**
+ * @Route("/textblock", name="textblock")
+ * @IsGranted("ROLE_ADMIN_CONTENT")
+ */
 class TextblockController extends AbstractController
 {
     private $service;
@@ -21,7 +25,7 @@ class TextblockController extends AbstractController
     }
 
     /**
-     * @Route("/textblock", name="textblock", methods={"GET"})
+     * @Route("/", name="", methods={"GET"})
      */
     public function index()
     {
@@ -32,7 +36,7 @@ class TextblockController extends AbstractController
     }
 
     /**
-     * @Route("/textblock/edit", name="textblock_edit", methods={"GET", "POST"})
+     * @Route("/edit", name="_edit", methods={"GET", "POST"})
      */
     public function edit(Request $request)
     {
