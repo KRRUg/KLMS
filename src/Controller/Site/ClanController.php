@@ -50,7 +50,7 @@ class ClanController extends AbstractController
      */
     public function my()
     {
-        $user = $this->userService->getUsersInfoByUuid([$this->getUser()->getUuid()]);
+        $user = $this->userService->getUsersInfoByUuid([$this->getUser()->getUser()->getUuid()]);
 
         return $this->render('site/clan/myClans.html.twig', [
             'user' => $user[0],
@@ -84,7 +84,7 @@ class ClanController extends AbstractController
             $clan = $this->userService->getClan($clanform['name']);
 
             try {
-                $this->userService->addClanMember($clan, [$this->getUser()], $clanform['joinPassword']);
+                $this->userService->addClanMember($clan, [$this->getUser()->getUser()], $clanform['joinPassword']);
             } catch (UserServiceException $e) {
                 $form = $this->createForm(ClanJoinType::class, null, [
                     'data-remote-target' => $this->generateUrl('api_clans'),
@@ -123,7 +123,7 @@ class ClanController extends AbstractController
             /* @var ClanCreateTransfer */
             $clanform = $form->getData();
 
-            $clanform->user = $this->getUser()->getUuid();
+            $clanform->user = $this->getUser()->getUser()->getUuid();
 
             if (!$this->userService->checkClanAvailability($clanform->name, 'clanname')) {
                 $form->get('name')->addError(new FormError('Clanname wird bereits benutzt!'));
@@ -179,7 +179,7 @@ class ClanController extends AbstractController
         }
 
         // Check if User is Admin of the Clan otherwise throw Forbidden
-        if (!in_array($this->getUser()->getUuid(), $admins)) {
+        if (!in_array($this->getUser()->getUser()->getUuid(), $admins)) {
             return $this->createAccessDeniedException('Nur Admins können den Clan bearbeiten!');
         }
 
@@ -245,7 +245,7 @@ class ClanController extends AbstractController
         $isClanAdmin = false;
 
         foreach ($clan->getUsers() as $user) {
-            if ($user->getUser()->getUuid() === $this->getUser()->getUuid()) {
+            if ($user->getUser()->getUuid() === $this->getUser()->getUser()->getUuid()) {
                 if ($user->getAdmin()) {
                     $isClanAdmin = true;
                     break;
@@ -285,7 +285,7 @@ class ClanController extends AbstractController
         }
 
         // Check if User is Admin of the Clan otherwise throw Forbidden
-        if (!in_array($this->getUser()->getUuid(), $admins)) {
+        if (!in_array($this->getUser()->getUser()->getUuid(), $admins)) {
             return $this->createAccessDeniedException('Nur Admins können den Clan bearbeiten!');
         }
 
@@ -321,7 +321,7 @@ class ClanController extends AbstractController
         }
 
         // Check if User is Admin of the Clan otherwise throw Forbidden
-        if (!in_array($this->getUser()->getUuid(), $admins)) {
+        if (!in_array($this->getUser()->getUser()->getUuid(), $admins)) {
             return $this->createAccessDeniedException('Nur Admins können den Clan bearbeiten!');
         }
 

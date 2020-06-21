@@ -31,7 +31,7 @@ class LoginUser implements UserInterface
     {
         return $this->user;
     }
-
+    
     /**
      * @see UserInterface
      */
