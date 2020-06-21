@@ -78,7 +78,7 @@ final class UserService
         'CLANCHECK' => [self::PATH => 'clans/check',    self::METHOD => 'POST'],
     ];
 
-    public static $serializer = null;
+    static $serializer = null;
 
     private static function getSerializer()
     {
@@ -92,7 +92,7 @@ final class UserService
     private function getClient()
     {
         return HttpClient::create([
-            'headers' => ['X-API-KEY' => $_ENV['KLMS_IDM_APIKEY']],
+            'headers' => ['X-API-KEY' => $_ENV['KLMS_IDM_APIKEY']]
         ]);
     }
 
@@ -165,6 +165,8 @@ final class UserService
     }
 
     /**
+     * @param string $email
+     * @param string $password
      * @return bool true when authenticated successfully, false otherwise
      */
     public function authenticate(string $email, string $password): bool
@@ -181,32 +183,7 @@ final class UserService
         }
     }
 
-    private function loadAdminRoles(User $user)
-    {
-        $userGuid = $user->getUuid();
-        $roles = [];
-
-        // TODO extend admin table with roles
-        if ($user->getIsSuperadmin() || $this->ar->find($userGuid)) {
-            array_push($roles, 'ROLE_ADMIN');
-        }
-        $user->addRoles($roles);
-    }
-
-    private function loadUserRoles(User $user)
-    {
-        $userGuid = $user->getUuid();
-        $roles = [];
-
-        $gamer = $this->gr->find($userGuid);
-        if ($gamer) {
-            if ($gamer->getPayed()) {
-                array_push($roles, 'ROLE_USER_PAYED');
-            }
-            // TODO check if user has seat,...
-        }
-        $user->addRoles($roles);
-    }
+    
 
     private function loadUserClans(User $user)
     {
@@ -278,8 +255,6 @@ final class UserService
         }
 
         foreach ($user as $u) {
-            $this->loadUserRoles($u);
-            $this->loadAdminRoles($u);
             $this->loadUserClans($u);
         }
 
@@ -590,24 +565,37 @@ final class UserService
     }
 
     /**
-     * Returns all users that match a set of uuids. This function makes an IDM access, only to be used if up-to-date data is required (e.g. for admin purpose).
-     *
-     * @param array $uuids ids to get user for
-     *
-     * @return User[] array of users
+     * @param string $key what criteria to look for
+     * @param mixed $value value to look for
+     * @param bool $assoc Returns an associative array "uuid => User"
+     * @return User[] users matching the criteria
      */
-    public function getUsersByUuid(array $uuids): ?array
+    private function searchFor(string $key, $value, bool $assoc = false) : array
     {
-        if (empty($uuids)) {
+        if (empty($value)) {
             return [];
         }
 
-        $result = $this->request('USERS', null, ['uuid' => $uuids]);
-        if (false === $result) {
-            return null;
+        $result = $this->request('USERS', null, [$key => $value]);
+        $result = $this->responseToUsers($result);
+
+        if ($assoc) {
+            $keys = array_map(function ($u) {return $u->getUuid(); }, $result);
+            return array_combine($keys, $result);
         } else {
             return $result;
         }
+    }
+
+    /**
+     * Returns all users that match a set of uuids. This function makes an IDM access, only to be used if up-to-date data is required (e.g. for admin purpose).
+     * @param array $uuids Ids to get user for.
+     * @param bool $assoc Returns an associative array "uuid => User"
+     * @return User[] Array of users.
+     */
+    public function getUsersByUuid(array $uuids, bool $assoc = false) : ?array
+    {
+        return $this->searchFor("uuid", $uuids, $assoc);
     }
 
     /**
@@ -691,7 +679,7 @@ final class UserService
      *
      * @return UserInfo[] array of user infos
      */
-    public function getUsersInfoByUuid(array $uuids): array
+    public function getUserInfosByUuid(array $uuids, bool $assoc = false) : array
     {
         // TODO make a cache lookup here
         return $this->getUsersByUuid($uuids, $assoc);
@@ -708,14 +696,5 @@ final class UserService
         return $this->getUsersByNickname($nickname, $assoc);
     }
 
-    /**
-     * Returns all users. This function returns a cached UserInfo.
-     *
-     * @return UserInfo[] array of user infos
-     */
-    public function getAllUsersInfoByUuid(): array
-    {
-        // TODO make a cache lookup here
-        return $this->getAllUsersInfoByUuid();
-    }
+
 }
