@@ -3,13 +3,9 @@
 {% block title %}Anmeldung{% endblock %}
 
 {% block main %}
-    <div class="container">
-        <div class="card mb-4 mt-avatar col-md-8 offset-md-2 p-0">
-            <div class="card-avatar bg-primary rounded-circle">
-                <i class="fas fa-sign-in-alt text-white"></i>
-            </div>
-            <div class="card-body">
-                <h1 class=" h3 card-title text-center">Anmeldung</h1>
+    {% embed "site/components/cards/skeletons/cardProfileRound.html.twig"  with {'cardSymbole': 'fas fa-sign-in-alt'} %}
+        {% block cardBody %}
+            <h1 class=" h3 card-title text-center">Anmeldung</h1>
                 <form method="post">
                     {% if error %}
                         <div class="alert alert-danger"><i class="fas fa-exclamation-circle"></i> {{ error.messageKey|trans(error.messageData, 'security') }}</div>
@@ -52,10 +48,10 @@
                         Anmelden
                     </button>
                 </form>
-            </div>
-            <div class="card-footer py-4 bg-dark text-light">
-                Neu? <a href="{{ path('register') }}">Account erstellen</a>
-            </div>
-        </div>
-    </div>
+        {% endblock %}
+
+        {% block cardFooter %}
+            Neu? <a href="{{ path('register') }}">Account erstellen</a>
+        {% endblock %}
+    {% endembed  %} 
 {% endblock %}

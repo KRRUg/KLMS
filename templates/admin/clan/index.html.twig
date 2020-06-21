@@ -13,14 +13,13 @@
                     </tr>
                     {% for clan in clans.items %}
                         <tr>
-                            <td>{{ clan.name }}</td>
+                            <td><a href="{{ path('admin_clan_show', {'uuid' : clan.uuid}) }}">{{ clan.name }}</a></td>
                             <td>
-                                <a href="{{ path('admin_clan_show', {'uuid' : clan.uuid}) }}">anzeigen</a>
-                                <a href="{{ path('admin_clan_edit', {'uuid' : clan.uuid}) }}">editieren</a>
+                                <a class="btn btn-outline-dark" href="{{ path('admin_clan_edit', {'uuid' : clan.uuid}) }}">Editieren</a>
                                 {# TODO: implement SweetAlert2? "Sind sie Sicher?" Modal #}
-                                <form method="post" action="{{ path('admin_clan_delete', {'uuid' : clan.uuid}) }}">
+                                <form method="post" action="{{ path('admin_clan_delete', {'uuid' : clan.uuid}) }}" class="d-inline-block">
                                     <input type="hidden" name="_method" value="DELETE"/>
-                                    <input type="submit" value="löschen"/>
+                                    <button class="btn btn-outline-dark" type="submit" value="löschen"/>Löschen</button>
                                 </form>
                             </td>
                         </tr>

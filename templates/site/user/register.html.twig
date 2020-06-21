@@ -3,13 +3,9 @@
 {% block title %}Registrieren{% endblock %}
 
 {% block main %}
-    <div class="container">
-        <div class="card mb-4 mt-avatar col-md-8 offset-md-2 p-0">
-            <div class="card-avatar bg-primary rounded-circle">
-                <i class="fas fa-user-plus text-white"></i>
-            </div>
-            <div class="card-body">
-                <h1 class=" h3 card-title text-center">Registrieren</h1>
+    {% embed "site/components/cards/skeletons/cardProfileRound.html.twig"  with {'cardSymbole': 'fas fa-user-plus'} %}
+        {% block cardBody %}
+            <h1 class=" h3 card-title text-center">Registrieren</h1>
                 {{ form_start(form) }}
                 {% if not form.vars.valid %}
                     <div class="alert alert-danger">
@@ -20,16 +16,16 @@
                 {{ form_row(form.nickname, {'input_group_prepend' : '<i class="fas fa-headset"></i>'}) }}
                 {{ form_row(form.plainPassword, {'input_group_prepend' : '<i class="fas fa-key"></i>'}) }}
                 {{ form_end(form) }}
-            </div>
-            <div class="card-footer py-4 bg-dark text-light">
-                Bereits registriert? <a href="{{ path('app_login') }}">Anmelden</a>
-            </div>
-        </div>
-    </div>
+        {% endblock %}
+        
+        {% block cardFooter %}
+            Bereits registriert? <a href="{{ path('app_login') }}">Anmelden</a>
+        {% endblock %}
+    {% endembed  %}
 
     <!--  OLD -->
     <span id="emailvalidation"></span>
-    
+
     <span id="nicknamevalidation"></span>
 {% endblock %}
 {% block javascripts %}

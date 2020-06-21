@@ -52,6 +52,9 @@ footer {
     }
 }
 
+.badge-pill {
+    border-radius: $badge-pill-border-radius;
+}
 
 .dropdown-menu-lg {
     min-width: $dropdown-min-width * 2;
