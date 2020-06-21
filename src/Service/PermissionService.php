@@ -23,6 +23,8 @@ final class PermissionService
     const ADMIN_ADMISSION = "ADMIN_ADMISSION"; // May edit users registration state
     const ADMIN_NEWS = "ADMIN_NEWS";           // May edit and publish news
     const ADMIN_MAIL = "ADMIN_MAIL";           // May edit and send newsletters and emails
+    const ADMIN_USER = "ADMIN_USER";           // May edit users and clans
+    
     // extend here
 
     const PERMISSIONS = [
@@ -31,6 +33,7 @@ final class PermissionService
         self::ADMIN_ADMISSION,
         self::ADMIN_NEWS,
         self::ADMIN_MAIL,
+        self::ADMIN_USER,
         // extend here
     ];
 

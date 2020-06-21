@@ -1,0 +1,64 @@
+{% extends 'site/siteBase.html.twig' %}
+
+{% block title %}{{ clan.name }} - Clanseite{% endblock %}
+
+{% block main %}
+    {% embed "site/components/cards/skeletons/cardProfile.html.twig"  with {'cardSymbole': 'fas fa-users fa-6x'} %}
+        {% block cardBody %}
+            <div class="d-flex justify-content-between w-100">
+                {% if isClanAdmin %}
+                    <div class="d-flex justify-content-end w-100">
+                        <div class="py-1">
+                            <a class="btn btn-outline-primary" href="{{ path('clan_edit', {'uuid' : clan.uuid}) }}"><i class="fas fa-edit"></i> Clan bearbeiten</a>
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+            <h1 class="card-title">
+                <div class="d-block d-lg-inline">
+                    <span class="badge badge-pill badge-primary">{{ clan.clantag }}</span>
+                </div>
+                {{ clan.name }}
+            </h1>
+            <div class="card-text mb-3">
+                <hr>
+                <blockquote class="blockquote">
+                    <p class="mb-0">{{ clan.description }}</p>
+                </blockquote>
+                <hr>
+            </div>
+            <div class="card-text mb-3">
+                <i class="fas fa-globe fa-fw mr-3" title="Webseite"></i><a href="{{ clan.website }}" target="_blank">{{ clan.website }}</a>
+            </div>
+            <div class="card-text">
+                <hr>
+                <h3>Mitglieder <a href="{{ path('clan_join', {'uuid' : clan.uuid}) }}" class="px-2" style="font-size:1rem;">Clan beitreten</a></h3>
+                {# ToDO: Enable DataTable #}
+                <table class="table table-striped table-hover datatable">
+                    <thead>
+                        <tr>
+                            <th scope="col">Status</th>
+                            <th scope="col">Nickname</th>
+                        </tr>
+                    </thead>
+                    {% for user in clan.users %}
+                        <tr>
+                            <td>
+                                {% if user.admin == 1 %}
+                                    <i class="fas fa-crown" title="Clan Admin"></i>
+                                {% else %}
+                                    <i class="fas fa-user" title="Clan Mitglied"></i>
+                                {% endif %}
+                            </td>
+                            <td class="w-100">
+                                <a href="{{ path('user_show', {'uuid' : user.user.uuid}) }}">
+                                    {{ user.user.nickname }}
+                                </a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </table>
+            </div>
+        {% endblock %}
+    {% endembed  %}
+{% endblock %}

@@ -2,6 +2,7 @@
   "devDependencies": {
     "@symfony/webpack-encore": "^0.28.2",
     "copy-webpack-plugin": "^5.1.1",
+    "core-js": "^3.0.0",
     "dotenv-webpack": "^1.8.0",
     "node-sass": "^4.13.1",
     "sass-loader": "7.0.1",
@@ -11,7 +12,6 @@
     "@fortawesome/fontawesome-free": "^5.12.1",
     "@sentry/browser": "^5.17.0",
     "bootstrap": "^4.4.1",
-    "core-js": "^3.6.5",
     "datatables.net-bs4": "^1.10.21",
     "imports-loader": "^0.8.0",
     "jquery": "^3.4.1",

@@ -53,7 +53,7 @@ class UserSelectType extends AbstractType implements DataTransformerInterface
             throw new TransformationFailedException('Unknown type to convert');
         }
 
-        $data[$entity->getUuid()] = $entity->getUsername();
+        $data[$entity->getUuid()] = $entity->getEmail();
         return $data;
     }
 

@@ -27,6 +27,9 @@ final class User extends UserInfo
 
     private $gender;
 
+    /**
+     * @Assert\Type("boolean")
+     */
     private $isSuperadmin = false;
 
     private $website;
@@ -37,12 +40,31 @@ final class User extends UserInfo
 
     private $modifiedAt;
 
+    private $birthdate;
+
     private $hardware;
 
+    /**
+     * @Assert\Type("integer")
+     */
+    private $id;
+
+    /**
+     * @Assert\Type("boolean")
+     */
     private $infoMails;
 
     private $statements;
 
+    /**
+     * @Assert\Type("boolean")
+     */
+    private $emailConfirmed;
+
+    /**
+     * @Assert\Type("integer")
+     */
+    private $status;
 
     public function getFirstname(): ?string
     {
@@ -200,6 +222,18 @@ final class User extends UserInfo
         return $this;
     }
 
+    public function getBirthdate(): ?\DateTime
+    {
+        return $this->birthdate;
+    }
+
+    public function setBirthdate(\DateTime $birthdate): self
+    {
+        $this->birthdate = $birthdate;
+
+        return $this;
+    }
+
     public function getHardware(): ?string
     {
         return $this->hardware;
@@ -232,6 +266,42 @@ final class User extends UserInfo
     public function setStatements(?string $statements): self
     {
         $this->statements = $statements;
+
+        return $this;
+    }
+
+    public function getEmailConfirmed(): ?bool
+    {
+        return $this->emailConfirmed;
+    }
+
+    public function setEmailConfirmed(bool $emailConfirmed): self
+    {
+        $this->emailConfirmed = $emailConfirmed;
+
+        return $this;
+    }
+
+    public function getStatus(): ?int
+    {
+        return $this->status;
+    }
+
+    public function setStatus(int $status): self
+    {
+        $this->status = $status;
+
+        return $this;
+    }
+
+    public function getId(): ?int
+    {
+        return $this->id;
+    }
+
+    public function setId(int $id): self
+    {
+        $this->id = $id;
 
         return $this;
     }

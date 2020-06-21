@@ -1,0 +1,29 @@
+<div class="card mb-3">
+    <div class="row no-gutters">
+        <div class="col-auto bg-primary text-light d-flex">
+            <div class="p-3 align-self-center text-center w-100 font-weight-bold">
+                {{ clan.clantag }}
+            </div>
+        </div>
+        <div class="col">
+            <div class="card-body p-3">
+                <span class="float-right">
+                    {% if isClanAdmin == 1 %}
+                        <i class="fas fa-crown" title="Clan Admin"></i>
+                    {% else %}
+                        <i class="fas fa-user" title="Clan Mitglied"></i>
+                    {% endif %}
+                </span>
+                <h4 class="card-title mb-1">
+                    <a href="{{ path('clan_show', {'uuid' : clan.uuid}) }}">
+                        {{ clan.name }}
+                    </a>
+                </h4>
+                <p class="card-text">
+                    {{ clan.description }} <br>
+                    <a href="{{ clan.website }}" target="blank">{{ clan.website }}</a>
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
