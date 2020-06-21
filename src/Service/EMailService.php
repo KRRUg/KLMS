@@ -70,7 +70,7 @@ class EMailService
         $this->templateRepository = $templateRepository;
         $this->sendingRepository = $sendingRepository;
         $this->twig = $twig;
-        $this->systemMessageUser = $userService->getUsersInfoByUuid([$_ENV["MAILER_SYSTEM_MESSAGE_USER_GUID"]])[0];
+        $this->systemMessageUser = $userService->getUserInfosByUuid([$_ENV["MAILER_SYSTEM_MESSAGE_USER_GUID"]])[0];
     }
 
     public function sendByApplicationHook(string $applicationHook, User $user, string $stepname = null, array $payload = null)
