@@ -25,7 +25,7 @@
             <a class="nav-link {% if app.request.get('_route') starts with 'admin_clan' %}active{% endif %}" href="{{ path('admin_clan') }}"><i class="far fa-user"></i> Clan </a>
         </li>
     {% endif %}
-    {% if is_granted('ROLE_ADMIN_EMAIL') %}
+    {% if is_granted('ROLE_ADMIN_MAIL') %}
     <li class="nav-item">
         <a class="nav-link {% if app.request.get('_route') == 'admin_textblock' %}active{% endif %}" href="{{ path('admin_email') }}"><i class="far fa-envelope"></i> E-Mails </a>
     </li>
