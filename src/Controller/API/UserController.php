@@ -45,7 +45,7 @@ class UserController extends AbstractController
         } else {
             $ret->items = array_map(function (User $user) {
                 return [
-                    'email' => $user->getUsername(),
+                    'email' => $user->getEmail(),
                     'nickname' => $user->getNickname(),
                     'firstname' => $user->getFirstname(),
                     'surname' => $user->getSurname(),

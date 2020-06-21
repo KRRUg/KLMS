@@ -73,6 +73,6 @@ export default function() {
                 return $render;
             }
         });
-        $target.closest('form').on('reset', () => { debugger; $target.val('').trigger('change'); });
+        $target.closest('form').on('reset', () => { $target.val('').trigger('change'); });
     });
 }

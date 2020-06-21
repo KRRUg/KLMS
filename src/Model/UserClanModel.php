@@ -10,34 +10,22 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 class UserClanModel
 {
-
+    
     /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\User", inversedBy="clans")
-     * @ORM\JoinColumn(nullable=false)
      * @Groups({"default2", "clanview"})
      */
     private $user;
 
     /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\Clan", inversedBy="users")
-     * @ORM\JoinColumn(nullable=false)
      * @Groups("default")
      */
     private $clan;
 
     /**
-     * @ORM\Column(type="boolean")
      * @Groups({"default", "clanview"})
      */
     private $admin;
-
-    /**
-     * @return mixed
-     */
-    public function getId()
-    {
-        return $this->id;
-    }
+    
 
     /**
      * @return mixed

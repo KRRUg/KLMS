@@ -3,27 +3,29 @@
 {% block title %}Clans{% endblock %}
 
 {% block main %}
-    {{ dump(clans) }}
-
-    <table class="table table-striped table-hover">
-        <thead>
-            <tr>
-                <td>Clantag</td>
-                <td>Name</td>
-                <td>Aktionen</td>
-            </tr>
-        </thead>
-        <tbody>
-        {% for clan in clans.items %}
-            <tr>
-                <td>{{ clan.clantag }}</td>
-                <td>{{ clan.name }}</td>
-                <td>
-                    <a href="{{ path('clan_show', {'uuid' : clan.uuid}) }}">anzeigen</a>
-                    <a href="{{ path('clan_join', {'uuid' : clan.uuid}) }}">Clan beitreten</a>
-                </td>
-            </tr>
-        {% endfor %}
-        </tbody>
-    </table>
+    
+    {# ToDo: Add DataTable #}
+    <div class="container">
+        <table class="table table-striped table-hover">
+            <thead>
+                <tr>
+                    <td>Clantag</td>
+                    <td>Name</td>
+                    <td>Aktionen</td>
+                </tr>
+            </thead>
+            <tbody>
+                {% for clan in clans.items %}
+                    <tr>
+                        <td>{{ clan.clantag }}</td>
+                        <td>{{ clan.name }}</td>
+                        <td>
+                            <a href="{{ path('clan_show', {'uuid' : clan.uuid}) }}">anzeigen</a>
+                            <a href="{{ path('clan_join', {'uuid' : clan.uuid}) }}">Clan beitreten</a>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
 {% endblock %}

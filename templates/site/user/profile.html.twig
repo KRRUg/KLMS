@@ -7,7 +7,7 @@
         {% block cardBody %}
             <div class="d-flex justify-content-between w-100">
                 <div class="p-1">
-                    <a href="{{ path('user_profile_edit') }}"><i class="fas fa-user-edit"></i> Profil bearbeiten</a>   
+                    <a class="btn btn-outline-primary" href="{{ path('user_profile_edit') }}"><i class="fas fa-user-edit"></i> Profil bearbeiten</a>   
                 </div>
                 <div class="py-1">
                     <span class="badge badge-primary">KLMS ID: #{{ user.id }}</span>
