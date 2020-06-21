@@ -6,6 +6,7 @@
 @import './header.scss';
 @import './navigation.scss';
 @import './sidebar.scss';
+@import 'card.scss';
 
 footer {
     box-shadow: $box-shadow;
@@ -24,4 +25,12 @@ footer {
         height:15rem;
         overflow:hidden;
     }
+}
+
+.badge-pill {
+    border-radius: $badge-pill-border-radius;
+}
+
+.dropdown-menu-lg {
+    min-width: $dropdown-min-width * 2;
 }

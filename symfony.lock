@@ -2,6 +2,12 @@
     "brick/math": {
         "version": "0.8.14"
     },
+    "composer/semver": {
+        "version": "1.5.1"
+    },
+    "composer/xdebug-handler": {
+        "version": "1.4.2"
+    },
     "doctrine/annotations": {
         "version": "1.0",
         "recipe": {
@@ -93,26 +99,32 @@
     "doctrine/reflection": {
         "version": "v1.1.0"
     },
-    "easycorp/easy-log-handler": {
-        "version": "1.0",
+    "egulias/email-validator": {
+        "version": "2.1.17"
+    },
+    "friendsofphp/php-cs-fixer": {
+        "version": "2.2",
         "recipe": {
             "repo": "github.com/symfony/recipes",
             "branch": "master",
-            "version": "1.0",
-            "ref": "70062abc2cd58794d2a90274502f81b55cd9951b"
+            "version": "2.2",
+            "ref": "cc05ab6abf6894bddb9bbd6a252459010ebe040b"
         },
         "files": [
-            "config/packages/dev/easy_log_handler.yaml"
+            "./.php_cs.dist"
         ]
-    },
-    "egulias/email-validator": {
-        "version": "2.1.17"
     },
     "jdorn/sql-formatter": {
         "version": "v1.2.17"
     },
     "jms/metadata": {
         "version": "2.1.0"
+    },
+    "laminas/laminas-code": {
+        "version": "3.4.1"
+    },
+    "laminas/laminas-eventmanager": {
+        "version": "3.2.1"
     },
     "laminas/laminas-zendframework-bridge": {
         "version": "1.0.1"
@@ -144,8 +156,20 @@
     "php": {
         "version": "7.4"
     },
+    "php-cs-fixer/diff": {
+        "version": "v1.3.0"
+    },
     "php-http/message-factory": {
         "version": "v1.0.2"
+    },
+    "phpdocumentor/reflection-common": {
+        "version": "2.1.0"
+    },
+    "phpdocumentor/reflection-docblock": {
+        "version": "5.1.0"
+    },
+    "phpdocumentor/type-resolver": {
+        "version": "1.1.0"
     },
     "psr/cache": {
         "version": "1.0.1"
@@ -368,6 +392,9 @@
     "symfony/polyfill-php73": {
         "version": "v1.14.0"
     },
+    "symfony/process": {
+        "version": "v4.4.9"
+    },
     "symfony/profiler-pack": {
         "version": "v1.0.4"
     },
@@ -525,6 +552,9 @@
     },
     "webimpress/safe-writer": {
         "version": "2.0.1"
+    },
+    "webmozart/assert": {
+        "version": "1.8.0"
     },
     "zendframework/zend-code": {
         "version": "3.4.1"

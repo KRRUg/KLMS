@@ -1,0 +1,34 @@
+{% extends 'site/siteBase.html.twig' %}
+
+{% block title %}Registrieren{% endblock %}
+
+{% block main %}
+    {% embed "site/components/cards/skeletons/cardProfileRound.html.twig"  with {'cardSymbole': 'fas fa-user-plus'} %}
+        {% block cardBody %}
+            <h1 class=" h3 card-title text-center">Registrieren</h1>
+                {{ form_start(form) }}
+                {% if not form.vars.valid %}
+                    <div class="alert alert-danger">
+                        <i class="fas fa-exclamation-circle"></i> {{ form_errors(form) }}
+                    </div>
+                {% endif %}
+                {{ form_row(form.email, {'input_group_prepend' : '<i class="far fa-envelope"></i>'}) }}
+                {{ form_row(form.nickname, {'input_group_prepend' : '<i class="fas fa-headset"></i>'}) }}
+                {{ form_row(form.plainPassword, {'input_group_prepend' : '<i class="fas fa-key"></i>'}) }}
+                {{ form_end(form) }}
+        {% endblock %}
+        
+        {% block cardFooter %}
+            Bereits registriert? <a href="{{ path('app_login') }}">Anmelden</a>
+        {% endblock %}
+    {% endembed  %}
+
+    <!--  OLD -->
+    <span id="emailvalidation"></span>
+
+    <span id="nicknamevalidation"></span>
+{% endblock %}
+{% block javascripts %}
+    {{ parent() }}
+    {{ encore_entry_script_tags('userRegister') }}
+{% endblock %}

@@ -1,0 +1,21 @@
+<div class="container">
+    <div class="card mb-4 mt-avatar col-md-8 offset-md-2 p-0">
+        <div class="card-avatar bg-primary rounded-circle">
+            {% if cardImg is defined  %}
+                <img src='{{ cardImg }}' />
+            {% elseif cardSymbole is defined %}
+                <i class="{{ cardSymbole }} text-white"></i>
+            {% else %}
+                <i class="fas fa-user text-white"></i>
+            {% endif %}
+        </div>
+        <div class="card-body">
+            {% block cardBody %}{% endblock %}
+        </div>
+        {% if block('cardFooter') is defined %}
+            <div class="card-footer py-4 bg-dark text-light">
+                {{ block('cardFooter')|raw }}
+            </div>
+        {% endif %}
+    </div>
+</div>

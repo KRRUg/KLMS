@@ -5,7 +5,7 @@
 {% block main %}
     {{ form_start(form) }}
     {% if not form.vars.valid %}
-        <div class="alert alert-error">
+        <div class="alert alert-danger">
             {{ form_errors(form) }}
         </div>
     {% endif %}

@@ -1,0 +1,55 @@
+{% extends 'site/siteBase.html.twig' %}
+
+{% block title %}Profil bearbeiten{% endblock %}
+
+{% block main %}
+    {% embed "site/components/cards/skeletons/cardProfile.html.twig"  with {'cardSymbole': 'fas fas fa-user-circle fa-9x'} %}
+        {% block cardBody %}
+            <h1 class="h3 card-title mb-4">Profil bearbeiten</h1>
+            {{ form_start(form) }}
+            {% if not form.vars.valid %}
+                <div class="alert alert-danger">
+                    <i class="fas fa-exclamation-circle"></i> {{ form_errors(form) }}
+                </div>
+            {% endif %}
+            {{ form_row(form.id) }}
+
+            <h2 class="h4 pt-3">Persönliche Informationen</h2>
+            <hr>
+            {{ form_row(form.nickname, {'input_group_prepend' : '<i class="fas fa-headset"></i>'}) }}
+            <div class="row">
+                <div class="col-md-6">
+                    {{ form_row(form.firstname, {'input_group_prepend' : '<i class="fas fa-signature"></i>'}) }}
+                </div>
+                <div class="col-md-6">
+                    {{ form_row(form.surname, {'input_group_prepend' : '<i class="fas fa-signature"></i>'}) }}
+                </div>
+            </div>
+            {{ form_row(form.email, {'input_group_prepend' : '<i class="far fa-envelope"></i>'}) }}
+
+            <h2 class="h4 pt-3">Adresse</h2>
+            <hr> 
+            {{ form_row(form.street, {'input_group_prepend' : '<i class="fas fa-road"></i>'}) }}
+            <div class="row">
+                <div class="col-md-4">
+                    {{ form_row(form.postcode, {'input_group_prepend' : '<i class="fas fa-map-marked-alt"></i>'}) }}
+                </div>
+                <div class="col-md-8">
+                    {{ form_row(form.city, {'input_group_prepend' : '<i class="fas fa-city"></i>'}) }}
+                </div>
+            </div>
+            {{ form_row(form.country, {'input_group_prepend' : '<i class="fas fa-globe-europe"></i>'}) }}
+
+            <h2 class="h4 pt-3">Allgemeines</h2>
+            <hr>
+            {{ form_row(form.statements, {'input_group_prepend' : '<i class="far fa-comment-dots"></i>'}) }}
+            {{ form_row(form.phone, {'input_group_prepend' : '<i class="fas fa-mobile-alt"></i>'}) }}
+            {{ form_row(form.steamAccount, {'input_group_prepend' : '<i class="fab fa-steam"></i>'}) }}
+            {{ form_row(form.website, {'input_group_prepend' : '<i class="fas fa-globe"></i>'}) }}
+            {{ form_row(form.hardware, {'input_group_prepend' : '<i class="fas fa-desktop"></i>'}) }}
+            {{ form_row(form.gender, {'input_group_prepend' : '<i class="fas fa-venus-mars"></i>'}) }}
+            <hr>
+            {{ form_end(form) }}
+        {% endblock %}
+    {% endembed  %}
+{% endblock %}
