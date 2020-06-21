@@ -1,6 +1,7 @@
 import '../css/app.scss';
 
 //Shared JS
+import './modules/sentry.js';
 import $ from 'jquery';
 import 'bootstrap';
 
