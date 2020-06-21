@@ -2,11 +2,14 @@
 
 namespace App\Service;
 
+
+use App\Entity\UserAdmin;
 use App\Exception\UserServiceException;
 use App\Model\ClanModel;
 use App\Model\UserClanModel;
 use App\Repository\UserAdminsRepository;
 use App\Repository\UserGamerRepository;
+use App\Security\LoginUser;
 use App\Security\User;
 use App\Security\UserInfo;
 use App\Transfer\ClanCreateTransfer;
@@ -21,6 +24,7 @@ use Ramsey\Uuid\Uuid;
 use Symfony\Component\HttpClient\HttpClient;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\PropertyInfo\Extractor\ReflectionExtractor;
+use Symfony\Component\Security\Core\Security;
 use Symfony\Component\Serializer\Encoder\JsonEncoder;
 use Symfony\Component\Serializer\Exception\ExceptionInterface;
 use Symfony\Component\Serializer\Normalizer\ArrayDenormalizer;
@@ -33,7 +37,7 @@ use Symfony\Contracts\HttpClient\Exception\RedirectionExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\ServerExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
 
-class UserService
+final class UserService
 {
     private $logger;
     private $em;
@@ -44,11 +48,12 @@ class UserService
      */
     private $statusCode;
 
-    public function __construct(UserAdminsRepository $ar,
-                                UserGamerRepository $gr,
-                                EntityManagerInterface $em,
-                                LoggerInterface $logger)
-    {
+    public function __construct(
+        UserAdminsRepository $ar,
+        UserGamerRepository $gr,
+        EntityManagerInterface $em,
+        LoggerInterface $logger
+    ) {
         $this->ar = $ar;
         $this->gr = $gr;
         $this->em = $em;
@@ -601,7 +606,7 @@ class UserService
         if (false === $result) {
             return null;
         } else {
-            return  $this->responseToUsers($result);
+            return $result;
         }
     }
 
@@ -689,7 +694,18 @@ class UserService
     public function getUsersInfoByUuid(array $uuids): array
     {
         // TODO make a cache lookup here
-        return $this->getUsersByUuid($uuids);
+        return $this->getUsersByUuid($uuids, $assoc);
+    }
+
+    public function getUsersByNickname(string $nickname, bool $assoc = false) : array
+    {
+        return $this->searchFor("nickname", $nickname, $assoc);
+    }
+
+    public function getUserInfosByNickname(string $nickname, bool $assoc = false) : array
+    {
+        // TODO make a cache lookup here
+        return $this->getUsersByNickname($nickname, $assoc);
     }
 
     /**

@@ -9,12 +9,8 @@ use Symfony\Component\Validator\Constraints as Assert;
  * Class User contains all User information. This class is intended for the currently logged in user and for admin usage only.
  * @package App\Security
  */
-final class User extends UserInfo implements UserInterface
+final class User extends UserInfo
 {
-    private $email;
-
-    private $roles = [];
-
     private $firstname;
 
     private $surname;

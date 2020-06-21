@@ -14,12 +14,27 @@ class UserInfo
 {
     protected $uuid;
 
+    protected $email;
+
     protected $nickname;
 
     /**
      * @var UserClanModel[]
      */
     protected $clans;
+
+
+    public function getEmail(): string
+    {
+        return $this->email;
+    }
+
+    public function setEmail(?string $email): self
+    {
+        $this->email = $email;
+
+        return $this;
+    }
 
     public function getNickname() : string
     {

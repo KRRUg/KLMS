@@ -1,0 +1,23 @@
+@import '~datatables.net-bs4';
+
+div.dataTables_wrapper {
+    div.dataTables_length {
+        padding-top:$spacer;
+        padding-left:$spacer;
+    }
+    
+    div.dataTables_filter {
+        padding-top:$spacer;
+        padding-right:$spacer;
+    }
+    
+    div.dataTables_info {
+        padding-bottom:$spacer;
+        padding-left:$spacer;
+    }
+    
+    div.dataTables_paginate {
+        padding-bottom:$spacer;
+        padding-right:$spacer;
+    }
+}

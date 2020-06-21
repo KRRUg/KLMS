@@ -1,0 +1,36 @@
+{% extends 'admin/adminBase.html.twig' %}
+
+{% block title %}KLMS - Admin{% endblock %}
+{% block siteheading %}<i class="fas fa-key"></i> Berechtigungen{% endblock %}
+
+{% block main %}
+    <div class="row mb-4">
+        <div class="col-12">
+            <button class="btn btn-success" data-toggle="modal" data-target="#newModal" id="new"><i class="fas fa-plus"></i> Admin hinzufügen</button>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <table class="table" id="userTable" data-remote-target="{{ path('admin_permission') }}.json">
+                    <thead>
+                        <tr>
+                            <th>User</th>
+                            <th>Berechtigungen</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    {% include 'admin/permission/modal.add.html.twig' %}
+    {% include 'admin/permission/modal.edit.html.twig' %}
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    {{ encore_entry_script_tags('permission') }}
+{% endblock %}
