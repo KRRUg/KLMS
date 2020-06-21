@@ -2,16 +2,16 @@
     <div class="container">
         <div class="row">
             <div class="col text-right">
-                <a class="btn btn-link" href="/admin">
-                    <i class="fas fa-cogs"></i> Admin
-                </a>
-                
-                {% if app.user.username is defined %}
-                    {{ app.user.username }} <a href="/logout">logout</a>
-                {% else %}
-                    <a class="btn btn-link" href="/login">
-                        <i class="fas fa-user-circle"></i> Anmelden
+                {% if is_granted('ROLE_ADMIN') %}
+                    <a class="btn btn-link" href="{{ path('admin_dashboard') }}">
+                        <i class="fas fa-cogs"></i> Admin
                     </a>
+                {% endif %}
+
+                {% if app.user.username is defined %}
+                    {%  include 'site/components/topBar/userDropdown.html.twig' %}
+                {% else %}
+                    {%  include 'site/components/topBar/loginDropdown.html.twig' %}
                 {% endif %}
             </div>
         </div>

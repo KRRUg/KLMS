@@ -1,14 +1,33 @@
 <ul class="nav flex-column">
-  <li class="nav-item">
-    <a class="nav-link {% if app.request.get('_route') == 'admin_news' %}active{% endif %}" href="{{ path('admin_news') }}"><i class="far fa-newspaper"></i> News </a>
-  </li>
-  <li class="nav-item">
-    <a class="nav-link {% if app.request.get('_route') == 'admin_content' %}active{% endif %}" href="{{ path('admin_content') }}"><i class="far fa-file-alt"></i> Content </a>
-  </li>
-  <li class="nav-item">
-    <a class="nav-link {% if app.request.get('_route') == 'admin_textblock' %}active{% endif %}" href="{{ path('admin_textblock') }}"><i class="far fa-file-alt"></i> Textblöcke </a>
-  </li>
-  <li class="nav-item">
-    <a class="nav-link {% if app.request.get('_route') == 'admin_textblock' %}active{% endif %}" href="{{ path('admin_email') }}"><i class="far fa-envelope"></i> E-Mails </a>
-  </li>
+    {% if is_granted('ROLE_ADMIN_NEWS') %}
+        <li class="nav-item">
+            <a class="nav-link {% if app.request.attributes.get('_route') == 'admin_news' %}active{% endif %}" href="{{ path('admin_news') }}"><i class="far fa-newspaper"></i> News </a>
+        </li>
+    {% endif %}
+    {% if is_granted('ROLE_ADMIN_CONTENT') %}
+        <li class="nav-item">
+            <a class="nav-link {% if app.request.attributes.get('_route') == 'admin_content' %}active{% endif %}" href="{{ path('admin_content') }}"><i class="far fa-file-alt"></i> Content </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link {% if app.request.attributes.get('_route') == 'admin_textblock' %}active{% endif %}" href="{{ path('admin_textblock') }}"><i class="far fa-file-alt"></i> Textblöcke </a>
+        </li>
+    {% endif %}
+    {% if is_granted('ROLE_ADMIN_SUPER') %}
+        <li class="nav-item">
+            <a class="nav-link {% if app.request.attributes.get('_route') == 'admin_permission' %}active{% endif %}" href="{{ path('admin_permission') }}"><i class="fas fa-key"></i> Berechtigungen </a>
+        </li>
+    {% endif %}
+    {% if is_granted('ROLE_ADMIN_USER') %}
+        <li class="nav-item">
+            <a class="nav-link {% if app.request.get('_route') starts with 'admin_user' %}active{% endif %}" href="{{ path('admin_user') }}"><i class="far fa-user"></i> User </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link {% if app.request.get('_route') starts with 'admin_clan' %}active{% endif %}" href="{{ path('admin_clan') }}"><i class="far fa-user"></i> Clan </a>
+        </li>
+    {% endif %}
+    {% if is_granted('ROLE_ADMIN_EMAIL') %}
+    <li class="nav-item">
+        <a class="nav-link {% if app.request.get('_route') == 'admin_textblock' %}active{% endif %}" href="{{ path('admin_email') }}"><i class="far fa-envelope"></i> E-Mails </a>
+    </li>
+    {% endif %}
 </ul>

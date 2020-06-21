@@ -10,6 +10,9 @@ monolog:
             type: stream
             path: "%kernel.logs_dir%/%kernel.environment%.log"
             level: debug
+        sentry:
+            type: service
+            id: Sentry\Monolog\Handler
         console:
             type: console
             process_psr_3_messages: false

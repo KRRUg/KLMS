@@ -1,4 +1,5 @@
 var Encore = require('@symfony/webpack-encore');
+const Dotenv = require('dotenv-webpack');
 
 // Manually configure the runtime environment if not already configured yet by the "encore" command.
 // It's useful when you use tools that rely on webpack.config.js file.
@@ -24,6 +25,7 @@ Encore
          * and one CSS file (e.g. app.css) if your JavaScript imports CSS.
          */
         .addEntry('app', './assets/js/app.js')
+        .addEntry('userRegister', './assets/js/userRegister.js')
         .addEntry('admin', './assets/js/admin.js')
         //.addEntry('page2', './assets/js/page2.js')
 
@@ -81,6 +83,8 @@ Encore
             from: './node_modules/tinymce/skins',
             to: 'skins/[path][name].[ext]'
         })
+    //Load .env.local Variables into JS
+    .addPlugin(new Dotenv({path: './.env.local', systemvars: false}))
         ;
 
 module.exports = Encore.getWebpackConfig();

@@ -27,6 +27,7 @@ security:
     # Note: Only the *first* access control that matches will be used
     access_control:
         - { path: ^/login, roles: IS_AUTHENTICATED_ANONYMOUSLY}
+        - { path: ^/api, roles: IS_AUTHENTICATED_REMEMBERED}
         - { path: ^/admin, roles: ROLE_ADMIN }
         # - { path: ^/, roles: ROLE_USER }
         # - { path: ^/profile, roles: ROLE_USER }

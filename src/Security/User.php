@@ -9,12 +9,8 @@ use Symfony\Component\Validator\Constraints as Assert;
  * Class User contains all User information. This class is intended for the currently logged in user and for admin usage only.
  * @package App\Security
  */
-final class User extends UserInfo implements UserInterface
+final class User extends UserInfo
 {
-    private $email;
-
-    private $roles = [];
-
     private $firstname;
 
     private $surname;
@@ -31,6 +27,9 @@ final class User extends UserInfo implements UserInterface
 
     private $gender;
 
+    /**
+     * @Assert\Type("boolean")
+     */
     private $isSuperadmin = false;
 
     private $website;
@@ -41,23 +40,31 @@ final class User extends UserInfo implements UserInterface
 
     private $modifiedAt;
 
+    private $birthdate;
+
     private $hardware;
 
+    /**
+     * @Assert\Type("integer")
+     */
+    private $id;
+
+    /**
+     * @Assert\Type("boolean")
+     */
     private $infoMails;
 
     private $statements;
 
-    public function getEmail(): string
-    {
-        return $this->email;
-    }
+    /**
+     * @Assert\Type("boolean")
+     */
+    private $emailConfirmed;
 
-    public function setEmail(?string $email): self
-    {
-        $this->email = $email;
-
-        return $this;
-    }
+    /**
+     * @Assert\Type("integer")
+     */
+    private $status;
 
     public function getFirstname(): ?string
     {
@@ -215,6 +222,18 @@ final class User extends UserInfo implements UserInterface
         return $this;
     }
 
+    public function getBirthdate(): ?\DateTime
+    {
+        return $this->birthdate;
+    }
+
+    public function setBirthdate(\DateTime $birthdate): self
+    {
+        $this->birthdate = $birthdate;
+
+        return $this;
+    }
+
     public function getHardware(): ?string
     {
         return $this->hardware;
@@ -251,62 +270,39 @@ final class User extends UserInfo implements UserInterface
         return $this;
     }
 
-    /**
-     * @see UserInterface
-     */
-    public function getUsername()
+    public function getEmailConfirmed(): ?bool
     {
-        return (string) $this->email;
+        return $this->emailConfirmed;
     }
 
-    /**
-     * @see UserInterface
-     */
-    public function getRoles(): array
+    public function setEmailConfirmed(bool $emailConfirmed): self
     {
-        $roles = $this->roles;
-        // guarantee every user at least has ROLE_USER
-        $roles[] = 'ROLE_USER';
-
-        return array_unique($roles);
-    }
-
-    public function setRoles(array $roles): self
-    {
-        $this->roles = $roles;
+        $this->emailConfirmed = $emailConfirmed;
 
         return $this;
     }
 
-    public function addRoles(array $roles): self
+    public function getStatus(): ?int
     {
-        $this->roles = array_merge($this->roles, $roles);
+        return $this->status;
+    }
+
+    public function setStatus(int $status): self
+    {
+        $this->status = $status;
 
         return $this;
     }
 
-    /**
-     * @see UserInterface
-     */
-    public function getPassword()
+    public function getId(): ?int
     {
-        // not needed for apps that do not check user passwords
+        return $this->id;
     }
 
-    /**
-     * @see UserInterface
-     */
-    public function getSalt()
+    public function setId(int $id): self
     {
-        // not needed for apps that do not check user passwords
-    }
+        $this->id = $id;
 
-    /**
-     * @see UserInterface
-     */
-    public function eraseCredentials()
-    {
-        // If you store any temporary, sensitive data on the user, clear it here
-        // $this->plainPassword = null;
+        return $this;
     }
 }

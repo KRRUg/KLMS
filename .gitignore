@@ -54,6 +54,7 @@
 .env.local
 /nbproject/
 .idea
+.php_cs.cache
 
 #Ignore NodeJS Modules
 /node_modules
@@ -71,3 +72,8 @@ symfony.lock
 yarn.lock
 assets/images/EMail/*
 composer.lock
+
+###> friendsofphp/php-cs-fixer ###
+/.php_cs
+/.php_cs.cache
+###< friendsofphp/php-cs-fixer ###
