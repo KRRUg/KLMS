@@ -27,7 +27,7 @@ Encore
         .addEntry('app', './assets/js/app.js')
         .addEntry('userRegister', './assets/js/userRegister.js')
         .addEntry('admin', './assets/js/admin.js')
-        //.addEntry('page2', './assets/js/page2.js')
+        .addEntry('permission', './assets/js/admin/permission.js')
 
         // When enabled, Webpack "splits" your files into smaller pieces for greater optimization.
         .splitEntryChunks()
@@ -35,6 +35,9 @@ Encore
         // will require an extra script tag for runtime.js
         // but, you probably want this, unless you're building a single-page app
         .enableSingleRuntimeChunk()
+
+        //Need to disable AMD-Loader with imports-loader for DataTables to work
+        .addLoader({ test: /datatables\.net.*/, loader: 'imports-loader?define=>false' })
 
         /*
          * FEATURE CONFIG
