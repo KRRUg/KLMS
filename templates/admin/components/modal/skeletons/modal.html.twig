@@ -1,0 +1,44 @@
+{% if id is not defined %}
+    {% set id = 'genericModal' %}
+{% endif %}
+<div 
+    class="modal fade {{ class|default() }}" 
+    id="{{ id }}" 
+    {% if attr is defined %}
+        {% for attrName, attrValue in attr %}
+            {{ attrName }}="{{ attrValue }}"
+        {% endfor %}
+    {% endif %}
+    tabindex="-1" 
+    role="dialog" 
+    aria-labelledby="{{ id }}Label" 
+    aria-hidden="true" 
+    >
+    <div class="modal-dialog modal-dialog-centered {{ dialogClass|default() }}" role="document">
+        <div class="modal-content">
+            {% block modalContent %}
+                {% block modalContentPrepend %}{% endblock %}
+                <div class="modal-header">
+                    {% block modalHeader %}
+                        <h5 class="modal-title" id="{{ id }}Label">{% if titleRaw|default() %}{{ title|raw }}{% else %}{{ title|raw }}{% endif %}</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    {% endblock %}
+                </div>
+                <div class="modal-body">
+                    {% block modalBody %}{% endblock %}
+                </div>
+                {% if block('modalFooter') is defined %}
+                    <div class="modal-footer">
+                        {% block modalFooter %}
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Abbrechen</button>
+                            <button type="button" class="btn btn-primary">Speichern</button>
+                        {% endblock %}
+                    </div>
+                {% endif %}
+                {% block modalContentAppend %}{% endblock %}
+            {% endblock %}
+        </div>
+    </div>
+</div>

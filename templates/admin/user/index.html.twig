@@ -6,22 +6,35 @@
     <div class="row">
         <div class="col-12">
             <div class="card">
-                <table class="table table-striped">
-                    <tr>
-                        <th>Nickname</th>
-                    </tr>
-                    {% for  user in users.items %}
+                <table id="UserTable" class="table table-striped admin-data-table">
+                    <thead>
                         <tr>
-                            <td>{{ user.nickname }}</td>
-                            <td>
-                                <a href="{{ path('admin_user_show', {'uuid' : user.uuid}) }}">anzeigen</a>
-                                <a href="{{ path('admin_user_edit', {'uuid' : user.uuid}) }}">editieren</a>
-                            </td>
+                            <th>Nickname</th>
+                            <th data-orderable="false" data-searchable="false">Aktionen</th>
                         </tr>
-                    {% endfor %}
+                    </thead>
+                    <tbody>
+                        {% for  user in users.items %}
+                            <tr>
+                                <td class="w-100">
+                                    <a data-toggle="ajaxModal" href="{{ path('admin_user_show', {'uuid' : user.uuid}) }}">
+                                        {{ user.nickname }}
+                                    </a>
+                                </td>
+                                <td class="text-nowrap">
+                                    <a class="btn btn-outline-dark" href="{{ path('admin_user_edit', {'uuid' : user.uuid}) }}" title="{{ user.nickname }} bearbeiten">
+                                        <i class="fas fa-edit"></i> bearbeiten
+                                    </a>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
                 </table>
             </div>
         </div>
     </div>
 {% endblock %}
 
+{% block javascripts %}
+    {{ parent() }}
+{% endblock %}
