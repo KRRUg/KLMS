@@ -2,6 +2,7 @@
 
 namespace App\Transfer;
 
+use DateTime;
 use Symfony\Component\Validator\Constraints as Assert;
 use App\Security\User;
 
@@ -23,6 +24,9 @@ final class UserEditTransfer
      */
     public $nickname;
 
+    /**
+     * @var string
+     */
     public $birthdate;
 
     /**
@@ -120,7 +124,9 @@ final class UserEditTransfer
         $transfer = new self();
         $transfer->email = $user->getEmail();
         $transfer->nickname = $user->getNickname();
-        $transfer->birthdate = $user->getBirthdate();
+        if(null !== $user->getBirthdate()) {
+            $transfer->birthdate = $user->getBirthdate()->format(DateTime::ATOM);
+        }
         $transfer->firstname = $user->getFirstname();
         $transfer->surname = $user->getSurname();
         $transfer->postcode = $user->getPostcode();
