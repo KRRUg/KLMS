@@ -25,6 +25,10 @@ $container-max-widths: (
   xl: 1200px
 ) !default;
 
+$sizes: (
+  1: 1%
+) !default;
+
 $enable-rounded: false;
 $enable-shadows: true;
 

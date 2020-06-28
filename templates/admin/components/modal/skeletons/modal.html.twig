@@ -14,7 +14,7 @@
     aria-labelledby="{{ id }}Label" 
     aria-hidden="true" 
     >
-    <div class="modal-dialog modal-dialog-centered {{ dialogClass|default() }}" role="document">
+    <div class="modal-dialog {{ dialogClass|default() }}" role="document">
         <div class="modal-content">
             {% block modalContent %}
                 {% block modalContentPrepend %}{% endblock %}

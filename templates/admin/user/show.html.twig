@@ -1,109 +1,135 @@
 {% embed "admin/components/modal/skeletons/modal.html.twig" with {'id': 'showUserModal', 'title' : 'Benutzer ' ~ user.nickname, 'dialogClass' : 'modal-lg'} %}
-    {% block modalBody %}
-        <table>
-            <tr>
-                <td>UUID</td>
-                <td>{{ user.uuid }}</td>
-            </tr>
-            <tr>
-                <td>KLMS ID</td>
-                <td>{{ user.id }}</td>
-            </tr>
-            <tr>
-                <td>Nickname</td>
-                <td>{{ user.nickname }}</td>
-            </tr>
-            <tr>
-                <td>EMail</td>
-                <td>{{ user.email }}</td>
-            </tr>
-            <tr>
-                <td>Firstname</td>
-                <td>{{ user.firstname }}</td>
-            </tr>
-            <tr>
-                <td>Geburtsdatum</td>
-                <td>{{ user.birthdate|format('d.m.Y') }}</td>
-            </tr>
-            <tr>
-                <td>Surname</td>
-                <td>{{ user.surname }}</td>
-            </tr>
-            <tr>
-                <td>Postcode</td>
-                <td>{{ user.postcode }}</td>
-            </tr>
-            <tr>
-                <td>City</td>
-                <td>{{ user.city }}</td>
-            </tr>
-            <tr>
-                <td>Street</td>
-                <td>{{ user.street }}</td>
-            </tr>
-            <tr>
-                <td>Country</td>
-                <td>{{ user.country }}</td>
-            </tr>
-            <tr>
-                <td>Phone</td>
-                <td>{{ user.phone }}</td>
-            </tr>
-            <tr>
-                <td>Gender</td>
-                <td>{{ user.gender }}</td>
-            </tr>
-            <tr>
-                <td>Website</td>
-                <td>{{ user.website }}</td>
-            </tr>
-            <tr>
-                <td>SteamAccount</td>
-                <td>{{ user.steamaccount }}</td>
-            </tr>
-            <tr>
-                <td>Hardware</td>
-                <td>{{ user.hardware }}</td>
-            </tr>
-            <tr>
-                <td>Statements</td>
-                <td>{{ user.statements }}</td>
-            </tr>
-            <tr>
-                <td>isSuperAdmin</td>
-                <td>{{ user.isSuperadmin }}</td>
-            </tr>
-            <tr>
-                <td>Registered At</td>
-                <td>{{ user.registeredAt|date }}</td>
-            </tr>
-            <tr>
-                <td>Modified At</td>
-                <td>{{ user.modifiedAt|date }}</td>
-            </tr>
-        </table>
-
-        <h2>Clans</h2>
-        <table>
-            <thead>
-                <tr>
-                    <td>Name</td>
-                    <td>Beschreibung</td>
-                    <td>Tag</td>
-                    <td>Website</td>
-                    <td>Admin?</td>
-                </tr>
-            </thead>
-            {% for clan in user.clans %}
-                <tr>
-                    <td><a href="{{ path('admin_clan_show', {'uuid' : clan.clan.uuid}) }}">{{ clan.clan.name }}</a></td>
-                    <td>{{ clan.clan.description }}</td>
-                    <td>{{ clan.clan.clantag }}</td>
-                    <td>{{ clan.clan.website }}</td>
-                    <td>{% if clan.admin == 1 %}Ja{% else %}Nein{% endif %}</td>
-                </tr>
-            {% endfor %}
-        </table>
+    {% block modalBody %}        
+        <div class="container-fluid">
+            <div class="d-flex justify-content-between w-100 pb-3">
+                <div class="py-1">
+                    <span class="badge badge-primary">KLMS ID: #{{ user.id }}</span> <br>
+                    <span class="badge badge-secondary">UUID: {{ user.uuid }}</span>
+                </div>
+                <div class="p-1">
+                    <a class="btn btn-outline-primary" href="{{ path('admin_user_edit', {'uuid' : user.uuid}) }}" title="{{ user.nickname }} bearbeiten"><i class="fas fa-user-edit"></i> Profil bearbeiten</a>   
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-auto">
+                    <i class="far fa-user-circle fa-9x"></i>
+                    {% if user.isSuperAdmin == 1 %}
+                        <div class="mt-2 alert alert-danger">
+                            <strong><i class="fas fa-crown"></i> Super Admin</strong>
+                        </div>
+                    {% endif %}
+                </div>
+                <div class="col">
+                    <i class="fas fa-headset fa-fw mr-2" title="Name"></i> 
+                    <h1 title="Nickname: {{ user.nickname }}" class="h3 d-inline-block">{{ user.nickname|defaultBadge('Nickname n.v.') }}</h1>
+                    <br>
+                    <i class="fas fa-signature fa-fw mr-2" title="Name"></i> 
+                    <h2 class="h4 d-inline-block">
+                        <span title="Vorname: {{ user.firstname }}">{{ user.firstname|defaultBadge('Vorname n.v.') }}</span> 
+                        <span title="Nachname: {{ user.surname }}">{{ user.surname|defaultBadge('Nachname n.v.') }}</span>
+                    </h2>
+                    </p>
+                    <p>
+                        <i class="far fa-envelope fa-fw mr-2" title="E-Mail Adresse"></i>{{ user.email|defaultBadge('E-Mailadresse n.v.') }}
+                    </p>
+                    <p>
+                        <i class="fas fa-mobile-alt fa-fw mr-2" title="Telefonnummer"></i>{{ user.phone|defaultBadge(' n.v. ') }}
+                    </p>
+                    <p>
+                        <i class="fas fa-birthday-cake fa-fw mr-3" title="Geburtstag"></i>
+                        {% if user.birthdate is not empty %}
+                            {{ user.birthdate|date("d. F Y") }} <strong>Alter: {{ user.birthdate|age }} Jahre</strong>
+                            {# TODO: IF user_dob_is_verified #}
+                            <span class="ml-3 badge badge-pill badge-primary" title="Dieses Geburtsdatum wurde erfolgreich überprüft!">
+                                <i class="fas fa-check"></i> Geprüft
+                            </span>
+                        {% else %}
+                            {{ user.birthdate|defaultBadge('Geburtstag n.v.') }}
+                        {% endif %}
+                    </p>
+                </div>
+            </div>
+            <ul class="nav nav-tabs" id="myTab" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <a class="nav-link active" id="profile-tab" data-toggle="tab" href="#profile" role="tab" aria-controls="profile" aria-selected="true">Profil</a>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <a class="nav-link" id="clans-tab" data-toggle="tab" href="#clans" role="tab" aria-controls="clans" aria-selected="false">Clans</a>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <a class="nav-link" id="others-tab" data-toggle="tab" href="#others" role="tab" aria-controls="others" aria-selected="false">Sonstiges</a>
+                </li>
+            </ul>
+            <div class="tab-content p-3 border border-top-0" id="myTabContent">
+                <div class="tab-pane fade show active" id="profile" role="tabpanel" aria-labelledby="home-tab">
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item">
+                            <div class="d-flex w-100">
+                                <div class="mr-3 flex-shrink-1">
+                                    <i class="fas fa-map-marked-alt" title="Adresse"></i>
+                                </div>
+                                <div class="w-100">
+                                    <p class="m-0">
+                                        {{ user.street|defaultBadge('Starße n.v. ') }} <br>
+                                        {{ user.postcode|defaultBadge('PLZ n.v. ') }} {{ user.city|defaultBadge(' Stadt n.v. ') }}<br>
+                                        {{ user.country|defaultBadge('Staat n.v. ') }}
+                                    </p>
+                                </div>
+                            </div>
+                        </li>
+                        <li class="list-group-item">
+                            <i class="fas fa-globe fa-fw mr-3" title="Webseite"></i><a href="{{ user.website }}" target="_blank">{{ user.website }}</a>
+                        </li>
+                        <li class="list-group-item">
+                            <i class="fas fa-venus-mars fa-fw mr-3" title="Geschlecht"></i>{{ user.gender|defaultBadge(' Geschlecht n.v. ') }}
+                        </li>
+                        <li class="list-group-item">
+                            <i class="fas fa-clock fa-fw mr-3" title="registried am"></i>{{ user.registeredAt|date("d. F Y") }}
+                        </li>
+                    </ul>
+                </div>
+                <div class="tab-pane fade" id="clans" role="tabpanel" aria-labelledby="clan-tab">
+                    <h2>Clans</h2>
+                    <table>
+                        <thead>
+                            <tr>
+                                <td>Name</td>
+                                <td>Beschreibung</td>
+                                <td>Tag</td>
+                                <td>Website</td>
+                                <td>Admin?</td>
+                            </tr>
+                        </thead>
+                        {% for clan in user.clans %}
+                            <tr>
+                                <td><a href="{{ path('admin_clan_show', {'uuid' : clan.clan.uuid}) }}">{{ clan.clan.name }}</a></td>
+                                <td>{{ clan.clan.description }}</td>
+                                <td>{{ clan.clan.clantag }}</td>
+                                <td>{{ clan.clan.website }}</td>
+                                <td>{% if clan.admin == 1 %}Ja{% else %}Nein{% endif %}</td>
+                            </tr>
+                        {% endfor %}
+                    </table>
+                </div>
+                <div class="tab-pane fade" id="others" role="tabpanel" aria-labelledby="clan-tab">
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item">
+                            <i class="fab fa-steam fa-fw mr-3" title="Steam Account"></i>{{ user.steamaccount }}
+                        </li>
+                        <li class="list-group-item">
+                            <i class="fas fa-desktop fa-fw mr-3" title="Hardware"></i>{{ user.hardware }}
+                        </li>
+                        <li class="list-group-item">
+                            <i class="fas fa-user-edit fa-fw mr-3" title="zuletzt bearbeitet am"></i>{{ user.modifiedAt|date("d. F Y - H:i:s") }}
+                        </li>
+                    </ul>
+                    <div class="p-3">
+                        <strong>Statement</strong>
+                        <p>{{ user.statements|defaultBadge('Statement n.v.') }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
     {% endblock %}
     {% block modalFooter %}
         <button type="button" class="btn btn-secondary" data-dismiss="modal">Schließen</button>
