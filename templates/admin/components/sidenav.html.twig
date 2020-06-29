@@ -19,10 +19,10 @@
     {% endif %}
     {% if is_granted('ROLE_ADMIN_USER') %}
         <li class="nav-item">
-            <a class="nav-link {% if app.request.get('_route') starts with 'admin_user' %}active{% endif %}" href="{{ path('admin_user') }}"><i class="far fa-user"></i> User </a>
+            <a class="nav-link {% if app.request.get('_route') starts with 'admin_user' %}active{% endif %}" href="{{ path('admin_user') }}"><i class="fas fa-user"></i> User </a>
         </li>
         <li class="nav-item">
-            <a class="nav-link {% if app.request.get('_route') starts with 'admin_clan' %}active{% endif %}" href="{{ path('admin_clan') }}"><i class="far fa-user"></i> Clan </a>
+            <a class="nav-link {% if app.request.get('_route') starts with 'admin_clan' %}active{% endif %}" href="{{ path('admin_clan') }}"><i class="fas fa-users"></i> Clan </a>
         </li>
     {% endif %}
 </ul>

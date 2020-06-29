@@ -89,27 +89,14 @@
                     </ul>
                 </div>
                 <div class="tab-pane fade" id="clans" role="tabpanel" aria-labelledby="clan-tab">
-                    <h2>Clans</h2>
-                    <table>
-                        <thead>
-                            <tr>
-                                <td>Name</td>
-                                <td>Beschreibung</td>
-                                <td>Tag</td>
-                                <td>Website</td>
-                                <td>Admin?</td>
-                            </tr>
-                        </thead>
+                    <h3>Clans</h3>
+                    <div class="row">
                         {% for clan in user.clans %}
-                            <tr>
-                                <td><a href="{{ path('admin_clan_show', {'uuid' : clan.clan.uuid}) }}">{{ clan.clan.name }}</a></td>
-                                <td>{{ clan.clan.description }}</td>
-                                <td>{{ clan.clan.clantag }}</td>
-                                <td>{{ clan.clan.website }}</td>
-                                <td>{% if clan.admin == 1 %}Ja{% else %}Nein{% endif %}</td>
-                            </tr>
+                            <div class="col-sm-6">
+                                {% include 'admin/components/cards/cardClanPreview.html.twig' with {'clan': clan.clan, 'isClanAdmin' : clan.admin} %}
+                            </div>
                         {% endfor %}
-                    </table>
+                    </div>
                 </div>
                 <div class="tab-pane fade" id="others" role="tabpanel" aria-labelledby="clan-tab">
                     <ul class="list-group list-group-flush">

@@ -23,8 +23,9 @@
                     .then((data) => {
                         this.$modal = this._initModal(data);
                         this.$modal.modal('show');
-                    }).catch(() => {
-                console.error('Error loading remote content!');
+                        this.$modal.find(".admin-data-table").AdminDataTable();
+                    }).catch((e) => {
+                console.error('Error loading remote content!', e);
             });
         },
         _getRemoteContent() {
@@ -48,7 +49,10 @@
                 document.body.appendChild(elem);
                 
                 modalWrapper = document.querySelector('div#'+ MODULE_NAME);
-            } 
+            } else {
+                $( modalWrapper ).children( ".modal" ).modal('dispose');
+                $(".modal-backdrop").remove();
+            }
             
             let $modalWrapper = $( modalWrapper );
             $modalWrapper.html(data);

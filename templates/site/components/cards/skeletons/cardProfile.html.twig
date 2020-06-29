@@ -1,22 +1,20 @@
-    <div class="container">
-        <div class="card mb-3">
-            <div class="row no-gutters">
-                <div class="col-sm-4 col-lg-2 bg-dark text-light text-center">
-                    {% if cardImg is defined %}
-                        <img class="card-img" src='{{ cardImg }}' />
-                    {% elseif cardSymbole is defined %}
-                        <div class="my-3 d-inline-block">
-                            <i class="{{ cardSymbole }} text-white"></i>
-                        </div>
-                    {% else %}
-                        <i class="mt-3 fas fa-user-circle fa-9x"></i>
-                    {% endif %}
+<div class="card mb-3 h-100">
+    <div class="row no-gutters h-100">
+        <div class="col-sm-4 col-lg-2 bg-dark text-light text-center">
+            {% if cardImg is defined %}
+                <img class="card-img" src='{{ cardImg }}' />
+            {% elseif cardSymbole is defined %}
+                <div class="my-3 d-inline-block">
+                    <i class="{{ cardSymbole }} text-white"></i>
                 </div>
-                <div class="col-sm-8 col-lg-10">
-                    <div class="card-body">
-                        {% block cardBody %}{% endblock %}
-                    </div>
-                </div>
+            {% else %}
+                <i class="mt-3 fas fa-user-circle fa-9x"></i>
+            {% endif %}
+        </div>
+        <div class="col-sm-8 col-lg-10">
+            <div class="card-body">
+                {% block cardBody %}{% endblock %}
             </div>
         </div>
     </div>
+</div>
