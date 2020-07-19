@@ -1,8 +1,6 @@
 <?php
 
-
 namespace App\Service;
-
 
 use App\Entity\EMail\EMailRecipient;
 use App\Entity\EMail\EmailSending;
@@ -23,22 +21,20 @@ use Symfony\Component\Mime\Email;
 use Twig\Environment;
 
 /**
- * Class EMailService
- * @package App\Service
+ * Class EMailService.
  */
 //TODO: Exceptions abfangen
 class EMailService
 {
     const APPLICATIONHOOKS = [
-        "-" => null,
-        "REGISTRATION_CONFIRMATION" => "/email/REGISTRATION_CONFIRMATION.html.twig",
-        "ADMIN_ERRORMAIL" => "/email/ADMIN_ERRORMAIL.html.twig",
-        "ADMIN_FOO" => "/email/ADMIN_FOO.html.twig",
-        "ADMIN_BAR" => "/email/ADMIN_BAR.html.twig"
-
+        '-' => null,
+        'REGISTRATION_CONFIRMATION' => '/email/REGISTRATION_CONFIRMATION.html.twig',
+        'ADMIN_ERRORMAIL' => '/email/ADMIN_ERRORMAIL.html.twig',
+        'ADMIN_FOO' => '/email/ADMIN_FOO.html.twig',
+        'ADMIN_BAR' => '/email/ADMIN_BAR.html.twig',
     ];
     const NEWSLETTER_DESIGNS = [
-        "STANDARD" => "/email/STANDARD.html.twig",
+        'STANDARD' => '/email/STANDARD.html.twig',
     ];
 
     protected $mailer;
@@ -70,7 +66,7 @@ class EMailService
         $this->templateRepository = $templateRepository;
         $this->sendingRepository = $sendingRepository;
         $this->twig = $twig;
-        $this->systemMessageUser = $userService->getUserInfosByUuid([$_ENV["MAILER_SYSTEM_MESSAGE_USER_GUID"]])[0];
+        $this->systemMessageUser = $userService->getUserInfosByUuid([$_ENV['MAILER_SYSTEM_MESSAGE_USER_GUID']])[0];
     }
 
     public function sendByApplicationHook(string $applicationHook, User $user, string $stepname = null, array $payload = null)
@@ -79,29 +75,28 @@ class EMailService
         if (in_array($applicationHook, self::APPLICATIONHOOKS)) {
             $hook = $applicationHook;
             //Template dazu suchen
-            $template = $this->templateRepository->findOneBy(["applicationHook" => $hook]);
-            if ($template != null) {
+            $template = $this->templateRepository->findOneBy(['applicationHook' => $hook]);
+            if (null != $template) {
                 $this->sendEMail($template, $user, $payload);
             } else {
                 //payload für Fehlermeldung generieren
 
                 //TODO Errorhandling fertigmachen
                 $payload = $payload ?? [];
-                $payload["ERROR_MESSAGE"] = "E-Mail Template für ApplicationHook $hook nicht gefunden";
-                $payload["USER"] = $user->getUuid() . " => " . $user->getNickname() . " => " . $user->getEmail();
-                if ($stepname != null) {
-                    $payload["STEP"] = "Fehler-Step : $stepname";
+                $payload['ERROR_MESSAGE'] = "E-Mail Template für ApplicationHook $hook nicht gefunden";
+                $payload['USER'] = $user->getUuid().' => '.$user->getNickname().' => '.$user->getEmail();
+                if (null != $stepname) {
+                    $payload['STEP'] = "Fehler-Step : $stepname";
                 }
-                $this->logger->critical("Fehler in Mailversand: " . json_encode($payload));
-                if ($stepname == "TemplateNotFoundMessage") {
+                $this->logger->critical('Fehler in Mailversand: '.json_encode($payload));
+                if ('TemplateNotFoundMessage' == $stepname) {
                     $errorTemplate = new  EMailTemplate();
-                    $errorTemplate->setSubject("Template für ErrorMail nicht gefunden");
+                    $errorTemplate->setSubject('Template für ErrorMail nicht gefunden');
                     $errorTemplate->setBody("Template für $stepname nicht gefunden");
                     $this->sendEMail($errorTemplate, $this->systemMessageUser);
                 } else {
-                    $this->sendByApplicationHook(self::APPLICATIONHOOKS["ADMIN_ERRORMAIL"], $this->systemMessageUser, "TemplateNotFoundMessage", $payload);
+                    $this->sendByApplicationHook(self::APPLICATIONHOOKS['ADMIN_ERRORMAIL'], $this->systemMessageUser, 'TemplateNotFoundMessage', $payload);
                 }
-
             }
         }
     }
@@ -111,11 +106,12 @@ class EMailService
         $recipient = new EMailRecipient($user);
         $error = null;
 
-        if ($recipient == null || empty($recipient->getEmailAddress())) {
-            $error = "No email adress was given or user object was null";
+        if (null == $recipient || empty($recipient->getEmailAddress())) {
+            $error = 'No email adress was given or user object was null';
         }
-        if ($error != null)
+        if (null != $error) {
             return $error;
+        }
 
         try {
             $template = $this->renderTemplate($template, $user, $payload);
@@ -152,10 +148,10 @@ class EMailService
 
         //TODO twig render eventuell mit email render tauschen
         $designFile = $this->getDesignFile($email);
-        if ($designFile == "TEXT") {
+        if ('TEXT' == $designFile) {
             $html = $text;
         } else {
-            $html = $this->twig->render($designFile, ["template" => $email, "user" => $user, "payload" => $payload]);
+            $html = $this->twig->render($designFile, ['template' => $email, 'user' => $user, 'payload' => $payload]);
         }
 
         $email->setBody($html);
@@ -175,15 +171,17 @@ class EMailService
                 $variableName = trim(strtolower($variableName));
                 $filled = $recipientData[$variableName];
                 if (empty($filled)) {
-                    $error = "Variable $variableName not valid: " . sprintf($mailRecipient);
+                    $error = "Variable $variableName not valid: ".sprintf($mailRecipient);
                     $this->logger->error($error);
                     array_push($errors, $error);
                 }
-                if (count($errors) > 0)
-                    throw  new  Exception("MailData is not valid: " . implode(',', $errors));
+                if (count($errors) > 0) {
+                    throw  new  Exception('MailData is not valid: '.implode(',', $errors));
+                }
                 $text = str_replace($match, $filled, $text);
             }
         }
+
         return $text;
     }
 
@@ -193,7 +191,7 @@ class EMailService
         if ($template->isApplicationHooked()) {
             $design = $template->getApplicationHook();
         }
-        if ($design == null || empty($design)) {
+        if (null == $design || empty($design)) {
             $design = 'TEXT';
         }
 
@@ -204,16 +202,15 @@ class EMailService
     {
         $userGroup = array_search($userGroupName, $this->getEmailRecipientGroups());
         //Wenn keine Usergruppe mit diesem wert gefunden wurde, dann erste nehmen
-        $userGroup = $userGroup === false ? array_values($this->getEmailRecipientGroups() )[0] : $userGroup;
+        $userGroup = false === $userGroup ? array_values($this->getEmailRecipientGroups())[0] : $userGroup;
 
         $sending = new  EmailSending();
         $sending->setEMailTemplate(clone $template)
             ->setRecipientGroup($userGroup)
-            ->setStatus("Sendung erstellt");
+            ->setStatus('Sendung erstellt');
 
         $this->em->persist($sending);
         $this->em->flush();
-
     }
 
     public function getEmailRecipientGroups()
@@ -225,20 +222,19 @@ class EMailService
             'TEST3' => '00000000-0000-0000-0000-000000000000',
             'TEST4' => '00000000-0000-0000-0000-000000000000',
             'TEST5' => '00000000-0000-0000-0000-000000000000',
-            'TEST6' => '00000000-0000-0000-0000-000000000000'
+            'TEST6' => '00000000-0000-0000-0000-000000000000',
         ];
     }
 
     public function createSendingTasksAllSendings(SymfonyStyle $io = null)
     {
-
         $sendings = $this->sendingRepository->findNewsletterSendable();
-        if (count($sendings) == 0) {
-            $io->note("No sendable newsletters found");
+        if (0 == count($sendings)) {
+            $io->note('No sendable newsletters found');
         }
         foreach ($sendings as $sending) {
             if ($sending->getStartTime() <= new  DateTime()) {
-                $sendingName = $sending->getEMailTemplate()->getName() . ' for UserGroup ' . $sending->getRecipientGroup();
+                $sendingName = $sending->getEMailTemplate()->getName().' for UserGroup '.$sending->getRecipientGroup();
                 $io->note("Starting: $sendingName");
                 $countGenerated = $this->createSendingTasks($sending);
                 $io->note("Finished: $sendingName $countGenerated Mails generated");
@@ -263,11 +259,11 @@ class EMailService
         $this->em->flush();
 
         foreach ($users as $user) {
-            if ($this->sendEMail($template, $user) == null) {
-                $generatedCount++;
+            if (null == $this->sendEMail($template, $user)) {
+                ++$generatedCount;
             } else {
-                $errorCount++;
-            };
+                ++$errorCount;
+            }
         }
         $sending->setRecipientCountGenerated($generatedCount);
         $sending->setErrorCount($errorCount);
@@ -289,6 +285,7 @@ class EMailService
             '00000000-0000-0000-0000-000000000004',
         ];
         $users = $this->userService->getUsersByUuid($usersToFind);
+
         return new ArrayCollection($users);
     }
 
@@ -317,7 +314,7 @@ class EMailService
     {
         $hooks = EMailService::APPLICATIONHOOKS;
         foreach ($hooks as $hook) {
-            if ($this->templateRepository->findBy(['applicationHook' => $hook]) == null) {
+            if (null == $this->templateRepository->findBy(['applicationHook' => $hook])) {
                 $template = new EMailTemplate();
                 $template->setApplicationHook($hook);
                 $template->setName($hook);
@@ -327,6 +324,5 @@ class EMailService
             }
         }
         $this->em->flush();
-
     }
 }
