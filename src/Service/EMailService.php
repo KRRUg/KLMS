@@ -69,14 +69,14 @@ class EMailService
         $this->systemMessageUser = $userService->getUserInfosByUuid([$_ENV['MAILER_SYSTEM_MESSAGE_USER_GUID']])[0];
     }
 
-    public function sendByApplicationHook(string $applicationHook, User $user, string $stepname = null, array $payload = null)
+    public function sendByApplicationHook(string $applicationHook, User $user, string $processStepName = null, array $payload = null)
     {
         //prüfen ob gültiger Applicationhook übergeben wurde
         if (in_array($applicationHook, self::APPLICATIONHOOKS)) {
             $hook = $applicationHook;
             //Template dazu suchen
             $template = $this->templateRepository->findOneBy(['applicationHook' => $hook]);
-            if (null != $template) {
+            if (null !== $template) {
                 $this->sendEMail($template, $user, $payload);
             } else {
                 //payload für Fehlermeldung generieren
@@ -84,16 +84,16 @@ class EMailService
                 //TODO Errorhandling fertigmachen
                 $payload = $payload ?? [];
                 $payload['ERROR_MESSAGE'] = "E-Mail Template für ApplicationHook $hook nicht gefunden";
-                $payload['USER'] = $user->getUuid().' => '.$user->getNickname().' => '.$user->getEmail();
-                if (null != $stepname) {
-                    $payload['STEP'] = "Fehler-Step : $stepname";
+                $payload['USER_DETAILS'] = $user->getUuid().' => '.$user->getNickname().' => '.$user->getEmail();
+                if (null !== $processStepName) {
+                    $payload['STEP'] = "Fehler-Step : $processStepName";
                 }
                 $this->logger->critical('Fehler in Mailversand: '.json_encode($payload));
-                if ('TemplateNotFoundMessage' == $stepname) {
+                if ('TemplateNotFoundMessage' == $processStepName) {
                     $errorTemplate = new  EMailTemplate();
                     $errorTemplate->setSubject('Template für ErrorMail nicht gefunden');
-                    $errorTemplate->setBody("Template für $stepname nicht gefunden");
-                    $this->sendEMail($errorTemplate, $this->systemMessageUser);
+                    $errorTemplate->setBody("Template für $processStepName nicht gefunden");
+                    $this->sendEMail($errorTemplate, $this->systemMessageUser, $payload);
                 } else {
                     $this->sendByApplicationHook(self::APPLICATIONHOOKS['ADMIN_ERRORMAIL'], $this->systemMessageUser, 'TemplateNotFoundMessage', $payload);
                 }
@@ -153,7 +153,6 @@ class EMailService
         } else {
             $html = $this->twig->render($designFile, ['template' => $email, 'user' => $user, 'payload' => $payload]);
         }
-
         $email->setBody($html);
 
         return $email;
