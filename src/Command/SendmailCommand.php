@@ -26,7 +26,7 @@ class SendmailCommand extends Command
 	protected function configure()
 	{
 		$this
-			->setDescription('Fills the messege queue with newsletter emails')
+			->setDescription('Fills the message queue with newsletter emails')
 			->addArgument('sendingId', InputArgument::OPTIONAL, 'ID OF THE SENDING OPTIONAL, IF NULL ALL WHICH HAS TO BE RENDERED WILL BE RENDERED')//->addOption('option1', null, InputOption::VALUE_NONE, 'Option description')
 		;
 	}
