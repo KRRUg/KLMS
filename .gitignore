@@ -68,10 +68,7 @@ npm-debug.log
 yarn-error.log
 ###< symfony/webpack-encore-bundle ###
 public/images
-symfony.lock
-yarn.lock
 assets/images/EMail/*
-composer.lock
 
 ###> friendsofphp/php-cs-fixer ###
 /.php_cs
