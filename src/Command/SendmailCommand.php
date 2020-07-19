@@ -27,7 +27,7 @@ class SendmailCommand extends Command
 	{
 		$this
 			->setDescription('Fills the message queue with newsletter emails')
-			->addArgument('sendingId', InputArgument::OPTIONAL, 'ID OF THE SENDING OPTIONAL, IF NULL ALL WHICH HAS TO BE RENDERED WILL BE RENDERED')//->addOption('option1', null, InputOption::VALUE_NONE, 'Option description')
+			->addArgument('sendingId', InputArgument::OPTIONAL, 'ID of the Sending, if not defined all Sendings will be rendered')
 		;
 	}
 
