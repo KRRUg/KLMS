@@ -12,6 +12,9 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
+/**
+ * @Route("/image", name="images")
+ */
 class ImageController extends AbstractController
 {
     private $imageService;
@@ -25,7 +28,7 @@ class ImageController extends AbstractController
     }
 
     /**
-     * @Route("/image", name="images")
+     * @Route("", name="")
      */
     public function index(Request $request)
     {

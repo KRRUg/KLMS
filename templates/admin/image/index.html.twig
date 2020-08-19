@@ -1,32 +1,51 @@
 {% extends 'admin/adminBase.html.twig' %}
 
 {% block title %}KLMS - Admin{% endblock %}
-{% block siteheading %}<i class="far fa-newspaper"></i> News{% endblock %}
+{% block siteheading %}<i class="far fa-file-image"></i> Media{% endblock %}
 {% block main %}
-    <h2>Images</h2>
-    <div class="border overflow-auto" style="height: 10cm">
-        <div class="row m-2">
-        {% for i in images %}
-            <div class="card d-block mr-2 mb-2" style="width: 250px">
-                <img class="card-img-top border-bottom p-1" style="width: 100%; height: 200px; object-fit: contain;" src="{{ vich_uploader_asset(i, 'imageFile') }}"  alt="{{ i.image.name }}">
-                <div class="card-body">
-                    <p class="card-text">{{ i.image.name }}</p>
-                </div>
-            </div>
-        {% endfor %}
+    <div class="row mb-4">
+        <div class="col-12">
+            <button type="button" class="btn btn-success" data-toggle="modal" data-target="#uploadModal">
+                <i class="fas fa-plus"></i> Upload</a>
+            </button>
         </div>
     </div>
-    <br/>
-
-    <h2>New Image</h2>
-    {{ form_start(form_upload) }}
-    {% if not form_upload.vars.valid %}
-        <div class="alert alert-error">
-            {{ form_errors(form_upload) }}
+    <div class="row">
+        <div class="border overflow-auto h-100">
+            <div class="row m-2">
+            {% for i in images %}
+                <div class="card d-block mr-2 mb-2" style="width: 250px">
+                    <img class="card-img-top border-bottom p-1" style="width: 100%; height: 200px; object-fit: contain;" src="{{ vich_uploader_asset(i, 'imageFile') }}"  alt="{{ i.image.name }}">
+                    <div class="card-body p-2 text-muted text-truncate">
+                        <span title="{{ i.image.name }}">{{ i.image.name }}</span>
+                    </div>
+                </div>
+            {% endfor %}
+            </div>
         </div>
-    {% endif %}
-    {{ form_row(form_upload) }}
-    <button type="submit" id="upload" class="btn-primary btn">Upload</button>
+    </div>
 
-    {{ form_end(form_upload) }}
+    <div class="modal fade" id="uploadModal" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                {{ form_start(form_upload) }}
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Upload</h5>
+                </div>
+                <div class="modal-body">
+                    {% if not form_upload.vars.valid %}
+                        <div class="alert alert-error">
+                            {{ form_errors(form_upload) }}
+                        </div>
+                    {% endif %}
+                    {{ form_row(form_upload) }}
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-secondary btn" data-dismiss="modal">Abbrechen</button>
+                    <button type="submit" id="upload" class="btn-primary btn">Upload</button>
+                </div>
+                {{ form_end(form_upload) }}
+            </div>
+        </div>
+    </div>
 {% endblock %}
