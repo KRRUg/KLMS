@@ -12,4 +12,10 @@ require('../css/_scss/bootstrap-krru.scss');
 
 require('@fortawesome/fontawesome-free/css/all.min.css');
 
+let cfi = require('bs-custom-file-input');
+
+$( document ).ready(function() {
+    cfi.init();
+});
+
 //Images
