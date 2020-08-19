@@ -4,7 +4,7 @@ namespace App\Form;
 
 use App\Entity\Content;
 use Symfony\Component\Form\AbstractType;
-use Symfony\Component\Form\Extension\Core\Type\SubmitType;
+use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
@@ -15,7 +15,7 @@ class ContentType extends AbstractType
         $builder
             ->add('title')
             ->add('description')
-            ->add('content')
+            ->add('content', TextareaType::class, ['required' => false])
         ;
     }
 

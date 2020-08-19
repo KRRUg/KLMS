@@ -1,7 +1,7 @@
 {% extends 'admin/adminBase.html.twig' %}
 
 {% block title %}KLMS - Admin{% endblock %}
-{% block siteheading %}<i class="far fa-file-alt"></i> Content Neu{% endblock %}
+{% block siteheading %}<i class="far fa-file-alt"></i> Content{% endblock %}
 {% block main %}
     {{ form_start(form) }}
     {% if not form.vars.valid %}
@@ -36,12 +36,12 @@
     <hr>
     {{ form_rest(form) }}
     <div class="float-left">
-        <a class="btn btn-secondary" href="{{ path('admin_content') }}">Abbrechen</a>
-    </div>
-    <div class="float-right">
         {% if id is defined %}
             <a class="btn btn-secondary" href="{{ path('admin_content_delete', {'id' : id}) }}"><i class="fas fa-trash-alt"></i> Löschen</a>
         {% endif %}
+    </div>
+    <div class="float-right">
+        <a class="btn btn-secondary" href="{{ path('admin_content') }}">Abbrechen</a>
         <button type="submit" id="news_save" class="btn-primary btn">Speichern</button>
     </div>
     {{ form_end(form) }}
