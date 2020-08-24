@@ -29,7 +29,7 @@
                         <div class="card d-block mr-2 mb-2 to-hover" style="width: 250px">
                             <img class="card-img-top border-bottom p-1" style="width: 100%; height: 200px; object-fit: contain;" src="{{ vich_uploader_asset(i, 'imageFile') }}"  alt="{{ i.image.name }}">
                             <div class="card-img-overlay text-right w-100 to-show">
-                                <a class="ml-1" href="{{ path('admin_media_delete', {'id' : i.id}) }}" onclick="return confirm('Bild wirklich löschen?')"><i class="fas fa-trash-alt"></i></a>
+                                <a href="#" data-toggle="popover" data-placement="bottom" data-trigger="focus" data-html="true" data-content="Wirklich löschen? <a href='{{ path('admin_media_delete', {'id' : i.id}) }}'>Ja</a>"><i class="fas fa-trash-alt"></i></a>
                                 <a class="ml-1" href="{{ path('media', {'name' : i.id} ) }}"><i class="fas fa-eye"></i></a>
                             </div>
                             <div class="card-body p-2 text-muted text-truncate text-center">
@@ -43,5 +43,11 @@
     </div>
 
     {% include 'admin/image/_new.html.twig' with {'modal_name': 'uploadModal'} %}
+
+    <script>
+        $(document).ready(function(){
+            $('[data-toggle="popover"]').popover();
+        });
+    </script>
 
 {% endblock %}

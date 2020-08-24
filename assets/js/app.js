@@ -16,6 +16,7 @@ let cfi = require('bs-custom-file-input');
 
 $( document ).ready(function() {
     cfi.init();
+    $('[data-toggle="popover"]').popover();
 });
 
 //Images
