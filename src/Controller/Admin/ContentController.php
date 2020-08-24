@@ -83,14 +83,14 @@ class ContentController extends AbstractController
     }
 
     /**
-     * @Route("/news/delete/{id}", name="_delete")
+     * @Route("/delete/{id}", name="_delete")
      * @ParamConverter()
      */
     public function delete(Content $content) {
         try{
             $this->contentService->delete($content);
         } catch (ServiceException $e) {
-            // TODO show error in frontend
+            $this->addFlash('danger', 'Konnte Content nicht löschen, da in Verwendung.');
         }
         return $this->redirectToRoute("admin_content");
     }

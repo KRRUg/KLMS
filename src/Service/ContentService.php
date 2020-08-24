@@ -48,12 +48,21 @@ class ContentService
     }
 
     /**
+     * @param Content $content Content object to check
+     * @return bool If content is in use
+     */
+    public function inUse(Content $content)
+    {
+        return !empty($this->navService->getByContent($content));
+    }
+
+    /**
      * @param Content $content Content object to delete
      * @throws ServiceException If deletion fails, bacause Content is still in use
      */
     public function delete(Content $content)
     {
-        if (!empty($this->navService->getByContent($content))) {
+        if ($this->inUse($content)) {
             $this->logger->warning("Can't delete Content {$content->getId()}, still in use ");
             throw new ServiceException(ServiceException::CAUSE_IN_USE);
         }
