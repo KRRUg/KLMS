@@ -11,16 +11,20 @@
         </div>
     </div>
     <div class="row">
-        <div class="border overflow-auto h-100">
+        <div class="border overflow-auto h-100 w-100">
             <div class="row m-2">
-            {% for i in images %}
-                <div class="card d-block mr-2 mb-2" style="width: 250px">
-                    <img class="card-img-top border-bottom p-1" style="width: 100%; height: 200px; object-fit: contain;" src="{{ vich_uploader_asset(i, 'imageFile') }}"  alt="{{ i.image.name }}">
-                    <div class="card-body p-2 text-muted text-truncate">
-                        <span title="{{ i.image.name }}">{{ i.image.name }}</span>
-                    </div>
-                </div>
-            {% endfor %}
+                {% if images is empty %}
+                    <p class="text-muted text-center w-100">Keine Bilder hochgeladen.</p>
+                {% else %}
+                    {% for i in images %}
+                        <div class="card d-block mr-2 mb-2" style="width: 250px">
+                            <img class="card-img-top border-bottom p-1" style="width: 100%; height: 200px; object-fit: contain;" src="{{ vich_uploader_asset(i, 'imageFile') }}"  alt="{{ i.image.name }}">
+                            <div class="card-body p-2 text-muted text-truncate text-center">
+                                <span title="{{ i.image.name }}">{{ i.name }}</span>
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% endif %}
             </div>
         </div>
     </div>

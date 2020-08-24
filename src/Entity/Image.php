@@ -34,6 +34,11 @@ class Image
     private $created;
 
     /**
+     * @ORM\Column(type="string", nullable=true)
+     */
+    private $name;
+
+    /**
      * @Vich\UploadableField(mapping="images", fileNameProperty="image.name", size="image.size", mimeType="image.mimeType", originalName="image.originalName", dimensions="image.dimensions")
      *
      * @var File
@@ -60,6 +65,26 @@ class Image
     public function getId()
     {
         return $this->id;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getName()
+    {
+        if (empty($this->name))
+            return $this->getImage()->getOriginalName();
+        return $this->name;
+    }
+
+    /**
+     * @param mixed $name
+     * @return Image
+     */
+    public function setName($name)
+    {
+        $this->name = $name;
+        return $this;
     }
 
     /**

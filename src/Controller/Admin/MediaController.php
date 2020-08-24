@@ -47,7 +47,7 @@ class MediaController extends BaseController
             $result = array_map(function (Image $image) {
                 return [
                     // title and value required by tinyMCE image list
-                    'title' => $image->getImage()->getOriginalName(),
+                    'title' => $image->getName(),
                     'value' => $this->generateUrl('media', ['id' => $image->getId()]),
 
                     // additional information
