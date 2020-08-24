@@ -23,13 +23,18 @@ class NewsRepository extends ServiceEntityRepository
      * @return News[] Returns an array of News objects that are active
      * @throws \Exception
      */
-    public function findActive()
+    public function findActive($offset = null, $count = null)
     {
-        return $this->createQueryBuilder('n')
-            ->andWhere('n.publishedTo >= :now')
-            ->andWhere('n.publishedFrom <= :now')
+        $p = $this->createQueryBuilder('n')
+            ->andWhere('(n.publishedTo is null) or (n.publishedTo >= :now)')
+            ->andWhere('(n.publishedFrom is null) or (n.publishedFrom <= :now)')
             ->setParameter('now', new \DateTime('now'))
-            ->orderBy('n.publishedFrom')
+            ->orderBy('n.created');
+        if (is_int($offset))
+            $p->setFirstResult($offset);
+        if (is_int($count))
+            $p->setMaxResults($count);
+        return $p
             ->getQuery()
             ->getResult()
         ;

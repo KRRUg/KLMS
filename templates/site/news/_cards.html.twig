@@ -1,0 +1,5 @@
+{% for entry in news %}
+    <div class="col mb-5">
+        {% include 'site/components/cards/cardContent.html.twig' with {'content': entry, 'link': path('news', {'id' : entry.id})} %}
+    </div>
+{% endfor %}

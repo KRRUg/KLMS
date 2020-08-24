@@ -33,12 +33,12 @@ class NewsService
      */
     public function getAll() : array
     {
-        $allTheNews = $this->repo->findAll();
-        $ret = array();
-        foreach ($allTheNews as $news) {
-            $ret[$news->getId()] = $news;
-        }
-        return $ret;
+        return $this->repo->findActive();
+    }
+
+    public function get(int $from = 0, int $to = 5)
+    {
+        return $this->repo->findActive($from, $to);
     }
 
     public function delete(News $news)
@@ -54,5 +54,4 @@ class NewsService
         $this->em->persist($news);
         $this->em->flush();
     }
-
 }
