@@ -13,9 +13,9 @@ var tinymce = require('tinymce/tinymce');
 //);
 
 require('tinymce/themes/silver');
-
 require('tinymce/plugins/paste');
 require('tinymce/plugins/link');
+require('tinymce/plugins/image');
 
 function test() {
     console.log("Admin module loaded!");
@@ -30,6 +30,9 @@ $( document ).ready(function() {
 function initTinyMCE() {
     tinymce.init({
         selector: 'textarea.wysiwyg',
-        theme: 'silver'
+        theme: 'silver',
+        height : '640',
+        plugins: 'image',
+        image_list: '/admin/image.json',
     });
 }
