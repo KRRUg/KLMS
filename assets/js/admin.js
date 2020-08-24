@@ -33,6 +33,6 @@ function initTinyMCE() {
         theme: 'silver',
         height : '640',
         plugins: 'image',
-        image_list: '/admin/image.json',
+        image_list: '/admin/media.json',
     });
 }

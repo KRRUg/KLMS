@@ -18,4 +18,20 @@ class ImageRepository extends ServiceEntityRepository
     {
         parent::__construct($registry, Image::class);
     }
+
+    /**
+     * @param $idOrName
+     * @return Image|null
+     */
+    public function findByNameAndId($idOrName)
+    {
+        if (empty($idOrName))
+            return null;
+        if (is_numeric($idOrName))
+            return $this->find(intval($idOrName));
+        $img = $this->findOneBy(['image.originalName' => $idOrName]);
+        if (!empty($img))
+            return $img;
+        return $this->findOneBy(['name' => $idOrName]);
+    }
 }

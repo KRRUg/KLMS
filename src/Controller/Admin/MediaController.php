@@ -7,13 +7,13 @@ use App\Controller\BaseController;
 use App\Entity\Image;
 use App\Form\ImageType;
 use App\Service\ImageService;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\Routing\Router;
 use Vich\UploaderBundle\Templating\Helper\UploaderHelper;
 
 /**
- * @Route("/image", name="images")
+ * @Route("/media", name="media")
  */
 class MediaController extends BaseController
 {
@@ -25,11 +25,27 @@ class MediaController extends BaseController
     public function __construct(ImageService $imageService, UploaderHelper $uploaderHelper)
     {
         $this->imageService = $imageService;
-        $this->uploaderHelper = $uploaderHelper;
+    }
+
+    private function image2json(Image $image)
+    {
+        return [
+            // title and value required by tinyMCE image list
+            'id' => $image->getId(),
+            'title' => $image->getName(),
+            'value' => $this->generateUrl('media', ['name' => $image->getName()]),
+
+            // additional information
+            'dimensions' => $image->getImage()->getDimensions(),
+            'mimeType' => $image->getImage()->getMimeType(),
+            'size' => $image->getImage()->getSize(),
+            'created' => $image->getCreated(),
+            'updated' => $image->getLastModified(),
+            'author' => '', // TODO add author (when user caching is implemented)
+        ];
     }
 
     /**
-     * @Route("", name="")
      * @Route(".{_format}", name="", defaults={"_format"="html"})
      */
     public function index(Request $request)
@@ -40,24 +56,12 @@ class MediaController extends BaseController
         $form_upload->handleRequest($request);
         if ($form_upload->isSubmitted() && $form_upload->isValid()) {
             $this->imageService->save($form_upload->getData());
-            return $this->redirectToRoute("admin_images");
+            return $this->redirectToRoute('admin_media');
         }
 
         if ($request->getRequestFormat() === 'json') {
             $result = array_map(function (Image $image) {
-                return [
-                    // title and value required by tinyMCE image list
-                    'title' => $image->getName(),
-                    'value' => $this->generateUrl('media', ['id' => $image->getId()]),
-
-                    // additional information
-                    'dimensions' => $image->getImage()->getDimensions(),
-                    'mimeType' => $image->getImage()->getMimeType(),
-                    'size' => $image->getImage()->getSize(),
-                    'created' => $image->getCreated(),
-                    'updated' => $image->getLastModified(),
-                    'author' => '', // TODO add author (when user caching is implemented)
-                ];
+                return $this->image2json($image);
             }, $images);
             return $this->apiResponse($result);
         } else {
@@ -65,6 +69,29 @@ class MediaController extends BaseController
                 'images' => $images,
                 'form_upload' => $form_upload->createView(),
             ]);
+        }
+    }
+
+    /**
+     * @Route("/delete/{id}", name="_delete")
+     * @ParamConverter()
+     */
+    public function delete(Image $image)
+    {
+        $this->imageService->delete($image);
+        return $this->redirectToRoute('admin_media');
+    }
+
+    /**
+     * @Route("/detail/{id}.{_format}", name="_detail", defaults={"_format"="html"})
+     * @ParamConverter()
+     */
+    public function detail(Request $request, Image $image)
+    {
+        if ($request->getRequestFormat() === 'json') {
+            return $this->apiResponse($this->image2json($image));
+        } else {
+            // TODO implement?
         }
     }
 }

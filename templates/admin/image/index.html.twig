@@ -3,6 +3,15 @@
 {% block title %}KLMS - Admin{% endblock %}
 {% block siteheading %}<i class="far fa-file-image"></i> Media{% endblock %}
 {% block main %}
+    <style>
+        .to-show {
+            display: none;
+        }
+        .to-hover:hover > .to-show {
+            display: block;
+        }
+    </style>
+
     <div class="row mb-4">
         <div class="col-12">
             <button type="button" class="btn btn-success" data-toggle="modal" data-target="#uploadModal">
@@ -17,8 +26,12 @@
                     <p class="text-muted text-center w-100">Keine Bilder hochgeladen.</p>
                 {% else %}
                     {% for i in images %}
-                        <div class="card d-block mr-2 mb-2" style="width: 250px">
+                        <div class="card d-block mr-2 mb-2 to-hover" style="width: 250px">
                             <img class="card-img-top border-bottom p-1" style="width: 100%; height: 200px; object-fit: contain;" src="{{ vich_uploader_asset(i, 'imageFile') }}"  alt="{{ i.image.name }}">
+                            <div class="card-img-overlay text-right w-100 to-show">
+                                <a class="ml-1" href="{{ path('admin_media_delete', {'id' : i.id}) }}" onclick="return confirm('Bild wirklich löschen?')"><i class="fas fa-trash-alt"></i></a>
+                                <a class="ml-1" href="{{ path('media', {'name' : i.id} ) }}"><i class="fas fa-eye"></i></a>
+                            </div>
                             <div class="card-body p-2 text-muted text-truncate text-center">
                                 <span title="{{ i.image.name }}">{{ i.name }}</span>
                             </div>
@@ -29,27 +42,6 @@
         </div>
     </div>
 
-    <div class="modal fade" id="uploadModal" tabindex="-1" role="dialog">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                {{ form_start(form_upload) }}
-                <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLabel">Upload</h5>
-                </div>
-                <div class="modal-body">
-                    {% if not form_upload.vars.valid %}
-                        <div class="alert alert-error">
-                            {{ form_errors(form_upload) }}
-                        </div>
-                    {% endif %}
-                    {{ form_row(form_upload) }}
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn-secondary btn" data-dismiss="modal">Abbrechen</button>
-                    <button type="submit" id="upload" class="btn-primary btn">Upload</button>
-                </div>
-                {{ form_end(form_upload) }}
-            </div>
-        </div>
-    </div>
+    {% include 'admin/image/_new.html.twig' with {'modal_name': 'uploadModal'} %}
+
 {% endblock %}

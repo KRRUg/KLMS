@@ -1,0 +1,23 @@
+<div class="modal fade" id="{{ modal_name | default('upload_modal') }}" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            {{ form_start(form_upload) }}
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Upload</h5>
+            </div>
+            <div class="modal-body">
+                {% if not form_upload.vars.valid %}
+                    <div class="alert alert-error">
+                        {{ form_errors(form_upload) }}
+                    </div>
+                {% endif %}
+                {{ form_row(form_upload) }}
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn-secondary btn" data-dismiss="modal">Abbrechen</button>
+                <button type="submit" id="upload" class="btn-primary btn">Upload</button>
+            </div>
+            {{ form_end(form_upload) }}
+        </div>
+    </div>
+</div>
