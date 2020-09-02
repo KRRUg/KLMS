@@ -5,11 +5,14 @@ namespace App\DataFixtures;
 use App\Entity\News;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Common\Persistence\ObjectManager;
+use joshtronic\LoremIpsum;
 
 class NewsFixtures extends Fixture
 {
     public function load(ObjectManager $manager)
     {
+        $lipsum = new LoremIpsum();
+
         // news[1] must be shown before news[0]
         $news[0] = new News();
         $news[0]->setTitle("Wichtig");
@@ -22,9 +25,13 @@ class NewsFixtures extends Fixture
         $news[1]->setContent("Im Catering gibts Schnitzel!");
         $news[1]->setCreated(new \DateTime('2020-07-19 21:15'));
 
+        $news[2] = new News();
+        $news[2]->setTitle($lipsum->words(2));
+        $news[2]->setContent($lipsum->paragraphs(5));
+
         $dt = new \DateTime();
         $interval = new \DateInterval('P1D');
-        for ($i = 2; $i < 10; $i = $i + 1) {
+        for ($i = 3; $i < 10; $i = $i + 1) {
             $news[$i] = new News();
             $news[$i]->setTitle("News " . $i);
             $news[$i]->setContent("Content of news " . $i);

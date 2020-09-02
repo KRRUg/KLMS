@@ -114,6 +114,9 @@
     "jms/metadata": {
         "version": "2.1.0"
     },
+    "joshtronic/php-loremipsum": {
+        "version": "1.0.6"
+    },
     "laminas/laminas-code": {
         "version": "3.4.1"
     },
@@ -513,6 +516,9 @@
     },
     "twig/extra-bundle": {
         "version": "v3.0.3"
+    },
+    "twig/string-extra": {
+        "version": "v3.0.5"
     },
     "twig/twig": {
         "version": "v3.0.3"
