@@ -17,6 +17,8 @@ class NewsController extends AbstractController
 {
     private $newsService;
 
+    private const PRELOAD_NEWS_CNT = 6;
+
     /**
      * NewsController constructor.
      * @param $newsService
@@ -31,9 +33,11 @@ class NewsController extends AbstractController
      */
     public function index(NewsRepository $repository)
     {
-        $news = $this->newsService->getAll();
+        $news = $this->newsService->get(0, NewsController::PRELOAD_NEWS_CNT);
+        $news_cnt = $this->newsService->count();
         return $this->render('site/news/index.html.twig', [
             'news' => $news,
+            'news_total_cnt' => $news_cnt,
         ]);
     }
 
@@ -42,8 +46,8 @@ class NewsController extends AbstractController
      */
     public function cards(Request $request)
     {
-        $offset = $request->get('offset', 0);
-        $count = $request->get('count', 6);
+        $offset = $request->get('offset', NewsController::PRELOAD_NEWS_CNT);
+        $count = $request->get('count', 4);
 
         $news = $this->newsService->get($offset, $count);
         return $this->render('site/news/_cards.html.twig', [
@@ -52,7 +56,7 @@ class NewsController extends AbstractController
     }
 
     /**
-     * @Route("/news/{id}", name="news")
+     * @Route("/{id}", name="_detail")
      * @ParamConverter()
      */
     public function byId(News $news)

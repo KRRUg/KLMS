@@ -7,10 +7,10 @@
     <div class="card-body">
         <h2 class="card-title"><a href="{{ link }}">{{ content.title }}</a></h2>
         <p class="card-subtitle mb-3 text-muted">
-            <small>gepostet von KRRU, <i class="fas fa-clock"></i> vor {% if content.publishedFrom is null %}{{ content.created |  ago }}{% else %}{{ content.publishedFrom |  ago }}{% endif %} </small>
+            <small>gepostet von KRRU, <i class="fas fa-clock"></i> {% if content.publishedFrom is null %}{{ content.created | ago }}{% else %}{{ content.publishedFrom | ago }}{% endif %} </small>
         </p>
         <p class="card-text">
-            {{ content.content|raw }}
+            {{ content.content | raw }}
         </p>
         <a href="{{ link }}" class="card-link"> weiterlesen...</a>
     </div>

@@ -10,28 +10,32 @@ use Twig\TwigFilter;
  *
  * @author m8sch
  */
-class AgoFilterExtension extends AbstractExtension {
-
-    public function getFilters() {
+class AgoFilterExtension extends AbstractExtension
+{
+    public function getFilters()
+    {
         return [
             new TwigFilter('ago', [$this, 'filterAgo']),
         ];
     }
 
-    public function filterAgo($date) {
-        $periods = array("Sek.", "Min.", "Std.", "Tag(e)", "Woche(n)", "Monat(e)", "Jahr(e)");
+    public function filterAgo($date)
+    {
+        $periods_s = array("Sek", "Min", "Std", "Tag", "Woche", "Monat", "Jahr");
+        $periods_p = array("Sek", "Min", "Std", "Tage", "Wochen", "Monate", "Jahre");
         $lengths = array("60", "60", "24", "7", "4.33", "12");
 
         $now = time();
         $difference = $now - $date->getTimestamp();
+
+        if ($difference < 90)
+            return "jetzt";
 
         for($j = 0; $difference >= $lengths[$j] && $j < count($lengths)-1; $j++) {
             $difference /= $lengths[$j];
         }
         
         $difference = round($difference);
-        
-        return "$difference $periods[$j]";
+        return "vor " . $difference . " " . ($difference == 1 ? $periods_s[$j] : $periods_p[$j]);
     }
-
 }

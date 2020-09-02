@@ -36,9 +36,14 @@ class NewsService
         return $this->repo->findActive();
     }
 
-    public function get(int $from = 0, int $to = 5)
+    public function get(int $from = 0, int $to = 6)
     {
         return $this->repo->findActive($from, $to);
+    }
+
+    public function count() : int
+    {
+        return $this->repo->countActive();
     }
 
     public function delete(News $news)
