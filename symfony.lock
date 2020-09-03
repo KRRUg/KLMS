@@ -108,6 +108,9 @@
     "egulias/email-validator": {
         "version": "2.1.17"
     },
+    "imagine/imagine": {
+        "version": "1.2.3"
+    },
     "jdorn/sql-formatter": {
         "version": "v1.2.17"
     },
@@ -125,6 +128,19 @@
     },
     "laminas/laminas-zendframework-bridge": {
         "version": "1.0.1"
+    },
+    "liip/imagine-bundle": {
+        "version": "1.8",
+        "recipe": {
+            "repo": "github.com/symfony/recipes-contrib",
+            "branch": "master",
+            "version": "1.8",
+            "ref": "5a5bdc2d0e2533ed6935d5ae562f2b318a8fc1ee"
+        },
+        "files": [
+            "config/packages/liip_imagine.yaml",
+            "config/routes/liip_imagine.yaml"
+        ]
     },
     "monolog/monolog": {
         "version": "1.25.3"
@@ -377,6 +393,9 @@
     "symfony/polyfill-php73": {
         "version": "v1.14.0"
     },
+    "symfony/process": {
+        "version": "v4.4.13"
+    },
     "symfony/profiler-pack": {
         "version": "v1.0.4"
     },
@@ -435,6 +454,9 @@
     },
     "symfony/string": {
         "version": "v5.0.5"
+    },
+    "symfony/templating": {
+        "version": "v4.4.13"
     },
     "symfony/translation-contracts": {
         "version": "v2.0.1"

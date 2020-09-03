@@ -1,8 +1,8 @@
 <div class="card h-100">
     {% if content.image.name is null %}
-        <img src="{{ asset('build/images/test_content_pic.jpg') }}" class="card-img-top" alt="Bild des Inhaltes">
+        <img src="{{ asset('build/images/test_content_pic.jpg') | imagine_filter('news_header') }}" class="card-img-top" alt="Bild des Inhaltes">
     {% else %}
-        <img src="{{ vich_uploader_asset(content, 'imageFile') }}" class="card-img-top"  alt="{{ content.title }}" />
+        <img src="{{ vich_uploader_asset(content, 'imageFile') | imagine_filter('news_header') }}" class="card-img-top"  alt="{{ content.title }}" />
     {% endif %}
     <div class="card-body">
         <h2 class="card-title"><a href="{{ link }}">{{ content.title }}</a></h2>
