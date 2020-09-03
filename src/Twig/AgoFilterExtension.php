@@ -22,7 +22,7 @@ class AgoFilterExtension extends AbstractExtension
     public function filterAgo($date)
     {
         $periods_s = array("Sek", "Min", "Std", "Tag", "Woche", "Monat", "Jahr");
-        $periods_p = array("Sek", "Min", "Std", "Tage", "Wochen", "Monate", "Jahre");
+        $periods_p = array("Sek", "Min", "Std", "Tagen", "Wochen", "Monaten", "Jahren");
         $lengths = array("60", "60", "24", "7", "4.33", "12");
 
         $now = time();

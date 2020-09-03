@@ -10,11 +10,14 @@ use App\Entity\NavigationNodeRoot;
 use App\Entity\TextBlock;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Common\Persistence\ObjectManager;
+use joshtronic\LoremIpsum;
 
 class ContentFixture extends Fixture
 {
     public function load(ObjectManager $manager)
     {
+        $lipsum = new LoremIpsum();
+
         // Generate Content
 
         $content[0] = new Content();
@@ -103,16 +106,10 @@ class ContentFixture extends Fixture
 
         // Generate Textblocks
         $tb_about = new TextBlock("ABOUT_US");
-        $tb_about->setText('Lorem ipsum dolor sit amet, consetetur sadipscing elitr, 
-        sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat,
-        sed diam voluptua. At vero eos et accusam et justo duo dolores');
+        $tb_about->setText($lipsum->paragraphs());
 
         $tb_agb = new TextBlock("AGB");
-        $tb_agb->setText('<h2>Lorem</h2><p>Lorem ipsum dolor sit amet, consetetur sadipscing elitr, 
-        sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat,
-        sed diam voluptua. At vero eos et accusam et justo duo dolores</p><h2>Ipsum</h2><p>At vero eos et accusam et 
-        justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit 
-        amet.</p>');
+        $tb_agb->setText("<h2>{$lipsum->words()}</h2><p>{$lipsum->paragraphs(2)}</p><h2>{$lipsum->words(2)}</h2><p>{$lipsum->paragraphs(3)}}</p>");
 
         $manager->persist($tb_about);
         $manager->persist($tb_agb);
