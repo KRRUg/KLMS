@@ -7,6 +7,7 @@ use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Common\Persistence\ManagerRegistry;
 use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\ORM\NoResultException;
+use Doctrine\ORM\QueryBuilder;
 use Psr\Log\LoggerInterface;
 
 /**
@@ -25,36 +26,59 @@ class NewsRepository extends ServiceEntityRepository
         $this->logger = $logger;
     }
 
-    private function getActiveQuery()
+    private function createQuery()
     {
-        return $this->createQueryBuilder('n')
-            ->andWhere('(n.publishedTo is null) or (n.publishedTo >= :now)')
-            ->andWhere('(n.publishedFrom is null) or (n.publishedFrom <= :now)')
-            ->setParameter('now', new \DateTime('now'));
+        return $this->createQueryBuilder('n');
+    }
+
+    private function addActiveFilter(QueryBuilder $q)
+    {
+        $q->andWhere('(n.publishedTo is null) or (n.publishedTo >= :now)')
+          ->andWhere('(n.publishedFrom is null) or (n.publishedFrom <= :now)')
+          ->setParameter('now', new \DateTime('now'));
+    }
+
+    private function addOrder(QueryBuilder $q)
+    {
+        $q->addSelect('CASE WHEN n.publishedFrom IS NULL THEN n.created ELSE n.publishedFrom END AS HIDDEN sort_order')
+          ->orderBy('sort_order', 'DESC');
+    }
+
+    /**
+     * @return News[] Returns an array of News objects
+     */
+    public function findAllOrdered()
+    {
+        $q = $this->createQuery();
+        $this->addOrder($q);
+        return $q
+            ->getQuery()
+            ->getResult();
     }
 
     /**
      * @return News[] Returns an array of News objects that are active
      */
-    public function findActive($offset = null, $count = null)
+    public function findActiveOrdered($offset = null, $count = null)
     {
-        $p = $this->getActiveQuery()
-            ->addSelect('CASE WHEN n.publishedFrom IS NULL THEN n.created ELSE n.publishedFrom END AS HIDDEN sort_order')
-            ->orderBy('sort_order', 'DESC');
+        $q = $this->createQuery();
+        $this->addActiveFilter($q);
+        $this->addOrder($q);
         if (is_int($offset))
-            $p->setFirstResult($offset);
+            $q->setFirstResult($offset);
         if (is_int($count))
-            $p->setMaxResults($count);
-        return $p
+            $q->setMaxResults($count);
+        return $q
             ->getQuery()
-            ->getResult()
-        ;
+            ->getResult();
     }
 
     public function countActive() : int
     {
         try {
-            return $this->getActiveQuery()
+            $q = $this->createQuery();
+            $this->addActiveFilter($q);
+            return $q
                 ->select('count(n.id)')
                 ->getQuery()
                 ->getSingleScalarResult();

@@ -201,6 +201,15 @@ class News
             && (empty($this->getPublishedTo()) || $this->getPublishedTo() >= $now);
     }
 
+    public function activeSince() : \DateTimeInterface
+    {
+        if (empty($this->publishedFrom)) {
+            return $this->getCreated();
+        } else {
+            return $this->getPublishedFrom();
+        }
+    }
+
     /**
      * @ORM\PrePersist()
      * @ORM\PreUpdate()

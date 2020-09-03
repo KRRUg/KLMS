@@ -33,12 +33,12 @@ class NewsService
      */
     public function getAll() : array
     {
-        return $this->repo->findActive();
+        return $this->repo->findAllOrdered();
     }
 
     public function get(int $from = 0, int $to = 6)
     {
-        return $this->repo->findActive($from, $to);
+        return $this->repo->findActiveOrdered($from, $to);
     }
 
     public function count() : int
