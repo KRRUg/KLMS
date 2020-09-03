@@ -4,11 +4,13 @@
 
 {% block main %}
     <div class="container mb-5">
+        <img class="w-100"
         {% if content.image.name is null %}
-            <img src="{{ asset('build/images/test_content_pic.jpg') }}" class="card-img-top" alt="Bild des Inhaltes">
+            src="{{ asset('build/images/test_content_pic.jpg') | imagine_filter('news_header') }}"
         {% else %}
-            <img src="{{ vich_uploader_asset(content, 'imageFile') }}" class="card-img-top"  alt="{{ content.title }}" />
+            src="{{ vich_uploader_asset(content, 'imageFile') | imagine_filter('news_header') }}"
         {% endif %}
+        />
         <h1 class="mb-4">{{ content.title }}</h1>
         <p class="card-text">
             {{ content.content|raw }}

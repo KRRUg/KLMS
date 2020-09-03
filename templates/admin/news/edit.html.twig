@@ -35,6 +35,11 @@
                     {{ form_row(form.publishedTo) }}
                 </div>
             </div>
+            <div class="card">
+                <div class="card-body">
+                    {{ form_row(form.imageFile) }}
+                </div>
+            </div>
         </div>
     </div>
 
@@ -43,12 +48,12 @@
     <hr>
     {{ form_rest(form) }}
     <div class="float-left">
-        <a class="btn btn-secondary" href="{{ path('admin_news') }}">Abbrechen</a>
+        {% if id is defined %}
+            <a class="btn btn-secondary" href="{{ path('admin_news_delete', {'id' : id}) }}"><i class="fas fa-trash-alt"></i> Löschen</a>
+        {% endif %}
     </div>
     <div class="float-right">
-        {% if id is defined %}
-        <a class="btn btn-secondary" href="{{ path('admin_news_delete', {'id' : id}) }}"><i class="fas fa-trash-alt"></i> Löschen</a>
-        {% endif %}
+        <a class="btn btn-secondary" href="{{ path('admin_news') }}">Abbrechen</a>
         <button type="submit" id="news_save" class="btn-primary btn">Speichern</button>
     </div>
     {{ form_end(form) }}

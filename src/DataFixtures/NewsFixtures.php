@@ -29,9 +29,15 @@ class NewsFixtures extends Fixture
         $news[2]->setTitle($lipsum->words(2));
         $news[2]->setContent($lipsum->paragraphs(5));
 
+        $news[3] = new News();
+        $news[3]->setTitle("Outdated News");
+        $news[3]->setContent("");
+        $news[3]->setPublishedFrom(new \DateTime('1990-01-20 17:15'));
+        $news[3]->setPublishedTo(new \DateTime('1991-07-18 11:13'));
+
         $dt = new \DateTime();
         $interval = new \DateInterval('P1D');
-        for ($i = 3; $i < 10; $i = $i + 1) {
+        for ($i = 4; $i < 12; $i = $i + 1) {
             $news[$i] = new News();
             $news[$i]->setTitle("News " . $i);
             $news[$i]->setContent("Content of news " . $i);
