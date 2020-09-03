@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use App\Helper\AuthorStoringEntity;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\HttpFoundation\File\File;
 use Vich\UploaderBundle\Entity\File as EmbeddedFile;
@@ -15,7 +16,7 @@ use Vich\UploaderBundle\Mapping\Annotation as Vich;
  * @ORM\HasLifecycleCallbacks
  * @Vich\Uploadable
  */
-class News
+class News implements AuthorStoringEntity
 {
     /**
      * @ORM\Id()
@@ -35,12 +36,17 @@ class News
     private $content;
 
     /**
-     * @ORM\Column(type="datetime")
+     * @ORM\Column(type="guid", nullable=false)
+     */
+    private $authorId;
+
+    /**
+     * @ORM\Column(type="datetime", nullable=false)
      */
     private $last_modified;
 
     /**
-     * @ORM\Column(type="datetime")
+     * @ORM\Column(type="datetime", nullable=false)
      */
     private $created;
 
@@ -173,6 +179,18 @@ class News
     public function setPublishedTo(?\DateTimeInterface $publishedTo): self
     {
         $this->publishedTo = $publishedTo;
+
+        return $this;
+    }
+
+    public function getAuthorId()
+    {
+        return $this->authorId;
+    }
+
+    public function setAuthorId($authorId) : self
+    {
+        $this->authorId = $authorId;
 
         return $this;
     }

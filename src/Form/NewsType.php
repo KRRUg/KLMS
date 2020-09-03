@@ -3,6 +3,7 @@
 namespace App\Form;
 
 use App\Entity\News;
+use App\Helper\AuthorInsertSubscriber;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
@@ -13,6 +14,13 @@ use Vich\UploaderBundle\Form\Type\VichImageType;
 
 class NewsType extends AbstractType
 {
+    private $userInsertSubscriber;
+
+    public function __construct(AuthorInsertSubscriber $userInsertSubscriber)
+    {
+        $this->userInsertSubscriber = $userInsertSubscriber;
+    }
+
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
@@ -46,6 +54,7 @@ class NewsType extends AbstractType
             'imagine_pattern' => 'news_header',
             'label' => 'Bild'
         ]);
+        $builder->addEventSubscriber($this->userInsertSubscriber);
     }
 
     public function configureOptions(OptionsResolver $resolver)

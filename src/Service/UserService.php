@@ -221,9 +221,21 @@ class UserService
      * @param array $uuids Ids to get user for.
      * @return UserInfo[] Array of user infos.
      */
-    public function getUsersInfoByUuid(array $uuids) : array
+    public function getUserInfosByUuids(array $uuids) : array
     {
         // TODO make a cache lookup here
         return $this->getUsersByUuid($uuids);
+    }
+
+    /**
+     * @param $uuid Id to get user info for.
+     * @return UserInfo|null The requested user info
+     */
+    public function getUserInfoByUuid($uuid) : ?UserInfo
+    {
+        $users = $this->getUserInfosByUuids([$uuid]);
+        if (empty($users))
+            return null;
+        return $users[0];
     }
 }
