@@ -45,11 +45,6 @@ class News
     private $created;
 
     /**
-     * @ORM\Column(type="text", nullable=true)
-     */
-    private $description;
-
-    /**
      * @ORM\Column(type="datetime", nullable=true)
      */
     private $publishedFrom;
@@ -156,18 +151,6 @@ class News
     public function getImage(): ?EmbeddedFile
     {
         return $this->image;
-    }
-
-    public function getDescription(): ?string
-    {
-        return $this->description;
-    }
-
-    public function setDescription(?string $description): self
-    {
-        $this->description = $description;
-
-        return $this;
     }
 
     public function getPublishedFrom(): ?\DateTimeInterface
