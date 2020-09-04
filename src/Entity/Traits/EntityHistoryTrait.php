@@ -3,6 +3,7 @@
 namespace App\Entity\Traits;
 
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * This trait adds all history related fields to an entity.
@@ -17,21 +18,26 @@ trait EntityHistoryTrait
 {
     /**
      * @ORM\Column(type="guid", nullable=false)
+     * @Assert\Uuid(strict=false)
      */
     private $authorId;
 
     /**
      * @ORM\Column(type="guid", nullable=false)
+     * @Assert\Uuid(strict=false)
      */
     private $modifierId;
 
     /**
      * @ORM\Column(type="datetime", nullable=false)
+     * @Assert\DateTime
+     * @Assert\GreaterThanOrEqual(propertyPath="created")
      */
     private $last_modified;
 
     /**
      * @ORM\Column(type="datetime", nullable=false)
+     * @Assert\DateTime
      */
     private $created;
 

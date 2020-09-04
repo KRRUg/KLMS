@@ -5,10 +5,9 @@ namespace App\Entity;
 use App\Helper\HistoryAwareEntity;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\HttpFoundation\File\File;
+use Symfony\Component\Validator\Constraints as Assert;
 use Vich\UploaderBundle\Entity\File as EmbeddedFile;
 use Vich\UploaderBundle\Mapping\Annotation as Vich;
-
-// TODO assert that published from <= published to
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\NewsRepository")
@@ -36,11 +35,14 @@ class News implements HistoryAwareEntity
 
     /**
      * @ORM\Column(type="datetime", nullable=true)
+     * @Assert\DateTime()
      */
     private $publishedFrom;
 
     /**
      * @ORM\Column(type="datetime", nullable=true)
+     * @Assert\DateTime()
+     * @Assert\GreaterThan(propertyPath="publishedFrom")
      */
     private $publishedTo;
 
