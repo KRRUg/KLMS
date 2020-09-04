@@ -41,6 +41,11 @@ class News implements AuthorStoringEntity
     private $authorId;
 
     /**
+     * @ORM\Column(type="guid", nullable=false)
+     */
+    private $modifierId;
+
+    /**
      * @ORM\Column(type="datetime", nullable=false)
      */
     private $last_modified;
@@ -104,6 +109,30 @@ class News implements AuthorStoringEntity
     public function setContent(string $content): self
     {
         $this->content = $content;
+
+        return $this;
+    }
+
+    public function getAuthorId()
+    {
+        return $this->authorId;
+    }
+
+    public function setAuthorId($authorId) : self
+    {
+        $this->authorId = $authorId;
+
+        return $this;
+    }
+
+    public function getModifierId()
+    {
+        return $this->modifierId;
+    }
+
+    public function setModifierId($modifierId)
+    {
+        $this->modifierId = $modifierId;
 
         return $this;
     }
@@ -179,18 +208,6 @@ class News implements AuthorStoringEntity
     public function setPublishedTo(?\DateTimeInterface $publishedTo): self
     {
         $this->publishedTo = $publishedTo;
-
-        return $this;
-    }
-
-    public function getAuthorId()
-    {
-        return $this->authorId;
-    }
-
-    public function setAuthorId($authorId) : self
-    {
-        $this->authorId = $authorId;
 
         return $this;
     }

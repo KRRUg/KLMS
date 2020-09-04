@@ -34,9 +34,11 @@ class AuthorInsertSubscriber implements EventSubscriberInterface
             return;
         }
 
+        $uuid = $user->getUuid();
         if (empty($data->getAuthorId())) {
-            $data->setAuthorId($user->getUuid());
-            $event->setData($data);
+            $data->setAuthorId($uuid);
         }
+        $data->setModifierId($uuid);
+        $event->setData($data);
     }
 }

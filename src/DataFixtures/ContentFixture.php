@@ -11,6 +11,7 @@ use App\Entity\TextBlock;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Common\Persistence\ObjectManager;
 use joshtronic\LoremIpsum;
+use Ramsey\Uuid\Uuid;
 
 class ContentFixture extends Fixture
 {
@@ -23,21 +24,30 @@ class ContentFixture extends Fixture
         $content[0] = new Content();
         $content[0]->setTitle("Lan is");
         $content[0]->setContent("Lan is wieder einmal.");
+        $content[0]->setAuthorId(Uuid::fromInteger(strval(14)));
+        $content[0]->setModifierId(Uuid::fromInteger(strval(14)));
         $content[1] = new Content();
         $content[1]->setTitle("FAQ");
         $content[1]->setContent("Wer ist dieser LAN?");
         $content[1]->setAlias("info");
+        $content[1]->setAuthorId(Uuid::fromInteger(strval(14)));
+        $content[1]->setModifierId(Uuid::fromInteger(strval(14)));
         $content[2] = new Content();
         $content[2]->setTitle("Das Kulturzentrum");
         $content[2]->setDescription("Beschreibung des Kulturzentrum");
         $content[2]->setContent("Wir haben ein paar Sessel gefunden.");
+        $content[2]->setAuthorId(Uuid::fromInteger(strval(14)));
+        $content[2]->setModifierId(Uuid::fromInteger(strval(14)));
         $content[3] = new Content();
         $content[3]->setTitle("Catering");
         $content[3]->setContent("Es gibt was zu essen");
+        $content[3]->setAuthorId(Uuid::fromInteger(strval(14)));
+        $content[3]->setModifierId(Uuid::fromInteger(strval(14)));
         $content[4] = new Content();
         $content[4]->setTitle("Netzerk und Internet");
         $content[4]->setContent("Haben wir auch.");
-
+        $content[4]->setAuthorId(Uuid::fromInteger(strval(14)));
+        $content[4]->setModifierId(Uuid::fromInteger(strval(14)));
 
         foreach ($content as $c) {
             $manager->persist($c);

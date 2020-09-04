@@ -21,17 +21,20 @@ class NewsFixtures extends Fixture
         $news[0]->setCreated(new \DateTime('2020-07-18 05:05'));
         $news[0]->setPublishedFrom(new \DateTime('2020-07-21 10:00'));
         $news[0]->setAuthorId(Uuid::fromInteger(strval(14)));
+        $news[0]->setModifierId(Uuid::fromInteger(strval(14)));
 
         $news[1] = new News();
         $news[1]->setTitle("Schnitzel");
         $news[1]->setContent("<p>Im Catering gibts Schnitzel!</p>");
         $news[1]->setCreated(new \DateTime('2020-07-19 21:15'));
         $news[1]->setAuthorId(Uuid::fromInteger(strval(14)));
+        $news[1]->setModifierId(Uuid::fromInteger(strval(14)));
 
         $news[2] = new News();
         $news[2]->setTitle($lipsum->words(2));
         $news[2]->setContent("<p>{$lipsum->paragraphs(3)}</p><p>{$lipsum->paragraphs(2)}</p>");
         $news[2]->setAuthorId(Uuid::fromInteger(strval(2)));
+        $news[2]->setModifierId(Uuid::fromInteger(strval(14)));
 
         $news[3] = new News();
         $news[3]->setTitle("Outdated News");
@@ -39,6 +42,7 @@ class NewsFixtures extends Fixture
         $news[3]->setPublishedFrom(new \DateTime('1990-01-20 17:15'));
         $news[3]->setPublishedTo(new \DateTime('1991-07-18 11:13'));
         $news[3]->setAuthorId(Uuid::fromInteger(strval(3)));
+        $news[3]->setModifierId(Uuid::fromInteger(strval(3)));
 
         $dt = new \DateTime();
         $interval = new \DateInterval('P1D');
@@ -47,6 +51,7 @@ class NewsFixtures extends Fixture
             $news[$i]->setTitle("News $i");
             $news[$i]->setContent("<p>Content of news $i</p>");
             $news[$i]->setAuthorId(Uuid::fromInteger(strval(1)));
+            $news[$i]->setModifierId(Uuid::fromInteger(strval(1)));
 
             $news[$i]->setCreated(clone $dt);
             $dt->sub($interval);

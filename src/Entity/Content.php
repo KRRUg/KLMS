@@ -3,14 +3,13 @@
 namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
-
-// TODO add created user and last modified by user
+use App\Helper\AuthorStoringEntity;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\ContentRepository")
  * @ORM\HasLifecycleCallbacks
  */
-class Content
+class Content implements AuthorStoringEntity
 {
     /**
      * @ORM\Id()
@@ -30,12 +29,22 @@ class Content
     private $content;
 
     /**
-     * @ORM\Column(type="datetime")
+     * @ORM\Column(type="guid", nullable=false)
+     */
+    private $authorId;
+
+    /**
+     * @ORM\Column(type="guid", nullable=false)
+     */
+    private $modifierId;
+
+    /**
+     * @ORM\Column(type="datetime", nullable=false)
      */
     private $last_modified;
 
     /**
-     * @ORM\Column(type="datetime")
+     * @ORM\Column(type="datetime", nullable=false)
      */
     private $created;
 
@@ -81,6 +90,28 @@ class Content
     {
         $this->content = $content;
 
+        return $this;
+    }
+
+    public function getAuthorId()
+    {
+        return $this->authorId;
+    }
+
+    public function setAuthorId($authorId): self
+    {
+        $this->authorId = $authorId;
+        return $this;
+    }
+
+    public function getModifierId()
+    {
+        return $this->modifierId;
+    }
+
+    public function setModifierId($modifierId): self
+    {
+        $this->modifierId = $modifierId;
         return $this;
     }
 
