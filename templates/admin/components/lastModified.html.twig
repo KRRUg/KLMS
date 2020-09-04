@@ -1,0 +1,13 @@
+{% if data is defined and data is not empty and data is instanceof('App\\Helper\\HistoryAwareEntity') %}
+<div class="card">
+    <div class="card-body">
+        {% set dateModified = data.getLastModified() | date('d.m.yy H:i') %}
+        {% set dateCreated = data.getCreated() | date('d.m.yy H:i') %}
+        <small><span class="text-muted">Erstellt von</span> {{ data.getAuthorId() | username }}, <i class="fas fa-clock"></i> {{ dateCreated }} </small>
+        {% if dateModified != dateCreated %}
+        <br/>
+        <small><span class="text-muted">Zuletzt bearbeitet von</span> {{ data.getModifierId() | username }}, <i class="fas fa-clock"></i> {{ dateModified }} </small>
+        {% endif %}
+    </div>
+</div>
+{% endif %}

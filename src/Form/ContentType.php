@@ -27,6 +27,7 @@ class ContentType extends AbstractType
             ])
             ->add('description', TextType::class, [
                 'label' => 'Beschreibung',
+                'required' => false,
             ])
             ->add('content', TextareaType::class, [
                 'label' => 'Inhalt',

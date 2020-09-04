@@ -3,13 +3,13 @@
 namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
-use App\Helper\AuthorStoringEntity;
+use App\Helper\HistoryAwareEntity;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\ContentRepository")
  * @ORM\HasLifecycleCallbacks
  */
-class Content implements AuthorStoringEntity
+class Content implements HistoryAwareEntity
 {
     /**
      * @ORM\Id()

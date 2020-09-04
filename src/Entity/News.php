@@ -2,13 +2,12 @@
 
 namespace App\Entity;
 
-use App\Helper\AuthorStoringEntity;
+use App\Helper\HistoryAwareEntity;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\HttpFoundation\File\File;
 use Vich\UploaderBundle\Entity\File as EmbeddedFile;
 use Vich\UploaderBundle\Mapping\Annotation as Vich;
 
-// TODO add created user and last modified by user
 // TODO assert that published from <= published to
 
 /**
@@ -16,7 +15,7 @@ use Vich\UploaderBundle\Mapping\Annotation as Vich;
  * @ORM\HasLifecycleCallbacks
  * @Vich\Uploadable
  */
-class News implements AuthorStoringEntity
+class News implements HistoryAwareEntity
 {
     /**
      * @ORM\Id()
@@ -234,9 +233,10 @@ class News implements AuthorStoringEntity
      */
     public function updateModifiedDatetime() {
         // update the modified time and creation time
-        $this->setLastModified(new \DateTime());
+        $now = new \DateTime();
+        $this->setLastModified($now);
         if ($this->getCreated() === null) {
-            $this->setCreated(new \DateTime());
+            $this->setCreated($now);
         }
     }
 }

@@ -73,7 +73,6 @@ class NewsController extends AbstractController
         }
 
         return $this->render("admin/news/edit.html.twig", [
-            'id' => $news->getId(),
             'form' => $form->createView()
         ]);
     }

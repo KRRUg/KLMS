@@ -30,7 +30,7 @@ class AuthorInsertSubscriber implements EventSubscriberInterface
         $data = $event->getData();
         $user = $this->security->getUser();
 
-        if (!($data instanceof AuthorStoringEntity) || !($user instanceof UserInfo)) {
+        if (!($data instanceof HistoryAwareEntity) || !($user instanceof UserInfo)) {
             return;
         }
 

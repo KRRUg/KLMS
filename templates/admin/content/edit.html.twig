@@ -3,6 +3,8 @@
 {% block title %}KLMS - Admin{% endblock %}
 {% block siteheading %}<i class="far fa-file-alt"></i> Content{% endblock %}
 {% block main %}
+    {% set data = form.vars.data %}
+
     {{ form_start(form) }}
     {% if not form.vars.valid %}
         <div class="alert alert-error">
@@ -32,12 +34,15 @@
     </div>
 
     <div class="row">
+        <div class="col mb-4">
+            {% include 'admin/components/lastModified.html.twig' with { 'data': data } %}
+        </div>
     </div>
     <hr>
     {{ form_rest(form) }}
     <div class="float-left">
-        {% if id is defined %}
-            <a class="btn btn-secondary" href="{{ path('admin_content_delete', {'id' : id}) }}"><i class="fas fa-trash-alt"></i> Löschen</a>
+        {% if data is not empty %}
+            <a class="btn btn-secondary" href="{{ path('admin_content_delete', {'id' : data.id}) }}"><i class="fas fa-trash-alt"></i> Löschen</a>
         {% endif %}
     </div>
     <div class="float-right">

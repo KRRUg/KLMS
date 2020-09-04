@@ -27,7 +27,7 @@
                             <tr>
                                 <td class="text-center">{{ newsentry.getId() }}</td>
                                 <td><a href="{{ path('admin_news_edit', {'id' : newsentry.id}) }}" title="Bearbeiten {{ newsentry.title }}"> {{ newsentry.title }}</a></th>
-                                <td>{{ newsentry.authorId | user }}</td>
+                                <td>{{ newsentry.authorId | username }}</td>
                                 <td class="text-center">{{ newsentry.activeSince() | date("d.m.Y") }}</td>
                                 <td class="text-center">{% if newsentry.isActive() %}<i class="fas fa-eye" title="aktiv"></i>{% endif %}</td>
                                 <td class="text-center">{{ newsentry.getPublishedTo() is empty ? "" : newsentry.getPublishedTo() | date("d.m.Y") }}</td>
