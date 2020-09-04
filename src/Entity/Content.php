@@ -29,26 +29,6 @@ class Content implements HistoryAwareEntity
     private $content;
 
     /**
-     * @ORM\Column(type="guid", nullable=false)
-     */
-    private $authorId;
-
-    /**
-     * @ORM\Column(type="guid", nullable=false)
-     */
-    private $modifierId;
-
-    /**
-     * @ORM\Column(type="datetime", nullable=false)
-     */
-    private $last_modified;
-
-    /**
-     * @ORM\Column(type="datetime", nullable=false)
-     */
-    private $created;
-
-    /**
      * @ORM\Column(type="string", length=255, nullable=true)
      */
     private $description;
@@ -57,6 +37,8 @@ class Content implements HistoryAwareEntity
      * @ORM\Column(type="string", length=255, nullable=true, unique=true)
      */
     private $alias;
+
+    use Traits\EntityHistoryTrait;
 
     public function __construct()
     {
@@ -93,52 +75,6 @@ class Content implements HistoryAwareEntity
         return $this;
     }
 
-    public function getAuthorId()
-    {
-        return $this->authorId;
-    }
-
-    public function setAuthorId($authorId): self
-    {
-        $this->authorId = $authorId;
-        return $this;
-    }
-
-    public function getModifierId()
-    {
-        return $this->modifierId;
-    }
-
-    public function setModifierId($modifierId): self
-    {
-        $this->modifierId = $modifierId;
-        return $this;
-    }
-
-    public function getLastModified(): ?\DateTimeInterface
-    {
-        return $this->last_modified;
-    }
-
-    public function setLastModified(\DateTimeInterface $last_modified): self
-    {
-        $this->last_modified = $last_modified;
-
-        return $this;
-    }
-
-    public function getCreated(): ?\DateTimeInterface
-    {
-        return $this->created;
-    }
-
-    public function setCreated(\DateTimeInterface $created): self
-    {
-        $this->created = $created;
-
-        return $this;
-    }
-
     public function getDescription(): ?string
     {
         return $this->description;
@@ -161,17 +97,5 @@ class Content implements HistoryAwareEntity
         $this->alias = $alias;
 
         return $this;
-    }
-
-    /**
-     * @ORM\PrePersist()
-     * @ORM\PreUpdate()
-     */
-    public function updateModifiedDatetime() {
-        // update the modified time and creation time
-        $this->setLastModified(new \DateTime());
-        if ($this->getCreated() === null) {
-            $this->setCreated(new \DateTime());
-        }
     }
 }

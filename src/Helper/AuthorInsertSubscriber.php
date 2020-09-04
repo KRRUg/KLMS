@@ -3,7 +3,6 @@
 namespace App\Helper;
 
 use App\Security\UserInfo;
-use Ramsey\Uuid\Uuid;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\Form\Event\PostSubmitEvent;
 use Symfony\Component\Form\FormEvents;
