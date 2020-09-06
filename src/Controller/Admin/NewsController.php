@@ -56,6 +56,7 @@ class NewsController extends AbstractController
      */
     public function delete(News $news) {
         $this->newsService->delete($news);
+        $this->addFlash('success', "Erfolgreich gelöscht!");
         return $this->redirectToRoute("admin_news");
     }
 

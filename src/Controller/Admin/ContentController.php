@@ -89,7 +89,14 @@ class ContentController extends AbstractController
         try{
             $this->contentService->delete($content);
         } catch (ServiceException $e) {
-            $this->addFlash('danger', 'Konnte Content nicht löschen, da in Verwendung.');
+            switch ($e->getCause()) {
+                case ServiceException::CAUSE_IN_USE:
+                    $this->addFlash('danger', 'Konnte Content nicht löschen, da in Verwendung.');
+                    break;
+                case ServiceException::CAUSE_DONT_EXIST:
+                    $this->addFlash('warning', 'Content nicht gefunden.');
+                    break;
+            }
         }
         return $this->redirectToRoute("admin_content");
     }

@@ -41,7 +41,8 @@ class NewsRepository extends ServiceEntityRepository
     private function addOrder(QueryBuilder $q)
     {
         $q->addSelect('CASE WHEN n.publishedFrom IS NULL THEN n.created ELSE n.publishedFrom END AS HIDDEN sort_order')
-          ->orderBy('sort_order', 'DESC');
+          ->orderBy('sort_order', 'DESC')
+          ->addOrderBy('n.id');
     }
 
     /**
