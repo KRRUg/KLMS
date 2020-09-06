@@ -14,15 +14,18 @@
 
 
 {% block main %}
+    {% set cnt = news | length %}
+
     <div class="container pt-4">
-        <div id="news" class="row row-cols-1 row-cols-md-2" data-offset="{{ news | length }}" data-total="{{ news_total_cnt }}">
+        <div id="news" class="row row-cols-1 row-cols-md-2" data-offset="{{ cnt }}" data-total="{{ news_total_cnt }}">
             {% include 'site/news/_cards.html.twig' %}
         </div>
     </div>
 
     <div class="text-center mb-4 mt-0">
-        <button id="loadMore" class="btn btn-outline-secondary">Mehr News</button>
-        <span id="noMore" class="text-muted" style="display: none;">Keine weiteren News</span>
+        {% set noMore = cnt >= news_total_cnt %}
+        <button id="loadMore" class="btn btn-outline-secondary" {% if noMore %} style="display: none;"{% endif %}>Mehr News</button>
+        <span id="noMore" class="text-muted" {% if not noMore %} style="display: none;"{% endif %}>Keine weiteren News</span>
         <div id="spinner" class="spinner-grow" role="status" style="display: none;">
             <span class="sr-only">Loading...</span>
         </div>

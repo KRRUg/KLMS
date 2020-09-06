@@ -15,12 +15,6 @@ const AjaxLoader = function($root, config) {
     if (this.$button) {
         this.$button.on('click', this.loadMore.bind(this));
     }
-    if (this.$spinner) {
-        this.$spinner.hide();
-    }
-    if (this.$endLabel) {
-        this.$endLabel.hide();
-    }
 };
 
 $.extend(AjaxLoader.prototype, {
@@ -43,6 +37,7 @@ $.extend(AjaxLoader.prototype, {
                 let o = offset + load;
                 this.$root.append(data);
                 this.$root.data(this.offset, o);
+                this._updateUrl(o);
                 if (o >= total)
                     this._end();
                 else
@@ -51,6 +46,11 @@ $.extend(AjaxLoader.prototype, {
                 console.error('failed to load more data via ajax');
                 this._end();
             });
+    },
+
+    _updateUrl(cnt) {
+        let pageUrl = '?' + 'cnt=' + cnt.toString();
+        history.replaceState(null, '', pageUrl);
     },
 
     _requestData(offset, count) {

@@ -31,13 +31,15 @@ class NewsController extends AbstractController
     /**
      * @Route("", name="")
      */
-    public function index(NewsRepository $repository)
+    public function index(Request $request)
     {
-        $news = $this->newsService->get(0, NewsController::PRELOAD_NEWS_CNT);
-        $news_cnt = $this->newsService->count();
+        $cnt = intval($request->get('cnt', 0));
+        $cnt = max($cnt, NewsController::PRELOAD_NEWS_CNT);
+        $news = $this->newsService->get(0, $cnt);
+        $total = $this->newsService->count();
         return $this->render('site/news/index.html.twig', [
             'news' => $news,
-            'news_total_cnt' => $news_cnt,
+            'news_total_cnt' => $total,
         ]);
     }
 
