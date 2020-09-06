@@ -13,8 +13,8 @@
     {% endif %}
 
     <div class="row">
-        <div class="col mb-4">
-            <div class="card">
+        <div class="col">
+            <div class="card mb-4">
                 <div class="card-body">
                     {{ form_row(form.title) }}
                     {{ form_row(form.description) }}
@@ -24,8 +24,8 @@
     </div>
 
     <div class="row">
-        <div class="col mb-4">
-            <div class="card">
+        <div class="col">
+            <div class="card mb-4">
                 <div class="card-body">
                     {{ form_row(form.content, {'attr': {'class': 'wysiwyg'}}) }}
                 </div>
@@ -34,7 +34,7 @@
     </div>
 
     <div class="row">
-        <div class="col mb-4">
+        <div class="col">
             {% include 'admin/components/lastModified.html.twig' with { 'data': data } %}
         </div>
     </div>
