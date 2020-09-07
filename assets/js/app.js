@@ -12,11 +12,14 @@ require('../css/_scss/bootstrap-krru.scss');
 
 require('@fortawesome/fontawesome-free/css/all.min.css');
 
-let cfi = require('bs-custom-file-input');
+const cfi = require('bs-custom-file-input');
+
+require('./components/datetimepicker.js');
 
 $( document ).ready(function() {
     cfi.init();
     $('[data-toggle="popover"]').popover();
+    $('.datetimepicker').datetime();
 });
 
 //Images

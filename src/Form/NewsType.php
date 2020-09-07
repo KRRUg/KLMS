@@ -36,13 +36,15 @@ class NewsType extends AbstractType
                 'with_seconds' => false,
                 'widget' => 'single_text',
                 'required' => false,
-                'label' => 'Anzeigen ab'
+                'label' => 'Anzeigen ab',
+                'html5' => false,
             ])
             ->add('publishedTo', DateTimeType::class, [
                 'with_seconds' => false,
                 'widget' => 'single_text',
                 'required' => false,
                 'label' => 'Anzeigen bis',
+                'html5' => false,
             ])
         ;
         $builder->add('imageFile', VichImageType::class, [

@@ -33,8 +33,8 @@
         <div class="col-md-4">
             <div class="card mb-4">
                 <div class="card-body">
-                    {{ form_row(form.publishedFrom) }}
-                    {{ form_row(form.publishedTo) }}
+                    {{ form_row(form.publishedFrom, {'attr': {'class': 'datetimepicker'}}) }}
+                    {{ form_row(form.publishedTo, {'attr': {'class': 'datetimepicker'}}) }}
                 </div>
             </div>
             <div class="card mb-4">
