@@ -54,8 +54,12 @@ class MediaController extends BaseController
         $form_upload = $this->createForm(ImageType::class);
 
         $form_upload->handleRequest($request);
-        if ($form_upload->isSubmitted() && $form_upload->isValid()) {
-            $this->imageService->save($form_upload->getData());
+        if ($form_upload->isSubmitted()) {
+            if ($form_upload->isValid()) {
+                $this->imageService->save($form_upload->getData());
+            } else {
+                $this->addFlash('danger', 'Invalid file uploaded.');
+            }
             return $this->redirectToRoute('admin_media');
         }
 

@@ -34,13 +34,17 @@ class Image
     private $created;
 
     /**
-     * @ORM\Column(type="string", nullable=true)
+     * @ORM\Column(type="string", nullable=true, unique=true)
      */
     private $name;
 
     /**
+     * @Assert\File(
+     *     maxSize="4096k",
+     *     mimeTypes={"image/png", "image/jpeg", "image/gif"},
+     *     mimeTypesMessage = "Please upload a valid image"
+     * )
      * @Vich\UploadableField(mapping="images", fileNameProperty="image.name", size="image.size", mimeType="image.mimeType", originalName="image.originalName", dimensions="image.dimensions")
-     *
      * @var File
      */
     private $imageFile;

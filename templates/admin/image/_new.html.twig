@@ -6,11 +6,6 @@
                 <h5 class="modal-title" id="exampleModalLabel">Upload</h5>
             </div>
             <div class="modal-body">
-                {% if not form_upload.vars.valid %}
-                    <div class="alert alert-error">
-                        {{ form_errors(form_upload) }}
-                    </div>
-                {% endif %}
                 {{ form_row(form_upload) }}
             </div>
             <div class="modal-footer">
