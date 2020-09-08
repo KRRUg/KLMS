@@ -31,17 +31,30 @@ class MediaController extends BaseController
         return [
             // title and value required by tinyMCE image list
             'id' => $image->getId(),
-            'title' => $image->getName(),
-            'value' => $this->generateUrl('media', ['name' => $image->getName()]),
+            'title' => $image->getMedia()->getOriginalName(),
+            'value' => $this->generateUrl('media', ['name' => $image->getMedia()->getName()]),
 
             // additional information
-            'dimensions' => $image->getMedia()->getDimensions(),
-            'mimeType' => $image->getMedia()->getMimeType(),
-            'size' => $image->getMedia()->getSize(),
-            'created' => $image->getCreated(),
-            'updated' => $image->getLastModified(),
-            'author' => '', // TODO add author (when user caching is implemented)
+//            'dimensions' => $image->getMedia()->getDimensions(),
+//            'mimeType' => $image->getMedia()->getMimeType(),
+//            'size' => $image->getMedia()->getSize(),
+//            'created' => $image->getCreated(),
+//            'updated' => $image->getLastModified(),
+//            'author' => '', // TODO add author (when user caching is implemented)
         ];
+    }
+
+    private function mediaByFilter(string $filter)
+    {
+        switch ($filter) {
+            case "image":
+                return $this->mediaService->getImages();
+            case "document":
+            case "doc":
+                return $this->mediaService->getDocuments();
+            default:
+                return $this->mediaService->getAll();
+        }
     }
 
     /**
@@ -49,7 +62,9 @@ class MediaController extends BaseController
      */
     public function index(Request $request)
     {
-        $media = $this->mediaService->getAll();
+        $filter = $request->get('filter', '');
+        $media = $this->mediaByFilter($filter);
+
         $form_upload = $this->createForm(MediaType::class);
 
         $form_upload->handleRequest($request);

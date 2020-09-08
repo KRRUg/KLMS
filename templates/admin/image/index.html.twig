@@ -27,14 +27,17 @@
                 {% else %}
                     {% for i in media %}
                         <div class="card d-block mr-2 mb-2 to-hover" style="width: 250px">
+                            <div class="card-img-top border-bottom" style="height: 200px">
                             {% if i.isImage() %}
-                                <img class="card-img-top border-bottom p-1" style="width: 100%; height: 200px; object-fit: contain;" src="{{ vich_uploader_asset(i, 'mediaFile') | imagine_filter('thumbnail_small') }}"  alt="{{ i.media.name }}">
+                                <img class="h-100 w-100 p-1" style="object-fit: contain;" src="{{ vich_uploader_asset(i, 'mediaFile') | imagine_filter('thumbnail_small') }}"  alt="{{ i.media.name }}">
                             {% else %}
-                                <div class="card-img-top border-bottom p-1">Document</div>
+                                {% set icon = i.media.mimeType == "application/pdf" ? "fa-file-pdf" : "fa-file" %}
+                                <div class="h-100 w-100 d-flex align-items-center justify-content-center"><div><i class="far {{ icon }} fa-6x text-black-50"></i></div></div>
                             {% endif %}
+                            </div>
                             <div class="card-img-overlay text-right w-100 to-show">
                                 <a href="#" data-toggle="popover" data-placement="bottom" data-trigger="focus" data-html="true" data-content="Wirklich löschen? <a href='{{ path('admin_media_delete', {'id' : i.id}) }}'>Ja</a>"><i class="fas fa-trash-alt"></i></a>
-                                <a class="ml-1" href="{{ path('media', {'name' : i.id} ) }}"><i class="fas fa-eye"></i></a>
+                                <a class="ml-1" href="{{ path('media', {'name' : i.media.name} ) }}"><i class="fas fa-eye"></i></a>
                             </div>
                             <div class="card-body p-2 text-muted text-truncate text-center">
                                 <span>{{ i.media.originalName }}</span>

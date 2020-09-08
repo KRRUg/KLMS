@@ -27,11 +27,24 @@ class MediaService
     }
 
     /**
-     * @return array All content elements
+     * @return Media[] All content elements
      */
     public function getAll() : array
     {
         return $this->repo->findAll();
+    }
+
+    /**
+     * @return Media[]
+     */
+    public function getImages(): array
+    {
+        return $this->repo->findByMimeClass('image');
+    }
+
+    public function getDocuments(): array
+    {
+        return $this->repo->findByMimeClass('application');
     }
 
     public function delete(Media $image)

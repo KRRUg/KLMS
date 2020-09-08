@@ -34,6 +34,6 @@ function initTinyMCE() {
         height : '640',
         plugins: 'image paste link',
         relative_urls: false,
-        image_list: '/admin/media.json',
+        image_list: '/admin/media.json?filter=image',
     });
 }
