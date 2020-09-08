@@ -3,8 +3,8 @@
 
 namespace App\Controller\Site;
 
-use App\Entity\Image;
-use App\Repository\ImageRepository;
+use App\Entity\Media;
+use App\Repository\MediaRepository;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -23,7 +23,7 @@ class MediaController extends AbstractController
      * MediaController constructor.
      * @param $downloadHelper
      */
-    public function __construct(ImageRepository $imageRepository, DownloadHandler $downloadHandler)
+    public function __construct(MediaRepository $imageRepository, DownloadHandler $downloadHandler)
     {
         $this->imageRepository = $imageRepository;
         $this->downloadHandler = $downloadHandler;
@@ -35,9 +35,9 @@ class MediaController extends AbstractController
     public function getMedia(Request $request)
     {
         $name = $request->get('name');
-        $image = $this->imageRepository->findByNameAndId($name);
-        if (empty($image))
+        $media = $this->imageRepository->findByNameAndId($name);
+        if (empty($media))
             throw $this->createNotFoundException();
-        return $this->downloadHandler->downloadObject($image, $fileField = 'imageFile', $objectClass = null, $fileName = null, $forceDownload = false);
+        return $this->downloadHandler->downloadObject($media, $fileField = 'mediaFile', $objectClass = null, $fileName = null, $forceDownload = false);
     }
 }

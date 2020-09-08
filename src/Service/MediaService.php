@@ -3,12 +3,12 @@
 
 namespace App\Service;
 
-use App\Entity\Image;
-use App\Repository\ImageRepository;
+use App\Entity\Media;
+use App\Repository\MediaRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 
-class ImageService
+class MediaService
 {
     private $em;
     private $repo;
@@ -19,7 +19,7 @@ class ImageService
      * @param $em
      * @param $repo
      */
-    public function __construct(LoggerInterface $logger, EntityManagerInterface $em, ImageRepository $repo)
+    public function __construct(LoggerInterface $logger, EntityManagerInterface $em, MediaRepository $repo)
     {
         $this->em = $em;
         $this->repo = $repo;
@@ -34,20 +34,20 @@ class ImageService
         return $this->repo->findAll();
     }
 
-    public function delete(Image $image)
+    public function delete(Media $image)
     {
         $this->logger->info("Deleted Image {$image->getId()}");
         $this->em->remove($image);
         $this->em->flush();
     }
 
-    public function save(Image $image)
+    public function save(Media $media)
     {
-        if (empty($image) || empty($image->getImageFile()))
+        if (empty($media) || empty($media->getMediaFile()))
             return;
 
-        $this->logger->info("Create Image {$image->getImageFile()->getFilename()} ({$image->getImageFile()->getMimeType()})");
-        $this->em->persist($image);
+        $this->logger->info("Create Media {$media->getMediaFile()->getFilename()} ({$media->getMediaFile()->getMimeType()})");
+        $this->em->persist($media);
         $this->em->flush();
     }
 }

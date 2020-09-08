@@ -30,14 +30,14 @@ trait EntityHistoryTrait
 
     /**
      * @ORM\Column(type="datetime", nullable=false)
-     * @Assert\DateTime
      * @Assert\GreaterThanOrEqual(propertyPath="created")
+     * @Assert\Type(type="DateTime")
      */
     private $last_modified;
 
     /**
      * @ORM\Column(type="datetime", nullable=false)
-     * @Assert\DateTime
+     * @Assert\Type(type="DateTime")
      */
     private $created;
 

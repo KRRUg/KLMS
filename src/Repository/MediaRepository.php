@@ -2,29 +2,30 @@
 
 namespace App\Repository;
 
-use App\Entity\Image;
+use App\Entity\Media;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Common\Persistence\ManagerRegistry;
 
 /**
- * @method Image|null find($id, $lockMode = null, $lockVersion = null)
- * @method Image|null findOneBy(array $criteria, array $orderBy = null)
- * @method Image[]    findAll()
- * @method Image[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
+ * @method Media|null find($id, $lockMode = null, $lockVersion = null)
+ * @method Media|null findOneBy(array $criteria, array $orderBy = null)
+ * @method Media[]    findAll()
+ * @method Media[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  */
-class ImageRepository extends ServiceEntityRepository
+class MediaRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
     {
-        parent::__construct($registry, Image::class);
+        parent::__construct($registry, Media::class);
     }
 
     /**
      * @param $idOrName
-     * @return Image|null
+     * @return Media|null
      */
     public function findByNameAndId($idOrName)
     {
+        // TODO replace with generated name
         if (empty($idOrName))
             return null;
         if (is_numeric($idOrName))
@@ -33,5 +34,10 @@ class ImageRepository extends ServiceEntityRepository
         if (!empty($img))
             return $img;
         return $this->findOneBy(['name' => $idOrName]);
+    }
+
+    public function findByName($name)
+    {
+
     }
 }

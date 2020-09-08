@@ -68,3 +68,4 @@ yarn-error.log
 ###< symfony/webpack-encore-bundle ###
 public/images
 public/cache
+public/media
