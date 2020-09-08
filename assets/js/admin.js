@@ -32,7 +32,8 @@ function initTinyMCE() {
         selector: 'textarea.wysiwyg',
         theme: 'silver',
         height : '640',
-        plugins: 'image',
+        plugins: 'image paste link',
+        relative_urls: false,
         image_list: '/admin/media.json',
     });
 }
