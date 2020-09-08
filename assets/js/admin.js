@@ -33,7 +33,13 @@ function initTinyMCE() {
         theme: 'silver',
         height : '640',
         plugins: 'image paste link',
+
+        // image plugin
         relative_urls: false,
         image_list: '/admin/media.json?filter=image',
+
+        // link plugin
+        link_default_protocol: 'https',
+        link_list: '/admin/media.json?filter=doc',
     });
 }
