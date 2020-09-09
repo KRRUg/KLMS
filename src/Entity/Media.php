@@ -4,14 +4,15 @@
 namespace App\Entity;
 
 use App\Helper\HistoryAwareEntity;
+use DateTime;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 use Vich\UploaderBundle\Mapping\Annotation as Vich;
-use Vich\UploaderBundle\Entity\File as EmbeddedFile;
 use Symfony\Component\HttpFoundation\File\File;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\MediaRepository")
+ * @ORM\Table(indexes={ @ORM\Index(name="filename_indes", columns={"file_name"}) })
  * @ORM\HasLifecycleCallbacks
  * @Vich\Uploadable
  */
@@ -35,31 +36,30 @@ class Media implements HistoryAwareEntity
      * )
      * @Vich\UploadableField(
      *     mapping="media",
-     *     fileNameProperty="media.name",
-     *     size="media.size",
-     *     mimeType="media.mimeType",
-     *     originalName="media.originalName",
-     *     dimensions="media.dimensions"
+     *     fileNameProperty="fileName",
+     *     mimeType="mimeType",
+     *     originalName="displayName"
      * )
      * @var File
      */
     private $mediaFile;
 
     /**
-     * @ORM\Embedded(class="Vich\UploaderBundle\Entity\File")
-     * @var EmbeddedFile
+     * @ORM\Column(name="file_name", nullable=false)
      */
-    private $media;
-
-    use Traits\EntityHistoryTrait;
+    private $fileName;
 
     /**
-     * Image constructor.
+     * @ORM\Column(name="display_name", nullable=false)
      */
-    public function __construct()
-    {
-        $this->media = new EmbeddedFile();
-    }
+    private $displayName;
+
+    /**
+     * @ORM\Column(name="mime_type", nullable=false)
+     */
+    private $mimeType;
+
+    use Traits\EntityHistoryTrait;
 
     public function getId()
     {
@@ -78,25 +78,54 @@ class Media implements HistoryAwareEntity
         if (null !== $mediaFile) {
             // It is required that at least one field changes if you are using doctrine
             // otherwise the event listeners won't be called and the file is lost
-            $this->setLastModified(new \DateTime());
+            $this->setLastModified(new DateTime());
         }
     }
 
-    public function setMedia(EmbeddedFile $media): void
+    /**
+     * @return mixed
+     */
+    public function getFileName()
     {
-        $this->media = $media;
+        return $this->fileName;
     }
 
-    public function getMedia(): ?EmbeddedFile
+    public function setFileName($fileName): self
     {
-        return $this->media;
+        $this->fileName = $fileName;
+
+        return $this;
+    }
+
+    public function getDisplayName()
+    {
+        return $this->displayName;
+    }
+
+    public function setDisplayName($displayName): self
+    {
+        $this->displayName = $displayName;
+
+        return $this;
+    }
+
+    public function getMimeType()
+    {
+        return $this->mimeType;
+    }
+
+    public function setMimeType($mimeType): self
+    {
+        $this->mimeType = $mimeType;
+
+        return $this;
     }
 
     private function checkMediaType(string $prefix): bool
     {
         $mimeType = null;
-        if (!empty($this->media->getMimeType())) {
-            $mimeType = $this->media->getMimeType();
+        if (!empty($this->getMimeType())) {
+            $mimeType = $this->getMimeType();
         } else if (!empty($this->getMediaFile())) {
             $mimeType = $this->getMediaFile()->getMimeType();
         }

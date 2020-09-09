@@ -52,17 +52,17 @@
                     {% for i in media %}
                         <div class="card mr-2 mb-2 to-hover" style="width: 250px;"
                              data-id="{{ i.id }}"
-                             data-name="{{ i.media.originalName }}"
-                             data-mime-type="{{ i.media.mimeType }}"
+                             data-name="{{ i.displayName }}"
+                             data-mime-type="{{ i.mimeType }}"
                         >
                             <div class="card-img-top border-bottom" style="height: 200px">
                             {% if i.isImage() %}
                                 <img class="h-100 w-100 p-1" style="object-fit: contain;"
                                      src="{{ vich_uploader_asset(i, 'mediaFile') | imagine_filter('thumbnail_small') }}"
-                                     alt="{{ i.media.name }}"
+                                     alt="{{ i.displayName }}"
                                 >
                             {% else %}
-                                {% set icon = i.media.mimeType == "application/pdf" ? "fa-file-pdf" : "fa-file" %}
+                                {% set icon = i.mimeType == "application/pdf" ? "fa-file-pdf" : "fa-file" %}
                                 <div class="h-100 w-100 d-flex align-items-center justify-content-center">
                                     <i class="far {{ icon }} fa-6x text-black-50"></i>
                                 </div>
@@ -71,10 +71,10 @@
                             <div class="card-img-overlay text-right w-100 to-show">
 {# <a href="#" data-toggle="popover" data-placement="bottom" data-trigger="focus" data-html="true" data-content="Wirklich löschen? <a href='{{ path('admin_media_delete', {'id' : i.id}) }}'>Ja</a>"><i class="fas fa-trash-alt"></i></a>#}
                                 <a class="button-del" href='{{ path('admin_media_delete', {'id' : i.id}) }}'><i class="fas fa-trash-alt"></i></a>
-                                <a class="ml-1" href="{{ path('media', {'name' : i.media.name} ) }}"><i class="fas fa-eye"></i></a>
+                                <a class="ml-1" href="{{ path('media', {'name' : i.fileName} ) }}"><i class="fas fa-eye"></i></a>
                             </div>
                             <div class="card-body p-2 text-muted text-truncate text-center">
-                                <span>{{ i.media.originalName }}</span>
+                                <span>{{ i.displayName }}</span>
                             </div>
                         </div>
                     {% endfor %}

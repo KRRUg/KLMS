@@ -9,7 +9,6 @@ use Doctrine\Common\Persistence\ManagerRegistry;
 /**
  * @method Media|null find($id, $lockMode = null, $lockVersion = null)
  * @method Media|null findOneBy(array $criteria, array $orderBy = null)
- * @method Media[]    findAll()
  * @method Media[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  */
 class MediaRepository extends ServiceEntityRepository
@@ -20,20 +19,20 @@ class MediaRepository extends ServiceEntityRepository
     }
 
     /**
-     * @param $idOrName
+     * @param $name
      * @return Media|null
      */
-    public function findByNameAndId($idOrName)
+    public function findByName(string $name)
     {
-        // TODO replace with generated name
-        if (empty($idOrName))
-            return null;
-        if (is_numeric($idOrName))
-            return $this->find(intval($idOrName));
-        $img = $this->findOneBy(['image.originalName' => $idOrName]);
-        if (!empty($img))
-            return $img;
-        return $this->findOneBy(['name' => $idOrName]);
+        return $this->findOneBy(['image.fileName' => $name]);
+    }
+
+    /**
+     * @return Media[]
+     */
+    public function findAll()
+    {
+        return $this->findBy([], ['displayName' => 'ASC', 'created' => 'ASC']);
     }
 
     /**
@@ -46,8 +45,10 @@ class MediaRepository extends ServiceEntityRepository
             return $this->findAll();
 
         return $this->createQueryBuilder('m')
-            ->where('m.media.mimeType LIKE :mime')
+            ->where('m.mimeType LIKE :mime')
             ->setParameter('mime', $mime . '/%')
+            ->orderBy('m.displayName', 'ASC')
+            ->addOrderBy('m.created', 'ASC')
             ->getQuery()
             ->getResult();
     }

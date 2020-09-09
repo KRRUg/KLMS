@@ -31,16 +31,9 @@ class MediaController extends BaseController
         return [
             // title and value required by tinyMCE image list
             'id' => $image->getId(),
-            'title' => $image->getMedia()->getOriginalName(),
-            'value' => $this->generateUrl('media', ['name' => $image->getMedia()->getName()]),
-
-            // additional information
-//            'dimensions' => $image->getMedia()->getDimensions(),
-//            'mimeType' => $image->getMedia()->getMimeType(),
-//            'size' => $image->getMedia()->getSize(),
-//            'created' => $image->getCreated(),
-//            'updated' => $image->getLastModified(),
-//            'author' => '', // TODO add author (when user caching is implemented)
+            'title' => $image->getDisplayName(),
+            'value' => $this->generateUrl('media', ['name' => $image->getFileName()]),
+            'mimeType' => $image->getMimeType(),
         ];
     }
 
