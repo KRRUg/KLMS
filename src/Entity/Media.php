@@ -50,7 +50,7 @@ class Media implements HistoryAwareEntity
     private $fileName;
 
     /**
-     * @ORM\Column(name="display_name", nullable=false)
+     * @ORM\Column(name="display_name", nullable=false, unique=true)
      */
     private $displayName;
 

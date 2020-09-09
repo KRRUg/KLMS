@@ -5,6 +5,7 @@ namespace App\Controller\Admin;
 
 use App\Controller\BaseController;
 use App\Entity\Media;
+use App\Exception\ServiceException;
 use App\Form\MediaType;
 use App\Service\MediaService;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
@@ -63,7 +64,11 @@ class MediaController extends BaseController
         $form_upload->handleRequest($request);
         if ($form_upload->isSubmitted()) {
             if ($form_upload->isValid()) {
-                $this->mediaService->save($form_upload->getData());
+                try {
+                    $this->mediaService->save($form_upload->getData());
+                } catch (ServiceException $e) {
+                    $this->flashException($e);
+                }
             } else {
                 $this->addFlash('danger', 'Invalid file uploaded.');
             }

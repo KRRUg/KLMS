@@ -24,7 +24,12 @@ class MediaRepository extends ServiceEntityRepository
      */
     public function findByName(string $name)
     {
-        return $this->findOneBy(['image.fileName' => $name]);
+        return $this->findOneBy(['fileName' => $name]);
+    }
+
+    public function findByDisplayName(string $name)
+    {
+        return $this->findOneBy(['displayName' => $name]);
     }
 
     /**

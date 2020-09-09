@@ -7,9 +7,10 @@ namespace App\Exception;
 class ServiceException extends \RuntimeException
 {
     // Types of causes
+    const CAUSE_EMPTY = 'is_empty';
     const CAUSE_IN_USE = 'in_use';
-    const CAUSE_DONT_EXIST = 'already_exists';
-
+    const CAUSE_DONT_EXIST = 'dont_exists';
+    const CAUSE_EXIST = 'already_exists';
 
     private $cause;
 

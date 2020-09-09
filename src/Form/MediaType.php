@@ -28,9 +28,6 @@ class MediaType extends AbstractType
             'download_uri' => false,
             'asset_helper' => true,
         ]);
-//        $builder->add('name', TextType::class, [
-//            'required' => false,
-//        ]);
         $builder->addEventSubscriber($this->userInsertSubscriber);
     }
 
