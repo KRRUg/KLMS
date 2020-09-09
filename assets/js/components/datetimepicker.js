@@ -7,7 +7,7 @@ const DateTimePicker = function(options) {
     this.wrap("<div class=\"input-group w-100\"></div>");
     this.after("<div class=\"input-group-append\">" +
         "<a class=\"input-group-text btn\" data-clear><i class=\"fa fa-times\"></i></a>" +
-        "<a class=\"input-group-text\" data-toggle><i class=\"fa fa-calendar-alt\"></i></a>" +
+        "<a class=\"input-group-text btn\" data-toggle><i class=\"fa fa-calendar-alt\"></i></a>" +
         "</div>");
     this.css('background-color', 'unset');
     this.attr('data-input', true);
