@@ -49,12 +49,7 @@
         </div>
     </div>
 
-    {% include 'admin/image/_new.html.twig' with {'modal_name': 'uploadModal'} %}
-
-    <script>
-        $(document).ready(function(){
-            $('[data-toggle="popover"]').popover();
-        });
-    </script>
+    {% include 'admin/components/modals/form.html.twig' with {'modal_name': 'uploadModal', 'button_save': 'Upload', 'label_head': 'Upload', 'form': form_upload} %}
+    {% include 'admin/components/modals/confirm.html.twig' with {} %}
 
 {% endblock %}

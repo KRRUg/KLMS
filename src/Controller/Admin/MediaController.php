@@ -83,7 +83,7 @@ class MediaController extends BaseController
             }, $media);
             return $this->apiResponse($result);
         } else {
-            return $this->render("admin/image/index.html.twig", [
+            return $this->render("admin/media/index.html.twig", [
                 'media' => $media,
                 'form_upload' => $form_upload->createView(),
             ]);
