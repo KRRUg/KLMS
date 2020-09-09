@@ -10,6 +10,8 @@ Configuration options:
     - path: href to redirect on yes
 #}
 
+{# This modal has a JS library #}
+
 <div class="modal fade" id="{{ modal_name | default('confirm_modal') }}" tabindex="-1" role="dialog">
     <div class="modal-dialog" role="dialog">
         <div class="modal-content">
@@ -23,7 +25,7 @@ Configuration options:
             </div>
             <div class="modal-footer">
                 <button class="btn btn-secondary" data-dismiss="modal">{{ label_no | default('Nein') }}</button>
-                <a class="btn btn-primary" href="{{ path | default('#') }}">{{ label_yes | default('Ja') }}</a>
+                <a class="btn btn-primary js-confirm" href="{{ path | default('#') }}">{{ label_yes | default('Ja') }}</a>
             </div>
         </div>
     </div>

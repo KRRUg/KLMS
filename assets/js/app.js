@@ -18,7 +18,6 @@ require('./components/datetimepicker.js');
 
 $( document ).ready(function() {
     cfi.init();
-    $('[data-toggle="popover"]').popover();
     $('.datetimepicker').datetime();
 });
 

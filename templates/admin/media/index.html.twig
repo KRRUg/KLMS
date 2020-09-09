@@ -2,6 +2,10 @@
 
 {% block title %}KLMS - Admin{% endblock %}
 {% block siteheading %}<i class="far fa-file-image"></i> Media{% endblock %}
+{% block javascripts %}
+    {{ parent() }}
+    {{ encore_entry_script_tags('media') }}
+{% endblock %}
 {% block main %}
     <style>
         .to-show {
@@ -21,22 +25,31 @@
     </div>
     <div class="row">
         <div class="border overflow-auto h-100 w-100">
-            <div class="row m-2">
+            <div id="mediaList" class="row m-2">
                 {% if media is empty %}
                     <p class="text-muted text-center w-100">Keine Medien hochgeladen.</p>
                 {% else %}
                     {% for i in media %}
-                        <div class="card d-block mr-2 mb-2 to-hover" style="width: 250px">
+                        <div class="card d-block mr-2 mb-2 to-hover" style="width: 250px"
+                             data-id="{{ i.id }}"
+                             data-mime-type="{{ i.media.mimeType }}"
+                        >
                             <div class="card-img-top border-bottom" style="height: 200px">
                             {% if i.isImage() %}
-                                <img class="h-100 w-100 p-1" style="object-fit: contain;" src="{{ vich_uploader_asset(i, 'mediaFile') | imagine_filter('thumbnail_small') }}"  alt="{{ i.media.name }}">
+                                <img class="h-100 w-100 p-1" style="object-fit: contain;"
+                                     src="{{ vich_uploader_asset(i, 'mediaFile') | imagine_filter('thumbnail_small') }}"
+                                     alt="{{ i.media.name }}"
+                                >
                             {% else %}
                                 {% set icon = i.media.mimeType == "application/pdf" ? "fa-file-pdf" : "fa-file" %}
-                                <div class="h-100 w-100 d-flex align-items-center justify-content-center"><div><i class="far {{ icon }} fa-6x text-black-50"></i></div></div>
+                                <div class="h-100 w-100 d-flex align-items-center justify-content-center">
+                                    <i class="far {{ icon }} fa-6x text-black-50"></i>
+                                </div>
                             {% endif %}
                             </div>
                             <div class="card-img-overlay text-right w-100 to-show">
-                                <a href="#" data-toggle="popover" data-placement="bottom" data-trigger="focus" data-html="true" data-content="Wirklich löschen? <a href='{{ path('admin_media_delete', {'id' : i.id}) }}'>Ja</a>"><i class="fas fa-trash-alt"></i></a>
+{# <a href="#" data-toggle="popover" data-placement="bottom" data-trigger="focus" data-html="true" data-content="Wirklich löschen? <a href='{{ path('admin_media_delete', {'id' : i.id}) }}'>Ja</a>"><i class="fas fa-trash-alt"></i></a>#}
+                                <a class="button-del" href='{{ path('admin_media_delete', {'id' : i.id}) }}'><i class="fas fa-trash-alt"></i></a>
                                 <a class="ml-1" href="{{ path('media', {'name' : i.media.name} ) }}"><i class="fas fa-eye"></i></a>
                             </div>
                             <div class="card-body p-2 text-muted text-truncate text-center">
@@ -50,6 +63,6 @@
     </div>
 
     {% include 'admin/components/modals/form.html.twig' with {'modal_name': 'uploadModal', 'button_save': 'Upload', 'label_head': 'Upload', 'form': form_upload} %}
-    {% include 'admin/components/modals/confirm.html.twig' with {} %}
+    {% include 'admin/components/modals/confirm.html.twig' with {'modal_name': 'confirmModal'} %}
 
 {% endblock %}
