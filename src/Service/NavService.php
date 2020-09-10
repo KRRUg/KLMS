@@ -8,7 +8,7 @@ use App\Entity\NavigationNode;
 use App\Entity\NavigationNodeContent;
 use App\Entity\NavigationNodeEmpty;
 use App\Entity\NavigationNodeGeneric;
-use App\Repository\NavigationRepository;
+use App\Repository\NavigationNodeRepository;
 use Doctrine\ORM\EntityManagerInterface;
 
 class NavService
@@ -16,7 +16,7 @@ class NavService
     private $em;
     private $rep;
 
-    public function __construct(EntityManagerInterface $em, NavigationRepository $rep)
+    public function __construct(EntityManagerInterface $em, NavigationNodeRepository $rep)
     {
         $this->em = $em;
         $this->rep = $rep;

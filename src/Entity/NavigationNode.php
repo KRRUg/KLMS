@@ -3,12 +3,10 @@
 namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
 
 /**
- * @ORM\Entity(repositoryClass="App\Repository\NavigationRepository")
- * @ORM\Table(name="navigation")
+ * @ORM\Entity(repositoryClass="App\Repository\NavigationNodeRepository")
+ * @ORM\Table(name="navigation_node")
  * @ORM\InheritanceType("SINGLE_TABLE")
  * @ORM\DiscriminatorColumn(name="type", type="string", length=25)
  * @ORM\DiscriminatorMap({
@@ -33,24 +31,25 @@ abstract class NavigationNode
     private $name;
 
     /**
-     * @ORM\Column(type="integer", name="ord")
+     * @ORM\ManyToOne(targetEntity="App\Entity\Navigation", inversedBy="nodes")
+     * @ORM\JoinColumn(nullable=false)
      */
-    private $order;
+    private $navigation;
 
     /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\NavigationNode", inversedBy="childNodes", fetch="EAGER")
+     * @ORM\Column(type="integer", nullable=false)
      */
-    private $parent;
+    private $lft;
 
     /**
-     * @ORM\OneToMany(targetEntity="App\Entity\NavigationNode", mappedBy="parent", fetch="EAGER")
-     * @ORM\OrderBy({"order" = "ASC"})
+     * @ORM\Column(type="integer", nullable=false)
      */
-    private $childNodes;
+    private $rgt;
 
-    public function __construct()
+    public function __construct(Navigation $navigation)
     {
-        $this->childNodes = new ArrayCollection();
+        $this->navigation = $navigation;
+        $this->name = "";
     }
 
     public function __toString()
@@ -81,57 +80,46 @@ abstract class NavigationNode
         return $this;
     }
 
-    public function getOrder(): int
+    public function getNavigation(): ?Navigation
     {
-        return $this->order;
+        return $this->navigation;
     }
 
-    public function setOrder($order): self
+    public function setNavigation(?Navigation $navigation): self
     {
-        $this->order = $order;
+        $this->navigation = $navigation;
 
         return $this;
     }
 
-    public function getParent(): ?self
+    public function getLft(): ?int
     {
-        return $this->parent;
+        return $this->lft;
     }
 
-    public function setParent(?self $parent): self
+    public function setLft(int $lft): self
     {
-        $this->parent = $parent;
+        $this->lft = $lft;
 
         return $this;
     }
 
-    /**
-     * @return Collection|self[]
-     */
-    public function getChildNodes(): Collection
+    public function getRgt(): ?int
     {
-        return $this->childNodes;
+        return $this->rgt;
     }
 
-    public function addChildNode(self $childNode): self
+    public function setRgt(int $rgt): self
     {
-        if (!$this->childNodes->contains($childNode)) {
-            $this->childNodes[] = $childNode;
-            $childNode->setParent($this);
-        }
+        $this->rgt = $rgt;
 
         return $this;
     }
 
-    public function removeChildNode(self $childNode): self
+    public function setPos($lft, $rgt): self
     {
-        if ($this->childNodes->contains($childNode)) {
-            $this->childNodes->removeElement($childNode);
-            // set the owning side to null (unless already changed)
-            if ($childNode->getParent() === $this) {
-                $childNode->setParent(null);
-            }
-        }
+        $this->lft = $lft;
+        $this->rgt = $rgt;
 
         return $this;
     }
@@ -140,14 +128,12 @@ abstract class NavigationNode
 /**
  * @ORM\Entity()
  */
-class NavigationNodeRoot extends NavigationNode
+final class NavigationNodeRoot extends NavigationNode
 {
-    public function __construct()
+    public function __construct(Navigation $navigation)
     {
-        parent::__construct();
-        $this->setParent(null);
+        parent::__construct($navigation);
         $this->setName("KLMS");
-        $this->setOrder(0);
     }
 
     public function __toString()
@@ -174,20 +160,19 @@ class NavigationNodeRoot extends NavigationNode
 /**
  * @ORM\Entity()
  */
-class NavigationNodeContent extends NavigationNode
+final class NavigationNodeContent extends NavigationNode
 {
     /**
-     * @ORM\OneToOne(targetEntity="App\Entity\Content", fetch="LAZY", cascade={"persist", "remove"})
+     * @ORM\ManyToOne(targetEntity="App\Entity\Content", fetch="LAZY")
      * @ORM\JoinColumn(name="content_id", referencedColumnName="id")
      * @var Content
      */
     private $content;
 
-    public function __construct()
+    public function __construct(Navigation $navigation, Content $content)
     {
-        parent::__construct();
-        $this->content = new Content();
-        $this->content->setTitle("");
+        parent::__construct($navigation);
+        $this->content = $content;
     }
 
     /**
@@ -201,9 +186,11 @@ class NavigationNodeContent extends NavigationNode
     /**
      * @param Content $content
      */
-    public function setContent(Content $content): void
+    public function setContent(Content $content): self
     {
         $this->content = $content;
+
+        return $this;
     }
 
     public function getPath(): ?string
@@ -225,8 +212,16 @@ class NavigationNodeContent extends NavigationNode
 /**
  * @ORM\Entity()
  */
-class NavigationNodeEmpty extends NavigationNode
+final class NavigationNodeEmpty extends NavigationNode
 {
+    /**
+     * NavigationNodeEmpty constructor.
+     */
+    public function __construct(Navigation $navigation)
+    {
+        parent::__construct($navigation);
+    }
+
     public function getPath(): ?string
     {
         return null;
@@ -246,7 +241,7 @@ class NavigationNodeEmpty extends NavigationNode
 /**
  * @ORM\Entity()
  */
-class NavigationNodeGeneric extends NavigationNode
+final class NavigationNodeGeneric extends NavigationNode
 {
     /**
      * @ORM\Column(type="string", length=50, nullable=false)
@@ -254,9 +249,9 @@ class NavigationNodeGeneric extends NavigationNode
      */
     private $path;
 
-    public function __construct()
+    public function __construct(Navigation $navigation)
     {
-        parent::__construct();
+        parent::__construct($navigation);
         $this->path = "/";
     }
 

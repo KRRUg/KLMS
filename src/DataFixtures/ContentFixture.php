@@ -3,6 +3,7 @@
 namespace App\DataFixtures;
 
 use App\Entity\Content;
+use App\Entity\Navigation;
 use App\Entity\NavigationNodeContent;
 use App\Entity\NavigationNodeEmpty;
 use App\Entity\NavigationNodeGeneric;
@@ -55,56 +56,48 @@ class ContentFixture extends Fixture
 
 
         // Generate Navigation
+        $nav = new Navigation();
+        $nav->setName('main_menu');
 
-        $root = new NavigationNodeRoot();
+        $root = new NavigationNodeRoot($nav);
+        $root->setPos(1, 16);
 
-        $home = new NavigationNodeGeneric();
+        $home = new NavigationNodeGeneric($nav);
         $home
-            ->setParent($root)
-            ->setOrder(0)
-            ->setName("Home");
+            ->setName("Home")
+            ->setPos(2, 3);
 
-        $lan = new NavigationNodeEmpty();
+        $lan = new NavigationNodeEmpty($nav);
         $lan
-            ->setParent($root)
-            ->setOrder(1)
-            ->setName("Lan Party");
+            ->setName("Lan Party")
+            ->setPos(4, 15);
 
-        $lan_facts = new NavigationNodeContent();
+        $lan_facts = new NavigationNodeContent($nav, $content[0]);
         $lan_facts
-            ->setParent($lan)
             ->setName("Facts")
-            ->setOrder(0)
-            ->setContent($content[0]);
+            ->setPos(5, 10);
 
-        $lan_facts_net = new NavigationNodeContent();
+        $lan_facts_net = new NavigationNodeContent($nav, $content[4]);
         $lan_facts_net
-            ->setParent($lan_facts)
             ->setName("Netzwerk")
-            ->setOrder(0)
-            ->setContent($content[4]);
+            ->setPos(6,7);
 
-        $lan_facts_catering = new NavigationNodeContent();
+        $lan_facts_catering = new NavigationNodeContent($nav, $content[3]);
         $lan_facts_catering
-            ->setParent($lan_facts)
             ->setName("Catering")
-            ->setOrder(1)
-            ->setContent($content[3]);
+            ->setPos(8,9);
 
-        $lan_faq = new NavigationNodeContent();
+        $lan_faq = new NavigationNodeContent($nav, $content[1]);
         $lan_faq
-            ->setParent($lan)
             ->setName("FAQ")
-            ->setOrder(1)
-            ->setContent($content[1]);
+            ->setPos(11,12);
 
-        $lan_loc = new NavigationNodeContent();
+        $lan_loc = new NavigationNodeContent($nav, $content[2]);
         $lan_loc
-            ->setParent($lan)
             ->setName("Location")
-            ->setOrder(2)
-            ->setContent($content[2]);
+            ->setPos(13, 14);
 
+        $manager->persist($nav);
         $manager->persist($root);
         $manager->persist($home);
         $manager->persist($lan);
@@ -113,6 +106,9 @@ class ContentFixture extends Fixture
         $manager->persist($lan_facts_catering);
         $manager->persist($lan_faq);
         $manager->persist($lan_loc);
+
+        $manager->flush();
+        $manager->refresh($nav);
 
         // Generate Textblocks
         $tb_about = new TextBlock("ABOUT_US");
