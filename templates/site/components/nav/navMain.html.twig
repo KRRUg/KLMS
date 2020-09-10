@@ -5,7 +5,8 @@
 
     <div class="collapse navbar-collapse" id="main-nav-content">
         <ul class="navbar-nav mr-auto">
-            {% set root = nav.getNav('main_menu') %}
+            {% set root = nav.renderNav('main_menu') %}
+            {% if root is not empty %}
             {% for node in root['children'] %}
                 {% set name = node['name'] %}
                 {% set path = node['path'] %}
@@ -29,6 +30,11 @@
                     </li>
                 {% endif %}
             {% endfor %}
+            {% else %}
+                <li class="nav-item">
+                    <a class="nav-link" href="/">Home</a>
+                </li>
+            {% endif %}
         </ul>
     </div>
 </nav>

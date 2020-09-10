@@ -4,8 +4,10 @@
 {% block siteheading %}<i class="fas fa-map-signs"></i> Navigation{% endblock %}
 
 {% block main %}
-
-    Hallo
-
-    {{ dump(test) }}
+    {% for n in navs %}
+    <div>
+        <a href="{{ path('admin_navigation_edit', { 'id': n.id }) }}">{{ n.name }}</a>
+        <a href="{{ path('admin_navigation_delete', { 'id': n.id }) }}">delete</a>
+    </div>
+    {% endfor %}
 {% endblock %}

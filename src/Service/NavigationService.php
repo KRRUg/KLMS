@@ -30,35 +30,15 @@ class NavigationService
      * @param Content $content The content object to check
      * @return array All NavigationNode Items that refere to this content
      */
-    public function getByContent(Content $c) : array
+    public function getByContent(Content $content) : array
     {
         $nodes =  $this->nodeRepo->findAllContent();
         $ret = array();
         foreach ($nodes as $node) {
-            if ($node->getContent() === $c)
+            if ($node->getContent() === $content)
                 $ret[] = $node;
         }
         return $ret;
-    }
-
-    /**
-     * @param NavigationNode $node
-     * @return array Associative array of node and children recursively
-     */
-    public static function toArray(NavigationNode $node) : array
-    {
-        $children = array();
-        foreach ($node->getChildNodes() as $child) {
-            $children[] = self::toArray($child);
-        }
-        return [
-            'id' => $node->getId(),
-            'name' => $node->getName(),
-            'path' => $node->getPath(),
-            'type' => $node->getType(),
-            'target' => $node->getTargetId(),
-            'children' => $children
-        ];
     }
 
     /**
@@ -90,7 +70,12 @@ class NavigationService
         return $rslt;
     }
 
-    public function getNav($name = null): ?array
+    public function getAll()
+    {
+        return $this->navRepo->findAll();
+    }
+
+    public function renderNav($name = null): ?array
     {
         if (empty($name))
             return null;
@@ -98,5 +83,11 @@ class NavigationService
         if (empty($nav))
             return null;
         return $this->render($nav);
+    }
+
+    public function delete(Navigation $nav)
+    {
+        $this->em->remove($nav);
+        $this->em->flush();
     }
 }

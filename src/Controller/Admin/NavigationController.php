@@ -5,6 +5,7 @@ namespace App\Controller\Admin;
 
 
 use App\Controller\BaseController;
+use App\Entity\Navigation;
 use App\Entity\NavigationNode;
 use App\Service\ContentService;
 use App\Service\NavigationService;
@@ -39,12 +40,35 @@ class NavigationController extends BaseController
     }
 
     /**
-     * @Route(".{_format}", name="", defaults={"_format"="html"}, methods={"GET"})
+     * @Route("", name="", methods={"GET"})
      */
     public function index(Request $request)
     {
+        $navs = $this->navService->getAll();
         return $this->render('admin/navigation/index.html.twig', [
+            'navs' => $navs,
         ]);
+    }
+
+    /**
+     * @Route("/edit/{id}.{_format}", name="_edit", defaults={"_format"="html"}, methods={"GET", "POST"})
+     * @ParamConverter()
+     */
+    public function edit(Navigation $navigation)
+    {
+        return $this->render('admin/navigation/edit.html.twig', [
+            'n' => $navigation,
+        ]);
+    }
+
+    /**
+     * @Route("/delete/{id}", name="_delete")
+     * @ParamConverter()
+     */
+    public function delete(Navigation $navigation)
+    {
+        $this->navService->delete($navigation);
+        return $this->redirectToRoute("admin_navigation");
     }
 
 //    /**

@@ -6,13 +6,15 @@ Configuration options:
     - style: style classes of the links
 #}
 
-{% set root = nav.getNav(navigation | default('footer')) %}
+{% set root = nav.renderNav(navigation | default('footer')) %}
 
 <div>
-    {% for node in root['children'] %}
-        {% set name = node['name'] %}
-        {% set path = node['path'] %}
-        <a class="{{ style | default("") }}" href="{{ path | default('#') }}">{{ name }}</a>
-        {% if not loop.last %}|{% endif %}
-    {% endfor %}
+    {% if root is not empty %}
+        {% for node in root['children'] %}
+            {% set name = node['name'] %}
+            {% set path = node['path'] %}
+            <a class="{{ style | default("") }}" href="{{ path | default('#') }}">{{ name }}</a>
+            {% if not loop.last %}|{% endif %}
+        {% endfor %}
+    {% endif %}
 </div>
