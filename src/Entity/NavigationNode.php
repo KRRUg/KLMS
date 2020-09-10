@@ -6,7 +6,12 @@ use Doctrine\ORM\Mapping as ORM;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\NavigationNodeRepository")
- * @ORM\Table(name="navigation_node")
+ * @ORM\Table(
+ *     name="navigation_node",
+ *     uniqueConstraints={
+ *        @ORM\UniqueConstraint(name="lft_unique", columns={"navigation_id", "lft" }),
+ *        @ORM\UniqueConstraint(name="rgt_unique", columns={"navigation_id", "rgt" }),
+ * })
  * @ORM\InheritanceType("SINGLE_TABLE")
  * @ORM\DiscriminatorColumn(name="type", type="string", length=25)
  * @ORM\DiscriminatorMap({
@@ -32,7 +37,7 @@ abstract class NavigationNode
 
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\Navigation", inversedBy="nodes")
-     * @ORM\JoinColumn(nullable=false)
+     * @ORM\JoinColumn(name="navigation_id", nullable=false)
      */
     private $navigation;
 
