@@ -33,6 +33,10 @@ $box-shadow-xl: 0 25.6px 57.6px 0 rgba($shadow-color,.22),0 4.8px 14.4px 0 rgba(
 @import 'sidebar.scss';
 @import 'forms.scss';
 
+.bg-darker {
+    background-color: darken($dark, 5);
+}
+
 footer {
     box-shadow: $box-shadow;
 }

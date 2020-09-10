@@ -5,6 +5,7 @@ namespace App\Repository;
 use App\Entity\Navigation;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Common\Persistence\ManagerRegistry;
+use Doctrine\ORM\NonUniqueResultException;
 
 /**
  * @method Navigation|null find($id, $lockMode = null, $lockVersion = null)
@@ -19,32 +20,17 @@ class NavigationRepository extends ServiceEntityRepository
         parent::__construct($registry, Navigation::class);
     }
 
-    // /**
-    //  * @return Navigation[] Returns an array of Navigation objects
-    //  */
-    /*
-    public function findByExampleField($value)
+    public function findOneByName($name): ?Navigation
     {
-        return $this->createQueryBuilder('n')
-            ->andWhere('n.exampleField = :val')
-            ->setParameter('val', $value)
-            ->orderBy('n.id', 'ASC')
-            ->setMaxResults(10)
-            ->getQuery()
-            ->getResult()
-        ;
+        try {
+            return $this->createQueryBuilder('n')
+                ->andWhere('n.name = :name')
+                ->setParameter('name', $name)
+                ->getQuery()
+                ->getOneOrNullResult();
+        } catch (NonUniqueResultException $e) {
+            // name is unique
+            return null;
+        }
     }
-    */
-
-    /*
-    public function findOneBySomeField($value): ?Navigation
-    {
-        return $this->createQueryBuilder('n')
-            ->andWhere('n.exampleField = :val')
-            ->setParameter('val', $value)
-            ->getQuery()
-            ->getOneOrNullResult()
-        ;
-    }
-    */
 }

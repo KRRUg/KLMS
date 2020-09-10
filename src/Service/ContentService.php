@@ -18,15 +18,13 @@ class ContentService
 
     private $navService;
 
-    // TODO merge with Navigation service?
-
     /**
      * ContentService constructor.
      * @param $repo
      * @param $em
      * @param $logger
      */
-    public function __construct(ContentRepository $repo, EntityManagerInterface $em, LoggerInterface $logger, NavService $navService)
+    public function __construct(ContentRepository $repo, EntityManagerInterface $em, LoggerInterface $logger, NavigationService $navService)
     {
         $this->repo = $repo;
         $this->em = $em;

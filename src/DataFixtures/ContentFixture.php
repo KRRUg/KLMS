@@ -107,12 +107,22 @@ class ContentFixture extends Fixture
         $manager->persist($lan_faq);
         $manager->persist($lan_loc);
 
+        $links = new Navigation();
+        $links->setName("footer");
+        $links->addNode((new NavigationNodeRoot($links))->setName('Footer')->setPos(1,8));
+        $links->addNode((new NavigationNodeGeneric($links))->setName('AGB')->setPath('/')->setPos(2,3));
+        $links->addNode((new NavigationNodeGeneric($links))->setName('Impressum')->setPath('/')->setPos(4,5));
+        $links->addNode((new NavigationNodeGeneric($links))->setName('Datenschutz')->setPath('/')->setPos(6,7));
+
+        $manager->persist($links);
+
         $manager->flush();
         $manager->refresh($nav);
+        $manager->refresh($links);
 
         // Generate Textblocks
         $tb_about = new TextBlock("ABOUT_US");
-        $tb_about->setText($lipsum->paragraphs());
+        $tb_about->setText($lipsum->words(20));
 
         $tb_agb = new TextBlock("AGB");
         $tb_agb->setText("<h2>{$lipsum->words()}</h2><p>{$lipsum->paragraphs(2)}</p><h2>{$lipsum->words(2)}</h2><p>{$lipsum->paragraphs(3)}}</p>");

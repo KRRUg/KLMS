@@ -5,5 +5,5 @@ twig:
     exception_controller: null
     form_themes: ['bootstrap_4_layout.html.twig']
     globals:
-        nav: '@App\Service\NavService'
+        nav: '@App\Service\NavigationService'
         textblock: '@App\Service\TextBlockService'

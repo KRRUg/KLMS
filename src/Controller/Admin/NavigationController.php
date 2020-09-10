@@ -7,7 +7,7 @@ namespace App\Controller\Admin;
 use App\Controller\BaseController;
 use App\Entity\NavigationNode;
 use App\Service\ContentService;
-use App\Service\NavService;
+use App\Service\NavigationService;
 use Psr\Log\LoggerInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -31,7 +31,7 @@ class NavigationController extends BaseController
      * @param $navService
      * @param $contentService
      */
-    public function __construct(NavService $navService, ContentService $contentService, LoggerInterface $logger)
+    public function __construct(NavigationService $navService, ContentService $contentService, LoggerInterface $logger)
     {
         $this->logger = $logger;
         $this->navService = $navService;
@@ -43,65 +43,74 @@ class NavigationController extends BaseController
      */
     public function index(Request $request)
     {
-        $main = $this->navService->getNav();
-        if ($request->getRequestFormat() === 'html') {
-            return $this->render('admin/navigation/index.html.twig', [
-                'tree' => $main,
-            ]);
-        } elseif ($request->getRequestFormat() === 'json') {
-            return $this->apiResponse($this->navService->getNavArray());
-        } else {
-            return $this->createNotFoundException("Unsupported format extension");
-        }
+        return $this->render('admin/navigation/index.html.twig', [
+        ]);
     }
 
-    /**
-     * @Route("", methods={"POST"})
-     */
-    public function create(Request $request)
-    {
-        $data = json_decode($request->getContent(), true);
-        if ($data === null) {
-            return $this->createBadRequestException();
-        }
-    }
-
-    /**
-     * @Route("/{id}", name="_move", methods={"POST"})
-     * @ParamConverter()
-     */
-    public function move(Request $request, NavigationNode $node)
-    {
-        $data = json_decode($request->getContent(), true);
-        if ($data === null) {
-            return $this->createBadRequestException();
-        }
-        $parent = $data['parent'];
-        $pos = $data['pos'];
-        if (empty($parent) && empty($pos)) {
-            // nothing to do
-            return $this->apiResponse();
-        }
-
-        $parent = empty($parent) ? $node->getParent() : $this->navService->getById($parent);
-        $pos = empty($pos) ? $node->getOrder() : intval($pos);
-        if (empty($pos) || empty($parent)) {
-            return $this->apiError("Invalid pos or parent");
-        }
-
-        $this->navService->moveNode($node, $parent, $pos);
-        return $this->apiResponse();
-    }
-
-    /**
-     * @Route("/{id}", name="_delete", methods={"DELETE"})
-     * @ParamConverter()
-     */
-    public function delete(Request $request, NavigationNode $node)
-    {
-        $this->navService->removeNode($node);
-        return $this->apiResponse([]);
-    }
+//    /**
+//     * @Route(".{_format}", name="", defaults={"_format"="html"}, methods={"GET"})
+//     */
+//    public function index(Request $request)
+//    {
+//        $main = $this->navService->getNav();
+//        if ($request->getRequestFormat() === 'html') {
+//            return $this->render('admin/navigation/index.html.twig', [
+//                'tree' => $main,
+//            ]);
+//        } elseif ($request->getRequestFormat() === 'json') {
+//            return $this->apiResponse($this->navService->getNavArray());
+//        } else {
+//            return $this->createNotFoundException("Unsupported format extension");
+//        }
+//    }
+//
+//    /**
+//     * @Route("", methods={"POST"})
+//     */
+//    public function create(Request $request)
+//    {
+//        $data = json_decode($request->getContent(), true);
+//        if ($data === null) {
+//            return $this->createBadRequestException();
+//        }
+//    }
+//
+//    /**
+//     * @Route("/{id}", name="_move", methods={"POST"})
+//     * @ParamConverter()
+//     */
+//    public function move(Request $request, NavigationNode $node)
+//    {
+//        $data = json_decode($request->getContent(), true);
+//        if ($data === null) {
+//            return $this->createBadRequestException();
+//        }
+//        $parent = $data['parent'];
+//        $pos = $data['pos'];
+//        if (empty($parent) && empty($pos)) {
+//            // nothing to do
+//            return $this->apiResponse();
+//        }
+//
+//        $parent = empty($parent) ? $node->getParent() : $this->navService->getById($parent);
+//        $pos = empty($pos) ? $node->getOrder() : intval($pos);
+//        if (empty($pos) || empty($parent)) {
+//            return $this->apiError("Invalid pos or parent");
+//        }
+//
+//        $this->navService->moveNode($node, $parent, $pos);
+//        return $this->apiResponse();
+//    }
+//
+//    /**
+//     * @Route("/{id}", name="_delete", methods={"DELETE"})
+//     * @ParamConverter()
+//     */
+//    public function delete(Request $request, NavigationNode $node)
+//    {
+//        $this->navService->removeNode($node);
+//        return $this->apiResponse([]);
+//    }
 
     //    private $nav;
     //

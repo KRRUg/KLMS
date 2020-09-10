@@ -13,9 +13,16 @@
     <main id="main">
         {% block main %}{% endblock %}
     </main>
-    <footer id="footer" class="bg-dark text-white">
+    <footer id="footer">
         {% block footer %}
-            {% include 'site/components/footer.html.twig' %}
+            <div class="bg-dark text-white">
+                {% include 'site/components/footer.html.twig' %}
+            </div>
+        {% endblock %}
+        {% block footbar %}
+            <div class="bg-darker text-muted">
+                {% include 'site/components/footBar.html.twig' %}
+            </div>
         {% endblock %}
     </footer>
 {% endblock %}

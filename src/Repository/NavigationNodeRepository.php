@@ -2,11 +2,10 @@
 
 namespace App\Repository;
 
-use App\Entity\Content;
+use App\Entity\Navigation;
 use App\Entity\NavigationNode;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Common\Persistence\ManagerRegistry;
-use Doctrine\ORM\NonUniqueResultException;
 
 /**
  * @method NavigationNode|null find($id, $lockMode = null, $lockVersion = null)
@@ -21,27 +20,22 @@ class NavigationNodeRepository extends ServiceEntityRepository
         parent::__construct($registry, NavigationNode::class);
     }
 
-    public function getRoot() : NavigationNode
-    {
-        $root = $this->createQueryBuilder('n')
-            ->andWhere('n instance of App\Entity\NavigationNodeRoot')
-            ->getQuery()
-            ->getOneOrNullResult();
-
-        if ($root) {
-            return $root;
-        } else {
-            throw new \Exception('Root element not found');
-        }
-    }
-
     public function findAllContent()
     {
         return $this->createQueryBuilder('n')
             ->where('n INSTANCE OF App\Entity\NavigationNodeContent')
             ->orderBy('n.id', 'ASC')
             ->getQuery()
-            ->getResult()
-            ;
+            ->getResult();
+    }
+
+    public function findByNavigation(Navigation $navigation)
+    {
+        return $this->createQueryBuilder('n')
+            ->where('n.navigation = :nav')
+            ->setParameter('nav', $navigation)
+            ->orderBy('n.lft', 'ASC')
+            ->getQuery()
+            ->getResult();
     }
 }
