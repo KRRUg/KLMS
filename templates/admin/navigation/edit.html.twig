@@ -9,5 +9,54 @@
 {% endblock %}
 
 {% block main %}
-    {{ n.name }}
+    {% set root = nav.renderNav(n) %}
+
+    {% macro menu_links(nodes) %}
+        <ul>
+            {% for node in nodes %}
+                {% set name = node['name'] %}
+                {% set path = node['path'] %}
+                {% set children = node['children'] %}
+                <li>
+                    <div>{{ name }}</div>
+                    {% if children is not empty %}
+                        {{ _self.menu_links(children) }}
+                    {% endif %}
+                </li>
+            {% endfor %}
+        </ul>
+    {% endmacro %}
+
+    <div class="row">
+        <div class="col mb-4">
+            <div class="card">
+                <div class="card-body">
+                    Navigation <span class="text-primary">{{ n.name }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col mb-4">
+            <div class="card">
+                <div class="card-body">
+                    {% if root is not empty %}
+                        {{ _self.menu_links(root['children']) }}
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+    </div>
+    <hr>
+    {{ form_start(form) }}
+    <form method="post">
+    <div class="float-right">
+        {{ form_rest(form) }}
+        <a class="btn btn-secondary" href="{{ path('admin_navigation') }}">Abbrechen</a>
+        <button type="submit" id="news_save" class="btn-primary btn">Speichern</button>
+    </div>
+    {{ form_end(form) }}
+
 {% endblock %}

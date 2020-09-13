@@ -11,6 +11,7 @@ class ServiceException extends \RuntimeException
     const CAUSE_IN_USE = 'in_use';
     const CAUSE_DONT_EXIST = 'dont_exists';
     const CAUSE_EXIST = 'already_exists';
+    const CAUSE_INVALID = 'invalid';
 
     private $cause;
 

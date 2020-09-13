@@ -5,9 +5,17 @@
 
 {% block main %}
     {% for n in navs %}
-    <div>
-        <a href="{{ path('admin_navigation_edit', { 'id': n.id }) }}">{{ n.name }}</a>
-        <a href="{{ path('admin_navigation_delete', { 'id': n.id }) }}">delete</a>
+    <div class="card mb-3">
+        <div class="card-body">
+            <div class="row no-gutters">
+                <div class="col col-auto mr-3">
+                    <i class="far fa-compass fa-2x"></i>
+                </div>
+                <div class="col h-100">
+                    <a class="align-middle" href="{{ path('admin_navigation_edit', { 'id': n.id }) }}">{{ n.name }}</a>
+                </div>
+            </div>
+        </div>
     </div>
     {% endfor %}
 {% endblock %}

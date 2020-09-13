@@ -51,9 +51,8 @@ abstract class NavigationNode
      */
     private $rgt;
 
-    public function __construct(Navigation $navigation)
+    public function __construct()
     {
-        $this->navigation = $navigation;
         $this->name = "";
     }
 
@@ -135,9 +134,9 @@ abstract class NavigationNode
  */
 final class NavigationNodeRoot extends NavigationNode
 {
-    public function __construct(Navigation $navigation)
+    public function __construct()
     {
-        parent::__construct($navigation);
+        parent::__construct();
         $this->setName("KLMS");
     }
 
@@ -174,9 +173,9 @@ final class NavigationNodeContent extends NavigationNode
      */
     private $content;
 
-    public function __construct(Navigation $navigation, Content $content)
+    public function __construct(Content $content)
     {
-        parent::__construct($navigation);
+        parent::__construct();
         $this->content = $content;
     }
 
@@ -222,9 +221,9 @@ final class NavigationNodeEmpty extends NavigationNode
     /**
      * NavigationNodeEmpty constructor.
      */
-    public function __construct(Navigation $navigation)
+    public function __construct()
     {
-        parent::__construct($navigation);
+        parent::__construct();
     }
 
     public function getPath(): ?string
@@ -254,10 +253,10 @@ final class NavigationNodeGeneric extends NavigationNode
      */
     private $path;
 
-    public function __construct(Navigation $navigation)
+    public function __construct(string $path = '/')
     {
-        parent::__construct($navigation);
-        $this->path = "/";
+        parent::__construct();
+        $this->path = $path;
     }
 
     public function getPath(): ?string

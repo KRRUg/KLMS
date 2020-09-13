@@ -54,71 +54,31 @@ class ContentFixture extends Fixture
             $manager->persist($c);
         }
 
-
         // Generate Navigation
         $nav = new Navigation();
         $nav->setName('main_menu');
-
-        $root = new NavigationNodeRoot($nav);
-        $root->setPos(1, 16);
-
-        $home = new NavigationNodeGeneric($nav);
-        $home
-            ->setName("Home")
-            ->setPos(2, 3);
-
-        $lan = new NavigationNodeEmpty($nav);
-        $lan
-            ->setName("Lan Party")
-            ->setPos(4, 15);
-
-        $lan_facts = new NavigationNodeContent($nav, $content[0]);
-        $lan_facts
-            ->setName("Facts")
-            ->setPos(5, 10);
-
-        $lan_facts_net = new NavigationNodeContent($nav, $content[4]);
-        $lan_facts_net
-            ->setName("Netzwerk")
-            ->setPos(6,7);
-
-        $lan_facts_catering = new NavigationNodeContent($nav, $content[3]);
-        $lan_facts_catering
-            ->setName("Catering")
-            ->setPos(8,9);
-
-        $lan_faq = new NavigationNodeContent($nav, $content[1]);
-        $lan_faq
-            ->setName("FAQ")
-            ->setPos(11,12);
-
-        $lan_loc = new NavigationNodeContent($nav, $content[2]);
-        $lan_loc
-            ->setName("Location")
-            ->setPos(13, 14);
-
+        $nav->addNode((new NavigationNodeRoot())->setPos(1,16));
+        $nav->addNode((new NavigationNodeGeneric())->setName("Home")->setPos(2,3));
+        $nav->addNode((new NavigationNodeEmpty())->setName("Lan Party")->setPos(4, 15));
+        $nav->addNode((new NavigationNodeContent($content[0]))->setName("Facts")->setPos(5, 10));
+        $nav->addNode((new NavigationNodeContent($content[4]))->setName("Netzwerk")->setPos(6,7));
+        $nav->addNode((new NavigationNodeContent($content[3]))->setName("Catering")->setPos(8,9));
+        $nav->addNode((new NavigationNodeContent($content[1]))->setName("FAQ")->setPos(11,12));
+        $nav->addNode((new NavigationNodeContent($content[2]))->setName("Location")->setPos(13, 14));
         $manager->persist($nav);
-        $manager->persist($root);
-        $manager->persist($home);
-        $manager->persist($lan);
-        $manager->persist($lan_facts);
-        $manager->persist($lan_facts_net);
-        $manager->persist($lan_facts_catering);
-        $manager->persist($lan_faq);
-        $manager->persist($lan_loc);
 
-        $links = new Navigation();
-        $links->setName("footer");
-        $links->addNode((new NavigationNodeRoot($links))->setName('Footer')->setPos(1,8));
-        $links->addNode((new NavigationNodeGeneric($links))->setName('AGB')->setPath('/')->setPos(2,3));
-        $links->addNode((new NavigationNodeGeneric($links))->setName('Impressum')->setPath('/')->setPos(4,5));
-        $links->addNode((new NavigationNodeGeneric($links))->setName('Datenschutz')->setPath('/')->setPos(6,7));
+        $footer = new Navigation();
+        $footer->setName("footer");
+        $footer->addNode((new NavigationNodeRoot())->setName('Footer')->setPos(1,8));
+        $footer->addNode((new NavigationNodeGeneric())->setName('AGB')->setPath('/')->setPos(2,3));
+        $footer->addNode((new NavigationNodeGeneric())->setName('Impressum')->setPath('/')->setPos(4,5));
+        $footer->addNode((new NavigationNodeGeneric())->setName('Datenschutz')->setPath('/')->setPos(6,7));
 
-        $manager->persist($links);
+        $manager->persist($footer);
 
         $manager->flush();
         $manager->refresh($nav);
-        $manager->refresh($links);
+        $manager->refresh($footer);
 
         // Generate Textblocks
         $tb_about = new TextBlock("ABOUT_US");

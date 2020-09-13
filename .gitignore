@@ -69,3 +69,5 @@ yarn-error.log
 public/images
 public/cache
 public/media
+
+*.sh

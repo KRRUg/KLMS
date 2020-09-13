@@ -27,7 +27,12 @@ class Navigation
     private $name;
 
     /**
-     * @ORM\OneToMany(targetEntity="App\Entity\NavigationNode", mappedBy="navigation", orphanRemoval=true, cascade={"all"})
+     * @ORM\OneToMany(
+     *     targetEntity="App\Entity\NavigationNode",
+     *     mappedBy="navigation",
+     *     orphanRemoval=true,
+     *     cascade={"all"},
+     * )
      * @ORM\OrderBy({"lft" = "ASC"})
      */
     private $nodes;
@@ -83,6 +88,18 @@ class Navigation
                 $node->setNavigation(null);
             }
         }
+
+        return $this;
+    }
+
+    public function clearNodes(): self
+    {
+        foreach ($this->nodes as $node) {
+            if ($node->getNavigation() === $this) {
+                $node->setNavigation(null);
+            }
+        }
+        $this->nodes->clear();
 
         return $this;
     }

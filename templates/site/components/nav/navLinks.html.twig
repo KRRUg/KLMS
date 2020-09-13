@@ -5,7 +5,7 @@ Configuration options:
     - navigation: name of the navigation to display
 #}
 
-{% set root = nav.renderNav(navigation | default('links')) %}
+{% set root = nav.renderNavByName(navigation | default('links')) %}
 
 {% macro menu_links(nodes) %}
     <ul class="list-unstyled">

@@ -5,35 +5,35 @@
 
     <div class="collapse navbar-collapse" id="main-nav-content">
         <ul class="navbar-nav mr-auto">
-            {% set root = nav.renderNav('main_menu') %}
-            {% if root is not empty %}
-            {% for node in root['children'] %}
-                {% set name = node['name'] %}
-                {% set path = node['path'] %}
-                {% set children = node['children'] %}
-                {% if children is empty %}
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ path | default('#') }}">{{ name }}</a>
-                    </li>
-                {% else %}
-                    <li class="nav-item dropdown" }}>
-                        <a class="nav-link dropdown-toggle" href="{{ path | default('#') }}" role="button" data-toggle="dropdown">{{ name }}</a>
-                        <ul class="dropdown-menu">
-                            {% for node in children %}
-                                {% set name = node['name'] %}
-                                {% set path = node['path'] %}
-                                <li class="dropdown-item">
-                                    <a href="{{ path | default('#') }}">{{ name }}</a>
-                                </li>
-                            {% endfor %}
-                        </ul>
-                    </li>
-                {% endif %}
-            {% endfor %}
-            {% else %}
+            {% set root = nav.renderNavByName('main_menu') %}
+            {% if root is empty or root['children'] is empty %}
                 <li class="nav-item">
                     <a class="nav-link" href="/">Home</a>
                 </li>
+            {% else %}
+                {% for node in root['children'] %}
+                    {% set name = node['name'] %}
+                    {% set path = node['path'] %}
+                    {% set children = node['children'] %}
+                    {% if children is empty %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ path | default('#') }}">{{ name }}</a>
+                        </li>
+                    {% else %}
+                        <li class="nav-item dropdown" }}>
+                            <a class="nav-link dropdown-toggle" href="{{ path | default('#') }}" role="button" data-toggle="dropdown">{{ name }}</a>
+                            <ul class="dropdown-menu">
+                                {% for node in children %}
+                                    {% set name = node['name'] %}
+                                    {% set path = node['path'] %}
+                                    <li class="dropdown-item">
+                                        <a href="{{ path | default('#') }}">{{ name }}</a>
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        </li>
+                    {% endif %}
+                {% endfor %}
             {% endif %}
         </ul>
     </div>
