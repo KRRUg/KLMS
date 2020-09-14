@@ -42,8 +42,44 @@ $.extend(MediaPreview.prototype,{
                 $elem.hide();
         });
     },
+    getFileNames() {
+        return this.boxes.map(function() {
+            return $(this).data('name');
+        }).get();
+    },
 });
 
+const UploadDialog = function($modal, filenames) {
+    this.$modal = $modal;
+    let $form = $modal.find('form');
+    let $input = $form.find('input[type=file]');
+    let $checkbox = $form.find('input[type="checkbox"]');
+    let $label = $form.find('label[for="' + $checkbox.attr('id') + '"]');
+
+    let $alert = $("<div class='alert alert-warning'>Datei ist vorhanden und wird überschrieben!</div>");
+    $label.after($alert);
+    $checkbox.hide();
+    $label.hide();
+    $alert.hide();
+
+    $modal.on('hidden.bs.modal', _ => {
+        $form.trigger('reset');
+        $alert.hide();
+    });
+
+    $input.on('change', _ => {
+        const filename = $input.val().split('\\').pop();
+        if (filenames.includes(filename)) {
+            $checkbox.prop('checked', true);
+            $alert.show();
+        } else {
+            $checkbox.prop('checked', false);
+            $alert.hide();
+        }
+    });
+}
+
 $(document).ready(() => {
-    new MediaPreview($('#mediaList'), $('#confirmModal'), $('#filterSelect'), $('#searchInput'));
+    const mp = new MediaPreview($('#mediaList'), $('#confirmModal'), $('#filterSelect'), $('#searchInput'));
+    const ud = new UploadDialog($('#uploadModal'), mp.getFileNames());
 });
