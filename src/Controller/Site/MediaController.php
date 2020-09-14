@@ -35,9 +35,9 @@ class MediaController extends AbstractController
     public function getMedia(Request $request)
     {
         $name = $request->get('name');
-        $media = $this->imageRepository->findByName($name);
+        $media = $this->imageRepository->findByDisplayName($name);
         if (empty($media))
             throw $this->createNotFoundException();
-        return $this->downloadHandler->downloadObject($media, $fileField = 'mediaFile', $objectClass = null, $fileName = null, $forceDownload = false);
+        return $this->downloadHandler->downloadObject($media, $fileField = 'mediaFile', $objectClass = null, $fileName = true, $forceDownload = false);
     }
 }

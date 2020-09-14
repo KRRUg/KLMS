@@ -69,21 +69,27 @@ class MediaService
         return $name;
     }
 
-    public function save(Media $media)
+    public function save(Media $media, bool $overwrite = false)
     {
         if (empty($media) || empty($media->getMediaFile())) {
             throw new ServiceException(ServiceException::CAUSE_EMPTY);
         }
 
         $name = $this->getDisplayName($media);
+        $existing = $this->repo->findByDisplayName($name);
 
-        // Ensure that the display name is unique.
-        if (!empty($this->repo->findByDisplayName($name))) {
-            throw new ServiceException(ServiceException::CAUSE_EXIST);
+        if (empty($existing)) {
+            $this->logger->info("Create Media {$name} ({$media->getMediaFile()->getMimeType()})");
+            $this->em->persist($media);
+        } else {
+            if (!$overwrite) {
+                throw new ServiceException(ServiceException::CAUSE_EXIST);
+            }
+            $this->logger->info("Updating Media {$name} ({$media->getMediaFile()->getMimeType()})");
+            $existing->setMediaFile($media->getMediaFile());
+            $existing->setModifierId($media->getModifierId());
+            $this->em->persist($existing);
         }
-
-        $this->logger->info("Create Media {$name} ({$media->getMediaFile()->getMimeType()})");
-        $this->em->persist($media);
         $this->em->flush();
     }
 }

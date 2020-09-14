@@ -33,7 +33,7 @@ class MediaController extends BaseController
             // title and value required by tinyMCE image list
             'id' => $image->getId(),
             'title' => $image->getDisplayName(),
-            'value' => $this->generateUrl('media', ['name' => $image->getFileName()]),
+            'value' => $this->generateUrl('media', ['name' => $image->getDisplayName()]),
             'mimeType' => $image->getMimeType(),
         ];
     }
@@ -64,8 +64,10 @@ class MediaController extends BaseController
         $form_upload->handleRequest($request);
         if ($form_upload->isSubmitted()) {
             if ($form_upload->isValid()) {
+                $data = $form_upload->getData();
+                $overwrite = boolval($form_upload['overwrite']->getData());
                 try {
-                    $this->mediaService->save($form_upload->getData());
+                    $this->mediaService->save($data, $overwrite);
                 } catch (ServiceException $e) {
                     $this->flashException($e);
                 }

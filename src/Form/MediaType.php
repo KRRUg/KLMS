@@ -5,7 +5,7 @@ namespace App\Form;
 use App\Entity\Media;
 use App\Helper\AuthorInsertSubscriber;
 use Symfony\Component\Form\AbstractType;
-use Symfony\Component\Form\Extension\Core\Type\TextType;
+use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Vich\UploaderBundle\Form\Type\VichFileType;
@@ -27,8 +27,11 @@ class MediaType extends AbstractType
             'allow_delete' => false,
             'download_uri' => false,
             'asset_helper' => true,
-        ]);
-        $builder->addEventSubscriber($this->userInsertSubscriber);
+        ])->add('overwrite', CheckboxType::class, [
+            'label' => 'Überschreiben wenn vorhanden',
+            'mapped' => false,
+            'required' => false,
+        ])->addEventSubscriber($this->userInsertSubscriber);
     }
 
     public function configureOptions(OptionsResolver $resolver)

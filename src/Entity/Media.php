@@ -132,6 +132,14 @@ class Media implements HistoryAwareEntity
         return substr($mimeType, 0, strlen($prefix)) === $prefix;
     }
 
+    public function getMediaType()
+    {
+        $mime = $this->getMimeType();
+        if(!preg_match('/^(\w+)\/(\w*)$/', $mime, $output))
+            return "";
+        return $output[1];
+    }
+
     public function isImage(): bool
     {
         return $this->checkMediaType("image/");
@@ -139,6 +147,6 @@ class Media implements HistoryAwareEntity
 
     public function isDocument(): bool
     {
-        return $this->checkMediaType("document/");
+        return $this->checkMediaType("application/");
     }
 }
