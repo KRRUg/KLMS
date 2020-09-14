@@ -19,7 +19,7 @@ use Symfony\Component\HttpFoundation\File\File;
 class Media implements HistoryAwareEntity
 {
     const MAX_FILE_SIZE = "4096k";
-    const MIME_TYPES = ["image/png", "image/jpeg", "image/gif", "application/pdf"];
+    const MIME_TYPES = ["image/png", "image/jpeg", "image/gif", "application/pdf", "application/zip"];
 
     /**
      * @ORM\Id()
@@ -32,7 +32,7 @@ class Media implements HistoryAwareEntity
      * @Assert\File(
      *     maxSize=Media::MAX_FILE_SIZE,
      *     mimeTypes=Media::MIME_TYPES,
-     *     mimeTypesMessage = "Please upload a valid file (Image or PDF)"
+     *     mimeTypesMessage = "Please upload a valid file (Image, PDF or ZIP)"
      * )
      * @Vich\UploadableField(
      *     mapping="media",
