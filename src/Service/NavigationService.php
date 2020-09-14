@@ -10,6 +10,7 @@ use App\Entity\NavigationNodeContent;
 use App\Entity\NavigationNodeEmpty;
 use App\Entity\NavigationNodeGeneric;
 use App\Entity\NavigationNodeRoot;
+use App\Repository\ContentRepository;
 use App\Repository\NavigationNodeRepository;
 use App\Repository\NavigationRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -19,6 +20,7 @@ class NavigationService
     private $em;
     private $nodeRepo;
     private $navRepo;
+    private $contentRepo;
 
     const NAV_LOCATION_MAIN = 'main_menu';
     const NAV_LOCATION_FOOTER = 'footer';
@@ -28,11 +30,16 @@ class NavigationService
         self::NAV_LOCATION_FOOTER,
     ];
 
-    public function __construct(EntityManagerInterface $em, NavigationRepository $navRepo, NavigationNodeRepository $nodeRepo)
-    {
+    public function __construct(
+        EntityManagerInterface $em,
+        NavigationRepository $navRepo,
+        NavigationNodeRepository $nodeRepo,
+        ContentRepository $contentRepo
+    ){
         $this->em = $em;
         $this->navRepo = $navRepo;
         $this->nodeRepo = $nodeRepo;
+        $this->contentRepo = $contentRepo;
     }
 
     /**
@@ -101,12 +108,24 @@ class NavigationService
         return true;
     }
 
+    private function guessType(?string $path): NavigationNode
+    {
+        if (empty($path)) {
+            return new NavigationNodeEmpty();
+        } elseif (preg_match('/^\/?content\/(\d+)\/?$/', $path, $output_array)) {
+            $content = $this->contentRepo->findById(intval($output_array[1]));
+            return new NavigationNodeContent($content);
+        } else {
+            return new NavigationNodeGeneric($path);
+        }
+    }
+
     /**
      * @param array $parse Array to parse. No checks performed, run self::check first.
      * @param array $result Reference to the result array. Must be [] to generate a root element.
      * @param int $count The lft value to start with.
      */
-    private static function parse(array $parse, array &$result = [], int &$count = 1)
+    private function parse(array $parse, array &$result = [], int &$count = 1)
     {
         $path = $parse[self::ARRAY_PATH];
         $name = $parse[self::ARRAY_NAME];
@@ -115,13 +134,13 @@ class NavigationService
         if (empty($result)) {
             $node = new NavigationNodeRoot();
         } else {
-            $node = empty($path) ? new NavigationNodeEmpty() : new NavigationNodeGeneric($path);
+            $node = $this->guessType($path);
         }
         $node->setName($name);
         $node->setLft($count++);
         array_push($result, $node);
         foreach ($children as $child) {
-            self::parse($child, $result, $count);
+            $this->parse($child, $result, $count);
         }
         $node->setRgt($count++);
     }
@@ -184,7 +203,7 @@ class NavigationService
         $this->em->flush();
 
         $rslt = [];
-        self::parse($input, $rslt);
+        $this->parse($input, $rslt);
         foreach ($rslt as $item)
             $nav->addNode($item);
         $this->em->persist($nav);

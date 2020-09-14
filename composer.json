@@ -30,7 +30,7 @@
         "symfony/webpack-encore-bundle": "^1.7",
         "symfony/yaml": "4.4.*",
         "twig/string-extra": "^3.0",
-        "vich/uploader-bundle": "^1.13",
+        "vich/uploader-bundle": "^1.13"
     },
     "require-dev": {
         "doctrine/doctrine-fixtures-bundle": "^3.3",
