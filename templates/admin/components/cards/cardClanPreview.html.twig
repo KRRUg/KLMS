@@ -1,7 +1,7 @@
 {% extends 'site/components/cards/cardClanPreview.html.twig' %}
 
 {% block clanTitle %}
-    <a href="{{ path('admin_clan_show', {'uuid' : clan.uuid}) }}">
+    <a data-toggle="ajaxModal" href="{{ path('admin_clan_show', {'uuid' : clan.uuid}) }}">
         {{ clan.name }}
     </a>
 {% endblock %}
