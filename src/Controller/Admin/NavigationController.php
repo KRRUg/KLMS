@@ -78,7 +78,7 @@ class NavigationController extends BaseController
         }
 
         return $this->render('admin/navigation/edit.html.twig', [
-            'n' => $navigation,
+            'navMenu' => $navigation,
             'form' => $form->createView(),
         ]);
     }
