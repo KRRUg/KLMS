@@ -5,7 +5,9 @@ require('bootstrap');
 let NavigationTree = function ($wrapper) {
     this.$root = $wrapper;
     this.dataSource = $wrapper.attr('data-source-input');
-    
+    this.maxDepth = $wrapper.attr('data-max-depth') || Number.MAX_VALUE;
+    this.wasChanged = false;
+
     this.initTree();
     this.drawTree();
     this.$root.on(
@@ -52,18 +54,22 @@ $.extend(NavigationTree.prototype, {
         li.setAttribute("class", "list-group-item");
         li.setAttribute("data-index", index);
 
+        let prev = this._buildActionElement("fas fa-arrow-up", "up", hasPrevItem, "Up");
+        li.appendChild(prev);
+        let next = this._buildActionElement("fas fa-arrow-down", "down", hasNextItem, "Down");
+        li.appendChild(next);
+        let outdent = this._buildActionElement("fas fa-outdent", "outdent", 0 < level, "Outdent");
+        li.appendChild(outdent);
+        let indent = this._buildActionElement("fas fa-indent", "indent", hasPrevItem && level + 1 < this.maxDepth, "Indent");
+        li.appendChild(indent);
+
         if (level > 0) {
-            let i = document.createElement("SPAN");
-            i.setAttribute("class", "fa-xs");
-            i.setAttribute("style", "padding-left: " + (level * 2.5 + 0.5) + "rem;");
+            let i = document.createElement("I");
+
+            i.setAttribute("class", "fas fa-share fa-flip-vertical fa-xs text-dark");
+            i.setAttribute("style", "padding-left: " + (level * 2 + 0.5) + "rem;");
             li.appendChild(i);
         }
-
-        let prev = this._buildActionElement("fas fa-arrow-up", "up", hasPrevItem);
-        li.appendChild(prev);
-        let next = this._buildActionElement("fas fa-arrow-down", "down", hasNextItem);
-        li.appendChild(next);
-
 
 
         let a = document.createElement("A");
@@ -75,7 +81,7 @@ $.extend(NavigationTree.prototype, {
 
         return li;
     },
-    _buildActionElement(itemImgClass, action, enableItem = false) {
+    _buildActionElement(itemImgClass, action, enableItem = false, title = "") {
         let i = document.createElement("I");
         i.setAttribute("class", itemImgClass + " fa-fw");
 
@@ -83,10 +89,11 @@ $.extend(NavigationTree.prototype, {
             var actionItem = document.createElement("A");
             actionItem.setAttribute("href", "#");
             actionItem.setAttribute("class", "nav-item-action");
+            actionItem.setAttribute("title", title);
             actionItem.setAttribute("data-action", action);
         } else {
             var actionItem = document.createElement("SPAN");
-            actionItem.setAttribute("class", "nav-item-action text-light disabled");
+            actionItem.setAttribute("class", "nav-item-action text-disabled disabled");
         }
         actionItem.appendChild(i);
 
@@ -97,30 +104,45 @@ $.extend(NavigationTree.prototype, {
         let $actionButton = $(e.currentTarget);
         let action = $actionButton.data("action");
         let $navItem = $actionButton.parent();
+
+        var curEle = this.navigationTree;
         let index = String($navItem.data("index"));
-        let indizes = index.split("_");
-        var curElem = this.navigationTree.children;
 
-        for (const [i, searchIndex] of indizes.entries()) {
-            if (i === indizes.length - 1) {
-                let si = parseInt(searchIndex);
-                switch (action) {
-                    case "up":
-                        var h = curElem[si - 1];
-                        curElem[si - 1] = curElem[si];
-                        curElem[si] = h;
-                        break;
-                    case "down":
-                        var h = curElem[si + 1];
-                        curElem[si + 1] = curElem[si];
-                        curElem[si] = h;
-                        break;
-                }
-                break;
-            }
+        var elements = [];
+        var indizes = [];
 
-            curElem = curElem[searchIndex].children;
+        elements.push(curEle);
+        indizes.push(0);
+
+        for (const [_, searchIndex] of index.split("_").entries()) {
+            indizes.push(parseInt(searchIndex));
+            curEle = curEle.children[searchIndex];
+            elements.push(curEle);
         }
+
+        let curElem = elements[elements.length - 1];
+        let parentChilds = elements[elements.length - 2].children;
+        let pos = indizes[indizes.length - 1];
+
+        switch (action) {
+            case "up":
+                [parentChilds[pos - 1], parentChilds[pos]] = [parentChilds[pos], parentChilds[pos - 1]];
+                break;
+            case "down":
+                [parentChilds[pos + 1], parentChilds[pos]] = [parentChilds[pos], parentChilds[pos + 1]];
+                break;
+            case "indent":
+                parentChilds[pos - 1].children.push(curElem);
+                parentChilds.splice(pos, 1);
+                break;
+            case "outdent":
+                let grandparentChilds = elements[elements.length - 3].children;
+                grandparentChilds.splice(indizes[indizes.length - 2] + 1, 0, curElem);
+                parentChilds.splice(indizes[indizes.length - 1], 1);
+                break;
+        }
+
+        this.wasChanged = true;
         this._synchroniseData();
         this.drawTree();
     },
@@ -131,12 +153,22 @@ $.extend(NavigationTree.prototype, {
 });
 
 $(document).ready(() => {
-    new NavigationTree($('#navTree'));
+    let navTree = new NavigationTree($('#navTree'));
 
-    window.addEventListener("beforeunload", function (e) {
-        var confirmationMessage = "\o/";
+    let showAreYouSureFunction = function (e) {
+        if (!navTree.wasChanged) {
+            return;
+        }
+
+        var confirmationMessage = "You have unchanched things!";
 
         (e || window.event).returnValue = confirmationMessage; //Gecko + IE
         return confirmationMessage;                            //Webkit, Safari, Chrome
+    };
+
+    window.addEventListener("beforeunload", showAreYouSureFunction);
+    
+    $("#nav_edit_form").on("submit", function(_) {
+        window.removeEventListener("beforeunload", showAreYouSureFunction);
     });
 });
