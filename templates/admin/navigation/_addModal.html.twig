@@ -1,24 +1,22 @@
 <div class="modal fade" id="addNavItemModal" tabindex="-1" role="dialog">
-    <div class="modal-dialog" role="document">
+    <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
-            {{ form_start(form) }}
-            {% if label_head is defined %}
-                <div class="modal-header">
-                    <h5 class="modal-title">{{ label_head }}</h5>
-                </div>
-            {% endif %}
+            <div class="modal-header">
+                <h5 class="modal-title">Eintrag hinzufügen</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
             <div class="modal-body">
-                {#
+                
                 {% for typeName, typeForm in typeForms %}
                     {{ form(typeForm, {'attr': {'id': 'nav_add_entry_form_' ~ typeName}}) }}
                 {% endfor %}
-                #}
             </div>
             <div class="modal-footer">
-                <button type="reset" class="btn-secondary btn" data-toggle="modal">{{ button_cancel | default('Abbrechen') }}</button>
+                <button type="reset" class="btn-secondary btn" data-dismiss="modal">{{ button_cancel | default('Abbrechen') }}</button>
                 <button type="submit" class="btn-primary btn">{{ button_save | default('Hinzufügen') }}</button>
             </div>
-            {{ form_end(form) }}
         </div>
     </div>
 </div>

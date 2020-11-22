@@ -29,7 +29,7 @@ class NavigationController extends BaseController
 
     private function getAllForms()
     {
-        $types = [ new NavigationNodeContent(), new NavigationNodeGeneric(), new NavigationNodeEmpty() ];
+        $types = [ new NavigationNodeEmpty(), new NavigationNodeContent(), new NavigationNodeGeneric(), ];
         $result = [];
         foreach ($types as $type) {
             $result[$type->getType()] = $this->createForm(NavigationNodeType::class, $type)->createView();
