@@ -60,10 +60,12 @@ class NavigationService
     private const ARRAY_NAME = 'name';
     private const ARRAY_PATH = 'path';
     private const ARRAY_CHILD = 'children';
+    private const ARRAY_TYPE = 'type';
     private const ARRAY_ITEMS = [
         self::ARRAY_NAME,
         self::ARRAY_PATH,
         self::ARRAY_CHILD,
+        self::ARRAY_TYPE,
     ];
 
     /**
@@ -76,6 +78,7 @@ class NavigationService
         $rslt = [
             self::ARRAY_NAME => $n->getName(),
             self::ARRAY_PATH => $n->getPath(),
+            self::ARRAY_TYPE => $n->getType(),
             self::ARRAY_CHILD => [],
         ];
 
@@ -108,16 +111,26 @@ class NavigationService
         return true;
     }
 
-    private function guessType(?string $path): NavigationNode
+    private function guessType(?string $type, ?string $path): NavigationNode
     {
-        if (empty($path)) {
-            return new NavigationNodeEmpty();
-        } elseif (preg_match('/^\/?content\/(\d+)\/?$/', $path, $output_array)) {
-            $content = $this->contentRepo->findById(intval($output_array[1]));
-            return new NavigationNodeContent($content);
-        } else {
-            return new NavigationNodeGeneric($path);
+        $return = new NavigationNodeEmpty();
+        switch ($type) {
+            case NavigationNode::NAV_NODE_TYPE_CONTENT:
+                if (preg_match('/^\/?content\/(\d+)\/?$/', $path, $output_array)) {
+                    $content = $this->contentRepo->findById(intval($output_array[1]));
+                    $return = new NavigationNodeContent($content);
+                }
+                break;
+            case NavigationNode::NAV_NODE_TYPE_PATH:
+                if (!empty($type)) {
+                    return new NavigationNodeGeneric($path);
+                }
+                break;
+            case NavigationNodeEmpty::NAV_NODE_TYPE_EMPTY:
+            default:
+                break;
         }
+        return $return;
     }
 
     /**
@@ -129,12 +142,13 @@ class NavigationService
     {
         $path = $parse[self::ARRAY_PATH];
         $name = $parse[self::ARRAY_NAME];
+        $type = $parse[self::ARRAY_TYPE];
         $children = $parse[self::ARRAY_CHILD];
 
         if (empty($result)) {
             $node = new NavigationNodeRoot();
         } else {
-            $node = $this->guessType($path);
+            $node = $this->guessType($type, $path);
         }
         $node->setName($name);
         $node->setLft($count++);

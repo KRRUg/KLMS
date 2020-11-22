@@ -23,6 +23,18 @@ use Doctrine\ORM\Mapping as ORM;
  */
 abstract class NavigationNode
 {
+    const NAV_NODE_TYPE_ROOT = "root";
+    const NAV_NODE_TYPE_EMPTY = "empty";
+    const NAV_NODE_TYPE_PATH = "path";
+    const NAV_NODE_TYPE_CONTENT = "content";
+
+    const NAV_NODE_TYPES = [
+        self::NAV_NODE_TYPE_ROOT,
+        self::NAV_NODE_TYPE_EMPTY,
+        self::NAV_NODE_TYPE_PATH,
+        self::NAV_NODE_TYPE_CONTENT,
+    ];
+
     /**
      * @ORM\Id()
      * @ORM\GeneratedValue()
@@ -152,7 +164,7 @@ final class NavigationNodeRoot extends NavigationNode
 
     public function getType(): ?string
     {
-        return null;
+        return self::NAV_NODE_TYPE_ROOT;
     }
 
     public function getTargetId(): ?int
@@ -204,7 +216,7 @@ final class NavigationNodeContent extends NavigationNode
 
     public function getType(): ?string
     {
-        return 'content';
+        return self::NAV_NODE_TYPE_CONTENT;
     }
 
     public function getTargetId(): ?int
@@ -233,7 +245,7 @@ final class NavigationNodeEmpty extends NavigationNode
 
     public function getType(): ?string
     {
-        return 'empty';
+        return self::NAV_NODE_TYPE_EMPTY;
     }
 
     public function getTargetId(): ?int
@@ -273,7 +285,7 @@ final class NavigationNodeGeneric extends NavigationNode
 
     public function getType(): ?string
     {
-        return 'path';
+        return self::NAV_NODE_TYPE_PATH;
     }
 
     public function getTargetId(): ?int
