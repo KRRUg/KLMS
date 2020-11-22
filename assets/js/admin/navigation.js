@@ -57,7 +57,7 @@ $.extend(NavigationTree.prototype, {
             if (navItem.children !== '') {
                 this._buildTreeHTML(baseElement, navItem.children, nextIndex, level + 1);
             }
-    }
+        }
     },
     _buildTreeItemHTML(navItem, index, hasPrevItem = false, hasNextItem = false, level = 0) {
         let li = document.createElement("LI");
@@ -208,6 +208,18 @@ $.extend(NavigationTree.prototype, {
         this.dispatcher.trigger("changed");
         this.drawTree();
     },
+    _addNavItem(name, path) {
+        let ele = {
+            "name": name,
+            "path": path,
+            children: []
+        };
+
+        this.navigationTree.children.push(ele);
+
+        this._synchroniseData();
+        this.dispatcher.trigger("changed");
+    },
     _setNavItem(index, value) {
         var curEle = this.navigationTree;
 
@@ -219,20 +231,19 @@ $.extend(NavigationTree.prototype, {
         this._synchroniseData();
         this.dispatcher.trigger("changed");
     },
-    _deleteNavValue(index) {
+    _deleteNavItem(index) {
         var curEle = this.navigationTree;
         var parent = curEle;
         var curIndex;
 
         for (const [_, searchIndex] of String(index).split("_").entries()) {
             curIndex = searchIndex;
-            
             parent = curEle;
             curEle = curEle.children[searchIndex];
         }
 
         parent.children.splice(curIndex, 1);
-        
+
         this._synchroniseData();
         this.dispatcher.trigger("changed");
     },
@@ -258,11 +269,11 @@ $.extend(NavigationTree.prototype, {
         if ($btn.attr("type") === "submit") {
             let val = $form.find("input.edit-item-value").val();
             let i = $form.parents(".list-group-item:first").data("index");
-            this._setNavValue(i, val);
+            this._setNavItem(i, val);
             this.drawTree();
-        } else if($btn.attr("type") === "delete") {
+        } else if ($btn.attr("type") === "delete") {
             let i = $form.parents(".list-group-item:first").data("index");
-            this._deleteNavValue(i);
+            this._deleteNavItem(i);
             this.drawTree();
         }
 
@@ -317,7 +328,7 @@ $(document).ready(() => {
         window.removeEventListener("beforeunload", showAreYouSureFunction);
     });
 
-    $(".addNavTreeEntry").on("click", function () {
+    $(".addNavTreeEntry").on("click", function (e) {
         e.preventDefault();
     });
 

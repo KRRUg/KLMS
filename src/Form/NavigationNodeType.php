@@ -36,7 +36,7 @@ class NavigationNodeType extends AbstractType
             if ($entry instanceof NavigationNodeContent) {
                 $form->add('content', ChoiceType::class, [
                     'choices' => $this->contentRepository->findAll(),
-                    'choice_attr' => 'name',
+                    'choice_attr' => 'id',
                     'choice_label' => function(?Content $category) {
                         return $category ? $category->getTitle() : '';
                     },

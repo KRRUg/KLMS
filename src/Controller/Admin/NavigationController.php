@@ -6,7 +6,7 @@ namespace App\Controller\Admin;
 
 use App\Controller\BaseController;
 use App\Entity\Navigation;
-use App\Entity\NavigationNode;
+use App\Form\NavigationNodeType;
 use App\Entity\NavigationNodeContent;
 use App\Entity\NavigationNodeEmpty;
 use App\Entity\NavigationNodeGeneric;
@@ -32,7 +32,7 @@ class NavigationController extends BaseController
         $types = [ new NavigationNodeContent(), new NavigationNodeGeneric(), new NavigationNodeEmpty()];
         $result = [];
         foreach ($types as $type) {
-            $result[$type->getType()] = $this->createForm(NavigationNode::class, $type)->createView();
+            $result[$type->getType()] = $this->createForm(NavigationNodeType::class, $type)->createView();
         }
         return $result;
     }

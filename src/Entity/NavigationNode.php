@@ -182,7 +182,7 @@ final class NavigationNodeContent extends NavigationNode
     /**
      * @return Content
      */
-    public function getContent(): Content
+    public function getContent(): ?Content
     {
         return $this->content;
     }
