@@ -57,7 +57,7 @@ $.extend(NavigationTree.prototype, {
             if (navItem.children !== '') {
                 this._buildTreeHTML(baseElement, navItem.children, nextIndex, level + 1);
             }
-        }
+    }
     },
     _buildTreeItemHTML(navItem, index, hasPrevItem = false, hasNextItem = false, level = 0) {
         let li = document.createElement("LI");
@@ -95,7 +95,7 @@ $.extend(NavigationTree.prototype, {
         li.appendChild(label);
 
         if (navItem.path !== null) {
-            li.appendChild(this._buildTypeElement(navItem.path));
+            li.appendChild(this._buildTypeElement(navItem.type, navItem.path));
         }
 
         return li;
@@ -118,27 +118,33 @@ $.extend(NavigationTree.prototype, {
 
         return actionItem;
     },
-    _buildTypeElement(path) {
-        let pathType = this.__getPathType(path);
-
+    _buildTypeElement(type, path) {
         let bgColor = "#6c757d";
         let color = "#fff";
         let symbole = "fas fa-link";
 
-        switch (pathType) {
-            case "homepage":
-                bgColor = "#e67925";
-                symbole = "fas fa-home";
+        switch (type) {
+            case "path":
+                if (path === '/') {
+                    bgColor = "#e67925";
+                    type = 'homepage';
+                    symbole = "fas fa-home";
+                } else {
+                    bgColor = "#1962E6";
+                    symbole = "fas fa-link";
+                }
                 break;
             case "content":
                 bgColor = "#008799";
                 symbole = "far fa-file-alt";
                 break;
+            case "empty":
+                break;
         }
 
         let badge = document.createElement("SPAN");
         badge.setAttribute("class", "badge badge-pill");
-        badge.setAttribute("title", "Type: " + pathType);
+        badge.setAttribute("title", "Type: " + type);
         badge.setAttribute("style", "color: " + color + "; background-color: " + bgColor + ";");
 
         let sym = document.createElement("SPAN");
@@ -147,19 +153,6 @@ $.extend(NavigationTree.prototype, {
         badge.appendChild(document.createTextNode(path));
 
         return badge;
-    },
-    __getPathType(path) {
-        let p = path.split("/");
-
-        if (typeof p[1] === 'undefined') {
-            return '';
-        }
-
-        if (p[1] === "") {
-            p[1] = "homepage";
-        }
-
-        return p[1];
     },
     _processNavigationAction(e) {
         e.preventDefault();
