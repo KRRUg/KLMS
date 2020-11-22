@@ -32,6 +32,7 @@ $box-shadow-xl: 0 25.6px 57.6px 0 rgba($shadow-color,.22),0 4.8px 14.4px 0 rgba(
 @import 'navigation.scss';
 @import 'sidebar.scss';
 @import 'forms.scss';
+@import 'nav_tree.scss';
 
 .bg-darker {
     background-color: darken($dark, 5);
@@ -39,6 +40,17 @@ $box-shadow-xl: 0 25.6px 57.6px 0 rgba($shadow-color,.22),0 4.8px 14.4px 0 rgba(
 
 .text-disabled {
     color: $gray-300;
+}
+
+.badge-pill {
+    border-radius: $badge-pill-border-radius;
+}
+
+.list-group-hover .list-group-item:hover {
+    z-index: 1;
+    color: $list-group-action-hover-color;
+    text-decoration: none;
+    background-color: $list-group-hover-bg;
 }
 
 footer {

@@ -6,7 +6,7 @@ let NavigationTree = function ($wrapper) {
     this.$root = $wrapper;
     this.dataSource = $wrapper.attr('data-source-input');
     this.maxDepth = $wrapper.attr('data-max-depth') || Number.MAX_VALUE;
-    this.wasChanged = false;
+    this.dispatcher = $({});
 
     this.initTree();
     this.drawTree();
@@ -14,6 +14,16 @@ let NavigationTree = function ($wrapper) {
             'click',
             '.nav-item-action:not(.disabled)',
             this._processNavigationAction.bind(this)
+            );
+    this.$root.on(
+            'click',
+            '.nav-item',
+            this._editItem.bind(this)
+            );
+    this.$root.on(
+            'click',
+            '.edit-item-form button',
+            this._processInputFormAction.bind(this)
             );
 };
 
@@ -51,33 +61,42 @@ $.extend(NavigationTree.prototype, {
     },
     _buildTreeItemHTML(navItem, index, hasPrevItem = false, hasNextItem = false, level = 0) {
         let li = document.createElement("LI");
-        li.setAttribute("class", "list-group-item");
+        li.setAttribute("class", "list-group-item d-flex");
         li.setAttribute("data-index", index);
 
-        let prev = this._buildActionElement("fas fa-arrow-up", "up", hasPrevItem, "Up");
-        li.appendChild(prev);
-        let next = this._buildActionElement("fas fa-arrow-down", "down", hasNextItem, "Down");
-        li.appendChild(next);
-        let outdent = this._buildActionElement("fas fa-outdent", "outdent", 0 < level, "Outdent");
-        li.appendChild(outdent);
-        let indent = this._buildActionElement("fas fa-indent", "indent", hasPrevItem && level + 1 < this.maxDepth, "Indent");
-        li.appendChild(indent);
+        li.appendChild(this._buildActionElement("fas fa-arrow-up", "up", hasPrevItem, "Up"));
+        li.appendChild(this._buildActionElement("fas fa-arrow-down", "down", hasNextItem, "Down"));
+        li.appendChild(this._buildActionElement("fas fa-outdent", "outdent", 0 < level, "Outdent"));
+        li.appendChild(this._buildActionElement("fas fa-indent", "indent", hasPrevItem && level + 1 < this.maxDepth, "Indent"));
+
+        let label = document.createElement("SPAN");
+        label.setAttribute("class", "w-25 nav-item-label");
 
         if (level > 0) {
             let i = document.createElement("I");
-
             i.setAttribute("class", "fas fa-share fa-flip-vertical fa-xs text-dark");
             i.setAttribute("style", "padding-left: " + (level * 2 + 0.5) + "rem;");
-            li.appendChild(i);
+            label.appendChild(i);
         }
 
 
         let a = document.createElement("A");
         a.setAttribute("href", "#");
         a.setAttribute("class", "nav-item pl-2");
+        a.setAttribute("title", "Edit Entry: " + navItem.name);
         a.setAttribute("data-path", navItem.path);
+        a.setAttribute("data-value", navItem.name);
         a.textContent = navItem.name;
-        li.appendChild(a);
+
+        let i = document.createElement("I");
+        i.setAttribute("class", "fas fa-edit pl-2 edit-img text-dark");
+        a.appendChild(i);
+        label.appendChild(a);
+        li.appendChild(label);
+
+        if (navItem.path !== null) {
+            li.appendChild(this._buildTypeElement(navItem.path));
+        }
 
         return li;
     },
@@ -98,6 +117,49 @@ $.extend(NavigationTree.prototype, {
         actionItem.appendChild(i);
 
         return actionItem;
+    },
+    _buildTypeElement(path) {
+        let pathType = this.__getPathType(path);
+
+        let bgColor = "#6c757d";
+        let color = "#fff";
+        let symbole = "fas fa-link";
+
+        switch (pathType) {
+            case "homepage":
+                bgColor = "#e67925";
+                symbole = "fas fa-home";
+                break;
+            case "content":
+                bgColor = "#008799";
+                symbole = "far fa-file-alt";
+                break;
+        }
+
+        let badge = document.createElement("SPAN");
+        badge.setAttribute("class", "badge badge-pill");
+        badge.setAttribute("title", "Type: " + pathType);
+        badge.setAttribute("style", "color: " + color + "; background-color: " + bgColor + ";");
+
+        let sym = document.createElement("SPAN");
+        sym.setAttribute("class", "fa-fw mr-1 " + symbole);
+        badge.appendChild(sym);
+        badge.appendChild(document.createTextNode(path));
+
+        return badge;
+    },
+    __getPathType(path) {
+        let p = path.split("/");
+
+        if (typeof p[1] === 'undefined') {
+            return '';
+        }
+
+        if (p[1] === "") {
+            p[1] = "homepage";
+        }
+
+        return p[1];
     },
     _processNavigationAction(e) {
         e.preventDefault();
@@ -142,33 +204,121 @@ $.extend(NavigationTree.prototype, {
                 break;
         }
 
-        this.wasChanged = true;
         this._synchroniseData();
+        this.dispatcher.trigger("changed");
         this.drawTree();
+    },
+    _setNavItem(index, value) {
+        var curEle = this.navigationTree;
+
+        for (const [_, searchIndex] of String(index).split("_").entries()) {
+            curEle = curEle.children[searchIndex];
+        }
+
+        curEle.name = value;
+        this._synchroniseData();
+        this.dispatcher.trigger("changed");
+    },
+    _deleteNavValue(index) {
+        var curEle = this.navigationTree;
+        var parent = curEle;
+        var curIndex;
+
+        for (const [_, searchIndex] of String(index).split("_").entries()) {
+            curIndex = searchIndex;
+            
+            parent = curEle;
+            curEle = curEle.children[searchIndex];
+        }
+
+        parent.children.splice(curIndex, 1);
+        
+        this._synchroniseData();
+        this.dispatcher.trigger("changed");
     },
     _synchroniseData() {
         var json = JSON.stringify(this.navigationTree);
         $(this.dataSource).val(json);
+    },
+    _editItem(e) {
+        e.preventDefault();
+
+        $("form.edit-item-form").each((_, element) => {
+            this._toggelItemEditMode($(element));
+        });
+
+        let $item = $(e.currentTarget);
+        this._toggelItemEditMode($item);
+    },
+    _processInputFormAction(e) {
+        e.preventDefault();
+        let $btn = $(e.currentTarget);
+        let $form = $btn.parents("form:first");
+
+        if ($btn.attr("type") === "submit") {
+            let val = $form.find("input.edit-item-value").val();
+            let i = $form.parents(".list-group-item:first").data("index");
+            this._setNavValue(i, val);
+            this.drawTree();
+        } else if($btn.attr("type") === "delete") {
+            let i = $form.parents(".list-group-item:first").data("index");
+            this._deleteNavValue(i);
+            this.drawTree();
+        }
+
+        this._toggelItemEditMode($form);
+    },
+    _toggelItemEditMode($item) {
+        if ($item.is('form')) {
+            $item.prev().show();
+            $item.remove();
+        } else {
+            let $form = this._getInputForm($item.data("value"));
+            $item.hide();
+            $item.after($form);
+        }
+    },
+    _getInputForm(inputVal) {
+        let $form = $('<form></form>', {"class": "edit-item-form form-inline d-inline-block pl-2"});
+
+        let $inputGroup = $('<div></div>', {"class": "input-group input-group-sm"});
+        $("<input>", {"type": "text", "class": "form-control edit-item-value", "value": inputVal}).appendTo($inputGroup);
+
+        let $inputGroupAppend = $('<div></div>', {"class": "input-group-append"});
+        $("<button type='submit' title='Save Changes' class='btn btn-outline-primary'><i class='fas fa-check fa-xs px-1'></i></button>").appendTo($inputGroupAppend);
+        $("<button type='reset' title='Cancel' class='btn btn-outline-secondary'><i class='fas fa-times fa-xs px-1'></i></button>").appendTo($inputGroupAppend);
+        $("<button type='delete' title='Delete Item' class='btn btn-outline-danger'><i class='fas fa-trash-alt fa-xs px-1'></i></button>").appendTo($inputGroupAppend);
+
+        $inputGroupAppend.appendTo($inputGroup);
+        $inputGroup.appendTo($form);
+
+        return $form;
     }
 });
 
+let showAreYouSureFunction = function (e) {
+    var confirmationMessage = "You have unchanched things!";
+
+    (e || window.event).returnValue = confirmationMessage; //Gecko + IE
+    return confirmationMessage;                            //Webkit, Safari, Chrome
+};
+
 $(document).ready(() => {
     let navTree = new NavigationTree($('#navTree'));
+    var changeEvent = null;
 
-    let showAreYouSureFunction = function (e) {
-        if (!navTree.wasChanged) {
-            return;
+    navTree.dispatcher.on("changed", function (e) {
+        if (changeEvent === null) {
+            window.addEventListener("beforeunload", showAreYouSureFunction);
         }
+    });
 
-        var confirmationMessage = "You have unchanched things!";
-
-        (e || window.event).returnValue = confirmationMessage; //Gecko + IE
-        return confirmationMessage;                            //Webkit, Safari, Chrome
-    };
-
-    window.addEventListener("beforeunload", showAreYouSureFunction);
-    
-    $("#nav_edit_form").on("submit", function(_) {
+    $("#nav_edit_form").on("submit", function (_) {
         window.removeEventListener("beforeunload", showAreYouSureFunction);
     });
+
+    $(".addNavTreeEntry").on("click", function () {
+        e.preventDefault();
+    });
+
 });

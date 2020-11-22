@@ -1,7 +1,7 @@
 {% extends 'admin/adminBase.html.twig' %}
 
 {% block title %}KLMS - Admin{% endblock %}
-{% block siteheading %}<i class="fas fa-map-signs"></i> Navigation{% endblock %}
+{% block siteheading %}<i class="fas fa-map-signs"></i> Navigation <span class="text-primary">{{ navMenu.name }}</span>{% endblock %}
 
 {% block javascripts %}
     {{ parent() }}
@@ -11,13 +11,9 @@
 {% block main %}
     {% set root = nav.renderNav(navMenu) %}
 
-    <div class="row">
-        <div class="col mb-4">
-            <div class="card">
-                <div class="card-body">
-                    Navigation <span class="text-primary">{{ navMenu.name }}</span>
-                </div>
-            </div>
+    <div class="row mb-4">
+        <div class="col-12">
+            <a class="btn btn-success" id="new" href="#" class="addNavTreeEntry"><i class="fas fa-plus"></i> Eintrag hinzufügen</a>
         </div>
     </div>
     <div class="row">
@@ -26,7 +22,7 @@
                 <div class="card-body">
                     {% if root is not empty %}
                         {# ToDo: Get data-max-depth="" from backend #}
-                        <ul id="navTree" class="navigationTree list-group" data-source-input="#form_navigation">
+                        <ul id="navTree" class="navigationTree list-group list-group-hover" data-source-input="#form_navigation">
                         </ul>
                     {% endif %}
                 </div>
