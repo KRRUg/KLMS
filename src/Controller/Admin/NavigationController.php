@@ -7,15 +7,15 @@ namespace App\Controller\Admin;
 use App\Controller\BaseController;
 use App\Entity\Navigation;
 use App\Entity\NavigationNode;
+use App\Entity\NavigationNodeContent;
+use App\Entity\NavigationNodeEmpty;
+use App\Entity\NavigationNodeGeneric;
 use App\Service\ContentService;
 use App\Service\NavigationService;
 use Psr\Log\LoggerInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Symfony\Component\Form\Extension\Core\Type\HiddenType;
-use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
@@ -26,6 +26,16 @@ class NavigationController extends BaseController
     private $logger;
     private $navService;
     private $contentService;
+
+    private function getAllForms()
+    {
+        $types = [ new NavigationNodeContent(), new NavigationNodeGeneric(), new NavigationNodeEmpty()];
+        $result = [];
+        foreach ($types as $type) {
+            $result[$type->getType()] = $this->createForm(NavigationNode::class, $type)->createView();
+        }
+        return $result;
+    }
 
     /**
      * NavigationController constructor.
@@ -76,10 +86,10 @@ class NavigationController extends BaseController
             }
             return $this->redirectToRoute('admin_navigation');
         }
-
         return $this->render('admin/navigation/edit.html.twig', [
             'navMenu' => $navigation,
             'form' => $form->createView(),
+            'typeForms' => $this->getAllForms(),
         ]);
     }
 

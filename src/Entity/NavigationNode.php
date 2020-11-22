@@ -173,7 +173,7 @@ final class NavigationNodeContent extends NavigationNode
      */
     private $content;
 
-    public function __construct(Content $content)
+    public function __construct(Content $content = null)
     {
         parent::__construct();
         $this->content = $content;
