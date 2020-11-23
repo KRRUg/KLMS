@@ -93,7 +93,7 @@ $.extend(NavigationTree.prototype, {
         a.appendChild(i);
         label.appendChild(a);
         li.appendChild(label);
-
+        
         if (navItem.path !== null) {
             li.appendChild(this._buildTypeElement(navItem.type, navItem.path));
         }
@@ -122,7 +122,7 @@ $.extend(NavigationTree.prototype, {
         let bgColor = "#6c757d";
         let color = "#fff";
         let symbole = "fas fa-link";
-
+        
         switch (type) {
             case "path":
                 if (path === '/') {
@@ -201,10 +201,11 @@ $.extend(NavigationTree.prototype, {
         this.dispatcher.trigger("changed");
         this.drawTree();
     },
-    _addNavItem(name, path) {
+    addNavItem(name, path, type) {
         let ele = {
             "name": name,
             "path": path,
+            "type": type,
             children: []
         };
 
@@ -321,8 +322,48 @@ $(document).ready(() => {
         window.removeEventListener("beforeunload", showAreYouSureFunction);
     });
 
-    $(".addNavTreeEntry").on("click", function (e) {
-        e.preventDefault();
+    $("#addNavItemModal").on("show.bs.modal", function (e) {
+        let $target = $(e.currentTarget);
+        selectAddDialogRow($target, "#add-dialog-choose-type");
+        $target.find("form").trigger("reset");
     });
 
+    $("#addNavItemModal .choose-type-btn").on("click", function (e) {
+        e.preventDefault();
+        let target = $(e.currentTarget).data("target");
+        selectAddDialogRow($("#addNavItemModal"), target);
+    });
+
+    function selectAddDialogRow($modal, rowId) {
+        $modal.find(".add-dialog-row:not(.d-none)").addClass("d-none");
+        $modal.find(rowId).removeClass("d-none");
+
+        if (rowId === "#add-dialog-choose-type") {
+            $modal.find("button[type=submit]").addClass('disabled');
+        } else {
+            $modal.find("button[type=submit]").removeClass('disabled');
+        }
+    }
+    
+    $("#addNavItemModal").on("click", "button[type=submit]:not(.disabled)", function(e) {
+        e.preventDefault();
+        let $form = $("#addNavItemModal").find(".add-dialog-row:not(.d-none)").find("form:first");
+        //To trigger HTML5 Form Validation with browser messages you have to click a submit button
+        $('<input type="submit">').hide().appendTo($form).click().remove();
+    });
+    
+    $("#addNavItemModal form").on("submit", function(e) {
+        e.preventDefault();
+        
+        let formData = $(this).serializeArray().reduce(
+        (obj, item) => Object.assign(obj, { [item.name]: item.value }), {});
+        
+        let type = $(this).data("type");
+        let name = formData["navigation_node[name]"];
+        let path = formData[`navigation_node[${type}]`] || null;
+        
+        navTree.addNavItem(name, path, type);
+        navTree.drawTree();
+        $("#addNavItemModal").modal('hide');
+    });
 });

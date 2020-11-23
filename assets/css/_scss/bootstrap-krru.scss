@@ -46,6 +46,10 @@ $box-shadow-xl: 0 25.6px 57.6px 0 rgba($shadow-color,.22),0 4.8px 14.4px 0 rgba(
     border-radius: $badge-pill-border-radius;
 }
 
+.btn.disabled:hover {
+    cursor: not-allowed;
+}
+
 .list-group-hover .list-group-item:hover {
     z-index: 1;
     color: $list-group-action-hover-color;
