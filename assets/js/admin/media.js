@@ -1,4 +1,6 @@
 import $ from 'jquery';
+import 'mark.js';
+import 'mark.js/dist/jquery.mark.js';
 import ConfirmModal from '../components/confirmModal.js';
 
 const MediaPreview = function($root, confirmModal, $filter, $search) {
@@ -29,6 +31,7 @@ $.extend(MediaPreview.prototype,{
     showOnly(mime, search) {
         const ml = mime.toLowerCase();
         const sl = search.toLowerCase();
+        this.$root.unmark();
         this.boxes.each((_, elem) => {
             const $elem = $(elem);
             const m = $elem.data('mime-type').toLowerCase();
@@ -41,6 +44,7 @@ $.extend(MediaPreview.prototype,{
             else
                 $elem.hide();
         });
+        this.$root.mark(sl);
     },
     getFileNames() {
         return this.boxes.map(function() {

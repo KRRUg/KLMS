@@ -33,20 +33,6 @@ abstract class BaseController extends AbstractController
     }
 
     /**
-     * @param mixed $data Usually an object you want to serialize
-     * @param int $statusCode
-     * @return JsonResponse
-     * TODO remove me!!!!!!!
-     */
-    protected function createApiResponse($data, $statusCode = 200)
-    {
-        $json = $this->get('serializer')
-            ->serialize($data, 'json');
-
-        return new JsonResponse($json, $statusCode, [], true);
-    }
-
-    /**
      * @param $message string The error Message you want ot send
      * @param int $statusCode
      * @return JsonResponse

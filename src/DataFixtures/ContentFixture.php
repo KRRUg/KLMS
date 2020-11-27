@@ -57,18 +57,20 @@ class ContentFixture extends Fixture
         // Generate Navigation
         $nav = new Navigation();
         $nav->setName('main_menu');
+        $nav->setMaxDepth(2);
         $nav->addNode((new NavigationNodeRoot())->setPos(1,16));
         $nav->addNode((new NavigationNodeGeneric())->setName("Home")->setPos(2,3));
         $nav->addNode((new NavigationNodeEmpty())->setName("Lan Party")->setPos(4, 15));
-        $nav->addNode((new NavigationNodeContent($content[0]))->setName("Facts")->setPos(5, 10));
-        $nav->addNode((new NavigationNodeContent($content[4]))->setName("Netzwerk")->setPos(6,7));
-        $nav->addNode((new NavigationNodeContent($content[3]))->setName("Catering")->setPos(8,9));
+        $nav->addNode((new NavigationNodeContent($content[0]))->setName("Facts")->setPos(5, 6));
+        $nav->addNode((new NavigationNodeContent($content[4]))->setName("Netzwerk")->setPos(7,8));
+        $nav->addNode((new NavigationNodeContent($content[3]))->setName("Catering")->setPos(9,10));
         $nav->addNode((new NavigationNodeContent($content[1]))->setName("FAQ")->setPos(11,12));
         $nav->addNode((new NavigationNodeContent($content[2]))->setName("Location")->setPos(13, 14));
         $manager->persist($nav);
 
         $footer = new Navigation();
         $footer->setName("footer");
+        $footer->setMaxDepth(1);
         $footer->addNode((new NavigationNodeRoot())->setName('Footer')->setPos(1,8));
         $footer->addNode((new NavigationNodeGeneric())->setName('AGB')->setPath('/')->setPos(2,3));
         $footer->addNode((new NavigationNodeGeneric())->setName('Impressum')->setPath('/')->setPos(4,5));

@@ -22,9 +22,14 @@ class Navigation
     private $id;
 
     /**
-     * @ORM\Column(type="string", length=255, unique=true)
+     * @ORM\Column(type="string", length=255, unique=true, nullable=false)
      */
     private $name;
+
+    /**
+     * @ORM\Column(type="integer", nullable=true)
+     */
+    private $max_depth;
 
     /**
      * @ORM\OneToMany(
@@ -57,6 +62,18 @@ class Navigation
     public function setName(string $name): self
     {
         $this->name = $name;
+
+        return $this;
+    }
+
+    public function getMaxDepth(): ?int
+    {
+        return $this->max_depth;
+    }
+
+    public function setMaxDepth(?int $max_depth): self
+    {
+        $this->max_depth = $max_depth;
 
         return $this;
     }

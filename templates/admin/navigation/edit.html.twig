@@ -22,7 +22,7 @@
                 <div class="card-body">
                     {% if root is not empty %}
                         {# ToDo: Get data-max-depth="" from backend #}
-                        <ul id="navTree" class="navigationTree list-group list-group-hover" data-source-input="#form_navigation">
+                        <ul id="navTree" class="navigationTree list-group list-group-hover" data-source-input="#form_navigation" data-max-depth="{{ navMenu.maxDepth }}">
                         </ul>
                     {% endif %}
                 </div>

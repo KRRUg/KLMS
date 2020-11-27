@@ -32,6 +32,11 @@ class NavigationService
         self::NAV_LOCATION_FOOTER,
     ];
 
+    const NAV_LOCATION_DEPTHS = [
+        self::NAV_LOCATION_MAIN => 2,
+        self::NAV_LOCATION_FOOTER => 1,
+    ];
+
     public function __construct(
         EntityManagerInterface $em,
         NavigationRepository $navRepo,
@@ -175,18 +180,21 @@ class NavigationService
         $names = array_map(function ($nav) { return $nav->getName(); }, $navs);
         foreach (self::NAV_LOCATION_KEYS as $key) {
             if (!in_array($key, $names)) {
-                $navs[] = $this->createNav($key);
+                $navs[] = $this->createNav(
+                    $key,
+                    array_key_exists($key, self::NAV_LOCATION_DEPTHS) ? self::NAV_LOCATION_DEPTHS[$key] : null );
             }
         }
         usort($navs, function (Navigation $a, Navigation $b) { return strcmp($a->getName(), $b->getName()); });
         return $navs;
     }
 
-    protected function createNav(string $name): Navigation
+    protected function createNav(string $name, ?int $max_depth = null): Navigation
     {
         $new = new Navigation();
         $new->setName($name);
         $new->addNode((new NavigationNodeRoot())->setName($name)->setPos(1,2));
+        $new->setMaxDepth($max_depth);
         $this->em->persist($new);
         $this->em->flush();
         $this->em->refresh($new);

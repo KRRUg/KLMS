@@ -3,7 +3,6 @@
 namespace App\Helper;
 
 use App\Security\LoginUser;
-use App\Security\UserInfo;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\Form\Event\PostSubmitEvent;
 use Symfony\Component\Form\FormEvents;
