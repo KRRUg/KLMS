@@ -1,0 +1,18 @@
+<div class="card h-100">
+    <img class="card-img-top"
+            {% if content.image.name is null %}
+                src="{{ asset('build/images/test_content_pic.jpg') | imagine_filter('card_img') }}"
+            {% else %}
+                src="{{ vich_uploader_asset(content, 'imageFile') | imagine_filter('card_img') }}"
+            {% endif %}
+    />
+    <div class="card-body">
+        <h2 class="card-title"><a href="{{ link }}">{{ content.title }}</a></h2>
+        <p class="card-subtitle mb-3 text-muted">
+            <small>gepostet von {{ content.authorId | username }}, <i class="fas fa-clock"></i> {% if content.publishedFrom is null %}{{ content.created | ago }}{% else %}{{ content.publishedFrom | ago }}{% endif %} </small>
+        </p>
+        <p class="card-text">
+            {{ content.content | striptags | u.truncate(250, '...')  }} {% if content.content | striptags | u.length > 250 %} <a href="{{ link }}" class="card-link"> mehr</a> {% endif %}
+        </p>
+    </div>
+</div>

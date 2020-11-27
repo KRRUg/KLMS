@@ -75,7 +75,7 @@ final class PermissionService
         return in_array($permission, $admin->getPermissions());
     }
 
-    private function getCurrentLoginUser(): LoginUser
+    private function getCurrentLoginUser(): ?LoginUser
     {
         $user = $this->security->getUser();
         if (empty($user) || !($user instanceof LoginUser))

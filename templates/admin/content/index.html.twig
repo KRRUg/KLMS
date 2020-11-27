@@ -3,177 +3,42 @@
 {% block title %}KLMS - Admin{% endblock %}
 {% block siteheading %}<i class="far fa-file-alt"></i> Content{% endblock %}
 
-{% block stylesheets %}
-    {{ parent() }}
-
-    <style>
-        .box {
-            float: left;
-            padding: 10px;
-            /*background: #eee; */
-            width: 45%;
-            max-width: 700px;
-            min-width: 240px;
-        }
-    </style>
-
-    <!-- tree style -->
-    <style>
-        .selected {
-            background: #70a6fd;
-        }
-
-        .tree {
-            list-style-type: none;
-        }
-
-        .tree ul {
-            list-style-type: none;
-        }
-
-        .tree {
-            color: #17324f;
-        }
-
-        .tree a {
-            text-decoration: none;
-            color: #17324f;
-        }
-
-        .tree a.selected {
-            background: #70a6fd;
-        }
-
-        .tree .type {
-            color: gray;
-            float: none;
-            font-size: x-small;
-        }
-
-        .tree .icons {
-            display: flex;
-            float: right;
-            padding-left: 10px;
-            font-size: smaller;
-        }
-
-        .tree .icons button {
-            background: none;
-            border: none;
-            cursor: pointer;
-            padding: 0px;
-        }
-
-        .option {
-            padding-right: 5px;
-            padding-top: 2px;
-            padding-bottom: 5px;
-            cursor: pointer;
-        }
-
-        .option:hover {
-            background: #70a6fd;
-        }
-
-        .option div.tooltip {
-            display: none;
-            position: absolute;
-            font-size: small;
-            color: #fff;
-            background: #70a6fd;
-            padding: 5px;
-        }
-
-        .option:hover div.tooltip {
-            display: block;
-        }
-    </style>
-
-    <!-- form style -->
-    <style>
-        div.form_section {
-            display: block;
-            border: 1px solid #ccc !important;
-            border-radius: 4px;
-            margin: 5px;
-            padding: 5px;
-            width: 90%;
-        }
-
-        div.form_section label {
-            display: block;
-            font-size: smaller;
-        }
-
-        div.form_section input, textarea {
-            width: 90%;
-            margin: 5px;
-            resize: none;
-        }
-
-        div.form_section textarea {
-            height: 300px;
-        }
-
-    </style>
-{% endblock %}
-
 {% block main %}
-    <div class="box" style="max-width: 400px">
-        {% macro menu_links(nodes, d, id) %}
-            {% for n in nodes %}
-                <li>
-                    {% set selected = id == n.getId() %}
-                    <a href="{{ path('admin_content', {'id' : n.getId() }) }}" {% if selected %} class="selected" {% endif %}>{{ n.getName() }}</a>
-                    {%  if selected %}
-                        <div class="icons" >
-                            <span class="option"><b>+</b>
-                                <div class="tooltip">
-                                    <form method="post" action="{{ path('admin_content', {'id' : n.getId()}) }}">
-                                        <input type="hidden" name="action" value="add"/>
-                                        <button name="type" value="content">content</button><br/>
-                                        <button name="type" value="path">path</button><br/>
-                                        <button name="type" value="empty">empty</button>
-                                    </form>
-                                </div>
-                            </span>
-                            <form method="post" action="{{ path('admin_content', {'id' : n.getId()}) }}">
-                                <button type="submit" name="action" value="up">&#x25b2;</button>
-                                <button type="submit" name="action" value="down">&#x25bc;</button>
-                            </form>
-                        </div>
-                    {% endif %}
-                    <div class="type">{{ n.getType() }}</div>
-
-                    {% if n.getChildNodes() is not empty %}
-                        <ul>
-                            {{ _self.menu_links(n.getChildNodes(), d+1, id) }}
-                        </ul>
-                    {% endif %}
-                </li>
-            {% endfor %}
-        {% endmacro %}
-
-        <ul class="tree">
-            {{ _self.menu_links(tree, 1, node ? node.getId() : null) }}
-        </ul>
+    <div class="row mb-4">
+        <div class="col-12">
+            <a class="btn btn-success" id="new" href="{{ path('admin_content_new') }}"><i class="fas fa-plus"></i> Anlegen</a>
+        </div>
     </div>
-    <div class="box" >
-        {% if node is not null %}
-            {% if form is not null %}
-                {{ form_start(form) }}
-                <div class="form_section">
-                    {{ form_row(form.name) }}
-                </div>
-                <div class="form_section">
-                    {{ form_rest(form) }}
-                </div>
-                <button type="submit">Speichern</button>
-                <button type="submit" name="action" value="delete">Löschen</button>
-                {{ form_end(form) }}
-            {% endif %}
-        {% else %}
-            <p>Nichts ausgewählt!</p>
-        {% endif %}
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <table class="table" id="userTable">
+                    <thead>
+                    <tr>
+                        <th scope="col" style="width: 7%" class="text-center">#</th>
+                        <th scope="col" style="width: auto">Titel</th>
+                        <th scope="col" style="width: 15%">Aktiv</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for c in content %}
+                        <tr>
+                            <td class="text-center">{{ c.getId() }}</td>
+                            <td>
+                                <a href="{{ path('admin_content_edit', {'id' : c.id}) }}">
+                                    {{ c.getTitle() }}
+                                </a><br><small class="text-muted">{{ c.getDescription() }}</small>
+                            </td>
+                            <td>
+                                {% for nn in nav.getByContent(c) %}
+                                    <span class="badge badge-secondary">{{ nn.getName() }}</span>
+                                {% endfor %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
     </div>
 {% endblock %}

@@ -14,22 +14,23 @@
                 <table class="table">
                     <thead>
                         <tr>
-                            <th></th>
-                            <th>Titel</th>
-                            <th>Options</th>
+                            <th scope="col" style="width: 4em" class="text-center">#</th>
+                            <th scope="col" style="width: auto">Titel</th>
+                            <th scope="col" style="width: 20%">Autor</th>
+                            <th scope="col" style="width: 6.5em" class="text-center">Aktiv ab</th>
+                            <th scope="col" style="width: 1em"></th>
+                            <th scope="col" style="width: 6.5em" class="text-center">Aktiv bis</th>
                         </tr>
                     </thead>
                     <tbody>
                         {% for newsentry in news %}
                             <tr>
-                                <td><input type="checkbox"/></td>
-                                <td>
-                                    <a href="{{ path('admin_news_edit', {'id' : newsentry.id}) }}" title="Bearbeiten {{ newsentry.title }}"> {{ newsentry.title }}</a><br>
-                                    <small class="text-muted">{{ newsentry.content }}</small>
-                                </td>
-                                <td>
-                                    <a class="btn btn-outline-dark" href="{{ path('admin_news_delete', {'id' : newsentry.id}) }}" title="Löschen {{ newsentry.title }}"><i class="fas fa-trash-alt"></i></a>
-                                </td>
+                                <td class="text-center">{{ newsentry.getId() }}</td>
+                                <td><a href="{{ path('admin_news_edit', {'id' : newsentry.id}) }}" title="Bearbeiten {{ newsentry.title }}"> {{ newsentry.title }}</a></th>
+                                <td>{{ newsentry.authorId | username }}</td>
+                                <td class="text-center">{{ newsentry.activeSince() | date("d.m.Y") }}</td>
+                                <td class="text-center">{% if newsentry.isActive() %}<i class="fas fa-eye" title="aktiv"></i>{% endif %}</td>
+                                <td class="text-center">{{ newsentry.getPublishedTo() is empty ? "" : newsentry.getPublishedTo() | date("d.m.Y") }}</td>
                             </tr>
                         {% endfor %}
                     </tbody>

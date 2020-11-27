@@ -3,11 +3,12 @@
 
 namespace App\Controller;
 
-
+use App\Exception\ServiceException;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 abstract class BaseController extends AbstractController
 {
@@ -21,12 +22,24 @@ abstract class BaseController extends AbstractController
      * @param int $statusCode
      * @return JsonResponse
      */
-    protected function createApiResponse($data, $statusCode = 200)
+    protected function apiResponse($data = null, $statusCode = 200)
     {
-        $json = $this->get('serializer')
-            ->serialize($data, 'json');
+        if (empty($data)) {
+            return new JsonResponse(null, $statusCode);
+        }
 
+        $json = $this->get('serializer')->serialize($data, 'json');
         return new JsonResponse($json, $statusCode, [], true);
+    }
+
+    /**
+     * @param $message string The error Message you want ot send
+     * @param int $statusCode
+     * @return JsonResponse
+     */
+    protected function apiError(string $message, $statusCode = 400)
+    {
+        return $this->apiResponse(["Error" => ["message" => $message]], $statusCode);
     }
 
     /**
@@ -61,5 +74,28 @@ abstract class BaseController extends AbstractController
         }
 
         return $errors;
+    }
+
+    protected function createBadRequestException($message = "Invalid JSON")
+    {
+        return new BadRequestHttpException($message);
+    }
+
+    protected function flashException(ServiceException $e)
+    {
+        switch ($e->getCause()) {
+            case ServiceException::CAUSE_DONT_EXIST: $cause = "nicht vorhanden"; break;
+            case ServiceException::CAUSE_EMPTY: $cause = "leer"; break;
+            case ServiceException::CAUSE_EXIST: $cause = "bereits vorhanden"; break;
+            case ServiceException::CAUSE_IN_USE: $cause = "in Verwendung"; break;
+            default: $cause = ""; break;
+        }
+
+        $msg = "Operation kann nicht durchgeführt werden";
+        if (!empty($cause))
+            $msg = $msg . " ($cause).";
+        else
+            $msg = $msg . ".";
+        $this->addFlash('danger', $msg);
     }
 }

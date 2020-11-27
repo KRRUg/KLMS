@@ -28,6 +28,9 @@ Encore
         .addEntry('userRegister', './assets/js/userRegister.js')
         .addEntry('admin', './assets/js/admin.js')
         .addEntry('permission', './assets/js/admin/permission.js')
+        .addEntry('navigation', './assets/js/admin/navigation.js')
+        .addEntry('media', './assets/js/admin/media.js')
+        .addEntry('news', './assets/js/site/news.js')
 
         // When enabled, Webpack "splits" your files into smaller pieces for greater optimization.
         .splitEntryChunks()
@@ -86,8 +89,8 @@ Encore
             from: './node_modules/tinymce/skins',
             to: 'skins/[path][name].[ext]'
         })
-    //Load .env.local Variables into JS
-    .addPlugin(new Dotenv({path: './.env.local', systemvars: false}))
+//Load .env.local Variables into JS
+        .addPlugin(new Dotenv({path: './.env.local', systemvars: false}))
         ;
 
 module.exports = Encore.getWebpackConfig();

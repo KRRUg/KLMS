@@ -7,5 +7,5 @@ twig:
         - 'form/klms_bootstrap_4_layout.html.twig'
         - 'widgets/select2_widget.html.twig'
     globals:
-        nav: '@App\Service\NavService'
+        nav: '@App\Service\NavigationService'
         textblock: '@App\Service\TextBlockService'

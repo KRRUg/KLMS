@@ -6,7 +6,9 @@
 @import './header.scss';
 @import './navigation.scss';
 @import './sidebar.scss';
-@import 'card.scss';
+@import './card.scss';
+@import './forms.scss';
+@import './nav_tree.scss';
 
 footer {
     box-shadow: $box-shadow;
@@ -19,12 +21,25 @@ footer {
 .card {
     box-shadow: $box-shadow-sm;
     border:none;
-    
-    img {
-        max-width:100%;
-        height:15rem;
-        overflow:hidden;
-    }
+}
+
+.btn.disabled:hover {
+    cursor: not-allowed;
+}
+
+.list-group-hover .list-group-item:hover {
+    z-index: 1;
+    color: $list-group-action-hover-color;
+    text-decoration: none;
+    background-color: $list-group-hover-bg;
+}
+
+.bg-darker {
+    background-color: darken($dark, 5);
+}
+
+.text-disabled {
+    color: $gray-300;
 }
 
 .badge-pill {

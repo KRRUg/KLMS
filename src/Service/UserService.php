@@ -3,13 +3,11 @@
 namespace App\Service;
 
 
-use App\Entity\UserAdmin;
 use App\Exception\UserServiceException;
 use App\Model\ClanModel;
 use App\Model\UserClanModel;
 use App\Repository\UserAdminsRepository;
 use App\Repository\UserGamerRepository;
-use App\Security\LoginUser;
 use App\Security\User;
 use App\Security\UserInfo;
 use App\Transfer\ClanCreateTransfer;
@@ -24,7 +22,6 @@ use Ramsey\Uuid\Uuid;
 use Symfony\Component\HttpClient\HttpClient;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\PropertyInfo\Extractor\ReflectionExtractor;
-use Symfony\Component\Security\Core\Security;
 use Symfony\Component\Serializer\Encoder\JsonEncoder;
 use Symfony\Component\Serializer\Exception\ExceptionInterface;
 use Symfony\Component\Serializer\Normalizer\ArrayDenormalizer;
@@ -32,7 +29,6 @@ use Symfony\Component\Serializer\Normalizer\DateTimeNormalizer;
 use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
 use Symfony\Component\Serializer\Serializer;
 use Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface;
-use Symfony\Contracts\HttpClient\Exception\DecodingExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\RedirectionExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\ServerExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
@@ -45,6 +41,7 @@ final class UserService
     private $gr;
     /**
      * @var int
+     * TODO remove me!!!!!!!!!!!!!!!
      */
     private $statusCode;
 
@@ -153,7 +150,7 @@ final class UserService
         } catch (ClientExceptionInterface $e) {
             // 4xx return code (but 404 which is an expected)
             $this->logger->error('Invalid request to IDM ('.$e->getMessage().')');
-        } catch (DecodingExceptionInterface | ServerExceptionInterface | RedirectionExceptionInterface $e) {
+        } catch (ServerExceptionInterface | RedirectionExceptionInterface $e) {
             // invalid content, 5xx, or too many 3xx
             $this->logger->error('IDM behaving incorrect ('.$e->getMessage().')');
         } catch (TransportExceptionInterface $e) {
@@ -183,7 +180,7 @@ final class UserService
         }
     }
 
-    
+
 
     private function loadUserClans(User $user)
     {
@@ -679,10 +676,10 @@ final class UserService
      *
      * @return UserInfo[] array of user infos
      */
-    public function getUserInfosByUuid(array $uuids, bool $assoc = false) : array
+    public function getUserInfosByUuids(array $uuids) : array
     {
         // TODO make a cache lookup here
-        return $this->getUsersByUuid($uuids, $assoc);
+        return $this->getUsersByUuid($uuids);
     }
 
     public function getUsersByNickname(string $nickname, bool $assoc = false) : array
@@ -696,5 +693,15 @@ final class UserService
         return $this->getUsersByNickname($nickname, $assoc);
     }
 
-
+    /**
+     * @param $uuid Uuid Id to get user info for.
+     * @return UserInfo|null The requested user info
+     */
+    public function getUserInfoByUuid($uuid) : ?UserInfo
+    {
+        $users = $this->getUserInfosByUuids([$uuid]);
+        if (empty($users))
+            return null;
+        return $users[0];
+    }
 }
