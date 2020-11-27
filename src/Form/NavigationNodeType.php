@@ -7,6 +7,7 @@ use App\Entity\NavigationNode;
 use App\Entity\NavigationNodeContent;
 use App\Entity\NavigationNodeGeneric;
 use App\Repository\ContentRepository;
+use App\Service\NavigationService;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
@@ -46,7 +47,9 @@ class NavigationNodeType extends AbstractType
                     'expanded' => false,
                 ]);
             } elseif ($entry instanceof NavigationNodeGeneric) {
-                $form->add('path', TextType::class);
+                $form->add('path', TextType::class, [
+                    'attr' => ['pattern' => NavigationService::URL_REGEX],
+                ]);
             }
         });
     }

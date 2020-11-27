@@ -22,6 +22,8 @@ class NavigationService
     private $navRepo;
     private $contentRepo;
 
+    const URL_REGEX = '(^(?:http(s)?:\/\/)?[\w.-]+(?:\.[\w\.-]+)+[\w\-\._~:\/?#[\]@!\$&\'\(\)\*\+,;=.]+$|^(\/[\w\-\._~:\/?#[\]@!\$&\'\(\)\*\+,;=.]*)+$)';
+
     const NAV_LOCATION_MAIN = 'main_menu';
     const NAV_LOCATION_FOOTER = 'footer';
 
@@ -111,34 +113,36 @@ class NavigationService
         return true;
     }
 
-    private function guessType(?string $type, ?string $path): NavigationNode
+    private function guessType(?string $type, ?string $path): ?NavigationNode
     {
-        $return = new NavigationNodeEmpty();
         switch ($type) {
             case NavigationNode::NAV_NODE_TYPE_CONTENT:
                 if (preg_match('/^\/?content\/(\d+)\/?$/', $path, $output_array)) {
                     $content = $this->contentRepo->findById(intval($output_array[1]));
-                    $return = new NavigationNodeContent($content);
+                    return new NavigationNodeContent($content);
                 }
                 break;
             case NavigationNode::NAV_NODE_TYPE_PATH:
-                if (!empty($type)) {
+                $pattern = "/" . self::URL_REGEX . "/";
+                if (preg_match($pattern, $path)) {
                     return new NavigationNodeGeneric($path);
                 }
                 break;
             case NavigationNodeEmpty::NAV_NODE_TYPE_EMPTY:
+                return new NavigationNodeEmpty();
             default:
-                break;
+                return null;
         }
-        return $return;
+        return null;
     }
 
     /**
-     * @param array $parse Array to parse. No checks performed, run self::check first.
+     * @param array $parse Array to parse. No checks performed, run self::check for syntactic check first.
      * @param array $result Reference to the result array. Must be [] to generate a root element.
      * @param int $count The lft value to start with.
+     * @return bool True if parsing was successful, false otherwise
      */
-    private function parse(array $parse, array &$result = [], int &$count = 1)
+    private function parse(array $parse, array &$result = [], int &$count = 1): bool
     {
         $path = $parse[self::ARRAY_PATH];
         $name = $parse[self::ARRAY_NAME];
@@ -150,13 +154,19 @@ class NavigationService
         } else {
             $node = $this->guessType($type, $path);
         }
+
+        if (empty($node))
+            return false;
+
         $node->setName($name);
         $node->setLft($count++);
         array_push($result, $node);
+        $valid = true;
         foreach ($children as $child) {
-            $this->parse($child, $result, $count);
+            $valid &= $this->parse($child, $result, $count);
         }
         $node->setRgt($count++);
+        return $valid;
     }
 
     public function getAll()
@@ -206,9 +216,13 @@ class NavigationService
      */
     public function parseNav(Navigation $nav, ?array $input): bool
     {
+        $result = [];
+
         if (empty($input))
             return false;
         if (!self::check($input))
+            return false;
+        if (!$this->parse($input, $result))
             return false;
 
         $this->em->beginTransaction();
@@ -216,9 +230,7 @@ class NavigationService
         $this->em->persist($nav);
         $this->em->flush();
 
-        $rslt = [];
-        $this->parse($input, $rslt);
-        foreach ($rslt as $item)
+        foreach ($result as $item)
             $nav->addNode($item);
         $this->em->persist($nav);
         $this->em->flush();
