@@ -22,7 +22,7 @@ const MediaPreview = function($root, confirmModal, $filter, $search) {
     this.$filter.on('change', _ => {
         this.showOnly(this.$filter.val(), this.$search.val());
     });
-    this.$search.on('input', v => {
+    this.$search.on('input', _ => {
         this.showOnly(this.$filter.val(), this.$search.val());
     });
 }
@@ -44,7 +44,7 @@ $.extend(MediaPreview.prototype,{
             else
                 $elem.hide();
         });
-        this.$root.mark(sl);
+        this.$root.mark(sl, { "exclude": ['.no-highlight'] });
     },
     getFileNames() {
         return this.boxes.map(function() {
