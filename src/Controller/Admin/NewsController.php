@@ -9,7 +9,12 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 
+/**
+ * @Route("/news", name="news")
+ * @IsGranted("ROLE_ADMIN_NEWS")
+ */
 class NewsController extends AbstractController
 {
     private $newsService;
@@ -24,7 +29,7 @@ class NewsController extends AbstractController
     }
 
     /**
-     * @Route("/news", name="news")
+     * @Route("", name="")
      */
     public function index() {
         $news = $this->newsService->getAll();
@@ -34,7 +39,7 @@ class NewsController extends AbstractController
     }
 
     /**
-     * @Route("/news/new", name="news_new")
+     * @Route("/new", name="_new")
      */
     public function new(Request $request) {
         $form = $this->createForm(NewsType::class);
@@ -51,7 +56,7 @@ class NewsController extends AbstractController
     }
 
     /**
-     * @Route("/news/delete/{id}", name="news_delete")
+     * @Route("/delete/{id}", name="_delete")
      * @ParamConverter()
      */
     public function delete(News $news) {
@@ -61,7 +66,7 @@ class NewsController extends AbstractController
     }
 
     /**
-     * @Route("/news/edit/{id}", name="news_edit")
+     * @Route("/edit/{id}", name="_edit")
      * @ParamConverter()
      */
     public function edit(Request $request, News $news) {

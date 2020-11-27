@@ -3,7 +3,9 @@ twig:
     debug: '%kernel.debug%'
     strict_variables: '%kernel.debug%'
     exception_controller: null
-    form_themes: ['bootstrap_4_layout.html.twig']
+    form_themes:
+        - 'form/klms_bootstrap_4_layout.html.twig'
+        - 'widgets/select2_widget.html.twig'
     globals:
         nav: '@App\Service\NavigationService'
         textblock: '@App\Service\TextBlockService'

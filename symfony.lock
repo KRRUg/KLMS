@@ -2,6 +2,15 @@
     "brick/math": {
         "version": "0.8.14"
     },
+    "clue/stream-filter": {
+        "version": "v1.4.1"
+    },
+    "composer/semver": {
+        "version": "1.5.1"
+    },
+    "composer/xdebug-handler": {
+        "version": "1.4.2"
+    },
     "doctrine/annotations": {
         "version": "1.0",
         "recipe": {
@@ -93,32 +102,41 @@
     "doctrine/reflection": {
         "version": "v1.1.0"
     },
-    "easycorp/easy-log-handler": {
-        "version": "1.0",
-        "recipe": {
-            "repo": "github.com/symfony/recipes",
-            "branch": "master",
-            "version": "1.0",
-            "ref": "70062abc2cd58794d2a90274502f81b55cd9951b"
-        },
-        "files": [
-            "config/packages/dev/easy_log_handler.yaml"
-        ]
+    "doctrine/sql-formatter": {
+        "version": "1.1.0"
     },
     "egulias/email-validator": {
         "version": "2.1.17"
     },
-    "imagine/imagine": {
-        "version": "1.2.3"
+    "friendsofphp/php-cs-fixer": {
+        "version": "2.2",
+        "recipe": {
+            "repo": "github.com/symfony/recipes",
+            "branch": "master",
+            "version": "2.2",
+            "ref": "cc05ab6abf6894bddb9bbd6a252459010ebe040b"
+        },
+        "files": [
+            "./.php_cs.dist"
+        ]
     },
-    "jdorn/sql-formatter": {
-        "version": "v1.2.17"
+    "guzzlehttp/guzzle": {
+        "version": "6.5.5"
+    },
+    "guzzlehttp/promises": {
+        "version": "v1.3.1"
+    },
+    "guzzlehttp/psr7": {
+        "version": "1.6.1"
+    },
+    "http-interop/http-factory-guzzle": {
+        "version": "1.0.0"
+    },
+    "jean85/pretty-package-versions": {
+        "version": "1.2"
     },
     "jms/metadata": {
         "version": "2.1.0"
-    },
-    "joshtronic/php-loremipsum": {
-        "version": "1.0.6"
     },
     "laminas/laminas-code": {
         "version": "3.4.1"
@@ -128,19 +146,6 @@
     },
     "laminas/laminas-zendframework-bridge": {
         "version": "1.0.1"
-    },
-    "liip/imagine-bundle": {
-        "version": "1.8",
-        "recipe": {
-            "repo": "github.com/symfony/recipes-contrib",
-            "branch": "master",
-            "version": "1.8",
-            "ref": "5a5bdc2d0e2533ed6935d5ae562f2b318a8fc1ee"
-        },
-        "files": [
-            "config/packages/liip_imagine.yaml",
-            "config/routes/liip_imagine.yaml"
-        ]
     },
     "monolog/monolog": {
         "version": "1.25.3"
@@ -169,13 +174,46 @@
     "php": {
         "version": "7.4"
     },
+    "php-cs-fixer/diff": {
+        "version": "v1.3.0"
+    },
+    "php-http/client-common": {
+        "version": "2.1.0"
+    },
+    "php-http/discovery": {
+        "version": "1.8.0"
+    },
+    "php-http/guzzle6-adapter": {
+        "version": "v2.0.1"
+    },
+    "php-http/httplug": {
+        "version": "2.1.0"
+    },
+    "php-http/message": {
+        "version": "1.8.0"
+    },
     "php-http/message-factory": {
         "version": "v1.0.2"
+    },
+    "php-http/promise": {
+        "version": "v1.0.0"
+    },
+    "phpdocumentor/reflection-common": {
+        "version": "2.1.0"
+    },
+    "phpdocumentor/reflection-docblock": {
+        "version": "5.1.0"
+    },
+    "phpdocumentor/type-resolver": {
+        "version": "1.1.0"
     },
     "psr/cache": {
         "version": "1.0.1"
     },
     "psr/container": {
+        "version": "1.0.0"
+    },
+    "psr/http-client": {
         "version": "1.0.0"
     },
     "psr/http-factory": {
@@ -186,6 +224,9 @@
     },
     "psr/log": {
         "version": "1.1.2"
+    },
+    "ralouphie/getallheaders": {
+        "version": "3.0.3"
     },
     "ramsey/collection": {
         "version": "1.0.1"
@@ -203,6 +244,24 @@
         },
         "files": [
             "config/packages/sensio_framework_extra.yaml"
+        ]
+    },
+    "sentry/sdk": {
+        "version": "2.1.0"
+    },
+    "sentry/sentry": {
+        "version": "2.4.0"
+    },
+    "sentry/sentry-symfony": {
+        "version": "3.0",
+        "recipe": {
+            "repo": "github.com/symfony/recipes-contrib",
+            "branch": "master",
+            "version": "3.0",
+            "ref": "9746f0823302d7980e5273ef7a69ef3f5ac80914"
+        },
+        "files": [
+            "./config/packages/sentry.yaml"
         ]
     },
     "symfony/asset": {
@@ -250,6 +309,9 @@
     },
     "symfony/dependency-injection": {
         "version": "v4.4.4"
+    },
+    "symfony/deprecation-contracts": {
+        "version": "v2.2.0"
     },
     "symfony/doctrine-bridge": {
         "version": "v4.4.4"
@@ -394,10 +456,13 @@
         "version": "v1.14.0"
     },
     "symfony/polyfill-php80": {
-        "version": "v1.18.1"
+        "version": "v1.17.0"
+    },
+    "symfony/polyfill-uuid": {
+        "version": "v1.17.0"
     },
     "symfony/process": {
-        "version": "v4.4.13"
+        "version": "v4.4.9"
     },
     "symfony/profiler-pack": {
         "version": "v1.0.4"
@@ -457,9 +522,6 @@
     },
     "symfony/string": {
         "version": "v5.0.5"
-    },
-    "symfony/templating": {
-        "version": "v4.4.13"
     },
     "symfony/translation-contracts": {
         "version": "v2.0.1"
@@ -542,9 +604,6 @@
     "twig/extra-bundle": {
         "version": "v3.0.3"
     },
-    "twig/string-extra": {
-        "version": "v3.0.5"
-    },
     "twig/twig": {
         "version": "v3.0.3"
     },
@@ -562,6 +621,9 @@
     },
     "webimpress/safe-writer": {
         "version": "2.0.1"
+    },
+    "webmozart/assert": {
+        "version": "1.8.0"
     },
     "zendframework/zend-code": {
         "version": "3.4.1"

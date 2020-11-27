@@ -1,49 +1,26 @@
+@import './helper/variables';
 
-@import 'variables.scss';
+@import '~bootstrap';
 
-$primary: $krru-color;
+@import './dataTables';
+@import './header.scss';
+@import './navigation.scss';
+@import './sidebar.scss';
+@import './card.scss';
+@import './forms.scss';
+@import './nav_tree.scss';
 
-$grid-breakpoints: (
-  xs: 0,
-  sm: 600px,
-  md: 768px,
-  lg: 1024px,
-  xl: 1280px
-) !default;
-
-$container-max-widths: (
-  sm: 540px,
-  md: 720px,
-  lg: 1000px,
-  xl: 1200px
-) !default;
-
-$enable-rounded: false;
-$enable-shadows: true;
-
-$box-shadow-sm: 0 1.6px 3.6px 0 rgba($shadow-color,.132),0 .3px .9px 0 rgba($shadow-color,.108);
-$box-shadow:    0 3.2px 7.2px 0 rgba($shadow-color,.132),0 .6px 1.8px 0 rgba($shadow-color,.108);
-$box-shadow-lg: 0 6.4px 14.4px 0 rgba($shadow-color,.132),0 1.2px 3.6px 0 rgba($shadow-color,.108);
-$box-shadow-xl: 0 25.6px 57.6px 0 rgba($shadow-color,.22),0 4.8px 14.4px 0 rgba($shadow-color,.18);
-
-@import '../../../node_modules/bootstrap/scss/bootstrap.scss';
-
-@import 'header.scss';
-@import 'navigation.scss';
-@import 'sidebar.scss';
-@import 'forms.scss';
-@import 'nav_tree.scss';
-
-.bg-darker {
-    background-color: darken($dark, 5);
+footer {
+    box-shadow: $box-shadow;
 }
 
-.text-disabled {
-    color: $gray-300;
+.navbar {
+    box-shadow:  $box-shadow-sm;
 }
 
-.badge-pill {
-    border-radius: $badge-pill-border-radius;
+.card {
+    box-shadow: $box-shadow-sm;
+    border:none;
 }
 
 .btn.disabled:hover {
@@ -57,15 +34,18 @@ $box-shadow-xl: 0 25.6px 57.6px 0 rgba($shadow-color,.22),0 4.8px 14.4px 0 rgba(
     background-color: $list-group-hover-bg;
 }
 
-footer {
-    box-shadow: $box-shadow;
+.bg-darker {
+    background-color: darken($dark, 5);
 }
 
-.navbar {
-    box-shadow:  $box-shadow-sm;
+.text-disabled {
+    color: $gray-300;
 }
 
-.card {
-    box-shadow: $box-shadow-sm;
-    border:none;
+.badge-pill {
+    border-radius: $badge-pill-border-radius;
+}
+
+.dropdown-menu-lg {
+    min-width: $dropdown-min-width * 2;
 }

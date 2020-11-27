@@ -1,24 +1,22 @@
-// Shared JS File
+import '../css/app.scss';
 
-//require('../css/app.css');
+//Shared JS
+import $ from 'jquery';
+import 'bootstrap';
 
-console.log('Hello Webpack Encore! Edit me in assets/js/app.js');
+import 'mark.js';
+import 'mark.js/dist/jquery.mark.js';
 
+import './modules/sentry.js';
+import './modules/dataTables/dataTables.js';
+import './components/datetimepicker.js';
 
-//Import Bootstrap4
-require('jquery');
-require('bootstrap');
-require('../css/_scss/bootstrap-krru.scss');
-
-require('@fortawesome/fontawesome-free/css/all.min.css');
+import select2Init from './modules/select2/select2';
 
 const cfi = require('bs-custom-file-input');
 
-require('./components/datetimepicker.js');
-
 $( document ).ready(function() {
     cfi.init();
+    select2Init();
     $('.datetimepicker').datetime();
 });
-
-//Images

@@ -13,6 +13,7 @@ class UserFixtures extends Fixture
     public function load(ObjectManager $manager)
     {
         $admin = new UserAdmin(Uuid::fromInteger(strval(3)));
+        $admin->setPermissions(['ADMIN_NEWS']);
         $manager->persist($admin);
 
         $gamer = new UserGamer(Uuid::fromInteger(strval(4)));

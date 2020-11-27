@@ -7,10 +7,16 @@ use App\Exception\ServiceException;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 abstract class BaseController extends AbstractController
 {
+    protected function acceptsJson(Request $request)
+    {
+        return in_array('application/json', $request->getAcceptableContentTypes());
+    }
+
     /**
      * @param mixed $data Usually an object you want to serialize
      * @param int $statusCode
@@ -23,6 +29,20 @@ abstract class BaseController extends AbstractController
         }
 
         $json = $this->get('serializer')->serialize($data, 'json');
+        return new JsonResponse($json, $statusCode, [], true);
+    }
+
+    /**
+     * @param mixed $data Usually an object you want to serialize
+     * @param int $statusCode
+     * @return JsonResponse
+     * TODO remove me!!!!!!!
+     */
+    protected function createApiResponse($data, $statusCode = 200)
+    {
+        $json = $this->get('serializer')
+            ->serialize($data, 'json');
+
         return new JsonResponse($json, $statusCode, [], true);
     }
 

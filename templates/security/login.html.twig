@@ -1,42 +1,57 @@
-{% extends 'base.html.twig' %}
+{% extends 'site/siteBase.html.twig' %}
 
-{% block title %}Log in!{% endblock %}
+{% block title %}Anmeldung{% endblock %}
 
-{% block body %}
-<form method="post">
-    {% if error %}
-        <div class="alert alert-danger">{{ error.messageKey|trans(error.messageData, 'security') }}</div>
-    {% endif %}
+{% block main %}
+    {% embed "site/components/cards/skeletons/cardProfileRound.html.twig"  with {'cardSymbole': 'fas fa-sign-in-alt'} %}
+        {% block cardBody %}
+            <h1 class=" h3 card-title text-center">Anmeldung</h1>
+                <form method="post">
+                    {% if error %}
+                        <div class="alert alert-danger"><i class="fas fa-exclamation-circle"></i> {{ error.messageKey|trans(error.messageData, 'security') }}</div>
+                    {% endif %}
 
-    {% if app.user %}
-        <div class="mb-3">
-            You are logged in as {{ app.user.username }}, <a href="{{ path('app_logout') }}">Logout</a>
-        </div>
-    {% endif %}
+                    {% if app.user %}
+                        <div class="mb-3">
+                            You are logged in as {{ app.user.username }}, <a href="{{ path('app_logout') }}">Logout</a>
+                        </div>
+                    {% endif %}
+                    <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}" >
+                    <div class="form-group">
+                        <label for="inputUsername">Username</label>
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text" id="logon-user-addon"><i class="far fa-envelope"></i> </span>
+                            </div>
+                            <input type="text" class="form-control" id="inputUsername" value="{{ last_username }}" name="username" placeholder="Username (E-Mail)" aria-label="Username (E-Mail)" aria-describedby="logon-user-addon">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="inputPassword">Password</label>
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text" id="logon-password-addon"><i class="fas fa-key"></i> </span>
+                            </div>
+                            <input type="password" class="form-control" id="inputPassword" name="password"  placeholder="Password" aria-label="Password" aria-describedby="logon-password-addon">
+                        </div>
+                        <small class="form-text text-right"><a href="{# TODO: Link Passwort vergessen einbauen #}" data-toggle="modal" data-target="#modalPassword">Passwort vergessen?</a></small>
+                    </div>
+                    <div class="form-group form-check custom-control custom-checkbox">
+                        {#
+                            Uncomment this section and add a remember_me option below your firewall to activate remember me functionality.
+                            See https://symfony.com/doc/current/security/remember_me.html
+                        #}
+                        <input type="checkbox" class="form-check-input custom-control-input" id="_remember_me">
+                        <label class="form-check-label custom-control-label" for="_remember_me">Angemeldet bleiben</label>
+                    </div>
+                    <button class="btn btn-lg btn-primary" type="submit">
+                        Anmelden
+                    </button>
+                </form>
+        {% endblock %}
 
-    <h1 class="h3 mb-3 font-weight-normal">Please sign in</h1>
-    <label for="inputUsername">Username</label>
-    <input type="text" value="{{ last_username }}" name="username" id="inputUsername" class="form-control" required autofocus>
-    <label for="inputPassword">Password</label>
-    <input type="password" name="password" id="inputPassword" class="form-control" required>
-
-    <input type="hidden" name="_csrf_token"
-           value="{{ csrf_token('authenticate') }}"
-    >
-
-    {#
-        Uncomment this section and add a remember_me option below your firewall to activate remember me functionality.
-        See https://symfony.com/doc/current/security/remember_me.html
-
-        <div class="checkbox mb-3">
-            <label>
-                <input type="checkbox" name="_remember_me"> Remember me
-            </label>
-        </div>
-    #}
-
-    <button class="btn btn-lg btn-primary" type="submit">
-        Sign in
-    </button>
-</form>
+        {% block cardFooter %}
+            Neu? <a href="{{ path('register') }}">Account erstellen</a>
+        {% endblock %}
+    {% endembed  %} 
 {% endblock %}

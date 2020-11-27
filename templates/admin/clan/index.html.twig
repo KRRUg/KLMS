@@ -1,0 +1,32 @@
+{% extends 'admin/adminBase.html.twig' %}
+
+{% block title %}KLMS - Admin{% endblock %}
+{% block siteheading %}<i class="far fa-file-alt"></i> Clans{% endblock %}
+{% block main %}
+    <div class="row">
+        <div class="col-12">
+            <a role="button" class="btn btn-primary" href="{{ path('admin_clan_create') }}">Clan erstellen</a>
+            <div class="card">
+                <table class="table table-striped">
+                    <tr>
+                        <th>Clans</th>
+                    </tr>
+                    {% for clan in clans.items %}
+                        <tr>
+                            <td><a href="{{ path('admin_clan_show', {'uuid' : clan.uuid}) }}">{{ clan.name }}</a></td>
+                            <td>
+                                <a class="btn btn-outline-dark" href="{{ path('admin_clan_edit', {'uuid' : clan.uuid}) }}">Editieren</a>
+                                {# TODO: implement SweetAlert2? "Sind sie Sicher?" Modal #}
+                                <form method="post" action="{{ path('admin_clan_delete', {'uuid' : clan.uuid}) }}" class="d-inline-block">
+                                    <input type="hidden" name="_method" value="DELETE"/>
+                                    <button class="btn btn-outline-dark" type="submit" value="löschen"/>Löschen</button>
+                                </form>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </table>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+

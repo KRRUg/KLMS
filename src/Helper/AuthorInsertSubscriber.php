@@ -2,6 +2,7 @@
 
 namespace App\Helper;
 
+use App\Security\LoginUser;
 use App\Security\UserInfo;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\Form\Event\PostSubmitEvent;
@@ -29,10 +30,11 @@ class AuthorInsertSubscriber implements EventSubscriberInterface
         $data = $event->getData();
         $user = $this->security->getUser();
 
-        if (!($data instanceof HistoryAwareEntity) || !($user instanceof UserInfo)) {
+        if (!($data instanceof HistoryAwareEntity) || !($user instanceof LoginUser)) {
             return;
         }
 
+        $user = $user->getUser();
         $uuid = $user->getUuid();
         if (empty($data->getAuthorId())) {
             $data->setAuthorId($uuid);
