@@ -63,7 +63,7 @@ class UserSelectType extends AbstractType implements DataTransformerInterface
     public function reverseTransform($value)
     {
         try {
-            return $this->userService->getUserInfosByUuid([$value])[0];
+            return $this->userService->getUserInfoByUuid($value);
         } catch (UserServiceException $e) {
             throw new TransformationFailedException('Unknown type to convert');
         }

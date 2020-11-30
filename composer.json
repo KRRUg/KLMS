@@ -6,6 +6,7 @@
         "ext-ctype": "*",
         "ext-iconv": "*",
         "ext-json": "*",
+        "liip/imagine-bundle": "^2.3",
         "nyholm/psr7": "^1.2",
         "phpdocumentor/reflection-docblock": "^5.1",
         "ramsey/uuid": "^4.0",
@@ -28,13 +29,15 @@
         "symfony/validator": "4.4.*",
         "symfony/webpack-encore-bundle": "^1.7",
         "symfony/yaml": "4.4.*",
+        "twig/string-extra": "^3.0",
         "vich/uploader-bundle": "^1.13"
     },
     "require-dev": {
         "doctrine/doctrine-fixtures-bundle": "^3.3",
         "symfony/maker-bundle": "^1.14",
         "symfony/debug-pack": "^1.0",
-        "friendsofphp/php-cs-fixer": "^2.16"
+        "friendsofphp/php-cs-fixer": "^2.16",
+        "joshtronic/php-loremipsum": "^1.0"
     },
     "config": {
         "preferred-install": {

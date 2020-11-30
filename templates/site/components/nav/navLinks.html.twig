@@ -1,0 +1,30 @@
+{#
+Link render module
+
+Configuration options:
+    - navigation: name of the navigation to display
+#}
+
+{% set root = nav.renderNavByName(navigation | default('links')) %}
+
+{% macro menu_links(nodes) %}
+    <ul class="list-unstyled">
+        {% for node in nodes %}
+            {% set name = node['name'] %}
+            {% set path = node['path'] %}
+            {% set children = node['children'] %}
+            <li>
+                <a href="{{ path | default('#') }}">{{ name }}</a>
+                {% if children is not empty %}
+                    {{ _self.menu_links(children) }}
+                {% endif %}
+            </li>
+        {% endfor %}
+    </ul>
+{% endmacro %}
+
+<div>
+    {% if root is not empty %}
+    {{ _self.menu_links(root['children']) }}
+    {% endif %}
+</div>

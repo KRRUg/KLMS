@@ -1,0 +1,21 @@
+.navigationTree {
+    .list-group-item {        
+        .nav-item-label {
+            .nav-item {
+                display: inline-block;
+                
+                .edit-img {
+                    opacity: 0%;
+                    transition:opacity 0.2s
+                }
+
+                &:hover {
+                    .edit-img {
+                        opacity:100%;
+                        transition:opacity 0.5s
+                    }
+                }
+            }
+        }
+    }
+}

@@ -2,20 +2,19 @@
 
 namespace App\Entity;
 
+use App\Helper\HistoryAwareEntity;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\HttpFoundation\File\File;
-use Symfony\Component\HttpFoundation\File\UploadedFile;
+use Symfony\Component\Validator\Constraints as Assert;
 use Vich\UploaderBundle\Entity\File as EmbeddedFile;
 use Vich\UploaderBundle\Mapping\Annotation as Vich;
-
-// TODO add created user and last modified by user
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\NewsRepository")
  * @ORM\HasLifecycleCallbacks
  * @Vich\Uploadable
  */
-class News
+class News implements HistoryAwareEntity
 {
     /**
      * @ORM\Id()
@@ -35,27 +34,15 @@ class News
     private $content;
 
     /**
-     * @ORM\Column(type="datetime")
-     */
-    private $last_modified;
-
-    /**
-     * @ORM\Column(type="datetime")
-     */
-    private $created;
-
-    /**
-     * @ORM\Column(type="text", nullable=true)
-     */
-    private $description;
-
-    /**
      * @ORM\Column(type="datetime", nullable=true)
+     * @Assert\DateTime()
      */
     private $publishedFrom;
 
     /**
      * @ORM\Column(type="datetime", nullable=true)
+     * @Assert\DateTime()
+     * @Assert\GreaterThan(propertyPath="publishedFrom")
      */
     private $publishedTo;
 
@@ -72,6 +59,8 @@ class News
      * @var EmbeddedFile
      */
     private $image;
+
+    use Traits\EntityHistoryTrait;
 
     public function __construct()
     {
@@ -107,30 +96,6 @@ class News
         return $this;
     }
 
-    public function getLastModified(): ?\DateTimeInterface
-    {
-        return $this->last_modified;
-    }
-
-    public function setLastModified(\DateTimeInterface $last_modified): self
-    {
-        $this->last_modified = $last_modified;
-
-        return $this;
-    }
-
-    public function getCreated(): ?\DateTimeInterface
-    {
-        return $this->created;
-    }
-
-    public function setCreated(\DateTimeInterface $created): self
-    {
-        $this->created = $created;
-
-        return $this;
-    }
-
     public function setImageFile(?File $imageFile = null): void
     {
         $this->imageFile = $imageFile;
@@ -158,18 +123,6 @@ class News
         return $this->image;
     }
 
-    public function getDescription(): ?string
-    {
-        return $this->description;
-    }
-
-    public function setDescription(?string $description): self
-    {
-        $this->description = $description;
-
-        return $this;
-    }
-
     public function getPublishedFrom(): ?\DateTimeInterface
     {
         return $this->publishedFrom;
@@ -194,15 +147,19 @@ class News
         return $this;
     }
 
-    /**
-     * @ORM\PrePersist()
-     * @ORM\PreUpdate()
-     */
-    public function updateModifiedDatetime() {
-        // update the modified time and creation time
-        $this->setLastModified(new \DateTime());
-        if ($this->getCreated() === null) {
-            $this->setCreated(new \DateTime());
+    public function isActive(): bool
+    {
+        $now = new \DateTime();
+        return (empty($this->getPublishedFrom()) || $this->getPublishedFrom() <= $now)
+            && (empty($this->getPublishedTo()) || $this->getPublishedTo() >= $now);
+    }
+
+    public function activeSince() : \DateTimeInterface
+    {
+        if (empty($this->publishedFrom)) {
+            return $this->getCreated();
+        } else {
+            return $this->getPublishedFrom();
         }
     }
 }

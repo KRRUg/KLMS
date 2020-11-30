@@ -1,0 +1,20 @@
+{#
+Link render module for bottom link list
+
+Configuration options:
+    - navigation: name of the navigation to display
+    - style: style classes of the links
+#}
+
+{% set root = nav.renderNavByName(navigation | default('footer')) %}
+
+<div>
+    {% if root is not empty %}
+        {% for node in root['children'] %}
+            {% set name = node['name'] %}
+            {% set path = node['path'] %}
+            <a class="{{ style | default("") }}" href="{{ path | default('#') }}">{{ name }}</a>
+            {% if not loop.last %}|{% endif %}
+        {% endfor %}
+    {% endif %}
+</div>

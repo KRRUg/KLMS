@@ -54,7 +54,6 @@
 .env.local
 /nbproject/
 .idea
-.php_cs.cache
 
 #Ignore NodeJS Modules
 /node_modules
@@ -68,6 +67,10 @@ npm-debug.log
 yarn-error.log
 ###< symfony/webpack-encore-bundle ###
 public/images
+public/cache
+public/media
+
+*.sh
 
 ###> friendsofphp/php-cs-fixer ###
 /.php_cs

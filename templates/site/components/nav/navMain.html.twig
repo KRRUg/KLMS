@@ -1,22 +1,3 @@
-{% macro menu_links(nodes, d) %}
-    {% for node in nodes %}                
-        {% if node.childNodes is not empty %}
-            <li class="dropdown-item dropright">
-                <a class="dropdown-toggle" data-toggle="dropdown" href="#">
-                    {{ node.name }}
-                </a>
-                <ul class="dropdown-menu">
-                    {{ _self.menu_links(node.getChildNodes(), d+1)  }}
-                </ul>
-            </li>
-        {% else %}
-            <li class="dropdown-item">
-                <a class="" href="{% if node.path is not empty %}{{ node.path }}{% else %}#{% endif %}">{{ node.name }}</a>
-            </li>
-        {% endif %}
-    {% endfor %}
-{% endmacro %}
-
 <nav id="main-nav" class="navbar navbar-expand-lg navbar-dark bg-dark mt-n4">
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#main-nav-content" aria-controls="main-nav-content" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
@@ -24,23 +5,36 @@
 
     <div class="collapse navbar-collapse" id="main-nav-content">
         <ul class="navbar-nav mr-auto">
-            {#{{ _self.menu_links( nav.getNav(), 1 ) }}#}
-            {% for node in nav.getNav() %}                
-                {% if node.childNodes is not empty %}
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="{% if node.path is not empty %}{{ node.path }}{% else %}#{% endif %}" id="nav-dropdown-{{ node.id }}" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                            {{ node.name }}
-                        </a>
-                        <ul class="dropdown-menu" aria-labelledby="nav-dropdown-{{ node.id }}">
-                            {{ _self.menu_links(node.getChildNodes(), 2) }}
-                        </ul>
-                    </li>
-                {% else %}
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% if node.path is not empty %}{{ node.path }}{% else %}#{% endif %}">{{ node.name }}</a>
-                    </li>
-                {% endif %}
-            {% endfor %}
+            {% set root = nav.renderNavByName('main_menu') %}
+            {% if root is empty or root['children'] is empty %}
+                <li class="nav-item">
+                    <a class="nav-link" href="/">Home</a>
+                </li>
+            {% else %}
+                {% for node in root['children'] %}
+                    {% set name = node['name'] %}
+                    {% set path = node['path'] %}
+                    {% set children = node['children'] %}
+                    {% if children is empty %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ path | default('#') }}">{{ name }}</a>
+                        </li>
+                    {% else %}
+                        <li class="nav-item dropdown" }}>
+                            <a class="nav-link dropdown-toggle" href="{{ path | default('#') }}" role="button" data-toggle="dropdown">{{ name }}</a>
+                            <ul class="dropdown-menu">
+                                {% for node in children %}
+                                    {% set name = node['name'] %}
+                                    {% set path = node['path'] %}
+                                    <li class="dropdown-item">
+                                        <a href="{{ path | default('#') }}">{{ name }}</a>
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        </li>
+                    {% endif %}
+                {% endfor %}
+            {% endif %}
         </ul>
     </div>
 </nav>

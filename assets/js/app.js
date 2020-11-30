@@ -1,18 +1,22 @@
 import '../css/app.scss';
 
 //Shared JS
-import './modules/sentry.js';
 import $ from 'jquery';
 import 'bootstrap';
 
 import 'mark.js';
 import 'mark.js/dist/jquery.mark.js';
+
+import './modules/sentry.js';
 import './modules/dataTables/dataTables.js';
+import './components/datetimepicker.js';
 
 import select2Init from './modules/select2/select2';
 
-$(document).ready(function () {
-    console.log("App module loaded!");
-    select2Init();
-});
+const cfi = require('bs-custom-file-input');
 
+$( document ).ready(function() {
+    cfi.init();
+    select2Init();
+    $('.datetimepicker').datetime();
+});
