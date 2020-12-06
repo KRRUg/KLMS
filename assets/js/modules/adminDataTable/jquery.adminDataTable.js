@@ -1,6 +1,7 @@
 import $ from 'jquery';
 import dTLang from '../../modules/dataTables/dataTables.js';
 import './ajaxModal.js';
+import './confirmModal.js';
 
 ;
 (function ($, window, document, undefined) {
@@ -38,10 +39,11 @@ import './ajaxModal.js';
             this.$table = $(this.element).DataTable(dtOptions);
         },
         _enableTrigger() {
+            /*
             $(this.element).children('a[data-render="modal"]').on(
-                'click',
-                this._loadRemoteModal().bind(this)
-            );
+                    'click',
+                    this._loadRemoteModal().bind(this)
+                    );*/
         },
     });
 

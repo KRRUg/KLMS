@@ -2,44 +2,17 @@
     "use strict";
     let ConfirmModal = function (remoteTarget) {
         this.remoteTarget = remoteTarget;
-        /*this.$modal.on(
-         'show.bs.modal',
-         this.handleModalShow.bind(this)
-         );
-         this.$modal.on(
-         'hide.bs.modal',
-         this.handleModalHide.bind(this)
-         );
-         this.$modal.on(
-         'submit',
-         'form',
-         this.handleFormSubmit.bind(this)
-         );*/
         this.init();
+        this.$modal.on(
+                'click',
+                '.js-confirm',
+                this._handleConfirmAction.bind(this)
+                );
     };
-    $.extend(AjaxModal.prototype, {
+    $.extend(ConfirmModal.prototype, {
         init() {
-            this.$modal = this._initModal(data);
+            this.$modal = this._initModal();
             this.$modal.modal('show');
-            
-            /*this._getRemoteContent()
-                    .then((data) => {
-                        
-                    }).catch((e) => {
-                console.error('Error loading remote content!', e);
-            });*/
-        },
-        _getRemoteContent() {
-            return new Promise((resolve, reject) => {
-                $.ajax({
-                    method: 'GET',
-                    url: this.remoteTarget,
-                }).then((data, textStatus, jqXHR) => {
-                    resolve(data);
-                }).catch((jqXHR) => {
-                    reject();
-                });
-            });
         },
         _initModal(data) {
             let modalWrapper = document.querySelector('div#' + MODULE_NAME);
@@ -47,8 +20,9 @@
             if (!modalWrapper) {
                 let elem = document.createElement("DIV");
                 elem.setAttribute("id", MODULE_NAME);
-                let modalHtml = this._getModalHtml();
-                document.body.appendChild(modalHtml);
+                elem.innerHTML = this._getModalHtml();
+
+                document.body.appendChild(elem);
 
                 modalWrapper = document.querySelector('div#' + MODULE_NAME);
             } else {
@@ -57,7 +31,7 @@
             }
 
             let $modalWrapper = $(modalWrapper);
-            $modalWrapper.html(data);
+            $modalWrapper.html(this._getModalHtml());
 
             let $modal = $modalWrapper.children(".modal");
             return $modal;
@@ -67,21 +41,29 @@
             modalHtlm += '<div class="modal-dialog" role="document">';
             modalHtlm += ' <div class="modal-content">';
             modalHtlm += '   <div class="modal-header">';
-            modalHtlm += '     <h5 class="modal-title" id="confirmeModalLabel">Modal title</h5>';
-            modalHtlm += '     <button type="button" class="close" data-dismiss="modal" aria-label="Close">';
-            modalHtlm += '       <span aria-hidden="true">&times;</span>';
-            modalHtlm += '     </button>';
+            modalHtlm += '     <h5 class="modal-title" id="confirmeModalLabel">Löschen bestätigen</h5>';
             modalHtlm += '</div>';
             modalHtlm += '<div class="modal-body">';
+            modalHtlm += '<p>Sind Sie sicher, dass Sie dieses Element löschen wollen?</p>';
             modalHtlm += '</div>';
             modalHtlm += '<div class="modal-footer">';
             modalHtlm += '<button type="button" class="btn btn-secondary" data-dismiss="modal">Nein</button>';
-            modalHtlm += '<button type="button" class="btn btn-primary">Ja</button>';
+            modalHtlm += '<button type="button" class="btn btn-primary js-confirm">Ja</button>';
             modalHtlm += '</div>';
             modalHtlm += '</div>';
             modalHtlm += '</div>';
             modalHtlm += '</div>';
             return modalHtlm;
+        },
+        _handleConfirmAction() {
+            if($(this.remoteTarget).is('form')) {
+                this.remoteTarget.submit();
+            } else if ($(this.remoteTarget).is('a')) {
+                let href = $(this.remoteTarget).attr("href");
+                window.location.href = href;
+            } else {
+                console.error("remoteTarget type not supported!");
+            }
         }
     });
     let MODULE_NAME = 'confirmModal';
@@ -91,15 +73,10 @@
     let SELECTOR_DATA_TOGGLE = '[data-toggle="confirmModal"]';
 
     $(document).on(EVENT_CLICK_DATA_API, SELECTOR_DATA_TOGGLE, function (event) {
-        let remoteTarget = this.getAttribute('href');
-
-        if (!remoteTarget) {
-            return;
-        }
-
         event.preventDefault();
-        let am = new confirmModal(remoteTarget);
+        let $currentTarget = event.currentTarget;
 
+        let cm = new ConfirmModal($currentTarget);
     });
 
 })(jQuery, window, document);
