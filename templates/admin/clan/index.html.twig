@@ -1,29 +1,48 @@
 {% extends 'admin/adminBase.html.twig' %}
 
-{% block title %}KLMS - Admin{% endblock %}
-{% block siteheading %}<i class="far fa-file-alt"></i> Clans{% endblock %}
+{% block title %}Clans - KLMS - Admin{% endblock %}
+{% block siteheading %}<i class="fas fa-users"></i> Clans{% endblock %}
 {% block main %}
     <div class="row">
+        <div class="col mb-4">
+            <a role="button" class="btn btn-primary" href="{{ path('admin_clan_create') }}"><i class="fas fa-plus"></i> Clan erstellen</a>
+        </div>
+    </div>
+    <div class="row">
         <div class="col-12">
-            <a role="button" class="btn btn-primary" href="{{ path('admin_clan_create') }}">Clan erstellen</a>
             <div class="card">
-                <table class="table table-striped">
-                    <tr>
-                        <th>Clans</th>
-                    </tr>
-                    {% for clan in clans.items %}
+                <table id="clanTable" class="table table-striped admin-data-table">
+                    <thead>
                         <tr>
-                            <td><a href="{{ path('admin_clan_show', {'uuid' : clan.uuid}) }}">{{ clan.name }}</a></td>
-                            <td>
-                                <a class="btn btn-outline-dark" href="{{ path('admin_clan_edit', {'uuid' : clan.uuid}) }}">Editieren</a>
-                                {# TODO: implement SweetAlert2? "Sind sie Sicher?" Modal #}
-                                <form method="post" action="{{ path('admin_clan_delete', {'uuid' : clan.uuid}) }}" class="d-inline-block">
-                                    <input type="hidden" name="_method" value="DELETE"/>
-                                    <button class="btn btn-outline-dark" type="submit" value="löschen"/>Löschen</button>
-                                </form>
-                            </td>
+                            <th>Tag</th>
+                            <th>Clan</th>
+                            <th data-orderable="false" data-searchable="false">Aktionen</th>
                         </tr>
-                    {% endfor %}
+                    </thead>
+                    <tbody>
+                        {% for clan in clans.items %}
+                            <tr>
+                                <td class="w-1">
+                                    {{ clan.clantag }}
+                                </td>
+                                <td class="w-100">
+                                    <a data-toggle="ajaxModal" href="{{ path('admin_clan_show', {'uuid' : clan.uuid}) }}">
+                                        {{ clan.name }}
+                                    </a>
+                                </td>
+                                <td class="text-nowrap w-1">
+                                    <a class="btn btn-outline-dark" href="{{ path('admin_clan_edit', {'uuid' : clan.uuid}) }}" title="{{ clan.name }} bearbeiten">
+                                        <i class="fas fa-edit"></i> bearbeiten
+                                    </a>
+                                        
+                                    <form data-toggle="confirmModal" method="post" action="{{ path('admin_clan_delete', {'uuid' : clan.uuid}) }}" class="d-inline-block">
+                                        <input type="hidden" name="_token" value="{{ csrf_token(csrf_token_delete) }}">
+                                        <button class="btn btn-outline-danger" type="submit" value="löschen"/><i class="fas fa-trash-alt"></i> Löschen</button>
+                                    </form>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
                 </table>
             </div>
         </div>

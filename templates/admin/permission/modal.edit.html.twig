@@ -1,20 +1,20 @@
-<div class="modal fade" id="editModal" data-remote-target="{{ path('admin_permission') }}" tabindex="-1" role="dialog">
-    <div class="modal-dialog modal-dialog-centered" role="document">
-        <div class="modal-content">
-            {{ form_start(form_edit) }}
-            <div class="modal-header">
-                <h5 class="modal-title"><span class="userName">Admin</span> bearbeiten</h5>
-            </div>
-            <div class="modal-body">
-                <div class="form-group">
-                    {{ form_row(form_edit.perm) }}
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Abbrechen</button>
-                <button type="submit" class="btn btn-primary">Speichern</button>
-            </div>
-            {{ form_end(form_edit) }}
+{% embed "admin/components/modal/skeletons/modal.html.twig" with {'id': 'editModal', 'title' : '<span class="userName">Admin</span> bearbeiten', 'titleRaw':true, 'attr' : {'data-remote-target' : path('admin_permission')}} %}
+    {% block modalContentPrepend %}
+        {{ form_start(form_edit) }}
+    {% endblock %}
+
+    {% block modalBody %}
+        <div class="form-group">
+            {{ form_row(form_edit.perm) }}
         </div>
-    </div>
-</div>
+    {% endblock %}
+
+    {% block modalFooter %}
+        {{ parent() }}
+    {% endblock %}
+
+    {% block modalContentAppend %}
+        {{ form_end(form_edit) }}
+    {% endblock %}
+{% endembed %}
+

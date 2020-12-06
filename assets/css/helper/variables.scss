@@ -8,6 +8,10 @@ $navbar-dark-hover-color: #fff;
 
 $primary: $krru-color;
 
+$theme-colors:  (
+    "error": #dc3545
+);
+
 $mark-padding: 0;
 
 $grid-breakpoints: (
@@ -23,6 +27,10 @@ $container-max-widths: (
   md: 720px,
   lg: 1000px,
   xl: 1200px
+) !default;
+
+$sizes: (
+  1: 1%
 ) !default;
 
 $enable-rounded: false;

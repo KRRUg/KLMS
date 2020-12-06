@@ -24,12 +24,13 @@ class ClanController extends AbstractController
 {
     //TODO: Change ClanController and UserService to only require Clan UUID where necessary to reduce IDM Calls
     //TODO: Better Exception/Error Handling see https://github.com/KRRUg/KLMS/blob/feature/admin-mgmt/src/Controller/BaseController.php and Admin/PermissionController.php
+    private const CSRF_TOKEN_DELETE = "clanDeleteToken";
 
     /**
      * @var UserService
      */
     private $userService;
-
+    
     public function __construct(UserService $userService)
     {
         $this->userService = $userService;
@@ -44,6 +45,7 @@ class ClanController extends AbstractController
         $clans = $this->userService->queryClans(null, null, 999999);
         return $this->render('admin/clan/index.html.twig', [
             'clans' => $clans,
+            'csrf_token_delete' => self::CSRF_TOKEN_DELETE,
         ]);
     }
 
@@ -85,9 +87,8 @@ class ClanController extends AbstractController
             $response = $this->userService->createClan($clanform);
             if ($response) {
 
-                $flashBag->add('info', 'Clan erfolgreich angelegt!');
-
-                return $this->redirectToRoute('admin_clan_show', ['uuid' => $response->getUuid()]);
+                $flashBag->add('success', 'Clan erfolgreich angelegt!');
+                return $this->redirectToRoute('admin_clan');
             } else {
 
                 $flashBag->add('error', 'Es ist ein unerwarteter Fehler aufgetreten');
@@ -183,15 +184,20 @@ class ClanController extends AbstractController
 
 
     /**
-     * @Route("/clan/{uuid}", name="clan_delete", methods={"DELETE"})
+     * @Route("/clan/{uuid}/delete", name="clan_delete", methods={"POST"})
      * @param string $uuid
+     * @param Request $request
      * @param FlashBagInterface $flashBag
      * @return RedirectResponse|NotFoundHttpException
      */
-    public function delete(string $uuid, FlashBagInterface $flashBag)
+    public function delete(string $uuid, Request $request, FlashBagInterface $flashBag)
     {
-        //TODO: Move to AJAX Modal and implement CSRF Token Protection
-
+        $token = $request->request->get('_token');
+        if(!$this->isCsrfTokenValid(self::CSRF_TOKEN_DELETE, $token)) {
+            $flashBag->add('error', 'The CSRF token is invalid.');
+            return $this->redirectToRoute('admin_clan');
+        }
+        
         $clan = $this->userService->getClan($uuid, true);
 
         if(!$clan) {
@@ -205,7 +211,6 @@ class ClanController extends AbstractController
         }
 
         return $this->redirectToRoute('admin_clan');
-
     }
 
     /**
