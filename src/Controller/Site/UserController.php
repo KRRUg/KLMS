@@ -4,6 +4,7 @@ namespace App\Controller\Site;
 
 use App\Form\UserEditType;
 use App\Form\UserRegisterType;
+use App\Security\LoginFormAuthenticator;
 use App\Security\User;
 use App\Service\UserService;
 use Psr\Log\LoggerInterface;
@@ -13,6 +14,8 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Session\Flash\FlashBagInterface;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Security\Core\User\UserProviderInterface;
+use Symfony\Component\Security\Guard\GuardAuthenticatorHandler;
 
 class UserController extends AbstractController
 {
@@ -110,7 +113,7 @@ class UserController extends AbstractController
     /**
      * @Route("/register", name="register")
      */
-    public function register(Request $request, FlashBagInterface $flashBag)
+    public function register(Request $request, FlashBagInterface $flashBag, LoginFormAuthenticator  $login, GuardAuthenticatorHandler $guard, UserProviderInterface $userProvider)
     {
         if(null !== $this->getUser()) {
             // Redirect to Frontpage if already logged in
@@ -146,7 +149,10 @@ class UserController extends AbstractController
 
                 $flashBag->add('info', 'Erfolgreich registriert!');
 
-                return $this->redirect('/');
+                $loginuser = $userProvider->loadUserByUsername($user['email']);
+
+                return $guard->authenticateUserAndHandleSuccess($loginuser, $request, $login, 'main');
+
             } else {
                 $flashBag->add('error', 'Es ist ein Fehler bei der Registrierung aufgetreten.');
 

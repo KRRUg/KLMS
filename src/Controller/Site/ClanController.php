@@ -46,19 +46,6 @@ class ClanController extends AbstractController
 
     /**
      * @IsGranted("IS_AUTHENTICATED_REMEMBERED")
-     * @Route("/clan/my", name="clan_my", methods={"GET"})
-     */
-    public function my()
-    {
-        $user = $this->userService->getUsersInfoByUuid([$this->getUser()->getUser()->getUuid()]);
-
-        return $this->render('site/clan/myClans.html.twig', [
-            'user' => $user[0],
-        ]);
-    }
-
-    /**
-     * @IsGranted("IS_AUTHENTICATED_REMEMBERED")
      * @Route("/clan/join", name="clan_join", methods={"GET", "POST"})
      */
     public function join(Request $request, FlashBagInterface $flashBag)
@@ -86,7 +73,7 @@ class ClanController extends AbstractController
             try {
                 $this->userService->addClanMember($clan, [$this->getUser()->getUser()], $clanform['joinPassword']);
             } catch (UserServiceException $e) {
-                $form = $this->createForm(ClanJoinType::class, null, [
+                $form = $this->createForm(ClanJoinType::class, $data, [
                     'data-remote-target' => $this->generateUrl('api_clans'),
                 ]);
                 $form->get('joinPassword')->addError(new FormError('Das angegebene JoinPasswort ist falsch!'));

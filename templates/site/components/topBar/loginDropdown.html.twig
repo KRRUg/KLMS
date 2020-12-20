@@ -12,7 +12,7 @@
                         <div class="input-group-prepend">
                             <span class="input-group-text" id="logon-user-addon"><i class="far fa-envelope"></i> </span>
                         </div>
-                        <input type="text" class="form-control" id="inputUsername" name="username" placeholder="Username (E-Mail)" aria-label="Username (E-M;ail)" aria-describedby="logon-user-addon">
+                        <input type="email" class="form-control" id="inputUsername" name="username" placeholder="Username (E-Mail)" aria-label="Username (E-M;ail)" aria-describedby="logon-user-addon">
                     </div>
                 </div>
                 <div class="form-group">
@@ -31,6 +31,7 @@
                     <input type="checkbox" class="form-check-input custom-control-input" id="input-remember-me" name="_remember_me">
                     <label class="form-check-label custom-control-label" for="input-remember-me">Angemeldet bleiben</label>
                 </div>
+                <input type="hidden" name="_target_path" value="{{ app.request.uri }}"/>
             </form>
         </li>
         <li class="p-3 text-center bg-dark text-light">

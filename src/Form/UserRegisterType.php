@@ -6,6 +6,7 @@ use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\EmailType;
 use Symfony\Component\Form\Extension\Core\Type\PasswordType;
+use Symfony\Component\Form\Extension\Core\Type\RepeatedType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
@@ -27,8 +28,11 @@ class UserRegisterType extends AbstractType
                     ]),
                 ],
             ])
-            ->add('plainPassword', PasswordType::class, [
-                'label' => 'Kennwort',
+            ->add('plainPassword', RepeatedType::class, [
+                'type' => PasswordType::class,
+                'first_options'  => ['label' => 'Kennwort'],
+                'second_options' => ['label' => 'Kennwort bestätigen'],
+                'invalid_message' => 'Die Kennwörter stimmen nicht überein.',
                 'constraints' => [
                     new NotBlank([
                         'message' => 'Please enter a password',
@@ -48,7 +52,8 @@ class UserRegisterType extends AbstractType
                 ]
             ])
             ->add('infoMails', CheckboxType::class, [
-                'label' => 'Newsletter abonnieren. Weitere Infos zum Newsletter findest du in unserer Datenschutzbestimmung <TODO: LINK EINFÜGEN>'
+                'label' => 'Newsletter abonnieren. Weitere Infos zum Newsletter findest du in unserer Datenschutzbestimmung <TODO: LINK EINFÜGEN>',
+                'required' => false,
             ])
             ->add('save', SubmitType::class, ['label' => 'Registrieren'])
 
