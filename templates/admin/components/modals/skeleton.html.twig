@@ -1,8 +1,6 @@
-{% if id is not defined %}
-    {% set id = 'genericModal' %}
-{% endif %}
+{% set id = id | default('generic_modal') %}
 <div 
-    class="modal fade {{ class|default() }}" 
+    class="modal fade {{ class | default() }}"
     id="{{ id }}" 
     {% if attr is defined %}
         {% for attrName, attrValue in attr %}
@@ -14,13 +12,13 @@
     aria-labelledby="{{ id }}Label" 
     aria-hidden="true" 
     >
-    <div class="modal-dialog {{ dialogClass|default() }}" role="document">
+    <div class="modal-dialog {{ dialogClass | default() }}" role="document">
         <div class="modal-content">
             {% block modalContent %}
                 {% block modalContentPrepend %}{% endblock %}
                 <div class="modal-header">
                     {% block modalHeader %}
-                        <h5 class="modal-title" id="{{ id }}Label">{% if titleRaw|default() %}{{ title|raw }}{% else %}{{ title|raw }}{% endif %}</h5>
+                        <h5 class="modal-title" id="{{ id }}Label">{% if titleRaw | default() %}{{ title | raw }}{% else %}{{ title | raw }}{% endif %}</h5>
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                             <span aria-hidden="true">&times;</span>
                         </button>
