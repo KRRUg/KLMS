@@ -92,14 +92,4 @@ class NavigationController extends BaseController
             'typeForms' => $this->getAllForms(),
         ]);
     }
-
-    /**
-     * @Route("/delete/{id}", name="_delete")
-     * @ParamConverter()
-     */
-    public function delete(Navigation $navigation)
-    {
-        $this->navService->delete($navigation);
-        return $this->redirectToRoute("admin_navigation");
-    }
 }
