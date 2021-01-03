@@ -24,6 +24,8 @@ class ClanController extends AbstractController
     //TODO: Change ClanController and UserService to only require Clan UUID where necessary to reduce IDM Calls
     //TODO: Better Exception/Error Handling see https://github.com/KRRUg/KLMS/blob/feature/admin-mgmt/src/Controller/BaseController.php and Admin/PermissionController.php
     private const CSRF_TOKEN_DELETE = "clanDeleteToken";
+    private const CSRF_TOKEN_MEMBER_ADD = "clanMemberAddToken";
+    private const CSRF_TOKEN_MEMBER_REMOVE = "clanMemberDeleteToken";
 
     /**
      * @var UserService
@@ -55,7 +57,6 @@ class ClanController extends AbstractController
      */
     public function create(Request $request)
     {
-
         $form = $this->createForm(ClanCreateType::class);
         $form->handleRequest($request);
 
@@ -155,7 +156,9 @@ class ClanController extends AbstractController
 
         return $this->render('admin/clan/edit.html.twig', [
             'form' => $form->createView(),
-            'clan' => $clan
+            'clan' => $clan,
+            'csrf_token_member_add' => self::CSRF_TOKEN_MEMBER_ADD,
+            'csrf_token_member_remove' => self::CSRF_TOKEN_MEMBER_REMOVE,
         ]);
     }
 
@@ -211,6 +214,12 @@ class ClanController extends AbstractController
      */
     public function addMember(string $uuid, Request $request)
     {
+        $token = $request->request->get('_token');
+        if(!$this->isCsrfTokenValid(self::CSRF_TOKEN_MEMBER_ADD, $token)) {
+            $this->addFlash('error', 'The CSRF token is invalid.');
+            return $this->redirectToRoute('admin_clan');
+        }
+
         $clan = $this->userService->getClan($uuid, true);
 
         if(empty($request->request->get('user_uuid'))) {
@@ -242,6 +251,12 @@ class ClanController extends AbstractController
      */
     public function removeMember(string $uuid, Request $request)
     {
+        $token = $request->request->get('_token');
+        if(!$this->isCsrfTokenValid(self::CSRF_TOKEN_MEMBER_REMOVE, $token)) {
+            $this->addFlash('error', 'The CSRF token is invalid.');
+            return $this->redirectToRoute('admin_clan');
+        }
+
         $clan = $this->userService->getClan($uuid, true);
 
         if(empty($request->request->get('user_uuid'))) {
