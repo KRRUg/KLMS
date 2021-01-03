@@ -62,9 +62,9 @@
                             <div class="card-img-overlay text-right w-100 to-show">
                                 <form data-toggle="confirmModal" method="post" action="{{ path('admin_media_delete', {'id' : i.id}) }}" class="d-inline-block">
                                     <input type="hidden" name="_token" value="{{ csrf_token(csrf_token_delete) }}">
-                                    <button class="btn btn-danger" type="submit" value="delete"><i class="fas fa-trash-alt"></i></button>
+                                    <button class="btn btn-danger" type="submit" value="delete"><i class="fas fa-trash-alt fa-fw"></i></button>
                                 </form>
-                                <a class="btn btn-secondary" href="{{ path('media', {'name' : i.displayName} ) }}"><i class="fas fa-eye"></i></a>
+                                <a class="btn btn-secondary" href="{{ path('media', {'name' : i.displayName} ) }}"><i class="fas fa-eye fa-fw"></i></a>
                             </div>
                             <div class="card-body p-2 text-muted text-truncate text-center">
                                 <span>{{ i.displayName }}</span>
