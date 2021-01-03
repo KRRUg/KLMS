@@ -70,7 +70,7 @@
                                         {% endif %}
                                     </td>
                                     <td>
-                                        <form  data-toggle="confirmModal"  action="{{ path('admin_clan_member_remove', {'uuid' : clan.uuid}) }}" method="post">
+                                        <form data-toggle="confirmModal" method="post"  action="{{ path('admin_clan_member_remove', {'uuid' : clan.uuid}) }}">
                                             <input type="hidden" name="user_uuid" value="{{ user.user.uuid }}" />
                                             <input type="submit" value="Entfernen" />
                                         </form>

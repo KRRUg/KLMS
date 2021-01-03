@@ -8,7 +8,6 @@ use App\Service\UserService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\FormError;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Session\Flash\FlashBagInterface;
 use Symfony\Component\Routing\Annotation\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 
@@ -55,7 +54,7 @@ class UserController extends AbstractController
     /**
      * @Route("/user/{uuid}/edit", name="user_edit", methods={"GET", "POST"})
      */
-    public function edit(string $uuid, Request $request, FlashBagInterface $flashBag)
+    public function edit(string $uuid, Request $request)
     {
         $user = $this->userService->getUser($uuid);
 
@@ -78,12 +77,12 @@ class UserController extends AbstractController
             }
             if($this->userService->editUser($userform)) {
 
-                $flashBag->add('info', 'User erfolgreich bearbeitet!');
+                $this->addFlash('info', 'User erfolgreich bearbeitet!');
 
                 return $this->redirectToRoute('admin_user');
             } else {
 
-                $flashBag->add('error', 'Es ist ein unerwarteter Fehler aufgetreten');
+                $this->addFlash('error', 'Es ist ein unerwarteter Fehler aufgetreten');
 
                 return $this->redirectToRoute('admin_user_edit', ['uuid' => $uuid]);
             }

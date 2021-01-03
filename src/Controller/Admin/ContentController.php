@@ -19,6 +19,8 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
  */
 class ContentController extends AbstractController
 {
+    private const CSRF_TOKEN_DELETE = "contentDeleteToken";
+
     private $logger;
     private $contentService;
 
@@ -61,7 +63,8 @@ class ContentController extends AbstractController
         }
 
         return $this->render("admin/content/edit.html.twig", [
-            'form' => $form->createView()
+            'form' => $form->createView(),
+            'csrf_token_delete' => self::CSRF_TOKEN_DELETE,
         ]);
     }
 
@@ -87,17 +90,22 @@ class ContentController extends AbstractController
      * @Route("/delete/{id}", name="_delete")
      * @ParamConverter()
      */
-    public function delete(Content $content) {
-        try{
-            $this->contentService->delete($content);
-        } catch (ServiceException $e) {
-            switch ($e->getCause()) {
-                case ServiceException::CAUSE_IN_USE:
-                    $this->addFlash('danger', 'Konnte Content nicht löschen, da in Verwendung.');
-                    break;
-                case ServiceException::CAUSE_DONT_EXIST:
-                    $this->addFlash('warning', 'Content nicht gefunden.');
-                    break;
+    public function delete(Request $request, Content $content) {
+        $token = $request->request->get('_token');
+        if(!$this->isCsrfTokenValid(self::CSRF_TOKEN_DELETE, $token)) {
+            $this->addFlash('error', 'The CSRF token is invalid.');
+        } else {
+            try {
+                $this->contentService->delete($content);
+            } catch (ServiceException $e) {
+                switch ($e->getCause()) {
+                    case ServiceException::CAUSE_IN_USE:
+                        $this->addFlash('danger', 'Konnte Content nicht löschen, da in Verwendung.');
+                        break;
+                    case ServiceException::CAUSE_DONT_EXIST:
+                        $this->addFlash('warning', 'Content nicht gefunden.');
+                        break;
+                }
             }
         }
         return $this->redirectToRoute("admin_content");

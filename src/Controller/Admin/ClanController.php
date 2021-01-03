@@ -12,7 +12,6 @@ use Symfony\Component\Form\FormError;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpFoundation\Session\Flash\FlashBagInterface;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Annotation\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
@@ -52,10 +51,9 @@ class ClanController extends AbstractController
     /**
      * @Route("/clan/create", name="clan_create", methods={"GET", "POST"})
      * @param Request $request
-     * @param FlashBagInterface $flashBag
      * @return RedirectResponse|Response
      */
-    public function create (Request $request, FlashBagInterface $flashBag)
+    public function create(Request $request)
     {
 
         $form = $this->createForm(ClanCreateType::class);
@@ -87,12 +85,10 @@ class ClanController extends AbstractController
             $response = $this->userService->createClan($clanform);
             if ($response) {
 
-                $flashBag->add('success', 'Clan erfolgreich angelegt!');
+                $this->addFlash('success', 'Clan erfolgreich angelegt!');
                 return $this->redirectToRoute('admin_clan');
             } else {
-
-                $flashBag->add('error', 'Es ist ein unerwarteter Fehler aufgetreten');
-
+                $this->addFlash('error', 'Es ist ein unerwarteter Fehler aufgetreten');
                 return $this->redirectToRoute('admin_clan');
             }
 
@@ -107,10 +103,9 @@ class ClanController extends AbstractController
      * @Route("/clan/{uuid}/edit", name="clan_edit", methods={"GET", "POST"})
      * @param string $uuid
      * @param Request $request
-     * @param FlashBagInterface $flashBag
      * @return RedirectResponse|Response
      */
-    public function edit(string $uuid, Request $request, FlashBagInterface $flashBag)
+    public function edit(string $uuid, Request $request)
     {
         $clan = $this->userService->getClan($uuid, true);
 
@@ -149,14 +144,10 @@ class ClanController extends AbstractController
             }
 
             if ($this->userService->editClan($clanform)) {
-
-                $flashBag->add('info', 'Clan erfolgreich bearbeitet!');
-
+                $this->addFlash('info', 'Clan erfolgreich bearbeitet!');
                 return $this->redirectToRoute('admin_clan');
             } else {
-
-                $flashBag->add('error', 'Es ist ein unerwarteter Fehler aufgetreten');
-
+                $this->addFlash('error', 'Es ist ein unerwarteter Fehler aufgetreten');
                 return $this->redirectToRoute('admin_clan_edit', ['uuid' => $uuid]);
             }
 
@@ -187,14 +178,13 @@ class ClanController extends AbstractController
      * @Route("/clan/{uuid}/delete", name="clan_delete", methods={"POST"})
      * @param string $uuid
      * @param Request $request
-     * @param FlashBagInterface $flashBag
      * @return RedirectResponse|NotFoundHttpException
      */
-    public function delete(string $uuid, Request $request, FlashBagInterface $flashBag)
+    public function delete(string $uuid, Request $request)
     {
         $token = $request->request->get('_token');
         if(!$this->isCsrfTokenValid(self::CSRF_TOKEN_DELETE, $token)) {
-            $flashBag->add('error', 'The CSRF token is invalid.');
+            $this->addFlash('error', 'The CSRF token is invalid.');
             return $this->redirectToRoute('admin_clan');
         }
         
@@ -205,9 +195,9 @@ class ClanController extends AbstractController
         }
 
         if ($this->userService->deleteClan($clan)) {
-            $flashBag->add('info', 'Clan erfolgreich gelöscht!');
+            $this->addFlash('info', 'Clan erfolgreich gelöscht!');
         } else {
-            $flashBag->add('error', 'Es ist ein unerwarteter Fehler aufgetreten');
+            $this->addFlash('error', 'Es ist ein unerwarteter Fehler aufgetreten');
         }
 
         return $this->redirectToRoute('admin_clan');
@@ -217,10 +207,9 @@ class ClanController extends AbstractController
      * @Route("/clan/{uuid}/member/add", name="clan_member_add", methods={"POST"})
      * @param string $uuid
      * @param Request $request
-     * @param FlashBagInterface $flashBag
      * @return RedirectResponse
      */
-    public function addMember(string $uuid, Request $request, FlashBagInterface $flashBag)
+    public function addMember(string $uuid, Request $request)
     {
         $clan = $this->userService->getClan($uuid, true);
 
@@ -237,9 +226,9 @@ class ClanController extends AbstractController
         $nickname = $user->getNickname();
 
         if ($this->userService->addClanMember($clan, array($user))) {
-            $flashBag->add('info', "User {$nickname} erfolgreich zum Clan hinzugefügt!");
+            $this->addFlash('info', "User {$nickname} erfolgreich zum Clan hinzugefügt!");
         } else {
-            $flashBag->add('error', 'Es ist ein unerwarteter Fehler aufgetreten');
+            $this->addFlash('error', 'Es ist ein unerwarteter Fehler aufgetreten');
         }
 
         return $this->redirectToRoute('admin_clan_edit', ['uuid' => $clan->getUuid()]);
@@ -249,10 +238,9 @@ class ClanController extends AbstractController
      * @Route("/clan/{uuid}/member/remove", name="clan_member_remove", methods={"POST"})
      * @param string $uuid
      * @param Request $request
-     * @param FlashBagInterface $flashBag
      * @return RedirectResponse
      */
-    public function removeMember(string $uuid, Request $request, FlashBagInterface $flashBag)
+    public function removeMember(string $uuid, Request $request)
     {
         $clan = $this->userService->getClan($uuid, true);
 
@@ -269,9 +257,9 @@ class ClanController extends AbstractController
         $nickname = $user->getNickname();
 
         if ($this->userService->removeClanMember($clan, array($user), false)) {
-            $flashBag->add('info', "User {$nickname} erfolgreich aus dem Clan entfernt!");
+            $this->addFlash('info', "User {$nickname} erfolgreich aus dem Clan entfernt!");
         } else {
-            $flashBag->add('error', 'Es ist ein unerwarteter Fehler aufgetreten');
+            $this->addFlash('error', 'Es ist ein unerwarteter Fehler aufgetreten');
         }
 
         return $this->redirectToRoute('admin_clan_edit', ['uuid' => $clan->getUuid()]);

@@ -52,19 +52,18 @@
     </div>
     <hr>
     {{ form_rest(form) }}
-    <div class="float-left">
-        {% if data is not empty %}
-            <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#confirmDelete"><i class="fas fa-trash-alt"></i> Löschen</button>
-        {% endif %}
-    </div>
     <div class="float-right">
         <a class="btn btn-secondary" href="{{ path('admin_news') }}">Abbrechen</a>
         <button type="submit" id="news_save" class="btn-primary btn">Speichern</button>
     </div>
     {{ form_end(form) }}
-
-    {% if data is not empty %}
-        {% include 'admin/components/modals/confirm.html.twig' with { 'modal_name': 'confirmDelete', 'path' : path('admin_news_delete', {'id' : data.id}) } only %}
-    {% endif %}
+    <div class="float-left">
+        {% if data is not empty %}
+            <form data-toggle="confirmModal" method="post" action="{{ path('admin_news_delete', {'id' : data.id}) }}" class="d-inline-block">
+                <input type="hidden" name="_token" value="{{ csrf_token(csrf_token_delete) }}">
+                <button class="btn btn-danger" type="submit" value="delete"><i class="fas fa-trash-alt"></i> Löschen</button>
+            </form>
+        {% endif %}
+    </div>
 
 {% endblock %}
