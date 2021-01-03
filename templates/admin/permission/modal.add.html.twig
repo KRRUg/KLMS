@@ -1,22 +1,17 @@
-{% embed "admin/components/modal/skeletons/modal.html.twig" with {'id': 'newModal', 'title' : 'Admin hinzufügen', 'attr' : {'data-remote-target' : path('admin_permission')}} %}
-    {% block modalContentPrepend %}
-        {{ form_start(form_add) }}
-    {% endblock %}
-
-    {% block modalBody %}
+{% embed "admin/components/modals/form.html.twig"
+    with {
+        'id': 'newModal',
+        'title' : 'Admin hinzufügen',
+        'attr' : {'data-remote-target' : path('admin_permission')},
+        'form' : form_add
+    }
+%}
+    {% block modalForm %}
         <div class="form-group">
             {{ form_row(form_add.user) }}
         </div>
         <div class="form-group">
             {{ form_row(form_add.perm) }}
         </div>
-    {% endblock %}
-
-    {% block modalFooter %}
-        {{ parent() }}
-    {% endblock %}
-
-    {% block modalContentAppend %}
-        {{ form_end(form_add) }}
     {% endblock %}
 {% endembed %}

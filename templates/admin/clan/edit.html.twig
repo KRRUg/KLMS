@@ -45,6 +45,7 @@
                             <label for="add_user_uuid">User hinzufügen: </label>
                             <select id="add_user_uuid" style="width:30%;" class="select2-enable form-control" data-remote-target="{{ path('api_users', {'fullUser' : false}) }}" name="user_uuid">
                             </select>
+                        <input type="hidden" name="_token" value="{{ csrf_token(csrf_token_member_add) }}">
                         <input class="btn btn-success" type="submit" value="User hinzufügen"/>
                     </form>
                     <hr />
@@ -70,7 +71,8 @@
                                         {% endif %}
                                     </td>
                                     <td>
-                                        <form  data-toggle="confirmModal"  action="{{ path('admin_clan_member_remove', {'uuid' : clan.uuid}) }}" method="post">
+                                        <form data-toggle="confirmModal" method="post" action="{{ path('admin_clan_member_remove', {'uuid' : clan.uuid}) }}">
+                                            <input type="hidden" name="_token" value="{{ csrf_token(csrf_token_member_remove) }}" />
                                             <input type="hidden" name="user_uuid" value="{{ user.user.uuid }}" />
                                             <input type="submit" value="Entfernen" />
                                         </form>

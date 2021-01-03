@@ -7,15 +7,6 @@
     {{ encore_entry_script_tags('media') }}
 {% endblock %}
 {% block main %}
-    <style>
-        .to-show {
-            display: none;
-        }
-        .to-hover:hover > .to-show {
-            display: block;
-        }
-    </style>
-
     <div class="row">
         <div class="col mb-3">
             <button type="button" class="btn btn-success" data-toggle="modal" data-target="#uploadModal">
@@ -69,8 +60,11 @@
                             {% endif %}
                             </div>
                             <div class="card-img-overlay text-right w-100 to-show">
-                                <a class="button-del" href='{{ path('admin_media_delete', {'id' : i.id}) }}'><i class="fas fa-trash-alt"></i></a>
-                                <a class="ml-1" href="{{ path('media', {'name' : i.displayName} ) }}"><i class="fas fa-eye"></i></a>
+                                <form data-toggle="confirmModal" method="post" action="{{ path('admin_media_delete', {'id' : i.id}) }}" class="d-inline-block">
+                                    <input type="hidden" name="_token" value="{{ csrf_token(csrf_token_delete) }}">
+                                    <button class="btn btn-danger" type="submit" value="delete"><i class="fas fa-trash-alt fa-fw"></i></button>
+                                </form>
+                                <a class="btn btn-secondary" href="{{ path('media', {'name' : i.displayName} ) }}"><i class="fas fa-eye fa-fw"></i></a>
                             </div>
                             <div class="card-body p-2 text-muted text-truncate text-center">
                                 <span>{{ i.displayName }}</span>
@@ -82,7 +76,6 @@
         </div>
     </div>
 
-    {% include 'admin/components/modals/form.html.twig' with {'modal_name': 'uploadModal', 'button_save': 'Upload', 'label_head': 'Upload', 'form': form_upload} %}
-    {% include 'admin/components/modals/confirm.html.twig' with {'modal_name': 'confirmModal'} %}
+    {% include 'admin/components/modals/form.html.twig' with {'id': 'uploadModal', 'button_save': 'Upload', 'title': 'Upload', 'form': form_upload} %}
 
 {% endblock %}

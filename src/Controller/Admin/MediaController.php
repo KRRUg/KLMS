@@ -17,6 +17,8 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class MediaController extends BaseController
 {
+    private const CSRF_TOKEN_DELETE = "mediaDeleteToken";
+
     private $mediaService;
 
     /**
@@ -85,6 +87,7 @@ class MediaController extends BaseController
         } else {
             return $this->render("admin/media/index.html.twig", [
                 'media' => $media,
+                'csrf_token_delete' => self::CSRF_TOKEN_DELETE,
                 'form_upload' => $form_upload->createView(),
             ]);
         }
@@ -94,9 +97,15 @@ class MediaController extends BaseController
      * @Route("/delete/{id}", name="_delete")
      * @ParamConverter()
      */
-    public function delete(Media $image)
+    public function delete(Request $request, Media $image)
     {
-        $this->mediaService->delete($image);
+        $token = $request->request->get('_token');
+        if(!$this->isCsrfTokenValid(self::CSRF_TOKEN_DELETE, $token)) {
+            $this->addFlash('error', 'The CSRF token is invalid.');
+        } else {
+            $this->mediaService->delete($image);
+            $this->addFlash('success', 'Medium gelöscht.');
+        }
         return $this->redirectToRoute('admin_media');
     }
 

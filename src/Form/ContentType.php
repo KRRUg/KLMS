@@ -31,6 +31,7 @@ class ContentType extends AbstractType
             ])
             ->add('content', TextareaType::class, [
                 'label' => 'Inhalt',
+                'empty_data' => '',
                 'required' => false,
             ])
         ;

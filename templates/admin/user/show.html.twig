@@ -1,4 +1,10 @@
-{% embed "admin/components/modal/skeletons/modal.html.twig" with {'id': 'showUserModal', 'title' : 'Benutzer ' ~ user.nickname, 'dialogClass' : 'modal-lg'} %}
+{% embed "admin/components/modals/skeleton.html.twig"
+    with {
+        'id': 'showUserModal',
+        'title' : 'Benutzer ' ~ user.nickname,
+        'dialogClass' : 'modal-lg'
+    }
+%}
     {% block modalBody %}        
         <div class="container-fluid">
             <div class="d-flex justify-content-between w-100 pb-3">

@@ -1,20 +1,15 @@
-{% embed "admin/components/modal/skeletons/modal.html.twig" with {'id': 'editModal', 'title' : '<span class="userName">Admin</span> bearbeiten', 'titleRaw':true, 'attr' : {'data-remote-target' : path('admin_permission')}} %}
-    {% block modalContentPrepend %}
-        {{ form_start(form_edit) }}
-    {% endblock %}
-
-    {% block modalBody %}
+{% embed "admin/components/modals/form.html.twig"
+    with {
+        'id': 'editModal',
+        'title' : '<span class="userName">Admin</span> bearbeiten',
+        'titleRaw' : true,
+        'attr' : {'data-remote-target' : path('admin_permission')},
+        'form' : form_edit
+    }
+%}
+    {% block modalForm %}
         <div class="form-group">
             {{ form_row(form_edit.perm) }}
         </div>
     {% endblock %}
-
-    {% block modalFooter %}
-        {{ parent() }}
-    {% endblock %}
-
-    {% block modalContentAppend %}
-        {{ form_end(form_edit) }}
-    {% endblock %}
 {% endembed %}
-

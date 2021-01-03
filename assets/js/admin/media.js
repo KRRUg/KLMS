@@ -1,22 +1,12 @@
 import $ from 'jquery';
 import 'mark.js';
 import 'mark.js/dist/jquery.mark.js';
-import ConfirmModal from '../components/confirmModal.js';
 
-const MediaPreview = function($root, confirmModal, $filter, $search) {
+const MediaPreview = function($root, $filter, $search) {
     this.$root = $root;
     this.$filter = $filter;
     this.$search = $search;
-    this.modal = new ConfirmModal(confirmModal);
     this.boxes = $root.children('[data-id]');
-
-    this.boxes.each((_,elem) => {
-        const $elem = $(elem);
-        const $butDel = $elem.find('.button-del');
-        const href = $butDel.attr('href');
-        $butDel.attr('href', '#');
-        $butDel.on('click', _ => this.modal.show(href));
-    });
 
     this.showOnly(this.$filter.val(), this.$search.val());
     this.$filter.on('change', _ => {
@@ -84,6 +74,6 @@ const UploadDialog = function($modal, filenames) {
 }
 
 $(document).ready(() => {
-    const mp = new MediaPreview($('#mediaList'), $('#confirmModal'), $('#filterSelect'), $('#searchInput'));
+    const mp = new MediaPreview($('#mediaList'), $('#filterSelect'), $('#searchInput'));
     const ud = new UploadDialog($('#uploadModal'), mp.getFileNames());
 });

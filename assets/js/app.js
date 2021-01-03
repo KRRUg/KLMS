@@ -7,9 +7,9 @@ import 'bootstrap';
 import 'mark.js';
 import 'mark.js/dist/jquery.mark.js';
 
-import './modules/sentry.js';
+import './modules/sentry/sentry.js';
 import './modules/dataTables/dataTables.js';
-import './components/datetimepicker.js';
+import './modules/dateTimePicker/datetimepicker.js';
 
 import select2Init from './modules/select2/select2';
 

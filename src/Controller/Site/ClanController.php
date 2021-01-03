@@ -15,7 +15,6 @@ use Symfony\Component\Form\FormError;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpFoundation\Session\Flash\FlashBagInterface;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
@@ -48,7 +47,7 @@ class ClanController extends AbstractController
      * @IsGranted("IS_AUTHENTICATED_REMEMBERED")
      * @Route("/clan/join", name="clan_join", methods={"GET", "POST"})
      */
-    public function join(Request $request, FlashBagInterface $flashBag)
+    public function join(Request $request)
     {
         $data = [];
         if ($request->query->get('uuid')) {
@@ -83,7 +82,7 @@ class ClanController extends AbstractController
                 ]);
             }
 
-            $flashBag->add('info', 'Clan erfolgreich beigetreten!');
+            $this->addFlash('info', 'Clan erfolgreich beigetreten!');
 
             return $this->redirectToRoute('clan_show', ['uuid' => $clan->getUuid()]);
         }
@@ -99,7 +98,7 @@ class ClanController extends AbstractController
      *
      * @return RedirectResponse|Response
      */
-    public function create(Request $request, FlashBagInterface $flashBag)
+    public function create(Request $request)
     {
         $form = $this->createForm(ClanCreateType::class);
         $form->handleRequest($request);
@@ -130,11 +129,11 @@ class ClanController extends AbstractController
 
             $response = $this->userService->createClan($clanform);
             if ($response) {
-                $flashBag->add('info', 'Clan erfolgreich angelegt!');
+                $this->addFlash('info', 'Clan erfolgreich angelegt!');
 
                 return $this->redirectToRoute('clan_show', ['uuid' => $response->getUuid()]);
             } else {
-                $flashBag->add('error', 'Es ist ein unerwarteter Fehler aufgetreten');
+                $this->addFlash('error', 'Es ist ein unerwarteter Fehler aufgetreten');
 
                 return $this->render('site/clan/create.html.twig', [
                     'form' => $form->createView(),
@@ -153,7 +152,7 @@ class ClanController extends AbstractController
      *
      * @return AccessDeniedException|RedirectResponse|Response
      */
-    public function edit(string $uuid, Request $request, FlashBagInterface $flashBag)
+    public function edit(string $uuid, Request $request)
     {
         $clan = $this->userService->getClan($uuid, true);
 
@@ -204,11 +203,11 @@ class ClanController extends AbstractController
             }
 
             if ($this->userService->editClan($clanform)) {
-                $flashBag->add('info', 'Clan erfolgreich bearbeitet!');
+                $this->addFlash('info', 'Clan erfolgreich bearbeitet!');
 
                 return $this->redirectToRoute('clan_show', ['uuid' => $uuid]);
             } else {
-                $flashBag->add('error', 'Es ist ein unerwarteter Fehler aufgetreten');
+                $this->addFlash('error', 'Es ist ein unerwarteter Fehler aufgetreten');
 
                 return $this->redirectToRoute('clan_edit', ['uuid' => $uuid]);
             }
@@ -252,7 +251,7 @@ class ClanController extends AbstractController
      *
      * @return AccessDeniedException|RedirectResponse|NotFoundHttpException
      */
-    public function delete(string $uuid, FlashBagInterface $flashBag)
+    public function delete(string $uuid)
     {
         //TODO: Implement "TrashBin" where the Clan gets only set to inactive/deleted and is not actually deleted
         //TODO: Move to AJAX Modal and implement CSRF Token Protection
@@ -277,9 +276,9 @@ class ClanController extends AbstractController
         }
 
         if ($this->userService->deleteClan($clan)) {
-            $flashBag->add('info', 'Clan erfolgreich gelöscht!');
+            $this->addFlash('info', 'Clan erfolgreich gelöscht!');
         } else {
-            $flashBag->add('error', 'Es ist ein unerwarteter Fehler aufgetreten');
+            $this->addFlash('error', 'Es ist ein unerwarteter Fehler aufgetreten');
         }
 
         return $this->redirectToRoute('user_profile');
@@ -291,7 +290,7 @@ class ClanController extends AbstractController
      *
      * @return AccessDeniedException|NotFoundHttpException|RedirectResponse
      */
-    public function removeMember(string $uuid, Request $request, FlashBagInterface $flashBag)
+    public function removeMember(string $uuid, Request $request)
     {
         $clan = $this->userService->getClan($uuid, true);
 
@@ -325,9 +324,9 @@ class ClanController extends AbstractController
         $nickname = $user->getNickname();
 
         if ($this->userService->removeClanMember($clan, [$user], false)) {
-            $flashBag->add('info', "User {$nickname} erfolgreich aus dem Clan entfernt!");
+            $this->addFlash('info', "User {$nickname} erfolgreich aus dem Clan entfernt!");
         } else {
-            $flashBag->add('error', 'Es ist ein unerwarteter Fehler aufgetreten');
+            $this->addFlash('error', 'Es ist ein unerwarteter Fehler aufgetreten');
         }
 
         return $this->redirectToRoute('clan_edit', ['uuid' => $clan->getUuid()]);
