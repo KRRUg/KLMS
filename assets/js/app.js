@@ -8,7 +8,7 @@ import 'mark.js';
 import 'mark.js/dist/jquery.mark.js';
 
 import './modules/sentry/sentry.js';
-import './modules/dataTables/dataTables.js';
+import './modules/adminDataTable/jquery.adminDataTable.js';
 import './modules/dateTimePicker/datetimepicker.js';
 
 import select2Init from './modules/select2/select2';
@@ -19,4 +19,5 @@ $( document ).ready(function() {
     cfi.init();
     select2Init();
     $('.datetimepicker').datetime();
+    $('.datatable').AdminDataTable();
 });

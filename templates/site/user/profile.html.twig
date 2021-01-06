@@ -27,7 +27,7 @@
                     <div class="row">
                         {% for clan in user.clans %}
                             <div class="col-sm-6">
-                                {% include 'site/components/cards/cardClanPreview.html.twig' with {'clan': clan.clan, 'isClanAdmin' : clan.admin} %}
+                                {% include 'site/components/cards/cardClanPreview.html.twig' with {'clan': clan.clan, 'isClanAdmin' : clan.admin, 'isClanMember' : 1} %}
                             </div>
                         {% endfor %}
                     </div>

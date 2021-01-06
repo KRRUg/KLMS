@@ -33,8 +33,11 @@
                 </div>
                 <div class="card-text">
                     <hr>
-                    <h3>Mitglieder <a href="{{ path('clan_join', {'uuid' : clan.uuid}) }}" class="px-2" style="font-size:1rem;">Clan beitreten</a></h3>
-                    {# ToDO: Enable DataTable #}
+                    <h3>Mitglieder 
+                        {# ToDo: if user is member of this clan -> show clan leave instead #}
+                        <a href="{{ path('clan_join', {'uuid' : clan.uuid}) }}" class="px-2" style="font-size:1rem;">Clan beitreten</a>
+                    </h3>
+                    
                     <table class="table table-striped table-hover datatable">
                         <thead>
                             <tr>
