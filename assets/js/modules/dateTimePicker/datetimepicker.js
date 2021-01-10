@@ -33,6 +33,8 @@ const DateTimePicker = function (options) {
         } else if ($(this).data('time-end')) {
             var calAttr = "minDate";
             var targetPicker = $(this).data('time-end');
+        } else {
+            return;
         }
 
         $(this).change(function (e) {
