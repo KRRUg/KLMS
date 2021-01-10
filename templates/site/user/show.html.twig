@@ -34,7 +34,7 @@
                     <h3>Clans</h3>
                     <div class="row">
                         {% for clan in user.clans %}
-                            <div class="col-sm-6">
+                            <div class="col-sm-6 mb-3">
                                 {% include 'site/components/cards/cardClanPreview.html.twig' with {'clan': clan.clan, 'isClanAdmin' : clan.admin, 'isClanMember' : 1} %}
                             </div>
                         {% endfor %}
