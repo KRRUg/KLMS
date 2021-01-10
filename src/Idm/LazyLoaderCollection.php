@@ -27,6 +27,13 @@ class LazyLoaderCollection implements ArrayAccess, Iterator
         return $this->manager->request($this->class, $item['uuid']);
     }
 
+    public function isLoaded($offset)
+    {
+        if (!isset($this->items[$offset]))
+            return false;
+        return is_a($this->items[$offset], $this->class);
+    }
+
     public function offsetExists($offset): bool
     {
         return isset($this->items[$offset]);

@@ -18,10 +18,6 @@ class UnitOfWork
      */
     public array $loaded;
 
-    /**
-     * @var array set of uuids that are dirty
-     */
-    public array $dirty;
 
     /**
      * UnitOfWork constructor.
@@ -47,6 +43,7 @@ class UnitOfWork
             return;
         }
         $this->objects[$id] = $obj;
+        $this->loaded[$id] = spl_object_hash($obj);
     }
 
     public function get($id)
@@ -55,5 +52,18 @@ class UnitOfWork
             return $this->objects[$id];
         }
         return null;
+    }
+
+    public function isDirty($id)
+    {
+        if (array_key_exists($id, $this->objects)) {
+            return spl_object_hash($this->objects[$id]) !== $this->loaded[$id];
+        }
+        return false;
+    }
+
+    public function isAttached($id)
+    {
+        return array_key_exists($id, $this->objects);
     }
 }

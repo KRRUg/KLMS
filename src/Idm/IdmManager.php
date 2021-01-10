@@ -4,6 +4,7 @@ namespace App\Idm;
 
 use App\Entity\Clan;
 use App\Entity\User;
+use App\Idm\Exception\NotAttachedException;
 use App\Idm\Exception\UnsupportedClassException;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Serializer\SerializerInterface;
@@ -48,6 +49,12 @@ final class IdmManager
     private static function throwOnInvalidClass(string $class)
     {
         if (!self::isClassManaged($class))
+            throw new UnsupportedClassException();
+    }
+
+    private static function throwOnInvalidObject(object $object)
+    {
+        if (!self::isObjectManaged($object))
             throw new UnsupportedClassException();
     }
 
@@ -151,8 +158,16 @@ final class IdmManager
 
     public function persist(object $object)
     {
-        if (!($object instanceof Clan || $object instanceof User)) {
-            throw new \InvalidArgumentException();
+        self::throwOnInvalidObject($object);
+
+        $id = $object->getUuid();
+        if (!$this->unitOfWork->isAttached($id)) {
+            throw new NotAttachedException();
+        }
+
+        if (!$this->unitOfWork->isDirty($id)) {
+            // TODO check items
+            return;
         }
     }
 
