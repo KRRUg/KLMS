@@ -54,7 +54,6 @@ class AdminUserEditType extends AbstractType
             ->add('hardware')
             ->add('infoMails')
             ->add('statements')
-            ->add('save', SubmitType::class, ['label' => 'Speichern'])
 
         ;
     }

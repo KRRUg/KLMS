@@ -5,7 +5,7 @@
 {% block main %}
     <div class="row">
         <div class="col mb-4">
-            <a role="button" class="btn btn-primary" href="{{ path('admin_clan_create') }}"><i class="fas fa-plus"></i> Clan erstellen</a>
+            <a role="button" class="btn btn-success" href="{{ path('admin_clan_create') }}"><i class="fas fa-plus"></i> Clan erstellen</a>
         </div>
     </div>
     <div class="row">
@@ -34,11 +34,6 @@
                                     <a class="btn btn-outline-dark" href="{{ path('admin_clan_edit', {'uuid' : clan.uuid}) }}" title="{{ clan.name }} bearbeiten">
                                         <i class="fas fa-edit"></i> bearbeiten
                                     </a>
-                                        
-                                    <form data-toggle="confirmModal" method="post" action="{{ path('admin_clan_delete', {'uuid' : clan.uuid}) }}" class="d-inline-block">
-                                        <input type="hidden" name="_token" value="{{ csrf_token(csrf_token_delete) }}">
-                                        <button class="btn btn-outline-danger" type="submit" value="löschen"/><i class="fas fa-trash-alt"></i> Löschen</button>
-                                    </form>
                                 </td>
                             </tr>
                         {% endfor %}

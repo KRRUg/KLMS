@@ -1,6 +1,6 @@
 <ul class="nav flex-column">
     <li class="nav-item">
-        <a class="nav-link {% if app.request.get('_route') == 'admin_dashboard' %}active{% endif %}" href="{{ path('admin_dashboard') }}"><i class="fas fa-home"></i> Dashboard </a>
+        <a class="nav-link {% if app.request.get('_route') starts with 'admin_dashboard' %}active{% endif %}" href="{{ path('admin_dashboard') }}"><i class="fas fa-home"></i> Dashboard </a>
     </li>
     {% if is_granted('ROLE_ADMIN_NEWS') or is_granted('ROLE_ADMIN_CONTENT') %}
         <li class="nav-item">
@@ -8,21 +8,21 @@
             <ul id="contentMenu" class="collapse show list-group">
                 {% if is_granted('ROLE_ADMIN_NEWS') %}
                     <li class="nav-item">
-                        <a class="nav-link {% if app.request.get('_route') == 'admin_news' %}active{% endif %}" href="{{ path('admin_news') }}"><i class="far fa-newspaper"></i> News </a>
+                        <a class="nav-link {% if app.request.get('_route') starts with 'admin_news' %}active{% endif %}" href="{{ path('admin_news') }}"><i class="far fa-newspaper"></i> News </a>
                     </li>
                 {% endif %}
                 {% if is_granted('ROLE_ADMIN_CONTENT') %}
                     <li class="nav-item">
-                        <a class="nav-link {% if app.request.get('_route') == 'admin_content' %}active{% endif %}" href="{{ path('admin_content') }}"><i class="far fa-file-alt"></i> Content </a>
+                        <a class="nav-link {% if app.request.get('_route') starts with 'admin_content' %}active{% endif %}" href="{{ path('admin_content') }}"><i class="far fa-file-alt"></i> Content </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link {% if app.request.get('_route') == 'admin_media' %}active{% endif %}" href="{{ path('admin_media') }}"><i class="far fa-file-image"></i> Media </a>
+                        <a class="nav-link {% if app.request.get('_route') starts with 'admin_media' %}active{% endif %}" href="{{ path('admin_media') }}"><i class="far fa-file-image"></i> Media </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link {% if app.request.get('_route') == 'admin_navigation' %}active{% endif %}" href="{{ path('admin_navigation') }}"><i class="fas fa-map-signs"></i> Navigation </a>
+                        <a class="nav-link {% if app.request.get('_route') starts with 'admin_navigation' %}active{% endif %}" href="{{ path('admin_navigation') }}"><i class="fas fa-map-signs"></i> Navigation </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link {% if app.request.get('_route') == 'admin_textblock' %}active{% endif %}" href="{{ path('admin_textblock') }}"><i class="fas fa-th-large"></i> Textblöcke </a>
+                        <a class="nav-link {% if app.request.get('_route') starts with 'admin_textblock' %}active{% endif %}" href="{{ path('admin_textblock') }}"><i class="fas fa-th-large"></i> Textblöcke </a>
                     </li>
                 {% endif %}
             </ul>
@@ -43,7 +43,7 @@
     {% endif %}
     {% if is_granted('ROLE_ADMIN_SUPER') %}
         <li class="nav-item">
-            <a class="nav-link {% if app.request.get('_route') == 'admin_permission' %}active{% endif %}" href="{{ path('admin_permission') }}"><i class="fas fa-key"></i> Berechtigungen </a>
+            <a class="nav-link {% if app.request.get('_route') starts with 'admin_permission' %}active{% endif %}" href="{{ path('admin_permission') }}"><i class="fas fa-key"></i> Berechtigungen </a>
         </li>
     {% endif %}
 </ul>

@@ -11,7 +11,7 @@
     <div class="row">
         <div class="col-12">
             <div class="card">
-                <table class="table">
+                <table class="table table-striped admin-data-table" data-order="[[ 3, &quot;desc&quot; ], [ 5, &quot;asc&quot; ]]">
                     <thead>
                         <tr>
                             <th scope="col" style="width: 4em" class="text-center">#</th>
@@ -28,9 +28,9 @@
                                 <td class="text-center">{{ newsentry.getId() }}</td>
                                 <td><a href="{{ path('admin_news_edit', {'id' : newsentry.id}) }}" title="Bearbeiten {{ newsentry.title }}"> {{ newsentry.title }}</a></th>
                                 <td>{{ newsentry.authorId | username }}</td>
-                                <td class="text-center">{{ newsentry.activeSince() | date("d.m.Y") }}</td>
+                                <td class="text-center" data-order="{{ newsentry.activeSince() | date("U") }}">{{ newsentry.activeSince() | date("d.m.Y") }}</td>
                                 <td class="text-center">{% if newsentry.isActive() %}<i class="fas fa-eye" title="aktiv"></i>{% endif %}</td>
-                                <td class="text-center">{{ newsentry.getPublishedTo() is empty ? "" : newsentry.getPublishedTo() | date("d.m.Y") }}</td>
+                                <td class="text-center" data-order="{{ newsentry.getPublishedTo() is empty ? "" : newsentry.getPublishedTo() | date("U") }}">{{ newsentry.getPublishedTo() is empty ? "" : newsentry.getPublishedTo() | date("d.m.Y") }}</td>
                             </tr>
                         {% endfor %}
                     </tbody>
