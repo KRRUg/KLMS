@@ -34,12 +34,19 @@ class ClanController extends AbstractController
     /**
      * @Route("/clan", name="clan", methods={"GET"})
      */
-    public function index()
+    public function index(Request $request)
     {
-        $clans = $this->userService->queryClans(null, null, 999999, false);
+        $search = $request->query->get('q');
+        $limit = $request->query->getInt('limit', 10);
+        $page = $request->query->getInt('page', 1);
+
+        $clans = $this->userService->queryClans($search, $page, $limit);
 
         return $this->render('site/clan/list.html.twig', [
             'clans' => $clans,
+            'search' => $search,
+            'limit' => $limit,
+            'page' => $page,
         ]);
     }
 

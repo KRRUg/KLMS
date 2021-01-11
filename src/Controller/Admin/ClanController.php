@@ -46,7 +46,6 @@ class ClanController extends AbstractController
         $clans = $this->userService->queryClans(null, null, 999999);
         return $this->render('admin/clan/index.html.twig', [
             'clans' => $clans,
-            'csrf_token_delete' => self::CSRF_TOKEN_DELETE,
         ]);
     }
 
@@ -159,6 +158,7 @@ class ClanController extends AbstractController
             'clan' => $clan,
             'csrf_token_member_add' => self::CSRF_TOKEN_MEMBER_ADD,
             'csrf_token_member_remove' => self::CSRF_TOKEN_MEMBER_REMOVE,
+            'csrf_token_delete' => self::CSRF_TOKEN_DELETE,
         ]);
     }
 

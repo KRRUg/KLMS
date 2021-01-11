@@ -11,8 +11,22 @@
 @import './nav_tree.scss';
 @import './hover.scss';
 
+html, body {
+  height: 100%;
+}
+
+body {
+  display: flex;
+  flex-direction: column;
+}
+
+main, #main {
+  flex: 1 0 auto;
+}
+
 footer {
     box-shadow: $box-shadow;
+    flex-shrink: 0;
 }
 
 .navbar {

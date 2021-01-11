@@ -26,8 +26,8 @@
                     <h3>Clans <a href="{{ path('clan_join') }}" class="px-2" style="font-size:1rem;">Clan beitreten</a></h3>
                     <div class="row">
                         {% for clan in user.clans %}
-                            <div class="col-sm-6">
-                                {% include 'site/components/cards/cardClanPreview.html.twig' with {'clan': clan.clan, 'isClanAdmin' : clan.admin} %}
+                            <div class="col-sm-6 mb-3">
+                                {% include 'site/components/cards/cardClanPreview.html.twig' with {'clan': clan.clan, 'isClanAdmin' : clan.admin, 'isClanMember' : 1} %}
                             </div>
                         {% endfor %}
                     </div>

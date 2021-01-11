@@ -4,36 +4,49 @@
 {% block siteheading %}<i class="far fa-file-alt"></i> Clan{% endblock %}
 {% block main %}
     <h1 class="h3 card-title mb-4">Clan {{ form.vars.value.name }} bearbeiten</h1>
-    {{ form_start(form) }}
-    {% if not form.vars.valid %}
-        <div class="alert alert-danger">
-            <i class="fas fa-exclamation-circle"></i> {{ form_errors(form) }}
-        </div>
-    {% endif %}
+    <div class="clearfix mb-4">
+        {{ form_start(form) }}
+        {% if not form.vars.valid %}
+            <div class="alert alert-danger">
+                <i class="fas fa-exclamation-circle"></i> {{ form_errors(form) }}
+            </div>
+        {% endif %}
 
-    <div class="row">
-        <div class="col-md-4 order-md-2 mb-4">
-            <div class="card h-100">
-                <div class="card-body">
-                    {{ form_row(form.uuid) }}
-                    {{ form_row(form.createdAt) }}
-                    {{ form_row(form.admins) }}
+        <div class="row">
+            <div class="col-md-4 order-md-2 mb-4">
+                <div class="card h-100">
+                    <div class="card-body">
+                        {{ form_row(form.uuid) }}
+                        {{ form_row(form.createdAt) }}
+                        {{ form_row(form.admins) }}
+                    </div>
                 </div>
             </div>
+            <div class="col-md-8 order-md-1 mb-4">
+                {% embed "site/components/cards/skeletons/cardProfile.html.twig"  with {'cardSymbole': 'fas fas fa-users fa-6x'} %}
+                    {% block cardBody %} 
+                        {{ form_row(form.name) }}
+                        {{ form_row(form.clantag) }}
+                        {{ form_row(form.website) }}
+                        {{ form_row(form.description) }}
+                    {% endblock %}
+                {% endembed  %}
+            </div>
         </div>
-        <div class="col-md-8 order-md-1 mb-4">
-            {% embed "site/components/cards/skeletons/cardProfile.html.twig"  with {'cardSymbole': 'fas fas fa-users fa-6x'} %}
-                {% block cardBody %} 
-                    {{ form_row(form.name) }}
-                    {{ form_row(form.clantag) }}
-                    {{ form_row(form.website) }}
-                    {{ form_row(form.description) }}
-                {% endblock %}
-            {% endembed  %}
+        <hr />
+        {{ form_rest(form) }}
+        <div class="float-right">
+            <a class="btn btn-secondary" href="{{ path('admin_clan') }}">Abbrechen</a>
+            <button type="submit" id="news_save" class="btn-primary btn">Speichern</button>
+        </div>
+        {{ form_end(form) }}
+        <div class="float-left">
+            <form data-toggle="confirmModal" method="post" action="{{ path('admin_clan_delete', {'uuid' : clan.uuid}) }}" class="d-inline-block">
+                <input type="hidden" name="_token" value="{{ csrf_token(csrf_token_delete) }}">
+                <button class="btn btn-danger" type="submit" value="löschen"/><i class="fas fa-trash-alt"></i> Löschen</button>
+            </form>
         </div>
     </div>
-    {{  form_end(form) }}
-
     <div class="row">
         <div class="col mb-4">
             <div class="card">
@@ -42,9 +55,9 @@
                     <hr />
                     <form method="post" class="form-inline" action="{{ path('admin_clan_member_add', {'uuid' : clan.uuid}) }}">
                         {# TODO: set fullUser to True once it's working #}
-                            <label for="add_user_uuid">User hinzufügen: </label>
-                            <select id="add_user_uuid" style="width:30%;" class="select2-enable form-control" data-remote-target="{{ path('api_users', {'fullUser' : false}) }}" name="user_uuid">
-                            </select>
+                        <label for="add_user_uuid">User hinzufügen: </label>
+                        <select id="add_user_uuid" style="width:30%;" class="select2-enable form-control" data-remote-target="{{ path('api_users', {'fullUser' : false}) }}" name="user_uuid">
+                        </select>
                         <input type="hidden" name="_token" value="{{ csrf_token(csrf_token_member_add) }}">
                         <input class="btn btn-success" type="submit" value="User hinzufügen"/>
                     </form>
