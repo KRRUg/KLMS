@@ -4,9 +4,14 @@ namespace App\Idm;
 
 use App\Entity\Clan;
 use App\Entity\User;
+use App\Idm\Annotation\Collection;
+use App\Idm\Annotation\Entity;
 use App\Idm\Exception\NotAttachedException;
 use App\Idm\Exception\UnsupportedClassException;
+use Doctrine\Common\Annotations\AnnotationReader;
+use Doctrine\Common\Annotations\Reader;
 use Psr\Log\LoggerInterface;
+use ReflectionClass;
 use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\RedirectionExceptionInterface;
@@ -14,72 +19,83 @@ use Symfony\Contracts\HttpClient\Exception\ServerExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
+/**
+ * Class IdmManager
+ * @package App\Idm
+ *
+ * Some limitations:
+ *   - The objects must not contain references to other objects
+ *   - The objects may contain Collections LazyLoadCollections
+ */
 final class IdmManager
 {
     private LoggerInterface $logger;
     private HttpClientInterface $httpClient;
     private SerializerInterface $serializer;
     private IdmRepositoryFactory $repoFactory;
+    private Reader $annotationReader;
 
+    private array $paths;
     private UnitOfWork $unitOfWork;
 
     private const REST_FORMAT = 'json';
     private const URL_PREFIX = '/api';
 
     // Name of HttpClientInterface $idmClient is important to get idm.client injected by symfony
-    public function __construct(HttpClientInterface $idmClient, SerializerInterface $serializer, LoggerInterface $logger, IdmRepositoryFactory $repoFactory)
+    public function __construct(HttpClientInterface $idmClient, SerializerInterface $serializer, LoggerInterface $logger, IdmRepositoryFactory $repoFactory, Reader $annotationReader)
     {
         $this->httpClient = $idmClient;
         $this->logger = $logger;
         $this->serializer = $serializer;
         $this->repoFactory = $repoFactory;
+        $this->annotationReader = $annotationReader;
+
         $this->unitOfWork = new UnitOfWork($this);
+        $this->paths = [];
     }
 
-    public static function isClassManaged(string $class)
+    public function isManaged($objectOrClass)
     {
-        return $class ===  Clan::class || $class === User::class;
+        try {
+            $reflectionClass = new ReflectionClass($objectOrClass);
+        } catch (\ReflectionException $e) {
+            return false;
+        }
+        if (array_key_exists($reflectionClass->getName(), $this->paths)) {
+            return true;
+        }
+        $ano = $this->annotationReader->getClassAnnotation($reflectionClass, Entity::class);
+        if ($ano) {
+            $this->paths[$reflectionClass->getName()] = $ano->getPath();
+            return true;
+        }
+        return false;
     }
 
-    public static function isObjectManaged(object $object)
+    private function throwOnNotManaged(string $class)
     {
-        return $object instanceof Clan || $object instanceof User;
-    }
-
-    private static function throwOnInvalidClass(string $class)
-    {
-        if (!self::isClassManaged($class))
-            throw new UnsupportedClassException();
-    }
-
-    private static function throwOnInvalidObject(object $object)
-    {
-        if (!self::isObjectManaged($object))
+        if (!$this->isManaged($class))
             throw new UnsupportedClassException();
     }
 
     public function getRepository(string $class)
     {
-        self::throwOnInvalidClass($class);
+        $this->throwOnNotManaged($class);
 
         return $this->repoFactory->getRepository($this, $class);
     }
 
     private function pathByClass(string $class)
     {
-        switch ($class) {
-            case Clan::class:
-                return 'clans';
-            case User::class:
-                return 'users';
-            default:
-                throw new \InvalidArgumentException();
-        }
+        // this checks registers the path in $this->paths
+        $this->throwOnNotManaged($class);
+
+        return $this->paths[$class];
     }
 
     private function createUrl(string $class, ?string $id = null): string
     {
-        $url = self::URL_PREFIX . '/' . $this->pathByClass($class);
+        $url = self::URL_PREFIX . $this->pathByClass($class);
         if (!empty($id))
             $url .= '/' . $id;
         return $url;
@@ -111,7 +127,7 @@ final class IdmManager
      * @param array $a Array of associative array with uuid key
      * @return array array of uuids
      */
-    private static function UuidObjectUuid(array $a)
+    private static function UuidObject2Uuid(array $a)
     {
         return array_map(function (array $a) {
             return $a['uuid'];
@@ -122,17 +138,14 @@ final class IdmManager
     {
         $obj = $this->serializer->deserialize($result, $class, self::REST_FORMAT);
 
-        // TODO this can be replaced with @IdmLazyLoad(class='...') in the classes
-        switch ($class) {
-            case Clan::class:
-                $obj->setUsers(new LazyLoaderCollection($this, User::class, self::UuidObjectUuid($obj->getUsers())));
-                $obj->setAdmins(new LazyLoaderCollection($this, User::class, self::UuidObjectUuid($obj->getAdmins())));
-                break;
-            case User::class:
-                $obj->setClans(new LazyLoaderCollection($this, Clan::class, self::UuidObjectUuid($obj->getClans())));
-                break;
-            default:
-                break;
+        $reflection = new ReflectionClass($obj);
+        foreach ($reflection->getProperties() as $property) {
+            $ano = $this->annotationReader->getPropertyAnnotation($property, Collection::class);
+            if (!$ano) {
+                continue;
+            }
+            $property->setAccessible(true);
+            $property->setValue($obj, new LazyLoaderCollection($this, $ano->getClass(), self::UuidObject2Uuid($property->getValue($obj))));
         }
 
         return $obj;
@@ -145,7 +158,7 @@ final class IdmManager
      */
     public function request(string $class, string $id)
     {
-        self::throwOnInvalidClass($class);
+        $this->throwOnNotManaged($class);
 
         if ($obj = $this->unitOfWork->get($id)) {
             return $obj;
@@ -163,21 +176,19 @@ final class IdmManager
 
     public function find(string $class, array $parameter = [])
     {
-        // 1. do cache lookup or IDM request
-        // 2. check with unit of work
+
     }
 
     public function persist(object $object)
     {
-        self::throwOnInvalidObject($object);
+        $this->throwOnNotManaged($object);
 
-        $id = $object->getUuid();
-        if (!$this->unitOfWork->isAttached($id)) {
-            throw new NotAttachedException();
+        if (!$this->unitOfWork->isAttached($object)) {
+            $this->unitOfWork->register($object);
         }
 
-        if (!$this->unitOfWork->isDirty($id)) {
-            // TODO check items
+        if (!$this->unitOfWork->isDirty($object)) {
+
             return;
         }
     }

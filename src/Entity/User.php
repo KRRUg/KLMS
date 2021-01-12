@@ -3,11 +3,17 @@
 
 namespace App\Entity;
 
+use App\Idm\Annotation as Idm;
 use DateTimeInterface;
 use Ramsey\Uuid\UuidInterface;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 
+/**
+ * Class User
+ *
+ * @Idm\Entity(path="/users")
+ */
 class User
 {
     // TODO add length asserts for all strings
@@ -159,6 +165,7 @@ class User
 
     /**
      * @Groups({"read"})
+     * @Idm\Collection(class="App\Entity\Clan")
      */
     private $clans;
 

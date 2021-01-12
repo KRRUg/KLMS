@@ -2,11 +2,17 @@
 
 namespace App\Entity;
 
+use App\Idm\Annotation as Idm;
 use DateTimeInterface;
 use Ramsey\Uuid\UuidInterface;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 
+/**
+ * Class User
+ *
+ * @Idm\Entity(path="/clans")
+ */
 class Clan
 {
     /**
@@ -54,11 +60,13 @@ class Clan
 
     /**
      * @Groups({"read"})
+     * @Idm\Collection(class="App\Entity\User")
      */
     private $users;
 
     /**
      * @Groups({"read"})
+     * @Idm\Collection(class="App\Entity\User")
      */
     private $admins;
 

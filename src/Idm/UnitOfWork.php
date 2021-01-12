@@ -9,15 +9,19 @@ class UnitOfWork
     private IdmManager $manager;
 
     /**
-     * @var array uuid => object
+     * @var array spl_object_id => object
      */
-    public array $objects;
+    private array $objects;
 
     /**
-     * @var array uuid => hash(object)
+     * @var array uuid => spl_object_id for existing objects
      */
-    public array $loaded;
+    private array $id_ref;
 
+    /**
+     * @var array Original values of the objects
+     */
+    private array $orig;
 
     /**
      * UnitOfWork constructor.
@@ -26,44 +30,47 @@ class UnitOfWork
     {
         $this->manager = $manager;
         $this->objects = [];
-        $this->dirty = [];
+        $this->id_ref = [];
     }
 
     public function register(object &$obj)
     {
-        if (!IdmManager::isObjectManaged($obj)) {
+        if (!$this->manager->isManaged($obj)) {
             return;
         }
 
-        // TODO this could be done with an @Id Annotation
-        $id = $obj->getUuid()->toString();
-
+        $id = spl_object_id($obj);
         if (array_key_exists($id, $this->objects)) {
             $obj = $this->objects[$id];
             return;
         }
+        $this->orig[$id] = clone $obj;
         $this->objects[$id] = $obj;
-        $this->loaded[$id] = spl_object_hash($obj);
     }
 
     public function get($id)
     {
-        if (array_key_exists($id, $this->objects)) {
-            return $this->objects[$id];
+        if (array_key_exists($id, $this->id_ref)) {
+            return $this->objects[$this->id_ref[$id]];
         }
         return null;
     }
 
-    public function isDirty($id)
+    public function isDirty($object): bool
     {
-        if (array_key_exists($id, $this->objects)) {
-            return spl_object_hash($this->objects[$id]) !== $this->loaded[$id];
-        }
-        return false;
+        $id = spl_object_id($object);
+        if ($this->isNew($object))
+            return true;
+        return $this->objects[$id] !== $this->orig[$id];
     }
 
-    public function isAttached($id)
+    public function isNew($object): bool
     {
-        return array_key_exists($id, $this->objects);
+        return $this->isAttached($object) && !array_key_exists(spl_object_id($object), $this->orig);
+    }
+
+    public function isAttached($object): bool
+    {
+        return array_key_exists(spl_object_id($object), $this->objects);
     }
 }
