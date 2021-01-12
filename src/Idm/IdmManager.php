@@ -107,6 +107,17 @@ final class IdmManager
         return false;
     }
 
+    /**
+     * @param array $a Array of associative array with uuid key
+     * @return array array of uuids
+     */
+    private static function UuidObjectUuid(array $a)
+    {
+        return array_map(function (array $a) {
+            return $a['uuid'];
+        }, $a);
+    }
+
     private function hydrateObject($result, string $class)
     {
         $obj = $this->serializer->deserialize($result, $class, self::REST_FORMAT);
@@ -114,11 +125,11 @@ final class IdmManager
         // TODO this can be replaced with @IdmLazyLoad(class='...') in the classes
         switch ($class) {
             case Clan::class:
-                $obj->setUsers(new LazyLoaderCollection($this, User::class, $obj->getUsers()));
-                $obj->setAdmins(new LazyLoaderCollection($this, User::class, $obj->getAdmins()));
+                $obj->setUsers(new LazyLoaderCollection($this, User::class, self::UuidObjectUuid($obj->getUsers())));
+                $obj->setAdmins(new LazyLoaderCollection($this, User::class, self::UuidObjectUuid($obj->getAdmins())));
                 break;
             case User::class:
-                $obj->setClans(new LazyLoaderCollection($this, Clan::class, $obj->getClans()));
+                $obj->setClans(new LazyLoaderCollection($this, Clan::class, self::UuidObjectUuid($obj->getClans())));
                 break;
             default:
                 break;
