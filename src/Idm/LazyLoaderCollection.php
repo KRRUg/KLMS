@@ -46,23 +46,10 @@ class LazyLoaderCollection implements ArrayAccess, Iterator
         return $item[self::I_OBJ];
     }
 
-//    private function put($id, $object = null, bool $removed = false, bool $added = false)
-//    {
-//        $this->items[] = [self::I_ID => $id, self::I_OBJ => $object, self::I_ADD => $removed, self::I_REM => $added];
-//    }
-
     public function offsetExists($offset): bool
     {
         return isset($this->items[$offset]) && !$this->items[$offset][self::I_REM];
     }
-
-//    public function isLoaded($offset)
-//    {
-//        if (!isset($this->items[$offset]))
-//            return false;
-//        $item = $this->items[$offset];
-//        return !$item[self::I_REM] && !empty($item[self::I_OBJ]);
-//    }
 
     public function offsetGet($offset)
     {
