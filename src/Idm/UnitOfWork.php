@@ -134,15 +134,21 @@ class UnitOfWork
         return $result;
     }
 
-    public function flush()
+    public function flush(object $object = null)
     {
-        foreach ($this->delete as $id) {
-            unset($this->objects[$id]);
-        }
-        $this->delete = [];
-        $this->orig = [];
-        foreach ($this->objects as $key => $o) {
-            $this->orig[$key] = $o;
+        if ($object === null) {
+            foreach ($this->objects as $o) {
+                $this->flush($o);
+            }
+        } else {
+            $id = spl_object_id($object);
+            if (array_key_exists($id, $this->delete)) {
+                unset($this->delete[$id]);
+                unset($this->objects[$id]);
+                unset($this->orig[$id]);
+            } else {
+                $this->orig[$id] = $object;
+            }
         }
     }
 }

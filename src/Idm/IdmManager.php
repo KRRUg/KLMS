@@ -295,16 +295,17 @@ final class IdmManager
 
         foreach ($new as &$object) {
             $this->hydrateObject($this->post($this->createUrl($object), $object), $object);
+            $this->unitOfWork->flush($object);
         }
 
         foreach ($mod as &$object) {
             $this->hydrateObject($this->patch($this->createUrl($object, $this->object2Id($object)), $object), $object);
+            $this->unitOfWork->flush($object);
         }
 
         foreach ($del as &$object) {
             $this->delete($this->createUrl($object, $this->object2Id($object)));
+            $this->unitOfWork->flush($object);
         }
-
-        $this->unitOfWork->flush();
     }
 }
