@@ -56,6 +56,16 @@ class LazyLoaderCollection implements ArrayAccess, Iterator
         return $this->get($offset);
     }
 
+    public function returnLoadedObjects()
+    {
+        $result = [];
+        foreach ($this->items as &$value) {
+            if (!$value[self::I_REM] && !empty($value[self::I_OBJ]))
+                $result[] = $value[self::I_OBJ];
+        }
+        return $result;
+    }
+
     public function offsetSet($offset, $value)
     {
         if (!is_a($value, $this->class)) {

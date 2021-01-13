@@ -19,7 +19,7 @@ class Clan
      * @Assert\Uuid(strict=false)
      * @Groups({"read"})
      */
-    private ?UuidInterface $uuid;
+    private ?UuidInterface $uuid = null;
 
     /**
      * @Assert\NotBlank(groups={"Default", "Create"})
@@ -33,7 +33,7 @@ class Clan
      * )
      * @Groups({"read", "write"})
      */
-    private ?string $name;
+    private ?string $name = null;
 
     /**
      * @Assert\Length(
@@ -46,17 +46,17 @@ class Clan
      * )
      * @Assert\NotBlank(groups={"Default", "Create"})
      */
-    private ?string $joinPassword;
+    private ?string $joinPassword = null;
 
     /**
      * @Groups({"read"})
      */
-    private ?DateTimeInterface $createdAt;
+    private ?DateTimeInterface $createdAt = null;
 
     /**
      * @Groups({"read"})
      */
-    private ?DateTimeInterface $modifiedAt;
+    private ?DateTimeInterface $modifiedAt = null;
 
     /**
      * @Groups({"read"})
@@ -82,13 +82,13 @@ class Clan
      * @Assert\NotBlank(groups={"Default", "Create"})
      * @Groups({"read", "write"})
      */
-    private ?string $clantag;
+    private ?string $clantag = null;
 
     /**
      * @Assert\Url(groups={"Default", "Transfer"})
      * @Groups({"read", "write"})
      */
-    private ?string $website;
+    private ?string $website = null;
 
     /**
      * @Assert\Length(
@@ -98,12 +98,12 @@ class Clan
      * )
      * @Groups({"read", "write"})
      */
-    private ?string $description;
+    private ?string $description = null;
 
     /**
      * @return UuidInterface
      */
-    public function getUuid(): UuidInterface
+    public function getUuid(): ?UuidInterface
     {
         return $this->uuid;
     }
@@ -139,7 +139,7 @@ class Clan
     /**
      * @return string
      */
-    public function getJoinPassword(): string
+    public function getJoinPassword(): ?string
     {
         return $this->joinPassword;
     }
@@ -157,33 +157,23 @@ class Clan
     /**
      * @return DateTimeInterface
      */
-    public function getCreatedAt(): DateTimeInterface
+    public function getCreatedAt(): ?DateTimeInterface
     {
         return $this->createdAt;
     }
 
-    /**
-     * @param DateTimeInterface $createdAt
-     * @return Clan
-     */
     public function setCreatedAt(DateTimeInterface $createdAt): Clan
     {
         $this->createdAt = $createdAt;
         return $this;
     }
 
-    /**
-     * @return DateTimeInterface
-     */
-    public function getModifiedAt(): DateTimeInterface
+    public function getModifiedAt(): ?DateTimeInterface
     {
         return $this->modifiedAt;
     }
 
-    /**
-     * @param DateTimeInterface $modifiedAt
-     * @return Clan
-     */
+
     public function setModifiedAt(DateTimeInterface $modifiedAt): Clan
     {
         $this->modifiedAt = $modifiedAt;
@@ -215,7 +205,7 @@ class Clan
     /**
      * @return string
      */
-    public function getClantag(): string
+    public function getClantag(): ?string
     {
         return $this->clantag;
     }
@@ -233,7 +223,7 @@ class Clan
     /**
      * @return string
      */
-    public function getWebsite(): string
+    public function getWebsite(): ?string
     {
         return $this->website;
     }
@@ -251,7 +241,7 @@ class Clan
     /**
      * @return string
      */
-    public function getDescription(): string
+    public function getDescription(): ?string
     {
         return $this->description;
     }

@@ -14,7 +14,12 @@ class Collection
      *
      * @var string
      */
-    public $class;
+    public string $class;
+
+    /**
+     * @var string The subpath of the collection, defaults to the property name
+     */
+    public string $subpath;
 
     /**
      * @return string
@@ -22,5 +27,13 @@ class Collection
     public function getClass(): string
     {
         return $this->class;
+    }
+
+    /**
+     * @return string
+     */
+    public function getSubpath(): string
+    {
+        return $this->subpath;
     }
 }

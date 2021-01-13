@@ -22,14 +22,14 @@ class User
      * @Assert\Uuid(strict=false)
      * @Groups({"read"})
      */
-    private ?UuidInterface $uuid;
+    private ?UuidInterface $uuid = null;
 
     /**
      * @Assert\NotBlank(groups={"Default", "Create"})
      * @Assert\Email(groups={"Default", "Transfer", "Create"})
      * @Groups({"read", "write"})
      */
-    private ?string $email;
+    private ?string $email = null;
 
     /**
      * @var string The hashed password
@@ -44,7 +44,7 @@ class User
      * @Assert\NotBlank(groups={"Default", "Create"})
      * @Groups({"write"})
      */
-    private ?string $password;
+    private ?string $password = null;
 
     /**
      * @Assert\NotBlank(groups={"Default", "Create"})
@@ -58,23 +58,23 @@ class User
      * )
      * @Groups({"read", "write"})
      */
-    private ?string $nickname;
+    private ?string $nickname = null;
 
     /**
      * @Groups({"read"})
      * TODO check if status can be IDM internal
      */
-    private ?int $status;
+    private ?int $status = null;
 
     /**
      * @Groups({"read", "write"})
      */
-    private ?string $firstname;
+    private ?string $firstname = null;
 
     /**
      * @Groups({"read", "write"})
      */
-    private ?string $surname;
+    private ?string $surname = null;
 
     /**
      * @Assert\Length(
@@ -87,81 +87,81 @@ class User
      * )
      * @Groups({"read", "write"})
      */
-    private ?string $postcode;
+    private ?string $postcode = null;
 
     /**
      * @Groups({"read", "write"})
      */
-    private ?string $city;
+    private ?string $city = null;
 
     /**
      * @Groups({"read", "write"})
      */
-    private ?string $street;
+    private ?string $street = null;
 
     /**
      * @Assert\Country(groups={"Default", "Transfer"})
      * @Groups({"read", "write"})
      */
-    private ?string $country;
+    private ?string $country = null;
 
     /**
      * @Groups({"read", "write"})
      * @Assert\Regex("/^[+]?\d([ \/()]?\d)*$/", message="Invalid phone number format.", groups={"Default", "Transfer"})
      */
-    private ?string $phone;
+    private ?string $phone = null;
 
     /**
      * @Assert\Choice({"m","w","d"}, groups={"Default", "Transfer"})
      * @Groups({"read", "write"})
      */
-    private ?string $gender;
+    private ?string $gender = null;
 
     /**
      * @Groups({"read", "write"})
      */
-    private ?bool $emailConfirmed;
+    private ?bool $emailConfirmed = null;
 
     /**
      * @Groups({"read"})
      */
-    private ?bool $isSuperadmin = false;
+    private ?bool $isSuperadmin = null;
 
     /**
      * @Assert\Url(groups={"Default", "Transfer"})
      * @Groups({"read", "write"})
      */
-    private ?string $website;
+    private ?string $website = null;
 
     /**
      * @Groups({"read", "write"})
      */
-    private ?string $steamAccount;
+    private ?string $steamAccount = null;
 
     /**
      * @Groups({"read"})
      */
-    private ?DateTimeInterface $registeredAt;
+    private ?DateTimeInterface $registeredAt = null;
 
     /**
      * @Groups({"read"})
      */
-    private ?DateTimeInterface $modifiedAt;
+    private ?DateTimeInterface $modifiedAt = null;
 
     /**
      * @Groups({"read", "write"})
      */
-    private ?string $hardware;
+    private ?string $hardware = null;
 
     /**
      * @Groups({"read", "write"})
      */
-    private ?bool $infoMails;
+    private ?bool $infoMails = null;
 
     /**
      * @Groups({"read", "write"})
      */
-    private ?string $statements;
+    private ?string $statements = null;
 
     /**
      * @Groups({"read"})
@@ -173,7 +173,7 @@ class User
      * @Assert\Date(groups={"Default", "Transfer"})
      * @Groups({"read", "write"})
      */
-    private ?DateTimeInterface $birthdate;
+    private ?DateTimeInterface $birthdate = null;
 
 
     public function getUuid(): ?UuidInterface
