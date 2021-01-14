@@ -4,12 +4,15 @@ namespace App\Idm\Transfer;
 
 use Ramsey\Uuid\Uuid;
 use Ramsey\Uuid\UuidInterface;
+use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 
 final class UuidObject
 {
     /**
      * @var UuidInterface
+     *
+     * @Groups({"read", "write"})
      *
      * @Assert\Uuid(strict=false)
      * @Assert\NotBlank()

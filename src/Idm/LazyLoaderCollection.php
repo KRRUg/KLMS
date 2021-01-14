@@ -20,17 +20,34 @@ class LazyLoaderCollection implements ArrayAccess, Iterator, Countable
      * LazyLoaderCollection constructor.
      * @param IdmManager $manager
      * @param string $class
-     * @param UuidObject[] $uuids
      */
-    public function __construct(IdmManager $manager, string $class, array $uuids = [])
+    public function __construct(IdmManager $manager, string $class)
     {
         $this->manager = $manager;
         $this->class = $class;
-
         $this->items = [];
+    }
+
+    public static function fromUuidList(IdmManager $manager, string $class, array $uuids)
+    {
+        $result = new self($manager, $class);
+
         foreach ($uuids as $uuid)
             if ($uuid instanceof UuidObject)
-                $this->items[] = $uuid;
+                $result->items[] = $uuid;
+
+        return $result;
+    }
+
+    public static function fromObjectList(IdmManager $manager, string $class, array $objects)
+    {
+        $result = new self($manager, $class);
+
+        foreach ($objects as $object)
+            if (get_class($object) == $class)
+                $result->items[] = $object;
+
+        return $result;
     }
 
     public function get($offset, bool $load = true)
@@ -63,7 +80,7 @@ class LazyLoaderCollection implements ArrayAccess, Iterator, Countable
         return $this->get($offset);
     }
 
-    public function returnLoadedObjects()
+    public function getLoadedItems()
     {
         return array_filter($this->items, function ($e) { return $e instanceof $this->class; });
     }

@@ -22,24 +22,24 @@ class UnitOfWork
     private array $objects;
 
     /**
-     * @var array uuid => spl_object_id for existing objects
-     */
-    private array $id_ref;
-
-    /**
      * @var array Original values of the objects
      */
     private array $orig;
 
     /**
-     * @var array Object ids marked for deletion
+     * @var array Object ids marked for deletion.
      */
-    private array $delete;
+    private array $delete_ids;
 
     /**
      * @var array Object ids marked as persist.
      */
     private array $persist_ids;
+
+    /**
+     * @var array uuid => spl_object_id for existing objects
+     */
+    private array $id_ref;
 
     /**
      * UnitOfWork constructor.
@@ -51,7 +51,7 @@ class UnitOfWork
 
         $this->objects = [];
         $this->id_ref = [];
-        $this->delete = [];
+        $this->delete_ids = [];
         $this->persist_ids = [];
     }
 
@@ -67,6 +67,7 @@ class UnitOfWork
         }
 
         $this->objects[$id] = $obj;
+        $this->id_ref[get_class($obj) . $this->manager->object2Id($obj)] = $obj;
 
         if ($existing) {
             $this->backUp($obj);
@@ -78,13 +79,15 @@ class UnitOfWork
         if (!$this->isAttached($obj)) {
             return;
         }
-        $this->delete[] = spl_object_id($obj);
+        $id = spl_object_id($obj);
+        $this->delete_ids[$id] = $id;
     }
 
-    public function get($id)
+    public function get(string $class, string $id)
     {
-        if (array_key_exists($id, $this->id_ref)) {
-            return $this->objects[$this->id_ref[$id]];
+        $key = $class . $id;
+        if (isset($this->id_ref[$key])) {
+            return $this->objects[$this->id_ref[$key]];
         }
         return null;
     }
@@ -113,28 +116,28 @@ class UnitOfWork
         $id = spl_object_id($object);
 
         // check if already marked for persist
-        if (array_search($id, $this->persist_ids))
+        if (array_key_exists($id, $this->persist_ids))
             return;
         // make sure new entities are persisted
         $this->register($object, false);
         // and register object to be persisted
-        $this->persist_ids[] = $id;
+        $this->persist_ids[$id] = $id;
         // finally, check for annotated properties
         $this->foreachAnnotation($object,
             function ($class, $obj) {
                 $this->persist($obj);
             },
             function ($class, $list) {
-                foreach ($list->returnLoadedObjects() as &$loadedObj) {
+                foreach ($list->getLoadedItems() as &$loadedObj) {
                     $this->persist($loadedObj);
                 }
             }
         );
     }
 
-    public function getObjectsToPersist()
+    public function getModifiedObjects()
     {
-        return array_map(function ($id) { return $this->objects[$id]; }, $this->persist_ids);
+        return array_map(function ($id) { return $this->objects[$id]; }, array_merge(array_keys($this->persist_ids), array_keys($this->delete_ids)));
     }
 
     public const STATE_DETACHED = 0;
@@ -149,13 +152,13 @@ class UnitOfWork
         if (!array_key_exists($id, $this->objects))
             return self::STATE_DETACHED;
 
-        if (array_search($id, $this->delete))
+        if (array_key_exists($id, $this->delete_ids))
             return self::STATE_DELETE;
 
         if (!array_key_exists($id, $this->orig))
             return self::STATE_CREATED;
 
-        if ($this->manager->compareObjects($this->objects[$id], $this->orig[$id]))
+        if (!$this->manager->compareObjects($this->objects[$id], $this->orig[$id]))
             return self::STATE_MODIFIED;
 
         return self::STATE_MANAGED;
@@ -170,8 +173,11 @@ class UnitOfWork
         } else {
             $id = spl_object_id($object);
             unset($this->persist_ids[$id]);
-            if (array_key_exists($id, $this->delete)) {
-                unset($this->delete[$id]);
+            if (!array_key_exists($id, $this->objects)) {
+                return;
+            }
+            if (array_key_exists($id, $this->delete_ids)) {
+                unset($this->delete_ids[$id]);
                 unset($this->objects[$id]);
                 unset($this->orig[$id]);
             } else {
@@ -183,7 +189,7 @@ class UnitOfWork
     private function backUp(object $obj)
     {
         $clone = clone $obj;
-        $this->foreachAnnotation($clone,
+        $this->mapAnnotation($clone,
             function ($class, $obj) {
                 throw new NotImplementedException("@Reference annotation is not implemented in IdmManager yet");
             },
@@ -226,7 +232,7 @@ class UnitOfWork
                 $property->setAccessible(true);
                 $v_a = $property->getValue($object);
                 $v_b = $property->getValue($reference);
-                $result[$property->getName()] = [LazyLoaderCollection::minus($v_b, $v_a), LazyLoaderCollection::minus($v_a, $v_b)];
+                $result[$property->getName()] = [LazyLoaderCollection::minus($v_a, $v_b), LazyLoaderCollection::minus($v_b, $v_a)];
             }
         }
 
@@ -244,6 +250,21 @@ class UnitOfWork
             } elseif ($ano = $this->annotationReader->getPropertyAnnotation($property, Reference::class)) {
                 $property->setAccessible(true);
                 $closureReference($ano->getClass(), $property->getValue($object));
+            }
+        }
+    }
+
+    private function mapAnnotation(object $object, Closure $closureReference, Closure $closureCollection)
+    {
+        $reflection = new ReflectionClass($object);
+
+        foreach ($reflection->getProperties() as $property) {
+            if($ano = $this->annotationReader->getPropertyAnnotation($property, Collection::class)) {
+                $property->setAccessible(true);
+                $property->setValue($object, $closureCollection($ano->getClass(), $property->getValue($object)));
+            } elseif ($ano = $this->annotationReader->getPropertyAnnotation($property, Reference::class)) {
+                $property->setAccessible(true);
+                $property->setValue($object, $closureReference($ano->getClass(), $property->getValue($object)));
             }
         }
     }

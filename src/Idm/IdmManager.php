@@ -14,12 +14,15 @@ use App\Idm\Transfer\UuidObject;
 use Closure;
 use Doctrine\Common\Annotations\Reader;
 use Psr\Log\LoggerInterface;
+use Ramsey\Uuid\Uuid;
 use ReflectionClass;
 use ReflectionException;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Intl\Exception\NotImplementedException;
 use Symfony\Component\PropertyInfo\Extractor\ReflectionExtractor;
 use Symfony\Component\Serializer\Encoder\JsonEncoder;
+use Symfony\Component\Serializer\Mapping\Loader\AnnotationLoader;
+use Symfony\Component\Serializer\Mapping\Factory\ClassMetadataFactory;
 use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 use Symfony\Component\Serializer\Normalizer\DateTimeNormalizer;
 use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
@@ -61,7 +64,7 @@ final class IdmManager
         $this->repoFactory = $repoFactory;
         $this->annotationReader = $annotationReader;
 
-        $on = new ObjectNormalizer(null, null, null, new ReflectionExtractor());
+        $on = new ObjectNormalizer(new ClassMetadataFactory(new AnnotationLoader($annotationReader)), null, null, new ReflectionExtractor());
         $this->serializer = new Serializer([
             new DateTimeNormalizer(),
             new UuidNormalizer(),
@@ -212,7 +215,7 @@ final class IdmManager
         ]);
     }
 
-    private function object2Id(object $object)
+    public function object2Id(object $object)
     {
         // TODO change getUuid with id annotation
         return $object->getUuid();
@@ -273,7 +276,7 @@ final class IdmManager
                 if ($list instanceof LazyLoaderCollection)
                     return $list;
 
-                return new LazyLoaderCollection($this, $class, array_map(function (array $a) { return UuidObject::fromArray($a); }, $list));
+                return LazyLoaderCollection::fromUuidList($this, $class, array_map(function (array $a) { return UuidObject::fromArray($a); }, $list));
             }
         );
         return $obj;
@@ -288,7 +291,7 @@ final class IdmManager
     {
         $this->throwOnNotManaged($class);
 
-        if ($obj = $this->unitOfWork->get($id)) {
+        if ($obj = $this->unitOfWork->get($class, $id)) {
             return $obj;
         }
 
@@ -307,15 +310,36 @@ final class IdmManager
 
     }
 
+    private function fillProxyObjects(object &$object)
+    {
+        $this->mapAnnotation($object,
+            function ($class, $obj){
+                throw new NotImplementedException("@Reference annotation is not implemented in IdmManager yet");
+            },
+            function ($class, $list) {
+                if ($list instanceof LazyLoaderCollection) {
+                    foreach ($list->getLoadedItems() as $item) {
+                        $this->fillProxyObjects($item);
+                    }
+                    return $list;
+                } else {
+                    $list = is_array($list) ? $list : [];
+                    foreach ($list as &$item) {
+                        $this->fillProxyObjects($item);
+                    }
+                    return LazyLoaderCollection::fromObjectList($this, $class, $list);
+                }
+            }
+        );
+    }
+
     public function persist(object &$object)
     {
         $this->throwOnNotManaged($object);
 
-        if (!$this->unitOfWork->isAttached($object)) {
-            $this->unitOfWork->register($object);
-        } else {
-            $this->unitOfWork->persist($object);
-        }
+        $this->fillProxyObjects($object);
+
+        $this->unitOfWork->persist($object);
     }
 
     public function remove(object $object)
@@ -331,7 +355,7 @@ final class IdmManager
         foreach ($modification as $name => $mod) {
             $url = $base_url . '/' . $name;
             foreach ($mod[0] as $added) {
-                $this->post($url, $added);
+                $this->post($url, new UuidObject($this->object2Id($added)));
             }
             foreach ($mod[1] as $removed) {
                 $this->delete($url . '/' . $this->object2Id($removed));
@@ -341,13 +365,13 @@ final class IdmManager
 
     public function flush()
     {
-        foreach ($this->unitOfWork->getObjectsToPersist() as $object) {
+        foreach ($this->unitOfWork->getModifiedObjects() as $object) {
             switch ($this->unitOfWork->getObjectState($object)) {
                 case UnitOfWork::STATE_DETACHED:
                 case UnitOfWork::STATE_MANAGED:
                 default:
                     // nothing to do
-                    continue;
+                    break;
 
                 case UnitOfWork::STATE_CREATED:
                     $this->hydrateObject($this->post($this->createUrl($object), $object), $object);
