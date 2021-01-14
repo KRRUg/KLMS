@@ -10,6 +10,7 @@ use App\Idm\Exception\UnsupportedClassException;
 use App\Idm\Serializer\LazyLoaderCollectionNormalizer;
 use App\Idm\Serializer\PaginationCollectionDenormalizer;
 use App\Idm\Serializer\UuidNormalizer;
+use App\Idm\Transfer\AuthObject;
 use App\Idm\Transfer\UuidObject;
 use Closure;
 use Doctrine\Common\Annotations\Reader;
@@ -49,8 +50,11 @@ final class IdmManager
     private Reader $annotationReader;
     private Serializer $serializer;
 
+    /**
+     * @var Entity[]
+     */
+    private array $config;
     private UnitOfWork $unitOfWork;
-    private array $paths;
 
     private const REST_FORMAT = 'json';
     private const URL_PREFIX = '/api';
@@ -71,8 +75,9 @@ final class IdmManager
             new PaginationCollectionDenormalizer($on),
             $on
         ], [new JsonEncoder()]);
+
         $this->unitOfWork = new UnitOfWork($this, $annotationReader);
-        $this->paths = [];
+        $this->config = [];
     }
 
     public function isManaged($objectOrClass): bool
@@ -82,12 +87,12 @@ final class IdmManager
         } catch (ReflectionException $e) {
             return false;
         }
-        if (array_key_exists($reflectionClass->getName(), $this->paths)) {
+        if (array_key_exists($reflectionClass->getName(), $this->config)) {
             return true;
         }
         $ano = $this->annotationReader->getClassAnnotation($reflectionClass, Entity::class);
         if ($ano) {
-            $this->paths[$reflectionClass->getName()] = $ano->getPath();
+            $this->config[$reflectionClass->getName()] = $ano;
             return true;
         }
         return false;
@@ -108,21 +113,34 @@ final class IdmManager
 
     private function pathByClass(string $class)
     {
-        // this checks registers the path in $this->paths
+        // this checks registers the path in $this->config
         $this->throwOnNotManaged($class);
-
-        return $this->paths[$class];
+        return $this->config[$class]->getPath();
     }
 
-    private function createUrl($classOrObject, ?string $id = null): string
+    private function hasAuthByClass(string $class)
+    {
+        // this checks registers the path in $this->config
+        $this->throwOnNotManaged($class);
+        return $this->config[$class]->hasAuthorize();
+    }
+
+    private function hasSearchByClass(string $class)
+    {
+        // this checks registers the path in $this->config
+        $this->throwOnNotManaged($class);
+        return $this->config[$class]->hasSearch();
+    }
+
+    private function createUrl($classOrObject, ?string $postfix = null): string
     {
         if (is_object($classOrObject))
             $class = get_class($classOrObject);
         else
             $class = $classOrObject;
         $url = self::URL_PREFIX . $this->pathByClass($class);
-        if (!empty($id))
-            $url .= '/' . $id;
+        if (!empty($postfix))
+            $url .= '/' . $postfix;
         return $url;
     }
 
@@ -304,9 +322,25 @@ final class IdmManager
         return $obj;
     }
 
+    public function auth(string $class, $name, $secret): ?object
+    {
+        if (!$this->hasAuthByClass($class))
+            throw new UnsupportedClassException("Class {$class} does not support authentication.");
+
+        $result = $this->post($this->createUrl($class, 'authorize'), new AuthObject($name, $secret));
+
+        if (empty($result))
+            return null;
+
+        $obj = $this->hydrateObject($result, $class);
+        $this->unitOfWork->register($obj, true);
+        return $obj;
+    }
+
     public function find(string $class, array $parameter = [])
     {
-
+        if (!$this->hasSearchByClass($class))
+            throw new UnsupportedClassException("Class {$class} does not support search.");
     }
 
     private function fillProxyObjects(object &$object)

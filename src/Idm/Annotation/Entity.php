@@ -14,7 +14,17 @@ class Entity
      *
      * @var string
      */
-    public $path;
+    public string $path;
+
+    /**
+     * @var bool Has an authorize endpoint
+     */
+    public bool $authorize = false;
+
+    /**
+     * @var bool Has a search endpoint
+     */
+    public bool $search = false;
 
     /**
      * @return string
@@ -22,5 +32,21 @@ class Entity
     public function getPath(): string
     {
         return $this->path;
+    }
+
+    /**
+     * @return bool
+     */
+    public function hasAuthorize(): bool
+    {
+        return $this->authorize;
+    }
+
+    /**
+     * @return bool
+     */
+    public function hasSearch(): bool
+    {
+        return $this->search;
     }
 }

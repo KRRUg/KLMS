@@ -2,7 +2,8 @@
 
 namespace App\Twig;
 
-use App\Service\UserService;
+use App\Entity\User;
+use App\Idm\IdmManager;
 use Ramsey\Uuid\Uuid;
 use Twig\Extension\AbstractExtension;
 use Twig\TwigFilter;
@@ -10,11 +11,11 @@ use Twig\TwigTest;
 
 class UserExtension extends AbstractExtension
 {
-    private $userService;
+    private $userRepo;
 
-    public function __construct(UserService $userService)
+    public function __construct(IdmManager $manager)
     {
-        $this->userService = $userService;
+        $this->userRepo = $manager->getRepository(User::class);
     }
 
     /**
@@ -42,7 +43,7 @@ class UserExtension extends AbstractExtension
         if (!Uuid::isValid($userId))
             return "";
 
-        $user = $this->userService->getUserInfoByUuid($userId);
+        $user = $this->userRepo->findOneById($userId);
 
         if (empty($user))
             return "";
@@ -55,7 +56,7 @@ class UserExtension extends AbstractExtension
         if (!Uuid::isValid($userId))
             return false;
 
-        $user = $this->userService->getUserInfoByUuid($userId);
+        $user = $this->userRepo->findOneById($userId);
         return !empty($user);
     }
 }

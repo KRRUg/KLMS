@@ -1,6 +1,5 @@
 <?php
 
-
 namespace App\Entity;
 
 use App\Idm\Annotation as Idm;
@@ -12,7 +11,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 /**
  * Class User
  *
- * @Idm\Entity(path="/users")
+ * @Idm\Entity(path="/users", authorize=true, search=true)
  */
 class User
 {
