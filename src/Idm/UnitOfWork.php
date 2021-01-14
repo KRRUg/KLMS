@@ -67,7 +67,7 @@ class UnitOfWork
         }
 
         $this->objects[$id] = $obj;
-        $this->id_ref[get_class($obj) . $this->manager->object2Id($obj)] = $obj;
+        $this->id_ref[get_class($obj) . $this->manager->object2Id($obj)] = $id;
 
         if ($existing) {
             $this->backUp($obj);

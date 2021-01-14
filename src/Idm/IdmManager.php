@@ -14,7 +14,6 @@ use App\Idm\Transfer\UuidObject;
 use Closure;
 use Doctrine\Common\Annotations\Reader;
 use Psr\Log\LoggerInterface;
-use Ramsey\Uuid\Uuid;
 use ReflectionClass;
 use ReflectionException;
 use Symfony\Component\HttpFoundation\Response;
