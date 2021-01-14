@@ -4,14 +4,20 @@ namespace App\Idm;
 
 use App\Idm\Annotation\Collection;
 use App\Idm\Annotation\Entity;
+use App\Idm\Annotation\Reference;
 use App\Idm\Exception\PersistException;
 use App\Idm\Exception\UnsupportedClassException;
+use App\Idm\Serializer\LazyLoaderCollectionNormalizer;
 use App\Idm\Serializer\PaginationCollectionDenormalizer;
 use App\Idm\Serializer\UuidNormalizer;
+use App\Idm\Transfer\UuidObject;
+use Closure;
 use Doctrine\Common\Annotations\Reader;
 use Psr\Log\LoggerInterface;
 use ReflectionClass;
+use ReflectionException;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Intl\Exception\NotImplementedException;
 use Symfony\Component\PropertyInfo\Extractor\ReflectionExtractor;
 use Symfony\Component\Serializer\Encoder\JsonEncoder;
 use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
@@ -59,18 +65,19 @@ final class IdmManager
         $this->serializer = new Serializer([
             new DateTimeNormalizer(),
             new UuidNormalizer(),
+            new LazyLoaderCollectionNormalizer(),
             new PaginationCollectionDenormalizer($on),
             $on
         ], [new JsonEncoder()]);
-        $this->unitOfWork = new UnitOfWork($this);
+        $this->unitOfWork = new UnitOfWork($this, $annotationReader);
         $this->paths = [];
     }
 
-    public function isManaged($objectOrClass)
+    public function isManaged($objectOrClass): bool
     {
         try {
             $reflectionClass = new ReflectionClass($objectOrClass);
-        } catch (\ReflectionException $e) {
+        } catch (ReflectionException $e) {
             return false;
         }
         if (array_key_exists($reflectionClass->getName(), $this->paths)) {
@@ -90,7 +97,7 @@ final class IdmManager
             throw new UnsupportedClassException();
     }
 
-    public function getRepository(string $class)
+    public function getRepository(string $class): IdmRepository
     {
         $this->throwOnNotManaged($class);
 
@@ -165,14 +172,14 @@ final class IdmManager
         }
     }
 
-    private function get(string $url)
+    private function get(string $url): array
     {
         $response = [];
         $this->send('GET', $url, $response, [ Response::HTTP_NOT_FOUND ]);
         return $response;
     }
 
-    private function post(string $url, object $object)
+    private function post(string $url, object $object): array
     {
         $response = [];
         $data = $this->object2Array($object);
@@ -181,7 +188,7 @@ final class IdmManager
         return $response;
     }
 
-    private function patch(string $url, object $object)
+    private function patch(string $url, object $object): array
     {
         $response = [];
         $data = $this->object2Array($object);
@@ -199,9 +206,8 @@ final class IdmManager
 
     private function object2Array(object $object)
     {
-        // TODO check if object is valid, best to do at persist?!?
         return $this->serializer->normalize($object, self::REST_FORMAT, [
-            ObjectNormalizer::GROUPS => 'write',
+            ObjectNormalizer::GROUPS => ['write'],
             ObjectNormalizer::SKIP_NULL_VALUES => true,
         ]);
     }
@@ -212,33 +218,64 @@ final class IdmManager
         return $object->getUuid();
     }
 
-    /**
-     * @param array $a Array of associative array with uuid key
-     * @return array array of uuids
-     */
-    private static function UuidObject2Uuid(array $a)
+    private function mapAnnotation(object $object, Closure $closureReference, Closure $closureCollection)
     {
-        return array_map(function (array $a) {
-            return $a['uuid'];
-        }, $a);
+        $reflection = new ReflectionClass($object);
+
+        foreach ($reflection->getProperties() as $property) {
+            if($ano = $this->annotationReader->getPropertyAnnotation($property, Collection::class)) {
+                $property->setAccessible(true);
+                $property->setValue($object, $closureCollection($ano->getClass(), $property->getValue($object)));
+            } elseif ($ano = $this->annotationReader->getPropertyAnnotation($property, Reference::class)) {
+                $property->setAccessible(true);
+                $property->setValue($object, $closureReference($ano->getClass(), $property->getValue($object)));
+            }
+        }
+    }
+
+    public function compareObjects(object $a, object $b): bool
+    {
+        if (get_class($a) != get_class($b))
+            return false;
+
+        $ref = new ReflectionClass($a);
+
+        foreach ($ref->getProperties() as $property) {
+            $property->setAccessible(true);
+            $v_a = $property->getValue($a);
+            $v_b = $property->getValue($b);
+
+            if($ano = $this->annotationReader->getPropertyAnnotation($property, Collection::class)) {
+                if(!LazyLoaderCollection::compare($v_a, $v_b))
+                    return false;
+            } elseif ($ano = $this->annotationReader->getPropertyAnnotation($property, Reference::class)) {
+                if (!$this->compareObjects($v_a, $v_b))
+                    return false;
+            } else {
+                if ($v_a != $v_b)
+                    return false;
+            }
+        }
+        return true;
     }
 
     private function hydrateObject($result, &$objectOrClass)
     {
-        $reflection = new ReflectionClass($objectOrClass);
-
         $options = is_object($objectOrClass) ? [AbstractNormalizer::OBJECT_TO_POPULATE => &$objectOrClass] : [];
-        $obj = $this->serializer->denormalize($result, $reflection->getName(), self::REST_FORMAT, $options);
+        $class = is_object($objectOrClass) ? get_class($objectOrClass) : $objectOrClass;
+        $obj = $this->serializer->denormalize($result, $class, self::REST_FORMAT, $options);
 
-        foreach ($reflection->getProperties() as $property) {
-            $ano = $this->annotationReader->getPropertyAnnotation($property, Collection::class);
-            if (!$ano) {
-                continue;
+        $this->mapAnnotation($obj,
+            function ($class, $obj){
+                throw new NotImplementedException("@Reference annotation is not implemented in IdmManager yet");
+            },
+            function ($class, $list) {
+                if ($list instanceof LazyLoaderCollection)
+                    return $list;
+
+                return new LazyLoaderCollection($this, $class, array_map(function (array $a) { return UuidObject::fromArray($a); }, $list));
             }
-            $property->setAccessible(true);
-            $property->setValue($obj, new LazyLoaderCollection($this, $ano->getClass(), self::UuidObject2Uuid($property->getValue($obj))));
-        }
-
+        );
         return $obj;
     }
 
@@ -247,7 +284,7 @@ final class IdmManager
      * @param $id string The URL of the object to request
      * @return object|null The requested object or null if not found
      */
-    public function request(string $class, string $id)
+    public function request(string $class, string $id): ?object
     {
         $this->throwOnNotManaged($class);
 
@@ -270,7 +307,7 @@ final class IdmManager
 
     }
 
-    public function persist(object $object)
+    public function persist(object &$object)
     {
         $this->throwOnNotManaged($object);
 
@@ -287,24 +324,44 @@ final class IdmManager
         $this->unitOfWork->delete($object);
     }
 
+    private function applyCollectionModification(object $object)
+    {
+        $modification = $this->unitOfWork->getCollectionDiff($object);
+        $base_url = $this->createUrl($object, $this->object2Id($object));
+        foreach ($modification as $name => $mod) {
+            $url = $base_url . '/' . $name;
+            foreach ($mod[0] as $added) {
+                $this->post($url, $added);
+            }
+            foreach ($mod[1] as $removed) {
+                $this->delete($url . '/' . $this->object2Id($removed));
+            }
+        }
+    }
+
     public function flush()
     {
-        $new = $this->unitOfWork->getNewObjects();
-        $mod = $this->unitOfWork->getModifiedObjects();
-        $del = $this->unitOfWork->getDeletedObjects();
+        foreach ($this->unitOfWork->getObjectsToPersist() as $object) {
+            switch ($this->unitOfWork->getObjectState($object)) {
+                case UnitOfWork::STATE_DETACHED:
+                case UnitOfWork::STATE_MANAGED:
+                default:
+                    // nothing to do
+                    continue;
 
-        foreach ($new as &$object) {
-            $this->hydrateObject($this->post($this->createUrl($object), $object), $object);
-            $this->unitOfWork->flush($object);
-        }
+                case UnitOfWork::STATE_CREATED:
+                    $this->hydrateObject($this->post($this->createUrl($object), $object), $object);
+                    break;
 
-        foreach ($mod as &$object) {
-            $this->hydrateObject($this->patch($this->createUrl($object, $this->object2Id($object)), $object), $object);
-            $this->unitOfWork->flush($object);
-        }
+                case UnitOfWork::STATE_MODIFIED:
+                    $this->applyCollectionModification($object);
+                    $this->hydrateObject($this->patch($this->createUrl($object, $this->object2Id($object)), $object), $object);
+                    break;
 
-        foreach ($del as &$object) {
-            $this->delete($this->createUrl($object, $this->object2Id($object)));
+                case UnitOfWork::STATE_DELETE:
+                    $this->delete($this->createUrl($object, $this->object2Id($object)));
+                    break;
+            }
             $this->unitOfWork->flush($object);
         }
     }

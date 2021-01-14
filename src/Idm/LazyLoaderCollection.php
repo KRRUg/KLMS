@@ -2,53 +2,60 @@
 
 namespace App\Idm;
 
+use App\Idm\Transfer\UuidObject;
 use ArrayAccess;
-use Exception;
 use Iterator;
+use Countable;
 use InvalidArgumentException;
-use IteratorAggregate;
-use Traversable;
+use Ramsey\Uuid\Uuid;
 
-class LazyLoaderCollection implements ArrayAccess, Iterator
+class LazyLoaderCollection implements ArrayAccess, Iterator, Countable
 {
     private IdmManager $manager;
     private string $class;
 
-    // the items array with management information
     private array $items;
 
-    private const I_ID = 0;
-    private const I_OBJ = 1;
-    private const I_ADD = 2;
-    private const I_REM = 3;
-
+    /**
+     * LazyLoaderCollection constructor.
+     * @param IdmManager $manager
+     * @param string $class
+     * @param UuidObject[] $uuids
+     */
     public function __construct(IdmManager $manager, string $class, array $uuids = [])
     {
         $this->manager = $manager;
         $this->class = $class;
 
         $this->items = [];
-        foreach ($uuids as $uuid) {
-            $this->items[] = [self::I_ID => $uuid, self::I_OBJ => null, self::I_ADD => false, self::I_REM => false];
-        }
+        foreach ($uuids as $uuid)
+            if ($uuid instanceof UuidObject)
+                $this->items[] = $uuid;
     }
 
-    private function get($offset)
+    public function get($offset, bool $load = true)
     {
         if (!isset($this->items[$offset]))
             return null;
         $item =& $this->items[$offset];
-        if ($item[self::I_REM])
-            return null;
-        if (empty($item[self::I_OBJ]))
-            $item[self::I_OBJ] = $this->manager->request($this->class, $item[self::I_ID]);
+        if ($load && $item instanceof UuidObject) {
+            $item = $this->manager->request($this->class, $item->getUuid());
+        }
+        return $item;
+    }
 
-        return $item[self::I_OBJ];
+    public function uuidSet(): array
+    {
+        $result = [];
+        foreach ($this->items as $item) {
+            $result[] = $item->getUuid();
+        }
+        return $result;
     }
 
     public function offsetExists($offset): bool
     {
-        return isset($this->items[$offset]) && !$this->items[$offset][self::I_REM];
+        return isset($this->items[$offset]);
     }
 
     public function offsetGet($offset)
@@ -58,12 +65,7 @@ class LazyLoaderCollection implements ArrayAccess, Iterator
 
     public function returnLoadedObjects()
     {
-        $result = [];
-        foreach ($this->items as &$value) {
-            if (!$value[self::I_REM] && !empty($value[self::I_OBJ]))
-                $result[] = $value[self::I_OBJ];
-        }
-        return $result;
+        return array_filter($this->items, function ($e) { return $e instanceof $this->class; });
     }
 
     public function offsetSet($offset, $value)
@@ -71,21 +73,12 @@ class LazyLoaderCollection implements ArrayAccess, Iterator
         if (!is_a($value, $this->class)) {
             throw new InvalidArgumentException("Incorrect type");
         }
-        // move element to new position
-        if (isset($this->items[$offset])) {
-            $item = $this->items[$offset];
-            $item[self::I_REM] = true;
-            if (!$item[self::I_ADD])
-                $this->items[] = $item;
-        }
-        $this->items[$offset] = [self::I_ID => null, self::I_OBJ => $value, self::I_ADD => true, self::I_REM => false];
+        $this->items[$offset] = $value;
     }
 
     public function offsetUnset($offset)
     {
-        if (!$this->offsetExists($offset))
-            return;
-        $this->items[$offset][self::I_REM] = true;
+        unset($this->items[$offset]);
     }
 
     public function current()
@@ -95,10 +88,7 @@ class LazyLoaderCollection implements ArrayAccess, Iterator
 
     public function next()
     {
-        while($val = next($this->items)) {
-            if (!$val[self::I_REM])
-                break;
-        }
+        next($this->items);
     }
 
     public function key()
@@ -113,11 +103,44 @@ class LazyLoaderCollection implements ArrayAccess, Iterator
 
     public function rewind()
     {
-        if (!($val = reset($this->items)))
-            return;
-        do {
-            if (!$val[self::I_REM])
-                break;
-        } while($val = next($this->items));
+        reset($this->items);
+    }
+
+    public function count(): int
+    {
+        return count($this->items);
+    }
+
+    public static function compare(LazyLoaderCollection $a, LazyLoaderCollection $b): bool
+    {
+        if ($a->count() != $b->count())
+            return false;
+        foreach ($a->items as $key => $value) {
+            $uuid_a = $value->getUuid();
+            $uuid_b = $b->items[$key]->getUuid();
+            if ($uuid_a != $uuid_b)
+                return false;
+        }
+        return true;
+    }
+
+    /**
+     * Performs a set minus $a - $b
+     * @return array The elements that are in $a but not $b
+     */
+    public static function minus(LazyLoaderCollection $a, LazyLoaderCollection $b): array
+    {
+        $result = [];
+        foreach ($a->items as $v_a) {
+            $found = false;
+            foreach ($b->items as $v_b) {
+                if($v_a->getUuid() == $v_b->getUuid())
+                    $found = true;
+            }
+            if (!$found) {
+                $result[] = $v_a;
+            }
+        }
+        return $result;
     }
 }

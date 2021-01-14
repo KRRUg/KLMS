@@ -45,6 +45,7 @@ class Clan
      *      groups = {"Transfer", "Create"}
      * )
      * @Assert\NotBlank(groups={"Default", "Create"})
+     * @Groups({"write"})
      */
     private ?string $joinPassword = null;
 
