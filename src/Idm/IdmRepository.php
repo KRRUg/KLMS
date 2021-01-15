@@ -2,21 +2,20 @@
 
 namespace App\Idm;
 
+use InvalidArgumentException;
+use ReflectionClass;
+
 class IdmRepository
 {
     private IdmManager $manager;
     private string $class;
+    private ReflectionClass $reflection;
 
     public function __construct(IdmManager $manager, string $class)
     {
         $this->manager = $manager;
         $this->class = $class;
-    }
-
-    public function findAll(): ?array
-    {
-//        $result = $this->idmConnection->get($this->getUrl());
-//        return $this->deserializeCollection($result);
+        $this->reflection = new ReflectionClass($class);
     }
 
     public function findOneById($id): ?object
@@ -24,25 +23,52 @@ class IdmRepository
         return $this->manager->request($this->class, $id);
     }
 
-    public function authenticate(string $name, string $secret): ?object
+    public function authenticate(string $name, string $secret): bool
     {
         return $this->manager->auth($this->class, $name, $secret);
     }
 
-    public function __call(string $method, array $arguments)
+    /**
+     * Use request() instead of findBy when searching for id only.
+     * @param array $filter filter array [prop => value]
+     * @param array $sort sorting array [prop => (asc|desc)]
+     * @return mixed|null The first value found or null if no value was found
+     */
+    public function findOneBy(array $filter = [], array $sort = [])
     {
-//        if (0 === mb_strpos($method, 'findBy')) {
-//            $fieldName = mb_strtolower(mb_substr($method, 6));
-//            $methodName = 'findBy';
-//        } elseif (0 === mb_strpos($method, 'findOneBy')) {
-//            $fieldName = mb_strtolower(mb_substr($method, 9));
-//            $methodName = 'findOneBy';
-//        } else {
-//            throw new \BadMethodCallException('Undefined method \'' . $method . '\'. The method name must start with either findBy or findOneBy!');
-//        }
-//
-//        if (empty($arguments)) {
-//            throw new \BadMethodCallException('You need to pass a parameter to ' . $method);
-//        }
+        $result = $this->manager->find($this->class, $filter, $sort, 0, 1);
+        return $result->count >= 1 ? $result->items[0] : null;
+    }
+
+    /**
+     * Use request() instead of find when searching for id only.
+     */
+    public function findBy(array $filter = [], array $sort = [])
+    {
+        $this->checkProperties($filter, $sort);
+        return IdmPagedCollection::create($this->manager, $this->class, $filter, $sort);
+    }
+
+    public function findAll()
+    {
+        return $this->findBy();
+    }
+
+    /**
+     * @param array $filter
+     * @param array $sort
+     */
+    private function checkProperties(array $filter, array $sort): void
+    {
+        foreach ($filter as $prop => $value) {
+            if (!$this->reflection->hasProperty($prop))
+                throw new InvalidArgumentException("Property {$prop} is not in class {$this->class}");
+        }
+        foreach ($sort as $prop => $dir) {
+            if (!$this->reflection->hasProperty($prop))
+                throw new InvalidArgumentException("Property {$prop} is not in class {$this->class}");
+            if (!($dir === 'asc' || $dir === 'desc'))
+                throw new InvalidArgumentException("Invalid sort direction {$dir} for Property {$prop}");
+        }
     }
 }

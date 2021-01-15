@@ -11,7 +11,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 /**
  * Class User
  *
- * @Idm\Entity(path="/users", authorize=true, search=true)
+ * @Idm\Entity(path="/users", authorize=true)
  */
 class User
 {

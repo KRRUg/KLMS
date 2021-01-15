@@ -2,7 +2,9 @@
 
 namespace App\Security;
 
-use App\Service\UserService;
+use App\Entity\User;
+use App\Idm\IdmManager;
+use App\Idm\IdmRepository;
 use App\Service\PermissionService;
 use App\Service\GamerService;
 use Symfony\Component\Security\Core\Exception\UnsupportedUserException;
@@ -10,19 +12,18 @@ use Symfony\Component\Security\Core\Exception\UsernameNotFoundException;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Core\User\UserProviderInterface;
 
-
 class UserProvider implements UserProviderInterface
 {
-    private $userService;
-    private $permissionService;
-    private $gamerService;
+    private IdmRepository $userRepo;
+    private PermissionService $permissionService;
+    private GamerService $gamerService;
 
     public function __construct(
-        UserService $userService,
+        IdmManager $manager,
         PermissionService $permissionService,
         GamerService $gamerService
     ) {
-        $this->userService = $userService;
+        $this->userRepo = $manager->getRepository(User::class);
         $this->permissionService = $permissionService;
         $this->gamerService = $gamerService;
     }
@@ -68,7 +69,7 @@ class UserProvider implements UserProviderInterface
         // The $username argument may not actually be a username:
         // it is whatever value is being returned by the getUsername()
         // method in your User class.
-        $user = $this->userService->getUser($username);
+        $user = $this->userRepo->findOneBy(['email' => $username]);
         if (empty($user)) {
             throw new UsernameNotFoundException();
         }
@@ -98,10 +99,13 @@ class UserProvider implements UserProviderInterface
             throw new UnsupportedUserException(sprintf('Invalid user class "%s".', get_class($user)));
         }
 
+        $lu = new LoginUser($this->userRepo->findOneById($user->getUser()->getUuid()));
+        $this->loadUserRoles($lu);
+        $this->loadAdminRoles($lu);
+
         // Return a User object after making sure its data is "fresh".
         // Or throw a UsernameNotFoundException if the user no longer exists.
-        // TODO implement
-        return $user;
+        return $lu;
     }
 
     /**

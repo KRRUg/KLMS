@@ -7,7 +7,6 @@ use ArrayAccess;
 use Iterator;
 use Countable;
 use InvalidArgumentException;
-use Ramsey\Uuid\Uuid;
 
 class LazyLoaderCollection implements ArrayAccess, Iterator, Countable
 {
@@ -49,6 +48,11 @@ class LazyLoaderCollection implements ArrayAccess, Iterator, Countable
 
         return $result;
     }
+
+//    public function __sleep()
+//    {
+//        return ['class', 'items'];
+//    }
 
     public function get($offset, bool $load = true)
     {

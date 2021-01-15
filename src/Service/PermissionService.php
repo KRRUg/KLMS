@@ -4,11 +4,11 @@
 namespace App\Service;
 
 
+use App\Entity\User;
 use App\Entity\UserAdmin;
 use App\Exception\PermissionException;
 use App\Repository\UserAdminsRepository;
 use App\Security\LoginUser;
-use App\Security\User;
 use App\Security\UserInfo;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Security\Core\Security;

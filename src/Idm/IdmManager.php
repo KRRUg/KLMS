@@ -11,9 +11,11 @@ use App\Idm\Serializer\LazyLoaderCollectionNormalizer;
 use App\Idm\Serializer\PaginationCollectionDenormalizer;
 use App\Idm\Serializer\UuidNormalizer;
 use App\Idm\Transfer\AuthObject;
+use App\Idm\Transfer\PaginationCollection;
 use App\Idm\Transfer\UuidObject;
 use Closure;
 use Doctrine\Common\Annotations\Reader;
+use InvalidArgumentException;
 use Psr\Log\LoggerInterface;
 use ReflectionClass;
 use ReflectionException;
@@ -54,6 +56,13 @@ final class IdmManager
      * @var Entity[]
      */
     private array $config;
+    /**
+     * @var ReflectionClass[]
+     */
+    private array $ref_cache;
+    /**
+     * @var UnitOfWork
+     */
     private UnitOfWork $unitOfWork;
 
     private const REST_FORMAT = 'json';
@@ -72,12 +81,12 @@ final class IdmManager
             new DateTimeNormalizer(),
             new UuidNormalizer(),
             new LazyLoaderCollectionNormalizer(),
-            new PaginationCollectionDenormalizer($on),
             $on
         ], [new JsonEncoder()]);
 
         $this->unitOfWork = new UnitOfWork($this, $annotationReader);
         $this->config = [];
+        $this->ref_cache = [];
     }
 
     public function isManaged($objectOrClass): bool
@@ -93,6 +102,7 @@ final class IdmManager
         $ano = $this->annotationReader->getClassAnnotation($reflectionClass, Entity::class);
         if ($ano) {
             $this->config[$reflectionClass->getName()] = $ano;
+            $this->ref_cache[$reflectionClass->getName()] = $reflectionClass;
             return true;
         }
         return false;
@@ -152,11 +162,16 @@ final class IdmManager
      * @param array|null $json_payload The payload to send (for POST, PATCH)
      * @return int The status code of the request
      */
-    private function send(string $method, string $url, array &$response, array $expectedErrorCodes = [], array $json_payload = null)
+    private function send(string $method, string $url, array &$response, array $expectedErrorCodes = [], array $query = [], array $json_payload = [])
     {
         // do a cache lookup first?
         try{
-            $resp = $this->httpClient->request($method, $url, ['json' => $json_payload]);
+            $options = [];
+            if (!empty($query))
+                $options['query'] = $query;
+            if (!empty($json_payload))
+                $options['json'] = $json_payload;
+            $resp = $this->httpClient->request($method, $url, $options);
             if (!in_array($resp->getStatusCode(), $expectedErrorCodes)) {
                 $response = $resp->toArray();
             }
@@ -192,10 +207,10 @@ final class IdmManager
         }
     }
 
-    private function get(string $url): array
+    private function get(string $url, array $query = []): array
     {
         $response = [];
-        $this->send('GET', $url, $response, [ Response::HTTP_NOT_FOUND ]);
+        $this->send('GET', $url, $response, [ Response::HTTP_NOT_FOUND ], $query);
         return $response;
     }
 
@@ -203,7 +218,7 @@ final class IdmManager
     {
         $response = [];
         $data = $this->object2Array($object);
-        $code = $this->send('POST', $url, $response, [ Response::HTTP_CONFLICT ], $data);
+        $code = $this->send('POST', $url, $response, [ Response::HTTP_CONFLICT ], [], $data);
         $this->throwOnCode($code, $object);
         return $response;
     }
@@ -212,7 +227,7 @@ final class IdmManager
     {
         $response = [];
         $data = $this->object2Array($object);
-        $code = $this->send('PATCH', $url, $response, [], $data);
+        $code = $this->send('PATCH', $url, $response, [], [], $data);
         $this->throwOnCode($code, $object);
         return $response;
     }
@@ -300,6 +315,8 @@ final class IdmManager
     }
 
     /**
+     * Use this function for id search instead of filter!
+     *
      * @param $class string The class to deserialize
      * @param $id string The URL of the object to request
      * @return object|null The requested object or null if not found
@@ -322,25 +339,58 @@ final class IdmManager
         return $obj;
     }
 
-    public function auth(string $class, $name, $secret): ?object
+    public function auth(string $class, string $name, string $secret): bool
     {
         if (!$this->hasAuthByClass($class))
             throw new UnsupportedClassException("Class {$class} does not support authentication.");
 
-        $result = $this->post($this->createUrl($class, 'authorize'), new AuthObject($name, $secret));
-
-        if (empty($result))
-            return null;
-
-        $obj = $this->hydrateObject($result, $class);
-        $this->unitOfWork->register($obj, true);
-        return $obj;
+        $response = [];
+        $code = $this->send('POST', $this->createUrl($class, 'authorize'), $response, [ Response::HTTP_NOT_FOUND ], [], $this->object2Array(new AuthObject($name, $secret)));
+        return $code === Response::HTTP_OK;
     }
 
-    public function find(string $class, array $parameter = [])
+    public function search(string $class, array $parameter = [])
     {
         if (!$this->hasSearchByClass($class))
             throw new UnsupportedClassException("Class {$class} does not support search.");
+        throw new NotImplementedException("Search support is not implemented yet");
+    }
+
+    public function find(string $class, array $filter = [], array $sort = [], ?int $page = 0, ?int $limit = null)
+    {
+        $this->throwOnNotManaged($class);
+
+        $query = [];
+        if (!empty($filter)) {
+            $query['filter'] = $filter;
+            $query['exact'] = 'true';
+        }
+        if (!empty($sort)) {
+            $query['sort'] = $sort;
+        }
+        if (!empty($limit)) {
+            $query['limit'] = $limit;
+        }
+        if (!empty($page)) {
+            $query['page'] = $limit;
+        }
+
+        $result = $this->get($this->createUrl($class), $query);
+
+        $collection = $this->serializer->denormalize($result, PaginationCollection::class, self::REST_FORMAT);
+
+        if (empty($collection))
+            throw new UnsupportedClassException('Invalid PaginationCollection returned');
+
+        foreach ($collection->items as &$item) {
+            $item = $this->hydrateObject($item, $class);
+            if ($obj = $this->unitOfWork->get($class, $this->object2Id($item))) {
+                $item = $obj;
+            } else {
+                $this->unitOfWork->register($item, true);
+            }
+        }
+        return $collection;
     }
 
     private function fillProxyObjects(object &$object)
