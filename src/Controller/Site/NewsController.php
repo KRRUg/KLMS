@@ -4,9 +4,14 @@ namespace App\Controller\Site;
 
 use App\Entity\Clan;
 use App\Entity\News;
+use App\Entity\Seat;
+use App\Entity\User;
+use App\Entity\UserGamer;
 use App\Idm\IdmManager;
 use App\Repository\NewsRepository;
 use App\Service\NewsService;
+use Doctrine\ORM\EntityManager;
+use Doctrine\ORM\EntityManagerInterface;
 use Ramsey\Uuid\Uuid;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
@@ -41,22 +46,24 @@ class NewsController extends AbstractController
         $repo = $idmManager->getRepository(Clan::class);
         $clan = $repo->findOneById($uuid);
 
-//        $n1 = $repository->findOneBy(['id' => 1]);
-//        $n1->setTitle("fup");
-//        $n2 = $repository->findOneBy(['id' => 1]);
-//        $em = $this->get('doctrine')->getManager();
-//        $em->remove($n1);
-//        $em->flush();
+
         $name = $clan->getName();
-        $admin = $clan->getAdmins()[0]->getNickname();
+        $admin = $clan->getAdmins()[0];
         $users = [];
         foreach ($clan->getUsers() as $user) {
             $users[] = $user->getNickname();
         }
+
+        $new = new Clan();
+        $new->setName("Superusers")->setClantag('su')->setJoinPassword('fupfupfup');
+        $new->setAdmins([$admin]);
+        $idmManager->persist($new);
+        $idmManager->flush();
+
 //        $users = array_map(function ($user) { return $user->getNickname(); }, iterator_to_array($clan->getUsers()));
         $users = implode(", ", $users);
 
-        return new Response("<body><h1>Hallo, {$name}</h1><p>Admin: {$admin}<br>Users: {$users}</p></body>");
+        return new Response("<body><h1>Hallo, {$name}</h1><p>Admin: {$admin->getNickname()}<br>Users: {$users}</p></body>");
     }
 
     /**

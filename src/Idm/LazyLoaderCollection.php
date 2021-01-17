@@ -14,6 +14,7 @@ class LazyLoaderCollection implements ArrayAccess, Iterator, Countable
     private string $class;
 
     private array $items;
+    private bool $loaded;
 
     /**
      * LazyLoaderCollection constructor.
@@ -24,12 +25,14 @@ class LazyLoaderCollection implements ArrayAccess, Iterator, Countable
     {
         $this->manager = $manager;
         $this->class = $class;
+        $this->loaded = false;
         $this->items = [];
     }
 
     public static function fromUuidList(IdmManager $manager, string $class, array $uuids)
     {
         $result = new self($manager, $class);
+        $result->loaded = false;
 
         foreach ($uuids as $uuid)
             if ($uuid instanceof UuidObject)
@@ -41,37 +44,52 @@ class LazyLoaderCollection implements ArrayAccess, Iterator, Countable
     public static function fromObjectList(IdmManager $manager, string $class, array $objects)
     {
         $result = new self($manager, $class);
+        $result->loaded = true;
 
         foreach ($objects as $object)
-            if (get_class($object) == $class)
+            if (get_class($object) === $class)
                 $result->items[] = $object;
 
         return $result;
     }
 
-//    public function __sleep()
-//    {
-//        return ['class', 'items'];
-//    }
+    public function __sleep(): array
+    {
+        return ['class', 'items', 'loaded'];
+    }
 
-    public function get($offset, bool $load = true)
+    private function load()
+    {
+        $this->items = array_map(function (UuidObject $object) {
+            return $this->manager->request($this->class, $object->getUuid());
+        }, $this->items);
+        $this->loaded = true;
+    }
+
+    public function get($offset)
     {
         if (!isset($this->items[$offset]))
             return null;
-        $item =& $this->items[$offset];
-        if ($load && $item instanceof UuidObject) {
-            $item = $this->manager->request($this->class, $item->getUuid());
-        }
-        return $item;
+        if (!$this->loaded)
+            $this->load();
+        return $this->items[$offset];
     }
 
-    public function uuidSet(): array
+    public function toArray(bool $load = true): array
     {
-        $result = [];
-        foreach ($this->items as $item) {
-            $result[] = $item->getUuid();
-        }
-        return $result;
+        if (!$this->loaded && $load)
+            $this->load();
+        return $this->items;
+    }
+
+    public function getUuid($offset): ?UuidObject
+    {
+        if (!isset($this->items[$offset]))
+            return null;
+        $item = $this->items[$offset];
+        if (!$this->loaded)
+            return $item;
+        return UuidObject::fromObject($item);
     }
 
     public function offsetExists($offset): bool
@@ -84,9 +102,9 @@ class LazyLoaderCollection implements ArrayAccess, Iterator, Countable
         return $this->get($offset);
     }
 
-    public function getLoadedItems()
+    public function isLoaded(): bool
     {
-        return array_filter($this->items, function ($e) { return $e instanceof $this->class; });
+        return $this->loaded;
     }
 
     public function offsetSet($offset, $value)
@@ -130,38 +148,5 @@ class LazyLoaderCollection implements ArrayAccess, Iterator, Countable
     public function count(): int
     {
         return count($this->items);
-    }
-
-    public static function compare(LazyLoaderCollection $a, LazyLoaderCollection $b): bool
-    {
-        if ($a->count() != $b->count())
-            return false;
-        foreach ($a->items as $key => $value) {
-            $uuid_a = $value->getUuid();
-            $uuid_b = $b->items[$key]->getUuid();
-            if ($uuid_a != $uuid_b)
-                return false;
-        }
-        return true;
-    }
-
-    /**
-     * Performs a set minus $a - $b
-     * @return array The elements that are in $a but not $b
-     */
-    public static function minus(LazyLoaderCollection $a, LazyLoaderCollection $b): array
-    {
-        $result = [];
-        foreach ($a->items as $v_a) {
-            $found = false;
-            foreach ($b->items as $v_b) {
-                if($v_a->getUuid() == $v_b->getUuid())
-                    $found = true;
-            }
-            if (!$found) {
-                $result[] = $v_a;
-            }
-        }
-        return $result;
     }
 }

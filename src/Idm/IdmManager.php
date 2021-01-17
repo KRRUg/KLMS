@@ -5,10 +5,9 @@ namespace App\Idm;
 use App\Idm\Annotation\Collection;
 use App\Idm\Annotation\Entity;
 use App\Idm\Annotation\Reference;
+use App\Idm\Exception\NotImplementedException;
 use App\Idm\Exception\PersistException;
 use App\Idm\Exception\UnsupportedClassException;
-use App\Idm\Serializer\LazyLoaderCollectionNormalizer;
-use App\Idm\Serializer\PaginationCollectionDenormalizer;
 use App\Idm\Serializer\UuidNormalizer;
 use App\Idm\Transfer\AuthObject;
 use App\Idm\Transfer\PaginationCollection;
@@ -20,7 +19,6 @@ use Psr\Log\LoggerInterface;
 use ReflectionClass;
 use ReflectionException;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Intl\Exception\NotImplementedException;
 use Symfony\Component\PropertyInfo\Extractor\ReflectionExtractor;
 use Symfony\Component\Serializer\Encoder\JsonEncoder;
 use Symfony\Component\Serializer\Mapping\Loader\AnnotationLoader;
@@ -80,13 +78,18 @@ final class IdmManager
         $this->serializer = new Serializer([
             new DateTimeNormalizer(),
             new UuidNormalizer(),
-            new LazyLoaderCollectionNormalizer(),
             $on
         ], [new JsonEncoder()]);
 
-        $this->unitOfWork = new UnitOfWork($this, $annotationReader);
         $this->config = [];
         $this->ref_cache = [];
+
+        $this->reset();
+    }
+
+    public function reset()
+    {
+        $this->unitOfWork = new UnitOfWork($this, $this->annotationReader);
     }
 
     public function isManaged($objectOrClass): bool
@@ -121,21 +124,60 @@ final class IdmManager
         return $this->repoFactory->getRepository($this, $class);
     }
 
-    private function pathByClass(string $class)
+    private function getFieldsByAnnotation(string $class, string $annotationClass): array
+    {
+        $reflection = $this->ref_cache[$class];
+        $result = [];
+        foreach ($reflection->getProperties() as $property) {
+            if($ano = $this->annotationReader->getPropertyAnnotation($property, $annotationClass)) {
+                $result[$property->getName()] = $ano;
+            }
+        }
+        return $result;
+    }
+
+    private static array $attribute_cache_collection = [];
+    private static array $attribute_cache_reference = [];
+
+    public function getReferenceFields($objectOrClass): array
+    {
+        $this->throwOnNotManaged($objectOrClass);
+
+        $class = is_object($objectOrClass) ? get_class($objectOrClass) : $objectOrClass;
+
+        if (isset(self::$attribute_cache_reference[$class]))
+            return self::$attribute_cache_reference[$class];
+
+        return self::$attribute_cache_reference[$class] = $this->getFieldsByAnnotation($class, Reference::class);
+    }
+
+    public function getCollectionFields($objectOrClass): array
+    {
+        $this->throwOnNotManaged($objectOrClass);
+
+        $class = is_object($objectOrClass) ? get_class($objectOrClass) : $objectOrClass;
+
+        if (isset(self::$attribute_cache_collection[$class]))
+            return self::$attribute_cache_collection[$class];
+
+        return self::$attribute_cache_collection[$class] = $this->getFieldsByAnnotation($class, Collection::class);
+    }
+
+    private function pathByClass(string $class): string
     {
         // this checks registers the path in $this->config
         $this->throwOnNotManaged($class);
         return $this->config[$class]->getPath();
     }
 
-    private function hasAuthByClass(string $class)
+    private function hasAuthByClass(string $class): bool
     {
         // this checks registers the path in $this->config
         $this->throwOnNotManaged($class);
         return $this->config[$class]->hasAuthorize();
     }
 
-    private function hasSearchByClass(string $class)
+    private function hasSearchByClass(string $class): bool
     {
         // this checks registers the path in $this->config
         $this->throwOnNotManaged($class);
@@ -255,7 +297,8 @@ final class IdmManager
 
     private function mapAnnotation(object $object, Closure $closureReference, Closure $closureCollection)
     {
-        $reflection = new ReflectionClass($object);
+        $class = get_class($object);
+        $reflection = $this->ref_cache[$class];
 
         foreach ($reflection->getProperties() as $property) {
             if($ano = $this->annotationReader->getPropertyAnnotation($property, Collection::class)) {
@@ -266,6 +309,21 @@ final class IdmManager
                 $property->setValue($object, $closureReference($ano->getClass(), $property->getValue($object)));
             }
         }
+    }
+
+    private function compareCollections($a, $b): bool
+    {
+        $a = ($a instanceof LazyLoaderCollection) ? $a->toArray(false) : $a;
+        $b = ($b instanceof LazyLoaderCollection) ? $b->toArray(false) : $b;
+
+        if (!is_array($a) || !is_array($b))
+            return false;
+        if (sizeof($a) != sizeof($b))
+            return false;
+
+        $a = array_map(function ($i_a) { return $this->object2Id($i_a); }, $a);
+        $b = array_map(function ($i_b) { return $this->object2Id($i_b); }, $b);
+        return empty(array_diff($a, $b));
     }
 
     public function compareObjects(object $a, object $b): bool
@@ -281,7 +339,7 @@ final class IdmManager
             $v_b = $property->getValue($b);
 
             if($ano = $this->annotationReader->getPropertyAnnotation($property, Collection::class)) {
-                if(!LazyLoaderCollection::compare($v_a, $v_b))
+                if(!$this->compareCollections($v_a, $v_b))
                     return false;
             } elseif ($ano = $this->annotationReader->getPropertyAnnotation($property, Reference::class)) {
                 if (!$this->compareObjects($v_a, $v_b))
@@ -294,23 +352,70 @@ final class IdmManager
         return true;
     }
 
+    private static function toUuidObjectArray(array $array, bool $strict = false)
+    {
+        $result = [];
+        foreach ($array as $item) {
+            if(!($result[] = UuidObject::fromArray($item, $strict)))
+                return null;
+        }
+        return $result;
+    }
+
+    private static function setPrivateField(object $object, string $field, $value)
+    {
+        $set = function() use ($field, $value) {
+            $this->$field = $value;
+        };
+        $set->call($object);
+    }
+
+    private static function getPrivateField(object $object, string $field)
+    {
+        $set = function() use ($field) {
+            return $this->$field;
+        };
+        return $set->call($object);
+    }
+
     private function hydrateObject($result, &$objectOrClass)
     {
-        $options = is_object($objectOrClass) ? [AbstractNormalizer::OBJECT_TO_POPULATE => &$objectOrClass] : [];
         $class = is_object($objectOrClass) ? get_class($objectOrClass) : $objectOrClass;
+        $options = is_object($objectOrClass) ? [AbstractNormalizer::OBJECT_TO_POPULATE => &$objectOrClass] : [];
+
+        $collectionFields = $this->getCollectionFields($class);
+        $referenceFields = $this->getReferenceFields($class);
+        $options[ObjectNormalizer::IGNORED_ATTRIBUTES] = array_merge(array_keys($collectionFields), array_keys($referenceFields));
         $obj = $this->serializer->denormalize($result, $class, self::REST_FORMAT, $options);
 
-        $this->mapAnnotation($obj,
-            function ($class, $obj){
-                throw new NotImplementedException("@Reference annotation is not implemented in IdmManager yet");
-            },
-            function ($class, $list) {
-                if ($list instanceof LazyLoaderCollection)
-                    return $list;
+        foreach ($referenceFields as $field => $ano) {
+            throw new NotImplementedException("@Reference annotation is not implemented in IdmManager yet");
+        }
 
-                return LazyLoaderCollection::fromUuidList($this, $class, array_map(function (array $a) { return UuidObject::fromArray($a); }, $list));
+        foreach ($collectionFields as $field => $ano) {
+            $array = $result[$field];
+            if (!is_array($array)) {
+                throw new InvalidArgumentException();
             }
-        );
+            $new = [];
+            if (!empty($array)) {
+                if($tmp = self::toUuidObjectArray($array, true)) {
+                    $new = LazyLoaderCollection::fromUuidList($this, $ano->getClass(), $tmp);
+                } else {
+                    $new = array_map(function ($a) use ($ano) {
+                        $class = $ano->getClass();
+                        return $this->hydrateObject($a, $class);
+                    }, $array);
+                }
+            }
+            self::setPrivateField($obj, $field, $new);
+        }
+
+        if ($tmp = $this->unitOfWork->get($class, $this->object2Id($obj))) {
+            $obj = $tmp;
+        } else {
+            $this->unitOfWork->register($obj, true);
+        }
         return $obj;
     }
 
@@ -334,9 +439,7 @@ final class IdmManager
         if (empty($result))
             return null;
 
-        $obj = $this->hydrateObject($result, $class);
-        $this->unitOfWork->register($obj, true);
-        return $obj;
+        return $this->hydrateObject($result, $class);
     }
 
     public function auth(string $class, string $name, string $secret): bool
@@ -372,7 +475,7 @@ final class IdmManager
             $query['limit'] = $limit;
         }
         if (!empty($page)) {
-            $query['page'] = $limit;
+            $query['page'] = $page;
         }
 
         $result = $this->get($this->createUrl($class), $query);
@@ -384,33 +487,37 @@ final class IdmManager
 
         foreach ($collection->items as &$item) {
             $item = $this->hydrateObject($item, $class);
-            if ($obj = $this->unitOfWork->get($class, $this->object2Id($item))) {
-                $item = $obj;
-            } else {
-                $this->unitOfWork->register($item, true);
-            }
         }
         return $collection;
     }
 
-    private function fillProxyObjects(object &$object)
+    /**
+     * Removes loaded lazyLoaderObjects and checks if all other collections are actually arrays
+     * @param object $object
+     */
+    private function checkCollections($object)
     {
+        $this->throwOnNotManaged($object);
+
         $this->mapAnnotation($object,
             function ($class, $obj){
                 throw new NotImplementedException("@Reference annotation is not implemented in IdmManager yet");
             },
             function ($class, $list) {
                 if ($list instanceof LazyLoaderCollection) {
-                    foreach ($list->getLoadedItems() as $item) {
-                        $this->fillProxyObjects($item);
+                    if ($list->isLoaded()) {
+                        $list = $list->toArray();
+                        foreach ($list as $item) {
+                            $this->checkCollections($item);
+                        }
                     }
                     return $list;
                 } else {
                     $list = is_array($list) ? $list : [];
-                    foreach ($list as &$item) {
-                        $this->fillProxyObjects($item);
+                    foreach ($list as $item) {
+                        $this->checkCollections($item);
                     }
-                    return LazyLoaderCollection::fromObjectList($this, $class, $list);
+                    return $list;
                 }
             }
         );
@@ -420,7 +527,7 @@ final class IdmManager
     {
         $this->throwOnNotManaged($object);
 
-        $this->fillProxyObjects($object);
+        $this->checkCollections($object);
 
         $this->unitOfWork->persist($object);
     }
@@ -431,37 +538,50 @@ final class IdmManager
         $this->unitOfWork->delete($object);
     }
 
-    private function applyCollectionModification(object $object)
+    private function applyCollectionModification(object $object, array $modification)
     {
-        $modification = $this->unitOfWork->getCollectionDiff($object);
         $base_url = $this->createUrl($object, $this->object2Id($object));
         foreach ($modification as $name => $mod) {
             $url = $base_url . '/' . $name;
             foreach ($mod[0] as $added) {
-                $this->post($url, new UuidObject($this->object2Id($added)));
+                $this->post($url, new UuidObject($added));
             }
             foreach ($mod[1] as $removed) {
-                $this->delete($url . '/' . $this->object2Id($removed));
+                $this->delete($url . '/' . $removed->toString());
             }
         }
     }
 
+    private function areCollectionModified(array $modification): bool
+    {
+        $changes = false;
+        foreach ($modification as $name => $mod) {
+            $changes |= empty($mod[0]);
+            $changes |= empty($mod[1]);
+        }
+        return $changes;
+    }
+
     public function flush()
     {
-        foreach ($this->unitOfWork->getModifiedObjects() as $object) {
+        foreach ($this->unitOfWork->getObjects() as $object) {
             switch ($this->unitOfWork->getObjectState($object)) {
                 case UnitOfWork::STATE_DETACHED:
                 case UnitOfWork::STATE_MANAGED:
                 default:
                     // nothing to do
-                    break;
+                    continue 2;
 
                 case UnitOfWork::STATE_CREATED:
+                    if ($this->areCollectionModified($this->unitOfWork->getCollectionDiff($object))) {
+                        // This would require a dependency graph if both objects are not created yet
+                        throw new NotImplementedException("Creating entities with non empty Collections is not supported yet");
+                    }
                     $this->hydrateObject($this->post($this->createUrl($object), $object), $object);
                     break;
 
                 case UnitOfWork::STATE_MODIFIED:
-                    $this->applyCollectionModification($object);
+                    $this->applyCollectionModification($object, $this->unitOfWork->getCollectionDiff($object));
                     $this->hydrateObject($this->patch($this->createUrl($object, $this->object2Id($object)), $object), $object);
                     break;
 

@@ -11,7 +11,7 @@ final class PaginationCollection
 
     public array $items;
 
-    public function __construct($items, $total)
+    public function __construct(array $items = [], $total = 0)
     {
         $this->items = $items;
         $this->total = $total;
