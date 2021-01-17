@@ -12,6 +12,8 @@ import './modules/adminDataTable/jquery.adminDataTable.js';
 //import './modules/dateTimePicker/datetimepicker.js';
 import './modules/dateTimePicker/jquery.dateTimePicker.js';
 
+import 'lightbox2';
+
 import select2Init from './modules/select2/select2';
 
 const cfi = require('bs-custom-file-input');
