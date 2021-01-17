@@ -1,23 +1,17 @@
-<div class="modal fade" id="newModal" data-remote-target="{{ path('admin_permission') }}" tabindex="-1" role="dialog">
-    <div class="modal-dialog modal-dialog-centered" role="document">
-        <div class="modal-content">
-            {{ form_start(form_add) }}
-            <div class="modal-header">
-                <h5 class="modal-title">Admin hinzufügen</h5>
-            </div>
-            <div class="modal-body">
-                <div class="form-group">
-                    {{ form_row(form_add.user) }}
-                </div>
-                <div class="form-group">
-                    {{ form_row(form_add.perm) }}
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Abbrechen</button>
-                <button type="submit" class="btn btn-primary">Speichern</button>
-            </div>
-            {{ form_end(form_add) }}
+{% embed "admin/components/modals/form.html.twig"
+    with {
+        'id': 'newModal',
+        'title' : 'Admin hinzufügen',
+        'attr' : {'data-remote-target' : path('admin_permission')},
+        'form' : form_add
+    }
+%}
+    {% block modalForm %}
+        <div class="form-group">
+            {{ form_row(form_add.user) }}
         </div>
-    </div>
-</div>
+        <div class="form-group">
+            {{ form_row(form_add.perm) }}
+        </div>
+    {% endblock %}
+{% endembed %}

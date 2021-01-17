@@ -2,72 +2,52 @@
 
 namespace App\Repository;
 
-use App\Entity\NavigationNode;
+use App\Entity\Navigation;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Common\Persistence\ManagerRegistry;
 use Doctrine\ORM\NonUniqueResultException;
 
 /**
- * @method NavigationNode|null find($id, $lockMode = null, $lockVersion = null)
- * @method NavigationNode|null findOneBy(array $criteria, array $orderBy = null)
- * @method NavigationNode[]    findAll()
- * @method NavigationNode[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
+ * @method Navigation|null find($id, $lockMode = null, $lockVersion = null)
+ * @method Navigation|null findOneBy(array $criteria, array $orderBy = null)
+ * @method Navigation[]    findAll()
+ * @method Navigation[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  */
 class NavigationRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
     {
-        parent::__construct($registry, NavigationNode::class);
+        parent::__construct($registry, Navigation::class);
     }
 
-    public function getRoot() : NavigationNode
+    /**
+     * @param string[] $names Names to look for
+     * @return Navigation[] Found navigations
+     */
+    public function findByNames(array $names): array
     {
-        $root = $this->createQueryBuilder('n')
-            ->andWhere('n instance of App\Entity\NavigationNodeRoot')
+        return $this->createQueryBuilder('n')
+            ->where('n.name in (:names)')
+            ->setParameter('names', $names)
             ->getQuery()
-            ->getOneOrNullResult();
+            ->getResult();
+    }
 
-        if ($root) {
-            return $root;
-        } else {
-            throw new \Exception('Root element not found');
+    /**
+     * @param string $name Name to look for
+     * @return Navigation|null Navigation if exists, null if not found
+     */
+    public function findOneByName(string $name): ?Navigation
+    {
+        try {
+            return $this->createQueryBuilder('n')
+                ->where('n.name = :name')
+                ->setParameter('name', $name)
+                ->getQuery()
+                ->getOneOrNullResult();
+        } catch (NonUniqueResultException $e) {
+            // name is unique
+            return null;
         }
     }
-
-    public function getRootChildren()
-    {
-        return $this
-            ->getRoot()
-            ->getChildNodes()
-            ->filter(function ($node) { return $node->getParent() !== $node; });
-    }
-
-    // /**
-    //  * @return NavigationNode[] Returns an array of NavigationNode objects
-    //  */
-    /*
-    public function findByExampleField($value)
-    {
-        return $this->createQueryBuilder('n')
-            ->andWhere('n.exampleField = :val')
-            ->setParameter('val', $value)
-            ->orderBy('n.id', 'ASC')
-            ->setMaxResults(10)
-            ->getQuery()
-            ->getResult()
-        ;
-    }
-    */
-
-    /*
-    public function findOneBySomeField($value): ?NavigationNode
-    {
-        return $this->createQueryBuilder('n')
-            ->andWhere('n.exampleField = :val')
-            ->setParameter('val', $value)
-            ->getQuery()
-            ->getOneOrNullResult()
-        ;
-    }
-    */
 }

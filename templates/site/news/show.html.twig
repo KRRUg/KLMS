@@ -1,17 +1,27 @@
 {% extends 'site/siteBase.html.twig' %}
 
-{% block title %}{{ content.title }}{% endblock %}
+{% block title %}KLMS - {{ content.title }}{% endblock %}
 
 {% block main %}
     <div class="container mb-5">
-        {% if content.image.name is null %}
-            <img src="{{ asset('build/images/test_content_pic.jpg') }}" class="card-img-top" alt="Bild des Inhaltes">
-        {% else %}
-            <img src="{{ vich_uploader_asset(content, 'imageFile') }}" class="card-img-top"  alt="{{ content.title }}" />
-        {% endif %}
-        <h1 class="mb-4">{{ content.title }}</h1>
-        <p class="card-text">
-            {{ content.content|raw }}
-        </p>
+        <img class="card-img-top mb-4 shadow-sm"
+             {% if content.image.name is null %}
+                 src="{{ asset('build/images/test_content_pic.jpg') | imagine_filter('news_header') }}"
+             {% else %}
+                 src="{{ vich_uploader_asset(content, 'imageFile') | imagine_filter('news_header') }}"
+             {% endif %}
+             />
+        <div class="card">
+            <div class="card-body">
+                <h1 class="card-title">{{ content.title }}</h1>
+                <p class="card-subtitle mb-3 text-muted">
+                    <small>gepostet von {{ content.authorId | username }}, <i class="fas fa-clock"></i> {% if content.publishedFrom is null %}{{ content.created | ago }}{% else %}{{ content.publishedFrom | ago }}{% endif %} </small>
+                </p>
+                <div class="card-text">
+                    {{ content.content|raw }}
+                </div>
+            </div>
+        </div>
     </div>
+
 {% endblock %}

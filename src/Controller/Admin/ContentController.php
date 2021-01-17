@@ -2,12 +2,12 @@
 
 namespace App\Controller\Admin;
 
-use App\Entity\NavigationNode;
-use App\Form\NavigationNodeType;
-use App\Repository\ContentRepository;
-use App\Repository\NavigationRepository;
-use App\Service\NavService;
+use App\Entity\Content;
+use App\Exception\ServiceException;
+use App\Form\ContentType;
+use App\Service\ContentService;
 use Psr\Log\LoggerInterface;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
@@ -19,96 +19,95 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
  */
 class ContentController extends AbstractController
 {
-    private $nav;
+    private const CSRF_TOKEN_DELETE = "contentDeleteToken";
 
     private $logger;
+    private $contentService;
 
-    public function __construct(NavService $nav, LoggerInterface $logger)
+    /**
+     * ContentController constructor.
+     * @param $logger
+     * @param $contentService
+     */
+    public function __construct(LoggerInterface $logger, ContentService $contentService)
     {
         $this->logger = $logger;
-        $this->nav = $nav;
+        $this->contentService = $contentService;
     }
 
-    private function handleForm(?NavigationNode $current, Request $request)
+    /**
+     * @Route("", name="", methods={"GET"})
+     */
+    public function index()
     {
-        if (empty($current))
-            return null;
+        $content = $this->contentService->getAll();
+        ksort($content);
 
-        $form = $this->createForm(NavigationNodeType::class, $current);
+        return $this->render('admin/content/index.html.twig', [
+            'content' => $content
+        ]);
+    }
+
+    /**
+     * @Route("/edit/{id}", name="_edit", methods={"GET","POST"})
+     * @ParamConverter()
+     */
+    public function edit(Request $request, Content $content)
+    {
+        $form = $this->createForm(ContentType::class, $content);
 
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
-            $em = $this->getDoctrine()->getManager();
-            $em->persist($form->getData());
-            $em->flush();
+            $this->contentService->save($form->getData());
+            return $this->redirectToRoute("admin_content");
         }
 
-        return $form;
-    }
-
-    /**
-     * @param NavigationNode|null $current
-     * @param Request $request
-     * @return int|null Returns null when no action to be done, the node id to redirect to or -1 to redirect without target.
-     */
-    private function handleAction(?NavigationNode $current, Request $request)
-    {
-        $action = $request->get('action');
-        $type = $request->get('type');
-
-        if (empty($action) || empty($current))
-            return null;
-
-        switch (strtoupper($action)) {
-            case 'UP':
-                $this->nav->moveNode($current, true);
-                return $current->getId();
-            case 'DOWN':
-                $this->nav->moveNode($current, false);
-                return $current->getId();
-            case 'DELETE':
-                $this->nav->removeNode($current);
-                return -1;
-            case 'ADD':
-                return $this->nav->newNode($current, $type)->getId();
-            default:
-                return $current->getId();
-        }
-    }
-
-    /**
-     * @Route("", name="")
-     */
-    public function index(Request $request, NavigationRepository $navigationRepository) {
-
-        $id = $request->get('id');
-
-        $current = null;
-        if ($id) {
-            $current = $navigationRepository->find($id);
-        }
-
-        $target = $this->handleAction($current, $request);
-        if (!empty($target)) {
-            return $this->redirectToRoute(
-                "admin_content",
-                $target < 0 ? [] : ['id' => $target]
-            );
-        }
-
-        $form = $this->handleForm($current, $request);
-
-        $navigationRepository->clear();
-        $main = $navigationRepository->getRootChildren();
-
-        $view = null;
-        if ($form)
-            $view = $form->createView();
-
-        return $this->render("admin/content/index.html.twig", [
-            'tree' => $main,
-            'node' => $current,
-            'form' => $view
+        return $this->render("admin/content/edit.html.twig", [
+            'form' => $form->createView(),
+            'csrf_token_delete' => self::CSRF_TOKEN_DELETE,
         ]);
+    }
+
+    /**
+     * @Route("/new", name="_new", methods={"GET","POST"})
+     */
+    public function new(Request $request)
+    {
+        $form = $this->createForm(ContentType::class);
+
+        $form->handleRequest($request);
+        if ($form->isSubmitted() && $form->isValid()) {
+            $this->contentService->save($form->getData());
+            return $this->redirectToRoute("admin_content");
+        }
+
+        return $this->render("admin/content/edit.html.twig", [
+            'form' => $form->createView()
+        ]);
+    }
+
+    /**
+     * @Route("/delete/{id}", name="_delete")
+     * @ParamConverter()
+     */
+    public function delete(Request $request, Content $content) {
+        $token = $request->request->get('_token');
+        if(!$this->isCsrfTokenValid(self::CSRF_TOKEN_DELETE, $token)) {
+            $this->addFlash('error', 'The CSRF token is invalid.');
+        } else {
+            try {
+                $this->contentService->delete($content);
+            } catch (ServiceException $e) {
+                switch ($e->getCause()) {
+                    case ServiceException::CAUSE_IN_USE:
+                        $this->addFlash('danger', 'Konnte Content nicht löschen, da in Verwendung.');
+                        break;
+                    case ServiceException::CAUSE_DONT_EXIST:
+                        $this->addFlash('warning', 'Content nicht gefunden.');
+                        break;
+                }
+            }
+        }
+        return $this->redirectToRoute("admin_content");
     }
 }

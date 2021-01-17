@@ -44,7 +44,6 @@ class AdminClanEditType extends AbstractType
                 'mapped' => false,
                 'multiple' => true
             ])
-            ->add('save', SubmitType::class, ['label' => 'Speichern'])
 
         ;
     }

@@ -14,13 +14,25 @@
 
 
 {% block main %}
+    {% set cnt = news | length %}
+
     <div class="container pt-4">
-        <div class="row row-cols-1 row-cols-md-2">
-            {% for entry in news %}
-                <div class="col mb-5">
-                    {% include 'site/components/cards/cardContent.html.twig' with {'content': entry, 'link': path('news', {'id' : entry.id})} %}
-                </div>
-            {% endfor %}
+        <div id="news" class="row row-cols-1 row-cols-md-2" data-offset="{{ cnt }}" data-total="{{ news_total_cnt }}">
+            {% include 'site/news/_cards.html.twig' %}
         </div>
     </div>
+
+    <div class="text-center mb-4 mt-0">
+        {% set noMore = cnt >= news_total_cnt %}
+        <button id="loadMore" class="btn btn-outline-secondary" {% if noMore %} style="display: none;"{% endif %}>Mehr News</button>
+        <span id="noMore" class="text-muted" {% if not noMore %} style="display: none;"{% endif %}>Keine weiteren News</span>
+        <div id="spinner" class="spinner-grow" role="status" style="display: none;">
+            <span class="sr-only">Loading...</span>
+        </div>
+    </div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    {{ encore_entry_script_tags('news') }}
 {% endblock %}

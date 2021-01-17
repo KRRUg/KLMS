@@ -38,7 +38,7 @@ class PermissionController extends BaseController
         });
 
         if ($request->getRequestFormat() === 'json') {
-            return $this->createApiResponse(
+            return $this->apiResponse(
                 array_values($local_admins)
             );
         } else {
@@ -65,7 +65,7 @@ class PermissionController extends BaseController
         $form->submit($data[$form->getName()]);
         if (!$form->isValid()) {
             $errors = $this->getErrorsFromForm($form);
-            return $this->createApiResponse([
+            return $this->apiResponse([
                 'errors' => $errors
             ], 400);
         }
@@ -75,7 +75,7 @@ class PermissionController extends BaseController
             $form->get('perm')->addError(new FormError("Invalide Berechtigungen gesetzt"));
         }
 
-        return $this->createApiResponse([]);
+        return $this->apiResponse([]);
     }
 
     /**
@@ -84,13 +84,13 @@ class PermissionController extends BaseController
     public function getPermission(Request $request, $id)
     {
         // TODO param converter for user id to userInfos
-        $user = $this->userService->getUserInfosByUuid([$id])[0];
+        $user = $this->userService->getUserInfoByUuid($id);
         if (empty($user)) {
-            return $this->createApiResponse([], 404);
+            return $this->apiResponse([], 404);
         }
 
         $perm = $this->permissionService->getPermissions($user);
-        return $this->createApiResponse(['user' => $user, 'perm' => $perm]);
+        return $this->apiResponse(['user' => $user, 'perm' => $perm]);
     }
 
     /**
@@ -99,10 +99,10 @@ class PermissionController extends BaseController
     public function updatePermission(Request $request, $id)
     {
         // TODO param converter for user id to userInfos
-        $user = $this->userService->getUserInfosByUuid([$id])[0];
+        $user = $this->userService->getUserInfoByUuid($id);
 
         if (empty($user)) {
-            return $this->createApiResponse([], 404);
+            return $this->apiResponse([], 404);
         }
 
         $data = json_decode($request->getContent(), true);
@@ -115,7 +115,7 @@ class PermissionController extends BaseController
         if (!$form->isValid()) {
             $errors = $this->getErrorsFromForm($form);
 
-            return $this->createApiResponse([
+            return $this->apiResponse([
                 'errors' => $errors
             ], 400);
         }
@@ -128,11 +128,11 @@ class PermissionController extends BaseController
         if (!$form->isValid()){
             $errors = $this->getErrorsFromForm($form);
 
-            return $this->createApiResponse([
+            return $this->apiResponse([
                 'errors' => $errors
             ], 400);
         }
 
-        return $this->createApiResponse([]);
+        return $this->apiResponse([]);
     }
 }

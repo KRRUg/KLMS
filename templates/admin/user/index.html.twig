@@ -1,27 +1,52 @@
 {% extends 'admin/adminBase.html.twig' %}
 
-{% block title %}KLMS - Admin{% endblock %}
-{% block siteheading %}<i class="far fa-file-alt"></i> User{% endblock %}
+{% block title %}User - KLMS - Admin{% endblock %}
+{% block siteheading %}<i class="fas fa-user"></i> User{% endblock %}
 {% block main %}
     <div class="row">
         <div class="col-12">
             <div class="card">
-                <table class="table table-striped">
-                    <tr>
-                        <th>Nickname</th>
-                    </tr>
-                    {% for  user in users.items %}
+                <table id="UserTable" class="table table-striped admin-data-table">
+                    <thead>
                         <tr>
-                            <td>{{ user.nickname }}</td>
-                            <td>
-                                <a href="{{ path('admin_user_show', {'uuid' : user.uuid}) }}">anzeigen</a>
-                                <a href="{{ path('admin_user_edit', {'uuid' : user.uuid}) }}">editieren</a>
-                            </td>
+                            <th class="text-nowrap">KLMS-ID</th>
+                            <th>Nickname</th>
+                            <th>Vorname</th>
+                            <th>Nachname</th>
+                            <th data-orderable="false" data-searchable="false">Aktionen</th>
                         </tr>
-                    {% endfor %}
+                    </thead>
+                    <tbody>
+                        {% for  user in users.items %}
+                            <tr>
+                                <td class="w-1">
+                                    {{ user.id }}
+                                </td>
+                                <td class="w-25">
+                                    <a data-toggle="ajaxModal" href="{{ path('admin_user_show', {'uuid' : user.uuid}) }}">
+                                        {{ user.nickname }}
+                                    </a>
+                                </td>
+                                <td class="w-25">
+                                    {{ user.firstname }}
+                                </td>
+                                <td class="w-25">
+                                    {{ user.surname }}
+                                </td>
+                                <td class="text-nowrap w-1">
+                                    <a class="btn btn-outline-dark" href="{{ path('admin_user_edit', {'uuid' : user.uuid}) }}" title="{{ user.nickname }} bearbeiten">
+                                        <i class="fas fa-edit"></i> bearbeiten
+                                    </a>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
                 </table>
             </div>
         </div>
     </div>
 {% endblock %}
 
+{% block javascripts %}
+    {{ parent() }}
+{% endblock %}

@@ -60,13 +60,15 @@ class LoginFormAuthenticator extends AbstractFormLoginAuthenticator
             throw new InvalidCsrfTokenException();
         }
 
-        // Load / create our user however you need.
-        // You can do this by calling the user provider, or with custom logic here.
-        $user = $userProvider->loadUserByUsername($credentials['username']);
+        if(filter_var($credentials['username'], FILTER_VALIDATE_EMAIL)) {
+            $user = $userProvider->loadUserByUsername($credentials['username']);
+        } else {
+            throw new CustomUserMessageAuthenticationException('Es wurde keine gültige E-Mail Adresse angegeben!');
+        }
 
         if (empty($user)) {
             // fail authentication with a custom error
-            throw new CustomUserMessageAuthenticationException('Username could not be found.');
+            throw new CustomUserMessageAuthenticationException('E-Mail Adresse oder Kennwort falsch');
         }
 
         return $user;
@@ -81,12 +83,14 @@ class LoginFormAuthenticator extends AbstractFormLoginAuthenticator
 
     public function onAuthenticationSuccess(Request $request, TokenInterface $token, $providerKey)
     {
+        //Redirect back after Forced Login (Opening Page that you have no Access to)
         if ($targetPath = $this->getTargetPath($request->getSession(), $providerKey)) {
             return new RedirectResponse($targetPath);
         }
 
-        if (in_array("ROLE_ADMIN", $token->getRoleNames())) {
-            return new RedirectResponse("/admin");
+        //Redirect back when logging in via the Dropdown Login
+        if ($targetPath = $request->request->get('_target_path')) {
+            return new RedirectResponse($targetPath);
         }
 
         return new RedirectResponse("/");

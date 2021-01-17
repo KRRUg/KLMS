@@ -1,0 +1,42 @@
+{% extends 'admin/adminBase.html.twig' %}
+
+{% block title %}KLMS - Admin{% endblock %}
+{% block siteheading %}<i class="fas fa-map-signs"></i> Navigation <span class="text-primary">{{ navMenu.name }}</span>{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    {{ encore_entry_script_tags('navigation') }}
+{% endblock %}
+
+{% block main %}
+    {% set root = nav.renderNav(navMenu) %}
+
+    <div class="row mb-4">
+        <div class="col-12">
+            <a class="btn btn-success" id="new" href="#addNavItemModal" class="addNavTreeEntry" data-toggle="modal" data-target="#addNavItemModal"><i class="fas fa-plus"></i> Eintrag hinzufügen</a>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col mb-4">
+            <div class="card">
+                <div class="card-body">
+                    {% if root is not empty %}
+                        <ul id="navTree" class="navigationTree list-group list-group-hover" data-source-input="#form_navigation" data-max-depth="{{ navMenu.maxDepth }}">
+                        </ul>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    <hr>
+    {{ form_start(form, {'attr': {'id': 'nav_edit_form'}}) }}
+    <div class="float-right">
+        {{ form_row(form.navigation) }}
+        
+        <a class="btn btn-secondary" href="{{ path('admin_navigation') }}">Abbrechen</a>
+        <button type="submit" id="news_save" class="btn-primary btn">Speichern</button>
+    </div>
+    {{ form_end(form) }}
+    
+    {% include 'admin/navigation/_addModal.html.twig' %}
+{% endblock %}

@@ -120,9 +120,6 @@
             "./.php_cs.dist"
         ]
     },
-    "guzzlehttp/guzzle": {
-        "version": "6.5.5"
-    },
     "guzzlehttp/promises": {
         "version": "v1.3.1"
     },
@@ -132,11 +129,17 @@
     "http-interop/http-factory-guzzle": {
         "version": "1.0.0"
     },
+    "imagine/imagine": {
+        "version": "1.2.4"
+    },
     "jean85/pretty-package-versions": {
         "version": "1.2"
     },
     "jms/metadata": {
         "version": "2.1.0"
+    },
+    "joshtronic/php-loremipsum": {
+        "version": "1.0.6"
     },
     "laminas/laminas-code": {
         "version": "3.4.1"
@@ -146,6 +149,19 @@
     },
     "laminas/laminas-zendframework-bridge": {
         "version": "1.0.1"
+    },
+    "liip/imagine-bundle": {
+        "version": "1.8",
+        "recipe": {
+            "repo": "github.com/symfony/recipes-contrib",
+            "branch": "master",
+            "version": "1.8",
+            "ref": "5a5bdc2d0e2533ed6935d5ae562f2b318a8fc1ee"
+        },
+        "files": [
+            "./config/packages/liip_imagine.yaml",
+            "./config/routes/liip_imagine.yaml"
+        ]
     },
     "monolog/monolog": {
         "version": "1.25.3"
@@ -182,9 +198,6 @@
     },
     "php-http/discovery": {
         "version": "1.8.0"
-    },
-    "php-http/guzzle6-adapter": {
-        "version": "v2.0.1"
     },
     "php-http/httplug": {
         "version": "2.1.0"
@@ -310,6 +323,9 @@
     "symfony/dependency-injection": {
         "version": "v4.4.4"
     },
+    "symfony/deprecation-contracts": {
+        "version": "v2.2.0"
+    },
     "symfony/doctrine-bridge": {
         "version": "v4.4.4"
     },
@@ -404,6 +420,18 @@
             "version": "1.0",
             "ref": "fadbfe33303a76e25cb63401050439aa9b1a9c7f"
         }
+    },
+    "symfony/messenger": {
+        "version": "4.3",
+        "recipe": {
+            "repo": "github.com/symfony/recipes",
+            "branch": "master",
+            "version": "4.3",
+            "ref": "e9a414b113ceadbf4e52abe37bf8f1b443f06ccb"
+        },
+        "files": [
+            "./config/packages/messenger.yaml"
+        ]
     },
     "symfony/mime": {
         "version": "v4.4.4"
@@ -520,6 +548,9 @@
     "symfony/string": {
         "version": "v5.0.5"
     },
+    "symfony/templating": {
+        "version": "v4.4.16"
+    },
     "symfony/translation-contracts": {
         "version": "v2.0.1"
     },
@@ -600,6 +631,9 @@
     },
     "twig/extra-bundle": {
         "version": "v3.0.3"
+    },
+    "twig/string-extra": {
+        "version": "v3.1.1"
     },
     "twig/twig": {
         "version": "v3.0.3"

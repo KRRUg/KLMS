@@ -1,0 +1,21 @@
+{% set id = id | default('form_modal') %}
+{% embed "admin/components/modals/skeleton.html.twig" %}
+    {% block modalContentPrepend %}
+        {{ form_start(form) }}
+    {% endblock %}
+
+    {% block modalBody %}
+        {% block modalForm %}
+            {{ form_rest(form) }}
+        {% endblock %}
+    {% endblock %}
+
+    {% block modalFooter %}
+        <button type="reset" class="btn-secondary btn" data-dismiss="modal">{{ button_cancel | default('Abbrechen') }}</button>
+        <button type="submit" class="btn-primary btn">{{ button_save | default('Speichern') }}</button>
+    {% endblock %}
+
+    {% block modalContentAppend %}
+        {{ form_end(form) }}
+    {% endblock %}
+{% endembed %}

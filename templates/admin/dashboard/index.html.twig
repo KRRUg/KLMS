@@ -3,36 +3,81 @@
 {% block title %}KLMS - Admin{% endblock %}
 {% block siteheading %}<i class="fas fa-home"></i> Dashboard{% endblock %}
 {% block main %}
-    <div class="row row-cols-1 row-cols-md-2">
-        {% if is_granted('ROLE_ADMIN_NEWS') %}
+    {% if is_granted('ROLE_ADMIN_NEWS') or is_granted('ROLE_ADMIN_CONTENT') %}
+        <h5><i class="far fa-file-alt"></i> Inhalt</h5>
+        <hr>
+        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 row-cols-xl-4">
+            {% if is_granted('ROLE_ADMIN_NEWS') %}
+                <div class="col mb-4">
+                    <a class="card" href="{{ path('admin_news') }}">
+                        <div class="card-body text-center">
+                            <h3><i class="far fa-newspaper"></i></h3>
+                            News
+                        </div>
+                    </a>
+                </div>
+            {% endif %}
+            {% if is_granted('ROLE_ADMIN_CONTENT') %}
+                <div class="col mb-4">
+                    <a class="card" href="{{ path('admin_content') }}">
+                        <div class="card-body text-center">
+                            <h3><i class="far fa-file-alt"></i></h3>
+                            Content 
+                        </div>
+                    </a>
+                </div>
+                <div class="col mb-4">
+                    <a class="card" href="{{ path('admin_media') }}">
+                        <div class="card-body text-center">
+                            <h3><i class="far fa-file-image"></i></h3>
+                            Media 
+                        </div>  
+                    </a>
+                </div>
+                <div class="col mb-4">
+                    <a class="card" href="{{ path('admin_navigation') }}">
+                        <div class="card-body text-center">
+                            <h3><i class="fas fa-map-signs"></i></h3>
+                            Navigation 
+                        </div>  
+                    </a>
+                </div>
+                <div class="col mb-4">
+                    <a class="card" href="{{ path('admin_textblock') }}">
+                        <div class="card-body text-center">
+                            <h3><i class="fas fa-th-large"></i></h3>
+                            Textblöcke 
+                        </div>  
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+    {% endif %}
+
+    {% if is_granted('ROLE_ADMIN_USER') %}
+        <h5 class="mt-4"><i class="fas fa-user-friends"></i> Community</h5>
+        <hr>
+        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 row-cols-xl-4">
             <div class="col mb-4">
-                <a  href="{{ path('admin_news') }}" class="card">
+                <a class="card" href="{{ path('admin_user') }}">
                     <div class="card-body text-center">
-                        <h3><i class="far fa-newspaper"></i></h3>
-                        News
-                    </div>
+                        <h3><i class="fas fa-user"></i></h3>
+                        User </div>  
                 </a>
             </div>
-        {% endif %}
-        {% if is_granted('ROLE_ADMIN_CONTENT') %}
             <div class="col mb-4">
-                <a href="{{ path('admin_content') }}" class="card">
+                <a class="card" href="{{ path('admin_clan') }}">
                     <div class="card-body text-center">
-                        <h3><i class="far fa-file-alt"></i></h3>
-                        Content
-                    </div>
+                        <h3><i class="fas fa-users"></i></h3>
+                        Clan </div>  
                 </a>
             </div>
-            <div class="col mb-4">    
-                <a href="{{ path('admin_textblock') }}" class="card">
-                    <div class="card-body text-center">
-                        <h3><i class="far fa-file-alt"></i></h3>
-                        Textblöcke
-                    </div>
-                </a>
-            </div>
-        {% endif %}
-        {% if is_granted('ROLE_ADMIN_SUPER') %}
+        </div>
+    {% endif %}
+    {% if is_granted('ROLE_ADMIN_SUPER') %}
+        <h5 class="mt-4"><i class="fas fa-cogs"></i> Einstellungen</h5>
+        <hr>
+        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 row-cols-xl-4">
             <div class="col mb-4">
                 <a  href="{{ path('admin_permission') }}" class="card">
                     <div class="card-body text-center">
@@ -41,6 +86,6 @@
                     </div>
                 </a>
             </div>
-        {% endif %}
-    </div>
+        </div>
+    {% endif %}
 {% endblock %}

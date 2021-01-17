@@ -1,0 +1,84 @@
+{% extends 'admin/adminBase.html.twig' %}
+
+{% block title %}KLMS - Admin{% endblock %}
+{% block siteheading %}<i class="far fa-file-image"></i> Media{% endblock %}
+{% block javascripts %}
+    {{ parent() }}
+    {{ encore_entry_script_tags('media') }}
+{% endblock %}
+{% block main %}
+    <div class="row">
+        <div class="col mb-3">
+            <button type="button" class="btn btn-success" data-toggle="modal" data-target="#uploadModal">
+                <i class="fas fa-plus"></i> Upload</a>
+            </button>
+        </div>
+        <div class="col-md-auto mb-3">
+            <div class="input-group">
+                <div class="input-group-prepend">
+                    <div class="input-group-text"><i class="fa fa-filter"></i></div>
+                </div>
+                <select id="filterSelect" class="mr-3">
+                    <option value="all">Alles</option>
+                    <option value="image">Bilder</option>
+                    <option value="application">Dokumente</option>
+                </select>
+            </div>
+        </div>
+        <div class="col-md-auto mb-3">
+            <div class="input-group">
+                <div class="input-group-prepend">
+                    <div class="input-group-text"><i class="fa fa-search"></i></div>
+                </div>
+                <input id="searchInput" type="text"/>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="border overflow-auto h-100 w-100">
+            <div id="mediaList" class="row m-2">
+                {% if media is empty %}
+                    <p class="text-muted text-center w-100 no-highlight">Keine Medien hochgeladen.</p>
+                {% else %}
+                    {% for i in media %}
+                        <div class="card mr-2 mb-2 to-hover" style="width: 250px;"
+                             data-id="{{ i.id }}"
+                             data-name="{{ i.displayName }}"
+                             data-mime-type="{{ i.mimeType }}"
+                             >
+                            {% if i.isImage() %}
+                                <a class="card-img-top border-bottom" style="height: 200px" href="{{ vich_uploader_asset(i, 'mediaFile')}}" data-lightbox="media_image">
+                                    <img class="h-100 w-100 p-1" style="object-fit: contain;"
+                                         src="{{ vich_uploader_asset(i, 'mediaFile') | imagine_filter('thumbnail_small') }}"
+                                         alt="{{ i.displayName }}"
+                                         >
+                                </a>
+                            {% else %}
+                                <div class="card-img-top border-bottom" style="height: 200px">
+                                    {% set icon = i.mimeType == "application/pdf" ? "fa-file-pdf" : (i.mimeType == 'application/zip' ? "fa-file-archive" : "fa-file") %}
+                                    <div class="h-100 w-100 d-flex align-items-center justify-content-center">
+                                        <i class="far {{ icon }} fa-6x text-black-50"></i>
+                                    </div>
+                                </div>s
+                            {% endif %}
+
+                            <div class="card-img-btn-bar">
+                                <form data-toggle="confirmModal" method="post" action="{{ path('admin_media_delete', {'id' : i.id}) }}" class="d-inline-block">
+                                    <input type="hidden" name="_token" value="{{ csrf_token(csrf_token_delete) }}">
+                                    <button class="btn btn-outline-danger" type="submit" value="delete" title="Media Item löschen?"><i class="fas fa-trash-alt fa-fw"></i></button>
+                                </form>
+                                <!--<a class="btn btn-secondary" href="{{ path('media', {'name' : i.displayName} ) }}"><i class="fas fa-eye fa-fw"></i></a>-->
+                            </div>
+                            <div class="card-body p-2 text-muted text-truncate text-center">
+                                <span>{{ i.displayName }}</span>
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    {% include 'admin/components/modals/form.html.twig' with {'id': 'uploadModal', 'button_save': 'Upload', 'title': 'Upload', 'form': form_upload} %}
+
+{% endblock %}

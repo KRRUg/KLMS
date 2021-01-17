@@ -20,62 +20,20 @@ class ContentRepository extends ServiceEntityRepository
     }
 
     /**
-     * @return Content[] Returns an array of Content objects that are active
-     * @throws \Exception
+     * @param string $alias Alias to search for
+     * @return Content|null
      */
-    public function findActive()
+    public function findByAlias(string $alias)
     {
-        return $this->createQueryBuilder('n')
-            ->andWhere('n.publishedTo >= :now')
-            ->andWhere('n.publishedFrom <= :now')
-            ->setParameter('now', new \DateTime('now'))
-            ->orderBy('n.publishedFrom')
-            ->getQuery()
-            ->getResult()
-        ;
+        return $this->findOneBy(['alias' => $alias]);
     }
 
     /**
-     * @param $alias Alias to search for
-     * @return mixed
-     * @throws \Doctrine\ORM\NonUniqueResultException
+     * @param int $id Id to look for
+     * @return Content|null
      */
-    public function findByAlias($alias)
+    public function findById(int $id)
     {
-        return $this->createQueryBuilder('n')
-            ->andWhere('n.alias = :alias')
-            ->setParameter('alias', $alias)
-            ->getQuery()
-            ->getOneOrNullResult()
-            ;
+        return $this->findOneBy(['id' => $id]);
     }
-
-    // /**
-    //  * @return NewsEntry[] Returns an array of NewsEntry objects
-    //  */
-    /*
-    public function findByExampleField($value)
-    {
-        return $this->createQueryBuilder('n')
-            ->andWhere('n.exampleField = :val')
-            ->setParameter('val', $value)
-            ->orderBy('n.id', 'ASC')
-            ->setMaxResults(10)
-            ->getQuery()
-            ->getResult()
-        ;
-    }
-    */
-
-    /*
-    public function findOneBySomeField($value): ?NewsEntry
-    {
-        return $this->createQueryBuilder('n')
-            ->andWhere('n.exampleField = :val')
-            ->setParameter('val', $value)
-            ->getQuery()
-            ->getOneOrNullResult()
-        ;
-    }
-    */
 }

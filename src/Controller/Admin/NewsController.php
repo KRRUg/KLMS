@@ -4,7 +4,7 @@ namespace App\Controller\Admin;
 
 use App\Entity\News;
 use App\Form\NewsType;
-use App\Repository\NewsRepository;
+use App\Service\NewsService;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -17,13 +17,25 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
  */
 class NewsController extends AbstractController
 {
+    private const CSRF_TOKEN_DELETE = "newsDeleteToken";
+
+    private $newsService;
+
+    /**
+     * NewsController constructor.
+     * @param $newsService
+     */
+    public function __construct(NewsService $newsService)
+    {
+        $this->newsService = $newsService;
+    }
+
     /**
      * @Route("", name="")
      */
-    public function index(NewsRepository $newsEntryRepository) {
-        $news = $newsEntryRepository->findAll();
+    public function index() {
+        $news = $this->newsService->getAll();
         return $this->render("admin/news/index.html.twig", [
-            'type' => 'News',
             'news' => $news
         ]);
     }
@@ -32,23 +44,16 @@ class NewsController extends AbstractController
      * @Route("/new", name="_new")
      */
     public function new(Request $request) {
-        $news = new News();
-        $form = $this->createForm(NewsType::class, $news);
+        $form = $this->createForm(NewsType::class);
 
         $form->handleRequest($request);
-
         if ($form->isSubmitted() && $form->isValid()) {
-            $news = $form->getData();
-            $em = $this->getDoctrine()->getManager();
-            $em->persist($news);
-            $em->flush();
+            $this->newsService->save($form->getData());
             return $this->redirectToRoute("admin_news");
         }
 
-        return $this->render("admin/news/new.html.twig", [
-            'type' => 'News',
-            'method' => 'Neu',
-            'form' => $form->createView()
+        return $this->render("admin/news/edit.html.twig", [
+            'form' => $form->createView(),
         ]);
     }
 
@@ -56,10 +61,14 @@ class NewsController extends AbstractController
      * @Route("/delete/{id}", name="_delete")
      * @ParamConverter()
      */
-    public function delete(News $news) {
-        $em = $this->getDoctrine()->getManager();
-        $em->remove($news);
-        $em->flush();
+    public function delete(Request $request, News $news) {
+        $token = $request->request->get('_token');
+        if(!$this->isCsrfTokenValid(self::CSRF_TOKEN_DELETE, $token)) {
+            $this->addFlash('error', 'The CSRF token is invalid.');
+        } else {
+            $this->newsService->delete($news);
+            $this->addFlash('success', "Erfolgreich gelöscht!");
+        }
         return $this->redirectToRoute("admin_news");
     }
 
@@ -67,23 +76,18 @@ class NewsController extends AbstractController
      * @Route("/edit/{id}", name="_edit")
      * @ParamConverter()
      */
-    public function edit(News $news, Request $request) {
+    public function edit(Request $request, News $news) {
         $form = $this->createForm(NewsType::class, $news);
 
         $form->handleRequest($request);
-
         if ($form->isSubmitted() && $form->isValid()) {
-            $news = $form->getData();
-            $em = $this->getDoctrine()->getManager();
-            $em->persist($news);
-            $em->flush();
+            $this->newsService->save($form->getData());
             return $this->redirectToRoute("admin_news");
         }
 
-        return $this->render("admin/news/new.html.twig", [
-            'type' => 'News',
-            'method' => 'Update',
-            'form' => $form->createView()
+        return $this->render("admin/news/edit.html.twig", [
+            'form' => $form->createView(),
+            'csrf_token_delete' => self::CSRF_TOKEN_DELETE,
         ]);
     }
 }

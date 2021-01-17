@@ -1,0 +1,38 @@
+# See dos how to configure the bundle: https://symfony.com/doc/current/bundles/LiipImagineBundle/basic-usage.html
+liip_imagine:
+    # valid drivers options include "gd" or "gmagick" or "imagick"
+    driver: "gd"
+
+    resolvers:
+        default:
+            web_path:
+                cache_prefix: cache
+
+    filter_sets:
+        cache: ~
+
+        thumbnail_small:
+            filters:
+                thumbnail:
+                    size: [ 200, 200 ]
+                    mode: inset
+                    allow_upscale: true
+
+        thumbnail_big:
+            filters:
+                thumbnail:
+                    size: [ 400, 400 ]
+                    mode: inset
+                    allow_upscale: true
+
+        card_img:
+            filters:
+                fixed:
+                    width: 600
+                    height: 240
+
+        news_header:
+            filters:
+                fixed:
+                    width: 1800
+                    height: 720

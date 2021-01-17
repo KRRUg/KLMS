@@ -152,7 +152,7 @@ $.extend(EditModal.prototype, {
                 this._mapJsonToForm(data);
                 this.$modal.removeClass('invisible');
             }).catch(() => {
-                console.error('ajax requst problem')
+                console.error('ajax requst problem');
             });
     },
 

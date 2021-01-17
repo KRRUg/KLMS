@@ -3,44 +3,46 @@
 {% block title %}Clan bearbeiten{% endblock %}
 
 {% block main %}
-    {% embed "site/components/cards/skeletons/cardProfile.html.twig"  with {'cardSymbole': 'fas fa-users fa-6x'} %}
-        {% block cardBody %}
-            <h1 class="h3 card-title mb-4">Clan bearbeiten</h1>
-            {{ form(form) }}
+    <div class="container">
+        {% embed "site/components/cards/skeletons/cardProfile.html.twig"  with {'cardSymbole': 'fas fa-users fa-6x'} %}
+            {% block cardBody %}
+                <h1 class="h3 card-title mb-4">Clan bearbeiten</h1>
+                {{ form(form) }}
 
-            <h1>Users</h1>
-            <table class="table table-striped table-hover">
-                <thead>
-                    <tr>
-                        <td>User</td>
-                        <td>Rang</td>
-                        <td>Aktionen</td>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for user in clan.users %}
+                <h1>Users</h1>
+                <table class="table table-striped table-hover">
+                    <thead>
                         <tr>
-                            <td>
-                                <a href="{{ path('user_show', {'uuid' : user.user.uuid}) }}">{{ user.user.nickname }}</a>
-                            </td>
-                            <td>
-                                {% if user.admin %}
-                                    Admin
-                                {% else %}
-                                    Mitglied
-                                {% endif %}
-                            </td>
-                            <td>
-                                {# TODO: move to AJAX #}
-                                <form action="{{ path('clan_member_remove', {'uuid' : clan.uuid}) }}" method="post">
-                                    <input type="hidden" name="user_uuid" value="{{ user.user.uuid }}" />
-                                    <input type="submit" value="Kicken" />
-                                </form>
-                            </td>
+                            <td>User</td>
+                            <td>Rang</td>
+                            <td>Aktionen</td>
                         </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        {% endblock %}
-    {% endembed  %}
+                    </thead>
+                    <tbody>
+                        {% for user in clan.users %}
+                            <tr>
+                                <td>
+                                    <a href="{{ path('user_show', {'uuid' : user.user.uuid}) }}">{{ user.user.nickname }}</a>
+                                </td>
+                                <td>
+                                    {% if user.admin %}
+                                        Admin
+                                    {% else %}
+                                        Mitglied
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {# TODO: move to AJAX #}
+                                    <form action="{{ path('clan_member_remove', {'uuid' : clan.uuid}) }}" method="post">
+                                        <input type="hidden" name="user_uuid" value="{{ user.user.uuid }}" />
+                                        <input type="submit" value="Kicken" />
+                                    </form>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% endblock %}
+        {% endembed  %}
+    </div>
 {% endblock %}

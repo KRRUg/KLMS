@@ -4,6 +4,7 @@ namespace App\Controller\Site;
 
 use App\Form\UserEditType;
 use App\Form\UserRegisterType;
+use App\Security\LoginFormAuthenticator;
 use App\Security\User;
 use App\Service\UserService;
 use Psr\Log\LoggerInterface;
@@ -11,8 +12,9 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\FormError;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Session\Flash\FlashBagInterface;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Security\Core\User\UserProviderInterface;
+use Symfony\Component\Security\Guard\GuardAuthenticatorHandler;
 
 class UserController extends AbstractController
 {
@@ -64,7 +66,7 @@ class UserController extends AbstractController
     /**
      * @Route("/user/profile/edit", name="user_profile_edit")
      */
-    public function userProfileEdit(Request $request, FlashBagInterface $flashBag)
+    public function userProfileEdit(Request $request)
     {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
 
@@ -91,12 +93,9 @@ class UserController extends AbstractController
                 ]);
             }
             if($this->userService->editUser($userform)) {
-
                 return $this->redirectToRoute('user_profile');
             } else {
-
-                $flashBag->add('error', 'Es ist ein unerwarteter Fehler aufgetreten');
-
+                $this->addFlash('error', 'Es ist ein unerwarteter Fehler aufgetreten');
                 return $this->redirectToRoute('user_profile_edit');
             }
 
@@ -110,7 +109,7 @@ class UserController extends AbstractController
     /**
      * @Route("/register", name="register")
      */
-    public function register(Request $request, FlashBagInterface $flashBag)
+    public function register(Request $request, LoginFormAuthenticator  $login, GuardAuthenticatorHandler $guard, UserProviderInterface $userProvider)
     {
         if(null !== $this->getUser()) {
             // Redirect to Frontpage if already logged in
@@ -144,11 +143,14 @@ class UserController extends AbstractController
                 //TODO: send the confirmation Email
 
 
-                $flashBag->add('info', 'Erfolgreich registriert!');
+                $this->addFlash('info', 'Erfolgreich registriert!');
 
-                return $this->redirect('/');
+                $loginuser = $userProvider->loadUserByUsername($user['email']);
+
+                return $guard->authenticateUserAndHandleSuccess($loginuser, $request, $login, 'main');
+
             } else {
-                $flashBag->add('error', 'Es ist ein Fehler bei der Registrierung aufgetreten.');
+                $this->addFlash('error', 'Es ist ein Fehler bei der Registrierung aufgetreten.');
 
                 return $this->redirectToRoute('register');
             }
