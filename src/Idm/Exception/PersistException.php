@@ -15,7 +15,6 @@ class PersistException extends \RuntimeException
 
     /**
      * PersistException constructor.
-     * @param object $entity
      */
     public function __construct(object $entity, $code = self::REASON_UNKNOWN, $message = "")
     {

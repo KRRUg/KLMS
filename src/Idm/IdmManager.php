@@ -397,16 +397,14 @@ final class IdmManager
             if (!is_array($array)) {
                 throw new InvalidArgumentException();
             }
-            $new = [];
-            if (!empty($array)) {
-                if($tmp = self::toUuidObjectArray($array, true)) {
-                    $new = LazyLoaderCollection::fromUuidList($this, $ano->getClass(), $tmp);
-                } else {
-                    $new = array_map(function ($a) use ($ano) {
-                        $class = $ano->getClass();
-                        return $this->hydrateObject($a, $class);
-                    }, $array);
-                }
+            if($tmp = self::toUuidObjectArray($array, true)) {
+                $new = LazyLoaderCollection::fromUuidList($this, $ano->getClass(), $tmp);
+            } else {
+                $tmp = array_map(function ($a) use ($ano) {
+                    $class = $ano->getClass();
+                    return $this->hydrateObject($a, $class);
+                }, $array);
+                $new = LazyLoaderCollection::fromObjectList($this, $ano->getClass(), $tmp);
             }
             self::setPrivateField($obj, $field, $new);
         }
@@ -459,14 +457,14 @@ final class IdmManager
         throw new NotImplementedException("Search support is not implemented yet");
     }
 
-    public function find(string $class, array $filter = [], array $sort = [], ?int $page = 0, ?int $limit = null)
+    public function find(string $class, $filter = [], array $sort = [], ?int $page = 0, ?int $limit = null)
     {
         $this->throwOnNotManaged($class);
 
         $query = [];
         if (!empty($filter)) {
             $query['filter'] = $filter;
-            $query['exact'] = 'true';
+            $query['exact'] = is_array($filter) ? 'true' : 'false';
         }
         if (!empty($sort)) {
             $query['sort'] = $sort;

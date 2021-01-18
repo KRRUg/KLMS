@@ -3,8 +3,10 @@
 
 namespace App\Controller\API;
 
-use App\Security\User;
-use App\Service\UserService;
+use App\Entity\Clan;
+use App\Entity\User;
+use App\Idm\IdmManager;
+use App\Idm\IdmRepository;
 use App\Transfer\Error;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -17,11 +19,11 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class UserController extends AbstractController
 {
-    private $userService;
+    private IdmRepository $userRepo;
 
-    public function __construct(UserService $userService)
+    public function __construct(IdmManager $manager)
     {
-        $this->userService = $userService;
+        $this->userRepo = $manager->getRepository(User::class);
     }
 
     /**
@@ -29,32 +31,37 @@ class UserController extends AbstractController
      */
     public function search(Request $request)
     {
-        $search = $request->query->get('q');
+        $search = $request->query->get('q', '');
         $limit = $request->query->getInt('limit', 10);
         $page = $request->query->getInt('page', 1);
-        $fullInfo = $request->query->getBoolean('fullUser', false);
 
-        $ret = $this->userService->queryUsers($search, $page, $limit);
+        $lazyLoadingCollection = $this->userRepo->findFuzzy($search);
+        $items = $lazyLoadingCollection->getPage($page, $limit);
 
-        if (empty($ret)) {
+        if (empty($items)) {
             return new JsonResponse(Error::withMessage("Not Found"), 404);
         }
 
-        if ($fullInfo) {
-            $this->denyAccessUnlessGranted('ROLE_ADMIN');
-        } else {
-            $ret->items = array_map(function (User $user) {
-                return [
-                    'email' => $user->getEmail(),
-                    'nickname' => $user->getNickname(),
-                    'firstname' => $user->getFirstname(),
-                    'surname' => $user->getSurname(),
-                    'uuid' => $user->getUuid(),
-                    // TODO add Names of clans once there is a class
-                ];
-            }, $ret->items);
-        }
+        $result = array();
+        $result['count'] = count($items);
+        $result['total'] = $lazyLoadingCollection->count();
+        $result['items'] = array_map(function (User $user) {
+            return [
+                'uuid' => $user->getUuid(),
+                'email' => $user->getEmail(),
+                'nickname' => $user->getNickname(),
+                'firstname' => $user->getFirstname(),
+                'surname' => $user->getSurname(),
+                'clans' => array_map(function ($clan) {
+                    return [
+                        'uuid' => $clan->getUuid(),
+                        'name' => $clan->getName(),
+                        'clantag' => $clan->getClantag(),
+                    ];
+                }, $user->getClans()->toArray()),
+            ];
+        }, $items);
 
-        return new JsonResponse(json_encode($ret), 200, [], true);
+        return new JsonResponse(json_encode($result), 200, [], true);
     }
 }

@@ -13,16 +13,20 @@ class IdmPagedCollection implements ArrayAccess, Iterator, Countable
 {
     private IdmManager $manager;
 
-    private string $class;
-    private array $filter;
+    /**
+     * @var array|string
+     */
+    private $filter;
     private array $sort;
+    private string $class;
 
     private int $total;
     private int $page_size;
+    private int $position;
 
     private array $items;
 
-    private function __construct(IdmManager $manager, string $class, array $filter, array $sort, int $page_size)
+    private function __construct(IdmManager $manager, string $class, $filter, array $sort, int $page_size)
     {
         $this->manager = $manager;
         $this->class = $class;
@@ -30,9 +34,10 @@ class IdmPagedCollection implements ArrayAccess, Iterator, Countable
         $this->sort = $sort;
         $this->page_size = $page_size;
         $this->items = [];
+        $this->position = 0;
     }
 
-    public static function create(IdmManager $manager, string $class, array $filter = [], array $sort = [], int $page_size = 10): self
+    public static function create(IdmManager $manager, string $class, $filter = [], array $sort = [], int $page_size = 10): self
     {
         $result = new self($manager, $class, $filter, $sort, $page_size);
         $result->request(0);
@@ -42,11 +47,22 @@ class IdmPagedCollection implements ArrayAccess, Iterator, Countable
     private function request(int $offset): void
     {
         $page = intdiv($offset, $this->page_size);
-        $result = $this->manager->find($this->class, $this->filter, $this->sort, $page, $this->page_size);
+        $result = $this->manager->find($this->class, $this->filter, $this->sort, $page + 1, $this->page_size);
         $this->total = $result->total;
         for ($i = 0; $i < $result->count; $i++) {
             $this->items[$page * $this->page_size + $i] = $result->items[$i];
         }
+    }
+
+    public function getPage(int $page, int $limit)
+    {
+        $result = [];
+        for ($i = 0; $i < $limit; $i++) {
+            $val = $this[($page-1) * $limit + $i];
+            if (!empty($val))
+                $result[$i] = $val;
+        }
+        return $result;
     }
 
     public function offsetGet($offset): ?object
@@ -62,7 +78,7 @@ class IdmPagedCollection implements ArrayAccess, Iterator, Countable
 
     public function offsetExists($offset): bool
     {
-        return $offset >= 0 && $offset < $this->total;
+        return is_int($offset) && $offset >= 0 && $offset < $this->total;
     }
 
     public function offsetSet($offset, $value)
@@ -85,26 +101,26 @@ class IdmPagedCollection implements ArrayAccess, Iterator, Countable
 
     public function current()
     {
-        // TODO: Implement current() method.
+        return $this->offsetGet($this->position);
     }
 
     public function next()
     {
-        // TODO: Implement next() method.
+        $this->position++;
     }
 
     public function key()
     {
-        // TODO: Implement key() method.
+        return $this->position;
     }
 
-    public function valid()
+    public function valid(): bool
     {
-        // TODO: Implement valid() method.
+        return $this->offsetExists($this->position);
     }
 
     public function rewind()
     {
-        // TODO: Implement rewind() method.
+        $this->position = 0;
     }
 }

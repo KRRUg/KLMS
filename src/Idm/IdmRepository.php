@@ -49,6 +49,12 @@ class IdmRepository
         return IdmPagedCollection::create($this->manager, $this->class, $filter, $sort);
     }
 
+    public function findFuzzy(string $query, array $sort = [])
+    {
+        $this->checkProperties([], $sort);
+        return IdmPagedCollection::create($this->manager, $this->class, $query, $sort);
+    }
+
     public function findAll()
     {
         return $this->findBy();
