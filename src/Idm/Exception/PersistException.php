@@ -12,6 +12,7 @@ class PersistException extends \RuntimeException
     public const REASON_NOT_FOUND = 4;
 
     protected object $entity;
+    protected string $property;
 
     /**
      * PersistException constructor.

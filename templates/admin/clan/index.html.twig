@@ -37,7 +37,7 @@
                                         
                                     <form data-toggle="confirmModal" method="post" action="{{ path('admin_clan_delete', {'uuid' : clan.uuid}) }}" class="d-inline-block">
                                         <input type="hidden" name="_token" value="{{ csrf_token(csrf_token_delete) }}">
-                                        <button class="btn btn-outline-danger" type="submit" value="löschen"/><i class="fas fa-trash-alt"></i> Löschen</button>
+                                        <button class="btn btn-outline-danger" type="submit" value="löschen"><i class="fas fa-trash-alt"></i> Löschen</button>
                                     </form>
                                 </td>
                             </tr>

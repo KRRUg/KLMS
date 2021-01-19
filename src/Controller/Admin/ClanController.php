@@ -2,13 +2,13 @@
 
 namespace App\Controller\Admin;
 
-use App\Form\Admin\AdminClanEditType;
-use App\Form\ClanCreateType;
-use App\Model\ClanModel;
+use App\Entity\Clan;
+use App\Entity\User;
+use App\Idm\Exception\PersistException;
+use App\Idm\IdmManager;
+use App\Idm\IdmRepository;
 use App\Service\UserService;
-use App\Transfer\ClanCreateTransfer;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\Form\FormError;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -21,7 +21,6 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
  */
 class ClanController extends AbstractController
 {
-    //TODO: Change ClanController and UserService to only require Clan UUID where necessary to reduce IDM Calls
     //TODO: Better Exception/Error Handling see https://github.com/KRRUg/KLMS/blob/feature/admin-mgmt/src/Controller/BaseController.php and Admin/PermissionController.php
     private const CSRF_TOKEN_DELETE = "clanDeleteToken";
     private const CSRF_TOKEN_MEMBER_ADD = "clanMemberAddToken";
@@ -30,11 +29,15 @@ class ClanController extends AbstractController
     /**
      * @var UserService
      */
-    private $userService;
-    
-    public function __construct(UserService $userService)
+    private IdmManager $im;
+    private IdmRepository $clanRepo;
+    private IdmRepository $userRepo;
+
+    public function __construct(IdmManager $manager)
     {
-        $this->userService = $userService;
+        $this->im = $manager;
+        $this->clanRepo = $manager->getRepository(Clan::class);
+        $this->clanRepo = $manager->getRepository(User::class);
     }
 
     /**
@@ -43,7 +46,7 @@ class ClanController extends AbstractController
     public function index()
     {
         //TODO: implement Client Pagination
-        $clans = $this->userService->queryClans(null, null, 999999);
+        $clans = $this->clanRepo->findAll();
         return $this->render('admin/clan/index.html.twig', [
             'clans' => $clans,
             'csrf_token_delete' => self::CSRF_TOKEN_DELETE,
@@ -57,42 +60,27 @@ class ClanController extends AbstractController
      */
     public function create(Request $request)
     {
-        $form = $this->createForm(ClanCreateType::class);
+        $form = $this->createForm(Clan::class);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-
-            // get Data from Form
-
-            /* @var ClanCreateTransfer */
-            $clanform = $form->getData();
-
-            if (!$this->userService->checkClanAvailability($clanform->name, 'clanname')) {
-                $form->get('name')->addError(new FormError('Clanname wird bereits benutzt!'));
-
-                return $this->render('admin/clan/create.html.twig', [
-                    'form' => $form->createView(),
-                ]);
-            }
-
-            if (!$this->userService->checkClanAvailability($clanform->clantag, 'clantag')) {
-                $form->get('clantag')->addError(new FormError('Clantag wird bereits benutzt!'));
-
-                return $this->render('admin/clan/create.html.twig', [
-                    'form' => $form->createView(),
-                ]);
-            }
-
-            $response = $this->userService->createClan($clanform);
-            if ($response) {
+            $clan = $form->getData();
+            try{
+                 $this->im->persist($clan);
+                 $this->im->flush();
 
                 $this->addFlash('success', 'Clan erfolgreich angelegt!');
                 return $this->redirectToRoute('admin_clan');
-            } else {
-                $this->addFlash('error', 'Es ist ein unerwarteter Fehler aufgetreten');
-                return $this->redirectToRoute('admin_clan');
+            } catch (PersistException $e) {
+                switch ($e->getCode()) {
+                    case PersistException::REASON_NON_UNIQUE:
+                        $this->addFlash('error', 'Clanname und/oder Tag ist schon in Verwendung');
+                        break;
+                    default:
+                        $this->addFlash('error', 'Es ist ein unerwarteter Fehler aufgetreten');
+                        break;
+                }
             }
-
         }
 
         return $this->render('admin/clan/create.html.twig', [
@@ -108,50 +96,23 @@ class ClanController extends AbstractController
      */
     public function edit(string $uuid, Request $request)
     {
-        $clan = $this->userService->getClan($uuid, true);
+        $clan = $this->clanRepo->findOneById($uuid);
+        if (is_null($clan)){
+            throw $this->createNotFoundException();
+        }
 
-        $form = $this->createForm(AdminClanEditType::class, $clan);
+        $form = $this->createForm(Clan::class, $clan);
         $form->handleRequest($request);
 
+        // TODO user add and remove
         if ($form->isSubmitted() && $form->isValid()) {
+            $clan = $form->getData();
 
-            // get Data from Form
+            $this->im->persist($clan);
+            $this->im->flush();
 
-            /* @var ClanModel */
-            $clanform = $form->getData();
-
-            if (!$this->userService->checkClanAvailability($clanform->getName(), 'clanname') && $clanform->getName() !== $clan->getName()) {
-                $form->get('name')->addError(new FormError('Clanname wird bereits benutzt!'));
-
-                return $this->render('admin/clan/edit.html.twig', [
-                    'form' => $form->createView(),
-                ]);
-            }
-
-            if (!$this->userService->checkClanAvailability($clanform->getClantag(), 'clantag') && $clanform->getClantag() !== $clan->getClantag()) {
-                $form->get('clantag')->addError(new FormError('Clantag wird bereits benutzt!'));
-
-                return $this->render('admin/clan/edit.html.twig', [
-                    'form' => $form->createView(),
-                ]);
-            }
-
-            foreach ($clanform->getUsers() as $user) {
-                if(in_array($user->getUser()->getUuid(), $form->get('admins')->getData())) {
-                    $user->setAdmin(true);
-                } else {
-                    $user->setAdmin(false);
-                }
-            }
-
-            if ($this->userService->editClan($clanform)) {
-                $this->addFlash('info', 'Clan erfolgreich bearbeitet!');
-                return $this->redirectToRoute('admin_clan');
-            } else {
-                $this->addFlash('error', 'Es ist ein unerwarteter Fehler aufgetreten');
-                return $this->redirectToRoute('admin_clan_edit', ['uuid' => $uuid]);
-            }
-
+            $this->addFlash('info', 'Clan erfolgreich bearbeitet!');
+            return $this->redirectToRoute('admin_clan');
         }
 
         return $this->render('admin/clan/edit.html.twig', [
@@ -169,13 +130,15 @@ class ClanController extends AbstractController
      */
     public function show(string $uuid)
     {
-        $clan = $this->userService->getClan($uuid, true);
+        $clan = $this->clanRepo->findOneById($uuid);
+        if (is_null($clan)){
+            throw $this->createNotFoundException();
+        }
 
         return $this->render('admin/clan/show.html.twig', [
             'clan' => $clan,
         ]);
     }
-
 
     /**
      * @Route("/clan/{uuid}/delete", name="clan_delete", methods={"POST"})
@@ -185,21 +148,22 @@ class ClanController extends AbstractController
      */
     public function delete(string $uuid, Request $request)
     {
+        $clan = $this->clanRepo->findOneById($uuid);
+        if (is_null($clan)){
+            throw $this->createNotFoundException();
+        }
+
         $token = $request->request->get('_token');
         if(!$this->isCsrfTokenValid(self::CSRF_TOKEN_DELETE, $token)) {
             $this->addFlash('error', 'The CSRF token is invalid.');
             return $this->redirectToRoute('admin_clan');
         }
-        
-        $clan = $this->userService->getClan($uuid, true);
 
-        if(!$clan) {
-            return $this->createNotFoundException('Clan not found');
-        }
-
-        if ($this->userService->deleteClan($clan)) {
+        try {
+            $this->im->remove($clan);
+            $this->im->flush();
             $this->addFlash('info', 'Clan erfolgreich gelöscht!');
-        } else {
+        } catch (PersistException $e) {
             $this->addFlash('error', 'Es ist ein unerwarteter Fehler aufgetreten');
         }
 
@@ -220,23 +184,24 @@ class ClanController extends AbstractController
             return $this->redirectToRoute('admin_clan');
         }
 
-        $clan = $this->userService->getClan($uuid, true);
+        $clan = $this->clanRepo->findOneById($uuid);
+        $user = $this->userRepo->findOneById($request->request->get('user_uuid'));
 
-        if(empty($request->request->get('user_uuid'))) {
-            $this->createNotFoundException('No User supplied in POST (user_uuid)');
+        if(empty($clan)) {
+            $this->createNotFoundException();
         }
-
-        $user = $this->userService->getUser($request->request->get('user_uuid'));
-
         if(!$user) {
             $this->createNotFoundException('User supplied in POST not found or invalid');
         }
 
         $nickname = $user->getNickname();
 
-        if ($this->userService->addClanMember($clan, array($user))) {
+        try {
+            $clan->getUsers()[] = $user;
+            $this->im->persist($clan);
+            $this->im->flush();
             $this->addFlash('info', "User {$nickname} erfolgreich zum Clan hinzugefügt!");
-        } else {
+        } catch (PersistException $e) {
             $this->addFlash('error', 'Es ist ein unerwarteter Fehler aufgetreten');
         }
 
@@ -257,27 +222,33 @@ class ClanController extends AbstractController
             return $this->redirectToRoute('admin_clan');
         }
 
-        $clan = $this->userService->getClan($uuid, true);
-
-        if(empty($request->request->get('user_uuid'))) {
-            $this->createNotFoundException('No User supplied in POST (user_uuid)');
+        $token = $request->request->get('_token');
+        if(!$this->isCsrfTokenValid(self::CSRF_TOKEN_MEMBER_ADD, $token)) {
+            $this->addFlash('error', 'The CSRF token is invalid.');
+            return $this->redirectToRoute('admin_clan');
         }
 
-        $user = $this->userService->getUser($request->request->get('user_uuid'));
+        $clan = $this->clanRepo->findOneById($uuid);
+        $user = $this->userRepo->findOneById($request->request->get('user_uuid'));
 
+        if(empty($clan)) {
+            $this->createNotFoundException();
+        }
         if(!$user) {
             $this->createNotFoundException('User supplied in POST not found or invalid');
         }
 
         $nickname = $user->getNickname();
 
-        if ($this->userService->removeClanMember($clan, array($user), false)) {
+        try {
+            $clan->removeUser($user);
+            $this->im->persist($clan);
+            $this->im->flush();
             $this->addFlash('info', "User {$nickname} erfolgreich aus dem Clan entfernt!");
-        } else {
+        } catch (PersistException $e) {
             $this->addFlash('error', 'Es ist ein unerwarteter Fehler aufgetreten');
         }
 
         return $this->redirectToRoute('admin_clan_edit', ['uuid' => $clan->getUuid()]);
     }
-
 }

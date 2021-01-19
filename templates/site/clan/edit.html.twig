@@ -22,10 +22,10 @@
                         {% for user in clan.users %}
                             <tr>
                                 <td>
-                                    <a href="{{ path('user_show', {'uuid' : user.user.uuid}) }}">{{ user.user.nickname }}</a>
+                                    <a href="{{ path('user_show', {'uuid' : user.uuid}) }}">{{ user.nickname }}</a>
                                 </td>
                                 <td>
-                                    {% if user.admin %}
+                                    {% if user in clan.admins %}
                                         Admin
                                     {% else %}
                                         Mitglied
@@ -33,10 +33,13 @@
                                 </td>
                                 <td>
                                     {# TODO: move to AJAX #}
+                                    {% if user != app.user.user %}
                                     <form action="{{ path('clan_member_remove', {'uuid' : clan.uuid}) }}" method="post">
-                                        <input type="hidden" name="user_uuid" value="{{ user.user.uuid }}" />
+                                        <input type="hidden" name="_token" value="{{ csrf_token(csrf_token_member_remove) }}" />
+                                        <input type="hidden" name="user_uuid" value="{{ user.uuid }}" />
                                         <input type="submit" value="Kicken" />
                                     </form>
+                                    {% endif %}
                                 </td>
                             </tr>
                         {% endfor %}

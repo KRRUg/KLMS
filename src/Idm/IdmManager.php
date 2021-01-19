@@ -554,8 +554,8 @@ final class IdmManager
     {
         $changes = false;
         foreach ($modification as $name => $mod) {
-            $changes |= empty($mod[0]);
-            $changes |= empty($mod[1]);
+            $changes |= !empty($mod[0]);
+            $changes |= !empty($mod[1]);
         }
         return $changes;
     }

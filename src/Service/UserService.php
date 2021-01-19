@@ -27,15 +27,6 @@ final class UserService
         $this->logger = $logger;
     }
 
-    /**
-     * @param string $email
-     * @param string $password
-     * @return bool true when authenticated successfully, false otherwise
-     */
-    public function authenticate(string $email, string $password): bool
-    {
-
-    }
 
     /**
      * Requests a full Clan object from IDM, only to be used if up-to-date data is required (e.g. for admin purpose).

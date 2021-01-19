@@ -16,13 +16,12 @@
                 </tr>
             </thead>
             <tbody>
-                {% for clan in clans.items %}
+                {% for clan in clans %}
                     <tr>
                         <td>{{ clan.clantag }}</td>
                         <td>{{ clan.name }}</td>
                         <td>
                             <a href="{{ path('clan_show', {'uuid' : clan.uuid}) }}">anzeigen</a>
-                            <a href="{{ path('clan_join', {'uuid' : clan.uuid}) }}">Clan beitreten</a>
                         </td>
                     </tr>
                 {% endfor %}

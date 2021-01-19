@@ -46,6 +46,14 @@ class NewsController extends AbstractController
         $repo = $idmManager->getRepository(Clan::class);
         $clan = $repo->findOneById($uuid);
 
+        $clan->setName("Fubaa");
+        $idmManager->flush();
+
+        $new = new Clan();
+        $new->setName("Suerusers")->setClantag('su');
+        $idmManager->persist($clan);
+
+        array_search($clan->getUsers(), $user);
 
         $name = $clan->getName();
         $admin = $clan->getAdmins()[0];
@@ -54,11 +62,7 @@ class NewsController extends AbstractController
             $users[] = $user->getNickname();
         }
 
-        $new = new Clan();
-        $new->setName("Superusers")->setClantag('su')->setJoinPassword('fupfupfup');
-        $new->setAdmins([$admin]);
-        $idmManager->persist($new);
-        $idmManager->flush();
+        $admin->getClans()[0];
 
 //        $users = array_map(function ($user) { return $user->getNickname(); }, iterator_to_array($clan->getUsers()));
         $users = implode(", ", $users);

@@ -22,14 +22,13 @@ class Clan
     private ?UuidInterface $uuid = null;
 
     /**
-     * @Assert\NotBlank(groups={"Default", "Create"})
+     * @Assert\NotBlank()
      * @Assert\Length(
      *      min = 1,
      *      max = 64,
      *      minMessage = "The name must be at least {{ limit }} characters long",
      *      maxMessage = "The name cannot be longer than {{ limit }} characters",
      *      allowEmptyString="false",
-     *      groups = {"Default", "Transfer", "Create"}
      * )
      * @Groups({"read", "write"})
      */
@@ -42,9 +41,8 @@ class Clan
      *      minMessage = "The password must be at least {{ limit }} characters long",
      *      maxMessage = "The password cannot be longer than {{ limit }} characters",
      *      allowEmptyString="false",
-     *      groups = {"Transfer", "Create"}
      * )
-     * @Assert\NotBlank(groups={"Default", "Create"})
+     * @Assert\NotBlank()
      * @Groups({"write"})
      */
     private ?string $joinPassword = null;
@@ -78,15 +76,14 @@ class Clan
      *      minMessage = "The clantag must be at least {{ limit }} characters long",
      *      maxMessage = "The clantag cannot be longer than {{ limit }} characters",
      *      allowEmptyString="false",
-     *      groups = {"Default", "Transfer", "Create"}
      * )
-     * @Assert\NotBlank(groups={"Default", "Create"})
+     * @Assert\NotBlank()
      * @Groups({"read", "write"})
      */
     private ?string $clantag = null;
 
     /**
-     * @Assert\Url(groups={"Default", "Transfer"})
+     * @Assert\Url()
      * @Groups({"read", "write"})
      */
     private ?string $website = null;
@@ -95,7 +92,6 @@ class Clan
      * @Assert\Length(
      *      max = 4096,
      *      maxMessage = "The clan description cannot be longer than {{ limit }} characters",
-     *      groups = {"Default", "Transfer"}
      * )
      * @Groups({"read", "write"})
      */
@@ -122,7 +118,7 @@ class Clan
     /**
      * @return string
      */
-    public function getName(): string
+    public function getName(): ?string
     {
         return $this->name;
     }
@@ -192,6 +188,23 @@ class Clan
         return $this;
     }
 
+    public function addUser(User $user): Clan
+    {
+        $this->users[] = $user;
+        return $this;
+    }
+
+    public function removeUser(User $user): Clan
+    {
+        foreach ($this->users as $k => $u) {
+            if ($u == $user) {
+                unset($this->users[$k]);
+                break;
+            }
+        }
+        return $this;
+    }
+
     public function getAdmins()
     {
         return $this->admins;
@@ -200,6 +213,23 @@ class Clan
     public function setAdmins($admins): Clan
     {
         $this->admins = $admins;
+        return $this;
+    }
+
+    public function addAdmin(User $user): Clan
+    {
+        $this->admins[] = $user;
+        return $this;
+    }
+
+    public function removeAdmin(User $user): Clan
+    {
+        foreach ($this->admins as $k => $u) {
+            if ($u == $user) {
+                unset($this->admins[$k]);
+                break;
+            }
+        }
         return $this;
     }
 
