@@ -36,6 +36,8 @@ class ClanController extends AbstractController
      */
     public function index(Request $request)
     {
+        $this->addFlash('info', 'Test Test Test Test');
+        
         $search = $request->query->get('q');
         $limit = $request->query->getInt('limit', 10);
         $page = $request->query->getInt('page', 1);

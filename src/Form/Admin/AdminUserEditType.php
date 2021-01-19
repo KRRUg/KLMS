@@ -41,7 +41,10 @@ class AdminUserEditType extends AbstractType
             ->add('status')
             ->add('firstname')
             ->add('surname')
-            ->add('birthdate', BirthdayType::class)
+            ->add('birthdate', BirthdayType::class, [
+                'widget' => 'single_text',
+                'attr' => ['class' => 'datepicker'],
+            ])
             ->add('postcode')
             ->add('city')
             ->add('street')
