@@ -24,46 +24,36 @@ class User
     private ?UuidInterface $uuid = null;
 
     /**
-     * @Assert\NotBlank(groups={"Default", "Create"})
-     * @Assert\Email(groups={"Default", "Transfer", "Create"})
+     * @Assert\NotBlank()
+     * @Assert\Email()
      * @Groups({"read", "write"})
      */
     private ?string $email = null;
 
     /**
-     * @var string The hashed password
      * @Assert\Length(
      *      min = 6,
      *      max = 128,
      *      minMessage = "The password must be at least {{ limit }} characters long",
      *      maxMessage = "The password cannot be longer than {{ limit }} characters",
-     *      allowEmptyString="false",
-     *      groups = {"Transfer", "Create"}
+     *      allowEmptyString="false"
      * )
-     * @Assert\NotBlank(groups={"Default", "Create"})
      * @Groups({"write"})
      */
     private ?string $password = null;
 
     /**
-     * @Assert\NotBlank(groups={"Default", "Create"})
+     * @Assert\NotBlank()
      * @Assert\Length(
      *      min = 1,
      *      max = 64,
      *      minMessage = "The nickname must be at least {{ limit }} characters long",
      *      maxMessage = "The nickname cannot be longer than {{ limit }} characters",
-     *      allowEmptyString="false",
-     *      groups = {"Default", "Transfer", "Create"}
+     *      allowEmptyString="false"
      * )
      * @Groups({"read", "write"})
      */
     private ?string $nickname = null;
-
-    /**
-     * @Groups({"read"})
-     * TODO check if status can be IDM internal
-     */
-    private ?int $status = null;
 
     /**
      * @Groups({"read", "write"})
@@ -81,8 +71,7 @@ class User
      *      max = 8,
      *      minMessage = "The postcode must be at least {{ limit }} characters long",
      *      maxMessage = "The postcode cannot be longer than {{ limit }} characters",
-     *      allowEmptyString="false",
-     *      groups = {"Default", "Transfer", "Create"}
+     *      allowEmptyString="false"
      * )
      * @Groups({"read", "write"})
      */
@@ -99,19 +88,19 @@ class User
     private ?string $street = null;
 
     /**
-     * @Assert\Country(groups={"Default", "Transfer"})
+     * @Assert\Country()
      * @Groups({"read", "write"})
      */
     private ?string $country = null;
 
     /**
      * @Groups({"read", "write"})
-     * @Assert\Regex("/^[+]?\d([ \/()]?\d)*$/", message="Invalid phone number format.", groups={"Default", "Transfer"})
+     * @Assert\Regex("/^[+]?\d([ \/()]?\d)*$/", message="Invalid phone number format.")
      */
     private ?string $phone = null;
 
     /**
-     * @Assert\Choice({"m","w","d"}, groups={"Default", "Transfer"})
+     * @Assert\Choice({"m","f","x"})
      * @Groups({"read", "write"})
      */
     private ?string $gender = null;
@@ -127,7 +116,7 @@ class User
     private ?bool $isSuperadmin = null;
 
     /**
-     * @Assert\Url(groups={"Default", "Transfer"})
+     * @Assert\Url()
      * @Groups({"read", "write"})
      */
     private ?string $website = null;
@@ -194,18 +183,6 @@ class User
     public function setEmail(string $email): self
     {
         $this->email = $email;
-
-        return $this;
-    }
-
-    public function getStatus(): ?int
-    {
-        return $this->status;
-    }
-
-    public function setStatus(int $status): self
-    {
-        $this->status = $status;
 
         return $this;
     }
@@ -342,12 +319,12 @@ class User
         return $this;
     }
 
-    public function getPassword(): string
+    public function getPassword(): ?string
     {
-        return (string) $this->password;
+        return $this->password;
     }
 
-    public function setPassword(string $password): self
+    public function setPassword(?string $password): self
     {
         $this->password = $password;
 

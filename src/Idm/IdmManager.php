@@ -521,7 +521,7 @@ final class IdmManager
         );
     }
 
-    public function persist(object &$object)
+    public function persist(object $object)
     {
         $this->throwOnNotManaged($object);
 

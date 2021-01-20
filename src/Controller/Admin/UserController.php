@@ -2,8 +2,7 @@
 
 namespace App\Controller\Admin;
 
-use App\Form\Admin\AdminUserEditType;
-use App\Security\User;
+use App\Form\UserType;
 use App\Service\UserService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\FormError;
@@ -58,24 +57,20 @@ class UserController extends AbstractController
     {
         $user = $this->userService->getUser($uuid);
 
-        $form = $this->createForm(AdminUserEditType::class, $user);
+        $form = $this->createForm(UserType::class, $user);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            $user = $form->getData();
 
-            // get Data from Form
-
-            /* @var User */
-            $userform = $form->getData();
-
-            if(!$this->userService->checkUserAvailability($userform->getNickname()) && $userform->getNickname() !== $user->getNickname()) {
+            if(!$this->userService->checkUserAvailability($user->getNickname()) && $user->getNickname() !== $user->getNickname()) {
                 $form->get('nickname')->addError(new FormError('Nickname wird bereits benutzt!'));
 
                 return $this->render('admin/user/edit.html.twig', [
                     'form' => $form->createView(),
                 ]);
             }
-            if($this->userService->editUser($userform)) {
+            if($this->userService->editUser($user)) {
 
                 $this->addFlash('info', 'User erfolgreich bearbeitet!');
 

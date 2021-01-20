@@ -1,0 +1,17 @@
+{% if data is defined and data is not empty %}
+    <dl class="properties">
+        {% for field, label in fields %}
+            {% set val = attribute(data, field) %}
+            {% if val is defined %}
+                <dt>{{ label | default(field) }}</dt>
+                <dd>
+                {% if val.timestamp is defined %}
+                    {{ val | date('d.m.Y') }}
+                {% else %}
+                    {{ val }}
+                {% endif %}
+                </dd>
+            {% endif %}
+        {% endfor %}
+    </dl>
+{% endif %}

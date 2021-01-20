@@ -1,17 +1,17 @@
-<div class="card mb-3">
-    <div class="row no-gutters">
+<div class="card h-100">
+    <div class="row no-gutters h-100">
         <div class="col-auto bg-primary text-light d-flex">
             <div class="p-3 align-self-center text-center w-100 font-weight-bold">
-                {{ clan.clantag }}
+                {{ clan.clantag | u.truncate(10) }}
             </div>
         </div>
         <div class="col">
             <div class="card-body p-3">
                 {% if is_granted('IS_AUTHENTICATED_FULLY') %}
                     <span class="float-right">
-                        {% if app.user.user in clan.users %}
+                        {% if app.user.user in clan.admins %}
                             <i class="fas fa-crown" title="Clan Admin"></i>
-                        {% else %}
+                        {% elseif app.user.user in clan.users %}
                             <i class="fas fa-user" title="Clan Mitglied"></i>
                         {% endif %}
                     </span>
@@ -25,8 +25,7 @@
                 </h4>
                 <p class="card-text">
                     {% block clanText %}
-                        {{ clan.description }} <br>
-                        <a href="{{ clan.website }}" target="blank">{{ clan.website }}</a>
+                        {{ clan.description | u.truncate(100, "...") }} <br>
                     {% endblock %}
                 </p>
             </div>

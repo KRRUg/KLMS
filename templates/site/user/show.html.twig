@@ -40,7 +40,7 @@
                     <div class="row">
                         {% if user.clans is not empty %}
                             {% for clan in user.clans %}
-                                <div class="col-sm-6">
+                                <div class="col-sm-6 mb-3">
                                     {% include 'site/components/cards/cardClanPreview.html.twig' with {'clan': clan} %}
                                 </div>
                             {% endfor %}
@@ -63,7 +63,7 @@
                                     <p class="m-0">
                                         {% if user.street | trim %}{{ user.street }} <br>{% endif %}
                                         {% if user.postcode | trim or user.city | trim %}{{ user.postcode }} {{ user.city }}<br>{% endif %}
-                                        {{ user.country }}
+                                        {{ user.country | country_name('de') }}
                                     </p>
                                 </div>
                             </div>
@@ -72,6 +72,11 @@
                     {% if details and user.phone | trim %}
                         <li class="list-group-item">
                             <i class="fas fa-mobile-alt fa-fw mr-3" title="Telefonnummer"></i><a href="tel:{{ user.phone }}">{{ user.phone }}</a>
+                        </li>
+                    {% endif %}
+                    {% if details and user.gender | trim %}
+                        <li class="list-group-item">
+                            <i class="fas fa-venus-mars fa-fw mr-3" title="Geschlecht"></i>{% if user.gender == 'm' %} männlich {% elseif user.gender == 'f' %} weiblich {% else %} divers {% endif %}
                         </li>
                     {% endif %}
                     {% if user.steamaccount | trim %}
@@ -89,11 +94,7 @@
                             <i class="fas fa-desktop fa-fw mr-3" title="Hardware"></i>{{ user.hardware }}
                         </li>
                     {% endif %}
-                    {% if details and user.gender | trim %}
-                        <li class="list-group-item">
-                            <i class="fas fa-venus-mars fa-fw mr-3" title="Geschlecht"></i>{{ user.gender }}
-                        </li>
-                    {% endif %}
+                    {% if details and user.birthdate is not empty %}
                     <li class="list-group-item">
                         <i class="fas fa-birthday-cake fa-fw mr-3" title="Geburtstag"></i>{{ user.birthdate|date("d. F Y") }}
                         {# TODO: IF user_dob_is_verified #}
@@ -101,6 +102,7 @@
                             <i class="fas fa-check"></i> Geprüft
                         </span>
                     </li>
+                    {% endif %}
                     <li class="list-group-item">
                         <i class="fas fa-clock fa-fw mr-3" title="dabei seit"></i>{{ user.registeredAt|date("d. F Y") }}
                     </li>

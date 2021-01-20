@@ -3,8 +3,8 @@
 namespace App\Controller\Site;
 
 use App\Entity\User;
-use App\Form\UserEditType;
 use App\Form\UserRegisterType;
+use App\Form\UserType;
 use App\Idm\IdmManager;
 use App\Idm\IdmRepository;
 use App\Security\LoginFormAuthenticator;
@@ -67,7 +67,7 @@ class UserController extends AbstractController
 
         $user = $this->getUser()->getUser();
 
-        $form = $this->createForm(UserEditType::class, $user);
+        $form = $this->createForm(UserType::class, $user);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
@@ -75,10 +75,13 @@ class UserController extends AbstractController
             // TODO: deny editing Nickname when Event is in the Next 7(?) Days
             // TODO: add Support for changing the EMail
 
-            $userform = $form->getData();
+            $user = $form->getData();
+            $this->manager->persist($user);
+            $this->manager->flush();
+            return $this->redirectToRoute('user_profile');
         }
 
-        return $this->render('edit.html.twig', [
+        return $this->render('site/user/edit.html.twig', [
             'form' => $form->createView(),
         ]);
     }

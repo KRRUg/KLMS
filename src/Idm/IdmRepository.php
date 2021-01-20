@@ -43,13 +43,13 @@ class IdmRepository
     /**
      * Use request() instead of find when searching for id only.
      */
-    public function findBy(array $filter = [], array $sort = [])
+    public function findBy(array $filter = [], array $sort = []): IdmPagedCollection
     {
         $this->checkProperties($filter, $sort);
         return IdmPagedCollection::create($this->manager, $this->class, $filter, $sort);
     }
 
-    public function findFuzzy(string $query, array $sort = [])
+    public function findFuzzy(string $query, array $sort = []): IdmPagedCollection
     {
         $this->checkProperties([], $sort);
         return IdmPagedCollection::create($this->manager, $this->class, $query, $sort);

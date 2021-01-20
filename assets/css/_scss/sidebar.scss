@@ -14,18 +14,42 @@
 
     .nav.flex-column {
         .nav-item {
-            border-bottom: 1px solid $black;
-
-
             .nav-link {
                 padding: .75rem 0;
+                border-bottom: 1px solid $black;
+                position: relative;
 
                 i {
                     padding:0 1rem;
                 }
-                
+
                 &.active {
                     background: repeating-linear-gradient( 45deg, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0) 2px, rgba(0, 0, 0, 0.2) 2px, rgba(0, 0, 0, 0.2) 4px );
+                }
+
+                &[data-toggle=collapse] {
+                    &:before {
+                        content:" ";
+                        position: absolute;
+                        border: 0.175rem solid $primary;
+                        border-top-width: 0;
+                        border-left-width: 0;
+                        right : 1rem;
+                        top: 1.2rem;
+                        padding:0.2rem;
+                        transform: rotate(-135deg);
+                        transition: transform .2s ease-out;
+                    }
+                    &.collapsed:before {
+                        transform: rotate(45deg);
+                    }
+                }
+            }
+            .collapse,.collapsing {
+                .nav-item {
+                    .nav-link {
+                        padding-left:1.5rem;
+                    }
                 }
             }
         }

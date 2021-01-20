@@ -11,11 +11,6 @@
                         <div class="alert alert-danger"><i class="fas fa-exclamation-circle"></i> {{ error.messageKey|trans(error.messageData, 'security') }}</div>
                     {% endif %}
 
-                    {% if app.user %}
-                        <div class="mb-3">
-                            You are logged in as {{ app.user.username }}, <a href="{{ path('app_logout') }}">Logout</a>
-                        </div>
-                    {% endif %}
                     <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}" >
                     <div class="form-group">
                         <label for="inputUsername">Username</label>

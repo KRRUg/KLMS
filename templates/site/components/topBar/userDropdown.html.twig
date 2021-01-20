@@ -1,11 +1,19 @@
 <div class="dropdown d-inline-block">
     <button type="button" id="dropdownMenu1" data-toggle="dropdown" class="btn btn-link dropdown-toggle">
-        <i class="fas fa-user-circle"></i> {{ app.user.username }}
+        <i class="fas fa-user-circle"></i> {{ app.user.user.nickname }}
     </button>
     <div class="dropdown-menu dropdown-menu-right mt-0 p-0">
-        <a class="dropdown-item" href="{{ path('user_profile') }}"><i class="fas fa-user"></i> Mein Profil</a>
-        <a class="dropdown-item" href="{{ path('clan') }}"><i class="fas fa-users"></i> Clans</a>
+        <a class="dropdown-item" href="{{ path('user_profile') }}"><i class="fa-fw fas fa-user"></i> Mein Profil</a>
+
+        {% if app.user.user.clans | length %}
+            <div class="dropdown-divider"></div>
+            <h6 class="dropdown-header">Meine Clans</h6>
+            {% for clan in app.user.user.clans %}
+                <a class="dropdown-item" href="{{ path('clan_show', {'uuid' : clan.uuid}) }}"><i class="fa-fw fas fa-users"></i>  {{ clan.name }}</a>
+            {% endfor %}
+        {% endif %}
+
         <div class="dropdown-divider"></div>
-        <a class="dropdown-item" href="{{ path('app_logout') }}"><i class="fas fa-sign-out-alt"></i> Abmelden</a>
+        <a class="dropdown-item" href="{{ path('app_logout') }}"><i class="fa-fw fas fa-sign-out-alt"></i> Abmelden</a>
     </div>
 </div>

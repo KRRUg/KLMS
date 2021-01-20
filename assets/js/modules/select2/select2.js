@@ -10,10 +10,11 @@ export default function() {
     $('.select2-enable').each(function () {
         const PAGINIATION_LIMIT = 10;
         let $remoteUrl = $(this).attr('data-remote-target');
+        let placeholderLabel = $(this).attr('data-label') || 'User suchen...';
         let $target = $(this);
 
         $target.select2({
-            placeholder: 'User suchen...',
+            placeholder: placeholderLabel,
             language: 'de',
             theme: 'bootstrap4',
             allowClear: true,
