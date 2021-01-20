@@ -2,12 +2,13 @@
 
 namespace App\Controller\Site;
 
+use App\Entity\User;
 use App\Form\UserEditType;
 use App\Form\UserRegisterType;
+use App\Idm\IdmManager;
+use App\Idm\IdmRepository;
 use App\Security\LoginFormAuthenticator;
-use App\Security\User;
-use App\Service\UserService;
-use Psr\Log\LoggerInterface;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\FormError;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -18,34 +19,24 @@ use Symfony\Component\Security\Guard\GuardAuthenticatorHandler;
 
 class UserController extends AbstractController
 {
-    /**
-     * @var UserService
-     */
-    private $userService;
-    /**
-     * @var LoggerInterface
-     */
-    private $logger;
+    private IdmManager $manager;
+    private IdmRepository $userRepo;
 
-    public function __construct(UserService $userService, LoggerInterface $appLogger)
+    public function __construct(IdmManager $manager)
     {
-        $this->userService = $userService;
-        $this->logger = $appLogger;
+        $this->manager = $manager;
+        $this->userRepo = $manager->getRepository(User::class);
     }
 
     /**
+     * @IsGranted("IS_AUTHENTICATED_REMEMBERED")
      * @Route("/user/profile", name="user_profile")
      */
     public function userProfile()
     {
-        if(null === $this->getUser()) {
-            // Redirect to Frontpage if not logged in
-            return $this->redirect('/');
-        }
+        $user = $this->getUser()->getUser();
 
-        $user = $this->userService->getUser($this->getUser()->getUsername());
-
-        return $this->render('site/user/profile.html.twig', [
+        return $this->render('site/user/show.html.twig', [
             'user' => $user,
         ]);
     }
@@ -55,8 +46,12 @@ class UserController extends AbstractController
      */
     public function userShow(string $uuid)
     {
+        $user = $this->userRepo->findOneById($uuid);
 
-        $user = $this->userService->getUser($uuid);
+        if ($this->isGranted("IS_AUTHENTICATED_REMEMBERED")
+            && $user === $this->getUser()->getUser()) {
+            return $this->redirectToRoute('user_profile');
+        }
 
         return $this->render('site/user/show.html.twig', [
             'user' => $user,
@@ -70,38 +65,20 @@ class UserController extends AbstractController
     {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
 
-        $user = $this->userService->getUser($this->getUser()->getUsername());
+        $user = $this->getUser()->getUser();
 
         $form = $this->createForm(UserEditType::class, $user);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-
             // TODO: deny nulling out/changing? Address when already signed up to the Event
             // TODO: deny editing Nickname when Event is in the Next 7(?) Days
             // TODO: add Support for changing the EMail
-            // get Data from Form
 
-            /* @var User */
             $userform = $form->getData();
-
-            if(!$this->userService->checkUserAvailability($userform->getNickname()) && $userform->getNickname() !== $user->getNickname()) {
-                $form->get('nickname')->addError(new FormError('Nickname wird bereits benutzt!'));
-
-                return $this->render('site/user/profile_edit.html.twig', [
-                    'form' => $form->createView(),
-                ]);
-            }
-            if($this->userService->editUser($userform)) {
-                return $this->redirectToRoute('user_profile');
-            } else {
-                $this->addFlash('error', 'Es ist ein unerwarteter Fehler aufgetreten');
-                return $this->redirectToRoute('user_profile_edit');
-            }
-
         }
 
-        return $this->render('site/user/profile_edit.html.twig', [
+        return $this->render('edit.html.twig', [
             'form' => $form->createView(),
         ]);
     }

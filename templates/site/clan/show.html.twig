@@ -3,11 +3,12 @@
 {% block title %}{{ clan.name }} - Clanseite{% endblock %}
 
 {% block main %}
-    {% set user = app.user.user %}
     <div class="container">
         {% embed "site/components/cards/skeletons/cardProfile.html.twig"  with {'cardSymbole': 'fas fa-users fa-6x'} %}
             {% block cardBody %}
-                <div class="d-flex justify-content-between w-100">
+                {% if is_granted('IS_AUTHENTICATED_FULLY') %}
+                    {% set user = app.user.user %}
+                    <div class="d-flex justify-content-between w-100">
                         <div class="d-flex justify-content-end w-100">
                             <div class="py-1">
                                 {% if user in clan.admins %}
@@ -17,7 +18,8 @@
                                 {% endif %}
                             </div>
                         </div>
-                </div>
+                    </div>
+                {% endif %}
                 <h1 class="card-title">
                     <div class="d-block d-lg-inline">
                         <span class="badge badge-pill badge-primary">{{ clan.clantag }}</span>

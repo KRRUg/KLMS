@@ -2,7 +2,7 @@
 
 namespace App\Form;
 
-use App\Security\User;
+use App\Entity\User;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\BirthdayType;
 use Symfony\Component\Form\Extension\Core\Type\EmailType;
@@ -19,10 +19,6 @@ class UserEditType extends AbstractType
                 'disabled' => true
             ])
             ->add('nickname')
-            ->add('id', null, [
-                'label' => 'KLMS ID',
-                'disabled' => true
-            ])
             ->add('firstname')
             ->add('surname')
             ->add('birthdate', BirthdayType::class)
