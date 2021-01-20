@@ -88,9 +88,11 @@ final class UserService
 
     private function getClient()
     {
-        return HttpClient::create([
+        $hc = HttpClient::create([
             'headers' => ['X-API-KEY' => $_ENV['KLMS_IDM_APIKEY']]
         ]);
+        
+        return $hc;
     }
 
     private function getPath(string $endpoint, ?string $slug = null)
