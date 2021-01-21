@@ -39,11 +39,10 @@ final class UuidObject
 
     public static function fromObject(object $object): ?self
     {
-        if (property_exists($object, 'uuid')) {
-            $closure = Closure::bind(function () {
-                return $this->uuid;
-            }, $object);
-            return new self($closure());
+        if (method_exists($object, 'getUuid')) {
+            return new self($object->getUuid());
+        } elseif (property_exists($object, 'uuid')) {
+            return new self($object->uuid);
         }
         return null;
     }

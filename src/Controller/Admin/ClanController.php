@@ -8,7 +8,6 @@ use App\Form\ClanType;
 use App\Idm\Exception\PersistException;
 use App\Idm\IdmManager;
 use App\Idm\IdmRepository;
-use App\Service\UserService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -27,9 +26,6 @@ class ClanController extends AbstractController
     private const CSRF_TOKEN_MEMBER_ADD = "clanMemberAddToken";
     private const CSRF_TOKEN_MEMBER_REMOVE = "clanMemberDeleteToken";
 
-    /**
-     * @var UserService
-     */
     private IdmManager $im;
     private IdmRepository $clanRepo;
     private IdmRepository $userRepo;

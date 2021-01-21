@@ -1,17 +1,16 @@
 <?php
 
-
 namespace App\Exception;
 
-use App\Security\User;
+use App\Entity\User;
 
 class GamerLifecycleException extends \RuntimeException
 {
-    private $gamerName;
+    private string $gamerName;
 
     public function __construct(User $gamer, $message = "")
     {
         parent::__construct($message);
-        $this->gamerName = $gamer->getUsername();
+        $this->gamerName = $gamer->getNickname();
     }
 }

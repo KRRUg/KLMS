@@ -87,9 +87,14 @@ class LazyLoaderCollection implements ArrayAccess, Iterator, Countable
         if (!isset($this->items[$offset]))
             return null;
         $item = $this->items[$offset];
-        if (!$this->loaded)
-            return $item;
-        return UuidObject::fromObject($item);
+        return $this->loaded ? UuidObject::fromObject($item) : $item;
+    }
+
+    public function toUuidArray(): array
+    {
+        return array_map(function($item) {
+            return $this->loaded ? UuidObject::fromObject($item) : $item;
+        }, $this->items);
     }
 
     public function offsetExists($offset): bool

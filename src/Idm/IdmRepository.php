@@ -33,6 +33,14 @@ class IdmRepository
         }
     }
 
+    public function findById(array $ids): array
+    {
+        // TODO replace this with an parallel request approach
+        return array_map(function($id) {
+            return $this->findOneById($id);
+        }, $ids);
+    }
+
     public function authenticate(string $name, string $secret): bool
     {
         return $this->manager->auth($this->class, $name, $secret);

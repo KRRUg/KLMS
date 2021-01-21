@@ -9,7 +9,7 @@ class LazyLoaderCollectionNormalizer implements NormalizerInterface
 {
     public function normalize($object, $format = null, array $context = [])
     {
-        return $object->uuidSet();
+        return $object->toUuidArray();
     }
 
     public function supportsNormalization($data, $format = null)

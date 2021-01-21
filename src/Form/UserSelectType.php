@@ -2,10 +2,10 @@
 
 namespace App\Form;
 
-use App\Exception\UserServiceException;
-use App\Security\User;
-use App\Security\UserInfo;
-use App\Service\UserService;
+use App\Entity\User;
+use App\Idm\Exception\PersistException;
+use App\Idm\IdmManager;
+use App\Idm\IdmRepository;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\DataTransformerInterface;
 use Symfony\Component\Form\Exception\TransformationFailedException;
@@ -14,11 +14,11 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class UserSelectType extends AbstractType implements DataTransformerInterface
 {
-    private $userService;
+    private IdmRepository $userRepository;
 
-    public function __construct(UserService $userService)
+    public function __construct(IdmManager $manager)
     {
-        $this->userService = $userService;
+        $this->userRepository = $manager->getRepository(User::class);
     }
 
     public function buildForm(FormBuilderInterface $builder, array $options)
@@ -49,7 +49,7 @@ class UserSelectType extends AbstractType implements DataTransformerInterface
             return $data;
         }
 
-        if (!($entity instanceof UserInfo || $entity instanceof User)) {
+        if (!($entity instanceof User)) {
             throw new TransformationFailedException('Unknown type to convert');
         }
 
@@ -63,8 +63,8 @@ class UserSelectType extends AbstractType implements DataTransformerInterface
     public function reverseTransform($value)
     {
         try {
-            return $this->userService->getUserInfoByUuid($value);
-        } catch (UserServiceException $e) {
+            return $this->userRepository->findOneById($value);
+        } catch (PersistException $e) {
             throw new TransformationFailedException('Unknown type to convert');
         }
     }
