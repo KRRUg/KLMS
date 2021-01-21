@@ -12,13 +12,13 @@ class PersistException extends \RuntimeException
     public const REASON_NOT_FOUND = 4;
     public const REASON_IDM_ISSUE = 5;
 
-    protected object $entity;
+    protected ?object $entity;
     protected string $property;
 
     /**
      * PersistException constructor.
      */
-    public function __construct(object $entity, $code = self::REASON_UNKNOWN, $message = "")
+    public function __construct(?object $entity, $code = self::REASON_UNKNOWN, $message = "")
     {
         parent::__construct($message, $code);
         $this->entity = $entity;

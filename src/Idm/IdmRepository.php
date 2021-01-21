@@ -2,6 +2,7 @@
 
 namespace App\Idm;
 
+use App\Idm\Exception\PersistException;
 use InvalidArgumentException;
 use ReflectionClass;
 
@@ -20,7 +21,16 @@ class IdmRepository
 
     public function findOneById($id): ?object
     {
-        return $this->manager->request($this->class, $id);
+        if (!$this->manager->isValidId($id)) {
+            return null;
+        }
+        try {
+            return $this->manager->request($this->class, $id);
+        } catch (PersistException $e) {
+            if ($e->getCode() === PersistException::REASON_NOT_FOUND)
+                return null;
+            throw $e;
+        }
     }
 
     public function authenticate(string $name, string $secret): bool

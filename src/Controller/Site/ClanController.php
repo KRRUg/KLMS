@@ -10,6 +10,8 @@ use App\Idm\IdmManager;
 use App\Idm\IdmRepository;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Form\Extension\Core\Type\PasswordType;
+use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -22,6 +24,7 @@ class ClanController extends AbstractController
     //TODO: Better Exception/Error Handling see https://github.com/KRRUg/KLMS/blob/feature/admin-mgmt/src/Controller/BaseController.php and Admin/PermissionController.php
 
     private const CSRF_TOKEN_MEMBER_REMOVE = "clanMemberDeleteToken";
+    private const CSRF_TOKEN_MEMBER_LEAVE = "clanMemberLeaveToken";
 
     private IdmManager $im;
     private IdmRepository $clanRepo;
@@ -59,57 +62,97 @@ class ClanController extends AbstractController
         ]);
     }
 
-//    /**
-//     * @IsGranted("IS_AUTHENTICATED_REMEMBERED")
-//     * @Route("/clan/join", name="clan_join", methods={"GET", "POST"})
-//     */
-//    public function join(Request $request)
-//    {
-//        $data = [];
-//
-//        $uuid = $request->query->get('uuid');
-//        if ($uuid) {
-//            $clan = $this->clanRepo->findOneById($uuid);
-//            if ($clan) {
-//                $data = [$clan->getName() => $uuid];
-//            }
-//        }
-//
-//        $form = $this->createForm(ClanJoinType::class, $data, [
-//            'data-remote-target' => $this->generateUrl('api_clans'),
-//        ]);
-//        $form->handleRequest($request);
-//
-//        if ($form->isSubmitted() && $form->isValid()) {
-//            $clanform = $form->getData();
-//
-//            // TODO check this!
-//            $clan = $this->clanRepo->findOneById($clanform['name']);
-//
-//            // check join password
-//            if (!$this->clanRepo->authenticate($clan->getName(), $clanform['joinPassword'])) {
-//                $form->get('joinPassword')->addError(new FormError('Das angegebene JoinPasswort ist falsch!'));
-//
-//                return $this->render('site/clan/join.html.twig', [
-//                    'form' => $form->createView(),
-//                ]);
-//            }
-//            try {
-//                $user = $this->getUser()->getUser();
-//                $clan->getUsers()[] = $user;
-//                $this->im->flush();
-//                $this->addFlash('info', 'Clan erfolgreich beigetreten!');
-//            } catch (UserServiceException $e) {
-//                $this->addFlash('error', 'Unbekannter Fehler beim Beitreten!');
-//            }
-//
-//            return $this->redirectToRoute('clan_show', ['uuid' => $clan->getUuid()]);
-//        }
-//
-//        return $this->render('site/clan/join.html.twig', [
-//            'form' => $form->createView(),
-//        ]);
-//    }
+    private function createJoinForm(Clan $clan): FormInterface
+    {
+        return $this->createFormBuilder()
+            ->setAction($this->generateUrl('clan_join', ['uuid' => $clan->getUuid()]))
+            ->add('password', PasswordType::class, ['label' => "Passwort"])
+            ->getForm();
+    }
+
+    /**
+     * @IsGranted("IS_AUTHENTICATED_REMEMBERED")
+     * @Route("/clan/{uuid}/leave", name="clan_leave", methods={"POST"})
+     */
+    public function leave(string $uuid, Request $request)
+    {
+        $clan = $this->clanRepo->findOneById($uuid);
+        if (empty($clan)) {
+            throw $this->createNotFoundException('Clan not found');
+        }
+
+        $token = $request->request->get('_token');
+        if(!$this->isCsrfTokenValid(self::CSRF_TOKEN_MEMBER_LEAVE, $token)) {
+            $this->addFlash('error', 'The CSRF token is invalid.');
+            return $this->redirectToRoute('clan_show', ['uuid' => $clan->getUuid()]);
+        }
+
+        $user = $this->getUser()->getUser();
+
+        $found = false;
+        foreach ($clan->getUsers() as $key => $u) {
+            if ($user === $u) {
+                $found = $key;
+                break;
+            }
+        }
+        if ($found === false) {
+            $this->addFlash('info', "User {$user->getNickname()} ist nicht in Clan {$clan->getName()}");
+        } else {
+            try {
+                unset($clan->getUsers()[$found]);
+                $this->im->flush();
+                $this->addFlash('success', 'Clan erfolgreich verlassen!');
+            } catch (PersistException $e) {
+                $this->addFlash('error', 'Unbekannter Fehler beim Verlassen!');
+            }
+        }
+        return $this->redirectToRoute('clan_show', ['uuid' => $clan->getUuid()]);
+    }
+
+    /**
+     * @IsGranted("IS_AUTHENTICATED_REMEMBERED")
+     * @Route("/clan/{uuid}/join", name="clan_join", methods={"POST"})
+     */
+    public function join(string $uuid, Request $request)
+    {
+        $clan = $this->clanRepo->findOneById($uuid);
+        if (empty($clan)) {
+            throw $this->createNotFoundException('Clan not found');
+        }
+
+        $user = $this->getUser()->getUser();
+
+        $found = false;
+        foreach ($clan->getUsers() as $u) {
+            if ($user === $u) {
+                $this->addFlash('info', "User {$user->getNickname()} ist schon in Clan {$clan->getName()}");
+                return $this->redirectToRoute('clan_show', ['uuid' => $clan->getUuid()]);
+            }
+        }
+
+
+        $form = $this->createJoinForm($clan);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            try {
+                if ($this->clanRepo->authenticate($clan->getName(), $form['password']->getData())) {
+                    if (count($clan->getUsers()))
+                        $clan->getUsers()[] = $user;
+                    else
+                        $clan->getAdmins()[] = $user;
+                    $this->im->flush();
+                    $this->addFlash('success', 'Clan erfolgreich beigetreten!');
+                } else {
+                    $this->addFlash('error', "Falsches Passwort eingegeben!");
+                }
+            } catch (PersistException $e) {
+                $this->addFlash('error', 'Unbekannter Fehler beim Beitreten!');
+            }
+        }
+        return $this->redirectToRoute('clan_show', ['uuid' => $clan->getUuid()]);
+    }
 
     /**
      * @IsGranted("IS_AUTHENTICATED_REMEMBERED")
@@ -161,6 +204,8 @@ class ClanController extends AbstractController
 
         return $this->render('site/clan/show.html.twig', [
             'clan' => $clan,
+            'form_join' => $this->createJoinForm($clan)->createView(),
+            'csrf_token_member_leave' => self::CSRF_TOKEN_MEMBER_LEAVE,
         ]);
     }
 

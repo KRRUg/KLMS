@@ -16,6 +16,7 @@ use Closure;
 use Doctrine\Common\Annotations\Reader;
 use InvalidArgumentException;
 use Psr\Log\LoggerInterface;
+use Ramsey\Uuid\Uuid;
 use ReflectionClass;
 use ReflectionException;
 use Symfony\Component\HttpFoundation\Response;
@@ -256,7 +257,8 @@ final class IdmManager
     private function get(string $url, array $query = []): array
     {
         $response = [];
-        $this->send('GET', $url, $response, [ Response::HTTP_NOT_FOUND ], $query);
+        $code = $this->send('GET', $url, $response, [ Response::HTTP_NOT_FOUND ], $query);
+        $this->throwOnCode($code);
         return $response;
     }
 
@@ -297,6 +299,12 @@ final class IdmManager
     {
         // TODO change getUuid with id annotation
         return $object->getUuid();
+    }
+
+    public function isValidId($id)
+    {
+        // TODO change getUuid with id annotation
+        return Uuid::isValid(strval($id));
     }
 
     private function mapAnnotation(object $object, Closure $closureReference, Closure $closureCollection)
