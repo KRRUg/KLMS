@@ -206,7 +206,6 @@ final class IdmManager
      */
     private function send(string $method, string $url, array &$response, array $expectedErrorCodes = [], array $query = [], array $json_payload = [])
     {
-        // do a cache lookup first?
         try{
             $options = [];
             if (!empty($query))
@@ -214,7 +213,10 @@ final class IdmManager
             if (!empty($json_payload))
                 $options['json'] = $json_payload;
             $resp = $this->httpClient->request($method, $url, $options);
-            $response = $resp->toArray(!in_array($resp->getStatusCode(), $expectedErrorCodes));
+            if ($resp->getContent(!in_array($resp->getStatusCode(), $expectedErrorCodes)))
+                $response = $resp->toArray(false);
+            else
+                $response = [];
             return $resp->getStatusCode();
         } catch (ClientExceptionInterface $e) {
             // 4xx return code
@@ -495,25 +497,31 @@ final class IdmManager
      * Removes loaded lazyLoaderObjects and checks if all other collections are actually arrays
      * @param object $object
      */
-    private function checkCollections($object)
+    private function checkCollections($object, $alreadyDone = [])
     {
         $this->throwOnNotManaged($object);
+
+        $id = spl_object_id($object);
+        if (isset($alreadyDone[$id]))
+            return;
+        else
+            $alreadyDone[$id] = true;
 
         $this->mapAnnotation($object,
             function ($class, $obj){
                 throw new NotImplementedException("@Reference annotation is not implemented in IdmManager yet");
             },
-            function ($class, $list) use ($object) {
+            function ($class, $list) use ($object, $alreadyDone) {
                 if (is_null($list)) {
                     return null;
                 } elseif (is_array($list)) {
                     foreach ($list as $item) {
-                        $this->checkCollections($item);
+                        $this->checkCollections($item, $alreadyDone);
                     }
                 } elseif ($list instanceof LazyLoaderCollection) {
                     if ($list->isLoaded()) {
                         foreach ($list as $item) {
-                            $this->checkCollections($item);
+                            $this->checkCollections($item, $alreadyDone);
                         }
                     }
                 } else {
@@ -541,28 +549,25 @@ final class IdmManager
 
     private function applyCollectionModification(object $object, array $modification)
     {
+        $result = false;
         $base_url = $this->createUrl($object, $this->object2Id($object));
         foreach ($modification as $name => $mod) {
             $url = $base_url . '/' . $name;
             foreach ($mod[0] as $added) {
                 $this->post($url, new UuidObject($added));
+                $result = true;
             }
             foreach ($mod[1] as $removed) {
                 $this->delete($url . '/' . $removed->toString());
+                $result = true;
             }
         }
+        return $result;
     }
 
-    private function areCollectionModified(array $modification): bool
-    {
-        $changes = false;
-        foreach ($modification as $name => $mod) {
-            $changes |= !empty($mod[0]);
-            $changes |= !empty($mod[1]);
-        }
-        return $changes;
-    }
-
+    /**
+     * Note: flush does not support creating an object which contains a new object in a collection
+     */
     public function flush()
     {
         foreach ($this->unitOfWork->getObjects() as $object) {
@@ -574,11 +579,10 @@ final class IdmManager
                     continue 2;
 
                 case UnitOfWork::STATE_CREATED:
-                    if ($this->areCollectionModified($this->unitOfWork->getCollectionDiff($object))) {
-                        // This would require a dependency graph if both objects are not created yet
-                        throw new NotImplementedException("Creating entities with non empty Collections is not supported yet");
-                    }
+                    $modifications = $this->unitOfWork->getCollectionDiff($object);
                     $this->hydrateObject($this->post($this->createUrl($object), $object), $object);
+                    if ($this->applyCollectionModification($object, $modifications))
+                        $this->hydrateObject($this->get($this->createUrl($object, $this->object2Id($object))), $object);
                     break;
 
                 case UnitOfWork::STATE_MODIFIED:

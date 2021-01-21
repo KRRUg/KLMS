@@ -116,20 +116,28 @@ class UnitOfWork
         return array_key_exists(spl_object_id($object), $this->objects);
     }
 
-    public function persist(object $object)
+    public function persist(object $object, array &$already_done = [])
     {
+        $id = spl_object_id($object);
+        if (isset($already_done[$id]))
+            return;
+        else
+            $already_done[$id] = true;
+
         // make sure new entities are persisted
         $this->register($object, false);
         // finally, check for annotated properties
         $this->foreachAnnotation($object,
-            function ($class, $obj) {
-                $this->persist($obj);
+            function ($class, $obj) use (&$already_done) {
+                $this->persist($obj, $already_done);
             },
-            function ($class, $list) {
+            function ($class, $list) use ($already_done) {
+                if (is_null($list))
+                    return;
                 if ($list instanceof LazyLoaderCollection && !$list->isLoaded())
                     return;
                 foreach ($list as $loadedObj) {
-                    $this->persist($loadedObj);
+                    $this->persist($loadedObj, $already_done);
                 }
             }
         );
@@ -225,7 +233,7 @@ class UnitOfWork
                 $property->setAccessible(true);
                 $v_a = $property->getValue($object);
                 if (is_null($v_a)) {
-                    $result[$property->getName()] = [];
+                    $result[$property->getName()] = [[], []];
                     continue;
                 }
                 $v_b = is_null($reference) ? [] : $property->getValue($reference);

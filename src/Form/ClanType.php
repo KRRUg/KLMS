@@ -18,7 +18,12 @@ class ClanType extends AbstractType
             ->add('name')
             ->add('joinPassword', TextType::class, [
                 'label' => 'Join Passwort',
+                'required' => $options['require_password'],
                 'help' => 'Muss min. 6 Zeichen lang sein.',
+                'empty_data' => null,
+                'attr' => [
+                    'placeholder' => $options['require_password'] ? '' : 'Existierendes Passwort',
+                ],
             ])
             ->add('clantag', TextType::class, [
                 'label' => 'Clan Tag',
@@ -41,6 +46,8 @@ class ClanType extends AbstractType
     {
         $resolver->setDefaults([
             'data_class' => Clan::class,
+            'require_password' => false,
         ]);
+        $resolver->setAllowedTypes('require_password', 'bool');
     }
 }

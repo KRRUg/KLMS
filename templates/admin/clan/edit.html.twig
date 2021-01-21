@@ -24,7 +24,6 @@
                             'createdAt' : "Erstellt",
                         }}
                         %}
-                        {{ form_row(form.admins) }}
                     </div>
                 </div>
             </div>
@@ -33,6 +32,7 @@
                     {% block cardBody %} 
                         {{ form_row(form.name) }}
                         {{ form_row(form.clantag) }}
+                        {{ form_row(form.joinPassword) }}
                         {{ form_row(form.website) }}
                         {{ form_row(form.description) }}
                     {% endblock %}
@@ -49,7 +49,7 @@
         <div class="float-left">
             <form data-toggle="confirmModal" method="post" action="{{ path('admin_clan_delete', {'uuid' : clan.uuid}) }}" class="d-inline-block">
                 <input type="hidden" name="_token" value="{{ csrf_token(csrf_token_delete) }}">
-                <button class="btn btn-danger" type="submit" value="löschen"/><i class="fas fa-trash-alt"></i> Löschen</button>
+                <button class="btn btn-danger" type="submit" value="löschen"><i class="fas fa-trash-alt"></i> Löschen</button>
             </form>
         </div>
     </div>
@@ -60,7 +60,6 @@
                     <h2 class="h4 card-title">Clan-Members</h2>
                     <hr />
                     <form method="post" class="form-inline" action="{{ path('admin_clan_member_add', {'uuid' : clan.uuid}) }}">
-                        {# TODO: set fullUser to True once it's working #}
                         <label for="add_user_uuid">User hinzufügen: </label>
                         <select id="add_user_uuid" style="width:30%;" class="select2-enable form-control" data-remote-target="{{ path('api_users', {'fullUser' : false}) }}" name="user_uuid">
                         </select>
@@ -80,10 +79,10 @@
                             {% for user in clan.users %}
                                 <tr>
                                     <td>
-                                        <a data-toggle="ajaxModal" href="{{ path('admin_user_show', {'uuid' : user.user.uuid}) }}">{{ user.user.nickname }}</a>
+                                        <a data-toggle="ajaxModal" href="{{ path('admin_user_show', {'uuid' : user.uuid}) }}">{{ user.nickname }}</a>
                                     </td>
                                     <td>
-                                        {% if user.admin %}
+                                        {% if user in clan.admins %}
                                             Admin
                                         {% else %}
                                             Mitglied
@@ -92,7 +91,7 @@
                                     <td>
                                         <form data-toggle="confirmModal" method="post" action="{{ path('admin_clan_member_remove', {'uuid' : clan.uuid}) }}">
                                             <input type="hidden" name="_token" value="{{ csrf_token(csrf_token_member_remove) }}" />
-                                            <input type="hidden" name="user_uuid" value="{{ user.user.uuid }}" />
+                                            <input type="hidden" name="user_uuid" value="{{ user.uuid }}" />
                                             <input type="submit" value="Entfernen" />
                                         </form>
                                     </td>

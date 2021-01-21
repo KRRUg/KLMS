@@ -120,15 +120,14 @@ class ClanController extends AbstractController
     public function create(Request $request)
     {
         $clan = new Clan();
-        $form = $this->createForm(ClanType::class, $clan);
+        $form = $this->createForm(ClanType::class, $clan, ['require_password' => true]);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
             $clan = $form->getData();
             try {
+                $clan->setAdmins([$this->getUser()->getUser()]);
                 $this->im->persist($clan);
-                $this->im->flush();
-                $clan->getAdmins()[] = $this->getUser()->getUser();
                 $this->im->flush();
                 $this->addFlash('success', 'Clan erfolgreich angelegt!');
                 return $this->redirectToRoute('clan_show', ['uuid' => $clan->getUuid()]);

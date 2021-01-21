@@ -42,7 +42,6 @@ class Clan
      *      maxMessage = "The password cannot be longer than {{ limit }} characters",
      *      allowEmptyString="false",
      * )
-     * @Assert\NotBlank()
      * @Groups({"write"})
      */
     private ?string $joinPassword = null;

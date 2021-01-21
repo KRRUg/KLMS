@@ -4,6 +4,7 @@ namespace App\Controller\Admin;
 
 use App\Entity\Clan;
 use App\Entity\User;
+use App\Form\ClanType;
 use App\Idm\Exception\PersistException;
 use App\Idm\IdmManager;
 use App\Idm\IdmRepository;
@@ -37,7 +38,7 @@ class ClanController extends AbstractController
     {
         $this->im = $manager;
         $this->clanRepo = $manager->getRepository(Clan::class);
-        $this->clanRepo = $manager->getRepository(User::class);
+        $this->userRepo = $manager->getRepository(User::class);
     }
 
     /**
@@ -60,7 +61,7 @@ class ClanController extends AbstractController
      */
     public function create(Request $request)
     {
-        $form = $this->createForm(Clan::class);
+        $form = $this->createForm(ClanType::class);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
@@ -101,7 +102,7 @@ class ClanController extends AbstractController
             throw $this->createNotFoundException();
         }
 
-        $form = $this->createForm(Clan::class, $clan);
+        $form = $this->createForm(ClanType::class, $clan);
         $form->handleRequest($request);
 
         // TODO user add and remove
@@ -111,7 +112,7 @@ class ClanController extends AbstractController
             $this->im->persist($clan);
             $this->im->flush();
 
-            $this->addFlash('info', 'Clan erfolgreich bearbeitet!');
+            $this->addFlash('success', 'Clan erfolgreich bearbeitet!');
             return $this->redirectToRoute('admin_clan');
         }
 
@@ -120,6 +121,7 @@ class ClanController extends AbstractController
             'clan' => $clan,
             'csrf_token_member_add' => self::CSRF_TOKEN_MEMBER_ADD,
             'csrf_token_member_remove' => self::CSRF_TOKEN_MEMBER_REMOVE,
+            'csrf_token_delete' => self::CSRF_TOKEN_DELETE,
         ]);
     }
 
@@ -218,12 +220,6 @@ class ClanController extends AbstractController
     {
         $token = $request->request->get('_token');
         if(!$this->isCsrfTokenValid(self::CSRF_TOKEN_MEMBER_REMOVE, $token)) {
-            $this->addFlash('error', 'The CSRF token is invalid.');
-            return $this->redirectToRoute('admin_clan');
-        }
-
-        $token = $request->request->get('_token');
-        if(!$this->isCsrfTokenValid(self::CSRF_TOKEN_MEMBER_ADD, $token)) {
             $this->addFlash('error', 'The CSRF token is invalid.');
             return $this->redirectToRoute('admin_clan');
         }

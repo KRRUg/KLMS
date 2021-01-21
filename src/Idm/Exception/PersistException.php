@@ -10,7 +10,7 @@ class PersistException extends \RuntimeException
     public const REASON_INVALID = 2;
     public const REASON_NON_UNIQUE = 3;
     public const REASON_NOT_FOUND = 4;
-    public const REASON_IDM_ISSUE = 4;
+    public const REASON_IDM_ISSUE = 5;
 
     protected object $entity;
     protected string $property;
