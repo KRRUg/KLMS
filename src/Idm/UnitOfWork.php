@@ -224,6 +224,10 @@ class UnitOfWork
             if($ano = $this->annotationReader->getPropertyAnnotation($property, Collection::class)) {
                 $property->setAccessible(true);
                 $v_a = $property->getValue($object);
+                if (is_null($v_a)) {
+                    $result[$property->getName()] = [];
+                    continue;
+                }
                 $v_b = is_null($reference) ? [] : $property->getValue($reference);
                 $v_a = ($v_a instanceof LazyLoaderCollection) ? $v_a->toArray(false) : $v_a;
                 $v_b = ($v_b instanceof LazyLoaderCollection) ? $v_b->toArray(false) : $v_b;

@@ -47,7 +47,7 @@
                     {% if data.emailConfirmed %}
                     Email Confirmed
                     {% endif %}
-                    {#{{ form_row(form.infoMails) }}#}
+                    {{ form_row(form.gender, {'input_group_prepend' : '<i class="fas fa-venus-mars fa-fw"></i>'}) }}
                 {% endblock %}
             {% endembed  %}
         </div>
@@ -81,7 +81,6 @@
                     {{ form_row(form.steamAccount, {'input_group_prepend' : '<i class="fab fa-steam fa-fw"></i>'}) }}
                     {{ form_row(form.website, {'input_group_prepend' : '<i class="fas fa-globe fa-fw"></i>'}) }}
                     {{ form_row(form.hardware, {'input_group_prepend' : '<i class="fas fa-desktop fa-fw"></i>'}) }}
-                    {{ form_row(form.gender, {'input_group_prepend' : '<i class="fas fa-venus-mars fa-fw"></i>'}) }}
                 </div>
             </div>
         </div>

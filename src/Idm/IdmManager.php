@@ -214,9 +214,7 @@ final class IdmManager
             if (!empty($json_payload))
                 $options['json'] = $json_payload;
             $resp = $this->httpClient->request($method, $url, $options);
-            if (!in_array($resp->getStatusCode(), $expectedErrorCodes)) {
-                $response = $resp->toArray();
-            }
+            $response = $resp->toArray(!in_array($resp->getStatusCode(), $expectedErrorCodes));
             return $resp->getStatusCode();
         } catch (ClientExceptionInterface $e) {
             // 4xx return code
@@ -231,8 +229,12 @@ final class IdmManager
         return false;
     }
 
-    private function throwOnCode(int $code, object $object = null)
+    private function throwOnCode($code, object $object = null)
     {
+        if ($code === false)
+            throw new PersistException($object, PersistException::REASON_IDM_ISSUE);
+
+        $code = intval($code);
         // we only take care about 4xx codes
         if (intdiv($code, 100) != 4)
             return;
@@ -269,7 +271,7 @@ final class IdmManager
     {
         $response = [];
         $data = $this->object2Array($object);
-        $code = $this->send('PATCH', $url, $response, [], [], $data);
+        $code = $this->send('PATCH', $url, $response, [ Response::HTTP_NOT_FOUND, Response::HTTP_CONFLICT ], [], $data);
         $this->throwOnCode($code, $object);
         return $response;
     }
@@ -501,22 +503,23 @@ final class IdmManager
             function ($class, $obj){
                 throw new NotImplementedException("@Reference annotation is not implemented in IdmManager yet");
             },
-            function ($class, $list) {
-                if ($list instanceof LazyLoaderCollection) {
+            function ($class, $list) use ($object) {
+                if (is_null($list)) {
+                    return null;
+                } elseif (is_array($list)) {
+                    foreach ($list as $item) {
+                        $this->checkCollections($item);
+                    }
+                } elseif ($list instanceof LazyLoaderCollection) {
                     if ($list->isLoaded()) {
-                        $list = $list->toArray();
                         foreach ($list as $item) {
                             $this->checkCollections($item);
                         }
                     }
-                    return $list;
                 } else {
-                    $list = is_array($list) ? $list : [];
-                    foreach ($list as $item) {
-                        $this->checkCollections($item);
-                    }
-                    return $list;
+                    throw new PersistException($object, PersistException::REASON_INVALID, "Expecting list or array for collection property.");
                 }
+                return $list;
             }
         );
     }

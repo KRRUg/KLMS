@@ -50,7 +50,10 @@
                 {{ form_row(form.website, {'input_group_prepend' : '<i class="fas fa-globe"></i>'}) }}
                 {{ form_row(form.hardware, {'input_group_prepend' : '<i class="fas fa-desktop"></i>'}) }}
                 <hr>
-                <button type="submit" id="user_save" class="btn-primary btn">Speichern</button>
+                <div class="float-right">
+                    <a class="btn btn-secondary" href="{{ path('user_profile') }}">Abbrechen</a>
+                    <button type="submit" id="user_save" class="btn-primary btn">Speichern</button>
+                </div>
                 {{ form_end(form) }}
             {% endblock %}
         {% endembed  %}

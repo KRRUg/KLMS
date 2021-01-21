@@ -17,6 +17,8 @@ class User
 {
     // TODO add length asserts for all strings
 
+    private ?int $id;
+
     /**
      * @Assert\Uuid(strict=false)
      * @Groups({"read"})
@@ -164,6 +166,17 @@ class User
     private ?DateTimeInterface $birthdate = null;
 
 
+    public function getId(): ?int
+    {
+        return $this->id;
+    }
+
+    public function setId(?int $id): User
+    {
+        $this->id = $id;
+        return $this;
+    }
+
     public function getUuid(): ?UuidInterface
     {
         return $this->uuid;
@@ -288,7 +301,7 @@ class User
         return $this->emailConfirmed;
     }
 
-    public function setEmailConfirmed(bool $emailConfirmed): self
+    public function setEmailConfirmed(?bool $emailConfirmed): self
     {
         $this->emailConfirmed = $emailConfirmed;
 
@@ -396,7 +409,7 @@ class User
         return $this->infoMails;
     }
 
-    public function setInfoMails(bool $infoMails): self
+    public function setInfoMails(?bool $infoMails): self
     {
         $this->infoMails = $infoMails;
 
