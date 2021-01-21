@@ -232,6 +232,16 @@ class Clan
         return $this;
     }
 
+    public function isAdmin(User $user): bool
+    {
+        foreach ($this->admins as $k => $u) {
+            if ($u == $user) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     /**
      * @return string
      */

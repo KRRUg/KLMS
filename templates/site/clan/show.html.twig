@@ -46,6 +46,7 @@
                     </div>
                     <hr>
                 {% endif %}
+                {% set admin = app.user.user in clan.admins %}
                 <div class="card-text">
                     <h3 class="pt-4">Mitglieder</h3>
                     <table class="table table-striped table-hover datatable">
@@ -53,13 +54,16 @@
                             <tr>
                                 <th scope="col" data-searchable="false">Status</th>
                                 <th scope="col">Nickname</th>
+                                {% if admin %}
+                                <th scope="col">Aktion</th>
+                                {% endif %}
                             </tr>
                         </thead>
                         {% for user in clan.users %}
                             <tr>
-                                {% set isAdmin = user in clan.admins %}
-                                <td data-sort="{{ isAdmin }}">
-                                    {% if isAdmin %}
+                                {% set userIsAdmin = user in clan.admins %}
+                                <td data-sort="{{ userIsAdmin }}">
+                                    {% if userIsAdmin %}
                                         <i class="fas fa-crown" title="Clan Admin"></i>
                                     {% else %}
                                         <i class="fas fa-user" title="Clan Mitglied"></i>
@@ -70,6 +74,24 @@
                                         {{ user.nickname }}
                                     </a>
                                 </td>
+                                {% if admin %}
+                                    <td class="w-1 text-nowrap">
+                                        {% if user != app.user.user %}
+                                            <form data-toggle="confirmModal" method="post" action="{{ path('clan_member_edit', {'uuid' : clan.uuid}) }}">
+                                                <input type="hidden" name="_token" value="{{ csrf_token(csrf_token_member_edit) }}" />
+                                                <input type="hidden" name="user_uuid" value="{{ user.uuid }}" />
+                                                <input type="hidden" name="action" value="kick" />
+                                                <button type="submit" class="btn btn-outline-dark"><i class="fas fa-user-minus"></i></button>
+                                            </form>
+                                            <form data-toggle="confirmModal" method="post" action="{{ path('clan_member_edit', {'uuid' : clan.uuid}) }}">
+                                                <input type="hidden" name="_token" value="{{ csrf_token(csrf_token_member_edit) }}" />
+                                                <input type="hidden" name="user_uuid" value="{{ user.uuid }}" />
+                                                <input type="hidden" name="action" value="{% if userIsAdmin %}demote{% else %}promote{% endif %}" />
+                                                <button type="submit" class="btn btn-outline-dark">{% if userIsAdmin %}<i class="far fa-frown"></i>{% else %}<i class="fas fa-crown"></i>{% endif %}</button>
+                                            </form>
+                                        {% endif %}
+                                    </td>
+                                {% endif %}
                             </tr>
                         {% endfor %}
                     </table>

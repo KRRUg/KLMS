@@ -9,10 +9,7 @@ use App\Idm\Exception\PersistException;
 use App\Idm\IdmManager;
 use App\Idm\IdmRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Annotation\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 
@@ -42,7 +39,6 @@ class ClanController extends AbstractController
      */
     public function index()
     {
-        //TODO: implement Client Pagination
         $clans = $this->clanRepo->findAll();
         return $this->render('admin/clan/index.html.twig', [
             'clans' => $clans,
@@ -52,8 +48,6 @@ class ClanController extends AbstractController
 
     /**
      * @Route("/clan/create", name="clan_create", methods={"GET", "POST"})
-     * @param Request $request
-     * @return RedirectResponse|Response
      */
     public function create(Request $request)
     {
@@ -87,9 +81,6 @@ class ClanController extends AbstractController
 
     /**
      * @Route("/clan/{uuid}/edit", name="clan_edit", methods={"GET", "POST"})
-     * @param string $uuid
-     * @param Request $request
-     * @return RedirectResponse|Response
      */
     public function edit(string $uuid, Request $request)
     {
@@ -101,7 +92,6 @@ class ClanController extends AbstractController
         $form = $this->createForm(ClanType::class, $clan);
         $form->handleRequest($request);
 
-        // TODO user add and remove
         if ($form->isSubmitted() && $form->isValid()) {
             $clan = $form->getData();
 
@@ -113,18 +103,31 @@ class ClanController extends AbstractController
         }
 
         return $this->render('admin/clan/edit.html.twig', [
-            'form' => $form->createView(),
             'clan' => $clan,
-            'csrf_token_member_add' => self::CSRF_TOKEN_MEMBER_ADD,
-            'csrf_token_member_remove' => self::CSRF_TOKEN_MEMBER_REMOVE,
+            'form' => $form->createView(),
             'csrf_token_delete' => self::CSRF_TOKEN_DELETE,
         ]);
     }
 
     /**
+     * @Route("/clan/{uuid}/member", name="clan_member", methods={"GET", "POST"})
+     */
+    public function member(string $uuid)
+    {
+        $clan = $this->clanRepo->findOneById($uuid);
+        if (is_null($clan)){
+            throw $this->createNotFoundException();
+        }
+
+        return $this->render('admin/clan/member.html.twig', [
+            'clan' => $clan,
+            'csrf_token_member_add' => self::CSRF_TOKEN_MEMBER_ADD,
+            'csrf_token_member_remove' => self::CSRF_TOKEN_MEMBER_REMOVE,
+        ]);
+    }
+
+    /**
      * @Route("/clan/{uuid}", name="clan_show", methods={"GET"})
-     * @param string $uuid
-     * @return Response
      */
     public function show(string $uuid)
     {
@@ -140,9 +143,6 @@ class ClanController extends AbstractController
 
     /**
      * @Route("/clan/{uuid}/delete", name="clan_delete", methods={"POST"})
-     * @param string $uuid
-     * @param Request $request
-     * @return RedirectResponse|NotFoundHttpException
      */
     public function delete(string $uuid, Request $request)
     {
@@ -170,9 +170,6 @@ class ClanController extends AbstractController
 
     /**
      * @Route("/clan/{uuid}/member/add", name="clan_member_add", methods={"POST"})
-     * @param string $uuid
-     * @param Request $request
-     * @return RedirectResponse
      */
     public function addMember(string $uuid, Request $request)
     {
@@ -203,14 +200,11 @@ class ClanController extends AbstractController
             $this->addFlash('error', 'Es ist ein unerwarteter Fehler aufgetreten');
         }
 
-        return $this->redirectToRoute('admin_clan_edit', ['uuid' => $clan->getUuid()]);
+        return $this->redirectToRoute('admin_clan_member', ['uuid' => $clan->getUuid()]);
     }
 
     /**
      * @Route("/clan/{uuid}/member/remove", name="clan_member_remove", methods={"POST"})
-     * @param string $uuid
-     * @param Request $request
-     * @return RedirectResponse
      */
     public function removeMember(string $uuid, Request $request)
     {
@@ -241,6 +235,6 @@ class ClanController extends AbstractController
             $this->addFlash('error', 'Es ist ein unerwarteter Fehler aufgetreten');
         }
 
-        return $this->redirectToRoute('admin_clan_edit', ['uuid' => $clan->getUuid()]);
+        return $this->redirectToRoute('admin_clan_member', ['uuid' => $clan->getUuid()]);
     }
 }

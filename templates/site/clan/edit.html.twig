@@ -9,44 +9,9 @@
                 <h1 class="h3 card-title mb-4">Clan bearbeiten</h1>
                 {{ form_start(form) }}
                 {{ form_rest(form) }}
+                <a href="{{ path('clan_show', {'uuid': clan.uuid}) }}" class="btn btn-secondary">Abbrechen</a>
                 <button type="submit" class="btn btn-primary">Speichern</button>
                 {{ form_end(form) }}
-                <h1>Users</h1>
-                <table class="table table-striped table-hover">
-                    <thead>
-                        <tr>
-                            <td>User</td>
-                            <td>Rang</td>
-                            <td>Aktionen</td>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for user in clan.users %}
-                            <tr>
-                                <td>
-                                    <a href="{{ path('user_show', {'uuid' : user.uuid}) }}">{{ user.nickname }}</a>
-                                </td>
-                                <td>
-                                    {% if user in clan.admins %}
-                                        Admin
-                                    {% else %}
-                                        Mitglied
-                                    {% endif %}
-                                </td>
-                                <td>
-                                    {# TODO: move to AJAX #}
-                                    {% if user != app.user.user %}
-                                    <form action="{{ path('clan_member_remove', {'uuid' : clan.uuid}) }}" method="post">
-                                        <input type="hidden" name="_token" value="{{ csrf_token(csrf_token_member_remove) }}" />
-                                        <input type="hidden" name="user_uuid" value="{{ user.uuid }}" />
-                                        <input type="submit" value="Kicken" />
-                                    </form>
-                                    {% endif %}
-                                </td>
-                            </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
             {% endblock %}
         {% endembed  %}
     </div>

@@ -23,7 +23,7 @@ class ClanController extends AbstractController
 {
     //TODO: Better Exception/Error Handling see https://github.com/KRRUg/KLMS/blob/feature/admin-mgmt/src/Controller/BaseController.php and Admin/PermissionController.php
 
-    private const CSRF_TOKEN_MEMBER_REMOVE = "clanMemberDeleteToken";
+    private const CSRF_TOKEN_MEMBER_EDIT = "clanMemberEditToken";
     private const CSRF_TOKEN_MEMBER_LEAVE = "clanMemberLeaveToken";
 
     private IdmManager $im;
@@ -89,6 +89,55 @@ class ClanController extends AbstractController
 
         $user = $this->getUser()->getUser();
 
+        $this->removeUserFromClan($clan, $user);
+        return $this->redirectToRoute('clan_show', ['uuid' => $clan->getUuid()]);
+    }
+
+    /**
+     * @IsGranted("IS_AUTHENTICATED_REMEMBERED")
+     * @Route("/clan/{uuid}/member", name="clan_member_edit", methods={"POST"})
+     */
+    public function memberEdit(string $uuid, Request $request): RedirectResponse
+    {
+        $clan = $this->clanRepo->findOneById($uuid);
+        if (empty($clan)) {
+            throw $this->createNotFoundException('Clan not found');
+        }
+        $token = $request->request->get('_token');
+        if(!$this->isCsrfTokenValid(self::CSRF_TOKEN_MEMBER_EDIT, $token)) {
+            $this->addFlash('error', 'The CSRF token is invalid.');
+            return $this->redirectToRoute('clan_show', ['uuid' => $clan->getUuid()]);
+        }
+        $admin = $this->getUser()->getUser();
+        if (!$clan->isAdmin($admin)) {
+            $this->addFlash('error', 'Nur Admins dürfen das.');
+            return $this->redirectToRoute('clan_show', ['uuid' => $clan->getUuid()]);
+        }
+        $user = $this->userRepo->findOneById($request->request->get('user_uuid'));
+        if (empty($user)) {
+            $this->addFlash('error', 'User nicht gefunden.');
+            return $this->redirectToRoute('clan_show', ['uuid' => $clan->getUuid()]);
+        }
+        $action = $request->request->get('action');
+        switch ($action) {
+            case 'kick':
+                $this->removeUserFromClan($clan, $user);
+                break;
+            case 'promote':
+                $this->setUserAdmin($clan, $user, true);
+                break;
+            case 'demote':
+                $this->setUserAdmin($clan, $user, false);
+                break;
+            default:
+                $this->addFlash("error", "Aktion nicht möglich.");
+                break;
+        }
+        return $this->redirectToRoute('clan_show', ['uuid' => $clan->getUuid()]);
+    }
+
+    private function removeUserFromClan(Clan $clan, User $user)
+    {
         $found = false;
         foreach ($clan->getUsers() as $key => $u) {
             if ($user === $u) {
@@ -107,14 +156,38 @@ class ClanController extends AbstractController
                 $this->addFlash('error', 'Unbekannter Fehler beim Verlassen!');
             }
         }
-        return $this->redirectToRoute('clan_show', ['uuid' => $clan->getUuid()]);
+    }
+
+    private function setUserAdmin(Clan $clan, User $user, bool $admin)
+    {
+        $found = false;
+        foreach ($admin ? $clan->getUsers() : $clan->getAdmins() as $key => $u) {
+            if ($user === $u) {
+                $found = $key;
+                break;
+            }
+        }
+        if ($found === false) {
+            $this->addFlash('info', "Userstatus konnte nicht geändert werden!");
+        } else {
+            try {
+                if ($admin)
+                    $clan->getAdmins()[] = $user;
+                else
+                    unset($clan->getAdmins()[$found]);
+                $this->im->flush();
+                $this->addFlash('success', 'Userstatus erfolgreich geändert!');
+            } catch (PersistException $e) {
+                $this->addFlash('error', 'Unbekannter Fehler Ändern des Userstatus!');
+            }
+        }
     }
 
     /**
      * @IsGranted("IS_AUTHENTICATED_REMEMBERED")
      * @Route("/clan/{uuid}/join", name="clan_join", methods={"POST"})
      */
-    public function join(string $uuid, Request $request)
+    public function join(string $uuid, Request $request): RedirectResponse
     {
         $clan = $this->clanRepo->findOneById($uuid);
         if (empty($clan)) {
@@ -123,14 +196,12 @@ class ClanController extends AbstractController
 
         $user = $this->getUser()->getUser();
 
-        $found = false;
         foreach ($clan->getUsers() as $u) {
             if ($user === $u) {
                 $this->addFlash('info', "User {$user->getNickname()} ist schon in Clan {$clan->getName()}");
                 return $this->redirectToRoute('clan_show', ['uuid' => $clan->getUuid()]);
             }
         }
-
 
         $form = $this->createJoinForm($clan);
         $form->handleRequest($request);
@@ -157,8 +228,6 @@ class ClanController extends AbstractController
     /**
      * @IsGranted("IS_AUTHENTICATED_REMEMBERED")
      * @Route("/clan/create", name="clan_create", methods={"GET", "POST"})
-     *
-     * @return RedirectResponse|Response
      */
     public function create(Request $request)
     {
@@ -206,6 +275,7 @@ class ClanController extends AbstractController
             'clan' => $clan,
             'form_join' => $this->createJoinForm($clan)->createView(),
             'csrf_token_member_leave' => self::CSRF_TOKEN_MEMBER_LEAVE,
+            'csrf_token_member_edit' => self::CSRF_TOKEN_MEMBER_EDIT,
         ]);
     }
 
@@ -261,7 +331,6 @@ class ClanController extends AbstractController
         return $this->render('site/clan/edit.html.twig', [
             'form' => $form->createView(),
             'clan' => $clan,
-            'csrf_token_member_remove' => self::CSRF_TOKEN_MEMBER_REMOVE,
         ]);
     }
 
@@ -287,46 +356,5 @@ class ClanController extends AbstractController
         }
 
         return $this->redirectToRoute('user_profile');
-    }
-
-    /**
-     * @IsGranted("IS_AUTHENTICATED_REMEMBERED")
-     * @Route("/clan/{uuid}/member/remove", name="clan_member_remove", methods={"POST"})
-     *
-     * @return AccessDeniedException|NotFoundHttpException|RedirectResponse
-     */
-    public function removeMember(string $uuid, Request $request)
-    {
-        $token = $request->request->get('_token');
-        if(!$this->isCsrfTokenValid(self::CSRF_TOKEN_MEMBER_REMOVE, $token)) {
-            $this->addFlash('error', 'The CSRF token is invalid.');
-            return $this->redirectToRoute('clan');
-        }
-
-        $clan = $this->clanRepo->findOneById($uuid);
-
-        $this->throwOnClanNotFound($clan);
-        $this->throwOnUserNotAdminOfClan($clan);
-
-        if (empty($user_uuid = $request->request->get('user_uuid'))) {
-            $this->createNotFoundException('No User supplied in POST (user_uuid)');
-        }
-
-        $user = $this->userRepo->findOneById($user_uuid);
-
-        if (!$user) {
-            $this->createNotFoundException('User supplied in POST not found or invalid');
-        }
-
-        $nickname = $user->getNickname();
-        try {
-            $clan->removeUser($user);
-            $this->im->flush();
-            $this->addFlash('info', "User {$nickname} erfolgreich aus dem Clan entfernt!");
-        } catch (PersistException $e) {
-            $this->addFlash('error', 'Es ist ein unerwarteter Fehler aufgetreten');
-        }
-
-        return $this->redirectToRoute('clan_edit', ['uuid' => $clan->getUuid()]);
     }
 }

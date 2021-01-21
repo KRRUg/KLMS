@@ -34,6 +34,9 @@
                                     <a class="btn btn-outline-dark" href="{{ path('admin_clan_edit', {'uuid' : clan.uuid}) }}" title="{{ clan.name }} bearbeiten">
                                         <i class="fas fa-edit"></i> bearbeiten
                                     </a>
+                                    <a class="btn btn-outline-dark" href="{{ path('admin_clan_member', {'uuid' : clan.uuid}) }}" title="{{ clan.name }} bearbeiten">
+                                        <i class="fas fa-users"></i> Mitglieder
+                                    </a>
                                 </td>
                             </tr>
                         {% endfor %}
