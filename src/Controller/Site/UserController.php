@@ -5,9 +5,11 @@ namespace App\Controller\Site;
 use App\Entity\User;
 use App\Form\UserRegisterType;
 use App\Form\UserType;
+use App\Idm\Exception\PersistException;
 use App\Idm\IdmManager;
 use App\Idm\IdmRepository;
 use App\Security\LoginFormAuthenticator;
+use App\Security\LoginUser;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\FormError;
@@ -89,68 +91,37 @@ class UserController extends AbstractController
     /**
      * @Route("/register", name="register")
      */
-    public function register(Request $request, LoginFormAuthenticator  $login, GuardAuthenticatorHandler $guard, UserProviderInterface $userProvider)
+    public function register(Request $request, LoginFormAuthenticator $login, GuardAuthenticatorHandler $guard, UserProviderInterface $userProvider)
     {
-        if(null !== $this->getUser()) {
-            // Redirect to Frontpage if already logged in
-            return $this->redirect('/');
+        if ($this->isGranted('IS_AUTHENTICATED_REMEMBERED')){
+            return $this->redirectToRoute('user_profile');
         }
 
         $form = $this->createForm(UserRegisterType::class);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            // get Data from Form
             $user = $form->getData();
 
-            if(!$this->userService->checkUserAvailability($user['email'])) {
-                $form->get('email')->addError(new FormError('EMail wird bereits benutzt!'));
-
-                return $this->render('site/user/register.html.twig', [
-                    'form' => $form->createView(),
-                ]);
-            }
-            if(!$this->userService->checkUserAvailability($user['nickname'])) {
-                $form->get('nickname')->addError(new FormError('Nickname wird bereits benutzt!'));
-
-                return $this->render('site/user/register.html.twig', [
-                    'form' => $form->createView(),
-                ]);
-            }
-            if($this->userService->registerUser($user)) {
-
-                // send the confirmation Email
-                //TODO: send the confirmation Email
-
-
+            try {
+                $this->manager->persist($user);
+                $this->manager->flush();
                 $this->addFlash('info', 'Erfolgreich registriert!');
-
-                $loginuser = $userProvider->loadUserByUsername($user['email']);
-
-                return $guard->authenticateUserAndHandleSuccess($loginuser, $request, $login, 'main');
-
-            } else {
-                $this->addFlash('error', 'Es ist ein Fehler bei der Registrierung aufgetreten.');
-
-                return $this->redirectToRoute('register');
+                return $guard->authenticateUserAndHandleSuccess(new LoginUser($user), $request, $login, 'main');
+            } catch (PersistException $e) {
+                switch ($e->getCode()) {
+                    case PersistException::REASON_NON_UNIQUE:
+                        $this->addFlash('error', 'Nickname und/oder Email Adresse schon in vergeben');
+                        break;
+                    default:
+                        $this->addFlash('error', 'Es ist ein unerwarteter Fehler aufgetreten');
+                        break;
+                }
             }
-
         }
 
         return $this->render('site/user/register.html.twig', [
             'form' => $form->createView(),
         ]);
-    }
-
-    /**
-     * @Route("/register/check", name="register_check")
-     */
-    public function checkUsername(Request $request)
-    {
-        if($this->userService->checkUserAvailability($request->query->get('name'))){
-            return new JsonResponse(true);
-        } else {
-            return new JsonResponse(false);
-        }
     }
 }

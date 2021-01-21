@@ -47,6 +47,7 @@ class UnitOfWork
         $this->objects = [];
         $this->id_ref = [];
         $this->delete_ids = [];
+        $this->orig = [];
     }
 
     /**
