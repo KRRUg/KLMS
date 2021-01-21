@@ -138,48 +138,26 @@ class ClanController extends AbstractController
 
     private function removeUserFromClan(Clan $clan, User $user)
     {
-        $found = false;
-        foreach ($clan->getUsers() as $key => $u) {
-            if ($user === $u) {
-                $found = $key;
-                break;
-            }
-        }
-        if ($found === false) {
-            $this->addFlash('info', "User {$user->getNickname()} ist nicht in Clan {$clan->getName()}");
-        } else {
-            try {
-                unset($clan->getUsers()[$found]);
-                $this->im->flush();
-                $this->addFlash('success', 'Clan erfolgreich verlassen!');
-            } catch (PersistException $e) {
-                $this->addFlash('error', 'Unbekannter Fehler beim Verlassen!');
-            }
+        try {
+            $clan->removeUser($user);
+            $this->im->flush();
+            $this->addFlash('success', 'Clan erfolgreich verlassen!');
+        } catch (PersistException $e) {
+            $this->addFlash('error', 'Unbekannter Fehler beim Verlassen!');
         }
     }
 
     private function setUserAdmin(Clan $clan, User $user, bool $admin)
     {
-        $found = false;
-        foreach ($admin ? $clan->getUsers() : $clan->getAdmins() as $key => $u) {
-            if ($user === $u) {
-                $found = $key;
-                break;
-            }
-        }
-        if ($found === false) {
-            $this->addFlash('info', "Userstatus konnte nicht geändert werden!");
-        } else {
-            try {
-                if ($admin)
-                    $clan->getAdmins()[] = $user;
-                else
-                    unset($clan->getAdmins()[$found]);
-                $this->im->flush();
-                $this->addFlash('success', 'Userstatus erfolgreich geändert!');
-            } catch (PersistException $e) {
-                $this->addFlash('error', 'Unbekannter Fehler Ändern des Userstatus!');
-            }
+        try {
+            if ($admin)
+                $clan->addAdmin($user);
+            else
+                $clan->removeAdmin($user);
+            $this->im->flush();
+            $this->addFlash('success', 'Userstatus erfolgreich geändert!');
+        } catch (PersistException $e) {
+            $this->addFlash('error', 'Unbekannter Fehler Ändern des Userstatus!');
         }
     }
 

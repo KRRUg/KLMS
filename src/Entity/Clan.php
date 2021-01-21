@@ -196,7 +196,7 @@ class Clan
     public function removeUser(User $user): Clan
     {
         foreach ($this->users as $k => $u) {
-            if ($u == $user) {
+            if ($u === $user) {
                 unset($this->users[$k]);
                 break;
             }
