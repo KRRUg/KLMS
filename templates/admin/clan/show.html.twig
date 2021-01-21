@@ -56,16 +56,17 @@
                         </thead>
                         {% for user in clan.users %}
                             <tr>
-                                <td data-sort="{{ user.admin }}">
-                                    {% if user.admin == 1 %}
+                                {% set admin = user in clan.admins %}
+                                <td data-sort="{{ admin }}">
+                                    {% if admin %}
                                         <i class="fas fa-crown" title="Clan Admin"></i>
                                     {% else %}
                                         <i class="fas fa-user" title="Clan Mitglied"></i>
                                     {% endif %}
                                 </td>
                                 <td class="w-100">
-                                    <a data-toggle="ajaxModal" href="{{ path('admin_user_show', {'uuid' : user.user.uuid}) }}">
-                                        {{ user.user.nickname }}
+                                    <a data-toggle="ajaxModal" href="{{ path('admin_user_show', {'uuid' : user.uuid}) }}">
+                                        {{ user.nickname }}
                                     </a>
                                 </td>
                             </tr>
