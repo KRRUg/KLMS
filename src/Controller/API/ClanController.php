@@ -6,7 +6,6 @@ namespace App\Controller\API;
 use App\Entity\Clan;
 use App\Idm\IdmManager;
 use App\Idm\IdmRepository;
-use App\Model\ClanModel;
 use App\Transfer\Error;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
