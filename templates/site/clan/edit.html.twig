@@ -9,9 +9,17 @@
                 <h1 class="h3 card-title mb-4">Clan bearbeiten</h1>
                 {{ form_start(form) }}
                 {{ form_rest(form) }}
-                <a href="{{ path('clan_show', {'uuid': clan.uuid}) }}" class="btn btn-secondary">Abbrechen</a>
-                <button type="submit" class="btn btn-primary">Speichern</button>
+                <div class="float-right mb-3">
+                    <a href="{{ path('clan_show', {'uuid': clan.uuid}) }}" class="btn btn-secondary">Abbrechen</a>
+                    <button type="submit" class="btn btn-primary">Speichern</button>
+                </div>
                 {{ form_end(form) }}
+                <div class="float-left mb-3">
+                    <form data-toggle="confirmModal" method="post" action="{{ path('clan_delete', {'uuid' : clan.uuid}) }}" class="d-inline-block">
+                        <input type="hidden" name="_token" value="{{ csrf_token(csrf_token_delete) }}">
+                        <button class="btn btn-danger" type="submit" value="delete"><i class="fas fa-trash-alt"></i> Clan löschen</button>
+                    </form>
+                </div>
             {% endblock %}
         {% endembed  %}
     </div>

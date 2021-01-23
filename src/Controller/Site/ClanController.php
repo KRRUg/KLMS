@@ -26,6 +26,7 @@ class ClanController extends AbstractController
 {
     //TODO: Better Exception/Error Handling see https://github.com/KRRUg/KLMS/blob/feature/admin-mgmt/src/Controller/BaseController.php and Admin/PermissionController.php
 
+    private const CSRF_TOKEN_DELETE = "clanDeleteToken";
     private const CSRF_TOKEN_MEMBER_EDIT = "clanMemberEditToken";
     private const CSRF_TOKEN_MEMBER_LEAVE = "clanMemberLeaveToken";
 
@@ -51,10 +52,6 @@ class ClanController extends AbstractController
 
         $collection = $this->clanRepo->findFuzzy($search);
         $clans = $collection->getPage($page, $limit);
-
-        if (empty($clans)) {
-            throw $this->createNotFoundException();
-        }
 
         return $this->render('site/clan/list.html.twig', [
             'search' => $search,
@@ -258,7 +255,7 @@ class ClanController extends AbstractController
 
     private function throwOnUserNotAdminOfClan(Clan $clan)
     {
-        if (!in_array($this->getUser()->getUser(), $clan->getAdmins()->toArray())) {
+        if (!$clan->isAdmin($this->getUser()->getUser())) {
             throw $this->createAccessDeniedException('Nur Admins können den Clan bearbeiten!');
         }
     }
@@ -307,20 +304,27 @@ class ClanController extends AbstractController
         return $this->render('site/clan/edit.html.twig', [
             'form' => $form->createView(),
             'clan' => $clan,
+            'csrf_token_delete' => self::CSRF_TOKEN_DELETE
         ]);
     }
 
     /**
-     * @Route("/clan/{uuid}", name="clan_delete", methods={"DELETE"})
+     * @Route("/clan/{uuid}/delete", name="clan_delete", methods={"POST"})
      *
      * @return AccessDeniedException|RedirectResponse|NotFoundHttpException
      */
-    public function delete(string $uuid)
+    public function delete(string $uuid, Request $request)
     {
         $clan = $this->clanRepo->findOneById($uuid);
 
         $this->throwOnClanNotFound($clan);
         $this->throwOnUserNotAdminOfClan($clan);
+
+        $token = $request->request->get('_token');
+        if(!$this->isCsrfTokenValid(self::CSRF_TOKEN_DELETE, $token)) {
+            $this->addFlash('error', 'The CSRF token is invalid.');
+            return $this->redirectToRoute('clan');
+        }
 
         try {
             $this->im->remove($clan);
@@ -330,6 +334,6 @@ class ClanController extends AbstractController
             $this->addFlash('error', 'Es ist ein unerwarteter Fehler aufgetreten');
         }
 
-        return $this->redirectToRoute('user_profile');
+        return $this->redirectToRoute('clan');
     }
 }
