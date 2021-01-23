@@ -50,7 +50,7 @@ class ClanController extends AbstractController
      */
     public function create(Request $request)
     {
-        $form = $this->createForm(ClanType::class);
+        $form = $this->createForm(ClanType::class, null, ['require_password' => true]);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {

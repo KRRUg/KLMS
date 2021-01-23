@@ -11,7 +11,7 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class ContentParamConverter implements ParamConverterInterface
 {
-    private $contentRepository;
+    private ContentRepository $contentRepository;
 
     public function __construct(ContentRepository $contentRepository)
     {

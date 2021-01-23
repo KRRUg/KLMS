@@ -3,8 +3,6 @@ import './modules/adminDataTable/jquery.adminDataTable.js';
 
 
 $( document ).ready(function() {
-    console.log("Admin module loaded!");
-    
     tinymce.init();
     $('.admin-data-table').AdminDataTable();
 });

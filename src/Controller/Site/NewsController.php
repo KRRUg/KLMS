@@ -38,39 +38,6 @@ class NewsController extends AbstractController
     }
 
     /**
-     * @Route("/test", name="test")
-     */
-    public function test(Request $request, IdmManager $idmManager)
-    {
-        $uuid = Uuid::fromInteger(1001)->toString();
-        $repo = $idmManager->getRepository(Clan::class);
-        $clan = $repo->findOneById($uuid);
-
-        $clan->setName("Fubaa");
-        $idmManager->flush();
-
-        $new = new Clan();
-        $new->setName("Suerusers")->setClantag('su');
-        $idmManager->persist($clan);
-
-        array_search($clan->getUsers(), $user);
-
-        $name = $clan->getName();
-        $admin = $clan->getAdmins()[0];
-        $users = [];
-        foreach ($clan->getUsers() as $user) {
-            $users[] = $user->getNickname();
-        }
-
-        $admin->getClans()[0];
-
-//        $users = array_map(function ($user) { return $user->getNickname(); }, iterator_to_array($clan->getUsers()));
-        $users = implode(", ", $users);
-
-        return new Response("<body><h1>Hallo, {$name}</h1><p>Admin: {$admin->getNickname()}<br>Users: {$users}</p></body>");
-    }
-
-    /**
      * @Route("", name="")
      */
     public function index(Request $request)

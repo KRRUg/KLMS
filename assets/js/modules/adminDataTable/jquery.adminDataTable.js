@@ -32,7 +32,6 @@ import './confirmModal.js';
                 dtOptions.ajax = {
                     url: this.settings.remoteTarget,
                     dataFilter: function(data){
-                        console.log(data);
                         var json = jQuery.parseJSON( data );
                         json.recordsTotal = json.total;
                         json.recordsFiltered = json.total;
@@ -44,7 +43,6 @@ import './confirmModal.js';
                 dtOptions.serverSide = true;
                 dtOptions.processing = true;
             }
-            console.log(dtOptions);
             this.$table = $(this.element).DataTable(dtOptions);
         },
         _enableTrigger() {
