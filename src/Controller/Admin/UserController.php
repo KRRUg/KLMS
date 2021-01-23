@@ -3,10 +3,13 @@
 namespace App\Controller\Admin;
 
 use App\Entity\User;
+use App\Entity\UserImage;
 use App\Form\UserType;
 use App\Idm\Exception\PersistException;
 use App\Idm\IdmManager;
 use App\Idm\IdmRepository;
+use App\Repository\UserImageRepository;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
@@ -19,10 +22,14 @@ class UserController extends AbstractController
 {
     private IdmManager $manager;
     private IdmRepository $userRepo;
+    private EntityManagerInterface $em;
+    private UserImageRepository $userImgRepo;
 
-    public function __construct(IdmManager $manager)
+    public function __construct(IdmManager $manager, EntityManagerInterface $em, UserImageRepository $userImgRepo)
     {
         $this->manager = $manager;
+        $this->em = $em;
+        $this->userImgRepo = $userImgRepo;
         $this->userRepo = $manager->getRepository(User::class);
     }
 
@@ -75,7 +82,9 @@ class UserController extends AbstractController
             throw $this->createNotFoundException('User not found');
         }
 
-        $form = $this->createForm(UserType::class, $user, ['disable_on_lock' => false]);
+        $image = $this->userImgRepo->findOneByUser($user) ?? new UserImage($user->getUuid());
+        $form = $this->createForm(UserType::class, $user, ['disable_on_lock' => false, 'with_image' => true]);
+        $form->get('image')->setData($image);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
@@ -83,6 +92,13 @@ class UserController extends AbstractController
                 $user = $form->getData();
                 $this->manager->persist($user);
                 $this->manager->flush();
+
+                if (!$form->get('image')->isEmpty()) {
+                    $this->em->persist($image);
+                } else {
+                    $this->em->remove($image);
+                }
+                $this->em->flush();
                 $this->addFlash('success', 'User erfolgreich bearbeitet!');
                 return $this->redirectToRoute('admin_user');
             } catch (PersistException $e) {
