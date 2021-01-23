@@ -30,7 +30,7 @@ class UserImage
     private ?EmbeddedFile $image;
 
     /**
-     * @Vich\UploadableField(mapping="news", fileNameProperty="image.name", size="image.size", mimeType="image.mimeType", originalName="image.originalName", dimensions="image.dimensions")
+     * @Vich\UploadableField(mapping="user", fileNameProperty="image.name", size="image.size", mimeType="image.mimeType", originalName="image.originalName", dimensions="image.dimensions")
      */
     private ?File $imageFile = null;
 
