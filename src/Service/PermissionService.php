@@ -169,7 +169,7 @@ final class PermissionService
     {
         $admins = $this->repo->findAll();
         $admins = array_filter($admins, function (UserAdmin $a) { return !empty($a->getPermissions()); });
-        $ids = array_map(function (UserAdmin $a) {return $a->getId(); }, $admins);
+        $ids = array_map(function (UserAdmin $a) {return $a->getUuid(); }, $admins);
         $users = $this->userRepo->findById($ids);
 
         $ret = [];

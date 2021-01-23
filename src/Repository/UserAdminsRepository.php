@@ -25,7 +25,7 @@ class UserAdminsRepository extends ServiceEntityRepository
     {
         try {
             return $this->createQueryBuilder('u')
-                ->andWhere('u.guid = :uuid')
+                ->andWhere('u.uuid = :uuid')
                 ->setParameter('uuid', $user->getUuid())
                 ->getQuery()
                 ->getOneOrNullResult();
@@ -42,33 +42,4 @@ class UserAdminsRepository extends ServiceEntityRepository
 //            return false;
 //        return $userAdmin->
 //    }
-
-    // /**
-    //  * @return UserAdmins[] Returns an array of UserAdmins objects
-    //  */
-    /*
-    public function findByExampleField($value)
-    {
-        return $this->createQueryBuilder('u')
-            ->andWhere('u.exampleField = :val')
-            ->setParameter('val', $value)
-            ->orderBy('u.id', 'ASC')
-            ->setMaxResults(10)
-            ->getQuery()
-            ->getResult()
-        ;
-    }
-    */
-
-    /*
-    public function findOneBySomeField($value): ?UserAdmins
-    {
-        return $this->createQueryBuilder('u')
-            ->andWhere('u.exampleField = :val')
-            ->setParameter('val', $value)
-            ->getQuery()
-            ->getOneOrNullResult()
-        ;
-    }
-    */
 }
