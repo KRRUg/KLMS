@@ -5,7 +5,7 @@
 {% block main %}
     <div class="container">
         {% embed "site/components/cards/skeletons/cardProfile.html.twig"  with {'cardSymbole': 'fas fa-user-circle fa-9x'} %}
-            {% set profile = is_granted('IS_AUTHENTICATED_FULLY') and app.user.user == user %}
+            {% set profile = is_granted('IS_AUTHENTICATED_REMEMBERED') and app.user.user == user %}
             {% set details = is_granted('ROLE_ADMIN') or profile %}
             {% block cardBody %}
                 {% if profile %}
@@ -19,7 +19,7 @@
                 {% endif %}
                 <h1 class="card-title">{{ user.nickname }} &nbsp;
                     <small class="text-muted d-block d-lg-inline">
-                        {% if is_granted('IS_AUTHENTICATED_FULLY') %}
+                        {% if is_granted('IS_AUTHENTICATED_REMEMBERED') %}
                             {{ user.firstname }}
                         {% endif %}
                         {% if details %}

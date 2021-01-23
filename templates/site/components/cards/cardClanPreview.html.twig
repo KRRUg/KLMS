@@ -7,7 +7,7 @@
         </div>
         <div class="col">
             <div class="card-body p-3">
-                {% if is_granted('IS_AUTHENTICATED_FULLY') %}
+                {% if is_granted('IS_AUTHENTICATED_REMEMBERED') %}
                     <span class="float-right">
                         {% if app.user.user in clan.admins %}
                             <i class="fas fa-crown" title="Clan Admin"></i>

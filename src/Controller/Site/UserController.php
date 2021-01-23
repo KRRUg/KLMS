@@ -59,20 +59,17 @@ class UserController extends AbstractController
     }
 
     /**
+     * @IsGranted("IS_AUTHENTICATED_FULLY")
      * @Route("/user/profile/edit", name="user_profile_edit")
      */
     public function userProfileEdit(Request $request)
     {
-        $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
-
         $user = $this->getUser()->getUser();
 
         $form = $this->createForm(UserType::class, $user);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            // TODO: deny nulling out/changing? Address when already signed up to the Event
-            // TODO: deny editing Nickname when Event is in the Next 7(?) Days
             // TODO: add Support for changing the EMail
 
             $user = $form->getData();

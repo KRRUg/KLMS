@@ -6,7 +6,7 @@
     <div class="container">
         {% embed "site/components/cards/skeletons/cardProfile.html.twig"  with {'cardSymbole': 'fas fa-users fa-6x'} %}
             {% block cardBody %}
-                {% if is_granted('IS_AUTHENTICATED_FULLY') %}
+                {% if is_granted('IS_AUTHENTICATED_REMEMBERED') %}
                     {% set user = app.user.user %}
                     <div class="d-flex justify-content-between w-100">
                         <div class="d-flex justify-content-end w-100">

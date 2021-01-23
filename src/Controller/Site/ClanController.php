@@ -19,6 +19,9 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
+/**
+ * @IsGranted("IS_AUTHENTICATED_REMEMBERED")
+ */
 class ClanController extends AbstractController
 {
     //TODO: Better Exception/Error Handling see https://github.com/KRRUg/KLMS/blob/feature/admin-mgmt/src/Controller/BaseController.php and Admin/PermissionController.php
@@ -71,7 +74,6 @@ class ClanController extends AbstractController
     }
 
     /**
-     * @IsGranted("IS_AUTHENTICATED_REMEMBERED")
      * @Route("/clan/{uuid}/leave", name="clan_leave", methods={"POST"})
      */
     public function leave(string $uuid, Request $request)
@@ -94,7 +96,6 @@ class ClanController extends AbstractController
     }
 
     /**
-     * @IsGranted("IS_AUTHENTICATED_REMEMBERED")
      * @Route("/clan/{uuid}/member", name="clan_member_edit", methods={"POST"})
      */
     public function memberEdit(string $uuid, Request $request): RedirectResponse
@@ -162,7 +163,6 @@ class ClanController extends AbstractController
     }
 
     /**
-     * @IsGranted("IS_AUTHENTICATED_REMEMBERED")
      * @Route("/clan/{uuid}/join", name="clan_join", methods={"POST"})
      */
     public function join(string $uuid, Request $request): RedirectResponse
@@ -204,7 +204,6 @@ class ClanController extends AbstractController
     }
 
     /**
-     * @IsGranted("IS_AUTHENTICATED_REMEMBERED")
      * @Route("/clan/create", name="clan_create", methods={"GET", "POST"})
      */
     public function create(Request $request)
@@ -272,7 +271,6 @@ class ClanController extends AbstractController
     }
 
     /**
-     * @IsGranted("IS_AUTHENTICATED_REMEMBERED")
      * @Route("/clan/{uuid}/edit", name="clan_edit", methods={"GET", "POST"})
      *
      * @return AccessDeniedException|RedirectResponse|Response
@@ -313,7 +311,6 @@ class ClanController extends AbstractController
     }
 
     /**
-     * @IsGranted("IS_AUTHENTICATED_REMEMBERED")
      * @Route("/clan/{uuid}", name="clan_delete", methods={"DELETE"})
      *
      * @return AccessDeniedException|RedirectResponse|NotFoundHttpException
