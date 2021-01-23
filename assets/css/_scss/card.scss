@@ -13,3 +13,13 @@
 .mt-avatar {
     margin-top: $card-avatar-size*0.75;
 }
+
+.card-img-btn-bar {
+    position:absolute;
+    top:0.25rem;
+    right:0.25rem;
+    
+    .btn:not(:hover) {
+        background: rgba(248,249,250,0.75);
+    }
+}

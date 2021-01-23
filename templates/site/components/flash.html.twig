@@ -1,0 +1,13 @@
+<div class="container flash-msg-wrap">
+{% for label, messages in app.flashes(['success', 'info', 'warning', 'danger', 'error']) %}
+    {% for message in messages %}
+        <div class="alert alert-{{ label }} alert-dismissible fade show d-block alert-flash-msg mb-3 ">
+            <span class="badge badge-{{ label }} text-uppercase">{{ label }}</span>
+            {{ message }}
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+    {% endfor %}
+{% endfor %}
+</div>
