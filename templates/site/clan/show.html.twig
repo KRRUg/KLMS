@@ -6,59 +6,93 @@
     <div class="container">
         {% embed "site/components/cards/skeletons/cardProfile.html.twig"  with {'cardSymbole': 'fas fa-users fa-6x'} %}
             {% block cardBody %}
-                <div class="d-flex justify-content-between w-100">
-                    {% if isClanAdmin %}
+                {% if is_granted('IS_AUTHENTICATED_REMEMBERED') %}
+                    {% set user = app.user.user %}
+                    <div class="d-flex justify-content-between w-100">
                         <div class="d-flex justify-content-end w-100">
                             <div class="py-1">
-                                <a class="btn btn-outline-primary" href="{{ path('clan_edit', {'uuid' : clan.uuid}) }}"><i class="fas fa-edit"></i> Clan bearbeiten</a>
+                                {% if user in clan.users %}
+                                    <form data-toggle="confirmModal" method="post" action="{{ path('clan_leave', {'uuid' : clan.uuid}) }}" class="d-inline-block">
+                                        <input type="hidden" name="_token" value="{{ csrf_token(csrf_token_member_leave) }}">
+                                        <button class="btn btn-outline-primary" type="submit" value="löschen"><i class="fas fa-user-minus"></i> Clan verlassen</button>
+                                    </form>
+                                {% elseif user not in clan.users %}
+                                    <button class="btn btn-outline-primary" data-toggle="modal" data-target="#joinModal" id="join"><i class="fas fa-user-plus"></i> Clan beitreten</button>
+                                {% endif %}
+                                {% if user in clan.admins %}
+                                    <a class="btn btn-outline-primary" href="{{ path('clan_edit', {'uuid' : clan.uuid}) }}"><i class="fas fa-edit"></i> Clan bearbeiten</a>
+                                {% endif %}
                             </div>
                         </div>
-                    {% endif %}
-                </div>
+                    </div>
+                {% endif %}
                 <h1 class="card-title">
                     <div class="d-block d-lg-inline">
                         <span class="badge badge-pill badge-primary">{{ clan.clantag }}</span>
                     </div>
                     {{ clan.name }}
                 </h1>
-                <div class="card-text mb-3">
+                <hr>
+                {% if clan.description is not empty %}
+                    <div class="card-text mb-3">
+                        <blockquote class="blockquote">
+                            <p class="mb-0">{{ clan.description }}</p>
+                        </blockquote>
+                    </div>
                     <hr>
-                    <blockquote class="blockquote">
-                        <p class="mb-0">{{ clan.description }}</p>
-                    </blockquote>
+                {% endif %}
+                {% if clan.website is not empty %}
+                    <div class="card-text mb-3">
+                        <i class="fas fa-globe fa-fw mr-3" title="Webseite"></i><a href="{{ clan.website }}" target="_blank">{{ clan.website }}</a>
+                    </div>
                     <hr>
-                </div>
-                <div class="card-text mb-3">
-                    <i class="fas fa-globe fa-fw mr-3" title="Webseite"></i><a href="{{ clan.website }}" target="_blank">{{ clan.website }}</a>
-                </div>
+                {% endif %}
+                {% set admin = app.user.user in clan.admins %}
                 <div class="card-text">
-                    <hr>
-                    <h3>Mitglieder 
-                        {# ToDo: if user is member of this clan -> show clan leave instead #}
-                        <a href="{{ path('clan_join', {'uuid' : clan.uuid}) }}" class="px-2" style="font-size:1rem;">Clan beitreten</a>
-                    </h3>
-                    
+                    <h3 class="pt-4">Mitglieder</h3>
                     <table class="table table-striped table-hover datatable">
                         <thead>
                             <tr>
                                 <th scope="col" data-searchable="false">Status</th>
                                 <th scope="col">Nickname</th>
+                                {% if admin %}
+                                <th scope="col">Aktion</th>
+                                {% endif %}
                             </tr>
                         </thead>
                         {% for user in clan.users %}
                             <tr>
-                                <td data-sort="{{ user.admin }}">
-                                    {% if user.admin == 1 %}
+                                {% set userIsAdmin = user in clan.admins %}
+                                <td data-sort="{{ userIsAdmin }}">
+                                    {% if userIsAdmin %}
                                         <i class="fas fa-crown" title="Clan Admin"></i>
                                     {% else %}
                                         <i class="fas fa-user" title="Clan Mitglied"></i>
                                     {% endif %}
                                 </td>
                                 <td class="w-100">
-                                    <a href="{{ path('user_show', {'uuid' : user.user.uuid}) }}">
-                                        {{ user.user.nickname }}
+                                    <a href="{{ path('user_show', {'uuid' : user.uuid}) }}">
+                                        {{ user.nickname }}
                                     </a>
                                 </td>
+                                {% if admin %}
+                                    <td class="w-1 text-nowrap">
+                                        {% if user != app.user.user %}
+                                            <form data-toggle="confirmModal" method="post" action="{{ path('clan_member_edit', {'uuid' : clan.uuid}) }}">
+                                                <input type="hidden" name="_token" value="{{ csrf_token(csrf_token_member_edit) }}" />
+                                                <input type="hidden" name="user_uuid" value="{{ user.uuid }}" />
+                                                <input type="hidden" name="action" value="kick" />
+                                                <button type="submit" class="btn btn-outline-dark"><i class="fas fa-user-minus"></i></button>
+                                            </form>
+                                            <form data-toggle="confirmModal" method="post" action="{{ path('clan_member_edit', {'uuid' : clan.uuid}) }}">
+                                                <input type="hidden" name="_token" value="{{ csrf_token(csrf_token_member_edit) }}" />
+                                                <input type="hidden" name="user_uuid" value="{{ user.uuid }}" />
+                                                <input type="hidden" name="action" value="{% if userIsAdmin %}demote{% else %}promote{% endif %}" />
+                                                <button type="submit" class="btn btn-outline-dark">{% if userIsAdmin %}<i class="far fa-frown"></i>{% else %}<i class="fas fa-crown"></i>{% endif %}</button>
+                                            </form>
+                                        {% endif %}
+                                    </td>
+                                {% endif %}
                             </tr>
                         {% endfor %}
                     </table>
@@ -66,4 +100,5 @@
             {% endblock %}
         {% endembed  %}
     </div>
+    {% include 'site/clan/modal.join.html.twig' %}
 {% endblock %}

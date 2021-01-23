@@ -17,3 +17,12 @@ framework:
 
     property_info:
         enabled: true
+
+    http_client:
+        scoped_clients:
+            idm_client:
+                base_uri: '%env(KLMS_IDM_URL)%'
+                max_redirects: 3
+                headers:
+                    Accept: 'application/json'
+                    X-API-KEY: '%env(KLMS_IDM_APIKEY)%'

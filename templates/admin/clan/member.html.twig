@@ -1,0 +1,65 @@
+{% extends 'admin/adminBase.html.twig' %}
+
+{% block title %}KLMS - Admin{% endblock %}
+{% block siteheading %}<i class="fas fa-users"></i> Clan{% endblock %}
+{% block main %}
+    <h1 class="h3 card-title mb-4">Mitglieder Clan {{ clan.name }}</h1>
+    <div class="row">
+        <div class="col mb-4">
+            <div class="card">
+                <div class="card-body">
+                    <form method="post" class="form-inline" action="{{ path('admin_clan_member_edit', {'uuid' : clan.uuid}) }}">
+                        <label for="add_user_uuid">User hinzufügen: </label>
+                        <select id="add_user_uuid" style="width:30%;" class="select2-enable form-control" data-remote-target="{{ path('api_users', {'fullUser' : false}) }}" name="user_uuid">
+                        </select>
+                        <input type="hidden" name="_token" value="{{ csrf_token(csrf_token_member_edit) }}">
+                        <input type="hidden" name="action" value="add">
+                        <input class="btn btn-success" type="submit" value="User hinzufügen"/>
+                    </form>
+                    <hr />
+                    <table class="table table-striped table-hover admin-data-table" data-order='[[0, "desc"], [1, "asc"]]'>
+                        <thead>
+                            <tr>
+                                <td>Rang</td>
+                                <td>User</td>
+                                <td>Aktionen</td>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for user in clan.users %}
+                                {% set userIsAdmin = user in clan.admins %}
+                                <tr>
+                                    <td class="w-1">
+                                        {% if userIsAdmin %}
+                                            <i class="fas fa-crown" title="Clan Admin"></i>
+                                        {% else %}
+                                            <i class="fas fa-user" title="Clan Mitglied"></i>
+                                        {% endif %}
+                                    </td>
+                                    <td class="w-100">
+                                        <a data-toggle="ajaxModal" href="{{ path('admin_user_show', {'uuid' : user.uuid}) }}">{{ user.nickname }}</a>
+                                    </td>
+                                    <td class="text-nowrap w-1">
+                                        <form data-toggle="confirmModal" method="post" action="{{ path('admin_clan_member_edit', {'uuid' : clan.uuid}) }}">
+                                            <input type="hidden" name="_token" value="{{ csrf_token(csrf_token_member_edit) }}" />
+                                            <input type="hidden" name="user_uuid" value="{{ user.uuid }}" />
+                                            <input type="hidden" name="action" value="kick">
+                                            <button type="submit" class="btn btn-outline-dark"><i class="fas fa-user-minus"></i></button>
+                                        </form>
+                                        <form data-toggle="confirmModal" method="post" action="{{ path('admin_clan_member_edit', {'uuid' : clan.uuid}) }}">
+                                            <input type="hidden" name="_token" value="{{ csrf_token(csrf_token_member_edit) }}" />
+                                            <input type="hidden" name="user_uuid" value="{{ user.uuid }}" />
+                                            <input type="hidden" name="action" value="{% if userIsAdmin %}demote{% else %}promote{% endif %}" />
+                                            <button type="submit" class="btn btn-outline-dark">{% if userIsAdmin %}<i class="far fa-frown"></i>{% else %}<i class="fas fa-crown"></i>{% endif %}</button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+

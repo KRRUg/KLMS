@@ -2,8 +2,8 @@
 
 namespace App\Repository;
 
+use App\Entity\User;
 use App\Entity\UserGamer;
-use App\Security\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Common\Persistence\ManagerRegistry;
 use Doctrine\ORM\NonUniqueResultException;

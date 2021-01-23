@@ -2,11 +2,12 @@
 
 namespace App\Controller\Admin;
 
-use App\Form\Admin\AdminUserEditType;
-use App\Security\User;
-use App\Service\UserService;
+use App\Entity\User;
+use App\Form\UserType;
+use App\Idm\Exception\PersistException;
+use App\Idm\IdmManager;
+use App\Idm\IdmRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\Form\FormError;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
@@ -16,23 +17,31 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
  */
 class UserController extends AbstractController
 {
-    /**
-     * @var UserService
-     */
-    private $userService;
+    private IdmManager $manager;
+    private IdmRepository $userRepo;
 
-    public function __construct(UserService $userService)
+    public function __construct(IdmManager $manager)
     {
-        $this->userService = $userService;
+        $this->manager = $manager;
+        $this->userRepo = $manager->getRepository(User::class);
     }
 
     /**
      * @Route("/user", name="user", methods={"GET"})
      */
-    public function index()
+    public function index(Request $request)
     {
-        //TODO: implement Client Pagination
-        $users = $this->userService->queryUsers(null, null, 999999);
+        $search = $request->query->get('q', '');
+        $limit = $request->query->getInt('limit', 10);
+        $page = $request->query->getInt('page', 1);
+
+        $collection = $this->userRepo->findFuzzy($search);
+        $users = $collection->getPage($page, $limit);
+
+        if (empty($users)) {
+            throw $this->createNotFoundException();
+        }
+
         return $this->render('admin/user/index.html.twig', [
             'users' => $users,
         ]);
@@ -44,7 +53,11 @@ class UserController extends AbstractController
      */
     public function show(string $uuid)
     {
-        $user = $this->userService->getUser($uuid);
+        $user = $this->userRepo->findOneById($uuid);
+
+        if (empty($user)) {
+            throw $this->createNotFoundException('User not found');
+        }
 
         return $this->render('admin/user/show.html.twig', [
             'user' => $user,
@@ -56,37 +69,32 @@ class UserController extends AbstractController
      */
     public function edit(string $uuid, Request $request)
     {
-        $user = $this->userService->getUser($uuid);
+        $user = $this->userRepo->findOneById($uuid);
 
-        $form = $this->createForm(AdminUserEditType::class, $user);
+        if (empty($user)) {
+            throw $this->createNotFoundException('User not found');
+        }
+
+        $form = $this->createForm(UserType::class, $user, ['disable_on_lock' => false]);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-
-            // get Data from Form
-
-            /* @var User */
-            $userform = $form->getData();
-
-            if(!$this->userService->checkUserAvailability($userform->getNickname()) && $userform->getNickname() !== $user->getNickname()) {
-                $form->get('nickname')->addError(new FormError('Nickname wird bereits benutzt!'));
-
-                return $this->render('admin/user/edit.html.twig', [
-                    'form' => $form->createView(),
-                ]);
-            }
-            if($this->userService->editUser($userform)) {
-
-                $this->addFlash('info', 'User erfolgreich bearbeitet!');
-
+            try {
+                $user = $form->getData();
+                $this->manager->persist($user);
+                $this->manager->flush();
+                $this->addFlash('success', 'User erfolgreich bearbeitet!');
                 return $this->redirectToRoute('admin_user');
-            } else {
-
-                $this->addFlash('error', 'Es ist ein unerwarteter Fehler aufgetreten');
-
-                return $this->redirectToRoute('admin_user_edit', ['uuid' => $uuid]);
+            } catch (PersistException $e) {
+                switch ($e->getCode()) {
+                    case PersistException::REASON_NON_UNIQUE:
+                        $this->addFlash('error', 'Nickname und/oder Email ist schon in Verwendung');
+                        break;
+                    default:
+                        $this->addFlash('error', 'Es ist ein unerwarteter Fehler aufgetreten');
+                        break;
+                }
             }
-
         }
 
         return $this->render('admin/user/edit.html.twig', [

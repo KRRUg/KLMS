@@ -14,8 +14,12 @@
                 {% endif %}
                 {{ form_row(form.email, {'input_group_prepend' : '<i class="far fa-envelope"></i>'}) }}
                 {{ form_row(form.nickname, {'input_group_prepend' : '<i class="fas fa-headset"></i>'}) }}
-                {{ form_row(form.plainPassword.first, {'input_group_prepend' : '<i class="fas fa-key"></i>'}) }}
-                {{ form_row(form.plainPassword.second, {'input_group_prepend' : '<i class="fas fa-key"></i>'}) }}
+                {{ form_row(form.password.first, {'input_group_prepend' : '<i class="fas fa-key"></i>'}) }}
+                {{ form_row(form.password.second, {'input_group_prepend' : '<i class="fas fa-key"></i>'}) }}
+                {{ form_row(form.firstname, {'input_group_prepend' : '<i class="fas fa-signature"></i>'}) }}
+                {{ form_row(form.surname, {'input_group_prepend' : '<i class="fas fa-signature"></i>'}) }}
+                {{ form_row(form.infoMails) }}
+                <button type="submit" class="btn btn-primary">Registrieren</button>
                 {{ form_end(form) }}
         {% endblock %}
         
@@ -23,13 +27,4 @@
             Bereits registriert? <a href="{{ path('app_login') }}">Anmelden</a>
         {% endblock %}
     {% endembed  %}
-
-    <!--  OLD -->
-    <span id="emailvalidation"></span>
-
-    <span id="nicknamevalidation"></span>
-{% endblock %}
-{% block javascripts %}
-    {{ parent() }}
-    {{ encore_entry_script_tags('userRegister') }}
 {% endblock %}

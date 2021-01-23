@@ -19,10 +19,9 @@ class AgeFilterExtension extends AbstractExtension {
     }
 
     public function filterAge($date) {
-        $from = new \DateTime($date);
+        $from = $date instanceof \DateTimeInterface ? $date : new \DateTime((string) $date);
         $to   = new \DateTime('today');
 
         return $from->diff($to)->y;
     }
-
 }

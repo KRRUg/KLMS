@@ -2,12 +2,21 @@
 
 namespace App\Controller\Site;
 
+use App\Entity\Clan;
 use App\Entity\News;
+use App\Entity\Seat;
+use App\Entity\User;
+use App\Entity\UserGamer;
+use App\Idm\IdmManager;
 use App\Repository\NewsRepository;
 use App\Service\NewsService;
+use Doctrine\ORM\EntityManager;
+use Doctrine\ORM\EntityManagerInterface;
+use Ramsey\Uuid\Uuid;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**

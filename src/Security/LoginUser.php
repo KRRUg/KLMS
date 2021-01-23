@@ -4,6 +4,7 @@
 namespace App\Security;
 
 
+use App\Entity\User;
 use Symfony\Component\Security\Core\User\UserInterface;
 
 class LoginUser implements UserInterface
@@ -11,12 +12,12 @@ class LoginUser implements UserInterface
     /**
      * @var User
      */
-    private $user;
+    private User $user;
 
     /**
      * @var string[]
      */
-    private $roles = [];
+    private array $roles = [];
 
     /**
      * LoginUser constructor.

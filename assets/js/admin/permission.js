@@ -232,7 +232,6 @@ $.extend(EditModal.prototype, {
                 $wrapper.addClass('has-error');
             }
         });
-        console.log(errorData);
     },
 });
 

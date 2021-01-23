@@ -6,6 +6,8 @@
     <div class="container">
         {% embed "site/components/cards/skeletons/cardProfile.html.twig"  with {'cardSymbole': 'fas fas fa-user-circle fa-9x'} %}
             {% block cardBody %}
+                {% set user = form.vars.data %}
+
                 <h1 class="h3 card-title mb-4">Profil bearbeiten</h1>
                 {{ form_start(form) }}
                 {% if not form.vars.valid %}
@@ -13,7 +15,6 @@
                         <i class="fas fa-exclamation-circle"></i> {{ form_errors(form) }}
                     </div>
                 {% endif %}
-                {{ form_row(form.id) }}
 
                 <h2 class="h4 pt-3">Persönliche Informationen</h2>
                 <hr>
@@ -26,8 +27,15 @@
                         {{ form_row(form.surname, {'input_group_prepend' : '<i class="fas fa-signature"></i>'}) }}
                     </div>
                 </div>
-                {{ form_row(form.birthdate, {'input_group_prepend' : '<i class="fas fa-birthday-cake"></i>'}) }}
                 {{ form_row(form.email, {'input_group_prepend' : '<i class="far fa-envelope"></i>'}) }}
+                {{ form_row(form.birthdate, {'input_group_prepend' : '<i class="fas fa-birthday-cake"></i>'}) }}
+                {{ form_row(form.gender, {'input_group_prepend' : '<i class="fas fa-venus-mars"></i>'}) }}
+
+                {% if user.personalDataConfirmed %}
+                    <span class="text-muted">Persönliche Daten wurden verifiziert und können nicht geändert werden.</span>
+                {% elseif user.personalDataLocked %}
+                    <span class="text-muted">Persönliche Daten können nicht geändert werden.</span>
+                {% endif %}
 
                 <h2 class="h4 pt-3">Adresse</h2>
                 <hr> 
@@ -49,8 +57,11 @@
                 {{ form_row(form.steamAccount, {'input_group_prepend' : '<i class="fab fa-steam"></i>'}) }}
                 {{ form_row(form.website, {'input_group_prepend' : '<i class="fas fa-globe"></i>'}) }}
                 {{ form_row(form.hardware, {'input_group_prepend' : '<i class="fas fa-desktop"></i>'}) }}
-                {{ form_row(form.gender, {'input_group_prepend' : '<i class="fas fa-venus-mars"></i>'}) }}
                 <hr>
+                <div class="float-right">
+                    <a class="btn btn-secondary" href="{{ path('user_profile') }}">Abbrechen</a>
+                    <button type="submit" id="user_save" class="btn-primary btn">Speichern</button>
+                </div>
                 {{ form_end(form) }}
             {% endblock %}
         {% endembed  %}

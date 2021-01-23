@@ -65,10 +65,10 @@ footer {
     min-width: $dropdown-min-width * 2;
 }
 
-input.datetimepicker[readonly] {
+input.datetimepicker[readonly]:not([disabled]) {
     background:$input-bg;
 }
 
-input.datepicker[readonly] {
+input.datepicker[readonly]:not([disabled]) {
     background:$input-bg;
 }

@@ -1,8 +1,21 @@
 {% extends 'admin/adminBase.html.twig' %}
 
 {% block title %}KLMS - Admin{% endblock %}
-{% block siteheading %}<i class="far fa-file-alt"></i> Clan{% endblock %}
+{% block siteheading %}<i class="fas fa-users"></i> Clan{% endblock %}
 {% block main %}
-    {{  form(form) }}
+    <div class="row">
+        <div class="col">
+            <div class="card mb-4">
+                <div class="card-body">
+                    {{ form_start(form) }}
+                    {{ form_rest(form) }}
+                    <div class="float-right">
+                        <a class="btn btn-secondary" href="{{ path('admin_clan') }}">Abbrechen</a>
+                        <button type="submit" id="clan_save" class="btn-primary btn">Speichern</button>
+                    </div>
+                    {{ form_end(form) }}
+                </div>
+            </div>
+        </div>
+    </div>
 {% endblock %}
-
