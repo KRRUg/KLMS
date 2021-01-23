@@ -11,15 +11,16 @@
                     <div class="d-flex justify-content-between w-100">
                         <div class="d-flex justify-content-end w-100">
                             <div class="py-1">
-                                {% if user in clan.admins %}
-                                    <a class="btn btn-outline-primary" href="{{ path('clan_edit', {'uuid' : clan.uuid}) }}"><i class="fas fa-edit"></i> Clan bearbeiten</a>
-                                {% elseif user in clan.users %}
+                                {% if user in clan.users %}
                                     <form data-toggle="confirmModal" method="post" action="{{ path('clan_leave', {'uuid' : clan.uuid}) }}" class="d-inline-block">
                                         <input type="hidden" name="_token" value="{{ csrf_token(csrf_token_member_leave) }}">
                                         <button class="btn btn-outline-primary" type="submit" value="löschen"><i class="fas fa-user-minus"></i> Clan verlassen</button>
                                     </form>
                                 {% elseif user not in clan.users %}
                                     <button class="btn btn-outline-primary" data-toggle="modal" data-target="#joinModal" id="join"><i class="fas fa-user-plus"></i> Clan beitreten</button>
+                                {% endif %}
+                                {% if user in clan.admins %}
+                                    <a class="btn btn-outline-primary" href="{{ path('clan_edit', {'uuid' : clan.uuid}) }}"><i class="fas fa-edit"></i> Clan bearbeiten</a>
                                 {% endif %}
                             </div>
                         </div>

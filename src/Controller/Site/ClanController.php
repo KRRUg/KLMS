@@ -136,6 +136,11 @@ class ClanController extends AbstractController
 
     private function removeUserFromClan(Clan $clan, User $user)
     {
+        if ($clan->isAdmin($user) && count($clan->getAdmins()) === 1) {
+            $this->addFlash('warning', 'Der letzte Admin kann den Clan nicht verlassen.
+             Anderen Admin festlegen oder Clan löschen!');
+            return;
+        }
         try {
             $clan->removeUser($user);
             $this->im->flush();
@@ -147,6 +152,11 @@ class ClanController extends AbstractController
 
     private function setUserAdmin(Clan $clan, User $user, bool $admin)
     {
+        if (!$admin && $clan->isAdmin($user) && count($clan->getAdmins()) === 1) {
+            $this->addFlash('warning', 'Der letzte Admin muss Admin bleiben.
+             Anderen Admin festlegen oder Clan löschen!');
+            return;
+        }
         try {
             if ($admin)
                 $clan->addAdmin($user);
