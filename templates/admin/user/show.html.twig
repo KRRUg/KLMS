@@ -40,10 +40,6 @@
                         <i class="fas fa-birthday-cake fa-fw mr-3" title="Geburtstag"></i>
                         {% if user.birthdate is not empty %}
                             {{ user.birthdate|date("d. F Y") }} <strong>Alter: {{ user.birthdate|age }} Jahre</strong>
-                            {# TODO: IF user_dob_is_verified #}
-                            <span class="ml-3 badge badge-pill badge-primary" title="Dieses Geburtsdatum wurde erfolgreich überprüft!">
-                                <i class="fas fa-check"></i> Geprüft
-                            </span>
                         {% else %}
                             {{ user.birthdate|defaultBadge('Geburtstag n.v.') }}
                         {% endif %}

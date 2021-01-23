@@ -24,7 +24,7 @@ $(document).ready(function () {
     $('.datetimepicker').DateTimePicker();
     $('.datepicker').flatpickr({
         altInput: true,
-        altFormat: "j.m.Y",
+        altFormat: "d.m.Y",
         dateFormat: "Y-m-d",
         locale: German
     }
@@ -33,6 +33,6 @@ $(document).ready(function () {
 
     setTimeout(function () {
         $('.alert-flash-msg').alert('close');
-    }, 3000);
+    }, 6500);
 
 });

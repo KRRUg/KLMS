@@ -26,6 +26,11 @@
                             {{ user.surname }}
                         {% endif %}
                     </small></h1>
+                    {% if details and user.personalDataConfirmed %}
+                        <span class="ml-3 badge badge-pill badge-primary" title="Persönliche Daten wurden überprüft!">
+                                    <i class="fas fa-check"></i> verifiziert
+                                </span>
+                    {% endif %}
                 <hr>
                 {% if user.statements | trim %}
                 <div class="card-text mb-3">
@@ -69,14 +74,19 @@
                             </div>
                         </li>
                     {% endif %}
-                    {% if details and user.phone | trim %}
-                        <li class="list-group-item">
-                            <i class="fas fa-mobile-alt fa-fw mr-3" title="Telefonnummer"></i><a href="tel:{{ user.phone }}">{{ user.phone }}</a>
-                        </li>
-                    {% endif %}
                     {% if details and user.gender | trim %}
                         <li class="list-group-item">
                             <i class="fas fa-venus-mars fa-fw mr-3" title="Geschlecht"></i>{% if user.gender == 'm' %} männlich {% elseif user.gender == 'f' %} weiblich {% else %} divers {% endif %}
+                        </li>
+                    {% endif %}
+                    {% if details and user.birthdate is not empty %}
+                        <li class="list-group-item">
+                            <i class="fas fa-birthday-cake fa-fw mr-3" title="Geburtstag"></i>{{ user.birthdate|date("d. F Y") }}
+                        </li>
+                    {% endif %}
+                    {% if details and user.phone | trim %}
+                        <li class="list-group-item">
+                            <i class="fas fa-mobile-alt fa-fw mr-3" title="Telefonnummer"></i><a href="tel:{{ user.phone }}">{{ user.phone }}</a>
                         </li>
                     {% endif %}
                     {% if user.steamaccount | trim %}
@@ -93,15 +103,6 @@
                         <li class="list-group-item">
                             <i class="fas fa-desktop fa-fw mr-3" title="Hardware"></i>{{ user.hardware }}
                         </li>
-                    {% endif %}
-                    {% if details and user.birthdate is not empty %}
-                    <li class="list-group-item">
-                        <i class="fas fa-birthday-cake fa-fw mr-3" title="Geburtstag"></i>{{ user.birthdate|date("d. F Y") }}
-                        {# TODO: IF user_dob_is_verified #}
-                        <span class="ml-3 badge badge-pill badge-primary" title="Dieses Geburtsdatum wurde erfolgreich überprüft!">
-                            <i class="fas fa-check"></i> Geprüft
-                        </span>
-                    </li>
                     {% endif %}
                     <li class="list-group-item">
                         <i class="fas fa-clock fa-fw mr-3" title="dabei seit"></i>{{ user.registeredAt|date("d. F Y") }}
