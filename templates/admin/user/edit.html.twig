@@ -5,11 +5,6 @@
 {% block main %}
     <h1 class="h3 card-title mb-4">User {{ form.vars.value.nickname }} bearbeiten</h1>
     {{ form_start(form) }}
-    {% if not form.vars.valid %}
-        <div class="alert alert-danger">
-            <i class="fas fa-exclamation-circle"></i> {{ form_errors(form) }}
-        </div>
-    {% endif %}
 
     {% set data = form.vars.data %}
 
@@ -48,6 +43,7 @@
                     Email Confirmed
                     {% endif %}
                     {{ form_row(form.gender, {'input_group_prepend' : '<i class="fas fa-venus-mars fa-fw"></i>'}) }}
+                    {{ form_row(form.personalDataConfirmed) }}
                 {% endblock %}
             {% endembed  %}
         </div>
@@ -76,11 +72,11 @@
                 <div class="card-body">
                     <h2 class="h4 pt-3">Allgemeines</h2>
                     <hr>
-                    {{ form_row(form.statements, {'input_group_prepend' : '<i class="far fa-comment-dots fa-fw"></i>'}) }}
                     {{ form_row(form.phone, {'input_group_prepend' : '<i class="fas fa-mobile-alt fa-fw"></i>'}) }}
                     {{ form_row(form.steamAccount, {'input_group_prepend' : '<i class="fab fa-steam fa-fw"></i>'}) }}
                     {{ form_row(form.website, {'input_group_prepend' : '<i class="fas fa-globe fa-fw"></i>'}) }}
                     {{ form_row(form.hardware, {'input_group_prepend' : '<i class="fas fa-desktop fa-fw"></i>'}) }}
+                    {{ form_row(form.statements, {'input_group_prepend' : '<i class="far fa-comment-dots fa-fw"></i>'}) }}
                 </div>
             </div>
         </div>

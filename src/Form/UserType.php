@@ -5,6 +5,7 @@ namespace App\Form;
 use App\Entity\User;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\BirthdayType;
+use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\CountryType;
 use Symfony\Component\Form\Extension\Core\Type\EmailType;
@@ -12,6 +13,9 @@ use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Core\Type\UrlType;
 use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Component\Form\FormError;
+use Symfony\Component\Form\FormEvent;
+use Symfony\Component\Form\FormEvents;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class UserType extends AbstractType
@@ -33,6 +37,15 @@ class UserType extends AbstractType
                 'label' => "Geburtsdatum",
                 'widget' => 'single_text',
                 'required' => false,
+            ])
+            ->add('gender', ChoiceType::class, [
+                'label' => "Geschlecht",
+                'required' => false,
+                'choices' => [
+                    'Weiblich' => 'f',
+                    'Männlich' => 'm',
+                    'Divers' => 'x',
+                ],
             ])
             ->add('postcode', TextType::class, [
                 'required' => false,
@@ -56,34 +69,86 @@ class UserType extends AbstractType
                 'label' => "Telefon",
                 'required' => false,
             ])
-            ->add('gender', ChoiceType::class, [
-                'label' => "Geschlecht",
-                'required' => false,
-                'choices' => [
-                    'Weiblich' => 'f',
-                    'Männlich' => 'm',
-                    'Divers' => 'x',
-                ],
-            ])
             ->add('website', UrlType::class, [
                 'required' => false,
             ])
             ->add('steamAccount', TextType::class, [
+                'label' => "Steam Account",
                 'required' => false,
             ])
             ->add('hardware', TextType::class, [
                 'required' => false,
             ])
             ->add('statements', TextType::class, [
+                'label' => "Statement",
                 'required' => false,
             ])
         ;
+
+        if ($options['disable_on_lock']) {
+            $builder->addEventListener(FormEvents::PRE_SET_DATA, array($this, 'onPreSetData'));
+        } else {
+            $builder
+                ->add('personalDataConfirmed', CheckboxType::class, [
+                    'required' => false,
+                    'label' => "Daten überprüft"
+                    ])
+            ;
+            $builder->addEventListener(FormEvents::POST_SUBMIT, array($this, 'onPostSubmit'));
+        }
+    }
+
+    private const CONFIRMABLE_FIELDS = ['nickname', 'firstname', 'surname', 'birthdate', 'gender'];
+
+    public function onPreSetData(FormEvent $event)
+    {
+        $form = $event->getForm();
+        $data = $event->getData();
+
+        if (!$data){
+            return;
+        }
+
+        $confirmed = $data->getPersonalDataConfirmed() ?? false;
+        $locked = $data->getPersonalDataLocked() ?? false;
+
+        if ($confirmed || $locked) {
+            foreach (self::CONFIRMABLE_FIELDS as $field) {
+                $item = $form->get($field);
+                $options = $item->getConfig()->getOptions();
+                $type = get_class($item->getConfig()->getType()->getInnerType());
+                $options['disabled'] = true;
+                $form->add($field, $type, $options);
+            }
+        }
+    }
+
+    public function onPostSubmit(FormEvent $event)
+    {
+        $form = $event->getForm();
+        $confirmed = $form->get('personalDataConfirmed');
+        if ($confirmed->getData()) {
+            $missing = false;
+            foreach (self::CONFIRMABLE_FIELDS as $field) {
+                $item = $form->get($field);
+                if ($item->isEmpty()) {
+                    $item->addError(new FormError('Nicht vollständig ausgefüllt.'));
+                    $missing = true;
+                }
+            }
+            if ($missing) {
+                $confirmed->addError(new FormError('Nicht alles ausgefüllt.'));
+            }
+        }
     }
 
     public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefaults([
             'data_class' => User::class,
+            'disable_on_lock' => true,
         ]);
+
+        $resolver->setAllowedTypes('disable_on_lock', 'bool');
     }
 }

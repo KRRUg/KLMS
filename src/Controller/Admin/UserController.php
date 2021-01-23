@@ -75,7 +75,7 @@ class UserController extends AbstractController
             throw $this->createNotFoundException('User not found');
         }
 
-        $form = $this->createForm(UserType::class, $user);
+        $form = $this->createForm(UserType::class, $user, ['disable_on_lock' => false]);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
