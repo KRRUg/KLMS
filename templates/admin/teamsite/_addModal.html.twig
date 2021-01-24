@@ -1,0 +1,11 @@
+{% set id = 'addTeamMemberModal' %}
+{% embed "admin/components/modals/skeleton.html.twig" %}
+    {% block modalBody %}
+
+    {% endblock %}
+
+    {% block modalFooter %}
+        <button type="reset" class="btn-secondary btn" data-dismiss="modal">{{ button_cancel | default('Abbrechen') }}</button>
+        <button type="submit" class="btn-primary btn">{{ button_save | default('Hinzufügen') }}</button>
+    {% endblock %}
+{% endembed %}

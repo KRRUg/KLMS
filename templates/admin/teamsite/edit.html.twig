@@ -1,0 +1,39 @@
+{% extends 'admin/adminBase.html.twig' %}
+
+{% block title %}KLMS - Admin{% endblock %}
+{% block siteheading %}<i class="fas fa-sitemap"></i> Teamsite <span class="text-primary">{{ teamsite.name }}</span>{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+{#    {{ encore_entry_script_tags('teamsite') }}#}
+{% endblock %}
+
+{% block main %}
+    {% set root = nav.renderNav(navMenu) %}
+
+    <div class="row mb-4">
+        <div class="col-12">
+            <a class="btn btn-success" id="new" href="#addTeamMemberModal" data-toggle="modal" data-target="#addTeamMemberModal"><i class="fas fa-plus"></i> Eintrag hinzufügen</a>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col mb-4">
+            <div class="card">
+                <div class="card-body">
+
+                </div>
+            </div>
+        </div>
+    </div>
+    <hr>
+    {{ form_start(form, {'attr': {'id': 'teamsite_edit_form'}}) }}
+    <div class="float-right">
+        {{ form_row(form.teamsite) }}
+        
+        <a class="btn btn-secondary" href="{{ path('admin_teamsite') }}">Abbrechen</a>
+        <button type="submit" id="news_save" class="btn-primary btn">Speichern</button>
+    </div>
+    {{ form_end(form) }}
+    
+    {% include 'admin/teamsite/_addModal.html.twig' %}
+{% endblock %}

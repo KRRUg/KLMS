@@ -9,16 +9,17 @@ use Doctrine\ORM\Mapping as ORM;
  * @ORM\Table(
  *     name="navigation_node",
  *     uniqueConstraints={
- *        @ORM\UniqueConstraint(name="lft_unique", columns={"navigation_id", "lft" }),
- *        @ORM\UniqueConstraint(name="rgt_unique", columns={"navigation_id", "rgt" }),
- * })
+ *        @ORM\UniqueConstraint(name="nav_node_lft_unique", columns={"navigation_id", "lft" }),
+ *        @ORM\UniqueConstraint(name="nav_node_rgt_unique", columns={"navigation_id", "rgt" }),
+ *     },
+ * )
  * @ORM\InheritanceType("SINGLE_TABLE")
  * @ORM\DiscriminatorColumn(name="type", type="string", length=25)
  * @ORM\DiscriminatorMap({
  *     "root" = "NavigationNodeRoot",
  *     "empty" = "NavigationNodeEmpty",
  *     "content" = "NavigationNodeContent",
- *     "generic" = "NavigationNodeGeneric"
+ *     "generic" = "NavigationNodeGeneric",
  * })
  */
 abstract class NavigationNode

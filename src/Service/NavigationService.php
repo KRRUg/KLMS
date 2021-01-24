@@ -17,10 +17,10 @@ use Doctrine\ORM\EntityManagerInterface;
 
 class NavigationService
 {
-    private $em;
-    private $nodeRepo;
-    private $navRepo;
-    private $contentRepo;
+    private EntityManagerInterface $em;
+    private NavigationRepository $navRepo;
+    private NavigationNodeRepository $nodeRepo;
+    private ContentRepository $contentRepo;
 
     const URL_REGEX = '(^(?:http(s)?:\/\/)?[\w.-]+(?:\.[\w\.-]+)+[\w\-\._~:\/?#[\]@!\$&\'\(\)\*\+,;=.]+$|^(\/[\w\-\._~:\/?#[\]@!\$&\'\(\)\*\+,;=.]*)+$)';
 
