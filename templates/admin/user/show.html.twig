@@ -19,7 +19,7 @@
             <div class="row">
                 <div class="col-auto">
                     {% set img = user.uuid | userimage %}
-                    {% if img %}
+                    {% if img is not empty %}
                         <img src="{{ img | imagine_filter('user_img') }}" />
                     {% else %}
                         <i class="far fa-user-circle fa-9x"></i>

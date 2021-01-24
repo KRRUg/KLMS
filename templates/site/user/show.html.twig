@@ -4,7 +4,7 @@
 
 {% block main %}
     <div class="container">
-        {% embed "site/components/cards/skeletons/cardProfile.html.twig"  with { cardImg: user.uuid|userimage|imagine_filter('user_img') ,'cardSymbole': 'fas fas fa-user-circle fa-9x'} %}
+        {% embed "site/components/cards/skeletons/cardProfile.html.twig"  with { cardImg: user.uuid|userimage,'cardSymbole': 'fas fas fa-user-circle fa-9x'} %}
             {% set profile = is_granted('IS_AUTHENTICATED_REMEMBERED') and app.user.user == user %}
             {% set details = is_granted('ROLE_ADMIN') or profile %}
             {% block cardBody %}

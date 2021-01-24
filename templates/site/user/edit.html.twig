@@ -5,7 +5,7 @@
 {% block main %}
     {% set user = form.vars.data %}
     <div class="container">
-        {% embed "site/components/cards/skeletons/cardProfile.html.twig"  with { cardImg: user.uuid|userimage|imagine_filter('user_img') ,'cardSymbole': 'fas fas fa-user-circle fa-9x'} %}
+        {% embed "site/components/cards/skeletons/cardProfile.html.twig"  with { cardImg: user.uuid|userimage, 'cardSymbole': 'fas fas fa-user-circle fa-9x'} %}
             {% block cardBody %}
                 <h1 class="h3 card-title mb-4">Profil bearbeiten</h1>
                 {{ form_start(form) }}

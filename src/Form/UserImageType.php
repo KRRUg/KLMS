@@ -14,10 +14,11 @@ class UserImageType extends AbstractType
     {
         $builder->add('imageFile', VichFileType::class, [
             'required' => false,
-            'allow_delete' => false,
+            'allow_delete' => true,
             'download_uri' => false,
             'asset_helper' => true,
             'label' => 'Userbild',
+            'delete_label' => 'Bild löschen',
         ]);
     }
 

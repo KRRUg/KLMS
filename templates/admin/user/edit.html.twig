@@ -7,7 +7,7 @@
     {{ form_start(form) }}
 
     {% set data = form.vars.data %}
-    {% set image = vich_uploader_asset(form.image.vars.data, "imageFile") | imagine_filter('user_img') %}
+    {% set image = vich_uploader_asset(form.image.vars.data, "imageFile") %}
 
     <div class="row">
         <div class="col-md-8 order-md-1 mb-4">
