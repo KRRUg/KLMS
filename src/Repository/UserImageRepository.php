@@ -6,6 +6,7 @@ use App\Entity\User;
 use App\Entity\UserImage;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
+use Ramsey\Uuid\UuidInterface;
 
 /**
  * @method UserImage|null find($id, $lockMode = null, $lockVersion = null)
@@ -28,5 +29,15 @@ class UserImageRepository extends ServiceEntityRepository
             ->getQuery()
             ->getOneOrNullResult()
         ;
+    }
+
+    public function findOneByUuid(UuidInterface $uuid): ?UserImage
+    {
+        return $this->createQueryBuilder('i')
+            ->andWhere('i.uuid = :val')
+            ->setParameter('val', $uuid)
+            ->getQuery()
+            ->getOneOrNullResult()
+            ;
     }
 }

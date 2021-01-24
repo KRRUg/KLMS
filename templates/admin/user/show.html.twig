@@ -18,7 +18,12 @@
             </div>
             <div class="row">
                 <div class="col-auto">
-                    <i class="far fa-user-circle fa-9x"></i>
+                    {% set img = user.uuid | userimage %}
+                    {% if img %}
+                        <img src="{{ img | imagine_filter('user_img') }}" />
+                    {% else %}
+                        <i class="far fa-user-circle fa-9x"></i>
+                    {% endif %}
                 </div>
                 <div class="col">
                     <i class="fas fa-headset fa-fw mr-2" title="Name"></i> 

@@ -6,20 +6,18 @@ use App\Entity\UserImage;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
-use Vich\UploaderBundle\Form\Type\VichImageType;
+use Vich\UploaderBundle\Form\Type\VichFileType;
 
 class UserImageType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
-        $builder->add('imageFile', VichImageType::class, [
+        $builder->add('imageFile', VichFileType::class, [
             'required' => false,
             'allow_delete' => false,
             'download_uri' => false,
-            'image_uri' => false,
-            'asset_helper' => false,
-            'imagine_pattern' => 'user_img',
-            'label' => 'Bild',
+            'asset_helper' => true,
+            'label' => 'Userbild',
         ]);
     }
 

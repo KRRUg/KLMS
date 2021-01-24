@@ -4,18 +4,25 @@ namespace App\Twig;
 
 use App\Entity\User;
 use App\Idm\IdmManager;
+use App\Idm\IdmRepository;
+use App\Repository\UserImageRepository;
 use Ramsey\Uuid\Uuid;
 use Twig\Extension\AbstractExtension;
 use Twig\TwigFilter;
 use Twig\TwigTest;
+use Vich\UploaderBundle\Templating\Helper\UploaderHelper;
 
 class UserExtension extends AbstractExtension
 {
-    private $userRepo;
+    private IdmRepository $userRepo;
+    private UserImageRepository $imageRepo;
+    private UploaderHelper $ulh;
 
-    public function __construct(IdmManager $manager)
+    public function __construct(IdmManager $manager, UserImageRepository $imageRepo, UploaderHelper $ulh)
     {
         $this->userRepo = $manager->getRepository(User::class);
+        $this->imageRepo = $imageRepo;
+        $this->ulh = $ulh;
     }
 
     /**
@@ -34,11 +41,12 @@ class UserExtension extends AbstractExtension
     public function getFilters()
     {
         return [
-            new TwigFilter('username', [$this, 'getUsername']),
+            new TwigFilter('username', [$this, 'getUserName']),
+            new TwigFilter('userimage', [$this, 'getUserImage']),
         ];
     }
 
-    public function getUsername($userId)
+    public function getUserName($userId)
     {
         if (!Uuid::isValid($userId))
             return "";
@@ -49,6 +57,18 @@ class UserExtension extends AbstractExtension
             return "";
 
         return $user->getNickname();
+    }
+
+    public function getUserImage($userId)
+    {
+        if (!Uuid::isValid($userId))
+            return "";
+
+        $image = $this->imageRepo->findOneByUuid($userId);
+        if (empty($image))
+            return "";
+
+        return $this->ulh->asset($image, 'imageFile');
     }
 
     public function validUser($userId)

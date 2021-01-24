@@ -93,6 +93,7 @@ class UserController extends AbstractController
                 $this->manager->persist($user);
                 $this->manager->flush();
 
+                $image = $form->get('image')->getData();
                 if (!$form->get('image')->isEmpty()) {
                     $this->em->persist($image);
                 } else {

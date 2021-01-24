@@ -1,7 +1,7 @@
 <div class="card mb-3 h-100">
     <div class="row no-gutters h-100">
         <div class="col-sm-4 col-lg-2 bg-dark text-light text-center">
-            {% if cardImg is defined %}
+            {% if cardImg is not empty %}
                 <img class="card-img" src='{{ cardImg }}' />
             {% elseif cardSymbole is defined %}
                 <div class="my-3 d-inline-block">

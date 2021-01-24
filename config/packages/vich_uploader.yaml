@@ -24,9 +24,7 @@ vich_uploader:
         user:
             uri_prefix: /images/user
             upload_destination: '%kernel.project_dir%/public/images/user'
-            namer:
-                service: Vich\UploaderBundle\Naming\PropertyNamer
-                options: { property: 'uuid' }
+            namer: Vich\UploaderBundle\Naming\SmartUniqueNamer
             inject_on_load: true
             delete_on_update: true
             delete_on_remove: true
