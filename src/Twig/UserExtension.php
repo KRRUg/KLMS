@@ -16,13 +16,13 @@ class UserExtension extends AbstractExtension
 {
     private IdmRepository $userRepo;
     private UserImageRepository $imageRepo;
-    private UploaderHelper $ulh;
+    private UploaderHelper $uploadHelper;
 
-    public function __construct(IdmManager $manager, UserImageRepository $imageRepo, UploaderHelper $ulh)
+    public function __construct(IdmManager $manager, UserImageRepository $imageRepo, UploaderHelper $uploadHelper)
     {
         $this->userRepo = $manager->getRepository(User::class);
         $this->imageRepo = $imageRepo;
-        $this->ulh = $ulh;
+        $this->uploadHelper = $uploadHelper;
     }
 
     /**
@@ -41,17 +41,23 @@ class UserExtension extends AbstractExtension
     public function getFilters()
     {
         return [
+            new TwigFilter('user', [$this, 'getUser']),
             new TwigFilter('username', [$this, 'getUserName']),
-            new TwigFilter('userimage', [$this, 'getUserImage']),
+            new TwigFilter('user_image', [$this, 'getUserImage']),
         ];
     }
 
-    public function getUserName($userId)
+    public function getUser($userId): ?User
     {
         if (!Uuid::isValid($userId))
-            return "";
+            return null;
 
-        $user = $this->userRepo->findOneById($userId);
+        return $this->userRepo->findOneById($userId);
+    }
+
+    public function getUserName($userId): string
+    {
+        $user = $this->getUser($userId);
 
         if (empty($user))
             return "";
@@ -59,24 +65,17 @@ class UserExtension extends AbstractExtension
         return $user->getNickname();
     }
 
-    public function getUserImage($userId)
+    public function getUserImage(User $user): string
     {
-        if (!Uuid::isValid($userId))
-            return "";
-
-        $image = $this->imageRepo->findOneByUuid($userId);
+        $image = $this->imageRepo->findOneByUuid($user->getUuid());
         if (empty($image))
             return "";
 
-        return $this->ulh->asset($image, 'imageFile');
+        return $this->uploadHelper->asset($image, 'imageFile');
     }
 
-    public function validUser($userId)
+    public function validUser($userId): bool
     {
-        if (!Uuid::isValid($userId))
-            return false;
-
-        $user = $this->userRepo->findOneById($userId);
-        return !empty($user);
+        return !empty($this->getUser($userId));
     }
 }
