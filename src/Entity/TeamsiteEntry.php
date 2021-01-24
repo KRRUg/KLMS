@@ -37,7 +37,7 @@ class TeamsiteEntry
     /**
      * @ORM\Column(type="text")
      */
-    private ?string $text = '';
+    private ?string $description = '';
 
     /**
      * @ORM\Column(type="integer")
@@ -82,14 +82,14 @@ class TeamsiteEntry
         return $this;
     }
 
-    public function getText(): ?string
+    public function getDescription(): ?string
     {
-        return $this->text;
+        return $this->description;
     }
 
-    public function setText(string $text): self
+    public function setDescription(string $description): self
     {
-        $this->text = $text;
+        $this->description = $description;
         return $this;
     }
 

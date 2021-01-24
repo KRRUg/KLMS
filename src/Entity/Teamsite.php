@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use App\Entity\Traits\EntityHistoryTrait;
+use App\Helper\HistoryAwareEntity;
 use App\Repository\TeamsiteRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -12,7 +13,7 @@ use Doctrine\ORM\Mapping as ORM;
  * @ORM\Entity(repositoryClass=TeamsiteRepository::class)
  * @ORM\HasLifecycleCallbacks
  */
-class Teamsite
+class Teamsite implements HistoryAwareEntity
 {
     /**
      * @ORM\Id
@@ -92,6 +93,17 @@ class Teamsite
             $category->setTeamsite($this);
         }
 
+        return $this;
+    }
+
+    public function clearCategories(): self
+    {
+        foreach ($this->categories as $cat) {
+            if ($cat->getTeamsite() === $this) {
+                $cat->setTeamsite(null);
+            }
+        }
+        $this->categories->clear();
         return $this;
     }
 

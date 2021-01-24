@@ -27,7 +27,7 @@ class TeamsiteFixtures extends Fixture
             ->addEntry((new TeamsiteEntry())
                 ->setTitle('Chief Developer')
                 ->setUserUuid(Uuid::fromInteger(18))
-                ->setText('<i>Hacky</i> Hacker')
+                ->setDescription('<i>Hacky</i> Hacker')
                 ->setOrd(1)
             )
             ->addEntry((new TeamsiteEntry())
@@ -47,7 +47,7 @@ class TeamsiteFixtures extends Fixture
             ->addEntry((new TeamsiteEntry())
                 ->setUserUuid(Uuid::fromInteger(13))
                 ->setTitle("JS Developer")
-                ->setText("I ❤ JS")
+                ->setDescription("I ❤ JS")
                 ->setOrd(1)
             );
 

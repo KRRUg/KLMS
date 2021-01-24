@@ -1,24 +1,13 @@
 <?php
 
-
 namespace App\Controller\Admin;
 
-
 use App\Controller\BaseController;
-use App\Entity\Navigation;
 use App\Entity\Teamsite;
-use App\Form\NavigationNodeType;
-use App\Entity\NavigationNodeContent;
-use App\Entity\NavigationNodeEmpty;
-use App\Entity\NavigationNodeGeneric;
 use App\Form\TeamsiteType;
-use App\Service\ContentService;
-use App\Service\NavigationService;
 use App\Service\TeamsiteService;
-use Monolog\Logger;
 use Psr\Log\LoggerInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
-use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -63,14 +52,41 @@ class TeamsiteController extends BaseController
             $array = json_decode($form->get('content')->getData(), true);
             $success = $this->teamsiteService->parseSite($teamsite, $array);
             if ($success) {
-                $this->addFlash('success', 'Navigation updated');
+                $this->addFlash('success', 'Teamsite erfolgreich gespeichert.');
             } else {
-                $this->addFlash('danger', 'Navigation Speichern fehlgeschlagen');
+                $this->addFlash('danger', 'Teamsite Speichern fehlgeschlagen');
             }
             return $this->redirectToRoute('admin_teamsite');
         }
-        return $this->render('admin/navigation/edit.html.twig', [
-            'site' => $teamsite,
+        return $this->render('admin/teamsite/edit.html.twig', [
+            'teamsite' => $teamsite,
+            'form' => $form->createView(),
+        ]);
+    }
+
+    /**
+     * @Route("/new", name="_new", methods={"GET", "POST"})
+     */
+    public function new(Request $request)
+    {
+        $teamsite = new Teamsite();
+
+        $form = $this->createForm(TeamsiteType::class, $teamsite);
+        $form->get('content')->setData(json_encode([]));
+
+        $form->handleRequest($request);
+        if ($form->isSubmitted() && $form->isValid()) {
+            $array = json_decode($form->get('content')->getData(), true);
+            $success = $this->teamsiteService->parseSite($teamsite, $array);
+            if ($success) {
+                $this->addFlash('success', 'Teamsite erfolgreich angelegt.');
+            } else {
+                $this->addFlash('danger', 'Teamsite Speichern fehlgeschlagen');
+            }
+            return $this->redirectToRoute('admin_teamsite');
+        }
+        return $this->render('admin/teamsite/edit.html.twig', [
+            'teamsite' => null,
             'form' => $form->createView(),
         ]);
     }

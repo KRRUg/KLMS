@@ -3,6 +3,7 @@
 namespace App\Form;
 
 use App\Entity\Teamsite;
+use App\Helper\AuthorInsertSubscriber;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
@@ -13,10 +14,17 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 class TeamsiteType extends AbstractType
 {
+    private AuthorInsertSubscriber $authorInsertSubscriber;
+
+    public function __construct(AuthorInsertSubscriber $authorInsertSubscriber)
+    {
+        $this->authorInsertSubscriber = $authorInsertSubscriber;
+    }
+
+
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
-            ->add('name')
             ->add('title', TextType::class, [
                 'required' => true,
                 'label' => "Titel",
@@ -31,6 +39,7 @@ class TeamsiteType extends AbstractType
                 'required' => true,
                 'constraints' => [new Assert\Json()],
             ])
+            ->addEventSubscriber($this->authorInsertSubscriber)
         ;
     }
 

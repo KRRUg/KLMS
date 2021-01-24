@@ -41,7 +41,7 @@ class TextBlockService
         return array_key_exists($key, self::TEXT_BLOCK_KEYS);
     }
 
-    public function get(string $key): string
+    public function get(string $key): ?string
     {
         $key = strtoupper($key);
         if (!$this->validKey($key)) {

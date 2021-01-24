@@ -147,7 +147,7 @@ class NavigationService
      * @param int $count The lft value to start with.
      * @return bool True if parsing was successful, false otherwise
      */
-    private function parse(array $parse, array &$result = [], int &$count = 1): bool
+    private function parse(array $parse, array &$result, int &$count = 1): bool
     {
         $path = $parse[self::ARRAY_PATH];
         $name = $parse[self::ARRAY_NAME];
@@ -238,9 +238,9 @@ class NavigationService
         $this->em->persist($nav);
         $this->em->flush();
 
-        foreach ($result as $item)
+        foreach ($result as $item) {
             $nav->addNode($item);
-        $this->em->persist($nav);
+        }
         $this->em->flush();
         $this->em->commit();
 

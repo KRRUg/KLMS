@@ -2,16 +2,183 @@
 
 namespace App\Service;
 
+use App\Entity\Teamsite;
+use App\Entity\TeamsiteCategory;
+use App\Entity\TeamsiteEntry;
+use App\Entity\User;
+use App\Idm\IdmManager;
+use App\Idm\IdmRepository;
 use App\Repository\TeamsiteEntryRepository;
 use App\Repository\TeamsiteRepository;
+use Doctrine\ORM\EntityManagerInterface;
+use Ramsey\Uuid\Uuid;
 
 class TeamsiteService
 {
+    private EntityManagerInterface $em;
     private TeamsiteRepository $repo;
     private TeamsiteEntryRepository $entry;
+    private IdmRepository $userRepo;
+
+    public function __construct(
+        EntityManagerInterface $em,
+        IdmManager $im,
+        TeamsiteRepository $repo,
+        TeamsiteEntryRepository $entry
+    ){
+        $this->em = $em;
+        $this->repo = $repo;
+        $this->entry = $entry;
+        $this->userRepo = $im->getRepository(User::class);
+    }
+
+    private const ARRAY_TITLE = 'title';
+    private const ARRAY_DESCRIPTION = 'description';
+    private const ARRAY_ENTRIES = 'entries';
+    private const ARRAY_USER_UUID = 'user_uuid';
+    private const ARRAY_CATEGORY = [
+        self::ARRAY_TITLE,
+        self::ARRAY_DESCRIPTION,
+        self::ARRAY_ENTRIES,
+    ];
+    private const ARRAY_ENTRY = [
+        self::ARRAY_TITLE,
+        self::ARRAY_DESCRIPTION,
+        self::ARRAY_USER_UUID,
+    ];
 
     public function getAll()
     {
         return $this->repo->findAll();
+    }
+
+    public function renderSite(Teamsite $teamsite): ?array
+    {
+        $result = [];
+        foreach ($teamsite->getCategories() as $category) {
+            $cat_array = [
+                self::ARRAY_TITLE => $category->getTitle(),
+                self::ARRAY_DESCRIPTION => $category->getDescription(),
+                self::ARRAY_ENTRIES => array(),
+            ];
+            foreach ($category->getEntries() as $entry) {
+                $cat_array[self::ARRAY_ENTRIES][] = [
+                    self::ARRAY_TITLE => $entry->getTitle(),
+                    self::ARRAY_DESCRIPTION => $entry->getDescription(),
+                    self::ARRAY_USER_UUID => $entry->getUserUuid(),
+                ];
+            }
+            $result[] = $cat_array;
+        }
+        return $result;
+    }
+
+    private static function checkEntry(array $a): bool
+    {
+        if (!is_array($a)) {
+            return false;
+        }
+        foreach (self::ARRAY_ENTRY as $item) {
+            if (!array_key_exists($item, $a)) {
+                return false;
+            }
+        }
+        if (!((is_string($a[self::ARRAY_USER_UUID]) && Uuid::isValid($a[self::ARRAY_USER_UUID]))
+            && is_string($a[self::ARRAY_TITLE])
+            && is_string($a[self::ARRAY_DESCRIPTION])
+        )) {
+            return false;
+        }
+        return true;
+    }
+
+    private static function checkCategory(array $a): bool
+    {
+        if (!is_array($a)) {
+            return false;
+        }
+        foreach (self::ARRAY_CATEGORY as $item) {
+            if (!array_key_exists($item, $a)) {
+                return false;
+            }
+        }
+        if (!(is_array($a[self::ARRAY_ENTRIES])
+            && is_string($a[self::ARRAY_TITLE])
+            && is_string($a[self::ARRAY_DESCRIPTION])
+        )) {
+            return false;
+        }
+        foreach ($a[self::ARRAY_ENTRIES] as $entry) {
+            if (!self::checkEntry($entry)){
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private static function check(array $a): bool
+    {
+        foreach ($a as $category) {
+            if (!self::checkCategory($category)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private function parse(array $parse, array &$result = []): bool
+    {
+        $uuids = [];
+        $cnt = 1;
+        foreach ($parse as $item) {
+            $cat = (new TeamsiteCategory())
+                ->setTitle($item[self::ARRAY_TITLE])
+                ->setDescription($item[self::ARRAY_DESCRIPTION])
+                ->setOrd($cnt++);
+            $cnt_i = 1;
+            foreach ($item[self::ARRAY_ENTRIES] as $entry) {
+                $uuid = Uuid::fromString($entry[self::ARRAY_USER_UUID]);
+                $cat->addEntry((new TeamsiteEntry())
+                    ->setTitle($entry[self::ARRAY_TITLE])
+                    ->setDescription($entry[self::ARRAY_DESCRIPTION])
+                    ->setUserUuid($uuid)
+                    ->setOrd($cnt_i++));
+                $uuids[] = $uuid;
+            }
+            $result[] = $cat;
+        }
+
+        if ($users = $this->userRepo->findById($uuids)) {
+            if (array_search(null, $users))
+                return false;
+        }
+
+        return true;
+    }
+
+    public function parseSite(Teamsite $teamsite, ?array $input): bool
+    {
+        $result = [];
+
+        if (is_null($input))
+            return false;
+        if (!self::check($input))
+            return false;
+        if (!$this->parse($input, $result))
+            return false;
+
+        $this->em->beginTransaction();
+        $teamsite->clearCategories();
+        $this->em->persist($teamsite);
+        $this->em->flush();
+
+        foreach ($result as $category) {
+            $teamsite->addCategory($category);
+        }
+        $this->em->persist($teamsite);
+        $this->em->flush();
+        $this->em->commit();
+
+        return true;
     }
 }
