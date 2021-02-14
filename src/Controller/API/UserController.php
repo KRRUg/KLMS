@@ -34,8 +34,14 @@ class UserController extends AbstractController
         $search = $request->query->get('q', '');
         $limit = $request->query->getInt('limit', 10);
         $page = $request->query->getInt('page', 1);
+        $sort = $request->query->get('sort', []);
+ 
+        try{
+            $lazyLoadingCollection = $this->userRepo->findFuzzy($search, $sort);
+        } catch (\InvalidArgumentException $e) {
+            return new JsonResponse(Error::withMessage("Invalid sort parameter"), 400);
+        }
 
-        $lazyLoadingCollection = $this->userRepo->findFuzzy($search);
         $items = $lazyLoadingCollection->getPage($page, $limit);
 
         if (empty($items)) {
@@ -48,6 +54,7 @@ class UserController extends AbstractController
         $result['items'] = array_map(function (User $user) {
             return [
                 'uuid' => $user->getUuid(),
+                'id' => $user->getId(),
                 'email' => $user->getEmail(),
                 'nickname' => $user->getNickname(),
                 'firstname' => $user->getFirstname(),

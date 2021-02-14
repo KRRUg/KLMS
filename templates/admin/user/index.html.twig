@@ -6,40 +6,31 @@
     <div class="row">
         <div class="col-12">
             <div class="card">
-                <table id="UserTable" class="table table-striped admin-data-table" data-order='[[1, "asc"]]'>
+                <table id="UserTable" class="table table-striped admin-data-table" data-order='[[1, "asc"]]' data-remote-target="{{ path('api_users') }}">
                     <thead>
                         <tr>
-                            <th class="text-nowrap">KLMS-ID</th>
-                            <th>Nickname</th>
-                            <th>Vorname</th>
-                            <th>Nachname</th>
-                            <th data-orderable="false" data-searchable="false">Aktionen</th>
+                            <th class="text-nowrap w-1" data-data="id">KLMS-ID</th>
+                            <th 
+                                class="w-25" 
+                                data-data="nickname" 
+                                data-render-function='{"elemType":"A", "attributes":{"data-toggle":"ajaxModal", "href": {"prepend":"{{ path('admin_user_show', {'uuid' : "--uuid--"}) }}"}}}'
+                                >
+                                Nickname
+                            </th>
+                            <th class="w-25" data-data="firstname">Vorname</th>
+                            <th class="w-25" data-data="surname">Nachname</th>
+                            <th 
+                                class="text-nowrap w-1" 
+                                data-orderable="false" 
+                                data-searchable="false" 
+                                data-default-content='<i class="fas fa-edit"></i> bearbeiten'
+                                data-render-function='{"elemType":"A", "attributes":{"class":"btn btn-outline-dark text-nowrap", "href": {"prepend":"{{ path('admin_user_edit', {'uuid' : "--uuid--"}) }}"} , "title":{"data":"nickname", "append":" bearbeiten"}}}'
+                                >
+                                Aktionen
+                            </th>
                         </tr>
                     </thead>
                     <tbody>
-                        {% for  user in users %}
-                            <tr>
-                                <td class="w-1">
-                                    {{ user.id }}
-                                </td>
-                                <td class="w-25">
-                                    <a data-toggle="ajaxModal" href="{{ path('admin_user_show', {'uuid' : user.uuid}) }}">
-                                        {{ user.nickname }}
-                                    </a>
-                                </td>
-                                <td class="w-25">
-                                    {{ user.firstname }}
-                                </td>
-                                <td class="w-25">
-                                    {{ user.surname }}
-                                </td>
-                                <td class="text-nowrap w-1">
-                                    <a class="btn btn-outline-dark" href="{{ path('admin_user_edit', {'uuid' : user.uuid}) }}" title="{{ user.nickname }} bearbeiten">
-                                        <i class="fas fa-edit"></i> bearbeiten
-                                    </a>
-                                </td>
-                            </tr>
-                        {% endfor %}
                     </tbody>
                 </table>
             </div>

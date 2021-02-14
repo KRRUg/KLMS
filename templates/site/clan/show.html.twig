@@ -94,17 +94,20 @@
                                                 <input type="hidden" name="_token" value="{{ csrf_token(csrf_token_member_edit) }}" />
                                                 <input type="hidden" name="user_uuid" value="{{ user.uuid }}" />
                                                 <input type="hidden" name="action" value="{{ action }}" />
-                                                <button type="submit" title="{{ modalTitle }}" class="btn btn-outline-dark">{% if userIsAdmin %}<i class="far fa-frown fa-fw"></i>{% else %}<i class="fas fa-crown fa-fw"></i>{% endif %}</button>
-                                            </form>
-                                        {% endif %}
-                                    </td>
+                                                <button type="submit" title="{{ modalTitle }}" class="btn btn-outline-dark">
+                                                    {% if userIsAdmin %}
+                                                        <i class="fas fa-ban fa-fw"></i>
+                                                {% else %}<i class="fas fa-crown fa-fw"></i>{% endif %}</button>
+                                        </form>
+                                    {% endif %}
+                                </td>
                                 {% endif %}
-                            </tr>
-                        {% endfor %}
-                    </table>
-                </div>
-            {% endblock %}
-        {% endembed  %}
-    </div>
-    {% include 'site/clan/modal.join.html.twig' %}
-{% endblock %}
+                                </tr>
+                                {% endfor %}
+                                </table>
+                            </div>
+                            {% endblock %}
+                                {% endembed  %}
+                                </div>
+                                {% include 'site/clan/modal.join.html.twig' %}
+                                {% endblock %}
