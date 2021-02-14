@@ -1,8 +1,7 @@
 import $ from 'jquery';
 import dTLang from '../../modules/dataTables/dataTables.js';
 import './ajaxModal.js';
-import './confirmModal.js';
-
+import '../..//modules/confirmModal/confirmModal.js';
 ;
 (function ($, window, document, undefined) {
 

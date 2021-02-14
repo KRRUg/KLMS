@@ -66,7 +66,7 @@ class ClanController extends AbstractController
     {
         return $this->createFormBuilder()
             ->setAction($this->generateUrl('clan_join', ['uuid' => $clan->getUuid()]))
-            ->add('password', PasswordType::class, ['label' => "Passwort"])
+            ->add('password', PasswordType::class, ['label' => "Passwort", 'attr' => ['autofocus' => 'autofocus']])
             ->getForm();
     }
 

@@ -40,17 +40,27 @@
                                         <a data-toggle="ajaxModal" href="{{ path('admin_user_show', {'uuid' : user.uuid}) }}">{{ user.nickname }}</a>
                                     </td>
                                     <td class="text-nowrap w-1">
-                                        <form data-toggle="confirmModal" method="post" action="{{ path('admin_clan_member_edit', {'uuid' : clan.uuid}) }}">
+                                        <form class="d-inline-block" data-toggle="confirmModal" data-modal-title="User entfernen" data-modal-text="Wollen Sie diesen User wirklich entfernen?" method="post" action="{{ path('admin_clan_member_edit', {'uuid' : clan.uuid}) }}">
                                             <input type="hidden" name="_token" value="{{ csrf_token(csrf_token_member_edit) }}" />
                                             <input type="hidden" name="user_uuid" value="{{ user.uuid }}" />
                                             <input type="hidden" name="action" value="kick">
-                                            <button type="submit" class="btn btn-outline-dark"><i class="fas fa-user-minus"></i></button>
+                                            <button type="submit" class="btn btn-outline-dark" title="User von Clan entfernen"><i class="fas fa-user-minus fa-fw"></i></button>
                                         </form>
-                                        <form data-toggle="confirmModal" method="post" action="{{ path('admin_clan_member_edit', {'uuid' : clan.uuid}) }}">
+                                        {% if userIsAdmin %}
+                                            {% set action = "demote" %}
+                                            {% set modalTitle = "Zu User herabstufen" %}
+                                            {% set modalText = "Wollen Sie diesen User zu einem User herabstufen?" %}
+                                        {% else %}
+                                            {% set action = "promote" %}
+                                            {% set modalTitle = "Zu Admin befördern" %}
+                                            {% set modalText = "Wollen Sie diesen User als Admin hinzufügen?" %}
+                                        {% endif %}
+                                        
+                                        <form class="d-inline-block" data-toggle="confirmModal" method="post" data-modal-title="{{ modalTitle }}" data-modal-text="{{ modalText }}" action="{{ path('admin_clan_member_edit', {'uuid' : clan.uuid}) }}">
                                             <input type="hidden" name="_token" value="{{ csrf_token(csrf_token_member_edit) }}" />
                                             <input type="hidden" name="user_uuid" value="{{ user.uuid }}" />
-                                            <input type="hidden" name="action" value="{% if userIsAdmin %}demote{% else %}promote{% endif %}" />
-                                            <button type="submit" class="btn btn-outline-dark">{% if userIsAdmin %}<i class="far fa-frown"></i>{% else %}<i class="fas fa-crown"></i>{% endif %}</button>
+                                            <input type="hidden" name="action" value="{{ action }}" />
+                                            <button type="submit" class="btn btn-outline-dark" title="{{ modalTitle }}" >{% if userIsAdmin %}<i class="far fa-frown fa-fw"></i>{% else %}<i class="fas fa-crown fa-fw"></i>{% endif %}</button>
                                         </form>
                                     </td>
                                 </tr>
