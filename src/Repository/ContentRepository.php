@@ -28,11 +28,7 @@ class ContentRepository extends ServiceEntityRepository
         return $this->findOneBy(['alias' => $alias]);
     }
 
-    /**
-     * @param int $id Id to look for
-     * @return Content|null
-     */
-    public function findById(int $id)
+    public function findById(int $id): ?Content
     {
         return $this->findOneBy(['id' => $id]);
     }

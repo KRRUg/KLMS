@@ -8,6 +8,10 @@ use App\Entity\NavigationNodeContent;
 use App\Entity\NavigationNodeEmpty;
 use App\Entity\NavigationNodeGeneric;
 use App\Entity\NavigationNodeRoot;
+use App\Entity\NavigationNodeTeamsite;
+use App\Entity\Teamsite;
+use App\Entity\TeamsiteCategory;
+use App\Entity\TeamsiteEntry;
 use App\Entity\TextBlock;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Common\Persistence\ObjectManager;
@@ -16,12 +20,9 @@ use Ramsey\Uuid\Uuid;
 
 class ContentFixture extends Fixture
 {
-    public function load(ObjectManager $manager)
+    private function createContent(ObjectManager $manager): array
     {
-        $lipsum = new LoremIpsum();
-
         // Generate Content
-
         $content[0] = new Content();
         $content[0]->setTitle("Lan is");
         $content[0]->setContent("Lan is wieder einmal.");
@@ -54,11 +55,88 @@ class ContentFixture extends Fixture
             $manager->persist($c);
         }
 
+        return $content;
+    }
+
+    private function createTeamsite(ObjectManager $manager): array
+    {
+        $ts = (new Teamsite())
+            ->setTitle("KLMS-Team")
+            ->setDescription("Das Team hinter dem KLMS.")
+            ->setAuthorId(Uuid::fromInteger(18))
+            ->setModifierId(Uuid::fromInteger(18))
+        ;
+
+        $cat1 = (new TeamsiteCategory())
+            ->setTitle("Backend")
+            ->setDescription("Die Backend Developer")
+            ->setOrd(1)
+            ->addEntry((new TeamsiteEntry())
+                ->setTitle('Chief Developer')
+                ->setUserUuid(Uuid::fromInteger(18))
+                ->setDescription('<i>Hacky</i> Hacker')
+                ->setOrd(1)
+            )
+            ->addEntry((new TeamsiteEntry())
+                ->setTitle('Senior Developer')
+                ->setUserUuid(Uuid::fromInteger(7))
+                ->setOrd(3)
+            )
+            ->addEntry((new TeamsiteEntry())
+                ->setTitle('Senior Developer')
+                ->setUserUuid(Uuid::fromInteger(18))
+                ->setOrd(2)
+            );
+
+        $cat2 = (new TeamsiteCategory())
+            ->setTitle("Frontend")
+            ->setOrd(2)
+            ->addEntry((new TeamsiteEntry())
+                ->setUserUuid(Uuid::fromInteger(13))
+                ->setTitle("JS Developer")
+                ->setDescription("I ❤ JS")
+                ->setOrd(1)
+            );
+
+        $cat3 = (new TeamsiteCategory())
+            ->setTitle('Q&A Team')
+            ->setOrd(3);
+
+        $ts->addCategory($cat1);
+        $ts->addCategory($cat2);
+        $ts->addCategory($cat3);
+
+        $manager->persist($ts);
+
+        return [$ts];
+    }
+
+    private function createTextblock(ObjectManager $manager): array
+    {
+        $lipsum = new LoremIpsum();
+        $tb_about = new TextBlock("ABOUT_US");
+        $tb_about->setText($lipsum->words(20));
+
+        $tb_agb = new TextBlock("AGB");
+        $tb_agb->setText("<h2>{$lipsum->words()}</h2><p>{$lipsum->paragraphs(2)}</p><h2>{$lipsum->words(2)}</h2><p>{$lipsum->paragraphs(3)}}</p>");
+
+        $manager->persist($tb_about);
+        $manager->persist($tb_agb);
+
+        return [$tb_about, $tb_agb];
+    }
+
+    public function load(ObjectManager $manager)
+    {
+        $tb = $this->createTextblock($manager);
+        $ts = $this->createTeamsite($manager);
+        $content = $this->createContent($manager);
+
         // Generate Navigation
         $nav = new Navigation();
         $nav->setName('main_menu');
         $nav->setMaxDepth(2);
-        $nav->addNode((new NavigationNodeRoot())->setPos(1,16));
+        $nav->addNode((new NavigationNodeRoot())->setPos(1,18));
         $nav->addNode((new NavigationNodeGeneric())->setName("Home")->setPos(2,3));
         $nav->addNode((new NavigationNodeEmpty())->setName("Lan Party")->setPos(4, 15));
         $nav->addNode((new NavigationNodeContent($content[0]))->setName("Facts")->setPos(5, 6));
@@ -66,6 +144,7 @@ class ContentFixture extends Fixture
         $nav->addNode((new NavigationNodeContent($content[3]))->setName("Catering")->setPos(9,10));
         $nav->addNode((new NavigationNodeContent($content[1]))->setName("FAQ")->setPos(11,12));
         $nav->addNode((new NavigationNodeContent($content[2]))->setName("Location")->setPos(13, 14));
+        $nav->addNode((new NavigationNodeTeamsite($ts[0]))->setName("Team")->setPos(16,17));
         $manager->persist($nav);
 
         $footer = new Navigation();
@@ -81,16 +160,6 @@ class ContentFixture extends Fixture
         $manager->flush();
         $manager->refresh($nav);
         $manager->refresh($footer);
-
-        // Generate Textblocks
-        $tb_about = new TextBlock("ABOUT_US");
-        $tb_about->setText($lipsum->words(20));
-
-        $tb_agb = new TextBlock("AGB");
-        $tb_agb->setText("<h2>{$lipsum->words()}</h2><p>{$lipsum->paragraphs(2)}</p><h2>{$lipsum->words(2)}</h2><p>{$lipsum->paragraphs(3)}}</p>");
-
-        $manager->persist($tb_about);
-        $manager->persist($tb_agb);
 
         $manager->flush();
     }

@@ -10,6 +10,8 @@ use App\Entity\NavigationNodeContent;
 use App\Entity\NavigationNodeEmpty;
 use App\Entity\NavigationNodeGeneric;
 use App\Entity\NavigationNodeRoot;
+use App\Entity\NavigationNodeTeamsite;
+use App\Entity\Teamsite;
 use App\Repository\ContentRepository;
 use App\Repository\NavigationNodeRepository;
 use App\Repository\NavigationRepository;
@@ -20,7 +22,6 @@ class NavigationService
     private EntityManagerInterface $em;
     private NavigationRepository $navRepo;
     private NavigationNodeRepository $nodeRepo;
-    private ContentRepository $contentRepo;
 
     const URL_REGEX = '(^(?:http(s)?:\/\/)?[\w.-]+(?:\.[\w\.-]+)+[\w\-\._~:\/?#[\]@!\$&\'\(\)\*\+,;=.]+$|^(\/[\w\-\._~:\/?#[\]@!\$&\'\(\)\*\+,;=.]*)+$)';
 
@@ -40,13 +41,11 @@ class NavigationService
     public function __construct(
         EntityManagerInterface $em,
         NavigationRepository $navRepo,
-        NavigationNodeRepository $nodeRepo,
-        ContentRepository $contentRepo
+        NavigationNodeRepository $nodeRepo
     ){
         $this->em = $em;
         $this->navRepo = $navRepo;
         $this->nodeRepo = $nodeRepo;
-        $this->contentRepo = $contentRepo;
     }
 
     /**
@@ -123,8 +122,14 @@ class NavigationService
         switch ($type) {
             case NavigationNode::NAV_NODE_TYPE_CONTENT:
                 if (preg_match('/^\/?content\/(\d+)\/?$/', $path, $output_array)) {
-                    $content = $this->contentRepo->findById(intval($output_array[1]));
+                    $content = $this->em->getRepository(Content::class)->findById(intval($output_array[1]));
                     return new NavigationNodeContent($content);
+                }
+                break;
+            case NavigationNode::NAV_NODE_TYPE_TEAMSITE:
+                if (preg_match('/^\/?teamsite\/(\d+)\/?$/', $path, $output_array)) {
+                    $teamsite = $this->em->getRepository(Teamsite::class)->findById(intval($output_array[1]));
+                    return new NavigationNodeTeamsite($teamsite);
                 }
                 break;
             case NavigationNode::NAV_NODE_TYPE_PATH:

@@ -18,4 +18,9 @@ class TeamsiteRepository extends ServiceEntityRepository
     {
         parent::__construct($registry, Teamsite::class);
     }
+
+    public function findById(int $id): ?Teamsite
+    {
+        return $this->findOneBy(['id' => $id]);
+    }
 }

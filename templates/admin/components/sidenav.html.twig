@@ -22,6 +22,9 @@
                         <a class="nav-link {% if app.request.get('_route') starts with 'admin_navigation' %}active{% endif %}" href="{{ path('admin_navigation') }}"><i class="fas fa-map-signs"></i> Navigation </a>
                     </li>
                     <li class="nav-item">
+                        <a class="nav-link {% if app.request.get('_route') starts with 'admin_teamsite' %}active{% endif %}" href="{{ path('admin_teamsite') }}"><i class="fas fa-sitemap"></i> Teamsite </a>
+                    </li>
+                    <li class="nav-item">
                         <a class="nav-link {% if app.request.get('_route') starts with 'admin_textblock' %}active{% endif %}" href="{{ path('admin_textblock') }}"><i class="fas fa-th-large"></i> Textblöcke </a>
                     </li>
                 {% endif %}
