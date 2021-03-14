@@ -44,10 +44,6 @@ class UserController extends AbstractController
 
         $items = $lazyLoadingCollection->getPage($page, $limit);
 
-        if (empty($items)) {
-            return new JsonResponse(Error::withMessage("Not Found"), 404);
-        }
-
         $result = array();
         $result['count'] = count($items);
         $result['total'] = $lazyLoadingCollection->count();
