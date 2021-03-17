@@ -26,10 +26,10 @@
                                     <img class="card-img-top" src="{{ image | imagine_filter('user_img') }}" alt="User Image">
                                 {% endif %}
                                 <div class="card-body pb-0">
-                                    <h4 class="card-title mb-1 h5">{{ user.nickname }}</h4>
-                                    <p class="card-text">{{ user.firstname }} {{ user.surname }}
+                                    <h4 class="card-title mb-0 h5">{{ user.nickname }}</h4>
+                                    <p class="card-text mb-0">{{ user.firstname }} {{ user.surname }}
                                         {% if is_granted('IS_AUTHENTICATED_REMEMBERED') %}
-                                            <br> {{ user.email }}</p>
+                                            <br> {{ user.email }}
                                         {% endif %}
                                     </p>
                                 </div>

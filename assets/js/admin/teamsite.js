@@ -10,20 +10,20 @@ let TeamSiteAdmin = function ($wrapper) {
     this.initTSAdmin();
     this.drawTSAdmin();
     /*this.$root.on(
-            'click',
-            '.nav-item-action:not(.disabled)',
-            this._processNavigationAction.bind(this)
-            );
-    this.$root.on(
-            'click',
-            '.nav-item',
-            this._editItem.bind(this)
-            );
-    this.$root.on(
-            'click',
-            '.edit-item-form button',
-            this._processInputFormAction.bind(this)
-            );*/
+     'click',
+     '.nav-item-action:not(.disabled)',
+     this._processNavigationAction.bind(this)
+     );
+     this.$root.on(
+     'click',
+     '.nav-item',
+     this._editItem.bind(this)
+     );
+     this.$root.on(
+     'click',
+     '.edit-item-form button',
+     this._processInputFormAction.bind(this)
+     );*/
 };
 
 $.extend(TeamSiteAdmin.prototype, {
@@ -44,17 +44,17 @@ $.extend(TeamSiteAdmin.prototype, {
         let section = document.createElement("SECTION");
         section.setAttribute("class", "row");
         section.setAttribute("data-index", index);
-        
+
         let heading = document.createElement("H3");
         heading.setAttribute("class", "col-12");
         heading.textContent = sectionElement.title;
         section.appendChild(heading);
-        
+
         let description = document.createElement("P");
         description.setAttribute("class", "col-12");
         description.textContent = sectionElement.description;
         section.appendChild(description);
-        
+
         let teamEntries = document.createElement("DIV");
         teamEntries.setAttribute("class", "row row-cols-1 row-cols-md-2 row-cols-lg-3 row-cols-xl-5");
         var i = 0;
@@ -63,12 +63,12 @@ $.extend(TeamSiteAdmin.prototype, {
             teamEntries.appendChild(entry);
             i++;
         }
-        
+
         let entry = document.createElement("a");
         entry.setAttribute("class", "card team-card team-card-add text-center text-success");
         entry.setAttribute("data-index", index);
         entry.setAttribute("href", "#");
-        
+
         let entryDetails = document.createElement("DIV");
         entryDetails.setAttribute("class", "card-body");
         entryDetails.innerHTML = '<h5><i class="fas fa-plus"></i></h5><p class="card-text">Teammitglied hinzufügen</span>';
@@ -77,49 +77,77 @@ $.extend(TeamSiteAdmin.prototype, {
         entryWrap.setAttribute("class", "col mb-4");
         entryWrap.appendChild(entry);
         teamEntries.appendChild(entryWrap);
-        
+
         let teamEntriesWrap = document.createElement("DIV");
         teamEntriesWrap.setAttribute("class", "col-12");
         teamEntriesWrap.appendChild(teamEntries);
         section.appendChild(teamEntriesWrap);
-        
+
         return section;
     },
     _generateTeamEntry(teamEntry, index) {
         let entry = document.createElement("DIV");
         entry.setAttribute("class", "card team-card");
         entry.setAttribute("data-index", index);
-        
-        let userImg = document.createElement("IMG");
-        userImg.setAttribute("class", "card-img-top");
-        userImg.setAttribute("alt", "User Image");
-        entry.appendChild(userImg);
-        
+
         let userDetails = document.createElement("DIV");
         userDetails.setAttribute("class", "card-body");
-        
-        let userTitle = document.createElement("h3");
+
+        let userDet = this._generateUserEntry(teamEntry.user);
+        userDetails.appendChild(userDet);
+
+        let userTitle = document.createElement("h4");
         userTitle.setAttribute("class", "card-title h5");
         userTitle.textContent = teamEntry.title;
         userDetails.appendChild(userTitle);
-        
+
         let userDesc = document.createElement("P");
         userDesc.setAttribute("class", "card-text");
         userDesc.textContent = teamEntry.description;
         userDetails.appendChild(userDesc);
-        
+
         entry.appendChild(userDetails);
-        
+
         let footer = document.createElement("DIV");
         footer.setAttribute("class", "card-footer");
-        footer.innerHTML = '<a href="#" class="team-card-edit" data-index="'+index+'"><i class="fas fa-edit"></i> Bearbeiten</a><a href="#" class="team-card-delete float-right text-danger" data-index="'+index+'"><i class="fas fa-trash"></i> Löschen</a>';
+        footer.innerHTML = '<a href="#" class="team-card-edit" data-index="' + index + '"><i class="fas fa-edit"></i> Bearbeiten</a><a href="#" class="team-card-delete float-right text-danger" data-index="' + index + '"><i class="fas fa-trash"></i> Löschen</a>';
         entry.appendChild(footer);
-        
+
         let entryWrap = document.createElement("DIV");
         entryWrap.setAttribute("class", "col mb-4");
         entryWrap.appendChild(entry);
-        
+
         return entryWrap;
+    },
+    _generateUserEntry(user) {
+        let userEntry = document.createElement("DIV");
+        userEntry.setAttribute("class", "media mb-2");
+
+        if (user.image) {
+            let userImg = document.createElement("IMG");
+            userImg.setAttribute("class", "mr-2");
+            userImg.setAttribute("style", "max-height:4rem;");
+            userImg.setAttribute("src", user.image);
+            userImg.setAttribute("alt", "User Image");
+            userEntry.appendChild(userImg);
+        }
+
+        let bd = document.createElement("DIV");
+        bd.setAttribute("class", "media-body");
+        
+        let userNickname = document.createElement("h5");
+        userNickname.setAttribute("class", "mb-0");
+        userNickname.textContent = user.nickname;
+        bd.appendChild(userNickname);
+        
+        let userName = document.createElement("p");
+        userName.setAttribute("class", "mb-0");
+        userName.textContent = user.firstname + " " + user.surname;
+        bd.appendChild(userName);
+        
+        userEntry.appendChild(bd);
+        
+        return userEntry;
     }
 });
 
@@ -166,24 +194,24 @@ $(document).ready(() => {
             $modal.find("button[type=submit]").removeClass('disabled');
         }
     }
-    
-    $("#addNavItemModal").on("click", "button[type=submit]:not(.disabled)", function(e) {
+
+    $("#addNavItemModal").on("click", "button[type=submit]:not(.disabled)", function (e) {
         e.preventDefault();
         let $form = $("#addNavItemModal").find(".add-dialog-row:not(.d-none)").find("form:first");
         //To trigger HTML5 Form Validation with browser messages you have to click a submit button
         $('<input type="submit">').hide().appendTo($form).click().remove();
     });
-    
-    $("#addNavItemModal form").on("submit", function(e) {
+
+    $("#addNavItemModal form").on("submit", function (e) {
         e.preventDefault();
-        
+
         let formData = $(this).serializeArray().reduce(
-        (obj, item) => Object.assign(obj, { [item.name]: item.value }), {});
-        
+                (obj, item) => Object.assign(obj, {[item.name]: item.value}), {});
+
         let type = $(this).data("type");
         let name = formData["navigation_node[name]"];
         let path = formData[`navigation_node[${type}]`] || null;
-        
+
         teamSiteAdmin.addNavItem(name, path, type);
         teamSiteAdmin.drawTree();
         $("#addNavItemModal").modal('hide');
