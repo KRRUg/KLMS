@@ -11,7 +11,6 @@ use App\Idm\IdmRepository;
 use App\Repository\TeamsiteEntryRepository;
 use App\Repository\TeamsiteRepository;
 use Doctrine\ORM\EntityManagerInterface;
-use Ramsey\Uuid\Uuid;
 
 class TeamsiteService
 {
@@ -19,23 +18,26 @@ class TeamsiteService
     private TeamsiteRepository $repo;
     private TeamsiteEntryRepository $entry;
     private IdmRepository $userRepo;
+    private UserService $userService;
 
     public function __construct(
         EntityManagerInterface $em,
         IdmManager $im,
         TeamsiteRepository $repo,
-        TeamsiteEntryRepository $entry
+        TeamsiteEntryRepository $entry,
+        UserService $userService
     ){
         $this->em = $em;
         $this->repo = $repo;
         $this->entry = $entry;
         $this->userRepo = $im->getRepository(User::class);
+        $this->userService = $userService;
     }
 
     private const ARRAY_TITLE = 'title';
     private const ARRAY_DESCRIPTION = 'description';
     private const ARRAY_ENTRIES = 'entries';
-    private const ARRAY_USER_UUID = 'user_uuid';
+    private const ARRAY_USER = 'user';
     private const ARRAY_CATEGORY = [
         self::ARRAY_TITLE,
         self::ARRAY_DESCRIPTION,
@@ -44,16 +46,29 @@ class TeamsiteService
     private const ARRAY_ENTRY = [
         self::ARRAY_TITLE,
         self::ARRAY_DESCRIPTION,
-        self::ARRAY_USER_UUID,
+        self::ARRAY_USER,
     ];
 
-    public function getAll()
+    public function getAll(): array
     {
         return $this->repo->findAll();
     }
 
+    private function getUsersOfTeamsite(Teamsite $teamsite): array
+    {
+        $uuids = [];
+        foreach ($teamsite->getCategories() as $category) {
+            foreach ($category->getEntries() as $entry) {
+                $uuids[] = $entry->getUserUuid()->toString();
+            }
+        }
+        $users = $this->userRepo->findById($uuids);
+        return array_combine($uuids, $users);
+    }
+
     public function renderSite(Teamsite $teamsite): ?array
     {
+        $users = $this->getUsersOfTeamsite($teamsite);
         $result = [];
         foreach ($teamsite->getCategories() as $category) {
             $cat_array = [
@@ -65,7 +80,7 @@ class TeamsiteService
                 $cat_array[self::ARRAY_ENTRIES][] = [
                     self::ARRAY_TITLE => $entry->getTitle(),
                     self::ARRAY_DESCRIPTION => $entry->getDescription(),
-                    self::ARRAY_USER_UUID => $entry->getUserUuid(),
+                    self::ARRAY_USER => $this->userService->user2Array($users[$entry->getUserUuid()->toString()]),
                 ];
             }
             $result[] = $cat_array;
@@ -83,7 +98,7 @@ class TeamsiteService
                 return false;
             }
         }
-        if (!((is_string($a[self::ARRAY_USER_UUID]) && Uuid::isValid($a[self::ARRAY_USER_UUID]))
+        if (!((is_array($a[self::ARRAY_USER]) && !is_null(UserService::array2Uuid($a[self::ARRAY_USER])))
             && is_string($a[self::ARRAY_TITLE])
             && is_string($a[self::ARRAY_DESCRIPTION])
         )) {
@@ -137,7 +152,7 @@ class TeamsiteService
                 ->setOrd($cnt++);
             $cnt_i = 1;
             foreach ($item[self::ARRAY_ENTRIES] as $entry) {
-                $uuid = Uuid::fromString($entry[self::ARRAY_USER_UUID]);
+                $uuid = UserService::array2Uuid($entry[self::ARRAY_USER]);
                 $cat->addEntry((new TeamsiteEntry())
                     ->setTitle($entry[self::ARRAY_TITLE])
                     ->setDescription($entry[self::ARRAY_DESCRIPTION])
