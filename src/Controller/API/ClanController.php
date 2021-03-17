@@ -47,6 +47,7 @@ class ClanController extends AbstractController
         $result['count'] = count($items);
         $result['total'] = $lazyLoadingCollection->count();
         $result['items'] = array_map(function (Clan $clan) {
+            // TODO this is hacky, but required for front-end JS a.t.m.?
             return [
                 'uuid' => $clan->getUuid(),
                 'nickname' => $clan->getName(),

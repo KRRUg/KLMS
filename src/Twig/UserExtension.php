@@ -6,6 +6,7 @@ use App\Entity\User;
 use App\Idm\IdmManager;
 use App\Idm\IdmRepository;
 use App\Repository\UserImageRepository;
+use App\Service\UserService;
 use Ramsey\Uuid\Uuid;
 use Twig\Extension\AbstractExtension;
 use Twig\TwigFilter;
@@ -15,14 +16,12 @@ use Vich\UploaderBundle\Templating\Helper\UploaderHelper;
 class UserExtension extends AbstractExtension
 {
     private IdmRepository $userRepo;
-    private UserImageRepository $imageRepo;
-    private UploaderHelper $uploadHelper;
+    private UserService $userService;
 
-    public function __construct(IdmManager $manager, UserImageRepository $imageRepo, UploaderHelper $uploadHelper)
+    public function __construct(IdmManager $manager, UserService $userService)
     {
         $this->userRepo = $manager->getRepository(User::class);
-        $this->imageRepo = $imageRepo;
-        $this->uploadHelper = $uploadHelper;
+        $this->userService = $userService;
     }
 
     /**
@@ -67,11 +66,7 @@ class UserExtension extends AbstractExtension
 
     public function getUserImage(User $user): string
     {
-        $image = $this->imageRepo->findOneByUuid($user->getUuid());
-        if (empty($image))
-            return "";
-
-        return $this->uploadHelper->asset($image, 'imageFile');
+        return $this->userService->getUserImage($user);
     }
 
     public function validUser($userId): bool

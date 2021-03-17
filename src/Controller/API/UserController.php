@@ -7,6 +7,7 @@ use App\Entity\Clan;
 use App\Entity\User;
 use App\Idm\IdmManager;
 use App\Idm\IdmRepository;
+use App\Service\UserService;
 use App\Transfer\Error;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -20,10 +21,12 @@ use Symfony\Component\Routing\Annotation\Route;
 class UserController extends AbstractController
 {
     private IdmRepository $userRepo;
+    private UserService $userService;
 
-    public function __construct(IdmManager $manager)
+    public function __construct(IdmManager $manager, UserService $userService)
     {
         $this->userRepo = $manager->getRepository(User::class);
+        $this->userService = $userService;
     }
 
     /**
@@ -45,22 +48,7 @@ class UserController extends AbstractController
         $result = array();
         $result['count'] = count($items);
         $result['total'] = $lazyLoadingCollection->count();
-        $result['items'] = array_map(function (User $user) {
-            return [
-                'uuid' => $user->getUuid(),
-                'email' => $user->getEmail(),
-                'nickname' => $user->getNickname(),
-                'firstname' => $user->getFirstname(),
-                'surname' => $user->getSurname(),
-                'clans' => array_map(function ($clan) {
-                    return [
-                        'uuid' => $clan->getUuid(),
-                        'name' => $clan->getName(),
-                        'clantag' => $clan->getClantag(),
-                    ];
-                }, $user->getClans()->toArray()),
-            ];
-        }, $items);
+        $result['items'] = array_map(function (User $user) { return $this->userService->user2Array($user); }, $items);
 
         return new JsonResponse(json_encode($result), 200, [], true);
     }
