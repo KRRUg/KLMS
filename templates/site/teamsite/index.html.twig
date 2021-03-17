@@ -3,43 +3,49 @@
 {% block title %}KLMS - {{ teamsite.title }}{% endblock %}
 
 {% block main %}
-    <div class="container mb-5">
-        <div class="card">
+    <div class="container">
+        <div class="card mb-4">
             <div class="card-body">
-                {% for category in teamsite.categories %}
-                    <h3>{{ category.title }}</h3>
-                    <p>{{ category.description }}</p>
-                    {% if category.entries is not empty %}
-                        {% for entry in category.entries %}
-                            <div>
-                                {% set user = entry.userUuid | user %}
-                                {% set image = user | user_image %}
-                                <h4>{{ user.nickname }}</h4>
-                                <p>{{ entry.description }}</p>
-                                {% if image %}
-                                <img src="{{ image | imagine_filter('user_img') }}" style="width: 100px;"/>
-                                {% endif %}
-                                <dl>
-                                    <dt>Job</dt>
-                                    {{ entry.title }}
-                                    <dt>Name</dt>
-                                    <dd>{{ user.firstname }} {{ user.surname }}</dd>
-                                    {% if is_granted('IS_AUTHENTICATED_REMEMBERED') %}
-                                    <dt>E-Mail</dt>
-                                    <dd>{{ user.email }}</dd>
-                                    {% endif %}
-                                </dl>
-                            </div>
-                        {% endfor %}
-                    {% else %}
-                        <p class="text-muted">Keine Einträger in dieser Kategorie.</p>
-                    {% endif %}
-                    <hr>
-                {% endfor %}
-            </div>
-            <div class="card-footer">
-                <small> zuletzt geändert: {{ teamsite.lastModified | ago }}</small>
+                <h1 class="card-title">{{ teamsite.title }}</h1>
+                <div class="card-text">
+                    {{ teamsite.description }}
+                </div>
             </div>
         </div>
+        {% for category in teamsite.categories %}
+            <h3>{{ category.title }}</h3>
+            <div class="mb-2">{{ category.description }}</div>
+            {% if category.entries is not empty %}
+                <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 row-cols-xl-4">
+                    {% for entry in category.entries %}
+                        {% set user = entry.userUuid | user %}
+                        {% set image = user | user_image %}
+                        <div class="col mb-4">
+                            <div class="card team-card" data-index="0">
+                                {% if image %}
+                                    <img class="card-img-top" src="{{ image | imagine_filter('user_img') }}" alt="User Image">
+                                {% endif %}
+                                <div class="card-body pb-0">
+                                    <h4 class="card-title mb-1 h5">{{ user.nickname }}</h4>
+                                    <p class="card-text">{{ user.firstname }} {{ user.surname }}
+                                        {% if is_granted('IS_AUTHENTICATED_REMEMBERED') %}
+                                            <br> {{ user.email }}</p>
+                                        {% endif %}
+                                    </p>
+                                </div>
+                                <div class="card-body">
+                                    <h5 class="card-title mb-1">{{ entry.title }}</h5>
+                                    <p class="card-text">{{ entry.description }}</p>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <p class="text-muted">Keine Einträger in dieser Kategorie.</p>
+            {% endif %}
+
+            <hr>
+        {% endfor %}
     </div>
 {% endblock %}

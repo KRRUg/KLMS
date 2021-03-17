@@ -29,6 +29,7 @@ Encore
         .addEntry('permission', './assets/js/admin/permission.js')
         .addEntry('navigation', './assets/js/admin/navigation.js')
         .addEntry('media', './assets/js/admin/media.js')
+        .addEntry('teamsite', './assets/js/admin/teamsite.js')
         .addEntry('news', './assets/js/site/news.js')
 
         // When enabled, Webpack "splits" your files into smaller pieces for greater optimization.
