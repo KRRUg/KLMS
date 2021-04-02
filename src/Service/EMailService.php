@@ -5,9 +5,11 @@ namespace App\Service;
 use App\Entity\EMail\EMailRecipient;
 use App\Entity\EMail\EmailSending;
 use App\Entity\EMail\EMailTemplate;
+use App\Entity\User;
+use App\Idm\IdmManager;
+use App\Idm\IdmRepository;
 use App\Repository\EMail\EmailSendingRepository;
 use App\Repository\EMail\EMailTemplateRepository;
-use App\Security\User;
 use DateTime;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\EntityManagerInterface;
@@ -39,13 +41,13 @@ class EMailService
 
     protected $mailer;
     protected $senderAddress;
-    protected $userService;
     protected $em;
     protected $templateRepository;
     protected $sendingRepository;
     protected $logger;
     protected $twig;
     protected $systemMessageUser;
+    protected IdmRepository $userRepository;
 
     public function __construct(MailerInterface $mailer,
                                 LoggerInterface $logger,
@@ -53,10 +55,10 @@ class EMailService
                                 EmailSendingRepository $sendingRepository,
                                 EntityManagerInterface $em,
                                 Environment $twig,
-                                UserService $userService)
+                                IdmManager $manager)
     {
         $this->mailer = $mailer;
-        $this->userService = $userService;
+        $this->userRepository = $manager->getRepository(User::class);
         $mailAddress = $_ENV['MAILER_DEFAULT_SENDER_EMAIL'];
         $mailName = $_ENV['MAILER_DEFAULT_SENDER_NAME'];
         $this->senderAddress = new Address($mailAddress, $mailName);
@@ -66,7 +68,7 @@ class EMailService
         $this->templateRepository = $templateRepository;
         $this->sendingRepository = $sendingRepository;
         $this->twig = $twig;
-        $this->systemMessageUser = $userService->getUserInfosByUuid([$_ENV['MAILER_SYSTEM_MESSAGE_USER_GUID']])[0];
+        $this->systemMessageUser = $this->userRepository->findOneById([$_ENV['MAILER_SYSTEM_MESSAGE_USER_GUID']]);
     }
 
     public function sendByApplicationHook(string $applicationHook, User $user, string $processStepName = null, array $payload = null)
@@ -283,7 +285,7 @@ class EMailService
             '00000000-0000-0000-0000-000000000003',
             '00000000-0000-0000-0000-000000000004',
         ];
-        $users = $this->userService->getUsersByUuid($usersToFind);
+        $users = $this->userRepository->findById($usersToFind);
 
         return new ArrayCollection($users);
     }

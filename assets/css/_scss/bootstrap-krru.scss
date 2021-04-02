@@ -12,16 +12,16 @@
 @import './hover.scss';
 
 html, body {
-  height: 100%;
+    height: 100%;
 }
 
 body {
-  display: flex;
-  flex-direction: column;
+    display: flex;
+    flex-direction: column;
 }
 
 main, #main {
-  flex: 1 0 auto;
+    flex: 1 0 auto;
 }
 
 footer {
@@ -63,4 +63,12 @@ footer {
 
 .dropdown-menu-lg {
     min-width: $dropdown-min-width * 2;
+}
+
+input.datetimepicker[readonly]:not([disabled]) {
+    background:$input-bg;
+}
+
+input.datepicker[readonly]:not([disabled]) {
+    background:$input-bg;
 }

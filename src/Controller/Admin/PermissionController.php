@@ -3,9 +3,11 @@
 namespace App\Controller\Admin;
 
 use App\Controller\BaseController;
+use App\Entity\User;
 use App\Form\PermissionType;
+use App\Idm\IdmManager;
+use App\Idm\IdmRepository;
 use App\Service\PermissionService;
-use App\Service\UserService;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Component\Form\FormError;
 use Symfony\Component\HttpFoundation\Request;
@@ -18,13 +20,13 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class PermissionController extends BaseController
 {
-    private $permissionService;
-    private $userService;
+    private PermissionService $permissionService;
+    private IdmRepository $userRepo;
 
-    public function __construct(PermissionService $permissionService, UserService $userService)
+    public function __construct(PermissionService $permissionService, IdmManager $manager)
     {
         $this->permissionService = $permissionService;
-        $this->userService = $userService;
+        $this->userRepo = $manager->getRepository(User::class);
     }
 
     /**
@@ -83,8 +85,7 @@ class PermissionController extends BaseController
      */
     public function getPermission(Request $request, $id)
     {
-        // TODO param converter for user id to userInfos
-        $user = $this->userService->getUserInfoByUuid($id);
+        $user = $this->userRepo->findOneById($id);
         if (empty($user)) {
             return $this->apiResponse([], 404);
         }
@@ -98,8 +99,7 @@ class PermissionController extends BaseController
      */
     public function updatePermission(Request $request, $id)
     {
-        // TODO param converter for user id to userInfos
-        $user = $this->userService->getUserInfoByUuid($id);
+        $user = $this->userRepo->findOneById($id);
 
         if (empty($user)) {
             return $this->apiResponse([], 404);

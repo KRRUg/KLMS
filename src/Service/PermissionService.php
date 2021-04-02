@@ -4,12 +4,13 @@
 namespace App\Service;
 
 
+use App\Entity\User;
 use App\Entity\UserAdmin;
 use App\Exception\PermissionException;
+use App\Idm\IdmManager;
+use App\Idm\IdmRepository;
 use App\Repository\UserAdminsRepository;
 use App\Security\LoginUser;
-use App\Security\User;
-use App\Security\UserInfo;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Security\Core\Security;
 
@@ -37,21 +38,21 @@ final class PermissionService
         // extend here
     ];
 
-    private $repo;
-    private $em;
-    private $userService;
-    private $security;
+    private UserAdminsRepository $repo;
+    private EntityManagerInterface $em;
+    private IdmRepository $userRepo;
+    private Security $security;
 
     public function __construct(
-        UserService $userService,
         Security $security,
         EntityManagerInterface $em,
-        UserAdminsRepository $repo
+        UserAdminsRepository $repo,
+        IdmManager $manager
     ) {
         $this->repo = $repo;
         $this->em = $em;
-        $this->userService = $userService;
         $this->security = $security;
+        $this->userRepo = $manager->getRepository(User::class);
     }
 
     public function validPermission(string $permission): bool
@@ -60,7 +61,7 @@ final class PermissionService
         return in_array($permission, self::PERMISSIONS);
     }
 
-    public function hasPermission(string $permission, UserInfo $user): bool
+    public function hasPermission(string $permission, User $user): bool
     {
         if (!$this->validPermission($permission)) {
             return false;
@@ -109,7 +110,7 @@ final class PermissionService
         }
     }
 
-    public function grantPermission(string $permission, UserInfo $user) : bool
+    public function grantPermission(string $permission, User $user) : bool
     {
         $this->checkAndThrow(self::ADMIN_SUPER);
 
@@ -126,7 +127,7 @@ final class PermissionService
         return true;
     }
 
-    public function getPermissions(UserInfo $user) : array
+    public function getPermissions(User $user) : array
     {
         $adminUser = $this->repo->findByUser($user);
         if (empty($adminUser))
@@ -134,7 +135,7 @@ final class PermissionService
         return $adminUser->getPermissions();
     }
 
-    public function setPermissions(UserInfo $user, array $permissions) : bool
+    public function setPermissions(User $user, array $permissions) : bool
     {
         $this->checkAndThrow(self::ADMIN_SUPER);
 
@@ -169,13 +170,15 @@ final class PermissionService
         $admins = $this->repo->findAll();
         $admins = array_filter($admins, function (UserAdmin $a) { return !empty($a->getPermissions()); });
         $ids = array_map(function (UserAdmin $a) {return $a->getId(); }, $admins);
-        $users = $this->userService->getUsersByUuid($ids, true);
+        $users = $this->userRepo->findById($ids);
 
         $ret = [];
-        foreach ($admins as $admin) {
-            $u = $users[$admin->getId()];
+        foreach ($admins as $key => $admin) {
+            $u = $users[$key];
+            if (empty($u))
+                continue;
             $p = $admin->getPermissions();
-            $ret[$u->getUuid()] = array($u, $p);
+            $ret[$u->getUuid()->toString()] = array($u, $p);
         }
         return $ret;
     }

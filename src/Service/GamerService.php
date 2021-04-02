@@ -1,34 +1,34 @@
 <?php
 
-
 namespace App\Service;
 
-
+use App\Entity\User;
 use App\Entity\UserGamer;
 use App\Exception\GamerLifecycleException;
+use App\Idm\IdmManager;
+use App\Idm\IdmRepository;
 use App\Repository\UserGamerRepository;
-use App\Security\User;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 
 class GamerService
 {
-    private $logger;
-    private $em;
-    private $repo;
-    private $userService;
+    private LoggerInterface $logger;
+    private EntityManagerInterface $em;
+    private UserGamerRepository $repo;
+    private IdmRepository $userRepo;
 
     /*
      * Clarification: User is the Symfony User with information from IDM, while Gamer is the local KLMS information,
      * i.e. the status w.r.t this KLMS instance.
      */
 
-    public function __construct(LoggerInterface $logger, EntityManagerInterface $em, UserGamerRepository $repo, UserService $userService)
+    public function __construct(LoggerInterface $logger, EntityManagerInterface $em, UserGamerRepository $repo, IdmManager $manager)
     {
         $this->logger = $logger;
         $this->em = $em;
         $this->repo = $repo;
-        $this->userService = $userService;
+        $this->userRepo = $manager->getRepository(User::class);
     }
 
     /**
@@ -42,7 +42,7 @@ class GamerService
         if ($userGamer)
             return $userGamer;
 
-        $this->logger->info("Creating UserGamer for User {$user->getUsername()}.");
+        $this->logger->info("Creating UserGamer for User {$user->getNickname()}.");
         $userGamer = new UserGamer($user->getUuid());
         $this->em->persist($userGamer);
         return $userGamer;
@@ -51,7 +51,7 @@ class GamerService
     public function gamerRegister(User $user)
     {
         $gamer = $this->getGamer($user);
-        $this->logger->info("Gamer {$user->getUsername()} got registration status set.");
+        $this->logger->info("Gamer {$user->getNickname()} got registration status set.");
         $gamer->setRegistered(new \DateTime());
         $this->em->persist($gamer);
         $this->em->flush();
@@ -64,7 +64,7 @@ class GamerService
         if (!$gamer->hasRegistered())
             throw new GamerLifecycleException($user, "User not registered yet.");
 
-        $this->logger->info("Gamer {$user->getUsername()} got registration status cleared.");
+        $this->logger->info("Gamer {$user->getNickname()} got registration status cleared.");
         $gamer->setRegistered(new \DateTime());
         $this->em->persist($gamer);
         $this->em->flush();
@@ -77,7 +77,7 @@ class GamerService
         if (!$gamer->hasRegistered())
             throw new GamerLifecycleException($user, "User not registered yet.");
 
-        $this->logger->info("Gamer {$user->getUsername()} got payed status set.");
+        $this->logger->info("Gamer {$user->getNickname()} got payed status set.");
         $gamer->setPayed(new \DateTime());
         $this->em->persist($gamer);
         $this->em->flush();
@@ -90,7 +90,7 @@ class GamerService
         if (!$gamer->hasPayed())
             throw new GamerLifecycleException($user, "User not payed yet.");
 
-        $this->logger->info("Gamer {$user->getUsername()} got payed status cleared.");
+        $this->logger->info("Gamer {$user->getNickname()} got payed status cleared.");
         $gamer->setPayed(null);
         $this->em->persist($gamer);
         $this->em->flush();
@@ -101,7 +101,7 @@ class GamerService
         $gamer = $this->repo->findAll();
         $gamer = array_filter($gamer, function (UserGamer $gamer) { return $gamer->hasRegistered(); });
         $gamer_guid = array_map(function (UserGamer $gamer) { return $gamer->getId(); }, $gamer);
-        return $this->userService->getUsersByUuid($gamer_guid);
+        return $this->userRepo->findOneById($gamer_guid);
     }
 
     public function getRegisteredGamerWithStatus()

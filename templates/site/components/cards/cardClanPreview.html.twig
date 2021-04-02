@@ -7,11 +7,11 @@
         </div>
         <div class="col">
             <div class="card-body p-3">
-                {% if isClanAdmin is defined %}
+                {% if is_granted('IS_AUTHENTICATED_REMEMBERED') %}
                     <span class="float-right">
-                        {% if isClanAdmin == 1 %}
+                        {% if app.user.user in clan.admins %}
                             <i class="fas fa-crown" title="Clan Admin"></i>
-                        {% else %}
+                        {% elseif app.user.user in clan.users %}
                             <i class="fas fa-user" title="Clan Mitglied"></i>
                         {% endif %}
                     </span>
@@ -26,12 +26,6 @@
                 <p class="card-text">
                     {% block clanText %}
                         {{ clan.description | u.truncate(100, "...") }} <br>
-                        
-                        {% if isClanMember is not defined %}
-                            <a href="{{ path('clan_join', {'uuid' : clan.uuid}) }}">Clan beitreten</a>
-                        {% else %}
-                            <a href="{{ clan.website }}" target="blank">{{ clan.website }}</a>
-                        {% endif %}
                     {% endblock %}
                 </p>
             </div>

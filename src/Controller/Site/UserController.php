@@ -2,15 +2,16 @@
 
 namespace App\Controller\Site;
 
-use App\Form\UserEditType;
+use App\Entity\User;
 use App\Form\UserRegisterType;
+use App\Form\UserType;
+use App\Idm\Exception\PersistException;
+use App\Idm\IdmManager;
+use App\Idm\IdmRepository;
 use App\Security\LoginFormAuthenticator;
-use App\Security\User;
-use App\Service\UserService;
-use Psr\Log\LoggerInterface;
+use App\Security\LoginUser;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\Form\FormError;
-use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Core\User\UserProviderInterface;
@@ -18,34 +19,24 @@ use Symfony\Component\Security\Guard\GuardAuthenticatorHandler;
 
 class UserController extends AbstractController
 {
-    /**
-     * @var UserService
-     */
-    private $userService;
-    /**
-     * @var LoggerInterface
-     */
-    private $logger;
+    private IdmManager $manager;
+    private IdmRepository $userRepo;
 
-    public function __construct(UserService $userService, LoggerInterface $appLogger)
+    public function __construct(IdmManager $manager)
     {
-        $this->userService = $userService;
-        $this->logger = $appLogger;
+        $this->manager = $manager;
+        $this->userRepo = $manager->getRepository(User::class);
     }
 
     /**
+     * @IsGranted("IS_AUTHENTICATED_REMEMBERED")
      * @Route("/user/profile", name="user_profile")
      */
     public function userProfile()
     {
-        if(null === $this->getUser()) {
-            // Redirect to Frontpage if not logged in
-            return $this->redirect('/');
-        }
+        $user = $this->getUser()->getUser();
 
-        $user = $this->userService->getUser($this->getUser()->getUsername());
-
-        return $this->render('site/user/profile.html.twig', [
+        return $this->render('site/user/show.html.twig', [
             'user' => $user,
         ]);
     }
@@ -55,8 +46,12 @@ class UserController extends AbstractController
      */
     public function userShow(string $uuid)
     {
+        $user = $this->userRepo->findOneById($uuid);
 
-        $user = $this->userService->getUser($uuid);
+        if ($this->isGranted("IS_AUTHENTICATED_REMEMBERED")
+            && $user === $this->getUser()->getUser()) {
+            return $this->redirectToRoute('user_profile');
+        }
 
         return $this->render('site/user/show.html.twig', [
             'user' => $user,
@@ -64,44 +59,26 @@ class UserController extends AbstractController
     }
 
     /**
+     * @IsGranted("IS_AUTHENTICATED_FULLY")
      * @Route("/user/profile/edit", name="user_profile_edit")
      */
     public function userProfileEdit(Request $request)
     {
-        $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
+        $user = $this->getUser()->getUser();
 
-        $user = $this->userService->getUser($this->getUser()->getUsername());
-
-        $form = $this->createForm(UserEditType::class, $user);
+        $form = $this->createForm(UserType::class, $user);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-
-            // TODO: deny nulling out/changing? Address when already signed up to the Event
-            // TODO: deny editing Nickname when Event is in the Next 7(?) Days
             // TODO: add Support for changing the EMail
-            // get Data from Form
 
-            /* @var User */
-            $userform = $form->getData();
-
-            if(!$this->userService->checkUserAvailability($userform->getNickname()) && $userform->getNickname() !== $user->getNickname()) {
-                $form->get('nickname')->addError(new FormError('Nickname wird bereits benutzt!'));
-
-                return $this->render('site/user/profile_edit.html.twig', [
-                    'form' => $form->createView(),
-                ]);
-            }
-            if($this->userService->editUser($userform)) {
-                return $this->redirectToRoute('user_profile');
-            } else {
-                $this->addFlash('error', 'Es ist ein unerwarteter Fehler aufgetreten');
-                return $this->redirectToRoute('user_profile_edit');
-            }
-
+            $user = $form->getData();
+            $this->manager->persist($user);
+            $this->manager->flush();
+            return $this->redirectToRoute('user_profile');
         }
 
-        return $this->render('site/user/profile_edit.html.twig', [
+        return $this->render('site/user/edit.html.twig', [
             'form' => $form->createView(),
         ]);
     }
@@ -109,68 +86,37 @@ class UserController extends AbstractController
     /**
      * @Route("/register", name="register")
      */
-    public function register(Request $request, LoginFormAuthenticator  $login, GuardAuthenticatorHandler $guard, UserProviderInterface $userProvider)
+    public function register(Request $request, LoginFormAuthenticator $login, GuardAuthenticatorHandler $guard, UserProviderInterface $userProvider)
     {
-        if(null !== $this->getUser()) {
-            // Redirect to Frontpage if already logged in
-            return $this->redirect('/');
+        if ($this->isGranted('IS_AUTHENTICATED_REMEMBERED')){
+            return $this->redirectToRoute('user_profile');
         }
 
         $form = $this->createForm(UserRegisterType::class);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            // get Data from Form
             $user = $form->getData();
 
-            if(!$this->userService->checkUserAvailability($user['email'])) {
-                $form->get('email')->addError(new FormError('EMail wird bereits benutzt!'));
-
-                return $this->render('site/user/register.html.twig', [
-                    'form' => $form->createView(),
-                ]);
-            }
-            if(!$this->userService->checkUserAvailability($user['nickname'])) {
-                $form->get('nickname')->addError(new FormError('Nickname wird bereits benutzt!'));
-
-                return $this->render('site/user/register.html.twig', [
-                    'form' => $form->createView(),
-                ]);
-            }
-            if($this->userService->registerUser($user)) {
-
-                // send the confirmation Email
-                //TODO: send the confirmation Email
-
-
+            try {
+                $this->manager->persist($user);
+                $this->manager->flush();
                 $this->addFlash('info', 'Erfolgreich registriert!');
-
-                $loginuser = $userProvider->loadUserByUsername($user['email']);
-
-                return $guard->authenticateUserAndHandleSuccess($loginuser, $request, $login, 'main');
-
-            } else {
-                $this->addFlash('error', 'Es ist ein Fehler bei der Registrierung aufgetreten.');
-
-                return $this->redirectToRoute('register');
+                return $guard->authenticateUserAndHandleSuccess(new LoginUser($user), $request, $login, 'main');
+            } catch (PersistException $e) {
+                switch ($e->getCode()) {
+                    case PersistException::REASON_NON_UNIQUE:
+                        $this->addFlash('error', 'Nickname und/oder Email Adresse schon in vergeben');
+                        break;
+                    default:
+                        $this->addFlash('error', 'Es ist ein unerwarteter Fehler aufgetreten');
+                        break;
+                }
             }
-
         }
 
         return $this->render('site/user/register.html.twig', [
             'form' => $form->createView(),
         ]);
-    }
-
-    /**
-     * @Route("/register/check", name="register_check")
-     */
-    public function checkUsername(Request $request)
-    {
-        if($this->userService->checkUserAvailability($request->query->get('name'))){
-            return new JsonResponse(true);
-        } else {
-            return new JsonResponse(false);
-        }
     }
 }

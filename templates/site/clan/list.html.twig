@@ -24,14 +24,14 @@
                         </form>
                     </div>
                     <div class="col-md-auto">
-                        <a role="button" class="btn btn-primary" href="{{ path('clan_create') }}"><i class="fas fa-plus"></i> Clan erstellen</a> 
+                        <a role="button" class="btn btn-primary" href="{{ path('clan_create') }}"><i class="fas fa-plus"></i> Clan erstellen</a>
                     </div>
                 </div>
             </div>
         </div>
 
         <div class="row block-search-results">
-            {% if clans.items is empty %}
+            {% if clans is empty %}
                 <div class="col mb-3">
                     <div class="alert alert-info" role="alert">
                         <h4 class="alert-heading">Kein Ergebnis gefunden!</h4>
@@ -40,20 +40,20 @@
                 </div>
             {% endif %}
 
-            {% for clan in clans.items %}
+            {% for clan in clans %}
                 <div class="col-sm-6 mb-3">
                     {% include 'site/components/cards/cardClanPreview.html.twig' with {'clan': clan} %}
                 </div>
             {% endfor %}
         </div>
 
-        {% if clans.items is not empty %}
+        {% if clans is not empty %}
             <nav class="">
                 <ul class="pagination justify-content-center block-search-pagination">
                     <li class="page-item page-item-back {% if page == 1 %}disabled{% endif %}">
                         <a class="page-link" href="{{  path('clan', {"page" : page-1, "limit" : limit, "q" : search}) }}" tabindex="-1"><i class="fas fa-arrow-left"></i> Zurück</a>
                     </li>
-                    {% set pageCnt = (clans.total / limit)|round(0, 'ceil') %}
+                    {% set pageCnt = (total / limit)|round(0, 'ceil') %}
                     {% for i in 1..pageCnt %}
                         <li class="page-item {% if page == i %}active{% endif %}" data-page="{{ i }}">
                             <a class="page-link" href="{{  path('clan', {"page" : i, "limit" : limit, "q" : search}) }}">{{ i }}</a>

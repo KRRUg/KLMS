@@ -6,7 +6,7 @@
     <div class="row">
         <div class="col-12">
             <div class="card">
-                <table id="UserTable" class="table table-striped admin-data-table">
+                <table id="UserTable" class="table table-striped admin-data-table" data-order='[[1, "asc"]]'>
                     <thead>
                         <tr>
                             <th class="text-nowrap">KLMS-ID</th>
@@ -17,7 +17,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        {% for  user in users.items %}
+                        {% for  user in users %}
                             <tr>
                                 <td class="w-1">
                                     {{ user.id }}

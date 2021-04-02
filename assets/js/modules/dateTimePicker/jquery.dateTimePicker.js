@@ -32,7 +32,7 @@ import "flatpickr/dist/flatpickr.min.css";
                 enableSeconds: false,
                 time_24hr: true,
                 altInput: true,
-                altFormat: "D j.m.Y, H:i",
+                altFormat: "D d.m.Y, H:i",
                 dateFormat: 'Y-m-d H:i',
                 monthSelectorType: "static",
                 minuteIncrement: 10,

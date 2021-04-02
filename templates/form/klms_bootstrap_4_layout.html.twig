@@ -23,3 +23,26 @@
         </div>{# end input-group #}
     {% endif %}
 {% endblock form_widget_simple %}
+
+{% block choice_widget_collapsed %}
+    {% if input_group_prepend is defined or  input_group_append is defined %}
+        <div class="input-group">
+    {% endif %}
+    {% if input_group_prepend is defined  %}
+        <div class="input-group-prepend">
+            <span class="input-group-text">{{ input_group_prepend|raw }}</span>
+        </div>
+    {% endif %}
+
+    {{ parent() }}
+
+    {% if input_group_append is defined %}
+        <div class="input-group-append">
+            <span class="input-group-text">{{ input_group_append|raw }}</span>
+        </div>
+    {% endif %}
+
+    {% if input_group_prepend is defined or  input_group_append is defined %}
+        </div>{# end input-group #}
+    {% endif %}
+{% endblock %}

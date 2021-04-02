@@ -3,8 +3,9 @@
 
 namespace App\Controller\API;
 
-use App\Model\ClanModel;
-use App\Service\UserService;
+use App\Entity\Clan;
+use App\Idm\IdmManager;
+use App\Idm\IdmRepository;
 use App\Transfer\Error;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -17,11 +18,11 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class ClanController extends AbstractController
 {
-    private $userService;
+    private IdmRepository $clanRepo;
 
-    public function __construct(UserService $userService)
+    public function __construct(IdmManager $manager)
     {
-        $this->userService = $userService;
+        $this->clanRepo = $manager->getRepository(Clan::class);
     }
 
     /**
@@ -31,26 +32,29 @@ class ClanController extends AbstractController
      */
     public function search(Request $request)
     {
-        $search = $request->query->get('q');
+        $search = $request->query->get('q', '');
         $limit = $request->query->getInt('limit', 10);
         $page = $request->query->getInt('page', 1);
 
-        $ret = $this->userService->queryClans($search, $page, $limit);
+        $lazyLoadingCollection = $this->clanRepo->findFuzzy($search);
+        $items = $lazyLoadingCollection->getPage($page, $limit);
 
-        if (empty($ret)) {
+        if (empty($items)) {
             return new JsonResponse(Error::withMessage("Not Found"), 404);
         }
 
-        $ret->items = array_map(function (ClanModel $clan) {
+        $result = array();
+        $result['count'] = count($items);
+        $result['total'] = $lazyLoadingCollection->count();
+        $result['items'] = array_map(function (Clan $clan) {
             return [
                 'uuid' => $clan->getUuid(),
                 'nickname' => $clan->getName(),
                 'firstname' => $clan->getClantag(),
                 'surname' => '',
             ];
-        }, $ret->items);
+        }, $items);
 
-
-        return new JsonResponse(json_encode($ret), 200, [], true);
+        return new JsonResponse(json_encode($result), 200, [], true);
     }
 }

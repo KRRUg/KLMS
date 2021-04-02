@@ -12,7 +12,7 @@ import './confirmModal.js';
         this.element = element;
 
         let defaults = {
-            remoteTarget: element.dataset.dataRemoteTarget
+            remoteTarget: element.dataset.remoteTarget
         };
 
         this.settings = $.extend({}, defaults, options);
@@ -28,14 +28,21 @@ import './confirmModal.js';
                 searchHighlight: true,
                 language: dTLang
             };
-
             if (this.settings.remoteTarget) {
                 dtOptions.ajax = {
-                    url: this.remoteTarget,
-                    dataSrc: ""
-                };
-            }
+                    url: this.settings.remoteTarget,
+                    dataFilter: function(data){
+                        var json = jQuery.parseJSON( data );
+                        json.recordsTotal = json.total;
+                        json.recordsFiltered = json.total;
+                        json.data = json.items;
 
+                        return JSON.stringify( json ); // return JSON string
+                    }
+                };
+                dtOptions.serverSide = true;
+                dtOptions.processing = true;
+            }
             this.$table = $(this.element).DataTable(dtOptions);
         },
         _enableTrigger() {
