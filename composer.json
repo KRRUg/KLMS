@@ -21,7 +21,6 @@
         "symfony/framework-bundle": "4.4.*",
         "symfony/http-client": "4.4.*",
         "symfony/mailer": "4.4.*",
-        "symfony/messenger": "4.4.*",
         "symfony/orm-pack": "^1.0",
         "symfony/property-info": "4.4.*",
         "symfony/security-bundle": "4.4.*",
