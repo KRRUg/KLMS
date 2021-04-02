@@ -1,10 +1,8 @@
 <?php
 
-
 namespace App\Entity\EMail;
 
-
-use App\Security\User;
+use App\Entity\User;
 use Symfony\Component\Mime\Address;
 
 class EMailRecipient

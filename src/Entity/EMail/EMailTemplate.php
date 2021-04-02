@@ -14,53 +14,54 @@ use Doctrine\ORM\Mapping as ORM;
  */
 class EMailTemplate
 {
-	/**
-	 * @ORM\Id()
-	 * @ORM\GeneratedValue()
-	 * @ORM\Column(type="integer")
-	 */
-	private $id;
+    /**
+     * @ORM\Id()
+     * @ORM\GeneratedValue()
+     * @ORM\Column(type="integer")
+     */
+    private $id;
 
-	/**
-	 * @ORM\Column(type="string", length=255)
-	 */
-	private $name;
+    /**
+     * @ORM\Column(type="string", length=255)
+     */
+    private $name;
 
-	/**
-	 * @ORM\Column(type="string", length=255)
-	 */
-	private $subject;
+    /**
+     * @ORM\Column(type="string", length=255)
+     */
+    private $subject;
 
-	/**
-	 * @ORM\Column(type="datetime")
-	 */
-	private $last_modified;
+    /**
+     * @ORM\Column(type="datetime")
+     */
+    // TODO use EntityHistoryTrait
+    private $last_modified;
 
-	/**
-	 * @ORM\Column(type="datetime")
-	 */
-	private $created;
+    /**
+     * @ORM\Column(type="datetime")
+     */
+    // TODO use EntityHistoryTrait
+    private $created;
 
-	/**
-	 * @ORM\Column(type="boolean")
-	 */
-	private $isPublished = true;
+    /**
+     * @ORM\Column(type="boolean")
+     */
+    private $isPublished = true;
 
-	/**
-	 * @ORM\Column(type="text", nullable=true)
-	 */
-	private $body = '';
+    /**
+     * @ORM\Column(type="text", nullable=true)
+     */
+    private $body = '';
 
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $DesignFile;
 
-	/**
-	 * @ORM\Column(type="string", length=255, nullable=true)
-	 */
-	private $DesignFile;
-
-	/**
-	 * @ORM\Column(type="string", length=255, nullable=true, unique=true)
-	 */
-	private $applicationHook;
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true, unique=true)
+     */
+    private $applicationHook;
 
     /**
      * @ORM\OneToOne(targetEntity="App\Entity\EMail\EmailSending", mappedBy="EMailTemplate", cascade={"persist", "remove"})
@@ -68,150 +69,146 @@ class EMailTemplate
     private $emailSending;
 
 
-	public function __construct()
-         	{
-         	}
+    public function getId(): ?int
+    {
+        return $this->id;
+    }
 
-	public function getId(): ?int
-         	{
-         		return $this->id;
-         	}
+    public function getName(): ?string
+    {
+        return $this->name;
+    }
 
-	public function getName(): ?string
-         	{
-         		return $this->name;
-         	}
+    public function setName(string $name): self
+    {
+        $this->name = $name;
 
-	public function setName(string $name): self
-         	{
-         		$this->name = $name;
-         
-         		return $this;
-         	}
+        return $this;
+    }
 
-	public function getSubject(): ?string
-         	{
-         		return $this->subject;
-         	}
+    public function getSubject(): ?string
+    {
+        return $this->subject;
+    }
 
-	public function setSubject(string $subject): self
-         	{
-         		$this->subject = $subject;
-         
-         		return $this;
-         	}
+    public function setSubject(string $subject): self
+    {
+        $this->subject = $subject;
 
-	public function getLastModified(): ?DateTimeInterface
-         	{
-         		return $this->last_modified;
-         	}
+        return $this;
+    }
 
-	public function setLastModified(DateTimeInterface $last_modified): self
-         	{
-         		$this->last_modified = $last_modified;
-         
-         		return $this;
-         	}
+    public function getLastModified(): ?DateTimeInterface
+    {
+        return $this->last_modified;
+    }
 
-	/**
-	 * @ORM\PrePersist()
-	 * @ORM\PreUpdate()
-	 */
-	public function updateModifiedDatetime()
-         	{
-         		// update the modified time and creation time
-         		$this->setLastModified(new DateTime());
-         		if ($this->getCreated() === null) {
-         			$this->setCreated(new DateTime());
-         		}
-         	}
+    public function setLastModified(DateTimeInterface $last_modified): self
+    {
+        $this->last_modified = $last_modified;
 
-	public function getCreated(): ?DateTimeInterface
-         	{
-         		return $this->created;
-         	}
+        return $this;
+    }
 
-	public function setCreated(DateTimeInterface $created): self
-         	{
-         		$this->created = $created;
-         
-         		return $this;
-         	}
+    /**
+     * @ORM\PrePersist()
+     * @ORM\PreUpdate()
+     */
+    // TODO use EntityHistoryTrait
+    public function updateModifiedDatetime()
+    {
+        // update the modified time and creation time
+        $this->setLastModified(new DateTime());
+        if ($this->getCreated() === null) {
+            $this->setCreated(new DateTime());
+        }
+    }
 
-	/**
-	 * @return bool
-	 */
-	public function getIsManualSendable(): bool
-         	{
-         		return $this->isPublished && !$this->isApplicationHooked();
-         	}
+    public function getCreated(): ?DateTimeInterface
+    {
+        return $this->created;
+    }
 
-	/**
-	 * @return bool
-	 */
-	public function isApplicationHooked()
-         	{
-         		return $this->getApplicationHook() != null && !empty($this->getApplicationHook());
-         	}
+    public function setCreated(DateTimeInterface $created): self
+    {
+        $this->created = $created;
 
-	/**
-	 * @return string|null
-	 */
-	public function getApplicationHook(): ?string
-         	{
-         		return $this->applicationHook;
-         	}
+        return $this;
+    }
 
-	public function setApplicationHook(?string $ApplicationHookName): self
-         	{
-         		$this->applicationHook = $ApplicationHookName;
-         		return $this;
-         	}
+    /**
+     * @return bool
+     */
+    public function isManualSendable(): bool
+    {
+        return $this->isPublished && !$this->isApplicationHooked();
+    }
 
-	public function getBody(): ?string
-         	{
-         		return $this->body;
-         	}
+    /**
+     * @return bool
+     */
+    public function isApplicationHooked()
+    {
+        return $this->getApplicationHook() != null && !empty($this->getApplicationHook());
+    }
 
-	public function setBody(string $body = null): self
-         	{
-         		$this->body = $body ?? '';
-         		return $this;
-         	}
+    /**
+     * @return string|null
+     */
+    public function getApplicationHook(): ?string
+    {
+        return $this->applicationHook;
+    }
 
-	public function getIsPublished(): ?bool
-         	{
-         		return $this->isPublished;
-         	}
+    public function setApplicationHook(?string $ApplicationHookName): self
+    {
+        $this->applicationHook = $ApplicationHookName;
+        return $this;
+    }
 
-	public function setIsPublished(bool $published): self
-         	{
-         		$this->isPublished = $published;
-         		return $this;
-         	}
+    public function getBody(): ?string
+    {
+        return $this->body;
+    }
 
-	public function getIsEditable(): ?bool
-         	{
-         		return true;
-         	}
+    public function setBody(string $body = null): self
+    {
+        $this->body = $body ?? '';
+        return $this;
+    }
 
-	public function getIsDeletable(): ?bool
-         	{
-             		return!$this->isApplicationHooked();
-         	}
+    public function isPublished(): ?bool
+    {
+        return $this->isPublished;
+    }
 
+    public function setPublished(bool $published): self
+    {
+        $this->isPublished = $published;
+        return $this;
+    }
 
-	public function getDesignFile(): ?string
-         	{
-         		return $this->DesignFile;
-         	}
+    public function isEditable(): ?bool
+    {
+        return true;
+    }
 
-	public function setDesignFile(string $DesignFile): self
-         	{
-         		$this->DesignFile = $DesignFile;
-         
-         		return $this;
-         	}
+    public function isDeletable(): ?bool
+    {
+        return !$this->isApplicationHooked();
+    }
+
+    public function getDesignFile(): ?string
+    {
+        return $this->DesignFile;
+    }
+
+    public function setDesignFile(string $DesignFile): self
+    {
+        $this->DesignFile = $DesignFile;
+
+        return $this;
+    }
 
     public function getEmailSending(): ?EmailSending
     {
@@ -229,6 +226,4 @@ class EMailTemplate
 
         return $this;
     }
-
-
 }

@@ -22,9 +22,6 @@ use Symfony\Component\Mime\Address;
 use Symfony\Component\Mime\Email;
 use Twig\Environment;
 
-/**
- * Class EMailService.
- */
 //TODO: Exceptions abfangen
 class EMailService
 {
@@ -39,14 +36,14 @@ class EMailService
         'STANDARD' => '/email/STANDARD.html.twig',
     ];
 
-    protected $mailer;
-    protected $senderAddress;
-    protected $em;
-    protected $templateRepository;
-    protected $sendingRepository;
-    protected $logger;
-    protected $twig;
-    protected $systemMessageUser;
+    protected LoggerInterface $logger;
+    protected EntityManagerInterface $em;
+    protected MailerInterface $mailer;
+    protected Address $senderAddress;
+    protected EMailTemplateRepository $templateRepository;
+    protected EmailSendingRepository $sendingRepository;
+    protected Environment $twig;
+    protected User $systemMessageUser;
     protected IdmRepository $userRepository;
 
     public function __construct(MailerInterface $mailer,
@@ -68,7 +65,8 @@ class EMailService
         $this->templateRepository = $templateRepository;
         $this->sendingRepository = $sendingRepository;
         $this->twig = $twig;
-        $this->systemMessageUser = $this->userRepository->findOneById([$_ENV['MAILER_SYSTEM_MESSAGE_USER_GUID']]);
+        // TODO remove IDM access from constructor
+        //$this->systemMessageUser = $this->userRepository->findOneById($_ENV['MAILER_SYSTEM_MESSAGE_USER_GUID']);
     }
 
     public function sendByApplicationHook(string $applicationHook, User $user, string $processStepName = null, array $payload = null)
@@ -108,8 +106,8 @@ class EMailService
         $recipient = new EMailRecipient($user);
         $error = null;
 
-        if (null == $recipient || empty($recipient->getEmailAddress())) {
-            $error = 'No email adress was given or user object was null';
+        if (empty($recipient) || empty($recipient->getEmailAddress())) {
+            $error = 'No email address was given or user object was null';
         }
         if (null != $error) {
             return $error;
@@ -120,13 +118,10 @@ class EMailService
             $email = (new Email())->from($this->senderAddress)
                 ->to($recipient->getAddressObject())
                 ->subject($template->getSubject())
-                ->text(strip_tags($template->getBody()))// TODO Lösung für Text-only finden
+                ->text(strip_tags($template->getBody())) // TODO Lösung für Text-only finden
                 ->html($template->getBody());
             $this->mailer->send($email);
-        } catch (Exception $e) {
-            $this->logger->error($e);
-            $error = $e;
-        } catch (TransportExceptionInterface $e) {
+        } catch (Exception | TransportExceptionInterface $e) {
             $this->logger->error($e);
             $error = $e;
         } finally {
@@ -297,7 +292,7 @@ class EMailService
 
     public function deleteTemplate(EMailTemplate $template)
     {
-        if ($template->getIsDeletable()) {
+        if ($template->isDeletable()) {
             $this->em->remove($template);
             $this->em->flush();
         }
