@@ -30,7 +30,7 @@ class TextblockController extends AbstractController
     public function index()
     {
         return $this->render('admin/textblock/index.html.twig', [
-            'keys' => TextBlockService::TEXT_BLOCK_KEYS,
+            'keys' => TextBlockService::getDescriptions(),
             'modification' => $this->service->getModificationDates()
         ]);
     }
@@ -41,31 +41,30 @@ class TextblockController extends AbstractController
     public function edit(Request $request)
     {
         $key = $request->get('key');
-        if (empty($key) || !$this->service->validKey($key)) {
+        if (!$this->service->validKey($key)) {
             return $this->redirectToRoute('admin_textblock');
         }
         $text = $this->service->get($key);
         $form = $this->createFormBuilder(['key' => $key, 'text' => $text])
             ->add('key', HiddenType::class)
             ->add('text', TextareaType::class, ['required' => false, 'label' => false])
-            ->add('save', SubmitType::class, ['label' => 'Speichern'])
             ->getForm();
 
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
             $data = $form->getData();
-            if ($data['key'] !== $key) {
-                // TODO handle me
+            if ($data['key'] === $key) {
+                $text = $data['text'];
+                $text = empty($text) ? "" : $text;
+                $this->service->set($key, $text);
             }
-            $text = $data['text'];
-            $text = empty($text) ? "" : $text;
-            $this->service->set($key, $text);
             return $this->redirectToRoute("admin_textblock");
         }
 
         return $this->render('admin/textblock/edit.html.twig', [
             'key' => $key,
-            'desc' => TextBlockService::TEXT_BLOCK_KEYS[$key],
+            'desc' => TextBlockService::getDescription($key),
+            'is_html' => TextBlockService::isHTML($key),
             'form' => $form->createView()
         ]);
     }
