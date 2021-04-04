@@ -11,8 +11,8 @@ use App\Repository\EMail\EmailSendingRepository;
 use App\Repository\EMail\EMailTemplateRepository;
 use App\Security\LoginUser;
 use App\Service\EMailService;
+use App\Service\GroupService;
 use DateTime;
-use Exception;
 use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -21,19 +21,23 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
- * Class EMailController.
+ * @Route("/email", name="email")
  */
 class EMailController extends AbstractController
 {
-    private $logger;
+    private LoggerInterface $logger;
+    private EMailService $mailService;
+    private GroupService $groupService;
 
-    public function __construct(LoggerInterface $logger)
+    public function __construct(LoggerInterface $logger, EMailService $mailService, GroupService $groupService)
     {
         $this->logger = $logger;
+        $this->mailService = $mailService;
+        $this->groupService = $groupService;
     }
 
     /**
-     * @Route("/email/", name="email")
+     * @Route("", name="")
      *
      * @param EMailTemplateRepository $templateRepository
      * @param EmailSendingRepository  $sendingRepository
@@ -51,7 +55,7 @@ class EMailController extends AbstractController
     }
 
     /**
-     * @Route("/email/new", name="email_new")
+     * @Route("/new", name="_new")
      *
      * @param Request $request
      *
@@ -87,64 +91,54 @@ class EMailController extends AbstractController
     }
 
     /**
-     * @Route("/email/sending/{id}/send/", name="email_sending_send")
-     *
-     * @param EMailService $mailService
-     * @param EmailSending $sending
-     *
-     * @return RedirectResponse|Response
+     * @Route("/sending/{id}/send/", name="_sending_send")
      */
-    public function createSendingTasks(EMailService $mailService, EmailSending $sending)
+    public function createSendingTasks(EmailSending $sending)
     {
-        $mailService->createSendingTasks($sending);
+        $this->mailService->createSendingTasks($sending);
         //TODO Usergruppe empfangen
         return $this->redirectToRoute('admin_email');
     }
 
     /**
-     * @Route("/email/template/{id}", name="email_show")
-     *
-     * @param EMailTemplate $template
-     * @param EMailService  $mailService
-     *
-     * @return Response
+     * @Route("/template/{id}", name="_show")
      */
-    public function show(EMailTemplate $template, EMailService $mailService, EMailTemplateRepository $repository)
+    public function show(EMailTemplate $template, EMailTemplateRepository $repository)
     {
         // TODO fix this check
 //        if (!$repository->hasTemplateAccess($this->getUserFromLoginUser(), $template)) {// TODO durch AccessDeniedHandler ersetzten sobald verfügbar
 //            return $this->redirectToRoute('admin_email');
 //        }
 
-        $template = $mailService->renderTemplate($template, $this->getUserFromLoginUser());
+        $template = $this->mailService->renderTemplate($template, $this->getUserFromLoginUser());
 
         return $this->render('admin/email/show.html.twig', ['template' => $template]);
     }
 
     /**
-     * @Route("/email/sendTestmail/{id}", name="email_send_testmail")
-     *
-     * @param EMailTemplate $template
-     * @param EMailService  $mailService
-     *
-     * @return Response
+     * @Route("/test/{id}", name="_send_testmail")
+     * TODO remove? yes, remove
      */
-    public function sendTestmail(EMailTemplate $template, EMailService $mailService)
+    public function sendTestmail(EMailTemplate $template)
     {
-        $mailService->sendSingleEmail($template, $this->getUserFromLoginUser());
-        $template = $mailService->renderTemplate($template, $this->getUserFromLoginUser());
+        $this->mailService->sendByTemplate($template, $this->getUserFromLoginUser());
 
         return $this->render('admin/email/show.html.twig', ['template' => $template]);
     }
 
     /**
-     * @Route("/email/edit/{id}", name="email_edit")
-     *
-     * @param EMailTemplate           $template
-     * @param Request                 $request
-     * @param EMailTemplateRepository $repository
-     *
-     * @return RedirectResponse|Response
+     * @Route("/test", name="_send_hook")
+     * TODO remove? yes, remove
+     */
+    public function sendHook()
+    {
+        $this->mailService->sendByApplicationHook(EMailService::APP_HOOK_REGISTRATION_CONFIRM, $this->getUserFromLoginUser());
+
+        return $this->redirectToRoute('admin_email');
+    }
+
+    /**
+     * @Route("/edit/{id}", name="_edit")
      */
     public function editTemplate(EMailTemplate $template, Request $request, EMailTemplateRepository $repository)
     {
@@ -166,61 +160,44 @@ class EMailController extends AbstractController
             return $this->redirectToRoute('admin_email');
         }
 
-        //available Fields holen
+        //get available Fields
         $recipient = new EMailRecipient($this->getUserFromLoginUser());
 
         return $this->render('admin/email/editTemplate.html.twig', ['form' => $form->createView(), 'availableFields' => $recipient->getDataArray()]);
     }
 
     /**
-     * @Route("/email/template/delete/{id}", name="email_delete")
-     *
-     * @param EMailTemplate $template
-     * @param EMailService  $mailService
-     *
-     * @return RedirectResponse
+     * @Route("/template/delete/{id}", name="_delete")
      */
-    public function deleteTemplate(EMailTemplate $template, EMailService $mailService)
+    public function deleteTemplate(EMailTemplate $template)
     {
-        $mailService->deleteTemplate($template);
+        $this->mailService->deleteTemplate($template);
 
         return $this->redirectToRoute('admin_email');
     }
 
     /**
-     * @Route("/email/sending/delete/{id}", name="email_sending_delete")
-     *
-     * @param EmailSending $sending
-     * @param EMailService $mailService
-     *
-     * @return RedirectResponse
+     * @Route("/sending/delete/{id}", name="_sending_delete")
      */
-    public function deleteSending(EmailSending $sending, EMailService $mailService)
+    public function deleteSending(EmailSending $sending)
     {
-        $mailService->deleteSending($sending);
+        $this->mailService->deleteSending($sending);
 
         return $this->redirectToRoute('admin_email');
     }
 
     /**
-     * @Route("/email/sending/new/{id}", name="email_sending_new")
-     *
-     * @param EMailTemplate $template
-     * @param EMailService $mailService
-     * @return RedirectResponse
+     * @Route("/sending/new/{id}", name="_sending_new")
      */
-    public function newSending(EMailTemplate $template, EMailService $mailService)
+    public function newSending(EMailTemplate $template)
     {
-        $mailService->createSending($template, null);
+        $this->mailService->createSending($template, null);
 
         return $this->redirectToRoute('admin_email');
     }
 
     /**
-     * @Route("/email/sending/unpublish/{id}", name="email_sending_unpublish")
-     *
-     * @param EmailSending $sending
-     * @return RedirectResponse
+     * @Route("/sending/unpublish/{id}", name="_sending_unpublish")
      */
     public function unPublishSending(EmailSending $sending)
     {
@@ -236,12 +213,7 @@ class EMailController extends AbstractController
     }
 
     /**
-     * @Route("/email/sending/publish/{id}", name="email_sending_publish")
-     *
-     * @param EmailSending $sending
-     * @return RedirectResponse
-     *
-     * @throws Exception
+     * @Route("/sending/publish/{id}", name="_sending_publish")
      */
     public function publishSending(EmailSending $sending)
     {
@@ -264,12 +236,7 @@ class EMailController extends AbstractController
     }
 
     /**
-     * @Route("/email/sending/edit/{id}", name="email_sending_edit")
-     *
-     * @param EmailSending $sending
-     * @param Request      $request
-     *
-     * @return RedirectResponse|Response
+     * @Route("/sending/edit/{id}", name="_sending_edit")
      */
     public function editSending(EmailSending $sending, Request $request)
     {

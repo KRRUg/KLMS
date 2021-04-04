@@ -1,0 +1,16 @@
+<!doctype html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
+
+<head>
+  <title>{{ email.subject }}</title>
+</head>
+
+<body>
+  {% set text = textblock.get('register.text') %}
+  {% set org = textblock.get('organisation_name') %}
+  {% if text is empty %}
+    <h1>Deine Registrierung bei {{ org }}</h1>
+  {% endif %}
+  <p>Zum Bestätigen der Registrierung <a href="{{ url('email_token', {'token' : token}) }}">hier</a> klicken.</p>
+</body>
+</html>

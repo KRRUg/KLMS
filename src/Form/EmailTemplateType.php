@@ -23,7 +23,7 @@ class EmailTemplateType extends AbstractType
 				'label' => 'Designfile'
 			])
 			->add('applicationHook', ChoiceType::class, [
-				'choices' => EMailService::APPLICATIONHOOKS])
+				'choices' => EMailService::HOOKS])
 			->add('isPublished')
 			->add('save', SubmitType::class, ["label" => "speichern"]);
 	}

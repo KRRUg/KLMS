@@ -35,7 +35,6 @@ class EmailSending
 	 */
 	private $status;
 
-
 	/**
 	 * @ORM\Column(type="datetime")
 	 */
@@ -50,7 +49,6 @@ class EmailSending
 	 * @ORM\Column(type="integer")
 	 */
 	private $recipientCount = 0;
-
 
 	/**
 	 * @ORM\Column(type="integer")
@@ -118,21 +116,10 @@ class EmailSending
 		return $this;
 	}
 
-
 	public function getCreated(): ?DateTimeInterface
 	{
 		return $this->created;
 	}
-
-	/**
-	 * @param DateTimeInterface $created
-	 *
-	 * @return EmailSending
-	 * @throws \Exception
-	 *
-	 * @ORM\PrePersist()
-	 */
-
 
 	public function setCreated(): self
 	{
@@ -241,6 +228,4 @@ class EmailSending
 
 		return $this;
 	}
-
-
 }
