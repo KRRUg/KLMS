@@ -1,6 +1,5 @@
 <?php
 
-
 namespace App\Service;
 
 use App\Entity\TextBlock;
@@ -10,21 +9,24 @@ use Psr\Log\LoggerInterface;
 
 class TextBlockService
 {
+    private const TB_DESCRIPTION = 'description';
+    private const TB_IS_HTML = 'type';
+
     ////////////////////////////////////////////////
     /// Text block names
     ///////////////////////////////////////////////
-    const TEXT_BLOCK_KEYS = [
-        "AGB" => "AGB",
-        "ABOUT_US" => "Über uns, homepage links unten",
-
-        "ORGANISATION_NAME" => "Organisationsname / Vereinsname"
-
+    private const TEXT_BLOCK_KEYS = [
+        "agb" =>               [self::TB_DESCRIPTION => "AGB", self::TB_IS_HTML => true],
+        "about_us" =>          [self::TB_DESCRIPTION => "Über uns, homepage links unten", self::TB_IS_HTML => true],
+        "organisation_name" => [self::TB_DESCRIPTION => "Organisationsname / Vereinsname", self::TB_IS_HTML => false],
+        "register.subject" =>  [self::TB_DESCRIPTION => "Betreff der Registrierungsmail", self::TB_IS_HTML => false],
+        "register.text" =>     [self::TB_DESCRIPTION => "Text der Registrierungsmail", self::TB_IS_HTML => true],
         // extend here
     ];
 
-    private $repo;
-    private $em;
-    private $logger;
+    private LoggerInterface $logger;
+    private EntityManagerInterface $em;
+    private TextBlockRepository $repo;
 
     public function __construct(EntityManagerInterface $em, TextBlockRepository $repo, LoggerInterface $logger)
     {
@@ -33,20 +35,30 @@ class TextBlockService
         $this->logger = $logger;
     }
 
-    public function getKeys(): array
+    public static function getKeys(): array
     {
         return array_keys(self::TEXT_BLOCK_KEYS);
     }
 
-    public function validKey(string $key): bool
+    public static function validKey(string $key): bool
     {
-        $key = strtoupper($key);
+        $key = strtolower($key);
         return array_key_exists($key, self::TEXT_BLOCK_KEYS);
     }
 
-    public function get(string $key): string
+    public static function isHTML(string $key): bool
     {
-        $key = strtoupper($key);
+        return self::validKey($key) ? self::TEXT_BLOCK_KEYS[$key][self::TB_IS_HTML] : false;
+    }
+
+    public static function getDescription(string $key): string
+    {
+        return self::validKey($key) ? self::TEXT_BLOCK_KEYS[$key][self::TB_DESCRIPTION] : "";
+    }
+
+    public function get(string $key): ?string
+    {
+        $key = strtolower($key);
         if (!$this->validKey($key)) {
             $this->logger->error("Invalid key {$key} was requested by TextBlockService");
             return null;
@@ -61,7 +73,7 @@ class TextBlockService
 
     public function set(string $key, string $value)
     {
-        $key = strtoupper($key);
+        $key = strtolower($key);
         if (!array_key_exists($key, self::TEXT_BLOCK_KEYS)) {
             $this->logger->error("Invalid key {$key} was to be set at TextBlockService");
             return;
@@ -85,7 +97,7 @@ class TextBlockService
 
     public function remove(string $key): bool
     {
-        $key = strtoupper($key);
+        $key = strtolower($key);
         if (!$this->validKey($key)) {
             $this->logger->error("Invalid key {$key} was to be deleted by TextBlockService");
             return false;
@@ -102,7 +114,7 @@ class TextBlockService
 
     public function lastModification(string $key): ?\DateTimeInterface
     {
-        $key = strtoupper($key);
+        $key = strtolower($key);
         if (!$this->validKey($key)) {
             $this->logger->error("Invalid key {$key} was to be deleted by TextBlockService");
             return null;
@@ -114,9 +126,13 @@ class TextBlockService
         return $block->getLastModified();
     }
 
-    public function getDescriptions(): array
+    public static function getDescriptions(): array
     {
-        return self::TEXT_BLOCK_KEYS;
+        $result = [];
+        foreach (self::TEXT_BLOCK_KEYS as $key => $value) {
+            $result[$key] = $value[self::TB_DESCRIPTION];
+        }
+        return $result;
     }
 
     public function getModificationDates(): array
