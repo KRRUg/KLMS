@@ -33,6 +33,7 @@ class EMailService
     const HOOK_SUBJECT = 'subject';
     const HOOK_TOKEN = 'token';
 
+    // TODO call this hook in the registration process and disallow login of users without confirmed email address
     const HOOKS = [
         self::APP_HOOK_REGISTRATION_CONFIRM => [
             self::HOOK_SUBJECT => "register.subject",

@@ -66,12 +66,15 @@ class EMailController extends AbstractController
             $em->persist($template);
             $em->flush();
 
-            return $this->redirectToRoute('admin_email');
+            return $this->redirectToRoute('admin_email', ['page' => 'template']);
         }
 
         $recipient = new EMailRecipient($this->getUserFromLoginUser());
 
-        return $this->render('admin/email/editTemplate.html.twig', ['form' => $form->createView(), 'availableFields' => $recipient->getDataArray()]);
+        return $this->render('admin/email/editTemplate.html.twig', [
+            'form' => $form->createView(),
+            'availableFields' => $recipient->getDataArray()
+        ]);
     }
 
     private function getUserFromLoginUser()
@@ -140,13 +143,16 @@ class EMailController extends AbstractController
             $em->persist($template);
             $em->flush();
 
-            return $this->redirectToRoute('admin_email');
+            return $this->redirectToRoute('admin_email', ['page' => 'template']);
         }
 
         //get available Fields
         $recipient = new EMailRecipient($this->getUserFromLoginUser());
 
-        return $this->render('admin/email/editTemplate.html.twig', ['form' => $form->createView(), 'availableFields' => $recipient->getDataArray()]);
+        return $this->render('admin/email/editTemplate.html.twig', [
+            'form' => $form->createView(),
+            'availableFields' => $recipient->getDataArray()
+        ]);
     }
 
     /**
@@ -157,7 +163,7 @@ class EMailController extends AbstractController
     {
         $this->mailService->deleteTemplate($template);
 
-        return $this->redirectToRoute('admin_email');
+        return $this->redirectToRoute('admin_email', ['page' => 'template']);
     }
 
     /**

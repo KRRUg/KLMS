@@ -46,29 +46,9 @@ class EmailSending
 	private $startTime;
 
 	/**
-	 * @ORM\Column(type="integer")
-	 */
-	private $recipientCount = 0;
-
-	/**
-	 * @ORM\Column(type="integer")
-	 */
-	private $recipientCountGenerated = 0;
-
-	/**
 	 * @ORM\Column(type="boolean")
 	 */
 	private $isPublished = false;
-
-	/**
-	 * @ORM\Column(type="boolean")
-	 */
-	private $isInSending = false;
-
-	/**
-	 * @ORM\Column(type="integer")
-	 */
-	private $errorCount = 0;
 
 	public function getId(): ?int
 	{
