@@ -18,7 +18,6 @@
             <table class="table">
                 <thead>
                 <tr>
-                    <th></th>
                     <th>Titel</th>
                     <th>Status</th>
                     <th>Options</th>
@@ -27,58 +26,33 @@
                 <tbody>
                 {% for  template in templates %}
                     <tr>
-                        <td><input type="checkbox"/></td>
                         <td>
-
-                            {% if template.isEditable %}
-                                <a href="{{ path('admin_email_edit', {'id' : template.id}) }}"
-                                   title="Bearbeiten {{ template.name }} ">{{ template.name }}</a>
-                            {% else %}
-                                {{ template.name }}
-                                <small class="text-muted">nicht editierbar</small>
-                            {% endif %}
+                            <a href="{{ path('admin_email_edit', {'id' : template.id}) }}"
+                                title="Bearbeiten {{ template.name }} ">{{ template.name }}</a>
                             <br>
                             <small class="text-muted"><b>{{ template.subject }}</b></small>
-                            <br>
-                            <small class="text-muted">{{ template.body | striptags|slice(0, 40) }}</small>
-
                         </td>
                         <td>
-
-                            {% if template.applicationHooked %}
-                                <span class="fa fa-exclamation-triangle" style="color: red">
-                                    </span> ApplicationHook!<br>
-                                {{ template.applicationHook | upper }}
-                            {% endif %}
-                            {% if not template.isPublished and not template.isApplicationHooked %}
+                            {% if not template.isPublished %}
                                 <br>
                                 <span class="fa fa-lock" style="color: red"></span> Template noch nicht freigegeben!
                             {% endif %}
-
-
                         </td>
                         <td>
                             <a class="btn btn-outline-dark"
                                href="{{ path('admin_email_show', {'id' : template.id}) }}" title="Anzeigen">
                                 <i class="fas fa-eye"></i></a>
-
                             <a class="btn btn-outline-dark"
                                href="{{ path('admin_email_send_testmail', {'id' : template.id}) }}"
                                title="Test E-Mail senden">
-                                <i class="fas fa-envelope"></i></a>
-
-                            {% if  template.isDeletable %}
-                                <a class="btn btn-outline-dark"
-                                   href="{{ path('admin_email_delete', {'id' : template.id}) }}" title="Löschen">
-                                    <i class="fas fa-trash-alt"></i></a>
-                            {% endif %}
-                            {% if  template.isManualSendable %}
-                                <a class="btn btn-outline-dark"
-
-                                   href="{{ path('admin_email_sending_new', {'id' : template.id}) }}"
-                                   title="Sendung erstellen">
-                                    <i class="fas fa-paper-plane"></i> Sendung erstellen</a>
-                            {% endif %}
+                            <i class="fas fa-envelope"></i></a>
+                            <a class="btn btn-outline-dark"
+                               href="{{ path('admin_email_delete', {'id' : template.id}) }}" title="Löschen">
+                            <i class="fas fa-trash-alt"></i></a>
+                            <a class="btn btn-outline-dark"
+                               href="{{ path('admin_email_sending_new', {'id' : template.id}) }}"
+                               title="Sendung erstellen">
+                            <i class="fas fa-paper-plane"></i> Sendung erstellen</a>
                         </td>
                     </tr>
                 {% endfor %}

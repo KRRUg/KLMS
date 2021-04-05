@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Repository\EMail;
+namespace App\Repository;
 
-use App\Entity\EMail\EmailSending;
+use App\Entity\EmailSending;
 use DateTime;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
@@ -37,35 +37,4 @@ class EmailSendingRepository extends ServiceEntityRepository
 		            ->setParameter('now', new DateTime());
 
 	}
-
-	// /**
-	//  * @return EmailSending[] Returns an array of EmailSending objects
-	//  */
-	/*
-	public function findByExampleField($value)
-	{
-		return $this->createQueryBuilder('e')
-			->andWhere('e.exampleField = :val')
-			->setParameter('val', $value)
-			->orderBy('e.id', 'ASC')
-			->setMaxResults(10)
-			->getQuery()
-			->getResult()
-		;
-	}
-	*/
-
-	/*
-	public function findOneBySomeField($value): ?EmailSending
-	{
-		return $this->createQueryBuilder('e')
-			->andWhere('e.exampleField = :val')
-			->setParameter('val', $value)
-			->getQuery()
-			->getOneOrNullResult()
-		;
-	}
-	*/
-
-
 }

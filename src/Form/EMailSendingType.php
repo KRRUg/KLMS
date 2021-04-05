@@ -2,8 +2,8 @@
 
 namespace App\Form;
 
-use App\Entity\EMail\EMailSending;
-use App\Repository\EMail\EMailTemplateRepository;
+use App\Entity\EmailSending;
+use App\Repository\EMailTemplateRepository;
 use App\Service\EMailService;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;

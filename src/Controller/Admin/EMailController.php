@@ -2,13 +2,13 @@
 
 namespace App\Controller\Admin;
 
-use App\Entity\EMail\EMailRecipient;
-use App\Entity\EMail\EmailSending;
-use App\Entity\EMail\EMailTemplate;
+use App\Helper\EMailRecipient;
+use App\Entity\EmailSending;
+use App\Entity\EMailTemplate;
 use App\Form\EMailSendingType;
 use App\Form\EmailTemplateType;
-use App\Repository\EMail\EmailSendingRepository;
-use App\Repository\EMail\EMailTemplateRepository;
+use App\Repository\EmailSendingRepository;
+use App\Repository\EMailTemplateRepository;
 use App\Security\LoginUser;
 use App\Service\EMailService;
 use App\Service\GroupService;
@@ -38,28 +38,22 @@ class EMailController extends AbstractController
 
     /**
      * @Route("", name="")
-     *
-     * @param EMailTemplateRepository $templateRepository
-     * @param EmailSendingRepository  $sendingRepository
-     *
-     * @return Response
      */
-    public function index(EMailTemplateRepository $templateRepository, EmailSendingRepository $sendingRepository)
+    public function index(Request $request, EMailTemplateRepository $templateRepository, EmailSendingRepository $sendingRepository)
     {
+        $page = strval($request->get('page'));
         $templates = $templateRepository->findAllTemplatesWithoutSendings();
-        //$templates = $templateRepository->findAllByRole($this->getUserFromLoginUser());
         $sendings = $sendingRepository->findAll();
-        $applicationHookTemplates = $templateRepository->findAllWithApplicationHook();
 
-        return $this->render('admin/email/index.html.twig', ['templates' => $templates, 'sendings' => $sendings, 'applicationHooks' => $applicationHookTemplates]);
+        return $this->render('admin/email/index.html.twig', [
+            'page' => $page,
+            'templates' => $templates,
+            'sendings' => $sendings
+        ]);
     }
 
     /**
      * @Route("/new", name="_new")
-     *
-     * @param Request $request
-     *
-     * @return RedirectResponse|Response
      */
     public function new(Request $request)
     {
@@ -103,6 +97,7 @@ class EMailController extends AbstractController
     /**
      * @Route("/template/{id}", name="_show")
      */
+    // TODO put show in modal, maybe remove this feature
     public function show(EMailTemplate $template, EMailTemplateRepository $repository)
     {
         // TODO fix this check
@@ -117,24 +112,12 @@ class EMailController extends AbstractController
 
     /**
      * @Route("/test/{id}", name="_send_testmail")
-     * TODO remove? yes, remove
      */
     public function sendTestmail(EMailTemplate $template)
     {
         $this->mailService->sendByTemplate($template, $this->getUserFromLoginUser());
-
-        return $this->render('admin/email/show.html.twig', ['template' => $template]);
-    }
-
-    /**
-     * @Route("/test", name="_send_hook")
-     * TODO remove? yes, remove
-     */
-    public function sendHook()
-    {
-        $this->mailService->sendByApplicationHook(EMailService::APP_HOOK_REGISTRATION_CONFIRM, $this->getUserFromLoginUser());
-
-        return $this->redirectToRoute('admin_email');
+        $this->addFlash('success', "Test-EMail wurde an {$this->getUserFromLoginUser()->getEmail()} gesendet.");
+        return $this->redirectToRoute('admin_email', ['page' => 'template']);
     }
 
     /**
@@ -169,6 +152,7 @@ class EMailController extends AbstractController
     /**
      * @Route("/template/delete/{id}", name="_delete")
      */
+    // TODO add CSRF protection here
     public function deleteTemplate(EMailTemplate $template)
     {
         $this->mailService->deleteTemplate($template);
@@ -179,6 +163,7 @@ class EMailController extends AbstractController
     /**
      * @Route("/sending/delete/{id}", name="_sending_delete")
      */
+    // TODO add CSRF protection here
     public function deleteSending(EmailSending $sending)
     {
         $this->mailService->deleteSending($sending);

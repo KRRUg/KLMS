@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Entity\EMail;
+namespace App\Helper;
 
 use App\Entity\User;
 use Symfony\Component\Mime\Address;

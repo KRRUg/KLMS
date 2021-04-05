@@ -1,13 +1,13 @@
 <?php
 
-namespace App\Entity\EMail;
+namespace App\Entity;
 
 use DateTime;
 use DateTimeInterface;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * @ORM\Entity(repositoryClass="App\Repository\EMail\EmailSendingRepository")
+ * @ORM\Entity(repositoryClass="App\Repository\EmailSendingRepository")
  * @ORM\HasLifecycleCallbacks()
  */
 class EmailSending
@@ -20,7 +20,7 @@ class EmailSending
 	private $id;
 
 	/**
-	 * @ORM\OneToOne(targetEntity="App\Entity\EMail\EMailTemplate", inversedBy="emailSending", cascade={"persist", "remove"})
+	 * @ORM\OneToOne(targetEntity="App\Entity\EMailTemplate", inversedBy="emailSending", cascade={"persist", "remove"})
 	 * @ORM\JoinColumn(nullable=false)
 	 */
 	private $EMailTemplate;

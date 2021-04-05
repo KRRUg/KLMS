@@ -10,7 +10,7 @@ use Symfony\Component\Security\Core\Security;
 
 class AuthorInsertSubscriber implements EventSubscriberInterface
 {
-    private $security;
+    private Security $security;
 
     public function __construct(Security $security)
     {

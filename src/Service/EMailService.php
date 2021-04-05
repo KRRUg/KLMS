@@ -2,14 +2,14 @@
 
 namespace App\Service;
 
-use App\Entity\EMail\EMailRecipient;
-use App\Entity\EMail\EmailSending;
-use App\Entity\EMail\EMailTemplate;
+use App\Helper\EMailRecipient;
+use App\Entity\EmailSending;
+use App\Entity\EMailTemplate;
 use App\Entity\User;
 use App\Idm\IdmManager;
 use App\Idm\IdmRepository;
-use App\Repository\EMail\EmailSendingRepository;
-use App\Repository\EMail\EMailTemplateRepository;
+use App\Repository\EmailSendingRepository;
+use App\Repository\EMailTemplateRepository;
 use DateTime;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
@@ -41,10 +41,10 @@ class EMailService
         ],
     ];
 
-    const DESIGN_STANDARD = 'STANDARD';
+    const DESIGN_STANDARD = 'Standard';
 
     const NEWSLETTER_DESIGNS = [
-        self::DESIGN_STANDARD => '/email/STANDARD.html.twig',
+        self::DESIGN_STANDARD => '/email/standard.html.twig',
     ];
 
     private LoggerInterface $logger;
@@ -229,13 +229,9 @@ class EMailService
     private function getDesignFile(EMailTemplate $template): string
     {
         $design = $template->getDesignFile();
-        if ($template->isApplicationHooked()) {
-            $design = $template->getApplicationHook();
-        }
         if (null == $design || empty($design)) {
             $design = 'TEXT';
         }
-
         return $design;
     }
 
@@ -315,17 +311,13 @@ class EMailService
 
     public function deleteTemplate(EMailTemplate $template)
     {
-        if ($template->isDeletable()) {
-            $this->em->remove($template);
-            $this->em->flush();
-        }
+        $this->em->remove($template);
+        $this->em->flush();
     }
 
     public function deleteSending(EmailSending $sending)
     {
-        if ($sending->getIsDeletable()) {
-            $this->em->remove($sending);
-            $this->em->flush();
-        }
+        $this->em->remove($sending);
+        $this->em->flush();
     }
 }

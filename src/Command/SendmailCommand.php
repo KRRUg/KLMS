@@ -2,7 +2,7 @@
 
 namespace App\Command;
 
-use App\Repository\EMail\EmailSendingRepository;
+use App\Repository\EmailSendingRepository;
 use App\Service\EMailService;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;

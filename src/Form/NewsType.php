@@ -13,7 +13,7 @@ use Vich\UploaderBundle\Form\Type\VichImageType;
 
 class NewsType extends AbstractType
 {
-    private $userInsertSubscriber;
+    private AuthorInsertSubscriber $userInsertSubscriber;
 
     public function __construct(AuthorInsertSubscriber $userInsertSubscriber)
     {
