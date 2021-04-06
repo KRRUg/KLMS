@@ -1,7 +1,3 @@
-<div class="row mb-4">
-    <div class="col-12">
-    </div>
-</div>
 <div class="row">
     <div class="col-12">
         <div class="card">
@@ -18,8 +14,7 @@
                 {% for email in emails %}
                     <tr>
                         <td>
-                            <a href="{{ path('admin_email_edit', {'id' : email.id}) }}"
-                               title="Bearbeiten {{ email.name }} ">{{ email.name }}</a>
+                            {{ email.name }}
                             <br>
                             <small class="text-muted"><b>{{ email.subject }}</b></small>
                         </td>
@@ -29,11 +24,11 @@
                         {% set sending = email.emailSending %}
                         <td>
                             {% if sending.isNotStarted %}
-                                Noch nicht gestarted<br/> (erstellt um {{ sending.created | date('H:i') }})
+                                In Vorbereitung seit {{ sending.created | date('H:i') }}
                             {% elseif sending.isInSending %}
-                                Gestartet um {{ sending.started | date('H:i') }})
+                                Gestartet um {{ sending.started | date('H:i') }}
                             {% elseif sending.isFinished %}
-                                Abgeschlossen am {{ sending.finished | date('d.m.Y - H:i') }})
+                                Abgeschlossen am {{ sending.finished | date('d.m.Y - H:i') }}
                             {% endif %}
                         </td>
                         <td>
@@ -41,11 +36,12 @@
                                href="{{ path('admin_email_show', {'id' : sending.template.id}) }}"
                                title="Anzeigen">
                                 <i class="fas fa-eye"></i></a>
-
-                            <form data-toggle="confirmModal" method="post" action="{{ path('admin_email_cancel', {'id' : email.id}) }}" class="d-inline-block">
-                                <input type="hidden" name="_token" value="{{ csrf_token(csrf_token_cancel) }}">
-                                <button class="btn btn-danger" type="submit" value="cancel"><i class="fas fa-cross"></i> Sendung abbrechen</button>
-                            </form>
+                            {% if sending.isNotStarted %}
+                                <form data-toggle="confirmModal" method="post" action="{{ path('admin_email_cancel', {'id' : email.id}) }}" class="d-inline-block">
+                                    <input type="hidden" name="_token" value="{{ csrf_token(csrf_token_cancel) }}">
+                                    <button class="btn btn-danger" type="submit" value="cancel"><i class="fas fa-window-close"></i> Sendung abbrechen</button>
+                                </form>
+                            {% endif %}
                         </td>
                     </tr>
                 {% endfor %}

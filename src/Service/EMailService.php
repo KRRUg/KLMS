@@ -10,14 +10,12 @@ use App\Idm\IdmManager;
 use App\Idm\IdmRepository;
 use App\Repository\EmailSendingRepository;
 use App\Repository\EMailTemplateRepository;
-use DateTime;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
 use Psr\Log\LoggerInterface;
 use Ramsey\Uuid\Uuid;
 use Ramsey\Uuid\UuidInterface;
 use Symfony\Bridge\Twig\Mime\TemplatedEmail;
-use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\Mailer\Exception\TransportExceptionInterface;
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Mime\Address;
@@ -79,7 +77,6 @@ class EMailService
         //repos
         $this->userRepository = $manager->getRepository(User::class);
         $this->templateRepository = $templateRepository;
-        $this->sendingRepository = $sendingRepository;
     }
 
     // TODO return boolean to indicate whether if email was sent successfully
