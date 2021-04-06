@@ -5,14 +5,11 @@ namespace App\Controller\Admin;
 use App\Helper\EMailRecipient;
 use App\Entity\EmailSending;
 use App\Entity\EMailTemplate;
-use App\Form\EMailSendingType;
 use App\Form\EmailTemplateType;
-use App\Repository\EmailSendingRepository;
 use App\Repository\EMailTemplateRepository;
 use App\Security\LoginUser;
 use App\Service\EMailService;
 use App\Service\GroupService;
-use DateTime;
 use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -24,31 +21,33 @@ use Symfony\Component\Routing\Annotation\Route;
 class EMailController extends AbstractController
 {
     private const CSRF_TOKEN_DELETE = "emailDeleteToken";
+    private const CSRF_TOKEN_CANCEL = "emailCancelToken";
 
     private LoggerInterface $logger;
     private EMailService $mailService;
     private GroupService $groupService;
+    private EMailTemplateRepository $templateRepository;
 
-    public function __construct(LoggerInterface $logger, EMailService $mailService, GroupService $groupService)
+    public function __construct(LoggerInterface $logger, EMailService $mailService, GroupService $groupService, EMailTemplateRepository $templateRepository)
     {
         $this->logger = $logger;
         $this->mailService = $mailService;
         $this->groupService = $groupService;
+        $this->templateRepository = $templateRepository;
     }
 
     /**
      * @Route("", name="")
      */
-    public function index(Request $request, EMailTemplateRepository $templateRepository, EmailSendingRepository $sendingRepository)
+    public function index(Request $request)
     {
         $page = strval($request->get('page'));
-        $templates = $templateRepository->findAllTemplatesWithoutSendings();
-        $sendings = $sendingRepository->findAll();
+        $emails = $this->templateRepository->findAll();
 
         return $this->render('admin/email/index.html.twig', [
             'page' => $page,
-            'templates' => $templates,
-            'sendings' => $sendings
+            'emails' => $emails,
+            'csrf_token_cancel' => self::CSRF_TOKEN_CANCEL,
         ]);
     }
 
@@ -68,9 +67,10 @@ class EMailController extends AbstractController
 
             if ($form->get('send')->isClicked()) {
                 $this->mailService->createSending($template);
+                return $this->redirectToRoute('admin_email', ['page' => 'sendings']);
+            } else {
+                return $this->redirectToRoute('admin_email', ['page' => 'template']);
             }
-
-            return $this->redirectToRoute('admin_email', ['page' => 'template']);
         }
 
         $recipient = new EMailRecipient($this->getUserFromLoginUser());
@@ -89,16 +89,6 @@ class EMailController extends AbstractController
         }
 
         return $user->getUser();
-    }
-
-    /**
-     * @Route("/sending/{id}/send/", name="_sending_send")
-     */
-    public function createSendingTasks(EmailSending $sending)
-    {
-        $this->mailService->createSendingTasks($sending);
-        //TODO Usergruppe empfangen
-        return $this->redirectToRoute('admin_email');
     }
 
     /**
@@ -126,6 +116,11 @@ class EMailController extends AbstractController
      */
     public function editTemplate(Request $request, EMailTemplate $template)
     {
+        if ($template->wasSent()) {
+            $this->addFlash('warning', 'Email wird gesended und kann nicht editiert werden.');
+            return $this->redirectToRoute('admin_email', ['page' => 'sendings']);
+        }
+
         $form = $this->createForm(EmailTemplateType::class, $template, ['generate_buttons' => true]);
         $form->handleRequest($request);
 
@@ -137,9 +132,10 @@ class EMailController extends AbstractController
 
             if ($form->get('send')->isClicked()) {
                 $this->mailService->createSending($template);
+                return $this->redirectToRoute('admin_email', ['page' => 'sendings']);
+            } else {
+                return $this->redirectToRoute('admin_email', ['page' => 'template']);
             }
-
-            return $this->redirectToRoute('admin_email', ['page' => 'template']);
         }
 
         //get available Fields
@@ -153,87 +149,34 @@ class EMailController extends AbstractController
     }
 
     /**
-     * @Route("/template/delete/{id}", name="_delete")
+     * @Route("/delete/{id}", name="_delete")
      */
     public function deleteTemplate(Request $request, EMailTemplate $template)
     {
         $token = $request->request->get('_token');
         if(!$this->isCsrfTokenValid(self::CSRF_TOKEN_DELETE, $token)) {
             $this->addFlash('error', 'The CSRF token is invalid.');
-        } else {
-            $this->mailService->deleteTemplate($template);
+        } elseif ($this->mailService->deleteTemplate($template)) {
             $this->addFlash('success', "Erfolgreich gelöscht!");
+        } else {
+            $this->addFlash('error', "Konnte nicht gelöscht werden, da Sendung läuft!");
         }
         return $this->redirectToRoute('admin_email', ['page' => 'template']);
     }
 
     /**
-     * @Route("/sending/delete/{id}", name="_sending_delete")
+     * @Route("/cancel/{id}", name="_cancel")
      */
-    // TODO remove me
-    public function deleteSending(EmailSending $sending)
+    public function cancelEmail(Request $request, EMailTemplate $template)
     {
-        $this->mailService->deleteSending($sending);
-
-        return $this->redirectToRoute('admin_email');
-    }
-
-    /**
-     * @Route("/sending/unpublish/{id}", name="_sending_unpublish")
-     */
-    public function unPublishSending(EmailSending $sending)
-    {
-        if ($sending->getIsUnpublishable()) {
-            $sending->setIsPublished(false);
-            $sending->setStatus('Freigabe zuzrückgezogen');
-            $em = $this->getDoctrine()->getManager();
-            $em->persist($sending);
-            $em->flush();
+        $token = $request->request->get('_token');
+        if(!$this->isCsrfTokenValid(self::CSRF_TOKEN_CANCEL, $token)) {
+            $this->addFlash('error', 'The CSRF token is invalid.');
+        } elseif ($this->mailService->cancelSending($template)) {
+            $this->addFlash('success', "Erfolgreich abgebrochen!");
+        } else {
+            $this->addFlash('error', "Konnte nicht gelöscht werden, da schon in Sendung!");
         }
-
-        return $this->redirectToRoute('admin_email');
-    }
-
-    /**
-     * @Route("/sending/publish/{id}", name="_sending_publish")
-     */
-    public function publishSending(EmailSending $sending)
-    {
-        $now = new DateTime();
-        if ($sending->getIsPublishable()) {
-            $sending->setIsPublished(true);
-            $sending->setStatus('Freigabe erteilt');
-
-            if (null == $sending->getStartTime() || $sending->getStartTime() < $now) {
-                $sending->setStartTime($now->modify('+15 minutes'));
-                //$sending->setStatus('Zeit auf ' . date_format($now, 'd.m.Y H:i') . ' gesetzt');
-            }
-
-            $em = $this->getDoctrine()->getManager();
-            $em->persist($sending);
-            $em->flush();
-        }
-
-        return $this->redirectToRoute('admin_email');
-    }
-
-    /**
-     * @Route("/sending/edit/{id}", name="_sending_edit")
-     */
-    public function editSending(EmailSending $sending, Request $request)
-    {
-        $form = $this->createForm(EMailSendingType::class, $sending);
-        $form->handleRequest($request);
-
-        if ($form->isSubmitted() && $form->isValid()) {
-            $em = $this->getDoctrine()->getManager();
-            $sending = $form->getData();
-            $em->persist($sending);
-            $em->flush();
-
-            return $this->redirectToRoute('admin_email');
-        }
-
-        return $this->render('admin/email/editSending.html.twig', ['form' => $form->createView()]);
+        return $this->redirectToRoute('admin_email', ['page' => 'template']);
     }
 }

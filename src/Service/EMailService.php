@@ -244,69 +244,61 @@ class EMailService
         }
 
         $sending = new EmailSending();
-        $sending->setEMailTemplate($template);
+        $sending->setTemplate($template);
 
         $this->em->persist($sending);
         $this->em->flush();
         return true;
     }
 
-    public function createSendingTasksAllSendings(SymfonyStyle $io = null)
+//    public function createSendingTasks(EmailSending $sending): int
+//    {
+//        //User holen
+//        $generatedCount = 0;
+//        $errorCount = 0;
+//        $users = $this->getPossibleEmailRecipients($sending->getRecipientGroup());
+//        $template = $sending->getTemplate();
+//        $sending->setStatus('Empfänger werden geladen');
+//        $sending->setIsInSending(true);
+//        $sending->setRecipientCount($users->count());
+//        $this->em->persist($sending);
+//        $this->em->flush();
+//
+//        foreach ($users as $user) {
+//            if (null == $this->sendEMail($template, $user)) {
+//                ++$generatedCount;
+//            } else {
+//                ++$errorCount;
+//            }
+//        }
+//        $sending->setRecipientCountGenerated($generatedCount);
+//        $sending->setErrorCount($errorCount);
+//        $this->em->persist($sending);
+//        $this->em->flush();
+//
+//        return $generatedCount;
+//    }
+
+    public function deleteTemplate(EMailTemplate $template): bool
     {
-        $sendings = $this->sendingRepository->findNewsletterSendable();
-        if (0 == count($sendings)) {
-            $io->note('No sendable newsletters found');
-        }
-        foreach ($sendings as $sending) {
-            if ($sending->getStartTime() <= new  DateTime()) {
-                $sendingName = $sending->getEMailTemplate()->getName().' for UserGroup '.$sending->getRecipientGroup();
-                $io->note("Starting: $sendingName");
-                $countGenerated = $this->createSendingTasks($sending);
-                $io->note("Finished: $sendingName $countGenerated Mails generated");
-                $sending->setStatus('E-Mail Jobs generiert, beginne mit Versendung.');
-                $this->em->persist($sending);
-                $this->em->flush();
-            }
-        }
-    }
-
-    public function createSendingTasks(EmailSending $sending): int
-    {
-        //User holen
-        $generatedCount = 0;
-        $errorCount = 0;
-        $users = $this->getPossibleEmailRecipients($sending->getRecipientGroup());
-        $template = $sending->getEMailTemplate();
-        $sending->setStatus('Empfänger werden geladen');
-        $sending->setIsInSending(true);
-        $sending->setRecipientCount($users->count());
-        $this->em->persist($sending);
-        $this->em->flush();
-
-        foreach ($users as $user) {
-            if (null == $this->sendEMail($template, $user)) {
-                ++$generatedCount;
-            } else {
-                ++$errorCount;
-            }
-        }
-        $sending->setRecipientCountGenerated($generatedCount);
-        $sending->setErrorCount($errorCount);
-        $this->em->persist($sending);
-        $this->em->flush();
-
-        return $generatedCount;
-    }
-
-    public function deleteTemplate(EMailTemplate $template)
-    {
+        if ($template->wasSent())
+            return false;
         $this->em->remove($template);
         $this->em->flush();
+        return true;
     }
 
-    public function deleteSending(EmailSending $sending)
+    public function cancelSending(EMailTemplate $email): bool
     {
-        $this->em->remove($sending);
+        $this->em->beginTransaction();
+        $sending = $email->getEmailSending();
+        if (!$sending->isNotStarted()) {
+            $this->em->rollback();
+            return false;
+        }
+        $email->setEmailSending(null);
         $this->em->flush();
+        $this->em->commit();
+        return true;
     }
 }

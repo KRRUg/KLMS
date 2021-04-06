@@ -3,6 +3,11 @@
 {% block title %}KLMS - Admin{% endblock %}
 {% block siteheading %}<i class="far fa-envelope"></i> E-Mails{% endblock %}
 {% block main %}
+    <div class="row mb-4">
+        <div class="col-12">
+            <a class="btn btn-success" href="{{ path('admin_email_new') }}"><i class="fas fa-plus"></i> Neue Email</a>
+        </div>
+    </div>
     {% set active_template = "" %}
     {% set active_sendings = "" %}
     {% if page == 'template' %}
@@ -22,10 +27,10 @@
     </nav>
     <div class="tab-content" id="nav-tabContent" style="margin-top: 20px">
         <div class="tab-pane fade {{ active_template }}" id="nav-templates" role="tabpanel" aria-labelledby="nav-templates-tab">
-            {% include 'admin/email/templates.html.twig' with {'templates' : templates} %}
+            {% include 'admin/email/templates.html.twig' with {'emails' : emails | filter(e => not e.wasSent)} %}
         </div>
         <div class="tab-pane fade {{ active_sendings }}" id="nav-sendings" role="tabpanel" aria-labelledby="nav-sendings-tab">
-            {% include('admin/email/sendings.html.twig') %}
+            {% include 'admin/email/sendings.html.twig' with {'emails' : emails | filter(e => e.wasSent)} %}
         </div>
     </div>
 {% endblock %}

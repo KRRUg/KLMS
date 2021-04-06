@@ -45,7 +45,7 @@ class EMailTemplate implements HistoryAwareEntity
     private $designFile;
 
     /**
-     * @ORM\OneToOne(targetEntity="App\Entity\EmailSending", mappedBy="EMailTemplate", cascade={"persist"})
+     * @ORM\OneToOne(targetEntity="App\Entity\EmailSending", mappedBy="template", cascade={"persist"}, fetch="EAGER", orphanRemoval=true)
      */
     private $emailSending;
 
