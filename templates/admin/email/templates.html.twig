@@ -7,7 +7,6 @@
     <div class="col-12">
         {% for message in app.flashes('error') %}
             <div class="flash-error alert alert-danger  alert-dismissible fade show ">
-                <!-- TODO mit coffee besprechen, eine ebene höher ziehen -->
                 <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
@@ -19,7 +18,7 @@
                 <thead>
                 <tr>
                     <th>Titel</th>
-                    <th>Status</th>
+                    <th>Empfänger</th>
                     <th>Options</th>
                 </tr>
                 </thead>
@@ -33,10 +32,7 @@
                             <small class="text-muted"><b>{{ template.subject }}</b></small>
                         </td>
                         <td>
-                            {% if not template.isPublished %}
-                                <br>
-                                <span class="fa fa-lock" style="color: red"></span> Template noch nicht freigegeben!
-                            {% endif %}
+                            {{ template.recipientGroup | groupname }}
                         </td>
                         <td>
                             <a class="btn btn-outline-dark"
@@ -49,10 +45,6 @@
                             <a class="btn btn-outline-dark"
                                href="{{ path('admin_email_delete', {'id' : template.id}) }}" title="Löschen">
                             <i class="fas fa-trash-alt"></i></a>
-                            <a class="btn btn-outline-dark"
-                               href="{{ path('admin_email_sending_new', {'id' : template.id}) }}"
-                               title="Sendung erstellen">
-                            <i class="fas fa-paper-plane"></i> Sendung erstellen</a>
                         </td>
                     </tr>
                 {% endfor %}
@@ -61,4 +53,3 @@
         </div>
     </div>
 </div>
-

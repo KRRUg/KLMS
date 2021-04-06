@@ -57,10 +57,19 @@
         },
         _handleConfirmAction() {
             if($(this.remoteTarget).is('form')) {
-                this.remoteTarget.submit();
+                if (this.remoteTarget.reportValidity()) {
+                    this.remoteTarget.submit();
+                } else {
+                    this.$modal.modal('hide');
+                }
+            } else if ($(this.remoteTarget).is('button') && this.remoteTarget.type === 'submit') {
+                if (this.remoteTarget.form.reportValidity()) {
+                    this.remoteTarget.form.submit();
+                } else {
+                    this.$modal.modal('hide');
+                }
             } else if ($(this.remoteTarget).is('a')) {
-                let href = $(this.remoteTarget).attr("href");
-                window.location.href = href;
+                window.location.href = $(this.remoteTarget).attr("href");
             } else {
                 console.error("remoteTarget type not supported!");
             }

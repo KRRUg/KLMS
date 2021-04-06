@@ -5,6 +5,7 @@ namespace App\Form;
 use App\Entity\EmailSending;
 use App\Repository\EMailTemplateRepository;
 use App\Service\EMailService;
+use App\Service\GroupService;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
@@ -31,7 +32,7 @@ class EMailSendingType extends AbstractType
                 'query_builder' => $this->templateRepository->createQueryBuilderNewsletterTemplates(),
                 'choice_label' => 'name'
             ])*/
-            ->add('recipientGroup', ChoiceType::class, ['choices' => $this->mailService->getEmailRecipientGroups()])
+            ->add('recipientGroup', ChoiceType::class, [ 'choices' => GroupService::getGroups() ])
             //->add('status')
             //->add('created')
             ->add('startTime')

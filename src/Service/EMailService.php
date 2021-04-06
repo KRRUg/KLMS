@@ -236,31 +236,19 @@ class EMailService
         return $design;
     }
 
-    public function createSending(EMailTemplate $template, string $userGroupName = null)
+    public function createSending(EMailTemplate $template): bool
     {
-        $userGroup = array_search($userGroupName, $this->getEmailRecipientGroups());
-        $userGroup = false === $userGroup ? array_values($this->getEmailRecipientGroups())[0] : $userGroup;
+        if (!GroupService::groupExists($template->getRecipientGroup())) {
+            $this->logger->warning("Can't create sending for invalid group");
+            return false;
+        }
 
-        $sending = new  EmailSending();
-        $sending->setEMailTemplate(clone $template)
-            ->setRecipientGroup($userGroup)
-            ->setStatus('Sendung erstellt');
+        $sending = new EmailSending();
+        $sending->setEMailTemplate($template);
 
         $this->em->persist($sending);
         $this->em->flush();
-    }
-
-    public function getEmailRecipientGroups()
-    {
-        return [
-            'TEST0' => '00000000-0000-0000-0000-000000000000',
-            'TEST1' => '00000000-0000-0000-0000-000000000000',
-            'TEST2' => '00000000-0000-0000-0000-000000000000',
-            'TEST3' => '00000000-0000-0000-0000-000000000000',
-            'TEST4' => '00000000-0000-0000-0000-000000000000',
-            'TEST5' => '00000000-0000-0000-0000-000000000000',
-            'TEST6' => '00000000-0000-0000-0000-000000000000',
-        ];
+        return true;
     }
 
     public function createSendingTasksAllSendings(SymfonyStyle $io = null)

@@ -4,6 +4,7 @@ namespace App\Entity;
 
 use App\Helper\HistoryAwareEntity;
 use Doctrine\ORM\Mapping as ORM;
+use Ramsey\Uuid\UuidInterface;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\EMailTemplateRepository")
@@ -19,22 +20,22 @@ class EMailTemplate implements HistoryAwareEntity
     private $id;
 
     /**
-     * @ORM\Column(type="string", length=255)
+     * @ORM\Column(type="string", length=255, nullable=false)
      */
     private $name;
 
     /**
-     * @ORM\Column(type="string", length=255)
+     * @ORM\Column(type="uuid", nullable=true)
+     */
+    private $recipientGroup;
+
+    /**
+     * @ORM\Column(type="string", length=255, nullable=false)
      */
     private $subject;
 
     /**
-     * @ORM\Column(type="boolean")
-     */
-    private $isPublished = true;
-
-    /**
-     * @ORM\Column(type="text")
+     * @ORM\Column(type="text", nullable=false)
      */
     private $body = '';
 
@@ -67,6 +68,18 @@ class EMailTemplate implements HistoryAwareEntity
         return $this;
     }
 
+    public function getRecipientGroup(): ?UuidInterface
+    {
+        return $this->recipientGroup;
+    }
+
+    public function setRecipientGroup($recipientGroup): self
+    {
+        $this->recipientGroup = $recipientGroup;
+
+        return $this;
+    }
+
     public function getSubject(): ?string
     {
         return $this->subject;
@@ -90,17 +103,6 @@ class EMailTemplate implements HistoryAwareEntity
         return $this;
     }
 
-    public function isPublished(): ?bool
-    {
-        return $this->isPublished;
-    }
-
-    public function setPublished(bool $published): self
-    {
-        $this->isPublished = $published;
-        return $this;
-    }
-
     public function getDesignFile(): ?string
     {
         return $this->designFile;
@@ -111,5 +113,21 @@ class EMailTemplate implements HistoryAwareEntity
         $this->designFile = $designFile;
 
         return $this;
+    }
+
+    public function getEmailSending()
+    {
+        return $this->emailSending;
+    }
+
+    public function setEmailSending($emailSending)
+    {
+        $this->emailSending = $emailSending;
+        return $this;
+    }
+
+    public function wasSent(): bool
+    {
+        return !empty($this->emailSending);
     }
 }

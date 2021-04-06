@@ -15,9 +15,7 @@ use App\Service\GroupService;
 use DateTime;
 use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
@@ -25,6 +23,8 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class EMailController extends AbstractController
 {
+    private const CSRF_TOKEN_DELETE = "emailDeleteToken";
+
     private LoggerInterface $logger;
     private EMailService $mailService;
     private GroupService $groupService;
@@ -57,7 +57,7 @@ class EMailController extends AbstractController
      */
     public function new(Request $request)
     {
-        $form = $this->createForm(EmailTemplateType::class, new EMailTemplate());
+        $form = $this->createForm(EmailTemplateType::class, null, ['generate_buttons' => true]);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
@@ -65,6 +65,10 @@ class EMailController extends AbstractController
             $em = $this->getDoctrine()->getManager();
             $em->persist($template);
             $em->flush();
+
+            if ($form->get('send')->isClicked()) {
+                $this->mailService->createSending($template);
+            }
 
             return $this->redirectToRoute('admin_email', ['page' => 'template']);
         }
@@ -103,13 +107,7 @@ class EMailController extends AbstractController
     // TODO put show in modal, maybe remove this feature
     public function show(EMailTemplate $template, EMailTemplateRepository $repository)
     {
-        // TODO fix this check
-//        if (!$repository->hasTemplateAccess($this->getUserFromLoginUser(), $template)) {// TODO durch AccessDeniedHandler ersetzten sobald verfügbar
-//            return $this->redirectToRoute('admin_email');
-//        }
-
         $template = $this->mailService->renderTemplate($template, $this->getUserFromLoginUser());
-
         return $this->render('admin/email/show.html.twig', ['template' => $template]);
     }
 
@@ -126,15 +124,9 @@ class EMailController extends AbstractController
     /**
      * @Route("/edit/{id}", name="_edit")
      */
-    public function editTemplate(EMailTemplate $template, Request $request, EMailTemplateRepository $repository)
+    public function editTemplate(Request $request, EMailTemplate $template)
     {
-        // TODO fix access checks
-//        if (!$repository->hasTemplateAccess($this->getUserFromLoginUser(), $template)) { // TODO durch AccessDeniedHandler ersetzten sobald verfügbar
-//            $this->addFlash('warning', 'Keine Rechte für Applikations-E-Mails');
-//
-//            return $this->redirectToRoute('admin_email');
-//        }
-        $form = $this->createForm(EmailTemplateType::class, $template);
+        $form = $this->createForm(EmailTemplateType::class, $template, ['generate_buttons' => true]);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
@@ -142,6 +134,10 @@ class EMailController extends AbstractController
             $template = $form->getData();
             $em->persist($template);
             $em->flush();
+
+            if ($form->get('send')->isClicked()) {
+                $this->mailService->createSending($template);
+            }
 
             return $this->redirectToRoute('admin_email', ['page' => 'template']);
         }
@@ -151,38 +147,33 @@ class EMailController extends AbstractController
 
         return $this->render('admin/email/editTemplate.html.twig', [
             'form' => $form->createView(),
-            'availableFields' => $recipient->getDataArray()
+            'availableFields' => $recipient->getDataArray(),
+            'csrf_token_delete' => self::CSRF_TOKEN_DELETE,
         ]);
     }
 
     /**
      * @Route("/template/delete/{id}", name="_delete")
      */
-    // TODO add CSRF protection here
-    public function deleteTemplate(EMailTemplate $template)
+    public function deleteTemplate(Request $request, EMailTemplate $template)
     {
-        $this->mailService->deleteTemplate($template);
-
+        $token = $request->request->get('_token');
+        if(!$this->isCsrfTokenValid(self::CSRF_TOKEN_DELETE, $token)) {
+            $this->addFlash('error', 'The CSRF token is invalid.');
+        } else {
+            $this->mailService->deleteTemplate($template);
+            $this->addFlash('success', "Erfolgreich gelöscht!");
+        }
         return $this->redirectToRoute('admin_email', ['page' => 'template']);
     }
 
     /**
      * @Route("/sending/delete/{id}", name="_sending_delete")
      */
-    // TODO add CSRF protection here
+    // TODO remove me
     public function deleteSending(EmailSending $sending)
     {
         $this->mailService->deleteSending($sending);
-
-        return $this->redirectToRoute('admin_email');
-    }
-
-    /**
-     * @Route("/sending/new/{id}", name="_sending_new")
-     */
-    public function newSending(EMailTemplate $template)
-    {
-        $this->mailService->createSending($template, null);
 
         return $this->redirectToRoute('admin_email');
     }

@@ -26,12 +26,12 @@ class EmailSending
 	private $EMailTemplate;
 
 	/**
-	 * @ORM\Column(type="string", length=255)
+	 * @ORM\Column(type="uuid")
 	 */
 	private $recipientGroup;
 
 	/**
-	 * @ORM\Column(type="string", length=255,nullable=true)
+	 * @ORM\Column(type="string", length=255, nullable=true)
 	 */
 	private $status;
 

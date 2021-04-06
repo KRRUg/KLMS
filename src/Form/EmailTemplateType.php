@@ -5,8 +5,11 @@ namespace App\Form;
 use App\Entity\EMailTemplate;
 use App\Helper\AuthorInsertSubscriber;
 use App\Service\EMailService;
+use App\Service\GroupService;
+use Ramsey\Uuid\UuidInterface;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
@@ -26,20 +29,35 @@ class EmailTemplateType extends AbstractType
 		$builder
 			->add('name', TextType::class, ['label' => 'Name'])
 			->add('subject', TextType::class, ['label' => 'Betreff'])
-			->add('body', TextareaType::class, [
-			    'label' => 'Inhalt',
+            ->add('recipientGroup', ChoiceType::class, [
+                'label' => 'Empfänger (Gruppe)',
+                'placeholder' => '',
                 'required' => false,
+                'choices' => GroupService::getGroups(),
+                'choice_value' => function (?UuidInterface $uuid) { return is_null($uuid) ? null : $uuid->toString(); },
+            ])
+            ->add('body', TextareaType::class, [
+			    'label' => 'Inhalt',
                 'empty_data' => '',
+                'required' => false,
             ])
 			->add('designFile', ChoiceType::class, [
                 'label' => 'Design',
 				'choices' => EMailService::NEWSLETTER_DESIGNS,
             ]);
+        if ($options['generate_buttons']) {
+            $builder
+                ->add('send', SubmitType::class)
+                ->add('save', SubmitType::class);
+        }
         $builder->addEventSubscriber($this->userInsertSubscriber);
 	}
 
 	public function configureOptions(OptionsResolver $resolver)
 	{
-		$resolver->setDefaults(['data_class' => EMailTemplate::class]);
+		$resolver->setDefaults([
+		    'data_class' => EMailTemplate::class,
+            'generate_buttons' => false,
+        ]);
 	}
 }

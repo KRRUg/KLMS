@@ -6,16 +6,17 @@ use App\Entity\User;
 use App\Entity\UserGamer;
 use App\Idm\IdmManager;
 use App\Idm\IdmRepository;
-use App\Idm\LazyLoaderCollection;
 use App\Repository\UserGamerRepository;
+use Ramsey\Uuid\Uuid;
+use Ramsey\Uuid\UuidInterface;
 
 class GroupService
 {
-    const GROUP_NEWSLETTER = 'newsletter';
-    const GROUP_REGISTERED = 'registered';
-    const GROUP_PAYED = 'payed';
-    const GROUP_PAYED_NO_SEAT = 'pay_no_seat';
-    const GROUP_REGISTERED_NOT_PAYED = 'reg_no_pay';
+    const GROUP_NEWSLETTER = '083ae2b4-0351-4f82-936c-4f8716cd790f';
+    const GROUP_REGISTERED = 'f0c2d3c2-5860-4569-9d13-0dc0d2766117';
+    const GROUP_PAYED = '8ae23ac3-ced7-40f7-b092-79da065f0b02';
+    const GROUP_PAYED_NO_SEAT = '5ec12941-0448-4a6f-a194-fd9ce2874925';
+    const GROUP_REGISTERED_NOT_PAYED = '225db67c-54ae-4f30-a3a9-6589d8336c8a';
 
     private const NAME = 'name';
     private const METHOD = 'method';
@@ -58,21 +59,31 @@ class GroupService
         $this->userRepo = $manager->getRepository(User::class);
     }
 
-    public function getGroups(): array
+    public static function getGroups(): array
     {
         $result = [];
         foreach (self::GROUP_SETTING as $group => $config) {
-            $result[$group] = $config[self::NAME];
+            $result[$config[self::NAME]] = Uuid::fromString($group);
         }
         return $result;
     }
 
-    public function query(string $group)
+    public static function groupExists(UuidInterface $group): bool
     {
-        if (!array_key_exists($group, self::GROUP_SETTING)) {
+        return array_key_exists($group->toString(), self::GROUP_SETTING);
+    }
+
+    public static function getName(UuidInterface $group): string
+    {
+        return self::GROUP_SETTING[$group->toString()][self::NAME] ?? '';
+    }
+
+    public function query(UuidInterface $group)
+    {
+        if (!self::groupExists($group)) {
             return [];
         }
-        $config = self::GROUP_SETTING[$group];
+        $config = self::GROUP_SETTING[$group->toString()];
         return $this->{$config[self::METHOD]}($config[self::FILTER]);
     }
 
