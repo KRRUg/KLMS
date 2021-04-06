@@ -75,7 +75,7 @@ class EMailController extends AbstractController
 
         $recipient = new EMailRecipient($this->getUserFromLoginUser());
 
-        return $this->render('admin/email/editTemplate.html.twig', [
+        return $this->render('admin/email/edit.html.twig', [
             'form' => $form->createView(),
             'availableFields' => $recipient->getDataArray()
         ]);
@@ -141,7 +141,7 @@ class EMailController extends AbstractController
         //get available Fields
         $recipient = new EMailRecipient($this->getUserFromLoginUser());
 
-        return $this->render('admin/email/editTemplate.html.twig', [
+        return $this->render('admin/email/edit.html.twig', [
             'form' => $form->createView(),
             'availableFields' => $recipient->getDataArray(),
             'csrf_token_delete' => self::CSRF_TOKEN_DELETE,

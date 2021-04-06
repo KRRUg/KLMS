@@ -7,9 +7,7 @@ use DateTimeInterface;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * TODO remove repository class?
- * @ORM\Entity(repositoryClass="App\Repository\EmailSendingRepository")
- * @ORM\HasLifecycleCallbacks()
+ * @ORM\Entity()
  */
 class EmailSending
 {

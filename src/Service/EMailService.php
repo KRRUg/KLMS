@@ -53,7 +53,6 @@ class EMailService
     private EntityManagerInterface $em;
     private Address $senderAddress;
     private EMailTemplateRepository $templateRepository;
-    private EmailSendingRepository $sendingRepository;
     private Environment $twig;
     private IdmRepository $userRepository;
     private GroupService $groupService;
@@ -65,7 +64,6 @@ class EMailService
                                 GroupService $groupService,
                                 TextBlockService $textBlockService,
                                 EMailTemplateRepository $templateRepository,
-                                EmailSendingRepository $sendingRepository,
                                 Environment $twig,
                                 IdmManager $manager)
     {
