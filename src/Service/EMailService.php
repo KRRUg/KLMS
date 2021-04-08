@@ -193,15 +193,21 @@ class EMailService
             ->text($email['text']);
     }
 
+    private array $template_cache = [];
+
     public function renderTemplate(EMailTemplate $template, EMailRecipient $recipient): array
     {
+        $key = hash('sha256', serialize($template));
         $body = $template->getBody();
         $subject = $template->getSubject();
+        $html = $this->template_cache[$key]
+            ?? ($this->template_cache[$key] = $this->twig->render($this->getDesignFile($template), [
+                'subject' => $subject,
+                'body' => $body
+            ]));
 
-        // TODO handle exceptions
         $subject = $this->replaceVariableTokens($subject, $recipient);
-        $body = $this->replaceVariableTokens($body, $recipient);
-        $html = $this->twig->render($this->getDesignFile($template), ['subject' => $subject, 'body' => $body]);
+        $html = $this->replaceVariableTokens($html, $recipient);
         $text = strip_tags($html);
 
         return ['subject' => $subject, 'html' => $html, 'text' => $text];
