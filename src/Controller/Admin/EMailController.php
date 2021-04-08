@@ -6,7 +6,7 @@ use App\Helper\EMailRecipient;
 use App\Entity\EmailSending;
 use App\Entity\EMailTemplate;
 use App\Form\EmailTemplateType;
-use App\Repository\EMailTemplateRepository;
+use App\Repository\EMailRepository;
 use App\Security\LoginUser;
 use App\Service\EMailService;
 use App\Service\GroupService;
@@ -26,9 +26,9 @@ class EMailController extends AbstractController
     private LoggerInterface $logger;
     private EMailService $mailService;
     private GroupService $groupService;
-    private EMailTemplateRepository $templateRepository;
+    private EMailRepository $templateRepository;
 
-    public function __construct(LoggerInterface $logger, EMailService $mailService, GroupService $groupService, EMailTemplateRepository $templateRepository)
+    public function __construct(LoggerInterface $logger, EMailService $mailService, GroupService $groupService, EMailRepository $templateRepository)
     {
         $this->logger = $logger;
         $this->mailService = $mailService;
@@ -43,10 +43,17 @@ class EMailController extends AbstractController
     {
         $page = strval($request->get('page'));
         $emails = $this->templateRepository->findAll();
+        $stats = [];
+        foreach ($emails as $email) {
+            if ($email->getEmailSending()) {
+                $stats[$email->getId()] = $this->templateRepository->countMails($email);
+            }
+        }
 
         return $this->render('admin/email/index.html.twig', [
             'page' => $page,
             'emails' => $emails,
+            'stats' => $stats,
             'csrf_token_cancel' => self::CSRF_TOKEN_CANCEL,
         ]);
     }
@@ -73,29 +80,18 @@ class EMailController extends AbstractController
             }
         }
 
-        $recipient = new EMailRecipient($this->getUserFromLoginUser());
-
+        $recipient = $this->getUserFromLoginUser();
         return $this->render('admin/email/edit.html.twig', [
             'form' => $form->createView(),
             'availableFields' => $recipient->getDataArray()
         ]);
     }
 
-    private function getUserFromLoginUser()
-    {
-        $user = parent::getUser();
-        if (!($user instanceof LoginUser)) {
-            $this->logger->critical('wrong user type given (should be instance of LoginUser)');
-        }
-
-        return $user->getUser();
-    }
-
     /**
      * @Route("/template/{id}", name="_show")
      */
     // TODO put show in modal, maybe remove this feature
-    public function show(EMailTemplate $template, EMailTemplateRepository $repository)
+    public function show(EMailTemplate $template, EMailRepository $repository)
     {
         $template = $this->mailService->renderTemplate($template, $this->getUserFromLoginUser());
         return $this->render('admin/email/show.html.twig', ['template' => $template]);
@@ -106,8 +102,13 @@ class EMailController extends AbstractController
      */
     public function sendTestmail(EMailTemplate $template)
     {
-        $this->mailService->sendByTemplate($template, $this->getUserFromLoginUser());
-        $this->addFlash('success', "Test-EMail wurde an {$this->getUserFromLoginUser()->getEmail()} gesendet.");
+        $recipient = $this->getUserFromLoginUser();
+        $success = $this->mailService->sendByTemplate($template, $recipient, false);
+        if ($success) {
+            $this->addFlash('success', "Test-EMail wurde an {$recipient->getEmailAddress()} gesendet.");
+        } else {
+            $this->addFlash('error', "Test-EMail konnte nicht an {$recipient->getEmailAddress()} gesendet werden.");
+        }
         return $this->redirectToRoute('admin_email', ['page' => 'template']);
     }
 
@@ -139,8 +140,7 @@ class EMailController extends AbstractController
         }
 
         //get available Fields
-        $recipient = new EMailRecipient($this->getUserFromLoginUser());
-
+        $recipient = $this->getUserFromLoginUser();
         return $this->render('admin/email/edit.html.twig', [
             'form' => $form->createView(),
             'availableFields' => $recipient->getDataArray(),
@@ -178,5 +178,15 @@ class EMailController extends AbstractController
             $this->addFlash('error', "Konnte nicht gelöscht werden, da schon in Sendung!");
         }
         return $this->redirectToRoute('admin_email', ['page' => 'template']);
+    }
+
+    private function getUserFromLoginUser(): EMailRecipient
+    {
+        $user = parent::getUser();
+        if (!($user instanceof LoginUser)) {
+            $this->logger->critical('wrong user type given (should be instance of LoginUser)');
+        }
+
+        return EMailService::recipientFromUser($user->getUser());
     }
 }

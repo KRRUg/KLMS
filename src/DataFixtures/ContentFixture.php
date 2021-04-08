@@ -10,7 +10,7 @@ use App\Entity\NavigationNodeGeneric;
 use App\Entity\NavigationNodeRoot;
 use App\Entity\TextBlock;
 use Doctrine\Bundle\FixturesBundle\Fixture;
-use Doctrine\Common\Persistence\ObjectManager;
+use Doctrine\Persistence\ObjectManager;
 use joshtronic\LoremIpsum;
 use Ramsey\Uuid\Uuid;
 

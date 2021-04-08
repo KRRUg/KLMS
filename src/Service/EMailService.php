@@ -8,8 +8,8 @@ use App\Entity\EMailTemplate;
 use App\Entity\User;
 use App\Idm\IdmManager;
 use App\Idm\IdmRepository;
-use App\Repository\EmailSendingRepository;
-use App\Repository\EMailTemplateRepository;
+use App\Messenger\MailingGroupNotification;
+use App\Repository\EMailRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
 use Psr\Log\LoggerInterface;
@@ -18,6 +18,9 @@ use Ramsey\Uuid\UuidInterface;
 use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 use Symfony\Component\Mailer\Exception\TransportExceptionInterface;
 use Symfony\Component\Mailer\MailerInterface;
+use Symfony\Component\Messenger\Exception\HandlerFailedException;
+use Symfony\Component\Messenger\MessageBusInterface;
+use Symfony\Component\Messenger\Stamp\DelayStamp;
 use Symfony\Component\Mime\Address;
 use Symfony\Component\Mime\Email;
 use Twig\Environment;
@@ -50,19 +53,21 @@ class EMailService
     private MailerInterface $mailer;
     private EntityManagerInterface $em;
     private Address $senderAddress;
-    private EMailTemplateRepository $templateRepository;
+    private EMailRepository $templateRepository;
     private Environment $twig;
     private IdmRepository $userRepository;
     private GroupService $groupService;
     private TextBlockService $textBlockService;
+    private MessageBusInterface $messageBus;
 
     public function __construct(MailerInterface $mailer,
                                 LoggerInterface $logger,
                                 EntityManagerInterface $em,
                                 GroupService $groupService,
                                 TextBlockService $textBlockService,
-                                EMailTemplateRepository $templateRepository,
+                                EMailRepository $templateRepository,
                                 Environment $twig,
+                                MessageBusInterface $messageBus,
                                 IdmManager $manager)
     {
         $this->logger = $logger;
@@ -74,42 +79,61 @@ class EMailService
         $mailAddress = $_ENV['MAILER_DEFAULT_SENDER_EMAIL'];
         $mailName = $_ENV['MAILER_DEFAULT_SENDER_NAME'];
         $this->senderAddress = new Address($mailAddress, $mailName);
+        $this->messageBus = $messageBus;
         //repos
         $this->userRepository = $manager->getRepository(User::class);
         $this->templateRepository = $templateRepository;
     }
 
-    // TODO return boolean to indicate whether if email was sent successfully
-    public function sendByApplicationHook(string $hook, User $user)
+    public static function recipientFromUser(User $user): EMailRecipient
+    {
+        return new EMailRecipient($user);
+    }
+
+    /**
+     * @throws TransportExceptionInterface
+     */
+    public function sendByApplicationHook(string $hook, EMailRecipient $recipient, bool $throw = false): bool
     {
         if (!array_key_exists($hook, self::HOOKS)) {
             $this->logger->critical("Invalid Application hook supplied, no email sent.");
-            return;
+            return false;
         }
-        $email = $this->generateEmailFromHook($hook, $user);
-        $this->sendEMail($email);
+        $email = $this->generateEmailFromHook($hook, $recipient);
+        return $this->sendEMail($email, $throw);
     }
 
-    // TODO return boolean to indicate whether if email was sent successfully
-    public function sendByTemplate(EMailTemplate $template, User $user)
+    /**
+     * @throws TransportExceptionInterface
+     */
+    public function sendByTemplate(EMailTemplate $template, EMailRecipient $recipient, bool $throw = false): bool
     {
-        $email = $this->generateEmailFromTemplate($template, $user);
-        $this->sendEMail($email);
+        $email = $this->generateEmailFromTemplate($template, $recipient);
+        return $this->sendEMail($email, $throw);
     }
 
-    private function sendEmail(Email $email)
+    /**
+     * @throws TransportExceptionInterface
+     */
+    private function sendEmail(Email $email, bool $throw): bool
     {
         try {
             $this->mailer->send($email);
-        } catch (Exception | TransportExceptionInterface $e) {
-            // TODO plan error handling and check how async error handling is done
-            $this->logger->error($e);
+            return true;
+        } catch (HandlerFailedException | TransportExceptionInterface $e) {
+            if ($e instanceof HandlerFailedException) {
+                $e = $e->getPrevious();
+            }
+            if ($throw) {
+                throw $e;
+            }
+            $this->logger->error("Error sending email: {$e->getMessage()}", ['exception' => $e]);
+            return false;
         }
     }
 
-    private function generateEmailFromHook(string $hook, User $user): ?Email
+    private function generateEmailFromHook(string $hook, EMailRecipient $recipient): ?Email
     {
-        $recipient = new EMailRecipient($user);
         if (empty($recipient) || empty($recipient->getEmailAddress())) {
             $this->logger->error('No email address given or user object was null');
             return null;
@@ -154,14 +178,13 @@ class EMailService
         return '';
     }
 
-    private function generateEmailFromTemplate(EMailTemplate $template, User $user, array $payload = null): ?Email
+    private function generateEmailFromTemplate(EMailTemplate $template, EMailRecipient $recipient): ?Email
     {
-        $recipient = new EMailRecipient($user);
         if (empty($recipient) || empty($recipient->getEmailAddress())) {
-            $this->logger->error('No email address given or user object was null');
+            $this->logger->error('No email address given');
             return null;
         }
-        $template = $this->renderTemplate($template, $user, $payload);
+        $template = $this->renderTemplate($template, $recipient);
         // TODO Lösung für Text-only finden
         return (new Email())->from($this->senderAddress)
             ->to($recipient->getAddressObject())
@@ -170,9 +193,8 @@ class EMailService
             ->html($template->getBody());
     }
 
-    public function renderTemplate(EMailTemplate $template, User $user, array $payload = null): EMailTemplate
+    public function renderTemplate(EMailTemplate $template, EMailRecipient $recipient): EMailTemplate
     {
-        $recipient = new EMailRecipient($user);
         $text = $template->getBody();
         $subject = $template->getSubject();
 
@@ -189,7 +211,8 @@ class EMailService
         if ('TEXT' == $designFile) {
             $html = $text;
         } else {
-            $html = $this->twig->render($designFile, ['template' => $email, 'user' => $user, 'payload' => $payload]);
+            // TODO remove user from in template
+            $html = $this->twig->render($designFile, ['template' => $email]);
         }
         $email->setBody($html);
 
@@ -213,7 +236,7 @@ class EMailService
                     array_push($errors, $error);
                 }
                 if (count($errors) > 0) {
-                    throw  new  Exception('MailData is not valid: '.implode(',', $errors));
+                    throw new Exception('MailData is not valid: '.implode(',', $errors));
                 }
                 $text = str_replace($match, $filled, $text);
             }
@@ -243,36 +266,11 @@ class EMailService
 
         $this->em->persist($sending);
         $this->em->flush();
+        $this->messageBus->dispatch(new MailingGroupNotification($sending->getId()), [
+            new DelayStamp(10000)
+        ]);
         return true;
     }
-
-//    public function createSendingTasks(EmailSending $sending): int
-//    {
-//        //User holen
-//        $generatedCount = 0;
-//        $errorCount = 0;
-//        $users = $this->getPossibleEmailRecipients($sending->getRecipientGroup());
-//        $template = $sending->getTemplate();
-//        $sending->setStatus('Empfänger werden geladen');
-//        $sending->setIsInSending(true);
-//        $sending->setRecipientCount($users->count());
-//        $this->em->persist($sending);
-//        $this->em->flush();
-//
-//        foreach ($users as $user) {
-//            if (null == $this->sendEMail($template, $user)) {
-//                ++$generatedCount;
-//            } else {
-//                ++$errorCount;
-//            }
-//        }
-//        $sending->setRecipientCountGenerated($generatedCount);
-//        $sending->setErrorCount($errorCount);
-//        $this->em->persist($sending);
-//        $this->em->flush();
-//
-//        return $generatedCount;
-//    }
 
     public function deleteTemplate(EMailTemplate $template): bool
     {

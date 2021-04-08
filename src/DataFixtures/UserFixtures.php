@@ -5,7 +5,7 @@ namespace App\DataFixtures;
 use App\Entity\UserAdmin;
 use App\Entity\UserGamer;
 use Doctrine\Bundle\FixturesBundle\Fixture;
-use Doctrine\Common\Persistence\ObjectManager;
+use Doctrine\Persistence\ObjectManager;
 use Ramsey\Uuid\Uuid;
 
 class UserFixtures extends Fixture

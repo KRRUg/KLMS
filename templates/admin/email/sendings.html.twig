@@ -7,7 +7,7 @@
                         <th>Titel</th>
                         <th>Empfänger</th>
                         <th>Status</th>
-                        <th>Options</th>
+                        <th>Optionen</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -24,11 +24,19 @@
                         {% set sending = email.emailSending %}
                         <td>
                             {% if sending.isNotStarted %}
-                                In Vorbereitung seit {{ sending.created | date('H:i') }}
+                                <p>In Vorbereitung seit {{ sending.created | date('H:i') }}</p>
                             {% elseif sending.isInSending %}
-                                Gestartet um {{ sending.started | date('H:i') }}
-                            {% elseif sending.isFinished %}
-                                Abgeschlossen am {{ sending.finished | date('d.m.Y - H:i') }}
+                                <p>Gestartet am {{ sending.started | date('d.m.Y H:i') }}</p>
+                                {% set stat = stats[email.id] %}
+                                {% set tbd = stat['tbd'] | default(0) %}
+                                {% set success = stat['success'] | default(0)  %}
+                                {% set fail = stat['fail'] | default(0) %}
+                                {% set total = tbd + success + fail %}
+                                <div class="progress">
+                                    <div class="progress-bar bg-success" title="Erfolgreich: {{ success }}" role="progressbar" style="width: {{ success / total * 100 }}%">{{ success }}</div>
+                                    <div class="progress-bar bg-error" title="Fehlerhaft: {{ fail }}" role="progressbar" style="width: {{ fail / total * 100 }}%">{{ fail }}</div>
+                                    <div class="progress-bar bg-secondary" title="Ausstehend: {{ tbd }}" role="progressbar" style="width: {{ tbd / total * 100 }}%">{{ tbd }}</div>
+                                </div>
                             {% endif %}
                         </td>
                         <td>
@@ -37,7 +45,7 @@
                                title="Anzeigen">
                                 <i class="fas fa-eye"></i></a>
                             {% if sending.isNotStarted %}
-                                <form data-toggle="confirmModal" method="post" action="{{ path('admin_email_cancel', {'id' : email.id}) }}" class="d-inline-block">
+                                <form method="post" action="{{ path('admin_email_cancel', {'id' : email.id}) }}" class="d-inline-block">
                                     <input type="hidden" name="_token" value="{{ csrf_token(csrf_token_cancel) }}">
                                     <button class="btn btn-danger" type="submit" value="cancel"><i class="fas fa-window-close"></i> Sendung abbrechen</button>
                                 </form>
@@ -50,4 +58,3 @@
         </div>
     </div>
 </div>
-

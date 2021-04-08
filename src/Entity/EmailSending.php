@@ -35,11 +35,6 @@ class EmailSending
     private $started;
 
     /**
-     * @ORM\Column(type="datetime", nullable=true)
-     */
-    private $finished;
-
-    /**
      * @ORM\Column(type="integer", nullable=true)
      */
     private $recipientCount;
@@ -72,10 +67,9 @@ class EmailSending
         return $this->created;
     }
 
-    public function setCreated(): self
+    public function setCreated(DateTimeInterface $dateTime): self
     {
-        if ($this->created == null)
-            $this->created = new DateTime();
+        $this->setCreated($dateTime);
 
         return $this;
     }
@@ -85,21 +79,10 @@ class EmailSending
         return $this->started;
     }
 
-    public function setStarted(DateTimeInterface $started = null): self
+    public function setStarted(DateTimeInterface $started): self
     {
         $this->started = $started;
 
-        return $this;
-    }
-
-    public function getFinished()
-    {
-        return $this->finished;
-    }
-
-    public function setFinished($finished): self
-    {
-        $this->finished = $finished;
         return $this;
     }
 
@@ -119,16 +102,11 @@ class EmailSending
 
     public function isNotStarted(): bool
     {
-        return is_null($this->started) && is_null($this->finished);
+        return is_null($this->started);
     }
 
 	public function isInSending(): bool
 	{
-		return !is_null($this->started) && is_null($this->finished);
+		return !is_null($this->started);
 	}
-
-    public function isFinished(): bool
-    {
-        return !is_null($this->started) && !is_null($this->finished);
-    }
 }

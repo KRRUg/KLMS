@@ -3,6 +3,7 @@
 namespace App\Helper;
 
 use App\Entity\User;
+use Ramsey\Uuid\UuidInterface;
 use Symfony\Component\Mime\Address;
 
 class EMailRecipient
@@ -12,7 +13,6 @@ class EMailRecipient
     private $name;
     private $nickname;
 
-
     public function __construct(User $user)
     {
         $this->id = $user->getUuid();
@@ -21,25 +21,16 @@ class EMailRecipient
         $this->nickname = $user->getNickname();
     }
 
-    /**
-     * @return string|null
-     */
-    public function getId(): ?string
+    public function getUuid(): ?UuidInterface
     {
         return $this->id;
     }
 
-    /**
-     * @return mixed
-     */
     public function getName()
     {
         return $this->name;
     }
 
-    /**
-     * @return mixed
-     */
     public function getEmailAddress()
     {
         return $this->emailAddress;
@@ -60,23 +51,4 @@ class EMailRecipient
         ];
         return array_change_key_case($dataset, CASE_LOWER);
     }
-
-    public function printDataset(): string
-    {
-        $output = "";
-        $dataset = $this->getDataArray();
-        ksort($dataset);
-        foreach ($dataset as $key => $value) {
-            $output .= "$key: $value \n ";
-        }
-        return $output;
-    }
-
-
-    public function generateTestLinkHash()
-    {
-        return md5(rand());
-    }
-
-
 }

@@ -7,7 +7,7 @@ use Doctrine\ORM\Mapping as ORM;
 use Ramsey\Uuid\UuidInterface;
 
 /**
- * @ORM\Entity(repositoryClass="App\Repository\EMailTemplateRepository")
+ * @ORM\Entity(repositoryClass="App\Repository\EMailRepository")
  * @ORM\HasLifecycleCallbacks
  */
 class EMailTemplate implements HistoryAwareEntity
@@ -115,12 +115,12 @@ class EMailTemplate implements HistoryAwareEntity
         return $this;
     }
 
-    public function getEmailSending()
+    public function getEmailSending(): ?EmailSending
     {
         return $this->emailSending;
     }
 
-    public function setEmailSending($emailSending)
+    public function setEmailSending(?EmailSending $emailSending): self
     {
         $this->emailSending = $emailSending;
         return $this;

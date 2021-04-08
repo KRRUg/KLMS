@@ -3,7 +3,7 @@
 namespace App\Form;
 
 use App\Entity\EmailSending;
-use App\Repository\EMailTemplateRepository;
+use App\Repository\EMailRepository;
 use App\Service\EMailService;
 use App\Service\GroupService;
 use Symfony\Component\Form\AbstractType;
@@ -17,7 +17,7 @@ class EMailSendingType extends AbstractType
     protected $templateRepository;
     protected $mailService;
 
-	public function __construct(EMailTemplateRepository $templateRepository, EMailService $mailService)
+	public function __construct(EMailRepository $templateRepository, EMailService $mailService)
     {
         $this->templateRepository = $templateRepository;
         $this->mailService = $mailService;
