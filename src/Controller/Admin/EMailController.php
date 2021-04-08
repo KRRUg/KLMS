@@ -13,6 +13,7 @@ use App\Service\GroupService;
 use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
@@ -90,11 +91,10 @@ class EMailController extends AbstractController
     /**
      * @Route("/template/{id}", name="_show")
      */
-    // TODO put show in modal, maybe remove this feature
-    public function show(EMailTemplate $template, EMailRepository $repository)
+    public function show(EMailTemplate $template)
     {
-        $template = $this->mailService->renderTemplate($template, $this->getUserFromLoginUser());
-        return $this->render('admin/email/show.html.twig', ['template' => $template]);
+        $email = $this->mailService->renderTemplate($template, $this->getUserFromLoginUser());
+        return new Response($email['html']);
     }
 
     /**

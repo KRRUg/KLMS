@@ -1,8 +1,7 @@
 @import './helper/variables';
 
-@import '~bootstrap';
+@import '~bootstrap/scss/bootstrap.scss';
 
-@import './dataTables';
 @import './header.scss';
 @import './navigation.scss';
 @import './sidebar.scss';
@@ -24,7 +23,7 @@ main, #main {
     flex: 1 0 auto;
 }
 
-footer {
+footer, #footer {
     box-shadow: $box-shadow;
     flex-shrink: 0;
 }

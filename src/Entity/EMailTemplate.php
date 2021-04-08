@@ -97,9 +97,10 @@ class EMailTemplate implements HistoryAwareEntity
         return $this->body;
     }
 
-    public function setBody(string $body = null): self
+    public function setBody(string $body): self
     {
-        $this->body = $body ?? '';
+        $this->body = $body;
+
         return $this;
     }
 

@@ -10,5 +10,5 @@ twig:
         nav: '@App\Service\NavigationService'
         textblock: '@App\Service\TextBlockService'
     paths:
-        # point this wherever your images live
         '%kernel.project_dir%/assets/images': images
+        '%kernel.project_dir%/assets/css': styles

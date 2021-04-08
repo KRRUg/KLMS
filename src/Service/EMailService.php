@@ -46,7 +46,7 @@ class EMailService
     const DESIGN_STANDARD = 'Standard';
 
     const NEWSLETTER_DESIGNS = [
-        self::DESIGN_STANDARD => '/email/standard.html.twig',
+        self::DESIGN_STANDARD => '/email/design/standard.html.twig',
     ];
 
     private LoggerInterface $logger;
@@ -149,7 +149,7 @@ class EMailService
             ->subject($this->textBlockService->get($config[self::HOOK_SUBJECT]))
             ->htmlTemplate($config[self::HOOK_TEMPLATE])
             ->context([
-                'token' => self::generateToken($user->getUuid(), $config[self::HOOK_TOKEN]),
+                'token' => self::generateToken($recipient->getUuid(), $config[self::HOOK_TOKEN]),
             ]);
     }
 
@@ -184,39 +184,32 @@ class EMailService
             $this->logger->error('No email address given');
             return null;
         }
-        $template = $this->renderTemplate($template, $recipient);
-        // TODO Lösung für Text-only finden
-        return (new Email())->from($this->senderAddress)
+        $email = $this->renderTemplate($template, $recipient);
+        return (new Email())
+            ->from($this->senderAddress)
             ->to($recipient->getAddressObject())
-            ->subject($template->getSubject())
-            ->text(strip_tags($template->getBody()))
-            ->html($template->getBody());
+            ->subject($email['subject'])
+            ->html($email['html'])
+            ->text($email['text']);
     }
 
-    public function renderTemplate(EMailTemplate $template, EMailRecipient $recipient): EMailTemplate
+    public function renderTemplate(EMailTemplate $template, EMailRecipient $recipient): array
     {
-        $text = $template->getBody();
+        $body = $template->getBody();
         $subject = $template->getSubject();
 
-        $text = $this->replaceVariableTokens($text, $recipient);
+        // TODO handle exceptions
         $subject = $this->replaceVariableTokens($subject, $recipient);
+        $body = $this->replaceVariableTokens($body, $recipient);
+        $html = $this->twig->render($this->getDesignFile($template), ['subject' => $subject, 'body' => $body]);
+        $text = strip_tags($html);
 
-        //template auf E-Mail clonen, damit es verändert werden kann
-        $email = clone $template;
-        $email->setBody($text);
-        $email->setSubject($subject);
+        return ['subject' => $subject, 'html' => $html, 'text' => $text];
+    }
 
-        //TODO twig render eventuell mit email render tauschen; eher net
-        $designFile = $this->getDesignFile($email);
-        if ('TEXT' == $designFile) {
-            $html = $text;
-        } else {
-            // TODO remove user from in template
-            $html = $this->twig->render($designFile, ['template' => $email]);
-        }
-        $email->setBody($html);
-
-        return $email;
+    private function getDesignFile(EMailTemplate $template): string
+    {
+        return self::NEWSLETTER_DESIGNS[$template->getDesignFile()] ?? self::NEWSLETTER_DESIGNS[self::DESIGN_STANDARD];
     }
 
     private function replaceVariableTokens($text, EMailRecipient $mailRecipient)
@@ -243,15 +236,6 @@ class EMailService
         }
 
         return $text;
-    }
-
-    private function getDesignFile(EMailTemplate $template): string
-    {
-        $design = $template->getDesignFile();
-        if (null == $design || empty($design)) {
-            $design = 'TEXT';
-        }
-        return $design;
     }
 
     public function createSending(EMailTemplate $template): bool
