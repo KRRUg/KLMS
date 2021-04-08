@@ -64,7 +64,8 @@
                 }
             } else if ($(this.remoteTarget).is('button') && this.remoteTarget.type === 'submit') {
                 if (this.remoteTarget.form.reportValidity()) {
-                    this.remoteTarget.form.submit();
+                    this.remoteTarget.removeAttribute('data-toggle');
+                    this.remoteTarget.click();
                 } else {
                     this.$modal.modal('hide');
                 }

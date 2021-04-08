@@ -25,7 +25,6 @@ use Symfony\Component\Mime\Address;
 use Symfony\Component\Mime\Email;
 use Twig\Environment;
 
-//TODO: Exceptions abfangen
 class EMailService
 {
     const APP_HOOK_REGISTRATION_CONFIRM = 'REGISTRATION_CONFIRMATION';

@@ -43,9 +43,14 @@
     <div class="float-right">
             <a class="btn btn-secondary" href="{{ path('admin_email', {'page':'template'}) }}">Abbrechen</a>
             {{ form_widget(form.save, {'label' : 'Speichern'}) }}
-            {# TODO fix confirmModal to handle this case #}
-            {# {{ form_widget(form.send, {'label' : 'Senden', 'attr' : {'data-toggle':'confirmModal'}}) }}#}
-            {{ form_widget(form.send, {'label' : 'Senden'}) }}
+            {{ form_widget(form.send, {
+                'label' : 'Senden',
+                'attr' : {
+                    'data-toggle':'confirmModal',
+                    'data-modal-text':'Sind Sie sicher, dass Sie senden wollen?',
+                    'data-modal-title':'Sind Sie sicher?'
+                }
+            })}}
     </div>
     {{ form_rest(form) }}
     {{ form_end(form) }}
