@@ -4,7 +4,7 @@ namespace App\Messenger;
 
 use App\Entity\EmailSending;
 use App\Entity\EmailSendingItem;
-use App\Service\EMailService;
+use App\Service\EmailService;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ObjectRepository;
 use Psr\Log\LoggerInterface;
@@ -15,11 +15,11 @@ class MailingNotificationHandler implements MessageHandlerInterface
 {
     private LoggerInterface $logger;
     private EntityManagerInterface $em;
-    private EMailService $mailService;
+    private EmailService $mailService;
     private ObjectRepository $sendingRepo;
     private ObjectRepository $sendingItemRepo;
 
-    public function __construct(EMailService $mailService, EntityManagerInterface $em, LoggerInterface $logger)
+    public function __construct(EmailService $mailService, EntityManagerInterface $em, LoggerInterface $logger)
     {
         $this->logger = $logger;
         $this->mailService = $mailService;

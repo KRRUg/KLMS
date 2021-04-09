@@ -19,7 +19,7 @@ class EmailSending
     private $id;
 
     /**
-     * @ORM\OneToOne(targetEntity="App\Entity\EMailTemplate", inversedBy="emailSending", cascade={"persist"})
+     * @ORM\OneToOne(targetEntity="Email", inversedBy="emailSending", cascade={"persist"})
      * @ORM\JoinColumn(name="template", nullable=false)
      */
     private $template;
@@ -50,12 +50,12 @@ class EmailSending
         return $this->id;
     }
 
-    public function getTemplate(): ?EMailTemplate
+    public function getTemplate(): ?Email
     {
         return $this->template;
     }
 
-    public function setTemplate(EMailTemplate $template): self
+    public function setTemplate(Email $template): self
     {
         $this->template = $template;
 

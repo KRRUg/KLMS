@@ -6,7 +6,7 @@ use App\Entity\User;
 use Ramsey\Uuid\UuidInterface;
 use Symfony\Component\Mime\Address;
 
-class EMailRecipient
+class EmailRecipient
 {
     private UuidInterface $id;
     private string $emailAddress;

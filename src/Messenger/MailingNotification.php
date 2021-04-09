@@ -2,14 +2,14 @@
 
 namespace App\Messenger;
 
-use App\Helper\EMailRecipient;
+use App\Helper\EmailRecipient;
 
 class MailingNotification
 {
     private int $sendingId;
-    private EMailRecipient $recipient;
+    private EmailRecipient $recipient;
 
-    public function __construct(int $sending, EMailRecipient $recipient)
+    public function __construct(int $sending, EmailRecipient $recipient)
     {
         $this->sendingId = $sending;
         $this->recipient = $recipient;
@@ -20,7 +20,7 @@ class MailingNotification
         return $this->sendingId;
     }
 
-    public function getRecipient(): EMailRecipient
+    public function getRecipient(): EmailRecipient
     {
         return $this->recipient;
     }

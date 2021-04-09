@@ -5,20 +5,18 @@ namespace App\Controller\Site;
 use App\Entity\User;
 use App\Idm\IdmManager;
 use App\Idm\IdmRepository;
-use App\Service\EMailService;
-use Ramsey\Uuid\Uuid;
+use App\Service\EmailService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
-
-class EMailController extends AbstractController
+class EmailController extends AbstractController
 {
-    private EMailService $mailService;
+    private EmailService $mailService;
     private IdmManager $manager;
     private IdmRepository $userRepo;
 
-    public function __construct(EMailService $mailService, IdmManager $manager)
+    public function __construct(EmailService $mailService, IdmManager $manager)
     {
         $this->mailService = $mailService;
         $this->manager = $manager;
@@ -31,7 +29,9 @@ class EMailController extends AbstractController
     public function handle_token(Request $request)
     {
         $token = strval($request->get('token', ""));
-        $uuid = Uuid::uuid4();
+        if (empty($token)) {
+            return $this->redirectToRoute('news');
+        }
         switch ($this->mailService->handleToken($token, $uuid)) {
             case 'register':
                 $user = $this->userRepo->findOneById($uuid);

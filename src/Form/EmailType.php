@@ -2,9 +2,9 @@
 
 namespace App\Form;
 
-use App\Entity\EMailTemplate;
+use App\Entity\Email;
 use App\Helper\AuthorInsertSubscriber;
-use App\Service\EMailService;
+use App\Service\EmailService;
 use App\Service\GroupService;
 use Ramsey\Uuid\UuidInterface;
 use Symfony\Component\Form\AbstractType;
@@ -15,7 +15,7 @@ use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
-class EmailTemplateType extends AbstractType
+class EmailType extends AbstractType
 {
     private AuthorInsertSubscriber $userInsertSubscriber;
 
@@ -43,7 +43,7 @@ class EmailTemplateType extends AbstractType
             ])
 			->add('designFile', ChoiceType::class, [
                 'label' => 'Design',
-				'choices' => EMailService::NEWSLETTER_DESIGNS,
+				'choices' => EmailService::NEWSLETTER_DESIGNS,
             ]);
         if ($options['generate_buttons']) {
             $builder
@@ -56,7 +56,7 @@ class EmailTemplateType extends AbstractType
 	public function configureOptions(OptionsResolver $resolver)
 	{
 		$resolver->setDefaults([
-		    'data_class' => EMailTemplate::class,
+		    'data_class' => Email::class,
             'generate_buttons' => false,
         ]);
 	}

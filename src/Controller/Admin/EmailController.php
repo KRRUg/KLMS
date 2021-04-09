@@ -2,13 +2,12 @@
 
 namespace App\Controller\Admin;
 
-use App\Helper\EMailRecipient;
-use App\Entity\EmailSending;
-use App\Entity\EMailTemplate;
-use App\Form\EmailTemplateType;
-use App\Repository\EMailRepository;
+use App\Entity\Email;
+use App\Helper\EmailRecipient;
+use App\Form\EmailType;
+use App\Repository\EmailRepository;
 use App\Security\LoginUser;
-use App\Service\EMailService;
+use App\Service\EmailService;
 use App\Service\GroupService;
 use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -19,17 +18,17 @@ use Symfony\Component\Routing\Annotation\Route;
 /**
  * @Route("/email", name="email")
  */
-class EMailController extends AbstractController
+class EmailController extends AbstractController
 {
     private const CSRF_TOKEN_DELETE = "emailDeleteToken";
     private const CSRF_TOKEN_CANCEL = "emailCancelToken";
 
     private LoggerInterface $logger;
-    private EMailService $mailService;
+    private EmailService $mailService;
     private GroupService $groupService;
-    private EMailRepository $templateRepository;
+    private EmailRepository $templateRepository;
 
-    public function __construct(LoggerInterface $logger, EMailService $mailService, GroupService $groupService, EMailRepository $templateRepository)
+    public function __construct(LoggerInterface $logger, EmailService $mailService, GroupService $groupService, EmailRepository $templateRepository)
     {
         $this->logger = $logger;
         $this->mailService = $mailService;
@@ -64,7 +63,7 @@ class EMailController extends AbstractController
      */
     public function new(Request $request)
     {
-        $form = $this->createForm(EmailTemplateType::class, null, ['generate_buttons' => true]);
+        $form = $this->createForm(EmailType::class, null, ['generate_buttons' => true]);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
@@ -91,7 +90,7 @@ class EMailController extends AbstractController
     /**
      * @Route("/template/{id}", name="_show")
      */
-    public function show(EMailTemplate $template)
+    public function show(Email $template)
     {
         $email = $this->mailService->renderTemplate($template, $this->getUserFromLoginUser());
         return new Response($email['html']);
@@ -100,7 +99,7 @@ class EMailController extends AbstractController
     /**
      * @Route("/test/{id}", name="_send_testmail")
      */
-    public function sendTestmail(EMailTemplate $template)
+    public function sendTestmail(Email $template)
     {
         $recipient = $this->getUserFromLoginUser();
         $success = $this->mailService->sendByTemplate($template, $recipient, false);
@@ -115,14 +114,14 @@ class EMailController extends AbstractController
     /**
      * @Route("/edit/{id}", name="_edit")
      */
-    public function editTemplate(Request $request, EMailTemplate $template)
+    public function editTemplate(Request $request, Email $template)
     {
         if ($template->wasSent()) {
             $this->addFlash('warning', 'Email wird gesended und kann nicht editiert werden.');
             return $this->redirectToRoute('admin_email', ['page' => 'sendings']);
         }
 
-        $form = $this->createForm(EmailTemplateType::class, $template, ['generate_buttons' => true]);
+        $form = $this->createForm(EmailType::class, $template, ['generate_buttons' => true]);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
@@ -151,7 +150,7 @@ class EMailController extends AbstractController
     /**
      * @Route("/delete/{id}", name="_delete")
      */
-    public function deleteTemplate(Request $request, EMailTemplate $template)
+    public function deleteTemplate(Request $request, Email $template)
     {
         $token = $request->request->get('_token');
         if(!$this->isCsrfTokenValid(self::CSRF_TOKEN_DELETE, $token)) {
@@ -167,7 +166,7 @@ class EMailController extends AbstractController
     /**
      * @Route("/cancel/{id}", name="_cancel")
      */
-    public function cancelEmail(Request $request, EMailTemplate $template)
+    public function cancelEmail(Request $request, Email $template)
     {
         $token = $request->request->get('_token');
         if(!$this->isCsrfTokenValid(self::CSRF_TOKEN_CANCEL, $token)) {
@@ -180,13 +179,13 @@ class EMailController extends AbstractController
         return $this->redirectToRoute('admin_email', ['page' => 'template']);
     }
 
-    private function getUserFromLoginUser(): ?EMailRecipient
+    private function getUserFromLoginUser(): ?EmailRecipient
     {
         $user = parent::getUser();
         if (!($user instanceof LoginUser)) {
             $this->logger->critical('wrong user type given (should be instance of LoginUser)');
             return null;
         }
-        return EMailRecipient::fromUser($user->getUser());
+        return EmailRecipient::fromUser($user->getUser());
     }
 }

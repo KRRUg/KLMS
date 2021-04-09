@@ -7,10 +7,10 @@ use Doctrine\ORM\Mapping as ORM;
 use Ramsey\Uuid\UuidInterface;
 
 /**
- * @ORM\Entity(repositoryClass="App\Repository\EMailRepository")
+ * @ORM\Entity(repositoryClass="App\Repository\EmailRepository")
  * @ORM\HasLifecycleCallbacks
  */
-class EMailTemplate implements HistoryAwareEntity
+class Email implements HistoryAwareEntity
 {
     /**
      * @ORM\Id()

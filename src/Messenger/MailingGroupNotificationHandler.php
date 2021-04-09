@@ -4,9 +4,9 @@ namespace App\Messenger;
 
 use App\Entity\EmailSending;
 use App\Entity\EmailSendingItem;
-use App\Helper\EMailRecipient;
-use App\Repository\EMailRepository;
-use App\Service\EMailService;
+use App\Helper\EmailRecipient;
+use App\Repository\EmailRepository;
+use App\Service\EmailService;
 use App\Service\GroupService;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ObjectRepository;
@@ -16,16 +16,16 @@ use Symfony\Component\Messenger\MessageBusInterface;
 
 class MailingGroupNotificationHandler implements MessageHandlerInterface
 {
-    private EMailService $mailService;
+    private EmailService $mailService;
     private GroupService $groupService;
     private ObjectRepository $sendingRepo;
     private EntityManagerInterface $em;
     private MessageBusInterface $bus;
     private LoggerInterface $logger;
 
-    public function __construct(EMailService $mailService,
+    public function __construct(EmailService $mailService,
                                 GroupService $groupService,
-                                EMailRepository $repository,
+                                EmailRepository $repository,
                                 EntityManagerInterface $em,
                                 MessageBusInterface $bus,
                                 LoggerInterface $logger)
@@ -56,7 +56,7 @@ class MailingGroupNotificationHandler implements MessageHandlerInterface
             $sending->setStarted(new \DateTime());
             $sending->setRecipientCount(sizeof($users));
             foreach ($users as $u) {
-                $recipient = EMailRecipient::fromUser($u);
+                $recipient = EmailRecipient::fromUser($u);
                 if (empty($recipient)) {
                     $this->logger->warning("Skipping invalid email recipient {$u->getUuid()}");
                     continue;

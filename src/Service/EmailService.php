@@ -2,16 +2,15 @@
 
 namespace App\Service;
 
-use App\Helper\EMailRecipient;
-use App\Entity\EmailSending;
-use App\Entity\EMailTemplate;
 use App\Entity\User;
+use App\Entity\Email;
+use App\Entity\EmailSending;
+use App\Helper\EmailRecipient;
 use App\Idm\IdmManager;
 use App\Idm\IdmRepository;
 use App\Messenger\MailingGroupNotification;
-use App\Repository\EMailRepository;
+use App\Repository\EmailRepository;
 use Doctrine\ORM\EntityManagerInterface;
-use Exception;
 use Psr\Log\LoggerInterface;
 use Ramsey\Uuid\Uuid;
 use Ramsey\Uuid\UuidInterface;
@@ -21,11 +20,10 @@ use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Messenger\Exception\HandlerFailedException;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Messenger\Stamp\DelayStamp;
-use Symfony\Component\Mime\Address;
-use Symfony\Component\Mime\Email;
+use Symfony\Component\Mime as Mime;
 use Twig\Environment;
 
-class EMailService
+class EmailService
 {
     const APP_HOOK_REGISTRATION_CONFIRM = 'REGISTRATION_CONFIRMATION';
 
@@ -51,8 +49,8 @@ class EMailService
     private LoggerInterface $logger;
     private MailerInterface $mailer;
     private EntityManagerInterface $em;
-    private Address $senderAddress;
-    private EMailRepository $templateRepository;
+    private Mime\Address $senderAddress;
+    private EmailRepository $templateRepository;
     private Environment $twig;
     private IdmRepository $userRepository;
     private GroupService $groupService;
@@ -64,7 +62,7 @@ class EMailService
                                 EntityManagerInterface $em,
                                 GroupService $groupService,
                                 TextBlockService $textBlockService,
-                                EMailRepository $templateRepository,
+                                EmailRepository $templateRepository,
                                 Environment $twig,
                                 MessageBusInterface $messageBus,
                                 IdmManager $manager)
@@ -77,7 +75,7 @@ class EMailService
         $this->twig = $twig;
         $mailAddress = $_ENV['MAILER_DEFAULT_SENDER_EMAIL'];
         $mailName = $_ENV['MAILER_DEFAULT_SENDER_NAME'];
-        $this->senderAddress = new Address($mailAddress, $mailName);
+        $this->senderAddress = new Mime\Address($mailAddress, $mailName);
         $this->messageBus = $messageBus;
         //repos
         $this->userRepository = $manager->getRepository(User::class);
@@ -87,29 +85,29 @@ class EMailService
     /**
      * @throws TransportExceptionInterface
      */
-    public function sendByApplicationHook(string $hook, EMailRecipient $recipient, bool $throw = false): bool
+    public function sendByApplicationHook(string $hook, EmailRecipient $recipient, bool $throw = false): bool
     {
         if (!array_key_exists($hook, self::HOOKS)) {
             $this->logger->critical("Invalid Application hook supplied, no email sent.");
             return false;
         }
         $email = $this->generateEmailFromHook($hook, $recipient);
-        return $this->sendEMail($email, $throw);
+        return $this->sendEmail($email, $throw);
     }
 
     /**
      * @throws TransportExceptionInterface
      */
-    public function sendByTemplate(EMailTemplate $template, EMailRecipient $recipient, bool $throw = false): bool
+    public function sendByTemplate(Email $template, EmailRecipient $recipient, bool $throw = false): bool
     {
         $email = $this->generateEmailFromTemplate($template, $recipient);
-        return $this->sendEMail($email, $throw);
+        return $this->sendEmail($email, $throw);
     }
 
     /**
      * @throws TransportExceptionInterface
      */
-    private function sendEmail(Email $email, bool $throw): bool
+    private function sendEmail(Mime\Email $email, bool $throw): bool
     {
         try {
             $this->mailer->send($email);
@@ -126,7 +124,7 @@ class EMailService
         }
     }
 
-    private function generateEmailFromHook(string $hook, EMailRecipient $recipient): ?Email
+    private function generateEmailFromHook(string $hook, EmailRecipient $recipient): ?Mime\Email
     {
         if (empty($recipient) || empty($recipient->getEmailAddress())) {
             $this->logger->error('No email address given or user object was empty');
@@ -172,14 +170,14 @@ class EMailService
         return '';
     }
 
-    private function generateEmailFromTemplate(EMailTemplate $template, EMailRecipient $recipient): ?Email
+    private function generateEmailFromTemplate(Email $template, EmailRecipient $recipient): ?Mime\Email
     {
         if (empty($recipient) || empty($recipient->getEmailAddress())) {
             $this->logger->error('No email address given');
             return null;
         }
         $email = $this->renderTemplate($template, $recipient);
-        return (new Email())
+        return (new Mime\Email())
             ->from($this->senderAddress)
             ->to($recipient->getAddressObject())
             ->subject($email['subject'])
@@ -189,7 +187,7 @@ class EMailService
 
     private array $template_cache = [];
 
-    public function renderTemplate(EMailTemplate $template, EMailRecipient $recipient): array
+    public function renderTemplate(Email $template, EmailRecipient $recipient): array
     {
         $key = hash('sha256', serialize($template));
         $body = $template->getBody();
@@ -207,12 +205,12 @@ class EMailService
         return ['subject' => $subject, 'html' => $html, 'text' => $text];
     }
 
-    private function getDesignFile(EMailTemplate $template): string
+    private function getDesignFile(Email $template): string
     {
         return self::NEWSLETTER_DESIGNS[$template->getDesignFile()] ?? self::NEWSLETTER_DESIGNS[self::DESIGN_STANDARD];
     }
 
-    private function replaceVariableTokens(string $text, EMailRecipient $mailRecipient): string
+    private function replaceVariableTokens(string $text, EmailRecipient $mailRecipient): string
     {
         $recipientData = $mailRecipient->getDataArray();
         foreach ($recipientData as $key => $value) {
@@ -221,7 +219,7 @@ class EMailService
         return $text;
     }
 
-    public function createSending(EMailTemplate $template): bool
+    public function createSending(Email $template): bool
     {
         if (!GroupService::groupExists($template->getRecipientGroup())) {
             $this->logger->warning("Can't create sending for invalid group");
@@ -239,7 +237,7 @@ class EMailService
         return true;
     }
 
-    public function deleteTemplate(EMailTemplate $template): bool
+    public function deleteTemplate(Email $template): bool
     {
         if ($template->wasSent())
             return false;
@@ -248,7 +246,7 @@ class EMailService
         return true;
     }
 
-    public function cancelSending(EMailTemplate $email): bool
+    public function cancelSending(Email $email): bool
     {
         $this->em->beginTransaction();
         $sending = $email->getEmailSending();

@@ -2,7 +2,7 @@
 
 namespace App\Repository;
 
-use App\Entity\EMailTemplate;
+use App\Entity\Email;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Common\Persistence\ManagerRegistry;
 use Doctrine\ORM\NonUniqueResultException;
@@ -10,16 +10,16 @@ use Doctrine\ORM\NoResultException;
 use phpDocumentor\Reflection\Types\Array_;
 
 /**
- * @method EMailTemplate|null find($id, $lockMode = null, $lockVersion = null)
- * @method EMailTemplate|null findOneBy(array $criteria, array $orderBy = null)
- * @method EMailTemplate[]    findAll()
- * @method EMailTemplate[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
+ * @method Email|null find($id, $lockMode = null, $lockVersion = null)
+ * @method Email|null findOneBy(array $criteria, array $orderBy = null)
+ * @method Email[]    findAll()
+ * @method Email[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  */
-class EMailRepository extends ServiceEntityRepository
+class EmailRepository extends ServiceEntityRepository
 {
 	public function __construct(ManagerRegistry $registry)
 	{
-		parent::__construct($registry, EMailTemplate::class);
+		parent::__construct($registry, Email::class);
 	}
 
 	public function findAllTemplatesWithoutSendings()
@@ -35,7 +35,7 @@ class EMailRepository extends ServiceEntityRepository
     /**
      * @return array with keys 'tbd', 'success', and 'fail' and int values.
      */
-    public function countMails(EMailTemplate $template): array
+    public function countMails(Email $template): array
     {
         $qb = $this->_em->createQueryBuilder()
             ->select('si.success as val, count(si) as cnt')
