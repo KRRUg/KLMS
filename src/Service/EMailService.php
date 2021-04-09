@@ -84,11 +84,6 @@ class EMailService
         $this->templateRepository = $templateRepository;
     }
 
-    public static function recipientFromUser(User $user): EMailRecipient
-    {
-        return new EMailRecipient($user);
-    }
-
     /**
      * @throws TransportExceptionInterface
      */
@@ -134,7 +129,7 @@ class EMailService
     private function generateEmailFromHook(string $hook, EMailRecipient $recipient): ?Email
     {
         if (empty($recipient) || empty($recipient->getEmailAddress())) {
-            $this->logger->error('No email address given or user object was null');
+            $this->logger->error('No email address given or user object was empty');
             return null;
         }
         $config = self::HOOKS[$hook];
@@ -217,29 +212,12 @@ class EMailService
         return self::NEWSLETTER_DESIGNS[$template->getDesignFile()] ?? self::NEWSLETTER_DESIGNS[self::DESIGN_STANDARD];
     }
 
-    private function replaceVariableTokens($text, EMailRecipient $mailRecipient)
+    private function replaceVariableTokens(string $text, EMailRecipient $mailRecipient): string
     {
-        $errors = [];
         $recipientData = $mailRecipient->getDataArray();
-        preg_match_all('/({{2}([^}]+)}{2})/', $text, $matches);
-        if (isset($matches[0]) && count($matches[0])) {
-            foreach ($matches[0] as $match) {
-                $variableName = str_replace('{', '', $match);
-                $variableName = str_replace('}', '', $variableName);
-                $variableName = trim(strtolower($variableName));
-                $filled = $recipientData[$variableName];
-                if (empty($filled)) {
-                    $error = "Variable $variableName not valid: ".sprintf($mailRecipient);
-                    $this->logger->error($error);
-                    array_push($errors, $error);
-                }
-                if (count($errors) > 0) {
-                    throw new Exception('MailData is not valid: '.implode(',', $errors));
-                }
-                $text = str_replace($match, $filled, $text);
-            }
+        foreach ($recipientData as $key => $value) {
+            $text = preg_replace('/{{2}'. $key . '}{2}/', trim($value), $text) ?? $text;
         }
-
         return $text;
     }
 

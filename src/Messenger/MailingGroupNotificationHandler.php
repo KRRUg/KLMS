@@ -4,6 +4,7 @@ namespace App\Messenger;
 
 use App\Entity\EmailSending;
 use App\Entity\EmailSendingItem;
+use App\Helper\EMailRecipient;
 use App\Repository\EMailRepository;
 use App\Service\EMailService;
 use App\Service\GroupService;
@@ -55,7 +56,7 @@ class MailingGroupNotificationHandler implements MessageHandlerInterface
             $sending->setStarted(new \DateTime());
             $sending->setRecipientCount(sizeof($users));
             foreach ($users as $u) {
-                $recipient = EMailService::recipientFromUser($u);
+                $recipient = EMailRecipient::fromUser($u);
                 if (empty($recipient)) {
                     $this->logger->warning("Skipping invalid email recipient {$u->getUuid()}");
                     continue;

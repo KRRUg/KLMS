@@ -8,17 +8,31 @@ use Symfony\Component\Mime\Address;
 
 class EMailRecipient
 {
-    private $id;
-    private $emailAddress;
-    private $name;
-    private $nickname;
+    private UuidInterface $id;
+    private string $emailAddress;
+    private string $nickname;
+    private string $firstname;
+    private string $surname;
 
-    public function __construct(User $user)
+    private function __construct(UuidInterface $id,
+                                string $emailAddress,
+                                ?string $nickname,
+                                ?string $firstname,
+                                ?string $surname)
     {
-        $this->id = $user->getUuid();
-        $this->name = $user->getFirstname() . ' ' . $user->getSurname();
-        $this->emailAddress = $user->getEmail();
-        $this->nickname = $user->getNickname();
+        $this->id = $id;
+        $this->emailAddress = $emailAddress;
+        $this->nickname = $nickname ?? '';
+        $this->firstname = $firstname ?? '';
+        $this->surname = $surname ?? '';
+    }
+
+    public static function fromUser(User $user): ?self
+    {
+        if (empty($user->getUuid()) || empty($user->getEmail())) {
+            return null;
+        }
+        return new self($user->getUuid(), $user->getEmail(), $user->getNickname(), $user->getFirstname(), $user->getSurname());
     }
 
     public function getUuid(): ?UuidInterface
@@ -26,28 +40,40 @@ class EMailRecipient
         return $this->id;
     }
 
-    public function getName()
+    public function getNickname(): string
     {
-        return $this->name;
+        return $this->nickname;
     }
 
-    public function getEmailAddress()
+    public function getFirstname(): string
+    {
+        return $this->firstname;
+    }
+
+    public function getSurname(): string
+    {
+        return $this->surname;
+    }
+
+    public function getEmailAddress(): string
     {
         return $this->emailAddress;
     }
 
-    public function getAddressObject()
+    public function getAddressObject(): Address
     {
-        return new Address($this->emailAddress, $this->name);
+        $name = $this->getFirstname() . ' ' . $this->getSurname();
+        return new Address($this->emailAddress, $name);
     }
 
-    public function getDataArray()
+    public function getDataArray(): array
     {
         $dataset = [
-            "id" => $this->id,
-            "name" => $this->name,
+            "id" => $this->id->toString(),
+            "nickname" => $this->nickname,
+            "firstname" => $this->firstname,
+            "surname" => $this->surname,
             "email" => $this->emailAddress,
-            "nickname" => $this->nickname
         ];
         return array_change_key_case($dataset, CASE_LOWER);
     }

@@ -180,13 +180,13 @@ class EMailController extends AbstractController
         return $this->redirectToRoute('admin_email', ['page' => 'template']);
     }
 
-    private function getUserFromLoginUser(): EMailRecipient
+    private function getUserFromLoginUser(): ?EMailRecipient
     {
         $user = parent::getUser();
         if (!($user instanceof LoginUser)) {
             $this->logger->critical('wrong user type given (should be instance of LoginUser)');
+            return null;
         }
-
-        return EMailService::recipientFromUser($user->getUser());
+        return EMailRecipient::fromUser($user->getUser());
     }
 }
