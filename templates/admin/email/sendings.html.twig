@@ -40,10 +40,11 @@
                             {% endif %}
                         </td>
                         <td>
-                            <a class="btn btn-outline-dark"
+                            <a class="btn btn-outline-dark" title="Anzeigen" target="popup"
                                href="{{ path('admin_email_show', {'id' : sending.template.id}) }}"
-                               title="Anzeigen">
-                                <i class="fas fa-eye"></i></a>
+                               onclick="window.open('{{ path('admin_email_show', {'id' : sending.template.id}) }}', 'popup', 'width=800,height=900'); return false;">
+                                <i class="fas fa-eye"></i>
+                            </a>
                             {% if sending.isNotStarted %}
                                 <form method="post" action="{{ path('admin_email_cancel', {'id' : email.id}) }}" class="d-inline-block">
                                     <input type="hidden" name="_token" value="{{ csrf_token(csrf_token_cancel) }}">
