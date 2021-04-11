@@ -80,8 +80,9 @@ import '../../modules/confirmModal/confirmModal.js';
                                 let h = (typeof attrValue.prepend !== 'undefined') ? attrValue.prepend : "";
 
                                 if (typeof attrValue.data !== 'undefined') {
-                                    //ToDo: XSS Protection from Ajax value
-                                    h += row[attrValue.data];
+                                    let s = document.createElement("SPAN");
+                                    s.textContent = row[attrValue.data];
+                                    h += s.innerHTML;
                                 }
 
                                 h += (typeof attrValue.append !== 'undefined') ? attrValue.append : "";
@@ -89,8 +90,10 @@ import '../../modules/confirmModal/confirmModal.js';
                                 const matches = h.matchAll(/--(\w+)--/g);
                                 for (const match of matches) {
                                     if (row[match[1]]) {
-                                        //ToDo: XSS Protection from Ajax value;
-                                        h = h.replace(match[0], row[match[1]]);
+                                        let s = document.createElement("SPAN");
+                                        s.textContent = row[attrValue.data];
+                                        let rep = row[match[1]];
+                                        h = h.replace(match[0], rep);
                                     }
                                 }
 
@@ -109,7 +112,7 @@ import '../../modules/confirmModal/confirmModal.js';
                     };
                 } else if (this.settings.remoteTarget) {
                     colDef.targets = colIndex;
-                    colDef.render = $.fn.dataTable.render.text(); //XSS Protection if Ajax Source
+                    colDef.render = $.fn.dataTable.render.text();
                 }
 
                 
@@ -123,10 +126,7 @@ import '../../modules/confirmModal/confirmModal.js';
             }
 
             this.$table = $(this.element).DataTable(dtOptions);
-        },
-        _enableTrigger() {
-
-        },
+        }
     });
 
     // A really lightweight plugin wrapper around the constructor,
