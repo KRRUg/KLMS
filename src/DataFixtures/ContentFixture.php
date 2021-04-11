@@ -83,14 +83,22 @@ class ContentFixture extends Fixture
         $manager->refresh($footer);
 
         // Generate Textblocks
-        $tb_about = new TextBlock("ABOUT_US");
+        $tb_reg = new TextBlock("organisation_name");
+        $tb_reg->setText('KLMS Team');
+
+        $tb_subject = new TextBlock("register.subject");
+        $tb_subject->setText('Registrierung');
+
+        $tb_about = new TextBlock("about_us");
         $tb_about->setText($lipsum->words(20));
 
-        $tb_agb = new TextBlock("AGB");
+        $tb_agb = new TextBlock("agb");
         $tb_agb->setText("<h2>{$lipsum->words()}</h2><p>{$lipsum->paragraphs(2)}</p><h2>{$lipsum->words(2)}</h2><p>{$lipsum->paragraphs(3)}}</p>");
 
+        $manager->persist($tb_reg);
         $manager->persist($tb_about);
         $manager->persist($tb_agb);
+        $manager->persist($tb_subject);
 
         $manager->flush();
     }

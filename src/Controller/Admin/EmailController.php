@@ -73,7 +73,7 @@ class EmailController extends AbstractController
             $em->flush();
 
             if ($form->get('send')->isClicked()) {
-                $this->mailService->createSending($template);
+                $this->mailService->scheduleSending($template);
                 return $this->redirectToRoute('admin_email', ['page' => 'sendings']);
             } else {
                 return $this->redirectToRoute('admin_email', ['page' => 'template']);
@@ -131,7 +131,7 @@ class EmailController extends AbstractController
             $em->flush();
 
             if ($form->get('send')->isClicked()) {
-                $this->mailService->createSending($template);
+                $this->mailService->scheduleSending($template);
                 return $this->redirectToRoute('admin_email', ['page' => 'sendings']);
             } else {
                 return $this->redirectToRoute('admin_email', ['page' => 'template']);

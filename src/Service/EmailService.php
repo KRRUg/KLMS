@@ -9,6 +9,7 @@ use App\Helper\EmailRecipient;
 use App\Idm\IdmManager;
 use App\Idm\IdmRepository;
 use App\Messenger\MailingGroupNotification;
+use App\Messenger\MailingHookNotification;
 use App\Repository\EmailRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
@@ -21,10 +22,7 @@ use Symfony\Component\Messenger\Exception\HandlerFailedException;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Messenger\Stamp\DelayStamp;
 use Symfony\Component\Mime as Mime;
-use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Twig\Environment;
-
-// TODO call this hook in the registration process and disallow login of users without confirmed email address
 
 class EmailService
 {
@@ -37,7 +35,7 @@ class EmailService
     const HOOKS = [
         self::APP_HOOK_REGISTRATION_CONFIRM => [
             self::HOOK_SUBJECT => "register.subject",
-            self::HOOK_TEMPLATE => '/email/registration.html.twig',
+            self::HOOK_TEMPLATE => '/email/hooks/registration.html.twig',
             self::HOOK_TOKEN => 'register'
         ],
     ];
@@ -85,15 +83,38 @@ class EmailService
         $this->templateRepository = $templateRepository;
     }
 
-    /**
-     * @throws TransportExceptionInterface
-     */
-    public function sendByApplicationHook(string $hook, EmailRecipient $recipient, bool $throw = false): bool
+    public function scheduleSending(Email $template): bool
+    {
+        if (!GroupService::groupExists($template->getRecipientGroup())) {
+            $this->logger->warning("Can't create sending for invalid group");
+            return false;
+        }
+
+        $sending = new EmailSending();
+        $sending->setTemplate($template);
+        $this->em->persist($sending);
+        $this->em->flush();
+        $this->messageBus->dispatch(new MailingGroupNotification($sending->getId()), [
+            new DelayStamp(intval($_ENV['MAILER_NEWSLETTER_SEND_WAITTIME'] ?? 60) * 1000)
+        ]);
+        return true;
+    }
+
+    public function scheduleHook(string $hook, EmailRecipient $recipient): bool
     {
         if (!array_key_exists($hook, self::HOOKS)) {
             $this->logger->critical("Invalid Application hook supplied, no email sent.");
             return false;
         }
+        $this->messageBus->dispatch(new MailingHookNotification($hook, $recipient));
+        return true;
+    }
+
+    /**
+     * @throws TransportExceptionInterface
+     */
+    public function sendByApplicationHook(string $hook, EmailRecipient $recipient, bool $throw = false): bool
+    {
         $email = $this->generateEmailFromHook($hook, $recipient);
         return $this->sendEmail($email, $throw);
     }
@@ -133,8 +154,8 @@ class EmailService
             $this->logger->error('No email address given or user object was empty');
             return null;
         }
-        $config = self::HOOKS[$hook];
-        if (!$this->textBlockService->validKey($config[self::HOOK_SUBJECT])) {
+        $config = self::HOOKS[$hook] ?? null;
+        if (empty($config) || !$this->textBlockService->validKey($config[self::HOOK_SUBJECT])) {
             $this->logger->error('Invalid Hook configuration');
             return null;
         }
@@ -226,24 +247,6 @@ class EmailService
     private function getDesignFile(Email $template): string
     {
         return self::NEWSLETTER_DESIGNS[$template->getDesignFile()] ?? self::NEWSLETTER_DESIGNS[self::DESIGN_STANDARD];
-    }
-
-    public function createSending(Email $template): bool
-    {
-        if (!GroupService::groupExists($template->getRecipientGroup())) {
-            $this->logger->warning("Can't create sending for invalid group");
-            return false;
-        }
-
-        $sending = new EmailSending();
-        $sending->setTemplate($template);
-
-        $this->em->persist($sending);
-        $this->em->flush();
-        $this->messageBus->dispatch(new MailingGroupNotification($sending->getId()), [
-            new DelayStamp(intval($_ENV['MAILER_NEWSLETTER_SEND_WAITTIME'] ?? 60) * 1000)
-        ]);
-        return true;
     }
 
     public function deleteTemplate(Email $template): bool
