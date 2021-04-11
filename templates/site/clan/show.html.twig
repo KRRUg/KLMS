@@ -8,22 +8,18 @@
             {% block cardBody %}
                 {% if is_granted('IS_AUTHENTICATED_REMEMBERED') %}
                     {% set user = app.user.user %}
-                    <div class="d-flex justify-content-between w-100">
-                        <div class="d-flex justify-content-end w-100">
-                            <div class="py-1">
-                                {% if user in clan.users %}
-                                    <form data-toggle="confirmModal" method="post" action="{{ path('clan_leave', {'uuid' : clan.uuid}) }}" class="d-inline-block">
-                                        <input type="hidden" name="_token" value="{{ csrf_token(csrf_token_member_leave) }}">
-                                        <button class="btn btn-outline-primary" type="submit" value="löschen"><i class="fas fa-user-minus"></i> Clan verlassen</button>
-                                    </form>
-                                {% elseif user not in clan.users %}
-                                    <button class="btn btn-outline-primary" data-toggle="modal" data-target="#joinModal" id="join"><i class="fas fa-user-plus"></i> Clan beitreten</button>
-                                {% endif %}
-                                {% if user in clan.admins %}
-                                    <a class="btn btn-outline-primary" href="{{ path('clan_edit', {'uuid' : clan.uuid}) }}"><i class="fas fa-edit"></i> Clan bearbeiten</a>
-                                {% endif %}
-                            </div>
-                        </div>
+                    <div class="float-right  py-2">
+                        {% if user in clan.users %}
+                            <form data-toggle="confirmModal" data-modal-title="Clan verlassen" data-modal-text="Wollen Sie diesen Clan wirklich verlassen?" method="post" action="{{ path('clan_leave', {'uuid' : clan.uuid}) }}" class="d-inline-block">
+                                <input type="hidden" name="_token" value="{{ csrf_token(csrf_token_member_leave) }}">
+                                <button class="btn btn-outline-primary" type="submit" value="löschen"><i class="fas fa-user-minus"></i> Clan verlassen</button>
+                            </form>
+                        {% elseif user not in clan.users %}
+                            <button class="btn btn-outline-primary" data-toggle="modal" data-target="#joinModal" id="join"><i class="fas fa-user-plus"></i> Clan beitreten</button>
+                        {% endif %}
+                        {% if user in clan.admins %}
+                            <a class="btn btn-outline-primary" href="{{ path('clan_edit', {'uuid' : clan.uuid}) }}"><i class="fas fa-edit"></i> Clan bearbeiten</a>
+                        {% endif %}
                     </div>
                 {% endif %}
                 <h1 class="card-title">
@@ -55,9 +51,9 @@
                             <tr>
                                 <th scope="col" data-searchable="false">Status</th>
                                 <th scope="col">Nickname</th>
-                                {% if admin %}
-                                <th scope="col">Aktion</th>
-                                {% endif %}
+                                    {% if admin %}
+                                    <th scope="col">Aktion</th>
+                                    {% endif %}
                             </tr>
                         </thead>
                         {% for user in clan.users %}
@@ -78,27 +74,40 @@
                                 {% if admin %}
                                     <td class="w-1 text-nowrap">
                                         {% if user != app.user.user %}
-                                            <form data-toggle="confirmModal" method="post" action="{{ path('clan_member_edit', {'uuid' : clan.uuid}) }}">
+                                            <form class="d-inline-block" data-toggle="confirmModal" data-modal-title="User entfernen" data-modal-text="Wollen Sie diesen User wirklich entfernen?" method="post" action="{{ path('clan_member_edit', {'uuid' : clan.uuid}) }}">
                                                 <input type="hidden" name="_token" value="{{ csrf_token(csrf_token_member_edit) }}" />
                                                 <input type="hidden" name="user_uuid" value="{{ user.uuid }}" />
                                                 <input type="hidden" name="action" value="kick" />
-                                                <button type="submit" class="btn btn-outline-dark"><i class="fas fa-user-minus"></i></button>
+                                                <button type="submit" class="btn btn-outline-dark" title="User von Clan entfernen"><i class="fas fa-user-minus fa-fw"></i></button>
                                             </form>
-                                            <form data-toggle="confirmModal" method="post" action="{{ path('clan_member_edit', {'uuid' : clan.uuid}) }}">
+
+                                            {% if userIsAdmin %}
+                                                {% set action = "demote" %}
+                                                {% set modalTitle = "Zu User herabstufen" %}
+                                                {% set modalText = "Wollen Sie diesen User zu einem User herabstufen?" %}
+                                            {% else %}
+                                                {% set action = "promote" %}
+                                                {% set modalTitle = "Zu Admin befördern" %}
+                                                {% set modalText = "Wollen Sie diesen User als Admin hinzufügen?" %}
+                                            {% endif %}
+                                            <form class="d-inline-block" data-toggle="confirmModal" data-modal-title="{{ modalTitle }}" data-modal-text="{{ modalText }}" method="post" action="{{ path('clan_member_edit', {'uuid' : clan.uuid}) }}">
                                                 <input type="hidden" name="_token" value="{{ csrf_token(csrf_token_member_edit) }}" />
                                                 <input type="hidden" name="user_uuid" value="{{ user.uuid }}" />
-                                                <input type="hidden" name="action" value="{% if userIsAdmin %}demote{% else %}promote{% endif %}" />
-                                                <button type="submit" class="btn btn-outline-dark">{% if userIsAdmin %}<i class="far fa-frown"></i>{% else %}<i class="fas fa-crown"></i>{% endif %}</button>
-                                            </form>
-                                        {% endif %}
-                                    </td>
+                                                <input type="hidden" name="action" value="{{ action }}" />
+                                                <button type="submit" title="{{ modalTitle }}" class="btn btn-outline-dark">
+                                                    {% if userIsAdmin %}
+                                                        <i class="fas fa-ban fa-fw"></i>
+                                                {% else %}<i class="fas fa-crown fa-fw"></i>{% endif %}</button>
+                                        </form>
+                                    {% endif %}
+                                </td>
                                 {% endif %}
-                            </tr>
-                        {% endfor %}
-                    </table>
-                </div>
-            {% endblock %}
-        {% endembed  %}
-    </div>
-    {% include 'site/clan/modal.join.html.twig' %}
-{% endblock %}
+                                </tr>
+                                {% endfor %}
+                                </table>
+                            </div>
+                            {% endblock %}
+                                {% endembed  %}
+                                </div>
+                                {% include 'site/clan/modal.join.html.twig' %}
+                                {% endblock %}
