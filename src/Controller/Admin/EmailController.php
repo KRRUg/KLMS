@@ -10,6 +10,7 @@ use App\Security\LoginUser;
 use App\Service\EmailService;
 use App\Service\GroupService;
 use Psr\Log\LoggerInterface;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -17,6 +18,7 @@ use Symfony\Component\Routing\Annotation\Route;
 
 /**
  * @Route("/email", name="email")
+ * @IsGranted("ROLE_ADMIN_MAIL")
  */
 class EmailController extends AbstractController
 {

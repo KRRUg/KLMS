@@ -8,12 +8,14 @@ use App\Entity\Media;
 use App\Exception\ServiceException;
 use App\Form\MediaType;
 use App\Service\MediaService;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
  * @Route("/media", name="media")
+ * @IsGranted({"ROLE_ADMIN_CONTENT", "ROLE_ADMIN_NEWS"})
  */
 class MediaController extends BaseController
 {
