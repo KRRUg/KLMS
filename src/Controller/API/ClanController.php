@@ -45,9 +45,8 @@ class ClanController extends AbstractController
         $result['items'] = array_map(function (Clan $clan) {
             return [
                 'uuid' => $clan->getUuid(),
-                'nickname' => $clan->getName(),
-                'firstname' => $clan->getClantag(),
-                'surname' => '',
+                'name' => $clan->getName(),
+                'clantag' => $clan->getClantag(),
             ];
         }, $items);
 

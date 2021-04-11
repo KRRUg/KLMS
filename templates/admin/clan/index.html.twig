@@ -11,35 +11,32 @@
     <div class="row">
         <div class="col-12">
             <div class="card">
-                <table id="clanTable" class="table table-striped admin-data-table">
+                <table id="clanTable" class="table table-striped admin-data-table" data-order='[[1, "asc"]]' data-remote-target="{{ path('api_clans') }}">
                     <thead>
                         <tr>
-                            <th>Tag</th>
-                            <th>Clan</th>
-                            <th data-orderable="false" data-searchable="false">Aktionen</th>
+                            <th 
+                                class="text-nowrap w-1" 
+                                data-data="clantag"
+                                >Tag</th>
+                            <th class="w-25" 
+                                data-data="name" 
+                                data-render-function='{"elemType":"A", "attributes":{"data-toggle":"ajaxModal", "href": {"prepend":"{{ path('admin_clan_show', {'uuid' : "--uuid--"}) }}"}}}'
+                                >Clan</th>
+                            <th  class="text-nowrap w-1" 
+                                data-orderable="false" 
+                                data-searchable="false" 
+                                data-default-content='<i class="fas fa-edit"></i> bearbeiten'
+                                data-render-function='{"elemType":"A", "attributes":{"class":"btn btn-outline-dark text-nowrap", "href": {"prepend":"{{ path('admin_clan_edit', {'uuid' : "--uuid--"}) }}"} , "title":{"data":"name", "append":" bearbeiten"}}}'
+                                >Aktionen</th>
+                            <th  class="text-nowrap w-1" 
+                                data-orderable="false" 
+                                data-searchable="false" 
+                                data-default-content='<i class="fas fa-users"></i> Mitglieder'
+                                data-render-function='{"elemType":"A", "attributes":{"class":"btn btn-outline-dark text-nowrap", "href": {"prepend":"{{ path('admin_clan_member', {'uuid' : "--uuid--"}) }}"} , "title":{"prepend":"Mitglieder von ","data":"name", "append":" bearbeiten"}}}'
+                                ></th>
                         </tr>
                     </thead>
                     <tbody>
-                        {% for clan in clans %}
-                            <tr>
-                                <td class="w-1">
-                                    {{ clan.clantag }}
-                                </td>
-                                <td class="w-100">
-                                    <a data-toggle="ajaxModal" href="{{ path('admin_clan_show', {'uuid' : clan.uuid}) }}">
-                                        {{ clan.name }}
-                                    </a>
-                                </td>
-                                <td class="text-nowrap w-1">
-                                    <a class="btn btn-outline-dark" href="{{ path('admin_clan_edit', {'uuid' : clan.uuid}) }}" title="{{ clan.name }} bearbeiten">
-                                        <i class="fas fa-edit"></i> bearbeiten
-                                    </a>
-                                    <a class="btn btn-outline-dark" href="{{ path('admin_clan_member', {'uuid' : clan.uuid}) }}" title="{{ clan.name }} bearbeiten">
-                                        <i class="fas fa-users"></i> Mitglieder
-                                    </a>
-                                </td>
-                            </tr>
-                        {% endfor %}
                     </tbody>
                 </table>
             </div>
