@@ -52,7 +52,6 @@ class EmailService
     private LoggerInterface $logger;
     private MailerInterface $mailer;
     private EntityManagerInterface $em;
-    private UrlGeneratorInterface $urlGenerator;
     private Mime\Address $senderAddress;
     private EmailRepository $templateRepository;
     private Environment $twig;
@@ -64,7 +63,6 @@ class EmailService
     public function __construct(MailerInterface $mailer,
                                 LoggerInterface $logger,
                                 EntityManagerInterface $em,
-                                UrlGeneratorInterface $urlGenerator,
                                 GroupService $groupService,
                                 TextBlockService $textBlockService,
                                 EmailRepository $templateRepository,
@@ -75,7 +73,6 @@ class EmailService
         $this->logger = $logger;
         $this->mailer = $mailer;
         $this->groupService = $groupService;
-        $this->urlGenerator = $urlGenerator;
         $this->textBlockService = $textBlockService;
         $this->em = $em;
         $this->twig = $twig;
@@ -244,7 +241,7 @@ class EmailService
         $this->em->persist($sending);
         $this->em->flush();
         $this->messageBus->dispatch(new MailingGroupNotification($sending->getId()), [
-            new DelayStamp(10000)
+            new DelayStamp(intval($_ENV['MAILER_NEWSLETTER_SEND_WAITTIME'] ?? 60) * 1000)
         ]);
         return true;
     }

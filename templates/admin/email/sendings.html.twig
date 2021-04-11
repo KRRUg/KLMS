@@ -32,11 +32,17 @@
                                 {% set success = stat['success'] | default(0)  %}
                                 {% set fail = stat['fail'] | default(0) %}
                                 {% set total = tbd + success + fail %}
+                                {% if total != 0 %}
                                 <div class="progress">
                                     <div class="progress-bar bg-success" title="Erfolgreich: {{ success }}" role="progressbar" style="width: {{ success / total * 100 }}%">{{ success }}</div>
                                     <div class="progress-bar bg-error" title="Fehlerhaft: {{ fail }}" role="progressbar" style="width: {{ fail / total * 100 }}%">{{ fail }}</div>
                                     <div class="progress-bar bg-secondary" title="Ausstehend: {{ tbd }}" role="progressbar" style="width: {{ tbd / total * 100 }}%">{{ tbd }}</div>
                                 </div>
+                                {% else %}
+                                <div class="progress">
+                                    <div class="progress-bar bg-success" title="Erfolgreich: {{ success }}" role="progressbar" style="width: {{ 100 }}%">{{ 0 }}</div>
+                                </div>
+                                {% endif %}
                             {% endif %}
                         </td>
                         <td>

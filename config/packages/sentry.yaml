@@ -7,7 +7,7 @@ sentry:
             level: error
     options:
         environment: '%kernel.environment%'
-        release: '%env(VERSION)%' #your app version
+        release: '%env(APP_VERSION)%' #your app version
         excluded_exceptions: #exclude validation errors
             - Symfony\Component\HttpKernel\Exception\NotFoundHttpException
             - Symfony\Component\Security\Core\Exception\AccessDeniedException

@@ -43,7 +43,7 @@ class EmailType extends AbstractType
             ])
 			->add('designFile', ChoiceType::class, [
                 'label' => 'Design',
-				'choices' => EmailService::NEWSLETTER_DESIGNS,
+				'choices' => array_combine(array_keys(EmailService::NEWSLETTER_DESIGNS), array_keys(EmailService::NEWSLETTER_DESIGNS)),
             ]);
         if ($options['generate_buttons']) {
             $builder
