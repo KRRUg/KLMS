@@ -49,30 +49,41 @@ import $ from "jquery";
             return $modal;
         },
         _getModalHtml() {
-            let modalHtlm = '<div class="modal fade" id="confirmeModal" tabindex="-1" role="dialog" aria-labelledby="confirmModalLabel" aria-hidden="true">';
-            modalHtlm += '<div class="modal-dialog" role="document">';
-            modalHtlm += ' <div class="modal-content">';
-            modalHtlm += '   <div class="modal-header">';
-            modalHtlm += '     <h5 class="modal-title" id="confirmModalLabel">'+this.settings.title+'</h5>';
-            modalHtlm += '</div>';
-            modalHtlm += '<div class="modal-body">';
-            modalHtlm += '<p>'+this.settings.text+'</p>';
-            modalHtlm += '</div>';
-            modalHtlm += '<div class="modal-footer">';
-            modalHtlm += '<button type="button" class="btn btn-secondary" data-dismiss="modal">Nein</button>';
-            modalHtlm += '<button type="button" class="btn btn-primary js-confirm">Ja</button>';
-            modalHtlm += '</div>';
-            modalHtlm += '</div>';
-            modalHtlm += '</div>';
-            modalHtlm += '</div>';
-            return modalHtlm;
+            let modalHtml = '';
+            modalHtml += '<div class="modal fade" id="confirmModal" tabindex="-1" role="dialog" aria-labelledby="confirmModalLabel" aria-hidden="true">';
+            modalHtml += '<div class="modal-dialog" role="document">';
+            modalHtml += ' <div class="modal-content">';
+            modalHtml += '   <div class="modal-header">';
+            modalHtml += '     <h5 class="modal-title" id="confirmModalLabel">'+this.settings.title+'</h5>';
+            modalHtml += '</div>';
+            modalHtml += '<div class="modal-body">';
+            modalHtml += '<p>'+this.settings.text+'</p>';
+            modalHtml += '</div>';
+            modalHtml += '<div class="modal-footer">';
+            modalHtml += '<button type="button" class="btn btn-secondary" data-dismiss="modal">Nein</button>';
+            modalHtml += '<button type="button" class="btn btn-primary js-confirm">Ja</button>';
+            modalHtml += '</div>';
+            modalHtml += '</div>';
+            modalHtml += '</div>';
+            modalHtml += '</div>';
+            return modalHtml;
         },
         _handleConfirmAction() {
             if($(this.remoteTarget).is('form')) {
-                this.remoteTarget.submit();
+                if (this.remoteTarget.reportValidity()) {
+                    this.remoteTarget.submit();
+                } else {
+                    this.$modal.modal('hide');
+                }
+            } else if ($(this.remoteTarget).is('button') && this.remoteTarget.type === 'submit') {
+                if (this.remoteTarget.form.reportValidity()) {
+                    this.remoteTarget.removeAttribute('data-toggle');
+                    this.remoteTarget.click();
+                } else {
+                    this.$modal.modal('hide');
+                }
             } else if ($(this.remoteTarget).is('a')) {
-                let href = $(this.remoteTarget).attr("href");
-                window.location.href = href;
+                window.location.href = $(this.remoteTarget).attr("href");
             } else {
                 console.error("remoteTarget type not supported!");
             }

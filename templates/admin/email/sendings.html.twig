@@ -1,68 +1,67 @@
-{% extends 'base.html.twig' %}
-
-{% block title %}Hello AdministrationController!{% endblock %}
-
-{% block body %}
-
-    <style xmlns="http://www.w3.org/1999/html">
-        .example-wrapper {
-            margin: 1em auto;
-            max-width: 800px;
-            width: 95%;
-            font: 18px/1.5 sans-serif;
-        }
-
-        .example-wrapper code {
-            background: #F5F5F5;
-            padding: 2px 6px;
-        }
-    </style>
-    {% include('admin/email/includes/menu.html.twig') %}
-    <div class="example-wrapper">
-        <h1>Sendungen Übersicht! ✅</h1>
-
-        <table style="border: 1px ">
-            <tr>
-                <th>ID</th>
-                <th>Template</th>
-                <th>anzeigen</th>
-                <th>Test senden</th>
-                <th>kopieren</th>
-                <th>gesendet</th>
-                <th>status</th>
-                <th>Aktionen</th>
-            </tr>
-            {% for  sending in sendings %}
-                <tr>
-                    <td>     {{ sending.id }}</td>
-                    <td>{{ sending.template.name }}</td>
-                    <td>
-                        <a href="{{ path('admin_email_show', {'id' : sending.template.id}) }}"
-                           id="{{ sending.template.id }}">show</a>
-                    </td>
-                    <td>
-                        <a href="{{ path('admin_email_send', {'id' : sending.template.id}) }}"
-                           id="{{ sending.template.id }}">test</a>
-                    </td>
-                    <td>
-
-                    </td>
-
-
-                    <td>
-                        {{ sending.sent |  date('d.m.y  - H:i:s') }}
-                    </td>
-                    <td>
-                        {{ sending.status }}
-                    </td>
-                    <td>
-                        {% if sending.isDeleteable %}
-                            <a href="{{ path('admin_email_sending_delete', {'id' : sending.id}) }}"
-                               id="{{ sending.id }}">löschen</a>
-                        {% endif %}
-                    </td>
-                </tr>
-            {% endfor %}
-        </table>
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Titel</th>
+                        <th>Empfänger</th>
+                        <th>Status</th>
+                        <th>Optionen</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for email in emails %}
+                    <tr>
+                        <td>
+                            {{ email.name }}
+                            <br>
+                            <small class="text-muted"><b>{{ email.subject }}</b></small>
+                        </td>
+                        <td>
+                            {{ email.recipientGroup | groupname }}
+                        </td>
+                        {% set sending = email.emailSending %}
+                        <td>
+                            {% if sending.isNotStarted %}
+                                <p>In Vorbereitung seit {{ sending.created | date('H:i') }}</p>
+                            {% elseif sending.isInSending %}
+                                <p>Gestartet am {{ sending.started | date('d.m.Y H:i') }}</p>
+                                {% set stat = stats[email.id] %}
+                                {% set tbd = stat['tbd'] | default(0) %}
+                                {% set success = stat['success'] | default(0)  %}
+                                {% set fail = stat['fail'] | default(0) %}
+                                {% set total = tbd + success + fail %}
+                                {% if total != 0 %}
+                                <div class="progress">
+                                    <div class="progress-bar bg-success" title="Erfolgreich: {{ success }}" role="progressbar" style="width: {{ success / total * 100 }}%">{{ success }}</div>
+                                    <div class="progress-bar bg-error" title="Fehlerhaft: {{ fail }}" role="progressbar" style="width: {{ fail / total * 100 }}%">{{ fail }}</div>
+                                    <div class="progress-bar bg-secondary" title="Ausstehend: {{ tbd }}" role="progressbar" style="width: {{ tbd / total * 100 }}%">{{ tbd }}</div>
+                                </div>
+                                {% else %}
+                                <div class="progress">
+                                    <div class="progress-bar bg-success" title="Erfolgreich: {{ success }}" role="progressbar" style="width: {{ 100 }}%">{{ 0 }}</div>
+                                </div>
+                                {% endif %}
+                            {% endif %}
+                        </td>
+                        <td>
+                            <a class="btn btn-outline-dark" title="Anzeigen" target="popup"
+                               href="{{ path('admin_email_show', {'id' : sending.template.id}) }}"
+                               onclick="window.open('{{ path('admin_email_show', {'id' : sending.template.id}) }}', 'popup', 'width=800,height=900'); return false;">
+                                <i class="fas fa-eye"></i>
+                            </a>
+                            {% if sending.isNotStarted %}
+                                <form method="post" action="{{ path('admin_email_cancel', {'id' : email.id}) }}" class="d-inline-block">
+                                    <input type="hidden" name="_token" value="{{ csrf_token(csrf_token_cancel) }}">
+                                    <button class="btn btn-danger" type="submit" value="cancel"><i class="fas fa-window-close"></i> Sendung abbrechen</button>
+                                </form>
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
     </div>
-{% endblock %}
+</div>

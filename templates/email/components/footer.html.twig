@@ -1,0 +1,12 @@
+<div class="container py-2">
+    <div class="row small text-muted">
+        <div class="col text-left">
+            {{ textblock.get('organisation_name') }}
+        </div>
+        <div class="col text-right">
+            {% if unsubscribe is defined %}
+                <a class="text-muted" href="{{ url('email_token', {'token' : unsubscribe}) }}">Unsubscribe</a>
+            {% endif %}
+        </div>
+    </div>
+</div>

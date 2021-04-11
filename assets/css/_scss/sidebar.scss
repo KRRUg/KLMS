@@ -21,6 +21,9 @@
 
                 i {
                     padding:0 1rem;
+                    &.fa-fw {
+                        width: 2.5em;
+                    }
                 }
 
                 &.active {

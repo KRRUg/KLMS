@@ -30,6 +30,7 @@ Encore
         .addEntry('navigation', './assets/js/admin/navigation.js')
         .addEntry('media', './assets/js/admin/media.js')
         .addEntry('news', './assets/js/site/news.js')
+        .addStyleEntry('email', './assets/css/email.scss')
 
         // When enabled, Webpack "splits" your files into smaller pieces for greater optimization.
         .splitEntryChunks()

@@ -1,28 +1,32 @@
 <ul class="nav flex-column">
     <li class="nav-item">
-        <a class="nav-link {% if app.request.get('_route') starts with 'admin_dashboard' %}active{% endif %}" href="{{ path('admin_dashboard') }}"><i class="fas fa-home"></i> Dashboard </a>
+        <a class="nav-link {% if app.request.get('_route') starts with 'admin_dashboard' %}active{% endif %}" href="{{ path('admin_dashboard') }}"><i class="fas fa-home fa-fw"></i> Dashboard </a>
     </li>
     {% if is_granted('ROLE_ADMIN_NEWS') or is_granted('ROLE_ADMIN_CONTENT') %}
         <li class="nav-item">
-            <a class="nav-link" href="#contentMenu" data-toggle="collapse"><i class="far fa-file-alt"></i> Inhalt</a></a>
+            <a class="nav-link" href="#contentMenu" data-toggle="collapse"><i class="far fa-file-alt fa-fw"></i> Inhalt</a></a>
             <ul id="contentMenu" class="collapse show list-group">
                 {% if is_granted('ROLE_ADMIN_NEWS') %}
                     <li class="nav-item">
-                        <a class="nav-link {% if app.request.get('_route') starts with 'admin_news' %}active{% endif %}" href="{{ path('admin_news') }}"><i class="far fa-newspaper"></i> News </a>
+                        <a class="nav-link {% if app.request.get('_route') starts with 'admin_news' %}active{% endif %}" href="{{ path('admin_news') }}"><i class="far fa-newspaper fa-fw"></i> News </a>
                     </li>
                 {% endif %}
                 {% if is_granted('ROLE_ADMIN_CONTENT') %}
                     <li class="nav-item">
-                        <a class="nav-link {% if app.request.get('_route') starts with 'admin_content' %}active{% endif %}" href="{{ path('admin_content') }}"><i class="far fa-file-alt"></i> Content </a>
+                        <a class="nav-link {% if app.request.get('_route') starts with 'admin_content' %}active{% endif %}" href="{{ path('admin_content') }}"><i class="far fa-file-alt fa-fw"></i> Content </a>
+                    </li>
+                {% endif %}
+                {% if is_granted('ROLE_ADMIN_CONTENT') or is_granted('ROLE_ADMIN_NEWS') %}
+                    <li class="nav-item">
+                        <a class="nav-link {% if app.request.get('_route') starts with 'admin_media' %}active{% endif %}" href="{{ path('admin_media') }}"><i class="far fa-file-image fa-fw"></i> Media </a>
+                    </li>
+                {% endif %}
+                {% if is_granted('ROLE_ADMIN_CONTENT') %}
+                    <li class="nav-item">
+                        <a class="nav-link {% if app.request.get('_route') starts with 'admin_navigation' %}active{% endif %}" href="{{ path('admin_navigation') }}"><i class="fas fa-map-signs fa-fw"></i> Navigation </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link {% if app.request.get('_route') starts with 'admin_media' %}active{% endif %}" href="{{ path('admin_media') }}"><i class="far fa-file-image"></i> Media </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link {% if app.request.get('_route') starts with 'admin_navigation' %}active{% endif %}" href="{{ path('admin_navigation') }}"><i class="fas fa-map-signs"></i> Navigation </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link {% if app.request.get('_route') starts with 'admin_textblock' %}active{% endif %}" href="{{ path('admin_textblock') }}"><i class="fas fa-th-large"></i> Textblöcke </a>
+                        <a class="nav-link {% if app.request.get('_route') starts with 'admin_textblock' %}active{% endif %}" href="{{ path('admin_textblock') }}"><i class="fas fa-th-large fa-fw"></i> Textblöcke </a>
                     </li>
                 {% endif %}
             </ul>
@@ -30,20 +34,25 @@
     {% endif %}
     {% if is_granted('ROLE_ADMIN_USER') %}
         <li class="nav-item">
-            <a class="nav-link" href="#communityMenu" data-toggle="collapse"><i class="fas fa-user-friends"></i> Community</a></a>
+            <a class="nav-link" href="#communityMenu" data-toggle="collapse"><i class="fas fa-user-friends fa-fw"></i> Community</a></a>
             <ul id="communityMenu" class="collapse show list-group">
                 <li class="nav-item">
-                    <a class="nav-link {% if app.request.get('_route') starts with 'admin_user' %}active{% endif %}" href="{{ path('admin_user') }}"><i class="fas fa-user"></i> User </a>
+                    <a class="nav-link {% if app.request.get('_route') starts with 'admin_user' %}active{% endif %}" href="{{ path('admin_user') }}"><i class="fas fa-user fa-fw"></i> User </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link {% if app.request.get('_route') starts with 'admin_clan' %}active{% endif %}" href="{{ path('admin_clan') }}"><i class="fas fa-users"></i> Clan </a>
+                    <a class="nav-link {% if app.request.get('_route') starts with 'admin_clan' %}active{% endif %}" href="{{ path('admin_clan') }}"><i class="fas fa-users fa-fw"></i> Clan </a>
                 </li>
             </ul>
         </li>
     {% endif %}
+    {% if is_granted('ROLE_ADMIN_MAIL') %}
+        <li class="nav-item">
+            <a class="nav-link {% if app.request.get('_route') starts with 'admin_email' %}active{% endif %}" href="{{ path('admin_email') }}"><i class="far fa-envelope fa-fw"></i> E-Mails </a>
+        </li>
+    {% endif %}
     {% if is_granted('ROLE_ADMIN_SUPER') %}
         <li class="nav-item">
-            <a class="nav-link {% if app.request.get('_route') starts with 'admin_permission' %}active{% endif %}" href="{{ path('admin_permission') }}"><i class="fas fa-key"></i> Berechtigungen </a>
+            <a class="nav-link {% if app.request.get('_route') starts with 'admin_permission' %}active{% endif %}" href="{{ path('admin_permission') }}"><i class="fas fa-key fa-fw"></i> Berechtigungen </a>
         </li>
     {% endif %}
 </ul>
