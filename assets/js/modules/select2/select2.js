@@ -13,12 +13,21 @@ export default function() {
         let placeholderLabel = $(this).attr('data-label') || 'User suchen...';
         let $target = $(this);
 
+        let $modal = $(this).parents("div.modal").first();
+        
+        let $dropDownModal = "";
+        if($modal) {
+            $dropDownModal = $modal;
+        }
+
         $target.select2({
             placeholder: placeholderLabel,
             language: 'de',
             theme: 'bootstrap4',
             allowClear: true,
             minimumInputLength: 2,
+            dropdownParent: $dropDownModal,
+            
             ajax: {
                 url: $remoteUrl,
                 data: function (params) {
