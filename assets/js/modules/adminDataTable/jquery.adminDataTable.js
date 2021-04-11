@@ -1,8 +1,7 @@
 import $ from 'jquery';
 import dTLang from '../../modules/dataTables/dataTables.js';
 import './ajaxModal.js';
-import './confirmModal.js';
-
+import '../../modules/confirmModal/confirmModal.js';
 ;
 (function ($, window, document, undefined) {
 
@@ -28,30 +27,106 @@ import './confirmModal.js';
                 searchHighlight: true,
                 language: dTLang
             };
+
             if (this.settings.remoteTarget) {
                 dtOptions.ajax = {
                     url: this.settings.remoteTarget,
-                    dataFilter: function(data){
-                        var json = jQuery.parseJSON( data );
+                    dataSrc: 'items',
+                    dataFilter: function (data) {
+                        //Process server response from KLMS API
+                        var json = jQuery.parseJSON(data);
                         json.recordsTotal = json.total;
                         json.recordsFiltered = json.total;
                         json.data = json.items;
 
-                        return JSON.stringify( json ); // return JSON string
+                        return JSON.stringify(json);
+                    },
+                    data: function (dtData) {
+                        //Add data for KLMS API for Ajax Request
+                        let request = {};
+                        request.draw = dtData.draw;
+                        request.q = dtData.search.value;
+                        request.limit = dtData.length;
+                        request.page = Math.floor(dtData.start / dtData.length) + 1;
+                        request.sort = {};
+
+                        for (let sortCol of dtData.order) {
+                            let colName = dtData.columns[sortCol.column].data;
+                            request.sort[colName] = sortCol.dir;
+                        }
+
+                        return request;
                     }
                 };
                 dtOptions.serverSide = true;
                 dtOptions.processing = true;
             }
+
+            let columnDefs = [];
+            $(this.element).children("thead").find("th").each((colIndex, colElement) => {
+                let colDef = {};
+
+                if (colElement.dataset.renderFunction) {
+                    let renderFunction = JSON.parse(colElement.dataset.renderFunction);
+
+                    colDef.targets = colIndex;
+                    colDef.render = function (data, type, row, meta) {
+                        let elem = document.createElement(renderFunction.elemType);
+
+                        Object.keys(renderFunction.attributes).forEach(attrName => {
+                            let attrValue = renderFunction.attributes[attrName];
+
+                            if (typeof attrValue === 'object' && attrValue !== null) {
+                                let h = (typeof attrValue.prepend !== 'undefined') ? attrValue.prepend : "";
+
+                                if (typeof attrValue.data !== 'undefined') {
+                                    let s = document.createElement("SPAN");
+                                    s.textContent = row[attrValue.data];
+                                    h += s.innerHTML;
+                                }
+
+                                h += (typeof attrValue.append !== 'undefined') ? attrValue.append : "";
+
+                                const matches = h.matchAll(/--(\w+)--/g);
+                                for (const match of matches) {
+                                    if (row[match[1]]) {
+                                        let s = document.createElement("SPAN");
+                                        s.textContent = row[attrValue.data];
+                                        let rep = row[match[1]];
+                                        h = h.replace(match[0], rep);
+                                    }
+                                }
+
+                                attrValue = h;
+                            }
+
+                            elem.setAttribute(attrName, attrValue);
+                        });
+
+                        if ((typeof data === 'undefined' || data === null) && colElement.dataset.defaultContent) {
+                            data = colElement.dataset.defaultContent;
+                        }
+
+                        elem.innerHTML = data;
+                        return elem.outerHTML;
+                    };
+                } else if (this.settings.remoteTarget) {
+                    colDef.targets = colIndex;
+                    colDef.render = $.fn.dataTable.render.text();
+                }
+
+                
+                if (colDef) {
+                    columnDefs.push(colDef);
+                }
+            });
+
+            if (columnDefs) {
+                dtOptions.columnDefs = columnDefs;
+            }
+
             this.$table = $(this.element).DataTable(dtOptions);
-        },
-        _enableTrigger() {
-            /*
-            $(this.element).children('a[data-render="modal"]').on(
-                    'click',
-                    this._loadRemoteModal().bind(this)
-                    );*/
-        },
+        }
     });
 
     // A really lightweight plugin wrapper around the constructor,

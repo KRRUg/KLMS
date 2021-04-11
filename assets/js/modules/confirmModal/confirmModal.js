@@ -1,7 +1,19 @@
+import $ from "jquery";
+
+;
 (function ($, window, document, undefined) {
     "use strict";
-    let ConfirmModal = function (remoteTarget) {
+    let ConfirmModal = function (remoteTarget, options) {
         this.remoteTarget = remoteTarget;
+        
+        let defaults = {
+            title: "Löschen bestätigen",
+            text: "Sind Sie sicher, dass Sie dieses Element löschen wollen?"
+        };
+
+        this.settings = $.extend({}, defaults, options);
+        this._defaults = defaults;
+        
         this.init();
         this.$modal.on(
                 'click',
@@ -14,7 +26,7 @@
             this.$modal = this._initModal();
             this.$modal.modal('show');
         },
-        _initModal(data) {
+        _initModal() {
             let modalWrapper = document.querySelector('div#' + MODULE_NAME);
 
             if (!modalWrapper) {
@@ -37,14 +49,14 @@
             return $modal;
         },
         _getModalHtml() {
-            let modalHtlm = '<div class="modal fade" id="confirmeModal" tabindex="-1" role="dialog" aria-labelledby="confirmeModalLabel" aria-hidden="true">';
+            let modalHtlm = '<div class="modal fade" id="confirmeModal" tabindex="-1" role="dialog" aria-labelledby="confirmModalLabel" aria-hidden="true">';
             modalHtlm += '<div class="modal-dialog" role="document">';
             modalHtlm += ' <div class="modal-content">';
             modalHtlm += '   <div class="modal-header">';
-            modalHtlm += '     <h5 class="modal-title" id="confirmeModalLabel">Löschen bestätigen</h5>';
+            modalHtlm += '     <h5 class="modal-title" id="confirmModalLabel">'+this.settings.title+'</h5>';
             modalHtlm += '</div>';
             modalHtlm += '<div class="modal-body">';
-            modalHtlm += '<p>Sind Sie sicher, dass Sie dieses Element löschen wollen?</p>';
+            modalHtlm += '<p>'+this.settings.text+'</p>';
             modalHtlm += '</div>';
             modalHtlm += '<div class="modal-footer">';
             modalHtlm += '<button type="button" class="btn btn-secondary" data-dismiss="modal">Nein</button>';
@@ -85,8 +97,12 @@
     $(document).on(EVENT_CLICK_DATA_API, SELECTOR_DATA_TOGGLE, function (event) {
         event.preventDefault();
         let $currentTarget = event.currentTarget;
+        let options = {
+            title: $(this).data('modal-title'),
+            text: $(this).data('modal-text')
+        };
 
-        let cm = new ConfirmModal($currentTarget);
+        let cm = new ConfirmModal($currentTarget, options);
     });
 
 })(jQuery, window, document);

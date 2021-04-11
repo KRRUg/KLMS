@@ -39,19 +39,14 @@ class ClanController extends AbstractController
         $lazyLoadingCollection = $this->clanRepo->findFuzzy($search);
         $items = $lazyLoadingCollection->getPage($page, $limit);
 
-        if (empty($items)) {
-            return new JsonResponse(Error::withMessage("Not Found"), 404);
-        }
-
         $result = array();
         $result['count'] = count($items);
         $result['total'] = $lazyLoadingCollection->count();
         $result['items'] = array_map(function (Clan $clan) {
             return [
                 'uuid' => $clan->getUuid(),
-                'nickname' => $clan->getName(),
-                'firstname' => $clan->getClantag(),
-                'surname' => '',
+                'name' => $clan->getName(),
+                'clantag' => $clan->getClantag(),
             ];
         }, $items);
 
