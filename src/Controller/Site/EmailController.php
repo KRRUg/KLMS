@@ -32,16 +32,26 @@ class EmailController extends AbstractController
         if (empty($token)) {
             return $this->redirectToRoute('news');
         }
-        switch ($this->mailService->handleToken($token, $uuid)) {
-            case 'register':
-                $user = $this->userRepo->findOneById($uuid);
-                $user->setEmailConfirmed(true);
-                $this->manager->flush();
-                $this->addFlash('success', "Email Adresse erfolgreich bestätigt.");
-                return $this->redirectToRoute('app_login');
-            default:
-                $this->addFlash('error', "Invalid token supplied.");
-                return $this->redirectToRoute('news');
+        $token = $this->mailService->handleToken($token, $uuid);
+        $user = $this->userRepo->findOneById($uuid);
+        if (empty($token) || empty($user)) {
+            $this->addFlash('error', "Invalid token supplied.");
+        } else {
+            switch ($token) {
+                case 'register':
+                    $user->setEmailConfirmed(true);
+                    $this->addFlash('success', "Email Adresse {$user->getEmail()} erfolgreich bestätigt.");
+                    break;
+                case 'unsubscribe':
+                    $user->setInfoMails(false);
+                    $this->addFlash('success', "Newsletter für {$user->getEmail()} wurde abbestellt.");
+                    break;
+                default:
+                    $this->addFlash('error', "Invalid token supplied.");
+                    break;
+            }
         }
+        $this->manager->flush();
+        return $this->redirectToRoute('news');
     }
 }

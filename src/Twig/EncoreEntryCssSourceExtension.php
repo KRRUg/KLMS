@@ -8,7 +8,7 @@ use Symfony\WebpackEncoreBundle\Asset\EntrypointLookupInterface;
 use Twig\Extension\AbstractExtension;
 use Twig\TwigFunction;
 
-class EncoreEntrySourceExtension extends AbstractExtension implements ServiceSubscriberInterface
+class EncoreEntryCssSourceExtension extends AbstractExtension implements ServiceSubscriberInterface
 {
     private ContainerInterface $container;
     private string $publicDir;

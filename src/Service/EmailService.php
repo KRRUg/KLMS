@@ -21,7 +21,10 @@ use Symfony\Component\Messenger\Exception\HandlerFailedException;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Messenger\Stamp\DelayStamp;
 use Symfony\Component\Mime as Mime;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Twig\Environment;
+
+// TODO call this hook in the registration process and disallow login of users without confirmed email address
 
 class EmailService
 {
@@ -31,7 +34,6 @@ class EmailService
     const HOOK_SUBJECT = 'subject';
     const HOOK_TOKEN = 'token';
 
-    // TODO call this hook in the registration process and disallow login of users without confirmed email address
     const HOOKS = [
         self::APP_HOOK_REGISTRATION_CONFIRM => [
             self::HOOK_SUBJECT => "register.subject",
@@ -40,8 +42,9 @@ class EmailService
         ],
     ];
 
-    const DESIGN_STANDARD = 'Standard';
+    const UNSUBSCRIBE_TOKEN = 'unsubscribe';
 
+    const DESIGN_STANDARD = 'Standard';
     const NEWSLETTER_DESIGNS = [
         self::DESIGN_STANDARD => '/email/design/standard.html.twig',
     ];
@@ -49,6 +52,7 @@ class EmailService
     private LoggerInterface $logger;
     private MailerInterface $mailer;
     private EntityManagerInterface $em;
+    private UrlGeneratorInterface $urlGenerator;
     private Mime\Address $senderAddress;
     private EmailRepository $templateRepository;
     private Environment $twig;
@@ -60,6 +64,7 @@ class EmailService
     public function __construct(MailerInterface $mailer,
                                 LoggerInterface $logger,
                                 EntityManagerInterface $em,
+                                UrlGeneratorInterface $urlGenerator,
                                 GroupService $groupService,
                                 TextBlockService $textBlockService,
                                 EmailRepository $templateRepository,
@@ -70,6 +75,7 @@ class EmailService
         $this->logger = $logger;
         $this->mailer = $mailer;
         $this->groupService = $groupService;
+        $this->urlGenerator = $urlGenerator;
         $this->textBlockService = $textBlockService;
         $this->em = $em;
         $this->twig = $twig;
@@ -141,7 +147,7 @@ class EmailService
             ->subject($this->textBlockService->get($config[self::HOOK_SUBJECT]))
             ->htmlTemplate($config[self::HOOK_TEMPLATE])
             ->context([
-                'token' => self::generateToken($recipient->getUuid(), $config[self::HOOK_TOKEN]),
+                'token' => $this->generateToken($recipient->getUuid(), $config[self::HOOK_TOKEN]),
             ]);
     }
 
@@ -153,16 +159,19 @@ class EmailService
         return $uuid . $token;
     }
 
-    public static function handleToken(string $token, UuidInterface &$uuid): string
+    public static function handleToken(string $token, ?UuidInterface &$uuid): string
     {
         $regex = '/^([0-9a-f]{32})([0-9a-f]{64})$/is';
-        $matches = [];
+        $tokens = [self::UNSUBSCRIBE_TOKEN];
+        foreach (self::HOOKS as $hook => $config) {
+            $t = $config[self::HOOK_TOKEN] ?? "";
+            if (empty($t))
+                continue;
+            $tokens[] = $t;
+        }
         if (preg_match($regex, $token, $matches) === 1) {
             $uuid = Uuid::fromString($matches[1]);
-            foreach (self::HOOKS as $hook => $config) {
-                $t = $config[self::HOOK_TOKEN] ?? "";
-                if (empty($t))
-                    continue;
+            foreach ($tokens as $t) {
                 if (self::generateToken($uuid, $t) == $matches[0])
                     return $t;
             }
@@ -195,28 +204,31 @@ class EmailService
         $html = $this->template_cache[$key]
             ?? ($this->template_cache[$key] = $this->twig->render($this->getDesignFile($template), [
                 'subject' => $subject,
-                'body' => $body
+                'body' => $body,
+                'unsubscribe' => "UNSUBSCRIBE_URL_TOKEN_PLACEHOLDER",
             ]));
 
-        $subject = $this->replaceVariableTokens($subject, $recipient);
-        $html = $this->replaceVariableTokens($html, $recipient);
+        $subject = $this->replaceVariables($subject, $recipient->getDataArray());
+        $html = $this->replaceVariables($html, $recipient->getDataArray());
+        $html = $this->replaceVariables($html, [
+            "UNSUBSCRIBE_URL_TOKEN_PLACEHOLDER" => $this->generateToken($recipient->getUuid(), self::UNSUBSCRIBE_TOKEN)
+        ], false);
         $text = strip_tags($html);
 
         return ['subject' => $subject, 'html' => $html, 'text' => $text];
     }
 
+    private function replaceVariables(string $text, array $replacements, bool $escapeSign = true): string
+    {
+        foreach ($replacements as $key => $value) {
+                $text = preg_replace($escapeSign ? '/{{2}'. $key . '}{2}/' : '/' . $key . '/', trim($value), $text) ?? $text;
+        }
+        return $text;
+    }
+
     private function getDesignFile(Email $template): string
     {
         return self::NEWSLETTER_DESIGNS[$template->getDesignFile()] ?? self::NEWSLETTER_DESIGNS[self::DESIGN_STANDARD];
-    }
-
-    private function replaceVariableTokens(string $text, EmailRecipient $mailRecipient): string
-    {
-        $recipientData = $mailRecipient->getDataArray();
-        foreach ($recipientData as $key => $value) {
-            $text = preg_replace('/{{2}'. $key . '}{2}/', trim($value), $text) ?? $text;
-        }
-        return $text;
     }
 
     public function createSending(Email $template): bool
