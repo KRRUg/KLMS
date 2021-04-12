@@ -75,7 +75,10 @@ class MailingNotificationHandler implements MessageSubscriberInterface
      */
     public function hook(MailingHookNotification $mailingHookNotification)
     {
-        $this->mailService->sendByApplicationHook($mailingHookNotification->getHook(), $mailingHookNotification->getRecipient(), true);
+        $this->mailService->sendByApplicationHook(
+            $mailingHookNotification->getHook(),
+            $mailingHookNotification->getRecipient(),
+            $mailingHookNotification->getContext(), true);
     }
 
     public static function getHandledMessages(): iterable

@@ -15,13 +15,13 @@ use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 use Ramsey\Uuid\Uuid;
 use Ramsey\Uuid\UuidInterface;
-use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 use Symfony\Component\Mailer\Exception\TransportExceptionInterface;
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Messenger\Exception\HandlerFailedException;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Messenger\Stamp\DelayStamp;
 use Symfony\Component\Mime as Mime;
+use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 use Twig\Environment;
 
 class EmailService
@@ -30,17 +30,15 @@ class EmailService
 
     const HOOK_TEMPLATE = 'template';
     const HOOK_SUBJECT = 'subject';
-    const HOOK_TOKEN = 'token';
+    const HOOK_CONTEXT = 'context';
 
     const HOOKS = [
         self::APP_HOOK_REGISTRATION_CONFIRM => [
             self::HOOK_SUBJECT => "register.subject",
             self::HOOK_TEMPLATE => '/email/hooks/registration.html.twig',
-            self::HOOK_TOKEN => 'register'
+            self::HOOK_CONTEXT => ['token']
         ],
     ];
-
-    const UNSUBSCRIBE_TOKEN = 'unsubscribe';
 
     const DESIGN_STANDARD = 'Standard';
     const NEWSLETTER_DESIGNS = [
@@ -57,6 +55,7 @@ class EmailService
     private GroupService $groupService;
     private TextBlockService $textBlockService;
     private MessageBusInterface $messageBus;
+    private string $appSecret;
 
     public function __construct(MailerInterface $mailer,
                                 LoggerInterface $logger,
@@ -66,7 +65,8 @@ class EmailService
                                 EmailRepository $templateRepository,
                                 Environment $twig,
                                 MessageBusInterface $messageBus,
-                                IdmManager $manager)
+                                IdmManager $manager,
+                                string $appSecret)
     {
         $this->logger = $logger;
         $this->mailer = $mailer;
@@ -74,6 +74,7 @@ class EmailService
         $this->textBlockService = $textBlockService;
         $this->em = $em;
         $this->twig = $twig;
+        $this->appSecret = $appSecret;
         $mailAddress = $_ENV['MAILER_DEFAULT_SENDER_EMAIL'];
         $mailName = $_ENV['MAILER_DEFAULT_SENDER_NAME'];
         $this->senderAddress = new Mime\Address($mailAddress, $mailName);
@@ -100,22 +101,27 @@ class EmailService
         return true;
     }
 
-    public function scheduleHook(string $hook, EmailRecipient $recipient): bool
+    public function scheduleHook(string $hook, EmailRecipient $recipient, array $context): bool
     {
         if (!array_key_exists($hook, self::HOOKS)) {
             $this->logger->critical("Invalid Application hook supplied, no email sent.");
             return false;
         }
-        $this->messageBus->dispatch(new MailingHookNotification($hook, $recipient));
+        $config = self::HOOKS[$hook];
+        if (!empty(array_diff($config[self::HOOK_CONTEXT], array_keys($context)))) {
+            $this->logger->critical("Invalid Application hook context supplied, no email sent.");
+            return false;
+        }
+        $this->messageBus->dispatch(new MailingHookNotification($hook, $recipient, $context));
         return true;
     }
 
     /**
      * @throws TransportExceptionInterface
      */
-    public function sendByApplicationHook(string $hook, EmailRecipient $recipient, bool $throw = false): bool
+    public function sendByApplicationHook(string $hook, EmailRecipient $recipient, array $context = [], bool $throw = false): bool
     {
-        $email = $this->generateEmailFromHook($hook, $recipient);
+        $email = $this->generateEmailFromHook($hook, $recipient, $context);
         return $this->sendEmail($email, $throw);
     }
 
@@ -148,7 +154,7 @@ class EmailService
         }
     }
 
-    private function generateEmailFromHook(string $hook, EmailRecipient $recipient): ?Mime\Email
+    private function generateEmailFromHook(string $hook, EmailRecipient $recipient, array $context = []): ?Mime\Email
     {
         if (empty($recipient) || empty($recipient->getEmailAddress())) {
             $this->logger->error('No email address given or user object was empty');
@@ -164,37 +170,25 @@ class EmailService
             ->to($recipient->getAddressObject())
             ->subject($this->textBlockService->get($config[self::HOOK_SUBJECT]))
             ->htmlTemplate($config[self::HOOK_TEMPLATE])
-            ->context([
-                'token' => $this->generateToken($recipient->getUuid(), $config[self::HOOK_TOKEN]),
-            ]);
+            ->context($context);
     }
 
-    private static function generateToken(UuidInterface $uuid, string $method): string
+    private function generateUnsubscribeToken(UuidInterface $uuid): string
     {
         $uuid = str_replace('-', '', $uuid->toString());
-        $token = $uuid . $method . $_ENV['APP_SECRET'];
-        $token = hash('sha256', $token);
+        $token = 'un' . $uuid . 'subscribe';
+        $token = hash_hmac('sha256', $token, $this->appSecret);
         return $uuid . $token;
     }
 
-    public static function handleToken(string $token, ?UuidInterface &$uuid): string
+    public function handleUnsubscribeToken(string $token): ?UuidInterface
     {
         $regex = '/^([0-9a-f]{32})([0-9a-f]{64})$/is';
-        $tokens = [self::UNSUBSCRIBE_TOKEN];
-        foreach (self::HOOKS as $hook => $config) {
-            $t = $config[self::HOOK_TOKEN] ?? "";
-            if (empty($t))
-                continue;
-            $tokens[] = $t;
-        }
         if (preg_match($regex, $token, $matches) === 1) {
             $uuid = Uuid::fromString($matches[1]);
-            foreach ($tokens as $t) {
-                if (self::generateToken($uuid, $t) == $matches[0])
-                    return $t;
-            }
+            return ($this->generateUnsubscribeToken($uuid) === $matches[0]) ? $uuid : null;
         }
-        return '';
+        return null;
     }
 
     private function generateEmailFromTemplate(Email $template, EmailRecipient $recipient): ?Mime\Email
@@ -229,7 +223,7 @@ class EmailService
         $subject = $this->replaceVariables($subject, $recipient->getDataArray());
         $html = $this->replaceVariables($html, $recipient->getDataArray());
         $html = $this->replaceVariables($html, [
-            "UNSUBSCRIBE_URL_TOKEN_PLACEHOLDER" => $this->generateToken($recipient->getUuid(), self::UNSUBSCRIBE_TOKEN)
+            "UNSUBSCRIBE_URL_TOKEN_PLACEHOLDER" => $this->generateUnsubscribeToken($recipient->getUuid())
         ], false);
         $text = strip_tags($html);
 

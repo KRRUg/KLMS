@@ -3,55 +3,56 @@
 namespace App\Controller\Site;
 
 use App\Entity\User;
+use App\Exception\TokenException;
 use App\Idm\IdmManager;
 use App\Idm\IdmRepository;
 use App\Service\EmailService;
+use App\Service\TokenService;
+use Ramsey\Uuid\Uuid;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\Routing\Annotation\Route;
 
 class EmailController extends AbstractController
 {
     private EmailService $mailService;
+    private TokenService $tokenService;
     private IdmManager $manager;
     private IdmRepository $userRepo;
 
-    public function __construct(EmailService $mailService, IdmManager $manager)
+    private const TOKEN_STRING = 'unsubscribe';
+
+    public function __construct(EmailService $mailService, TokenService $tokenService, IdmManager $manager)
     {
         $this->mailService = $mailService;
+        $this->tokenService = $tokenService;
         $this->manager = $manager;
         $this->userRepo = $manager->getRepository(User::class);
     }
 
     /**
-     * @Route("/email", name="email_token")
+     * @Route("/unsubscribe", name="email_unsubscribe")
      */
-    public function handle_token(Request $request)
+    public function unsubscribe(Request $request)
     {
         $token = strval($request->get('token', ""));
         if (empty($token)) {
             return $this->redirectToRoute('news');
         }
-        $token = $this->mailService->handleToken($token, $uuid);
-        $user = $this->userRepo->findOneById($uuid);
-        if (empty($token) || empty($user)) {
-            $this->addFlash('error', "Invalid token supplied.");
-        } else {
-            switch ($token) {
-                case 'register':
-                    $user->setEmailConfirmed(true);
-                    $this->addFlash('success', "Email Adresse {$user->getEmail()} erfolgreich bestätigt.");
-                    break;
-                case 'unsubscribe':
-                    $user->setInfoMails(false);
-                    $this->addFlash('success', "Newsletter für {$user->getEmail()} wurde abbestellt.");
-                    break;
-                default:
-                    $this->addFlash('error', "Invalid token supplied.");
-                    break;
-            }
+        $uuid = $this->mailService->handleUnsubscribeToken($token);
+        if (empty($uuid)) {
+            $this->addFlash('error', "Ungültigen Token übermittelt.");
+            return $this->redirectToRoute('news');
         }
+        $user = $this->userRepo->findOneById($uuid);
+        if (empty($user)) {
+            $this->addFlash('error', "User nicht gefunden.");
+            return $this->redirectToRoute('news');
+        }
+        $user->setInfoMails(false);
         $this->manager->flush();
-        return $this->redirectToRoute('news');
+        $this->addFlash('success', "Newsletter für {$user->getEmail()} wurde abbestellt.");
+        return $this->redirectToRoute('app_login');
     }
 }
