@@ -71,11 +71,21 @@ class UserController extends AbstractController
 
         if ($form->isSubmitted() && $form->isValid()) {
             // TODO: add Support for changing the EMail
-
             $user = $form->getData();
-            $this->manager->persist($user);
-            $this->manager->flush();
-            return $this->redirectToRoute('user_profile');
+            try{
+                $this->manager->persist($user);
+                $this->manager->flush();
+                return $this->redirectToRoute('user_profile');
+            } catch (PersistException $e) {
+                switch($e->getCode()) {
+                    case PersistException::REASON_NON_UNIQUE:
+                        $this->addFlash('error', "Nickname und/oder Email git es schon.");
+                        break;
+                    default:
+                        $this->addFlash('error', "Unbekannter Fehler beim Speichern.");
+                        break;
+                }
+            }
         }
 
         return $this->render('site/user/edit.html.twig', [
