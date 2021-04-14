@@ -3,15 +3,12 @@
 namespace App\Controller\Site;
 
 use App\Entity\User;
-use App\Exception\TokenException;
 use App\Idm\IdmManager;
 use App\Idm\IdmRepository;
 use App\Service\EmailService;
 use App\Service\TokenService;
-use Ramsey\Uuid\Uuid;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\Routing\Annotation\Route;
 
 class EmailController extends AbstractController
@@ -20,8 +17,6 @@ class EmailController extends AbstractController
     private TokenService $tokenService;
     private IdmManager $manager;
     private IdmRepository $userRepo;
-
-    private const TOKEN_STRING = 'unsubscribe';
 
     public function __construct(EmailService $mailService, TokenService $tokenService, IdmManager $manager)
     {

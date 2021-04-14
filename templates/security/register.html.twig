@@ -25,7 +25,9 @@
                 {{ form_row(form.password.first, {'input_group_prepend' : '<i class="fas fa-key"></i>'}) }}
                 {{ form_row(form.password.second, {'input_group_prepend' : '<i class="fas fa-key"></i>'}) }}
                 {{ form_row(form.infoMails) }}
-                <button type="submit" class="btn btn-primary">Registrieren</button>
+                <div class="float-right">
+                    <button type="submit" class="btn btn-primary">Registrieren</button>
+                </div>
                 {{ form_end(form) }}
         {% endblock %}
         

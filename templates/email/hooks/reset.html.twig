@@ -1,0 +1,10 @@
+{% extends 'email/design/standard.html.twig' %}
+
+{% block main %}
+  {% set text = textblock.get('reset.text') %}
+  {% set org = textblock.get('organisation_name') %}
+  {% if text is empty %}
+    <h1>Passwort zurücksetzen</h1>
+  {% endif %}
+  <p>Zum Zurücksetzen des Passwort bei {{ org }} <a href="{{ url('reset_pw', {'user' : user, 'token' : token}) }}">hier</a> klicken.</p>
+{% endblock %}

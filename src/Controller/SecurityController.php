@@ -11,6 +11,9 @@ use Symfony\Component\Security\Core\Exception\InvalidCsrfTokenException;
 use Symfony\Component\Security\Core\Exception\UsernameNotFoundException;
 use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 
+/**
+ * Controller for login and logout. Handling of the request is done by the firewall.
+ */
 class SecurityController extends AbstractController
 {
     /**

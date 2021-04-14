@@ -82,41 +82,4 @@ class UserController extends AbstractController
             'form' => $form->createView(),
         ]);
     }
-
-    /**
-     * @Route("/register", name="register")
-     */
-    public function register(Request $request, LoginFormAuthenticator $login, GuardAuthenticatorHandler $guard, UserProviderInterface $userProvider)
-    {
-        if ($this->isGranted('IS_AUTHENTICATED_REMEMBERED')){
-            return $this->redirectToRoute('user_profile');
-        }
-
-        $form = $this->createForm(UserRegisterType::class);
-        $form->handleRequest($request);
-
-        if ($form->isSubmitted() && $form->isValid()) {
-            $user = $form->getData();
-
-            try {
-                $this->manager->persist($user);
-                $this->manager->flush();
-                $this->addFlash('info', 'Erfolgreich registriert!');
-                return $guard->authenticateUserAndHandleSuccess(new LoginUser($user), $request, $login, 'main');
-            } catch (PersistException $e) {
-                switch ($e->getCode()) {
-                    case PersistException::REASON_NON_UNIQUE:
-                        $this->addFlash('error', 'Nickname und/oder Email Adresse schon in vergeben');
-                        break;
-                    default:
-                        $this->addFlash('error', 'Es ist ein unerwarteter Fehler aufgetreten');
-                        break;
-                }
-            }
-        }
-
-        return $this->render('site/user/register.html.twig', [
-            'form' => $form->createView(),
-        ]);
-    }
 }

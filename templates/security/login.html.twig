@@ -8,7 +8,7 @@
             <h1 class=" h3 card-title text-center">Anmeldung</h1>
                 <form method="post">
                     {% if error %}
-                        <div class="alert alert-danger"><i class="fas fa-exclamation-circle"></i> {{ error | raw }}</div>
+                        <div class="alert alert-danger"><i class="fas fa-exclamation-circle"></i> {{ error }}</div>
                     {% endif %}
 
                     <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}" >
@@ -27,17 +27,17 @@
                             <div class="input-group-prepend">
                                 <span class="input-group-text" id="logon-password-addon"><i class="fas fa-key"></i> </span>
                             </div>
-                            <input type="password" class="form-control" id="inputPassword" name="password"  placeholder="Password" aria-label="Password" aria-describedby="logon-password-addon">
+                            <input type="password" class="form-control" id="inputPassword" name="password" placeholder="Password" aria-label="Password" aria-describedby="logon-password-addon">
                         </div>
-                        <small class="form-text text-right"><a href="{# TODO: Link Passwort vergessen einbauen #}" data-toggle="modal" data-target="#modalPassword">Passwort vergessen?</a></small>
+                        <small class="form-text text-right"><a href="{{ path('app_reset') }}">Passwort vergessen?</a></small>
                     </div>
                     <div class="form-group form-check custom-control custom-checkbox">
                         <input type="checkbox" class="form-check-input custom-control-input" id="_remember_me">
                         <label class="form-check-label custom-control-label" for="_remember_me">Angemeldet bleiben</label>
                     </div>
-                    <button class="btn btn-lg btn-primary" type="submit">
-                        Anmelden
-                    </button>
+                    <div class="float-right">
+                        <button class="btn btn-lg btn-primary" type="submit">Anmelden</button>
+                    </div>
                 </form>
         {% endblock %}
 

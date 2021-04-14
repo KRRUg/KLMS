@@ -21,6 +21,8 @@ class TextBlockService
         "organisation_name" => [self::TB_DESCRIPTION => "Organisationsname / Vereinsname", self::TB_IS_HTML => false],
         "register.subject" =>  [self::TB_DESCRIPTION => "Betreff der Registrierungsmail", self::TB_IS_HTML => false],
         "register.text" =>     [self::TB_DESCRIPTION => "Text der Registrierungsmail", self::TB_IS_HTML => true],
+        "reset.subject" =>     [self::TB_DESCRIPTION => "Betreff der Passwort-Zurücksetzen Email", self::TB_IS_HTML => false],
+        "reset.text" =>        [self::TB_DESCRIPTION => "Text der Passwort-Zurücksetzen Email", self::TB_IS_HTML => true],
         // extend here
     ];
 

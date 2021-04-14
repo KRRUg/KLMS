@@ -27,6 +27,7 @@ use Twig\Environment;
 class EmailService
 {
     const APP_HOOK_REGISTRATION_CONFIRM = 'REGISTRATION_CONFIRMATION';
+    const APP_HOOK_RESET_PW = 'PASSWORD_RESET';
 
     const HOOK_TEMPLATE = 'template';
     const HOOK_SUBJECT = 'subject';
@@ -36,7 +37,12 @@ class EmailService
         self::APP_HOOK_REGISTRATION_CONFIRM => [
             self::HOOK_SUBJECT => "register.subject",
             self::HOOK_TEMPLATE => '/email/hooks/registration.html.twig',
-            self::HOOK_CONTEXT => ['token']
+            self::HOOK_CONTEXT => ['user', 'token'],
+        ],
+        self::APP_HOOK_RESET_PW => [
+            self::HOOK_SUBJECT => "reset.subject",
+            self::HOOK_TEMPLATE => '/email/hooks/reset.html.twig',
+            self::HOOK_CONTEXT => ['user', 'token'],
         ],
     ];
 
