@@ -9,28 +9,28 @@ let TeamSiteAdmin = function ($wrapper) {
 
     this.initTSAdmin();
     this.drawTSAdmin();
+    
     this.$root.on(
             'click',
-            '.team-card-edit',
-            this._toggleCardEditMode.bind(this)
+            '.team-section-action',
+            this._processTeamCardAction.bind(this)
             );
-
+    
     this.$root.on(
             'click',
-            '.team-card-delete',
-            this._editItem.bind(this)
+            '.team-section-add',
+            this._processTeamCardAction.bind(this)
             );
-
+    
+    this.$root.on(
+            'click',
+            '.team-card-action',
+            this._processTeamCardAction.bind(this)
+            );
     this.$root.on(
             'click',
             '.team-card-add',
-            this._processInputFormAction.bind(this)
-            );
-
-    this.$root.on(
-            'click',
-            '.edit-item-form button',
-            this._processInputFormAction.bind(this)
+            this._processTeamCardAction.bind(this)
             );
 };
 
@@ -49,10 +49,23 @@ $.extend(TeamSiteAdmin.prototype, {
         }
     },
     _generateSection(sectionElement, index) {
+        let id = 'team-section-' + index;
+        
         let section = document.createElement("SECTION");
-        section.setAttribute("id", "team-section-"+index);
+        section.setAttribute("id", id);
         section.setAttribute("class", "row team-section");
         section.setAttribute("data-index", index);
+        section.setAttribute("data-wrap", "team-section");
+
+        
+        let editArea = document.createElement("DIV");
+        editArea.setAttribute("class", "col-12 pb-3");
+        let editAreaHTML = '<a href="#" class="team-section-action action-btn mr-4" data-action="edit" data-index="' + index + '" data-target="' + id + '"><i class="fas fa-edit"></i> Bearbeiten</a>';
+        editAreaHTML +=    '<a href="#" class="team-section-action action-btn text-danger" data-action="delete" data-index="'+ index + '"  data-target="' + id + '"><i class="fas fa-trash"></i> Löschen</a>';
+        editAreaHTML +=    '<a href="#" class="team-section-action action-btn mr-4 text-success hidden" data-action="submit" data-index="' + index + '" data-target="' + id + '" style="display: none;"><i class="fas fa-check"></i> Änderungen übernehmen</a>';
+        editAreaHTML +=    '<a href="#" class="team-section-action action-btn text-secondary hidden" data-action="cancel" data-index="' + index + '" data-target="' + id + '" style="display: none;"><i class="fas fa-times"></i> Abbrechen</a>';
+        editArea.innerHTML = editAreaHTML;
+        section.appendChild(editArea);
 
         let heading = document.createElement("H3");
         heading.setAttribute("class", "col-12");
@@ -62,6 +75,7 @@ $.extend(TeamSiteAdmin.prototype, {
         
         heading.textContent = sectionElement.title;
         section.appendChild(heading);
+        section.appendChild(document.createElement("BR"));
 
         let description = document.createElement("P");
         description.setAttribute("class", "col-12");
@@ -109,6 +123,7 @@ $.extend(TeamSiteAdmin.prototype, {
         entry.setAttribute("id", id);
         entry.setAttribute("class", "card team-card");
         entry.setAttribute("data-index", eleIndex);
+        entry.setAttribute("data-wrap", "team-card");
 
         let userDetails = document.createElement("DIV");
         userDetails.setAttribute("class", "card-body");
@@ -136,7 +151,10 @@ $.extend(TeamSiteAdmin.prototype, {
 
         let footer = document.createElement("DIV");
         footer.setAttribute("class", "card-footer");
-        footer.innerHTML = '<a href="#" class="team-card-edit" data-index="' + eleIndex + '" data-target="' + id + '"><i class="fas fa-edit"></i> Bearbeiten</a><a href="#" class="team-card-delete float-right text-danger" data-index="' + parentIndex + '_' + index + '"><i class="fas fa-trash"></i> Löschen</a>';
+        let footerHTML = '<a href="#" class="team-card-action action-btn" data-action="edit" data-index="' + eleIndex + '" data-target="' + id + '"><i class="fas fa-edit"></i> Bearbeiten</a><a href="#" class="team-card-action action-btn float-right text-danger" data-action="delete" data-index="' + parentIndex + '_' + index + '"  data-target="' + id + '"><i class="fas fa-trash"></i> Löschen</a>';
+        footerHTML +=    '<a href="#" class="team-card-action action-btn text-success hidden" data-action="submit" data-index="' + eleIndex + '" data-target="' + id + '" style="display: none;"><i class="fas fa-check"></i> Änderungen übernehmen</a><a href="#" class="team-card-action action-btn float-right text-secondary hidden" data-action="cancel" data-index="' + parentIndex + '_' + index + '" data-target="' + id + '" style="display: none;"><i class="fas fa-times"></i> Abbrechen</a>';
+        footer.innerHTML = footerHTML;
+        
         entry.appendChild(footer);
 
         let entryWrap = document.createElement("DIV");
@@ -181,32 +199,73 @@ $.extend(TeamSiteAdmin.prototype, {
     _setTeamEntry() {
         
     },
-    _toggleCardEditMode(e) {
+    _processTeamCardAction(e) {
         e.preventDefault();
         let target = $(e.currentTarget).data("target");
-        let $items = $("#"+target).find('[data-parent="team-card"]');
+        let action = $(e.currentTarget).data("action");
+        let $card = $("#"+target);
+        
+        console.log(action);
+        
+        switch(action) {
+            case "edit":
+                this._toggleCardEditMode($card);
+                break;
+            case "cancel":
+                this._toggleCardEditMode($card);
+                break;
+            case "delete":
+                this._deleteCard($card);
+                break;
+            case "submit":
+                this._submitCard($card);
+                break;
+        }
+    },
+    _toggleCardEditMode($card) {
+        let parent = $card.data("wrap");
+        let $items = $card.find('[data-parent="'+ parent +'"]').not(".hidden");
         
         $items.each((_, element) => {
             this._toggleItemEditMode($(element));
         });
+        
+        $card.find('a.action-btn').toggle();
     },
-    _processInputFormAction(e) {
-        e.preventDefault();
-        let $btn = $(e.currentTarget);
-        let $form = $btn.parents("form:first");
-
-        if ($btn.attr("type") === "submit") {
-            let val = $form.find("input.edit-item-value").val();
-            let i = $form.parents(".list-group-item:first").data("index");
-            this._setNavItem(i, val);
-            this.drawTree();
-        } else if ($btn.attr("type") === "delete") {
-            let i = $form.parents(".list-group-item:first").data("index");
-            this._deleteNavItem(i);
-            this.drawTree();
-        }
-
-        this._toggelItemEditMode($form);
+    _submitCard($card) {
+        let index = $card.data("index").split("_");
+        let parent = $card.data("wrap");
+        let $items = $card.find('[data-parent="'+ parent +'"]').not(".hidden");
+        
+        let ele = this.teamSite[index[0]].entries[index[1]];
+        
+        $items.each((_, element) => {
+            let name = element.getAttribute("name");
+            let val = this._toggleItemEditMode($(element));
+            
+            if(!name) {
+                return;
+            }
+            
+            ele[name] = val;
+        });
+        
+        this._synchroniseData();
+        this.drawTSAdmin();
+    },
+    _deleteCard($card) {
+        let index = $card.data("index").split("_");
+        let ele = this.teamSite;
+        
+        let area = ele[index[0]];
+        area.entries.splice(index[1], 1);
+        
+        this._synchroniseData();
+        this.drawTSAdmin();
+    },
+    _synchroniseData() {
+        var json = JSON.stringify(this.teamSite);
+        $(this.dataSource).val(json);
     },
     _toggleItemEditMode($item) {
         let type = $item.data("inputType");
@@ -222,30 +281,27 @@ $.extend(TeamSiteAdmin.prototype, {
             default:
                 val = this._toogleTextEdit($item);
         }
-        /*
-        if ($item.is('form')) {
-            $item.prev().show();
-            $item.remove();
-        } else {
-            let $form = this._getInputForm($item.data("value"));
-            $item.hide();
-            $item.after($form);
-        }
-         */
+        
+        return val;
     },
     _toogleTextEdit($item) {
         if($item.is('input')) {
             let $wrap = $item.parents("div.form-group").first();
             let val = $item.val();
-            
+            $wrap.prev().removeClass("hidden");
             $wrap.prev().show();
             $wrap.remove();
             
             return val;
         } else {
-            let $inputGroup = $('<div></div>', {"class": "form-group"});
-            $("<label></label>").text($item.data("inputTarget")).appendTo($inputGroup);
+            let addClass = $item.hasClass("col-12") ? " col-12" : "";
+            
+            let $inputGroup = $('<div></div>', {"class": "form-group" + addClass});
+            let targetText = $item.data("inputTarget");
+            let labelText = targetText.charAt(0).toUpperCase() + targetText.slice(1);
+            $("<label></label>").text(labelText).appendTo($inputGroup);
             $("<input>", {"type": "text", "class": "form-control edit-item-value", "value": $item.text(), "name": $item.data("inputTarget"),"data-input-type": $item.data("inputType"),"data-parent": $item.data("parent")}).appendTo($inputGroup);
+            $item.addClass("hidden");
             $item.hide();
             $item.after($inputGroup);
         }
@@ -253,24 +309,32 @@ $.extend(TeamSiteAdmin.prototype, {
         return null;
     },
     _toogleTextAreaEdit($item) {
-        if($item.is('input')) {
+        if($item.is('textarea')) {
             let $wrap = $item.parents("div.form-group").first();
             let val = $item.val();
-            
+            $wrap.prev().removeClass("hidden");
             $wrap.prev().show();
             $wrap.remove();
             
             return val;
         } else {
-            let $inputGroup = $('<div></div>', {"class": "form-group"});
-            $("<label></label>").text($item.data("inputTarget")).appendTo($inputGroup);
+            let addClass = $item.hasClass("col-12") ? " col-12" : "";
+            
+            let $inputGroup = $('<div></div>', {"class": "form-group" + addClass});
+            let targetText = $item.data("inputTarget");
+            let labelText = targetText.charAt(0).toUpperCase() + targetText.slice(1);
+            $("<label></label>").text(labelText).appendTo($inputGroup);
             $("<textarea></textarea>", {"type": "text", "class": "form-control edit-item-value", "name": $item.data("inputTarget"),"data-input-type": $item.data("inputType"),"data-parent": $item.data("parent")}).text($item.text()).appendTo($inputGroup);
+            $item.addClass("hidden");
             $item.hide();
             $item.after($inputGroup);
         }
         
         return null;
     },
+    _toggleFooter() {
+        
+    },    
     _getInputForm(inputVal) {
         let $form = $('<form></form>', {"class": "edit-item-form form-inline d-inline-block pl-2"});
 
