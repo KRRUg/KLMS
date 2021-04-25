@@ -93,8 +93,8 @@ class GroupService
         $payed = $filter['payed'] ?? null;
         $seat = $filter['seat'] ?? null;
         $gamer = $this->gamerRepo->findByState($registered, $payed, $seat);
-        $gamer = array_map(function (UserGamer $ug) { return $ug->getId(); }, $gamer);
-        return $this->userRepo->findById($gamer);
+	$gamer = array_map(function (UserGamer $ug) { return $ug->getUuid(); }, $gamer);
+	return $this->userRepo->findById($gamer);
     }
 
     private function getIdm(array $filter)

@@ -152,7 +152,7 @@ abstract class NavigationNode
 /**
  * @ORM\Entity()
  */
-final class NavigationNodeRoot extends NavigationNode
+class NavigationNodeRoot extends NavigationNode
 {
     public function __construct()
     {
@@ -179,7 +179,7 @@ final class NavigationNodeRoot extends NavigationNode
 /**
  * @ORM\Entity()
  */
-final class NavigationNodeContent extends NavigationNode
+class NavigationNodeContent extends NavigationNode
 {
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\Content", fetch="LAZY")
@@ -220,7 +220,7 @@ final class NavigationNodeContent extends NavigationNode
 /**
  * @ORM\Entity()
  */
-final class NavigationNodeEmpty extends NavigationNode
+class NavigationNodeEmpty extends NavigationNode
 {
     /**
      * NavigationNodeEmpty constructor.
@@ -244,7 +244,7 @@ final class NavigationNodeEmpty extends NavigationNode
 /**
  * @ORM\Entity()
  */
-final class NavigationNodeGeneric extends NavigationNode
+class NavigationNodeGeneric extends NavigationNode
 {
     /**
      * @ORM\Column(type="string", length=50, nullable=false)
@@ -283,7 +283,7 @@ final class NavigationNodeGeneric extends NavigationNode
 /**
  * @ORM\Entity()
  */
-final class NavigationNodeTeamsite extends NavigationNode
+class NavigationNodeTeamsite extends NavigationNode
 {
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\Teamsite", fetch="LAZY")
