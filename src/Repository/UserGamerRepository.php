@@ -21,7 +21,7 @@ class UserGamerRepository extends ServiceEntityRepository
         parent::__construct($registry, UserGamer::class);
     }
 
-    public function findByUser(User $user)
+    public function findByUser(User $user): ?UserGamer
     {
         try {
             return $this->createQueryBuilder('u')
@@ -33,5 +33,29 @@ class UserGamerRepository extends ServiceEntityRepository
             // unreachable as we are selecting the primary key
             return null;
         }
+    }
+
+    public function findByState(?bool $registered, ?bool $payed, ?bool $seat)
+    {
+        $qb = $this->createQueryBuilder('u');
+        if (!is_null($seat)) {
+            // TODO check this magic
+            $cmp = $seat ? '>' : '=';
+            $qb
+                ->leftJoin('u.seats', 'seats')
+                ->groupBy('u.guid')
+                ->having("count(seats) {$cmp} 0");
+        }
+        if (!is_null($registered)) {
+            $neg = $registered ? "not" : "";
+            $qb->andWhere("u.registered is {$neg} null");
+        }
+        if (!is_null($payed)) {
+            $neg = $payed ? "not" : "";
+            $qb->andWhere("u.payed is {$neg} null");
+        }
+        return $qb
+            ->getQuery()
+            ->getResult();
     }
 }

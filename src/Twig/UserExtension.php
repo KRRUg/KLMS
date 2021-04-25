@@ -5,13 +5,12 @@ namespace App\Twig;
 use App\Entity\User;
 use App\Idm\IdmManager;
 use App\Idm\IdmRepository;
-use App\Repository\UserImageRepository;
 use App\Service\UserService;
+use App\Service\GroupService;
 use Ramsey\Uuid\Uuid;
 use Twig\Extension\AbstractExtension;
 use Twig\TwigFilter;
 use Twig\TwigTest;
-use Vich\UploaderBundle\Templating\Helper\UploaderHelper;
 
 class UserExtension extends AbstractExtension
 {
@@ -43,12 +42,13 @@ class UserExtension extends AbstractExtension
             new TwigFilter('user', [$this, 'getUser']),
             new TwigFilter('username', [$this, 'getUserName']),
             new TwigFilter('user_image', [$this, 'getUserImage']),
+            new TwigFilter('groupname', [$this, 'getGroupname']),
         ];
     }
 
     public function getUser($userId): ?User
     {
-        if (!Uuid::isValid($userId))
+        if (empty($userId) || !Uuid::isValid($userId))
             return null;
 
         return $this->userRepo->findOneById($userId);
@@ -62,6 +62,14 @@ class UserExtension extends AbstractExtension
             return "";
 
         return $user->getNickname();
+    }
+
+    public function getGroupname($groupid)
+    {
+        if (empty($groupid) || !Uuid::isValid($groupid))
+            return "";
+
+        return GroupService::getName(Uuid::fromString($groupid));
     }
 
     public function getUserImage(User $user): string

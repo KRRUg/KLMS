@@ -1,0 +1,45 @@
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <table class="table">
+                <thead>
+                <tr>
+                    <th>Titel</th>
+                    <th>Empfänger</th>
+                    <th>Status</th>
+                    <th>Optionen</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for email in emails %}
+                    <tr>
+                        <td>
+                            <a href="{{ path('admin_email_edit', {'id' : email.id}) }}"
+                                title="Bearbeiten {{ email.name }} ">{{ email.name }}</a>
+                            <br>
+                            <small class="text-muted"><b>{{ email.subject }}</b></small>
+                        </td>
+                        <td>
+                            {{ email.recipientGroup | groupname }}
+                        </td>
+                        <td>
+                            Entwurf gespeichert
+                        </td>
+                        <td>
+                            <a class="btn btn-outline-dark" title="Anzeigen" target="popup"
+                               href="{{ path('admin_email_show', {'id' : email.id}) }}"
+                               onclick="window.open('{{ path('admin_email_show', {'id' : email.id}) }}', 'popup', 'width=800,height=900'); return false;">
+                                <i class="fas fa-eye"></i>
+                            </a>
+                            <a class="btn btn-outline-dark"
+                               href="{{ path('admin_email_send_testmail', {'id' : email.id}) }}"
+                               title="Test E-Mail senden">
+                            <i class="fas fa-envelope"></i></a>
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

@@ -14,7 +14,7 @@ use App\Entity\TeamsiteCategory;
 use App\Entity\TeamsiteEntry;
 use App\Entity\TextBlock;
 use Doctrine\Bundle\FixturesBundle\Fixture;
-use Doctrine\Common\Persistence\ObjectManager;
+use Doctrine\Persistence\ObjectManager;
 use joshtronic\LoremIpsum;
 use Ramsey\Uuid\Uuid;
 
@@ -114,16 +114,25 @@ class ContentFixture extends Fixture
     private function createTextblock(ObjectManager $manager): array
     {
         $lipsum = new LoremIpsum();
-        $tb_about = new TextBlock("ABOUT_US");
+
+        $tb_reg = new TextBlock("organisation_name");
+        $tb_reg->setText('KLMS Team');
+
+        $tb_subject = new TextBlock("register.subject");
+        $tb_subject->setText('Registrierung');
+
+        $tb_about = new TextBlock("about_us");
         $tb_about->setText($lipsum->words(20));
 
-        $tb_agb = new TextBlock("AGB");
+        $tb_agb = new TextBlock("agb");
         $tb_agb->setText("<h2>{$lipsum->words()}</h2><p>{$lipsum->paragraphs(2)}</p><h2>{$lipsum->words(2)}</h2><p>{$lipsum->paragraphs(3)}}</p>");
 
+        $manager->persist($tb_reg);
         $manager->persist($tb_about);
         $manager->persist($tb_agb);
+        $manager->persist($tb_subject);
 
-        return [$tb_about, $tb_agb];
+        return [$tb_about, $tb_agb, $tb_reg, $tb_subject];
     }
 
     public function load(ObjectManager $manager)

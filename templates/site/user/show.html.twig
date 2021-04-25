@@ -9,36 +9,36 @@
             {% set details = is_granted('ROLE_ADMIN') or profile %}
             {% block cardBody %}
                 {% if profile %}
-                <div class="d-flex justify-content-between w-100">
-                    <div class="d-flex justify-content-end w-100">
-                        <div class="py-1">
-                            <a class="btn btn-outline-primary" href="{{ path('user_profile_edit') }}"><i class="fas fa-user-edit"></i> Profil bearbeiten</a>
-                        </div>
+                    <div class="float-right py-2">
+                        <a class="btn btn-outline-primary" href="{{ path('user_profile_edit') }}"><i class="fas fa-user-edit"></i> Profil bearbeiten</a>
                     </div>
-                </div>
                 {% endif %}
-                <h1 class="card-title">{{ user.nickname }} &nbsp;
-                    <small class="text-muted d-block d-lg-inline">
+                <div class="d-lg-flex align-items-center">
+                    <h1 class="card-title mb-0">
+                        {{ user.nickname }}
+                    </h1>
+                    <h2 class="text-muted d-block d-lg-inline mb-0 ml-lg-3">
                         {% if is_granted('IS_AUTHENTICATED_REMEMBERED') %}
                             {{ user.firstname }}
                         {% endif %}
                         {% if details %}
                             {{ user.surname }}
                         {% endif %}
-                    </small></h1>
+                    </h2>
                     {% if details and user.personalDataConfirmed %}
-                        <span class="ml-3 badge badge-pill badge-primary" title="Persönliche Daten wurden überprüft!">
-                                    <i class="fas fa-check"></i> verifiziert
-                                </span>
+                        <span class="ml-lg-3 badge badge-pill badge-primary" title="Persönliche Daten wurden überprüft!">
+                            <i class="fas fa-check"></i> geprüft
+                        </span>
                     {% endif %}
+                </div>
                 <hr>
                 {% if user.statements | trim %}
-                <div class="card-text mb-3">
-                    <blockquote class="blockquote">
-                        <p class="mb-0">{{ user.statements }}</p>
-                    </blockquote>
-                    <hr>
-                </div>
+                    <div class="card-text mb-3">
+                        <blockquote class="blockquote">
+                            <p class="mb-0">{{ user.statements }}</p>
+                        </blockquote>
+                        <hr>
+                    </div>
                 {% endif %}
                 <div class="card-text">
                     <h3>Clans</h3>

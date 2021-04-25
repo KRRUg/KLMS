@@ -35,7 +35,7 @@ class IdmRepository
 
     public function findById(array $ids): array
     {
-        // TODO replace this with an parallel request approach
+        // TODO replace this with an parallel request approach and return LazyLoaderCollection
         return array_map(function($id) {
             return $this->findOneById($id);
         }, $ids);

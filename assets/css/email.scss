@@ -1,0 +1,6 @@
+@import './_scss/bootstrap-krru.scss';
+@import '~@fortawesome/fontawesome-free/css/all.min.css';
+
+.container {
+  max-width: map-get($container-max-widths, md) ;
+}

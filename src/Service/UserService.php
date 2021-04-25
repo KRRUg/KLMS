@@ -31,6 +31,7 @@ class UserService
     {
         return [
             'uuid' => $user->getUuid(),
+            'id' => $user->getId(),
             'email' => $user->getEmail(),
             'nickname' => $user->getNickname(),
             'firstname' => $user->getFirstname(),

@@ -259,7 +259,7 @@
             "ref": "471aed0fbf5620b8d7f92b7a5ebbbf6c0945c27a"
         },
         "files": [
-            "./config/packages/ramsey_uuid_doctrine.yaml"
+            "config/packages/ramsey_uuid_doctrine.yaml"
         ]
     },
     "sensio/framework-extra-bundle": {
@@ -316,6 +316,9 @@
             "bin/console",
             "config/bootstrap.php"
         ]
+    },
+    "symfony/css-selector": {
+        "version": "v4.4.20"
     },
     "symfony/debug": {
         "version": "v4.4.4"
@@ -435,6 +438,18 @@
             "version": "1.0",
             "ref": "fadbfe33303a76e25cb63401050439aa9b1a9c7f"
         }
+    },
+    "symfony/messenger": {
+        "version": "4.3",
+        "recipe": {
+            "repo": "github.com/symfony/recipes",
+            "branch": "master",
+            "version": "4.3",
+            "ref": "e9a414b113ceadbf4e52abe37bf8f1b443f06ccb"
+        },
+        "files": [
+            "config/packages/messenger.yaml"
+        ]
     },
     "symfony/mime": {
         "version": "v4.4.4"
@@ -631,6 +646,12 @@
     },
     "symfony/yaml": {
         "version": "v4.4.4"
+    },
+    "tijsverkoyen/css-to-inline-styles": {
+        "version": "2.2.3"
+    },
+    "twig/cssinliner-extra": {
+        "version": "v3.3.0"
     },
     "twig/extra-bundle": {
         "version": "v3.0.3"

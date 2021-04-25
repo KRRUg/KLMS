@@ -18,6 +18,8 @@ import select2Init from './modules/select2/select2';
 
 const cfi = require('bs-custom-file-input');
 
+import './modules/confirmModal/confirmModal.js';
+
 $(document).ready(function () {
     cfi.init();
     select2Init();
@@ -34,5 +36,9 @@ $(document).ready(function () {
     setTimeout(function () {
         $('.alert-flash-msg').alert('close');
     }, 6500);
+
+    $('.modal').on('shown.bs.modal', function(e) {
+        $(this).find('[autofocus]').focus();
+    });
 
 });

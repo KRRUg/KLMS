@@ -1,8 +1,7 @@
 @import './helper/variables';
 
-@import '~bootstrap';
+@import '~bootstrap/scss/bootstrap.scss';
 
-@import './dataTables';
 @import './header.scss';
 @import './navigation.scss';
 @import './sidebar.scss';

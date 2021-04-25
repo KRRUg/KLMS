@@ -1,0 +1,9 @@
+{% extends 'email/design/baseDesign.html.twig' %}
+
+{% block main %}
+    <div class="card">
+        <div class="card-body">
+            {{ body | default('') | raw }}
+        </div>
+    </div>
+{% endblock %}
