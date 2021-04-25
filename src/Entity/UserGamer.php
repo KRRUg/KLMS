@@ -2,9 +2,11 @@
 
 namespace App\Entity;
 
+use DateTimeInterface;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Ramsey\Uuid\UuidInterface;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\UserGamerRepository")
@@ -13,9 +15,9 @@ class UserGamer
 {
     /**
      * @ORM\Id()
-     * @ORM\Column(type="guid", unique=true)
+     * @ORM\Column(type="uuid", unique=true)
      */
-    private $guid;
+    private ?UuidInterface $uuid;
 
     /**
      * @ORM\Column(type="datetime", nullable=true)
@@ -32,9 +34,9 @@ class UserGamer
      */
     private $seats;
 
-    public function __construct(string $guid)
+    public function __construct(?UuidInterface $uuid)
     {
-        $this->guid = $guid;
+        $this->uuid = $uuid;
         $this->seats = new ArrayCollection();
     }
 
@@ -55,22 +57,22 @@ class UserGamer
         return $this->registered !== null;
     }
     
-    public function getId(): ?string
+    public function getUuid(): ?UuidInterface
     {
-        return $this->guid;
+        return $this->uuid;
     }
 
-    public function setId(string $guid)
+    public function setUuid(?UuidInterface $uuid)
     {
-        $this->guid = $guid;
+        $this->uuid = $uuid;
     }
 
-    public function getPayed(): ?\DateTimeInterface
+    public function getPayed(): ?DateTimeInterface
     {
         return $this->payed;
     }
 
-    public function setPayed(?\DateTimeInterface $payed): self
+    public function setPayed(?DateTimeInterface $payed): self
     {
         $this->payed = $payed;
 

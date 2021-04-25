@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+use Ramsey\Uuid\UuidInterface;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\UserAdminsRepository")
@@ -11,28 +12,28 @@ class UserAdmin
 {
     /**
      * @ORM\Id()
-     * @ORM\Column(type="guid", unique=true)
+     * @ORM\Column(type="uuid", unique=true)
      */
-    private $guid;
+    private ?UuidInterface $uuid;
 
     /**
      * @ORM\Column(type="array")
      */
     private $permissions = [];
 
-    public function __construct(string $guid)
+    public function __construct(?UuidInterface $uuid)
     {
-        $this->guid = $guid;
+        $this->uuid = $uuid;
     }
 
-    public function getId(): ?string
+    public function getUuid(): ?UuidInterface
     {
-        return $this->guid;
+        return $this->uuid;
     }
 
-    public function setId(string $guid)
+    public function setUuid(?UuidInterface $uuid)
     {
-        $this->guid = $guid;
+        $this->uuid = $uuid;
     }
 
     public function hasPermisison(string $permission): bool

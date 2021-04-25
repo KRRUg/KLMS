@@ -1,8 +1,8 @@
 <div class="card mb-3 h-100">
     <div class="row no-gutters h-100">
         <div class="col-sm-4 col-lg-2 bg-dark text-light text-center">
-            {% if cardImg is defined %}
-                <img class="card-img" src='{{ cardImg }}' />
+            {% if cardImg is not empty %}
+                <img class="card-img" src='{{ cardImg | imagine_filter('user_img') }}' />
             {% elseif cardSymbole is defined %}
                 <div class="my-3 d-inline-block">
                     <i class="{{ cardSymbole }} text-white"></i>

@@ -5,6 +5,8 @@
         Content
     {% elseif typeName == "path" %}
         Link
+    {% elseif typeName == "teamsite" %}
+        Teamsite
     {% else %}
         {{ typeName }}
     {% endif %}
@@ -17,6 +19,8 @@
         {% set img = "far fa-file-alt" %}
     {% elseif typeName == "path" %}
         {% set img = "fas fa-link" %}
+    {% elseif typeName == "teamsite" %}
+        {% set img = "fas fa-sitemap" %}
     {% else %}
         {% set img = "fas fa-leaf" %}
     {% endif %}{{ img }}{% endmacro %}

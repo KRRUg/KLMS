@@ -6,8 +6,12 @@ use App\Entity\Content;
 use App\Entity\NavigationNode;
 use App\Entity\NavigationNodeContent;
 use App\Entity\NavigationNodeGeneric;
+use App\Entity\NavigationNodeTeamsite;
+use App\Entity\Teamsite;
 use App\Repository\ContentRepository;
 use App\Service\NavigationService;
+use Doctrine\ORM\EntityManager;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
@@ -19,11 +23,11 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class NavigationNodeType extends AbstractType
 {
-    private ContentRepository $contentRepository;
+    private EntityManagerInterface $em;
 
-    public function __construct(ContentRepository $contentRepository)
+    public function __construct(EntityManagerInterface $em)
     {
-        $this->contentRepository = $contentRepository;
+        $this->em = $em;
     }
 
     public function buildForm(FormBuilderInterface $builder, array $options)
@@ -36,12 +40,25 @@ class NavigationNodeType extends AbstractType
 
             if ($entry instanceof NavigationNodeContent) {
                 $form->add('content', ChoiceType::class, [
-                    'choices' => $this->contentRepository->findAll(),
-                    'choice_label' => function(?Content $content) {
+                    'choices' => $this->em->getRepository(Content::class)->findAll(),
+                    'choice_label' => function (?Content $content) {
                         return $content ? "{$content->getTitle()} ({$content->getId()})" : '';
                     },
-                    'choice_value' => function(?Content $content) {
+                    'choice_value' => function (?Content $content) {
                         return $content ? "/content/{$content->getId()}" : '';
+                    },
+                    'multiple' => false,
+                    'expanded' => false,
+                ]);
+            } elseif ($entry instanceof NavigationNodeTeamsite) {
+                $repo = $this->em->getRepository(get_class($entry));
+                $form->add('teamsite', ChoiceType::class, [
+                    'choices' => $this->em->getRepository(Teamsite::class)->findAll(),
+                    'choice_label' => function (?Teamsite $teamsite) {
+                        return $teamsite ? "{$teamsite->getTitle()} ({$teamsite->getId()})" : '';
+                    },
+                    'choice_value' => function (?Teamsite $teamsite) {
+                        return $teamsite ? "/teamsite/{$teamsite->getId()}" : '';
                     },
                     'multiple' => false,
                     'expanded' => false,

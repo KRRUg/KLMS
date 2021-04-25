@@ -1,16 +1,14 @@
 <?php
 
-
 namespace App\Controller\Admin;
-
 
 use App\Controller\BaseController;
 use App\Entity\Navigation;
+use App\Entity\NavigationNodeTeamsite;
 use App\Form\NavigationNodeType;
 use App\Entity\NavigationNodeContent;
 use App\Entity\NavigationNodeEmpty;
 use App\Entity\NavigationNodeGeneric;
-use App\Service\ContentService;
 use App\Service\NavigationService;
 use Psr\Log\LoggerInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
@@ -23,13 +21,12 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class NavigationController extends BaseController
 {
-    private $logger;
-    private $navService;
-    private $contentService;
+    private LoggerInterface $logger;
+    private NavigationService $navService;
 
-    private function getAllForms()
+    private function getAllForms(): array
     {
-        $types = [ new NavigationNodeEmpty(), new NavigationNodeContent(), new NavigationNodeGeneric(), ];
+        $types = [ new NavigationNodeEmpty(), new NavigationNodeContent(), new NavigationNodeGeneric(), new NavigationNodeTeamsite() ];
         $result = [];
         foreach ($types as $type) {
             $result[$type->getType()] = $this->createForm(NavigationNodeType::class, $type)->createView();
@@ -37,17 +34,10 @@ class NavigationController extends BaseController
         return $result;
     }
 
-    /**
-     * NavigationController constructor.
-     * @param $logger
-     * @param $navService
-     * @param $contentService
-     */
-    public function __construct(NavigationService $navService, ContentService $contentService, LoggerInterface $logger)
+    public function __construct(NavigationService $navService, LoggerInterface $logger)
     {
         $this->logger = $logger;
         $this->navService = $navService;
-        $this->contentService = $contentService;
     }
 
     /**

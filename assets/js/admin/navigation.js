@@ -138,6 +138,10 @@ $.extend(NavigationTree.prototype, {
                 bgColor = "#008799";
                 symbole = "far fa-file-alt";
                 break;
+            case "teamsite":
+                bgColor = "#9c08ff";
+                symbole = "fas fa-sitemap";
+                break;
             case "empty":
                 break;
         }

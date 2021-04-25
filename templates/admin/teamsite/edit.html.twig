@@ -1,0 +1,48 @@
+{% extends 'admin/adminBase.html.twig' %}
+
+{% block title %}KLMS - Admin{% endblock %}
+{% block siteheading %}<i class="fas fa-sitemap"></i> Teamsite {% if teamsite %}<span class="text-primary">{{ teamsite.title }}</span>{% else %} anlegen {% endif %}{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    {{ encore_entry_script_tags('teamsite') }}
+{% endblock %}
+
+{% block main %}
+    {{ form_start(form, {'attr': {'id': 'teamsite_edit_form'}}) }}
+    <div class="row">
+        <div class="col mb-4">
+            <div class="card">
+                <div class="card-body">
+                    {{ form_row(form.title) }}
+                    {{ form_row(form.description) }}
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row mb-4">
+        <div class="col-12">
+            <a class="btn btn-success team-section-add" id="new"><i class="fas fa-plus"></i> Bereich hinzufügen</a>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col mb-4">
+            <div class="card">
+                <div class="card-body">
+                    <div id="teamSiteAdmin" class="adminTeamSite" data-source-input="#teamsite_content">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <hr>
+    <div class="float-right">
+        {{ form_row(form.content) }}
+
+        <a class="btn btn-secondary" href="{{ path('admin_teamsite') }}">Abbrechen</a>
+        <button type="submit" id="news_save" class="btn-primary btn">Speichern</button>
+    </div>
+    {{ form_end(form) }}
+
+    {% include 'admin/teamsite/_addModal.html.twig' %}
+{% endblock %}

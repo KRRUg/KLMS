@@ -3,11 +3,10 @@
 {% block title %}Profil bearbeiten{% endblock %}
 
 {% block main %}
+    {% set user = form.vars.data %}
     <div class="container">
-        {% embed "site/components/cards/skeletons/cardProfile.html.twig"  with {'cardSymbole': 'fas fas fa-user-circle fa-9x'} %}
+        {% embed "site/components/cards/skeletons/cardProfile.html.twig"  with { cardImg: user | user_image, 'cardSymbole': 'fas fas fa-user-circle fa-9x'} %}
             {% block cardBody %}
-                {% set user = form.vars.data %}
-
                 <h1 class="h3 card-title mb-4">Profil bearbeiten</h1>
                 {{ form_start(form) }}
                 {% if not form.vars.valid %}

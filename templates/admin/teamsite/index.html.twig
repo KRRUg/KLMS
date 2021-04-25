@@ -1,0 +1,45 @@
+{% extends 'admin/adminBase.html.twig' %}
+
+{% block title %}KLMS - Admin{% endblock %}
+{% block siteheading %}<i class="fas fa-sitemap"></i> Teamsite{% endblock %}
+
+{% block main %}
+    <div class="row mb-4">
+        <div class="col-12">
+            <a class="btn btn-success" id="new" href="{{ path('admin_teamsite_new') }}"><i class="fas fa-plus"></i> Anlegen</a>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <table class="table table-striped admin-data-table" id="userTable">
+                    <thead>
+                    <tr>
+                        <th scope="col" style="width: 7%" class="text-center">#</th>
+                        <th scope="col" style="width: auto">Titel</th>
+                        <th scope="col" style="width: 15%">Aktiv</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for ts in teamsites %}
+                        <tr>
+                            <td class="text-center">{{ ts.getId() }}</td>
+                            <td>
+                                <a href="{{ path('admin_teamsite_edit', {'id' : ts.id}) }}">
+                                    {{ ts.getTitle() }}
+                                </a><br><small class="text-muted">{{ ts.getDescription() }}</small>
+                            </td>
+                            <td>
+{#                                TODO: rework naviation to enable teamsites as well #}
+{#                                {% for nn in nav.getByContent(c) %}#}
+{#                                    <span class="badge badge-secondary">{{ nn.getName() }}</span>#}
+{#                                {% endfor %}#}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+{% endblock %}

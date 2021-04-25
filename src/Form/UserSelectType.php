@@ -6,6 +6,8 @@ use App\Entity\User;
 use App\Idm\Exception\PersistException;
 use App\Idm\IdmManager;
 use App\Idm\IdmRepository;
+use Ramsey\Uuid\Uuid;
+use Ramsey\Uuid\UuidInterface;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\DataTransformerInterface;
 use Symfony\Component\Form\Exception\TransformationFailedException;
@@ -53,7 +55,7 @@ class UserSelectType extends AbstractType implements DataTransformerInterface
             throw new TransformationFailedException('Unknown type to convert');
         }
 
-        $data[$entity->getUuid()] = $entity->getEmail();
+        $data[$entity->getUuid()->toString()] = $entity->getEmail();
         return $data;
     }
 
@@ -62,6 +64,7 @@ class UserSelectType extends AbstractType implements DataTransformerInterface
      */
     public function reverseTransform($value)
     {
+        $value = $value instanceof UuidInterface ? $value : Uuid::fromString($value);
         try {
             return $this->userRepository->findOneById($value);
         } catch (PersistException $e) {

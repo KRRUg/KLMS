@@ -36,3 +36,9 @@ liip_imagine:
                 fixed:
                     width: 1800
                     height: 720
+
+        user_img:
+            filters:
+                fixed:
+                    width: 200
+                    height: 300
