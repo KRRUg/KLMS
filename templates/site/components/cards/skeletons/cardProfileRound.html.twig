@@ -3,8 +3,8 @@
         <div class="card-avatar bg-primary rounded-circle">
             {% if cardImg is defined  %}
                 <img src='{{ cardImg }}' />
-            {% elseif cardSymbole is defined %}
-                <i class="{{ cardSymbole }} text-white"></i>
+            {% elseif cardSymbol is defined %}
+                <i class="{{ cardSymbol }} text-white"></i>
             {% else %}
                 <i class="fas fa-user text-white"></i>
             {% endif %}
