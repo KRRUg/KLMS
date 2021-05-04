@@ -47,7 +47,8 @@ class NewsType extends AbstractType
             'image_uri' => false,
             'asset_helper' => false,
             'imagine_pattern' => 'news_header',
-            'label' => 'Bild'
+            'label' => 'Bild',
+            'help' => 'Die optimale Größe ist 1800x720px.',
         ]);
         $builder->addEventSubscriber($this->userInsertSubscriber);
     }
