@@ -12,7 +12,7 @@
             <small>gepostet von {{ content.authorId | username }}, <i class="fas fa-clock"></i> {% if content.publishedFrom is null %}{{ content.created | ago }}{% else %}{{ content.publishedFrom | ago }}{% endif %} </small>
         </p>
         <p class="card-text">
-            {{ content.content | striptags | u.truncate(250, '...')  }} {% if content.content | striptags | u.length > 250 %} <a href="{{ link }}" class="card-link"> mehr</a> {% endif %}
+            {{ content.content | striptags | u.truncate(250, '...') | raw  }} {% if content.content | striptags | u.length > 250 %} <a href="{{ link }}" class="card-link"> mehr</a> {% endif %}
         </p>
     </div>
 </div>
