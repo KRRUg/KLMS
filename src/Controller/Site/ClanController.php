@@ -56,7 +56,7 @@ class ClanController extends AbstractController
         return $this->render('site/clan/list.html.twig', [
             'search' => $search,
             'clans' => $clans,
-            'total' => sizeof($clans),
+            'total' => $collection->count(),
             'limit' => $limit,
             'page' => $page,
         ]);

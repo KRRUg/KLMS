@@ -1,15 +1,29 @@
 {% embed "admin/components/modals/skeleton.html.twig"
     with {
     'id': 'addTeamMemberModal',
-    'title' : 'Eintrag hinzufügen',
+    'title' : 'Teammitglied hinzufügen',
     'dialogClass' : 'modal-lg'
 }
 %}
+    {% block modalContentPrepend %}
+        <form name="addTeamForm">
+    {% endblock %}
+
     {% block modalBody %}
+        <div class="form-group">
+            <label for="addTeamUser">User wählen:</label>
+            <select id="addTeamUser" name="user" class="select2-enable" data-remote-target="{{ path('api_users') }}">
+            </select>
+            <small id="addTeamUserHelp" class="form-text text-muted">Wählen Sie einen User, den Sie hinzufügen möchten.</small>
+        </div>
     {% endblock %}
 
     {% block modalFooter %}
         <button type="reset" class="btn-secondary btn" data-dismiss="modal">{{ button_cancel | default('Abbrechen') }}</button>
         <button type="submit" class="btn-primary btn">{{ button_save | default('Hinzufügen') }}</button>
+    {% endblock %}
+
+    {% block modalContentAppend %}
+        </form>
     {% endblock %}
 {% endembed %}

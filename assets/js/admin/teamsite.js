@@ -5,6 +5,7 @@ require('bootstrap');
 let TeamSiteAdmin = function ($wrapper) {
     this.$root = $wrapper;
     this.dataSource = $wrapper.attr('data-source-input');
+    this.userQuerySource = $wrapper.attr('data-user-remote-target');
     this.dispatcher = $({});
 
     this.initTSAdmin();
@@ -97,7 +98,8 @@ $.extend(TeamSiteAdmin.prototype, {
         let entry = document.createElement("a");
         entry.setAttribute("class", "card team-card team-card-add text-center text-success");
         entry.setAttribute("data-index", index);
-        entry.setAttribute("href", "#");
+        entry.setAttribute("data-toggle", "modal");
+        entry.setAttribute("href", "#addTeamMemberModal");
 
         let entryDetails = document.createElement("DIV");
         entryDetails.setAttribute("class", "card-body");
@@ -169,6 +171,7 @@ $.extend(TeamSiteAdmin.prototype, {
         userEntry.setAttribute("data-parent", "team-card");
         userEntry.setAttribute("data-input-target", "user");
         userEntry.setAttribute("data-input-type", "user");
+        userEntry.setAttribute("data-input-value", user.uuid);
 
         if (user.image) {
             let userImg = document.createElement("IMG");
@@ -324,7 +327,7 @@ $.extend(TeamSiteAdmin.prototype, {
             let targetText = $item.data("inputTarget");
             let labelText = targetText.charAt(0).toUpperCase() + targetText.slice(1);
             $("<label></label>").text(labelText).appendTo($inputGroup);
-            $("<textarea></textarea>", {"type": "text", "class": "form-control edit-item-value", "name": $item.data("inputTarget"),"data-input-type": $item.data("inputType"),"data-parent": $item.data("parent")}).text($item.text()).appendTo($inputGroup);
+            $("<textarea></textarea>", {"type": "text", "class": "form-control edit-item-value", "name": $item.data("inputTarget"),"data-input-type": $item.data("inputType"),"data-parent": $item.data("parent"), "rows":10}).text($item.text()).appendTo($inputGroup);
             $item.addClass("hidden");
             $item.hide();
             $item.after($inputGroup);
