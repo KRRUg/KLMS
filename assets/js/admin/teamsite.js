@@ -20,7 +20,7 @@ let TeamSiteAdmin = function ($wrapper) {
     this.$root.on(
             'click',
             '.team-section-add',
-            this._processTeamCardAction.bind(this)
+            this.appendSection.bind(this)
             );
     
     this.$root.on(
@@ -252,9 +252,8 @@ $.extend(TeamSiteAdmin.prototype, {
             
             ele[name] = val;
         });
-        
-        this._synchroniseData();
-        this.drawTSAdmin();
+
+        this.refresh();
     },
     _deleteCard($card) {
         let index = $card.data("index").split("_");
@@ -263,11 +262,14 @@ $.extend(TeamSiteAdmin.prototype, {
         let area = ele[index[0]];
         area.entries.splice(index[1], 1);
         
+        this.refresh();
+    },
+    refresh() {
         this._synchroniseData();
         this.drawTSAdmin();
     },
     _synchroniseData() {
-        var json = JSON.stringify(this.teamSite);
+        let json = JSON.stringify(this.teamSite);
         $(this.dataSource).val(json);
     },
     _toggleItemEditMode($item) {
@@ -337,22 +339,16 @@ $.extend(TeamSiteAdmin.prototype, {
     },
     _toggleFooter() {
         
-    },    
-    _getInputForm(inputVal) {
-        let $form = $('<form></form>', {"class": "edit-item-form form-inline d-inline-block pl-2"});
+    },
+    appendSection() {
+        let newSection = {title: "", description: "", entries: []};
+        this.teamSite.push(newSection);
 
-        let $inputGroup = $('<div></div>', {"class": "input-group input-group-sm"});
-        $("<input>", {"type": "text", "class": "form-control edit-item-value", "value": inputVal}).appendTo($inputGroup);
+        this.refresh();
 
-        let $inputGroupAppend = $('<div></div>', {"class": "input-group-append"});
-        $("<button type='submit' title='Save Changes' class='btn btn-outline-primary'><i class='fas fa-check fa-xs px-1'></i></button>").appendTo($inputGroupAppend);
-        $("<button type='reset' title='Cancel' class='btn btn-outline-secondary'><i class='fas fa-times fa-xs px-1'></i></button>").appendTo($inputGroupAppend);
-        $("<button type='delete' title='Delete Item' class='btn btn-outline-danger'><i class='fas fa-trash-alt fa-xs px-1'></i></button>").appendTo($inputGroupAppend);
+    },
+    addTeamMember(index) {
 
-        $inputGroupAppend.appendTo($inputGroup);
-        $inputGroup.appendTo($form);
-
-        return $form;
     }
 });
 
@@ -383,28 +379,9 @@ $(document).ready(() => {
         $target.find("form").trigger("reset");
     });
 
-    $("#addNavItemModal .choose-type-btn").on("click", function (e) {
+    $(".team-section-add").on("click", function(e) {
         e.preventDefault();
-        let target = $(e.currentTarget).data("target");
-        selectAddDialogRow($("#addNavItemModal"), target);
-    });
-
-    function selectAddDialogRow($modal, rowId) {
-        $modal.find(".add-dialog-row:not(.d-none)").addClass("d-none");
-        $modal.find(rowId).removeClass("d-none");
-
-        if (rowId === "#add-dialog-choose-type") {
-            $modal.find("button[type=submit]").addClass('disabled');
-        } else {
-            $modal.find("button[type=submit]").removeClass('disabled');
-        }
-    }
-
-    $("#addNavItemModal").on("click", "button[type=submit]:not(.disabled)", function (e) {
-        e.preventDefault();
-        let $form = $("#addNavItemModal").find(".add-dialog-row:not(.d-none)").find("form:first");
-        //To trigger HTML5 Form Validation with browser messages you have to click a submit button
-        $('<input type="submit">').hide().appendTo($form).click().remove();
+        teamSiteAdmin.appendSection();
     });
 
     $("#addNavItemModal form").on("submit", function (e) {
