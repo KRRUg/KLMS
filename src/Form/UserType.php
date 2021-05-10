@@ -10,6 +10,7 @@ use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\CountryType;
 use Symfony\Component\Form\Extension\Core\Type\EmailType;
+use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Core\Type\UrlType;
 use Symfony\Component\Form\FormBuilderInterface;
@@ -77,7 +78,7 @@ class UserType extends AbstractType
                 'label' => "Steam Account",
                 'required' => false,
             ])
-            ->add('hardware', TextType::class, [
+            ->add('hardware', TextareaType::class, [
                 'required' => false,
             ])
             ->add('statements', TextType::class, [
