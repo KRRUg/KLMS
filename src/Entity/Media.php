@@ -19,7 +19,7 @@ use Symfony\Component\HttpFoundation\File\File;
 class Media implements HistoryAwareEntity
 {
     const MAX_FILE_SIZE = "4096k";
-    const MIME_TYPES = ["image/png", "image/jpeg", "image/gif", "application/pdf", "application/zip"];
+    const MIME_TYPES = ["image/png", "image/jpeg", "image/gif", "application/pdf", "application/zip", "audio/mpeg", "audio/ogg"];
 
     /**
      * @ORM\Id()
@@ -148,5 +148,10 @@ class Media implements HistoryAwareEntity
     public function isDocument(): bool
     {
         return $this->checkMediaType("application/");
+    }
+
+    public function isAudio(): bool
+    {
+        return $this->checkMediaType("audio/");
     }
 }
