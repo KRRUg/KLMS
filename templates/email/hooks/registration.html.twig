@@ -1,8 +1,8 @@
 {% extends 'email/design/standard.html.twig' %}
 
 {% block main %}
-  {% set text = textblock.get('email.register.text') %}
-  {% set org = textblock.get('organisation_name') %}
+  {% set text = settings.get('email.register.text') %}
+  {% set org = settings.get('organisation_name') %}
   {% if text is empty %}
     <h1>Deine Registrierung bei {{ org }}</h1>
   {% endif %}

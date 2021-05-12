@@ -12,7 +12,7 @@ use App\Entity\NavigationNodeTeamsite;
 use App\Entity\Teamsite;
 use App\Entity\TeamsiteCategory;
 use App\Entity\TeamsiteEntry;
-use App\Entity\TextBlock;
+use App\Entity\Setting;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Persistence\ObjectManager;
 use joshtronic\LoremIpsum;
@@ -111,26 +111,26 @@ class ContentFixture extends Fixture
         return [$ts];
     }
 
-    private function createTextblock(ObjectManager $manager): array
+    private function createSetting(ObjectManager $manager): array
     {
         $lipsum = new LoremIpsum();
 
-        $tb_reg = new TextBlock("organisation_name");
+        $tb_reg = new Setting("organisation_name");
         $tb_reg->setText('KLMS Team');
 
-        $tb_subject = new TextBlock("email.register.subject");
+        $tb_subject = new Setting("email.register.subject");
         $tb_subject->setText('Registrierung');
 
-        $tb_about = new TextBlock("about_us");
+        $tb_about = new Setting("about_us");
         $tb_about->setText($lipsum->words(20));
 
-        $tb_email_text = new TextBlock("email.register.text");
+        $tb_email_text = new Setting("email.register.text");
         $tb_email_text->setText("<h2>{$lipsum->words()}</h2><p>{$lipsum->paragraphs(2)}</p><h2>{$lipsum->words(2)}</h2><p>{$lipsum->paragraphs(3)}}</p>");
 
-        $tb_link_steam = new TextBlock("link.steam");
+        $tb_link_steam = new Setting("link.steam");
         $tb_link_steam->setText("https://store.steampowered.com/");
 
-        $tb_link_discord = new TextBlock("link.discord");
+        $tb_link_discord = new Setting("link.discord");
         $tb_link_discord->setText("https://discord.com/");
 
         $manager->persist($tb_reg);
@@ -145,7 +145,7 @@ class ContentFixture extends Fixture
 
     public function load(ObjectManager $manager)
     {
-        $tb = $this->createTextblock($manager);
+        $tb = $this->createSetting($manager);
         $ts = $this->createTeamsite($manager);
         $content = $this->createContent($manager);
 

@@ -2,12 +2,12 @@
 
 namespace App\Service;
 
-use App\Entity\TextBlock;
-use App\Repository\TextBlockRepository;
+use App\Entity\Setting;
+use App\Repository\SettingRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 
-class TextBlockService
+class SettingService
 {
     private const TB_TYPE = 'type';
     private const TB_DESCRIPTION = 'description';
@@ -37,9 +37,9 @@ class TextBlockService
 
     private LoggerInterface $logger;
     private EntityManagerInterface $em;
-    private TextBlockRepository $repo;
+    private SettingRepository $repo;
 
-    public function __construct(EntityManagerInterface $em, TextBlockRepository $repo, LoggerInterface $logger)
+    public function __construct(EntityManagerInterface $em, SettingRepository $repo, LoggerInterface $logger)
     {
         $this->em = $em;
         $this->repo = $repo;
@@ -81,7 +81,7 @@ class TextBlockService
     {
         $key = strtolower($key);
         if (!$this->validKey($key)) {
-            $this->logger->error("Invalid key {$key} was requested by TextBlockService");
+            $this->logger->error("Invalid key {$key} was requested by SettingService");
             return null;
         }
         $block = $this->repo->findByKey($key);
@@ -96,13 +96,13 @@ class TextBlockService
     {
         $key = strtolower($key);
         if (!array_key_exists($key, self::TEXT_BLOCK_KEYS)) {
-            $this->logger->error("Invalid key {$key} was to be set at TextBlockService");
+            $this->logger->error("Invalid key {$key} was to be set at SettingService");
             return;
         }
         $block = $this->repo->findByKey($key);
         if (empty($block)) {
             // create it
-            $tb = new TextBlock($key);
+            $tb = new Setting($key);
             $tb->setText($value);
             $this->em->persist($tb);
             $this->em->flush();
@@ -120,7 +120,7 @@ class TextBlockService
     {
         $key = strtolower($key);
         if (!$this->validKey($key)) {
-            $this->logger->error("Invalid key {$key} was to be deleted by TextBlockService");
+            $this->logger->error("Invalid key {$key} was to be deleted by SettingService");
             return false;
         }
         $block = $this->repo->findByKey($key);
@@ -137,7 +137,7 @@ class TextBlockService
     {
         $key = strtolower($key);
         if (!$this->validKey($key)) {
-            $this->logger->error("Invalid key {$key} was to be deleted by TextBlockService");
+            $this->logger->error("Invalid key {$key} was to be deleted by SettingService");
             return null;
         }
         $block = $this->repo->findByKey($key);

@@ -2,25 +2,25 @@
 
 namespace App\Repository;
 
-use App\Entity\TextBlock;
+use App\Entity\Setting;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Common\Persistence\ManagerRegistry;
 use Doctrine\ORM\NonUniqueResultException;
 
 /**
- * @method TextBlock|null find($id, $lockMode = null, $lockVersion = null)
- * @method TextBlock|null findOneBy(array $criteria, array $orderBy = null)
- * @method TextBlock[]    findAll()
- * @method TextBlock[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
+ * @method Setting|null find($id, $lockMode = null, $lockVersion = null)
+ * @method Setting|null findOneBy(array $criteria, array $orderBy = null)
+ * @method Setting[]    findAll()
+ * @method Setting[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  */
-class TextBlockRepository extends ServiceEntityRepository
+class SettingRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
     {
-        parent::__construct($registry, TextBlock::class);
+        parent::__construct($registry, Setting::class);
     }
 
-    public function findByKey(string $key): ?TextBlock
+    public function findByKey(string $key): ?Setting
     {
         try {
             return $this->createQueryBuilder('t')

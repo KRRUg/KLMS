@@ -1,7 +1,7 @@
 {% extends 'admin/adminBase.html.twig' %}
 
 {% block title %}KLMS - Admin{% endblock %}
-{% block siteheading %}<i class="fas fa-th-large"></i> Textblöcke{% endblock %}
+{% block siteheading %}<i class="fas fa-th-large"></i> Einstellungen{% endblock %}
 {% block main %}
     {% for category, kk in keys %}
         <div class="card mb-3">
@@ -13,7 +13,7 @@
                         {% set desc = service.getDescription(key) %}
                         <tr>
                             <td style="width: 25%">
-                                <a href="{{ path('admin_textblock_edit', {'key' : key}) }}" title="Bearbeiten {{ key }}"> {{ key }}</a><br>
+                                <a href="{{ path('admin_setting_edit', {'key' : key}) }}" title="Bearbeiten {{ key }}"> {{ key }}</a><br>
                                 <small class="text-muted">{{ desc }}</small>
                             </td>
                             <td style="width: 75%">

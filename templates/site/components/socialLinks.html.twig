@@ -10,8 +10,8 @@
     ] %}
 
     {% for p in provider %}
-        {% if textblock.isSet(p.key) %}
-            <a class="btn btn-secondary" title="{{ p.name }}" href="{{ textblock.get(p.key) }}" target="_blank">
+        {% if settings.isSet(p.key) %}
+            <a class="btn btn-secondary" title="{{ p.name }}" href="{{ settings.get(p.key) }}" target="_blank">
                 <i class="{{ p.icon }}"></i>
             </a>
         {% endif %}

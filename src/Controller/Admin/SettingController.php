@@ -2,10 +2,9 @@
 
 namespace App\Controller\Admin;
 
-use App\Service\TextBlockService;
+use App\Service\SettingService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\Extension\Core\Type\HiddenType;
-use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\UrlType;
 use Symfony\Component\HttpFoundation\Request;
@@ -13,14 +12,14 @@ use Symfony\Component\Routing\Annotation\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 
 /**
- * @Route("/textblock", name="textblock")
+ * @Route("/setting", name="setting")
  * @IsGranted("ROLE_ADMIN_CONTENT")
  */
-class TextblockController extends AbstractController
+class SettingController extends AbstractController
 {
-    private TextBlockService $service;
+    private SettingService $service;
 
-    public function __construct(TextBlockService $service)
+    public function __construct(SettingService $service)
     {
         $this->service = $service;
     }
@@ -32,7 +31,7 @@ class TextblockController extends AbstractController
     {
         $k = [];
         $k[''] = [];
-        foreach (TextBlockService::getKeys() as $key) {
+        foreach (SettingService::getKeys() as $key) {
             $array = explode('.', $key, 2);
             if (sizeof($array) == 1) {
                 $k[''][] = $array[0];
@@ -41,7 +40,7 @@ class TextblockController extends AbstractController
             }
         }
 
-        return $this->render('admin/textblock/index.html.twig', [
+        return $this->render('admin/settings/index.html.twig', [
             'keys' => $k,
             'service' => $this->service,
         ]);
@@ -54,22 +53,22 @@ class TextblockController extends AbstractController
     {
         $key = $request->get('key');
         if (!$this->service->validKey($key)) {
-            return $this->redirectToRoute('admin_textblock');
+            return $this->redirectToRoute('admin_setting');
         }
 
         $text = $this->service->get($key);
         $fb = $this->createFormBuilder(['key' => $key, 'text' => $text])
             ->add('key', HiddenType::class);
 
-        switch (TextBlockService::getType($key)) {
+        switch (SettingService::getType($key)) {
             default:
-            case TextBlockService::TB_TYPE_STRING:
+            case SettingService::TB_TYPE_STRING:
                 $fb->add('text', TextareaType::class, ['required' => false, 'label' => false]);
                 break;
-            case TextBlockService::TB_TYPE_HTML:
+            case SettingService::TB_TYPE_HTML:
                 $fb->add('text', TextareaType::class, ['required' => false, 'label' => false, 'attr' => ['class' => 'wysiwyg']]);
                 break;
-            case TextBlockService::TB_TYPE_URL:
+            case SettingService::TB_TYPE_URL:
                 $fb->add('text', UrlType::class, ['required' => false, 'label' => false]);
                 break;
         }
@@ -83,13 +82,13 @@ class TextblockController extends AbstractController
                 $text = empty($text) ? "" : $text;
                 $this->service->set($key, $text);
             }
-            return $this->redirectToRoute("admin_textblock");
+            return $this->redirectToRoute("admin_setting");
         }
 
-        return $this->render('admin/textblock/edit.html.twig', [
+        return $this->render('admin/settings/edit.html.twig', [
             'key' => $key,
-            'desc' => TextBlockService::getDescription($key),
-            'is_html' => TextBlockService::isHTML($key),
+            'desc' => SettingService::getDescription($key),
+            'is_html' => SettingService::isHTML($key),
             'form' => $form->createView()
         ]);
     }
