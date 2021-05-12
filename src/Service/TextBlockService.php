@@ -11,9 +11,9 @@ class TextBlockService
 {
     private const TB_TYPE = 'type';
     private const TB_DESCRIPTION = 'description';
-    private const TB_TYPE_STRING = 'string';
-    private const TB_TYPE_HTML = 'html';
-    private const TB_TYPE_URL = 'url';
+    public const TB_TYPE_STRING = 'string';
+    public const TB_TYPE_HTML = 'html';
+    public const TB_TYPE_URL = 'url';
 
     ////////////////////////////////////////////////
     /// Text block names
@@ -22,6 +22,7 @@ class TextBlockService
         "agb" => [self::TB_DESCRIPTION => "AGB", self::TB_TYPE => self::TB_TYPE_HTML],
         "about_us" => [self::TB_DESCRIPTION => "Über uns, homepage links unten", self::TB_TYPE => self::TB_TYPE_HTML],
         "organisation_name" => [self::TB_DESCRIPTION => "Organisationsname / Vereinsname", self::TB_TYPE => self::TB_TYPE_STRING],
+
         "register.subject" => [self::TB_DESCRIPTION => "Betreff der Registrierungsmail", self::TB_TYPE => self::TB_TYPE_STRING],
         "register.text" => [self::TB_DESCRIPTION => "Text der Registrierungsmail", self::TB_TYPE => self::TB_TYPE_HTML],
 
@@ -57,9 +58,14 @@ class TextBlockService
         return array_key_exists($key, self::TEXT_BLOCK_KEYS);
     }
 
+    public static function getType(string $key): string
+    {
+        return self::validKey($key) ? self::TEXT_BLOCK_KEYS[$key][self::TB_TYPE] : "";
+    }
+
     public static function isHTML(string $key): bool
     {
-        return self::validKey($key) ? self::TEXT_BLOCK_KEYS[$key][self::TB_TYPE] === self::TB_TYPE_HTML : false;
+        return self::getType($key) === self::TB_TYPE_HTML;
     }
 
     public static function getDescription(string $key): string

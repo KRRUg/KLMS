@@ -24,11 +24,7 @@
         <div class="col mb-4">
             <div class="card">
                 <div class="card-body">
-                    {% if is_html %}
-                        {{ form_row(form.text, {'attr': {'class': 'wysiwyg'}}) }}
-                    {% else %}
-                        {{ form_row(form.text) }}
-                    {% endif %}
+                    {{ form_row(form.text) }}
                 </div>
             </div>
         </div>
