@@ -1,14 +1,18 @@
 <div>
-    {% set provider = {
-        'fb': 'fab fa-facebook-f',
-        'insta': 'fab fa-instagram'
-    } %}
+    {% set provider = [
+        {name: 'Facebook', key: 'link.fb', icon: 'fab fa-facebook-f' },
+        {name: 'Instagram', key: 'link.insta', icon: 'fab fa-instagram' },
+        {name: 'Steam', key: 'link.steam', icon: 'fab fa-steam-symbol' },
+        {name: 'You Tube', key: 'link.yt', icon: 'fab fa-youtube' },
+        {name: 'Twitter', key: 'link.twitter', icon: 'fab fa-twitter' },
+        {name: 'Discord', key: 'link.discord', icon: 'fab fa-discord' },
+        {name: 'Teamspeak', key: 'link.teamspeak', icon: 'fab fa-teamspeak' },
+    ] %}
 
-    {% for slug, class in provider %}
-        {% set key = "link." ~ slug %}
-        {% if textblock.isSet(key) %}
-            <a class="" href="{{ textblock.get(key) }}" target="_blank">
-                <i class="{{ class }}"></i>
+    {% for p in provider %}
+        {% if textblock.isSet(p.key) %}
+            <a class="btn btn-secondary" title="{{ p.name }}" href="{{ textblock.get(p.key) }}" target="_blank">
+                <i class="{{ p.icon }}"></i>
             </a>
         {% endif %}
     {% endfor %}

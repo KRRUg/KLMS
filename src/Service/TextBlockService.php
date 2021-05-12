@@ -25,8 +25,13 @@ class TextBlockService
         "register.subject" => [self::TB_DESCRIPTION => "Betreff der Registrierungsmail", self::TB_TYPE => self::TB_TYPE_STRING],
         "register.text" => [self::TB_DESCRIPTION => "Text der Registrierungsmail", self::TB_TYPE => self::TB_TYPE_HTML],
 
-        "link.fb" => [self::TB_DESCRIPTION => "Link zur FB Seite", self::TB_TYPE => self::TB_TYPE_URL],
+        "link.fb" => [self::TB_DESCRIPTION => "Link zur Facebook Seite", self::TB_TYPE => self::TB_TYPE_URL],
         "link.insta" => [self::TB_DESCRIPTION => "Link zur Instagram Seite", self::TB_TYPE => self::TB_TYPE_URL],
+        "link.steam" => [self::TB_DESCRIPTION => "Link zur Steam Gruppe", self::TB_TYPE => self::TB_TYPE_URL],
+        "link.yt" => [self::TB_DESCRIPTION => "Link zur YouTube Seite", self::TB_TYPE => self::TB_TYPE_URL],
+        "link.twitter" => [self::TB_DESCRIPTION => "Link zur Twitter Seite", self::TB_TYPE => self::TB_TYPE_URL],
+        "link.discord" => [self::TB_DESCRIPTION => "Link zur Discord Server", self::TB_TYPE => self::TB_TYPE_URL],
+        "link.teamspeak" => [self::TB_DESCRIPTION => "Teamspeak Invite Link", self::TB_TYPE => self::TB_TYPE_URL],
         // extend here
     ];
 
