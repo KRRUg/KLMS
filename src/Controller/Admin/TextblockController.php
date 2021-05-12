@@ -18,7 +18,7 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
  */
 class TextblockController extends AbstractController
 {
-    private $service;
+    private TextBlockService $service;
 
     public function __construct(TextBlockService $service)
     {
@@ -30,9 +30,20 @@ class TextblockController extends AbstractController
      */
     public function index()
     {
+        $k = [];
+        $k[''] = [];
+        foreach (TextBlockService::getKeys() as $key) {
+            $array = explode('.', $key, 2);
+            if (sizeof($array) == 1) {
+                $k[''][] = $array[0];
+            } else {
+                $k[$array[0]][] = $key;
+            }
+        }
+
         return $this->render('admin/textblock/index.html.twig', [
-            'keys' => TextBlockService::getDescriptions(),
-            'modification' => $this->service->getModificationDates()
+            'keys' => $k,
+            'service' => $this->service,
         ]);
     }
 
@@ -56,7 +67,6 @@ class TextblockController extends AbstractController
                 $fb->add('text', TextareaType::class, ['required' => false, 'label' => false]);
                 break;
             case TextBlockService::TB_TYPE_HTML:
-            //   {{ form_row(form.text, {'attr': {'class': 'wysiwyg'}}) }}
                 $fb->add('text', TextareaType::class, ['required' => false, 'label' => false, 'attr' => ['class' => 'wysiwyg']]);
                 break;
             case TextBlockService::TB_TYPE_URL:

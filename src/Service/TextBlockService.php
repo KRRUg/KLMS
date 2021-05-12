@@ -4,6 +4,7 @@ namespace App\Service;
 
 use App\Entity\TextBlock;
 use App\Repository\TextBlockRepository;
+use DateTimeInterface;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 
@@ -19,12 +20,11 @@ class TextBlockService
     /// Text block names
     ///////////////////////////////////////////////
     private const TEXT_BLOCK_KEYS = [
-        "agb" => [self::TB_DESCRIPTION => "AGB", self::TB_TYPE => self::TB_TYPE_HTML],
-        "about_us" => [self::TB_DESCRIPTION => "Über uns, homepage links unten", self::TB_TYPE => self::TB_TYPE_HTML],
         "organisation_name" => [self::TB_DESCRIPTION => "Organisationsname / Vereinsname", self::TB_TYPE => self::TB_TYPE_STRING],
+        "about_us" => [self::TB_DESCRIPTION => "Über uns, homepage links unten", self::TB_TYPE => self::TB_TYPE_HTML],
 
-        "register.subject" => [self::TB_DESCRIPTION => "Betreff der Registrierungsmail", self::TB_TYPE => self::TB_TYPE_STRING],
-        "register.text" => [self::TB_DESCRIPTION => "Text der Registrierungsmail", self::TB_TYPE => self::TB_TYPE_HTML],
+        "email.register.subject" => [self::TB_DESCRIPTION => "Betreff der Registrierungsmail", self::TB_TYPE => self::TB_TYPE_STRING],
+        "email.register.text" => [self::TB_DESCRIPTION => "Text der Registrierungsmail", self::TB_TYPE => self::TB_TYPE_HTML],
 
         "link.fb" => [self::TB_DESCRIPTION => "Link zur Facebook Seite", self::TB_TYPE => self::TB_TYPE_URL],
         "link.insta" => [self::TB_DESCRIPTION => "Link zur Instagram Seite", self::TB_TYPE => self::TB_TYPE_URL],

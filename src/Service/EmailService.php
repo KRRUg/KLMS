@@ -34,7 +34,7 @@ class EmailService
 
     const HOOKS = [
         self::APP_HOOK_REGISTRATION_CONFIRM => [
-            self::HOOK_SUBJECT => "register.subject",
+            self::HOOK_SUBJECT => "email.register.subject",
             self::HOOK_TEMPLATE => '/email/hooks/registration.html.twig',
             self::HOOK_TOKEN => 'register'
         ],

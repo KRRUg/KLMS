@@ -118,7 +118,7 @@ class ContentFixture extends Fixture
         $tb_reg = new TextBlock("organisation_name");
         $tb_reg->setText('KLMS Team');
 
-        $tb_subject = new TextBlock("register.subject");
+        $tb_subject = new TextBlock("email.register.subject");
         $tb_subject->setText('Registrierung');
 
         $tb_about = new TextBlock("about_us");
