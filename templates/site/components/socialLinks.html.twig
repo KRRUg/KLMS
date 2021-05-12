@@ -1,0 +1,15 @@
+<div>
+    {% set provider = {
+        'fb': 'fab fa-facebook-f',
+        'insta': 'fab fa-instagram'
+    } %}
+
+    {% for slug, class in provider %}
+        {% set key = "link." ~ slug %}
+        {% if textblock.isSet(key) %}
+            <a class="" href="{{ textblock.get(key) }}" target="_blank">
+                <i class="{{ class }}"></i>
+            </a>
+        {% endif %}
+    {% endfor %}
+</div>

@@ -9,18 +9,24 @@ use Psr\Log\LoggerInterface;
 
 class TextBlockService
 {
+    private const TB_TYPE = 'type';
     private const TB_DESCRIPTION = 'description';
-    private const TB_IS_HTML = 'type';
+    private const TB_TYPE_STRING = 'string';
+    private const TB_TYPE_HTML = 'html';
+    private const TB_TYPE_URL = 'url';
 
     ////////////////////////////////////////////////
     /// Text block names
     ///////////////////////////////////////////////
     private const TEXT_BLOCK_KEYS = [
-        "agb" =>               [self::TB_DESCRIPTION => "AGB", self::TB_IS_HTML => true],
-        "about_us" =>          [self::TB_DESCRIPTION => "Über uns, homepage links unten", self::TB_IS_HTML => true],
-        "organisation_name" => [self::TB_DESCRIPTION => "Organisationsname / Vereinsname", self::TB_IS_HTML => false],
-        "register.subject" =>  [self::TB_DESCRIPTION => "Betreff der Registrierungsmail", self::TB_IS_HTML => false],
-        "register.text" =>     [self::TB_DESCRIPTION => "Text der Registrierungsmail", self::TB_IS_HTML => true],
+        "agb" => [self::TB_DESCRIPTION => "AGB", self::TB_TYPE => self::TB_TYPE_HTML],
+        "about_us" => [self::TB_DESCRIPTION => "Über uns, homepage links unten", self::TB_TYPE => self::TB_TYPE_HTML],
+        "organisation_name" => [self::TB_DESCRIPTION => "Organisationsname / Vereinsname", self::TB_TYPE => self::TB_TYPE_STRING],
+        "register.subject" => [self::TB_DESCRIPTION => "Betreff der Registrierungsmail", self::TB_TYPE => self::TB_TYPE_STRING],
+        "register.text" => [self::TB_DESCRIPTION => "Text der Registrierungsmail", self::TB_TYPE => self::TB_TYPE_HTML],
+
+        "link.fb" => [self::TB_DESCRIPTION => "Link zur FB Seite", self::TB_TYPE => self::TB_TYPE_URL],
+        "link.insta" => [self::TB_DESCRIPTION => "Link zur Instagram Seite", self::TB_TYPE => self::TB_TYPE_URL],
         // extend here
     ];
 
@@ -48,12 +54,17 @@ class TextBlockService
 
     public static function isHTML(string $key): bool
     {
-        return self::validKey($key) ? self::TEXT_BLOCK_KEYS[$key][self::TB_IS_HTML] : false;
+        return self::validKey($key) ? self::TEXT_BLOCK_KEYS[$key][self::TB_TYPE] === self::TB_TYPE_HTML : false;
     }
 
     public static function getDescription(string $key): string
     {
         return self::validKey($key) ? self::TEXT_BLOCK_KEYS[$key][self::TB_DESCRIPTION] : "";
+    }
+
+    public function isSet(string $key): bool
+    {
+        return self::validKey($key) && !empty($this->get($key));
     }
 
     public function get(string $key): ?string
