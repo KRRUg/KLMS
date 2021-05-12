@@ -124,15 +124,23 @@ class ContentFixture extends Fixture
         $tb_about = new TextBlock("about_us");
         $tb_about->setText($lipsum->words(20));
 
-        $tb_agb = new TextBlock("agb");
-        $tb_agb->setText("<h2>{$lipsum->words()}</h2><p>{$lipsum->paragraphs(2)}</p><h2>{$lipsum->words(2)}</h2><p>{$lipsum->paragraphs(3)}}</p>");
+        $tb_email_text = new TextBlock("email.register.text");
+        $tb_email_text->setText("<h2>{$lipsum->words()}</h2><p>{$lipsum->paragraphs(2)}</p><h2>{$lipsum->words(2)}</h2><p>{$lipsum->paragraphs(3)}}</p>");
+
+        $tb_link_steam = new TextBlock("link.steam");
+        $tb_link_steam->setText("https://store.steampowered.com/");
+
+        $tb_link_discord = new TextBlock("link.discord");
+        $tb_link_discord->setText("https://discord.com/");
 
         $manager->persist($tb_reg);
         $manager->persist($tb_about);
-        $manager->persist($tb_agb);
+        $manager->persist($tb_email_text);
         $manager->persist($tb_subject);
+        $manager->persist($tb_link_steam);
+        $manager->persist($tb_link_discord);
 
-        return [$tb_about, $tb_agb, $tb_reg, $tb_subject];
+        return [$tb_about, $tb_email_text, $tb_link_steam, $tb_link_discord, $tb_reg, $tb_subject];
     }
 
     public function load(ObjectManager $manager)

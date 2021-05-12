@@ -4,7 +4,6 @@ namespace App\Service;
 
 use App\Entity\TextBlock;
 use App\Repository\TextBlockRepository;
-use DateTimeInterface;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 
