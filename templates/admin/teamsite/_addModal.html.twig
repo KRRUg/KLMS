@@ -10,6 +10,7 @@
     {% endblock %}
 
     {% block modalBody %}
+        <input type="hidden" name="index" value="" />
         <div class="form-group">
             <label for="addTeamUser">User wählen:</label>
             <select id="addTeamUser" name="user" class="select2-enable" data-remote-target="{{ path('api_users') }}">

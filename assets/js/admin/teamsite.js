@@ -208,8 +208,6 @@ $.extend(TeamSiteAdmin.prototype, {
         let action = $(e.currentTarget).data("action");
         let $card = $("#"+target);
         
-        console.log(action);
-        
         switch(action) {
             case "edit":
                 this._toggleCardEditMode($card);
@@ -236,11 +234,12 @@ $.extend(TeamSiteAdmin.prototype, {
         $card.find('a.action-btn').toggle();
     },
     _submitCard($card) {
-        let index = $card.data("index").split("_");
+        let cardIndex = String($card.data("index"));
+        let index = cardIndex.includes("_") ? cardIndex.split("_") : cardIndex;
         let parent = $card.data("wrap");
         let $items = $card.find('[data-parent="'+ parent +'"]').not(".hidden");
         
-        let ele = this.teamSite[index[0]].entries[index[1]];
+        let ele = Array.isArray(index) ? this.teamSite[index[0]].entries[index[1]] : this.teamSite[index];
         
         $items.each((_, element) => {
             let name = element.getAttribute("name");
@@ -256,11 +255,16 @@ $.extend(TeamSiteAdmin.prototype, {
         this.refresh();
     },
     _deleteCard($card) {
-        let index = $card.data("index").split("_");
+        let cardIndex = String($card.data("index"));
+        let index = cardIndex.includes("_") ? cardIndex.split("_") : cardIndex;
         let ele = this.teamSite;
-        
-        let area = ele[index[0]];
-        area.entries.splice(index[1], 1);
+
+        if(Array.isArray(index)) {
+            let area = ele[index[0]];
+            area.entries.splice(index[1], 1);
+        } else {
+            ele.splice(index, 1);
+        }
         
         this.refresh();
     },
@@ -345,10 +349,19 @@ $.extend(TeamSiteAdmin.prototype, {
         this.teamSite.push(newSection);
 
         this.refresh();
-
+        let ele = $('.team-section-action[data-action="edit"]').last();
+        $(window).animate({scrollTop:ele.offset().top});
+        ele.click();
     },
-    addTeamMember(index) {
+    addTeamMember(index, user) {
+        let teamMember = {
+            title: "",
+            description: "",
+            user: user
+        };
 
+        this.teamSite[index].entries.push(teamMember);
+        this.refresh();
     }
 });
 
@@ -373,10 +386,13 @@ $(document).ready(() => {
         window.removeEventListener("beforeunload", showAreYouSureFunction);
     });
 
-    $("#addNavItemModal").on("show.bs.modal", function (e) {
+    $("#addTeamMemberModal").on("show.bs.modal", function (e) {
+        let index = $(e.relatedTarget).data("index");
         let $target = $(e.currentTarget);
-        selectAddDialogRow($target, "#add-dialog-choose-type");
-        $target.find("form").trigger("reset");
+        let form = $target.find("form");
+        form.trigger("reset");
+        form.find('select.select2-enable').trigger('change');
+        form.find('input[name="index"]').val(index);
     });
 
     $(".team-section-add").on("click", function(e) {
@@ -384,18 +400,17 @@ $(document).ready(() => {
         teamSiteAdmin.appendSection();
     });
 
-    $("#addNavItemModal form").on("submit", function (e) {
+    $("#addTeamMemberModal form").on("submit", function (e) {
         e.preventDefault();
 
-        let formData = $(this).serializeArray().reduce(
-                (obj, item) => Object.assign(obj, {[item.name]: item.value}), {});
+        let index = $(this).find('input[name="index"]').val();
+        let selectedUserData = $(this).find('select.select2-enable').select2('data');
+        let user = selectedUserData[0].user
 
-        let type = $(this).data("type");
-        let name = formData["navigation_node[name]"];
-        let path = formData[`navigation_node[${type}]`] || null;
+        if(user) {
+            teamSiteAdmin.addTeamMember(index, user);
+        }
 
-        teamSiteAdmin.addNavItem(name, path, type);
-        teamSiteAdmin.drawTree();
-        $("#addNavItemModal").modal('hide');
+        $("#addTeamMemberModal").modal('hide');
     });
 });
