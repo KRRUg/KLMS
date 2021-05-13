@@ -34,7 +34,7 @@ class EmailService
 
     const HOOKS = [
         self::APP_HOOK_REGISTRATION_CONFIRM => [
-            self::HOOK_SUBJECT => "register.subject",
+            self::HOOK_SUBJECT => "email.register.subject",
             self::HOOK_TEMPLATE => '/email/hooks/registration.html.twig',
             self::HOOK_TOKEN => 'register'
         ],
@@ -55,14 +55,14 @@ class EmailService
     private Environment $twig;
     private IdmRepository $userRepository;
     private GroupService $groupService;
-    private TextBlockService $textBlockService;
+    private SettingService $settingService;
     private MessageBusInterface $messageBus;
 
     public function __construct(MailerInterface $mailer,
                                 LoggerInterface $logger,
                                 EntityManagerInterface $em,
                                 GroupService $groupService,
-                                TextBlockService $textBlockService,
+                                SettingService $settingService,
                                 EmailRepository $templateRepository,
                                 Environment $twig,
                                 MessageBusInterface $messageBus,
@@ -71,7 +71,7 @@ class EmailService
         $this->logger = $logger;
         $this->mailer = $mailer;
         $this->groupService = $groupService;
-        $this->textBlockService = $textBlockService;
+        $this->settingService = $settingService;
         $this->em = $em;
         $this->twig = $twig;
         $mailAddress = $_ENV['MAILER_DEFAULT_SENDER_EMAIL'];
@@ -155,14 +155,14 @@ class EmailService
             return null;
         }
         $config = self::HOOKS[$hook] ?? null;
-        if (empty($config) || !$this->textBlockService->validKey($config[self::HOOK_SUBJECT])) {
+        if (empty($config) || !$this->settingService->validKey($config[self::HOOK_SUBJECT])) {
             $this->logger->error('Invalid Hook configuration');
             return null;
         }
         return (new TemplatedEmail())
             ->from($this->senderAddress)
             ->to($recipient->getAddressObject())
-            ->subject($this->textBlockService->get($config[self::HOOK_SUBJECT]))
+            ->subject($this->settingService->get($config[self::HOOK_SUBJECT]))
             ->htmlTemplate($config[self::HOOK_TEMPLATE])
             ->context([
                 'token' => $this->generateToken($recipient->getUuid(), $config[self::HOOK_TOKEN]),

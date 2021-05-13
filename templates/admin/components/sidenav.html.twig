@@ -26,10 +26,10 @@
                         <a class="nav-link {% if app.request.get('_route') starts with 'admin_navigation' %}active{% endif %}" href="{{ path('admin_navigation') }}"><i class="fas fa-map-signs fa-fw"></i> Navigation </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link {% if app.request.get('_route') starts with 'admin_teamsite' %}active{% endif %}" href="{{ path('admin_teamsite') }}"><i class="fas fa-sitemap"></i> Teamsite </a>
+                        <a class="nav-link {% if app.request.get('_route') starts with 'admin_teamsite' %}active{% endif %}" href="{{ path('admin_teamsite') }}"><i class="fas fa-sitemap fa-fw"></i> Teamsite </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link {% if app.request.get('_route') starts with 'admin_textblock' %}active{% endif %}" href="{{ path('admin_textblock') }}"><i class="fas fa-th-large fa-fw"></i> Textblöcke </a>
+                        <a class="nav-link {% if app.request.get('_route') starts with 'admin_setting' %}active{% endif %}" href="{{ path('admin_setting') }}"><i class="fas fa-th-large fa-fw"></i> Einstellungen </a>
                     </li>
                 {% endif %}
             </ul>
