@@ -33,6 +33,8 @@ export function init() {
             'bold italic backcolor | alignleft aligncenter ' +
             'alignright alignjustify | bullist numlist | outdent indent | ' +
             'removeformat',
+        font_formats: '',
+        fontsize_formats:'0.5rem 0.75rem 1rem 1.25rem 1.5rem 1.75rem 2rem',
         // image plugin
         relative_urls: false,
         image_list: '/admin/media.json?filter=image',

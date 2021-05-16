@@ -22,8 +22,9 @@ class UserService
     public function getUserImage(User $user): ?string
     {
         $image = $this->imageRepo->findOneByUuid($user->getUuid());
-        if (empty($image) || empty($image->getImageFile()))
-            return "";
+        if (empty($image) || empty($image->getImage())) {
+            return '';
+        }
         return $this->uploadHelper->asset($image, 'imageFile');
     }
 

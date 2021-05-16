@@ -1,4 +1,4 @@
-<div>
+<div class="social-btn-group">
     {% set provider = [
         {name: 'Facebook', key: 'link.fb', icon: 'fab fa-facebook-f' },
         {name: 'Instagram', key: 'link.insta', icon: 'fab fa-instagram' },
@@ -12,7 +12,7 @@
     {% for p in provider %}
         {% if settings.isSet(p.key) %}
             <a class="btn btn-secondary" title="{{ p.name }}" href="{{ settings.get(p.key) }}" target="_blank">
-                <i class="{{ p.icon }}"></i>
+                <i class="{{ p.icon }} fa-fw"></i>
             </a>
         {% endif %}
     {% endfor %}
