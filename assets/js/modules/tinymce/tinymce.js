@@ -15,7 +15,8 @@ import 'tinymce/plugins/anchor';
 import 'tinymce/plugins/media';
 import 'tinymce/plugins/advlist';
 import 'tinymce/plugins/importcss';
-
+import 'tinymce/plugins/searchreplace';
+import 'tinymce/plugins/hr';
 
 export function init() {
     tinymce.init({
@@ -26,11 +27,11 @@ export function init() {
         plugins: [
             'advlist lists link image anchor',
             'code fullscreen',
-            'media table importcss'
+            'media table importcss searchreplace hr'
         ],
         toolbar: 'undo redo | formatselect | ' +
             'bold italic backcolor | alignleft aligncenter ' +
-            'alignright alignjustify | bullist numlist outdent indent | ' +
+            'alignright alignjustify | bullist numlist | outdent indent | ' +
             'removeformat',
         // image plugin
         relative_urls: false,

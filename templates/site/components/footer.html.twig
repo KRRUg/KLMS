@@ -2,11 +2,11 @@
     <div class="row">
         <div class="col">
             <h3>Über uns</h3>
-            <p>{{ textblock.get('ABOUT_US')|raw }}</p>
+            <p>{{ settings.get('ABOUT_US')|raw }}</p>
         </div>
         <div class="col">
             <h3>Links</h3>
-            {% include 'site/components/nav/navLinks.html.twig' %}
+            {% include 'site/components/socialLinks.html.twig' %}
         </div>
     </div>
 </div>

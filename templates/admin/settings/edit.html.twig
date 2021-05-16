@@ -1,7 +1,7 @@
 {% extends 'admin/adminBase.html.twig' %}
 
 {% block title %}KLMS - Admin{% endblock %}
-{% block siteheading %}<i class="fas fa-th-large"></i> Textblöcke{% endblock %}
+{% block siteheading %}<i class="fas fa-th-large"></i> Einstellungen{% endblock %}
 {% block main %}
     {{ form_start(form) }}
     {% if not form.vars.valid %}
@@ -14,7 +14,7 @@
         <div class="col mb-4">
             <div class="card">
                 <div class="card-body">
-                    Textblock <span class="text-primary">{{ key }}</span><br/>
+                    Setting <span class="text-primary">{{ key }}</span><br/>
                     <small class="text-muted">{{ desc }}</small>
                 </div>
             </div>
@@ -24,11 +24,7 @@
         <div class="col mb-4">
             <div class="card">
                 <div class="card-body">
-                    {% if is_html %}
-                        {{ form_row(form.text, {'attr': {'class': 'wysiwyg'}}) }}
-                    {% else %}
-                        {{ form_row(form.text) }}
-                    {% endif %}
+                    {{ form_row(form.text) }}
                 </div>
             </div>
         </div>
@@ -38,8 +34,8 @@
     </div>
     <hr>
     <div class="float-right">
-        <a class="btn btn-secondary" href="{{ path('admin_textblock') }}">Abbrechen</a>
-        <button type="submit" id="textblock_save" class="btn-primary btn">Speichern</button>
+        <a class="btn btn-secondary" href="{{ path('admin_setting') }}">Abbrechen</a>
+        <button type="submit" id="setting_save" class="btn-primary btn">Speichern</button>
     </div>
     {{ form_end(form) }}
 {% endblock %}

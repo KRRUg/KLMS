@@ -4,7 +4,7 @@
 
 {% block main %}
     <div class="container">
-        {% embed "site/components/cards/skeletons/cardProfile.html.twig"  with {'cardSymbole': 'fas fa-users fa-6x'} %}
+        {% embed "site/components/cards/skeletons/cardProfile.html.twig"  with {'cardSymbol': 'fas fa-users fa-6x'} %}
             {% block cardBody %}
                 {% if is_granted('IS_AUTHENTICATED_REMEMBERED') %}
                     {% set user = app.user.user %}

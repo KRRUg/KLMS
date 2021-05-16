@@ -1,0 +1,34 @@
+{% extends 'admin/adminBase.html.twig' %}
+
+{% block title %}KLMS - Admin{% endblock %}
+{% block siteheading %}<i class="fas fa-th-large"></i> Einstellungen{% endblock %}
+{% block main %}
+    {% for category, kk in keys %}
+        <div class="card mb-3">
+            <div class="card-body">
+                <h3>{{ category }}</h3>
+                <table class="table">
+                    <tbody>
+                    {% for key in kk %}
+                        {% set desc = service.getDescription(key) %}
+                        <tr>
+                            <td style="width: 25%">
+                                <a href="{{ path('admin_setting_edit', {'key' : key}) }}" title="Bearbeiten {{ key }}"> {{ key }}</a><br>
+                                <small class="text-muted">{{ desc }}</small>
+                            </td>
+                            <td style="width: 75%">
+                                {% set value = service.get(key) %}
+                                {% if value is not empty %}
+                                    {{ value | striptags | u.truncate(100, '...', false) | raw }}
+                                {% else %}
+                                    <p class="text-disabled">(nicht gesetzt)</p>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    {% endfor %}
+{% endblock %}

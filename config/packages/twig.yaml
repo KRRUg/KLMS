@@ -8,7 +8,7 @@ twig:
         - 'widgets/select2_widget.html.twig'
     globals:
         nav: '@App\Service\NavigationService'
-        textblock: '@App\Service\TextBlockService'
+        settings: '@App\Service\SettingService'
     paths:
         '%kernel.project_dir%/assets/images': images
         '%kernel.project_dir%/assets/css': styles

@@ -5,11 +5,11 @@ namespace App\Entity;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * @ORM\Entity(repositoryClass="App\Repository\TextBlockRepository")
+ * @ORM\Entity(repositoryClass="SettingRepository")
  * @ORM\Table(indexes={@ORM\Index(name="key_idx", columns={"key"})})
  * @ORM\HasLifecycleCallbacks
  */
-class TextBlock
+class Setting
 {
     /**
      * @ORM\Id()
