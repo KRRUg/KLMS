@@ -1,4 +1,4 @@
-@import './helper/variables';
+@import '../helper/variables';
 
 @import '~bootstrap/scss/bootstrap.scss';
 
@@ -8,6 +8,7 @@
 @import './card.scss';
 @import './forms.scss';
 @import './nav_tree.scss';
+@import './clan.scss';
 @import './hover.scss';
 
 html, body {

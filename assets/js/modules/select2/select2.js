@@ -12,9 +12,8 @@ export default function() {
         let $remoteUrl = $(this).attr('data-remote-target');
         let placeholderLabel = $(this).attr('data-label') || 'User suchen...';
         let $target = $(this);
+        let $modal = $(this).parents("div.modal-content").first();
 
-        let $modal = $(this).parents("div.modal").first();
-        
         let $dropDownModal = "";
         if($modal) {
             $dropDownModal = $modal;
@@ -27,7 +26,7 @@ export default function() {
             allowClear: true,
             minimumInputLength: 2,
             dropdownParent: $dropDownModal,
-            
+
             ajax: {
                 url: $remoteUrl,
                 data: function (params) {
@@ -61,25 +60,25 @@ export default function() {
                 if (item.loading) {
                     return item.text;
                 }
-                
+
                 //TODO: Make own rendering function
                 let $render = $('<div>');
                 let $title = $('<strong>').text(item.text);
                 $render.append($title);
-                
+
                 if (item.user.firstname || item.user.surname) {
                     let $name = $('<span class="px-2">').text(item.user.firstname + ' ' + item.user.surname);
                     $render.append($name);
                 }
-                
+
                 $render.append('<br />');
-                
+
                 let $mail = $('<small>').text(item.user.email);
                 $render.append($mail);
-                
+
                 let searchTerm = $target.data("select2").dropdown.$search.val();
-                $render.mark(searchTerm); 
-                
+                $render.mark(searchTerm);
+
                 return $render;
             }
         });

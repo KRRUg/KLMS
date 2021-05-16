@@ -5,6 +5,7 @@ require('bootstrap');
 let TeamSiteAdmin = function ($wrapper) {
     this.$root = $wrapper;
     this.dataSource = $wrapper.attr('data-source-input');
+    this.userQuerySource = $wrapper.attr('data-user-remote-target');
     this.dispatcher = $({});
 
     this.initTSAdmin();
@@ -19,7 +20,7 @@ let TeamSiteAdmin = function ($wrapper) {
     this.$root.on(
             'click',
             '.team-section-add',
-            this._processTeamCardAction.bind(this)
+            this.appendSection.bind(this)
             );
     
     this.$root.on(
@@ -97,7 +98,8 @@ $.extend(TeamSiteAdmin.prototype, {
         let entry = document.createElement("a");
         entry.setAttribute("class", "card team-card team-card-add text-center text-success");
         entry.setAttribute("data-index", index);
-        entry.setAttribute("href", "#");
+        entry.setAttribute("data-toggle", "modal");
+        entry.setAttribute("href", "#addTeamMemberModal");
 
         let entryDetails = document.createElement("DIV");
         entryDetails.setAttribute("class", "card-body");
@@ -169,6 +171,7 @@ $.extend(TeamSiteAdmin.prototype, {
         userEntry.setAttribute("data-parent", "team-card");
         userEntry.setAttribute("data-input-target", "user");
         userEntry.setAttribute("data-input-type", "user");
+        userEntry.setAttribute("data-input-value", user.uuid);
 
         if (user.image) {
             let userImg = document.createElement("IMG");
@@ -196,23 +199,20 @@ $.extend(TeamSiteAdmin.prototype, {
 
         return userEntry;
     },
-    _setTeamEntry() {
-        
-    },
     _processTeamCardAction(e) {
         e.preventDefault();
         let target = $(e.currentTarget).data("target");
         let action = $(e.currentTarget).data("action");
         let $card = $("#"+target);
-        
-        console.log(action);
-        
+
         switch(action) {
             case "edit":
                 this._toggleCardEditMode($card);
+                this.$root.find('a.action-btn').addClass('disabled');
                 break;
             case "cancel":
                 this._toggleCardEditMode($card);
+                this.$root.find('a.action-btn').removeClass('disabled');
                 break;
             case "delete":
                 this._deleteCard($card);
@@ -229,15 +229,16 @@ $.extend(TeamSiteAdmin.prototype, {
         $items.each((_, element) => {
             this._toggleItemEditMode($(element));
         });
-        
+
         $card.find('a.action-btn').toggle();
     },
     _submitCard($card) {
-        let index = $card.data("index").split("_");
+        let cardIndex = String($card.data("index"));
+        let index = cardIndex.includes("_") ? cardIndex.split("_") : cardIndex;
         let parent = $card.data("wrap");
         let $items = $card.find('[data-parent="'+ parent +'"]').not(".hidden");
         
-        let ele = this.teamSite[index[0]].entries[index[1]];
+        let ele = Array.isArray(index) ? this.teamSite[index[0]].entries[index[1]] : this.teamSite[index];
         
         $items.each((_, element) => {
             let name = element.getAttribute("name");
@@ -249,22 +250,29 @@ $.extend(TeamSiteAdmin.prototype, {
             
             ele[name] = val;
         });
-        
-        this._synchroniseData();
-        this.drawTSAdmin();
+
+        this.refresh();
     },
     _deleteCard($card) {
-        let index = $card.data("index").split("_");
+        let cardIndex = String($card.data("index"));
+        let index = cardIndex.includes("_") ? cardIndex.split("_") : cardIndex;
         let ele = this.teamSite;
+
+        if(Array.isArray(index)) {
+            let area = ele[index[0]];
+            area.entries.splice(index[1], 1);
+        } else {
+            ele.splice(index, 1);
+        }
         
-        let area = ele[index[0]];
-        area.entries.splice(index[1], 1);
-        
+        this.refresh();
+    },
+    refresh() {
         this._synchroniseData();
         this.drawTSAdmin();
     },
     _synchroniseData() {
-        var json = JSON.stringify(this.teamSite);
+        let json = JSON.stringify(this.teamSite);
         $(this.dataSource).val(json);
     },
     _toggleItemEditMode($item) {
@@ -324,7 +332,7 @@ $.extend(TeamSiteAdmin.prototype, {
             let targetText = $item.data("inputTarget");
             let labelText = targetText.charAt(0).toUpperCase() + targetText.slice(1);
             $("<label></label>").text(labelText).appendTo($inputGroup);
-            $("<textarea></textarea>", {"type": "text", "class": "form-control edit-item-value", "name": $item.data("inputTarget"),"data-input-type": $item.data("inputType"),"data-parent": $item.data("parent")}).text($item.text()).appendTo($inputGroup);
+            $("<textarea></textarea>", {"type": "text", "class": "form-control edit-item-value", "name": $item.data("inputTarget"),"data-input-type": $item.data("inputType"),"data-parent": $item.data("parent"), "rows":10}).text($item.text()).appendTo($inputGroup);
             $item.addClass("hidden");
             $item.hide();
             $item.after($inputGroup);
@@ -332,24 +340,24 @@ $.extend(TeamSiteAdmin.prototype, {
         
         return null;
     },
-    _toggleFooter() {
-        
-    },    
-    _getInputForm(inputVal) {
-        let $form = $('<form></form>', {"class": "edit-item-form form-inline d-inline-block pl-2"});
+    appendSection() {
+        let newSection = {title: "", description: "", entries: []};
+        this.teamSite.push(newSection);
 
-        let $inputGroup = $('<div></div>', {"class": "input-group input-group-sm"});
-        $("<input>", {"type": "text", "class": "form-control edit-item-value", "value": inputVal}).appendTo($inputGroup);
+        this.refresh();
+        let ele = $('.team-section-action[data-action="edit"]').last();
+        $(window).animate({scrollTop:ele.offset().top});
+        ele.click();
+    },
+    addTeamMember(index, user) {
+        let teamMember = {
+            title: "",
+            description: "",
+            user: user
+        };
 
-        let $inputGroupAppend = $('<div></div>', {"class": "input-group-append"});
-        $("<button type='submit' title='Save Changes' class='btn btn-outline-primary'><i class='fas fa-check fa-xs px-1'></i></button>").appendTo($inputGroupAppend);
-        $("<button type='reset' title='Cancel' class='btn btn-outline-secondary'><i class='fas fa-times fa-xs px-1'></i></button>").appendTo($inputGroupAppend);
-        $("<button type='delete' title='Delete Item' class='btn btn-outline-danger'><i class='fas fa-trash-alt fa-xs px-1'></i></button>").appendTo($inputGroupAppend);
-
-        $inputGroupAppend.appendTo($inputGroup);
-        $inputGroup.appendTo($form);
-
-        return $form;
+        this.teamSite[index].entries.push(teamMember);
+        this.refresh();
     }
 });
 
@@ -374,48 +382,31 @@ $(document).ready(() => {
         window.removeEventListener("beforeunload", showAreYouSureFunction);
     });
 
-    $("#addNavItemModal").on("show.bs.modal", function (e) {
+    $("#addTeamMemberModal").on("show.bs.modal", function (e) {
+        let index = $(e.relatedTarget).data("index");
         let $target = $(e.currentTarget);
-        selectAddDialogRow($target, "#add-dialog-choose-type");
-        $target.find("form").trigger("reset");
+        let form = $target.find("form");
+        form.trigger("reset");
+        form.find('select.select2-enable').trigger('change');
+        form.find('input[name="index"]').val(index);
     });
 
-    $("#addNavItemModal .choose-type-btn").on("click", function (e) {
+    $(".team-section-add").on("click", function(e) {
         e.preventDefault();
-        let target = $(e.currentTarget).data("target");
-        selectAddDialogRow($("#addNavItemModal"), target);
+        teamSiteAdmin.appendSection();
     });
 
-    function selectAddDialogRow($modal, rowId) {
-        $modal.find(".add-dialog-row:not(.d-none)").addClass("d-none");
-        $modal.find(rowId).removeClass("d-none");
+    $("#addTeamMemberModal form").on("submit", function (e) {
+        e.preventDefault();
 
-        if (rowId === "#add-dialog-choose-type") {
-            $modal.find("button[type=submit]").addClass('disabled');
-        } else {
-            $modal.find("button[type=submit]").removeClass('disabled');
+        let index = $(this).find('input[name="index"]').val();
+        let selectedUserData = $(this).find('select.select2-enable').select2('data');
+        let user = selectedUserData[0].user
+
+        if(user) {
+            teamSiteAdmin.addTeamMember(index, user);
         }
-    }
 
-    $("#addNavItemModal").on("click", "button[type=submit]:not(.disabled)", function (e) {
-        e.preventDefault();
-        let $form = $("#addNavItemModal").find(".add-dialog-row:not(.d-none)").find("form:first");
-        //To trigger HTML5 Form Validation with browser messages you have to click a submit button
-        $('<input type="submit">').hide().appendTo($form).click().remove();
-    });
-
-    $("#addNavItemModal form").on("submit", function (e) {
-        e.preventDefault();
-
-        let formData = $(this).serializeArray().reduce(
-                (obj, item) => Object.assign(obj, {[item.name]: item.value}), {});
-
-        let type = $(this).data("type");
-        let name = formData["navigation_node[name]"];
-        let path = formData[`navigation_node[${type}]`] || null;
-
-        teamSiteAdmin.addNavItem(name, path, type);
-        teamSiteAdmin.drawTree();
-        $("#addNavItemModal").modal('hide');
+        $("#addTeamMemberModal").modal('hide');
     });
 });
