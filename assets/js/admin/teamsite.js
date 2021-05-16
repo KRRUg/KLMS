@@ -274,6 +274,7 @@ $.extend(TeamSiteAdmin.prototype, {
     _synchroniseData() {
         let json = JSON.stringify(this.teamSite);
         $(this.dataSource).val(json);
+        this.dispatcher.trigger("changed");
     },
     _toggleItemEditMode($item) {
         let type = $item.data("inputType");
@@ -378,7 +379,7 @@ $(document).ready(() => {
         }
     });
 
-    $("#nav_edit_form").on("submit", function (_) {
+    $("#teamsite_edit_form").on("submit", function (_) {
         window.removeEventListener("beforeunload", showAreYouSureFunction);
     });
 

@@ -72,3 +72,11 @@ input.datetimepicker[readonly]:not([disabled]) {
 input.datepicker[readonly]:not([disabled]) {
     background:$input-bg;
 }
+
+.social-btn-group {
+    .btn {
+        font-size:1.5rem;
+        padding: 0.1rem 0.3rem;
+        margin-right:0.5rem;
+    }
+}
