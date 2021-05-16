@@ -199,21 +199,20 @@ $.extend(TeamSiteAdmin.prototype, {
 
         return userEntry;
     },
-    _setTeamEntry() {
-        
-    },
     _processTeamCardAction(e) {
         e.preventDefault();
         let target = $(e.currentTarget).data("target");
         let action = $(e.currentTarget).data("action");
         let $card = $("#"+target);
-        
+
         switch(action) {
             case "edit":
                 this._toggleCardEditMode($card);
+                this.$root.find('a.action-btn').addClass('disabled');
                 break;
             case "cancel":
                 this._toggleCardEditMode($card);
+                this.$root.find('a.action-btn').removeClass('disabled');
                 break;
             case "delete":
                 this._deleteCard($card);
@@ -230,7 +229,7 @@ $.extend(TeamSiteAdmin.prototype, {
         $items.each((_, element) => {
             this._toggleItemEditMode($(element));
         });
-        
+
         $card.find('a.action-btn').toggle();
     },
     _submitCard($card) {
@@ -340,9 +339,6 @@ $.extend(TeamSiteAdmin.prototype, {
         }
         
         return null;
-    },
-    _toggleFooter() {
-        
     },
     appendSection() {
         let newSection = {title: "", description: "", entries: []};
