@@ -195,6 +195,11 @@ $.extend(TeamSiteAdmin.prototype, {
         userName.textContent = user.firstname + " " + user.surname;
         bd.appendChild(userName);
 
+        let email = document.createElement("p");
+        email.setAttribute("class", "mb-0");
+        email.textContent = user.email;
+        bd.appendChild(email);
+
         userEntry.appendChild(bd);
 
         return userEntry;
