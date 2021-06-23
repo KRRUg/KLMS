@@ -50,6 +50,11 @@ class TeamsiteEntry
      */
     private ?TeamsiteCategory $category;
 
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $displayEmail;
+
 
     public function __construct()
     {
@@ -112,6 +117,18 @@ class TeamsiteEntry
     public function setCategory(?TeamsiteCategory $category): self
     {
         $this->category = $category;
+        return $this;
+    }
+
+    public function getDisplayEmail(): ?string
+    {
+        return $this->displayEmail;
+    }
+
+    public function setDisplayEmail(?string $displayEmail): self
+    {
+        $this->displayEmail = $displayEmail;
+
         return $this;
     }
 }

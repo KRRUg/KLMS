@@ -36,6 +36,7 @@ class TeamsiteService
 
     private const ARRAY_TITLE = 'title';
     private const ARRAY_DESCRIPTION = 'description';
+    private const ARRAY_DISPLAYEMAIL = 'displayEmail';
     private const ARRAY_ENTRIES = 'entries';
     private const ARRAY_USER = 'user';
     private const ARRAY_CATEGORY = [
@@ -46,6 +47,7 @@ class TeamsiteService
     private const ARRAY_ENTRY = [
         self::ARRAY_TITLE,
         self::ARRAY_DESCRIPTION,
+        self::ARRAY_DISPLAYEMAIL,
         self::ARRAY_USER,
     ];
 
@@ -80,6 +82,7 @@ class TeamsiteService
                 $cat_array[self::ARRAY_ENTRIES][] = [
                     self::ARRAY_TITLE => $entry->getTitle(),
                     self::ARRAY_DESCRIPTION => $entry->getDescription(),
+                    self::ARRAY_DISPLAYEMAIL => $entry->getDisplayEmail(),
                     self::ARRAY_USER => $this->userService->user2Array($users[$entry->getUserUuid()->toString()]),
                 ];
             }
@@ -156,6 +159,7 @@ class TeamsiteService
                 $cat->addEntry((new TeamsiteEntry())
                     ->setTitle($entry[self::ARRAY_TITLE])
                     ->setDescription($entry[self::ARRAY_DESCRIPTION])
+                    ->setDisplayEmail($entry[self::ARRAY_DISPLAYEMAIL])
                     ->setUserUuid($uuid)
                     ->setOrd($cnt_i++));
                 $uuids[] = $uuid;
