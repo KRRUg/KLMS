@@ -6,6 +6,7 @@ use App\Entity\Setting;
 use App\Repository\SettingRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
+use Vich\UploaderBundle\Templating\Helper\UploaderHelper;
 
 class SettingService
 {
@@ -14,6 +15,7 @@ class SettingService
     public const TB_TYPE_STRING = 'string';
     public const TB_TYPE_HTML = 'html';
     public const TB_TYPE_URL = 'url';
+    public const TB_TYPE_FILE = 'file';
 
     ////////////////////////////////////////////////
     /// Text block names
@@ -32,17 +34,22 @@ class SettingService
         "link.twitter" => [self::TB_DESCRIPTION => "Link zur Twitter Seite", self::TB_TYPE => self::TB_TYPE_URL],
         "link.discord" => [self::TB_DESCRIPTION => "Link zur Discord Server", self::TB_TYPE => self::TB_TYPE_URL],
         "link.teamspeak" => [self::TB_DESCRIPTION => "Teamspeak Invite Link", self::TB_TYPE => self::TB_TYPE_URL],
+
+        "style.logo" => [self::TB_DESCRIPTION => "Logo", self::TB_TYPE => self::TB_TYPE_FILE],
+        "style.bg_image" => [self::TB_DESCRIPTION => "Hintergrundbild", self::TB_TYPE => self::TB_TYPE_FILE],
         // extend here
     ];
 
     private LoggerInterface $logger;
     private EntityManagerInterface $em;
     private SettingRepository $repo;
+    private UploaderHelper $uploaderHelper;
 
-    public function __construct(EntityManagerInterface $em, SettingRepository $repo, LoggerInterface $logger)
+    public function __construct(EntityManagerInterface $em, SettingRepository $repo, UploaderHelper $uploaderHelper, LoggerInterface $logger)
     {
         $this->em = $em;
         $this->repo = $repo;
+        $this->uploaderHelper = $uploaderHelper;
         $this->logger = $logger;
     }
 
@@ -77,6 +84,16 @@ class SettingService
         return self::validKey($key) && !empty($this->get($key));
     }
 
+    public function getSettingObject(string $key): ?Setting
+    {
+        $key = strtolower($key);
+        if (!$this->validKey($key)) {
+            $this->logger->error("Invalid key {$key} was requested by SettingService");
+            return null;
+        }
+        return $this->repo->findByKey($key) ?? new Setting($key);
+    }
+
     public function get(string $key): ?string
     {
         $key = strtolower($key);
@@ -89,7 +106,11 @@ class SettingService
             // valid key, but not yet crated
             return "";
         }
-        return $block->getText();
+        if (self::getType($key) == self::TB_TYPE_FILE) {
+            return $this->uploaderHelper->asset($block, 'file', Setting::class);
+        } else {
+            return $block->getText() ?? '';
+        }
     }
 
     public function set(string $key, string $value)
@@ -169,5 +190,16 @@ class SettingService
             }
         }
         return $ret;
+    }
+
+    public function setSettingsObject(Setting $data)
+    {
+        $key = $data->getKey();
+        if (!$this->validKey($key)) {
+            $this->logger->error("Invalid key {$key} was to be deleted by SettingService");
+            return;
+        }
+        $this->em->persist($data);
+        $this->em->flush();
     }
 }
