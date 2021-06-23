@@ -36,7 +36,9 @@
                                             <h4 class="card-title mb-0 h5"><a href="{{ path('user_show', {'uuid': user.uuid } ) }}">{{ user.nickname }}</a></h4>
                                             <p class="card-text mb-0">{{ user.firstname }} {{ user.surname }}
                                                 {% if is_granted('IS_AUTHENTICATED_REMEMBERED') %}
-                                                    <br> <a href="mailto:{{ user.email }}">{{ user.email }}</a>
+                                                    <br><a href="mailto:{{ user.email }}">{{ user.email }}</a>
+                                                {% else %}
+                                                    <br><a href="{{ path('app_login') }}">[Anmelden um E-Mail Adresse zu sehen]</a>
                                                 {% endif %}
                                             </p>
                                         </div>
