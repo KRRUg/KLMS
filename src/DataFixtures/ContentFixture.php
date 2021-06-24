@@ -127,7 +127,7 @@ class ContentFixture extends Fixture
         $tb_subject = new Setting("email.register.subject");
         $tb_subject->setText('Registrierung');
 
-        $tb_about = new Setting("site.about_us");
+        $tb_about = new Setting("site.about");
         $tb_about->setText($lipsum->words(20));
 
         $tb_email_text = new Setting("email.register.text");
