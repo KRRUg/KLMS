@@ -115,13 +115,19 @@ class ContentFixture extends Fixture
     {
         $lipsum = new LoremIpsum();
 
-        $tb_reg = new Setting("organisation_name");
+        $tb_reg = new Setting("site.organisation");
         $tb_reg->setText('KLMS Team');
+
+        $tb_title = new Setting("site.title");
+        $tb_title->setText('KRRU Lan Management System');
+
+        $tb_subtitle = new Setting("site.subtitle");
+        $tb_subtitle->setText('System zur Organisation von professionellen LAN-Partys');
 
         $tb_subject = new Setting("email.register.subject");
         $tb_subject->setText('Registrierung');
 
-        $tb_about = new Setting("about_us");
+        $tb_about = new Setting("site.about_us");
         $tb_about->setText($lipsum->words(20));
 
         $tb_email_text = new Setting("email.register.text");
@@ -139,8 +145,10 @@ class ContentFixture extends Fixture
         $manager->persist($tb_subject);
         $manager->persist($tb_link_steam);
         $manager->persist($tb_link_discord);
+        $manager->persist($tb_title);
+        $manager->persist($tb_subtitle);
 
-        return [$tb_about, $tb_email_text, $tb_link_steam, $tb_link_discord, $tb_reg, $tb_subject];
+        return [$tb_about, $tb_email_text, $tb_link_steam, $tb_link_discord, $tb_reg, $tb_subject, $tb_title, $tb_subtitle];
     }
 
     public function load(ObjectManager $manager)

@@ -21,8 +21,10 @@ class SettingService
     /// Text block names
     ///////////////////////////////////////////////
     private const TEXT_BLOCK_KEYS = [
-        "organisation_name" => [self::TB_DESCRIPTION => "Organisationsname / Vereinsname", self::TB_TYPE => self::TB_TYPE_STRING],
-        "about_us" => [self::TB_DESCRIPTION => "Über uns, homepage links unten", self::TB_TYPE => self::TB_TYPE_HTML],
+        "site.title" => [self::TB_DESCRIPTION => "Titel der Seite", self::TB_TYPE => self::TB_TYPE_STRING],
+        "site.subtitle" => [self::TB_DESCRIPTION => "Untertitel der Seite", self::TB_TYPE => self::TB_TYPE_STRING],
+        "site.about_us" => [self::TB_DESCRIPTION => "Über uns, Homepage links unten", self::TB_TYPE => self::TB_TYPE_HTML],
+        "site.organisation" => [self::TB_DESCRIPTION => "Organisationsname / Vereinsname", self::TB_TYPE => self::TB_TYPE_STRING],
 
         "email.register.subject" => [self::TB_DESCRIPTION => "Betreff der Registrierungsmail", self::TB_TYPE => self::TB_TYPE_STRING],
         "email.register.text" => [self::TB_DESCRIPTION => "Text der Registrierungsmail", self::TB_TYPE => self::TB_TYPE_HTML],
