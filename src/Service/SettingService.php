@@ -72,11 +72,6 @@ class SettingService
         return self::validKey($key) ? self::TEXT_BLOCK_KEYS[$key][self::TB_TYPE] : "";
     }
 
-    public static function isHTML(string $key): bool
-    {
-        return self::getType($key) === self::TB_TYPE_HTML;
-    }
-
     public static function getDescription(string $key): string
     {
         return self::validKey($key) ? self::TEXT_BLOCK_KEYS[$key][self::TB_DESCRIPTION] : "";

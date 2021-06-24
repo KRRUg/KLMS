@@ -94,11 +94,9 @@ class SettingController extends AbstractController
             return $this->redirectToRoute("admin_setting");
         }
 
-        // TODO remove is_html
         return $this->render('admin/settings/edit.html.twig', [
             'key' => $key,
             'desc' => SettingService::getDescription($key),
-            'is_html' => SettingService::isHTML($key),
             'form' => $form->createView(),
         ]);
     }
