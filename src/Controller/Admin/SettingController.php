@@ -73,7 +73,13 @@ class SettingController extends AbstractController
                 $fb->add('text', UrlType::class, ['required' => false, 'label' => false]);
                 break;
             case SettingService::TB_TYPE_FILE:
-                $fb->add('file', VichFileType::class, ['required' => false, 'label' => false]);
+                $fb->add('file', VichFileType::class, [
+                    'required' => false,
+                    'label' => false,
+                    'download_uri' => false,
+                    'allow_delete' => true,
+                    'delete_label' => "Löschen",
+                    ]);
                 break;
         }
 
