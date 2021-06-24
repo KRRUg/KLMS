@@ -41,6 +41,9 @@ class SettingController extends AbstractController
                 $k[$array[0]][] = $key;
             }
         }
+        if (empty($k[''])) {
+            unset($k['']);
+        }
 
         return $this->render('admin/settings/index.html.twig', [
             'keys' => $k,
