@@ -95,6 +95,11 @@ class UserImage
         return $this->imageFile;
     }
 
+    public function isEmpty(): bool
+    {
+        return empty($this->imageFile) && empty($this->image->getName()) && empty($this->image->getSize());
+    }
+
     /**
      * @ORM\PrePersist()
      * @ORM\PreUpdate()

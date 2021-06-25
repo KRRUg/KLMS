@@ -33,16 +33,22 @@
                                     </div>
                                     <div class="col">
                                         <div class="card-body pb-0">
-                                            <h4 class="card-title mb-0 h5">{{ user.nickname }}</h4>
+                                            <h4 class="card-title mb-0 h5"><a href="{{ path('user_show', {'uuid': user.uuid } ) }}">{{ user.nickname }}</a></h4>
                                             <p class="card-text mb-0">{{ user.firstname }} {{ user.surname }}
                                                 {% if is_granted('IS_AUTHENTICATED_REMEMBERED') %}
-                                                    <br> {{ user.email }}
+                                                    {% if entry.displayEmail is not empty %}
+                                                        <br><a href="mailto:{{ entry.displayEmail }}">{{ entry.displayEmail }}</a>
+                                                    {% else %}
+                                                        <br><a href="mailto:{{ user.email }}">{{ user.email }}</a>
+                                                    {% endif %}
+                                                {% else %}
+                                                    <br><a href="{{ path('app_login') }}">[Anmelden um E-Mail Adresse zu sehen]</a>
                                                 {% endif %}
                                             </p>
                                         </div>
                                         <div class="card-body">
                                             <h5 class="card-title mb-1">{{ entry.title }}</h5>
-                                            <p class="card-text">{{ entry.description }}</p>
+                                            <p class="card-text">{{ entry.description|nl2br }}</p>
                                         </div>
                                     </div>
                                 </div>
@@ -51,7 +57,7 @@
                     {% endfor %}
                 </div>
             {% else %}
-                <p class="text-muted">Keine Einträger in dieser Kategorie.</p>
+                <p class="text-muted">Keine Einträge in dieser Kategorie.</p>
             {% endif %}
 
             <hr>

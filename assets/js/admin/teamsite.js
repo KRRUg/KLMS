@@ -130,7 +130,7 @@ $.extend(TeamSiteAdmin.prototype, {
         let userDetails = document.createElement("DIV");
         userDetails.setAttribute("class", "card-body");
 
-        let userDet = this._generateUserEntry(teamEntry.user);
+        let userDet = this._generateUserEntry(teamEntry.user, teamEntry.displayEmail);
         userDetails.appendChild(userDet);
 
         let userTitle = document.createElement("h4");
@@ -149,6 +149,16 @@ $.extend(TeamSiteAdmin.prototype, {
         userDesc.textContent = teamEntry.description;
         userDetails.appendChild(userDesc);
 
+        let displayEmail = document.createElement("P");
+        displayEmail.setAttribute("class", "card-text");
+        //Hide the Field in the Preview, so it's only shown in the Edit Window
+        displayEmail.setAttribute("style", "display: none;");
+        displayEmail.setAttribute("data-parent", "team-card");
+        displayEmail.setAttribute("data-input-target", "displayEmail");
+        displayEmail.setAttribute("data-input-type", "hiddentext");
+        displayEmail.textContent = teamEntry.displayEmail;
+        userDetails.appendChild(displayEmail);
+
         entry.appendChild(userDetails);
 
         let footer = document.createElement("DIV");
@@ -165,7 +175,7 @@ $.extend(TeamSiteAdmin.prototype, {
 
         return entryWrap;
     },
-    _generateUserEntry(user) {
+    _generateUserEntry(user, displayEmail) {
         let userEntry = document.createElement("DIV");
         userEntry.setAttribute("class", "media mb-2");
         userEntry.setAttribute("data-parent", "team-card");
@@ -194,6 +204,19 @@ $.extend(TeamSiteAdmin.prototype, {
         userName.setAttribute("class", "mb-0");
         userName.textContent = user.firstname + " " + user.surname;
         bd.appendChild(userName);
+
+        //Test if displayEmail is set
+        if(displayEmail) {
+            let email = document.createElement("p");
+            email.setAttribute("class", "mb-0");
+            email.textContent = displayEmail;
+            bd.appendChild(email);
+        } else {
+            let email = document.createElement("p");
+            email.setAttribute("class", "mb-0");
+            email.textContent = user.email;
+            bd.appendChild(email);
+        }
 
         userEntry.appendChild(bd);
 
