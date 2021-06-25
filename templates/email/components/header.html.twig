@@ -1,11 +1,8 @@
-{#<a href="{{ url('news') }}">#}
-{#    <img src="{{ absolute_url(asset("build/images/logo.png")) }}" class="logo" alt="Logo">#}
-{#</a>#}
-
-<div class="head-wrap" style="background-image: url({{ absolute_url(asset("build/images/header.jpg")) }})">
+{# TODO embedd logo to make it independent of changes #}
+<div class="head-wrap" style="background-image: url({{ absolute_url(settings.get('style.bg_image')) }})">
     <div class="head-content container">
         <a href="{{ url('news') }}">
-            <img class="logo mb-4" src="{{ absolute_url(asset("build/images/logo-white.png")) }}" alt="KLMS Logo">
+            <img class="logo mb-4" src="{{ absolute_url(settings.get('style.logo')) }}" alt="Logo">
         </a>
     </div>
 </div>

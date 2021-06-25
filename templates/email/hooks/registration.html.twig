@@ -2,7 +2,7 @@
 
 {% block main %}
   {% set text = settings.get('email.register.text') %}
-  {% set org = settings.get('organisation_name') %}
+  {% set org = settings.get('site.organisation') %}
   {% if text is empty %}
     <h1>Deine Registrierung bei {{ org }}</h1>
   {% endif %}

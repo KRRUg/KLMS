@@ -6,8 +6,8 @@
     {% embed 'site/components/header.html.twig' with {'css_prefix': 'startpage'}%}
         {% block headerContent %}
             {{ parent() }}
-            <h3>KRRU Lan Management System</h3>
-            <p>System zur Organisation von professionellen LAN-Partys</p>
+            <h3>{{ settings.get('site.title') }}</h3>
+            <p>{{ settings.get('site.subtitle') }}</p>
         {% endblock %}
     {% endembed %}
 {% endblock %}
