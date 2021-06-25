@@ -86,6 +86,36 @@ $.extend(TeamSiteAdmin.prototype, {
         description.textContent = sectionElement.description;
         section.appendChild(description);
 
+        let hideEmail = document.createElement("input");
+        hideEmail.setAttribute("type", "checkbox");
+        hideEmail.setAttribute("class", "col-12");
+        //Hide the Field in the Preview, so it's only shown in the Edit Window
+        //hideEmail.setAttribute("style", "display: none;");
+        hideEmail.setAttribute("disabled",  "true");
+        hideEmail.setAttribute("data-parent", "team-section");
+        hideEmail.setAttribute("data-input-target", "hideEmail");
+        hideEmail.setAttribute("data-input-type", "checkbox");
+        if(sectionElement.hideEmail) {
+            hideEmail.setAttribute("checked", "true");
+        }
+        hideEmail.value = "true";
+        section.appendChild(hideEmail);
+
+        let hideName = document.createElement("input");
+        hideName.setAttribute("type", "checkbox");
+        hideName.setAttribute("class", "col-12");
+        //Hide the Field in the Preview, so it's only shown in the Edit Window
+        //hideName.setAttribute("style", "display: none;");
+        hideName.setAttribute("disabled", "true");
+        hideName.setAttribute("data-parent", "team-section");
+        hideName.setAttribute("data-input-target", "hideName");
+        hideName.setAttribute("data-input-type", "checkbox");
+        if(sectionElement.hideName) {
+            hideName.setAttribute("checked", "true");
+        }
+        hideName.value = "true";
+        section.appendChild(hideName);
+
         let teamEntries = document.createElement("DIV");
         teamEntries.setAttribute("class", "row row-cols-1 row-cols-md-2 row-cols-lg-3 row-cols-xl-5");
         var i = 0;
@@ -264,14 +294,19 @@ $.extend(TeamSiteAdmin.prototype, {
         let ele = Array.isArray(index) ? this.teamSite[index[0]].entries[index[1]] : this.teamSite[index];
         
         $items.each((_, element) => {
+            console.log(element);
             let name = element.getAttribute("name");
             let val = this._toggleItemEditMode($(element));
-            
+            console.log(val);
+            console.log(name);
+
             if(!name) {
+                console.log('returned!');
                 return;
             }
             
             ele[name] = val;
+            console.log(ele);
         });
 
         this.refresh();
@@ -310,11 +345,44 @@ $.extend(TeamSiteAdmin.prototype, {
                 break;
             case "user":
                 break;
+            case "checkbox":
+                val = this._toggleCheckboxEdit($item);
             default:
                 val = this._toogleTextEdit($item);
         }
         
         return val;
+    },
+    //TODO: WIP
+    _toggleCheckboxEdit($item) {
+        if($item.is('input:disabled')) {
+            let $wrap = $item.parents("div.form-group").first();
+            let val = $item.prop("checked");
+            //$wrap.prev().removeClass("hidden");
+            console.log($item);
+            //$item.setAttribute("disabled", "false")
+            $item.prop("disabled", false);
+            $wrap.prev().show();
+            $wrap.remove();
+
+            return val;
+        } else {
+            let addClass = $item.hasClass("col-12") ? " col-12" : "";
+
+            let $inputGroup = $('<div></div>', {"class": "form-group" + addClass});
+            let targetText = $item.data("inputTarget");
+            let labelText = targetText.charAt(0).toUpperCase() + targetText.slice(1);
+            $("<label></label>").text(labelText).appendTo($inputGroup);
+            $("<input>", {"type": "checkbox", "class": "form-control edit-item-value", "value": "true", "name": $item.data("inputTarget"),"data-input-type": $item.data("inputType"),"data-parent": $item.data("parent")}).appendTo($inputGroup);
+            //$item.addClass("hidden");
+            console.log($item);
+            $item.prop("disabled", true);
+            //$item.setAttribute("disabled", "true")
+            $item.hide();
+            $item.after($inputGroup);
+        }
+
+        return null;
     },
     _toogleTextEdit($item) {
         if($item.is('input')) {

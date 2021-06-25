@@ -37,11 +37,15 @@ class TeamsiteService
     private const ARRAY_TITLE = 'title';
     private const ARRAY_DESCRIPTION = 'description';
     private const ARRAY_DISPLAYEMAIL = 'displayEmail';
+    private const ARRAY_HIDEEMAIL = 'hideEmail';
+    private const ARRAY_HIDENAME = 'hideName';
     private const ARRAY_ENTRIES = 'entries';
     private const ARRAY_USER = 'user';
     private const ARRAY_CATEGORY = [
         self::ARRAY_TITLE,
         self::ARRAY_DESCRIPTION,
+        self::ARRAY_HIDENAME,
+        self::ARRAY_HIDEEMAIL,
         self::ARRAY_ENTRIES,
     ];
     private const ARRAY_ENTRY = [
@@ -76,6 +80,8 @@ class TeamsiteService
             $cat_array = [
                 self::ARRAY_TITLE => $category->getTitle(),
                 self::ARRAY_DESCRIPTION => $category->getDescription(),
+                self::ARRAY_HIDEEMAIL => $category->getHideEmail(),
+                self::ARRAY_HIDENAME => $category->getHideName(),
                 self::ARRAY_ENTRIES => array(),
             ];
             foreach ($category->getEntries() as $entry) {
@@ -123,6 +129,8 @@ class TeamsiteService
         if (!(is_array($a[self::ARRAY_ENTRIES])
             && is_string($a[self::ARRAY_TITLE])
             && is_string($a[self::ARRAY_DESCRIPTION])
+            && is_bool($a[self::ARRAY_HIDEEMAIL])
+            && is_bool($a[self::ARRAY_HIDENAME])
         )) {
             return false;
         }
@@ -152,6 +160,8 @@ class TeamsiteService
             $cat = (new TeamsiteCategory())
                 ->setTitle($item[self::ARRAY_TITLE])
                 ->setDescription($item[self::ARRAY_DESCRIPTION])
+                ->setHideEmail($item[self::ARRAY_HIDEEMAIL])
+                ->setHideName($item[self::ARRAY_HIDENAME])
                 ->setOrd($cnt++);
             $cnt_i = 1;
             foreach ($item[self::ARRAY_ENTRIES] as $entry) {
