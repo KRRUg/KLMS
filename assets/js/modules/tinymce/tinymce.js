@@ -41,7 +41,7 @@ export function init() {
 
         // link plugin
         link_default_protocol: 'https',
-        link_list: '/admin/media.json?filter=doc',
+        link_list: '/admin/media.json',
 
         //table plugin
         table_default_attributes: {
