@@ -60,7 +60,7 @@
                                             <input type="hidden" name="_token" value="{{ csrf_token(csrf_token_member_edit) }}" />
                                             <input type="hidden" name="user_uuid" value="{{ user.uuid }}" />
                                             <input type="hidden" name="action" value="{{ action }}" />
-                                            <button type="submit" class="btn btn-outline-dark" title="{{ modalTitle }}" >{% if userIsAdmin %}<i class="far fa-ban fa-fw"></i>{% else %}<i class="fas fa-crown fa-fw"></i>{% endif %}</button>
+                                            <button type="submit" class="btn btn-outline-dark" title="{{ modalTitle }}" >{% if userIsAdmin %}<i class="fas fa-ban fa-fw"></i>{% else %}<i class="fas fa-crown fa-fw"></i>{% endif %}</button>
                                         </form>
                                     </td>
                                 </tr>
