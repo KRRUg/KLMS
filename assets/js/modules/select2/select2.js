@@ -15,7 +15,7 @@ export default function() {
         let $modal = $(this).parents("div.modal-content").first();
 
         let $dropDownModal = "";
-        if($modal) {
+        if($modal.length !== 0) {
             $dropDownModal = $modal;
         }
 
