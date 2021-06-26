@@ -16,6 +16,8 @@ use App\Service\TokenService;
 use Ramsey\Uuid\Uuid;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\Extension\Core\Type\EmailType;
+use Symfony\Component\Form\Extension\Core\Type\PasswordType;
+use Symfony\Component\Form\Extension\Core\Type\RepeatedType;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Guard\GuardAuthenticatorHandler;
@@ -80,22 +82,46 @@ class AccountController extends AbstractController
     /**
      * @Route("/reset_pw", name="reset_pw")
      */
-    public function resetPW(Request $request)
+    public function resetPW(Request $request, LoginFormAuthenticator $login, GuardAuthenticatorHandler $guard)
     {
         if ($this->isGranted('IS_AUTHENTICATED_REMEMBERED')) {
             return $this->redirectToRoute('user_profile');
         }
-        if (!($user = $this->checkTokenAndGetUser($request, self::TOKEN_PW_RESET_STRING, true))) {
+        if (!($user = $this->checkTokenAndGetUser($request, self::TOKEN_PW_RESET_STRING, false))) {
             return $this->redirectToRoute('app_login');
         }
-        // TODO add Token to session and render pw reset form
-        return $this->redirectToRoute('app_login');
+        $fb = $this->createFormBuilder($user)
+            ->add('password', RepeatedType::class, [
+                'type' => PasswordType::class,
+                'invalid_message' => 'Das Passwort muss übereinstimmen.',
+                'required' => true,
+                'first_options'  => ['label' => 'Passwort'],
+                'second_options' => ['label' => 'Password wiederholen'],
+            ])
+        ;
+
+        $form = $fb->getForm();
+        $form->handleRequest($request);
+        if ($form->isSubmitted() && $form->isValid()) {
+            $this->clearToken($request);
+            try {
+                $this->manager->flush();
+            } catch (PersistException $e) {
+                $this->addFlash('success', 'Passwort konnte nicht gesetzt werden.');
+            }
+            return $guard->authenticateUserAndHandleSuccess(new LoginUser($user), $request, $login, 'main');
+        }
+
+        return $this->render('security/reset.change.html.twig', [
+            'form' => $form->createView(),
+        ]);
     }
 
-    // TODO remove autologin, add flash
-    //LoginFormAuthenticator $login, GuardAuthenticatorHandler $guard
-    //return $guard->authenticateUserAndHandleSuccess(new LoginUser($user), $request, $login, 'main');
-
+    private function clearToken(Request $request)
+    {
+        $token = strval($request->get('token'));
+        $this->tokenService->clearToken($token);
+    }
 
     private function checkTokenAndGetUser(Request $request, string $method, bool $removeToken = false): ?User
     {

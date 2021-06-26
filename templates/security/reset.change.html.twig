@@ -5,22 +5,17 @@
 {% block main %}
     {% embed "site/components/cards/skeletons/cardProfileRound.html.twig"  with {'cardSymbole': 'fas fa-unlock-alt'} %}
         {% block cardBody %}
-            <h1 class=" h3 card-title text-center">Anmeldung</h1>
+            <h1 class=" h3 card-title text-center">Passwort zurücksetzen</h1>
                 {{ form_start(form) }}
-                    {% if error %}
-                        <div class="alert alert-danger"><i class="fas fa-exclamation-circle"></i> {{ error }}</div>
-                    {% endif %}
+{#                    {% if error %}#}
+{#                        <div class="alert alert-danger"><i class="fas fa-exclamation-circle"></i> {{ error }}</div>#}
+{#                    {% endif %}#}
                     <div class="form-group">
-                        <label for="inputPassword">Password zurücksetzen</label>
-                        <div class="input-group">
-                            <div class="input-group-prepend">
-                                <span class="input-group-text" id="logon-password-addon"><i class="fas fa-key"></i> </span>
-                            </div>
-                            <input type="password" class="form-control" id="inputPassword" name="password" placeholder="Password" aria-label="Password" aria-describedby="logon-password-addon">
-                        </div>
-                        <small class="form-text text-right"><a href="{# TODO: Link Passwort vergessen einbauen #}" data-toggle="modal" data-target="#modalPassword">Passwort vergessen?</a></small>
+                        {{ form_rest(form) }}
                     </div>
-                    <button class="btn btn-lg btn-primary" type="submit">Abschicken</button>
+                    <div class="float-right">
+                        <button class="btn btn-lg btn-primary" type="submit">Abschicken</button>
+                    </div>
                 {{ form_end(form) }}
         {% endblock %}
 
