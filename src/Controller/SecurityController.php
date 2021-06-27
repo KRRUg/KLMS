@@ -6,6 +6,7 @@ use App\Security\AccountNotConfirmedException;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Security\Core\Exception\BadCredentialsException;
 use Symfony\Component\Security\Core\Exception\InvalidCsrfTokenException;
 use Symfony\Component\Security\Core\Exception\UsernameNotFoundException;
@@ -16,6 +17,13 @@ use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
  */
 class SecurityController extends AbstractController
 {
+    private UrlGeneratorInterface $urlGenerator;
+
+    public function __construct(UrlGeneratorInterface $urlGenerator)
+    {
+        $this->urlGenerator = $urlGenerator;
+    }
+
     /**
      * @Route("/login", name="app_login")
      */
@@ -44,9 +52,11 @@ class SecurityController extends AbstractController
         switch (true) {
             case $error instanceof BadCredentialsException:
             case $error instanceof UsernameNotFoundException:
-                return "EMail-Addresse oder Password falsch.";
+                return "E-Mail-Addresse oder Password falsch.";
             case $error instanceof AccountNotConfirmedException:
-                return "EMail-Addresse nicht bestätigt.";
+                $user = $error->getUser();
+                $url = $this->urlGenerator->generate('app_register_resend', ['email' => $user->getUsername()]);
+                return "E-Mail-Addresse nicht bestätigt. <a href=\"{$url}\">E-Mail erneut senden.</a>";
             case $error instanceof InvalidCsrfTokenException:
                 return "Es ist ein Fehler aufgetreten. Bitte Seite neu laden.";
             default:

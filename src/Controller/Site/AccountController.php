@@ -148,7 +148,23 @@ class AccountController extends AbstractController
     }
 
     /**
-     * @Route("/confirm", name="app_confirm")
+     * @Route("/resend", name="app_register_resend")
+     */
+    public function resend(Request $request)
+    {
+        $email = $request->query->get('email');
+        if (filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            $user = $this->userRepo->findOneBy(['email' => $email]);
+            if (!empty($user) && !$user->getEmailConfirmed()) {
+                $this->sendRegisterToken($user);
+            }
+            $this->addFlash('success', "Falls {$email} registriert ist, wurde eine E-Mail verschickt");
+        }
+        return $this->redirectToRoute('app_login');
+    }
+
+    /**
+     * @Route("/confirm", name="app_register_confirm")
      */
     public function confirm(Request $request, LoginFormAuthenticator $login, GuardAuthenticatorHandler $guard)
     {
