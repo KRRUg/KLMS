@@ -10,12 +10,9 @@
 
                 <h1 class="h3 card-title mb-4">Profil bearbeiten</h1>
                 {{ form_start(form) }}
-                {% if not form.vars.valid %}
-                    <div class="alert alert-danger">
-                        <i class="fas fa-exclamation-circle"></i> {{ form_errors(form) }}
-                    </div>
-                {% endif %}
-
+                <div class="float-right py-2">
+                    <a class="btn btn-outline-primary" href="{{ path('user_profile_edit_pw') }}"><i class="fas fa-user-edit"></i> Passwort ändern</a>
+                </div>
                 <h2 class="h4 pt-3">Persönliche Informationen</h2>
                 <hr>
                 {{ form_row(form.nickname, {'input_group_prepend' : '<i class="fas fa-headset"></i>'}) }}
@@ -58,7 +55,7 @@
                 {{ form_row(form.website, {'input_group_prepend' : '<i class="fas fa-globe"></i>'}) }}
                 {{ form_row(form.hardware, {'input_group_prepend' : '<i class="fas fa-desktop"></i>'}) }}
                 <hr>
-                <div class="float-right">
+                <div class="float-right pb-2 pt-2">
                     <a class="btn btn-secondary" href="{{ path('user_profile') }}">Abbrechen</a>
                     <button type="submit" id="user_save" class="btn-primary btn">Speichern</button>
                 </div>

@@ -45,8 +45,8 @@ class AccountController extends AbstractController
      */
     public function reset(Request $request)
     {
-        if ($this->getUser()) {
-            return $this->redirect('/');
+        if ($this->isGranted('IS_AUTHENTICATED_REMEMBERED')) {
+            return $this->redirectToRoute('user_profile');
         }
 
         $form = $this->createFormBuilder()
@@ -84,9 +84,6 @@ class AccountController extends AbstractController
      */
     public function resetPW(Request $request, LoginFormAuthenticator $login, GuardAuthenticatorHandler $guard)
     {
-        if ($this->isGranted('IS_AUTHENTICATED_REMEMBERED')) {
-            return $this->redirectToRoute('user_profile');
-        }
         if (!($user = $this->checkTokenAndGetUser($request, self::TOKEN_PW_RESET_STRING, false))) {
             return $this->redirectToRoute('app_login');
         }
