@@ -145,7 +145,7 @@ class UserController extends AbstractController
             } catch (PersistException $e) {
                 switch($e->getCode()) {
                     case PersistException::REASON_NON_UNIQUE:
-                        $this->addFlash('error', "Nickname und/oder Email git es schon.");
+                        $this->addFlash('error', "Nickname und/oder Email gibt es schon.");
                         break;
                     default:
                         $this->addFlash('error', "Unbekannter Fehler beim Speichern.");
