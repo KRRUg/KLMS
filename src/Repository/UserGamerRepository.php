@@ -25,7 +25,7 @@ class UserGamerRepository extends ServiceEntityRepository
     {
         try {
             return $this->createQueryBuilder('u')
-                ->andWhere('u.guid = :uuid')
+                ->andWhere('u.uuid = :uuid')
                 ->setParameter('uuid', $user->getUuid())
                 ->getQuery()
                 ->getOneOrNullResult();

@@ -15,13 +15,13 @@ use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 use Ramsey\Uuid\Uuid;
 use Ramsey\Uuid\UuidInterface;
+use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 use Symfony\Component\Mailer\Exception\TransportExceptionInterface;
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Messenger\Exception\HandlerFailedException;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Messenger\Stamp\DelayStamp;
 use Symfony\Component\Mime as Mime;
-use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 use Twig\Environment;
 
 class EmailService
@@ -37,19 +37,19 @@ class EmailService
 
     const HOOKS = [
         self::APP_HOOK_REGISTRATION_CONFIRM => [
-            self::HOOK_SUBJECT => "register.subject",
+            self::HOOK_SUBJECT => "email.register.subject",
             self::HOOK_SUBJECT_DEFAULT => "Registrierung",
             self::HOOK_TEMPLATE => '/email/hooks/registration.html.twig',
             self::HOOK_CONTEXT => ['user', 'token'],
         ],
         self::APP_HOOK_RESET_PW => [
-            self::HOOK_SUBJECT => "reset.subject",
+            self::HOOK_SUBJECT => "email.reset.subject",
             self::HOOK_SUBJECT_DEFAULT => "Passwort zurücksetzen",
             self::HOOK_TEMPLATE => '/email/hooks/reset.html.twig',
             self::HOOK_CONTEXT => ['user', 'token'],
         ],
         self::APP_HOOK_CHANGE_NOTIFICATION => [
-            self::HOOK_SUBJECT => "change.subject",
+            self::HOOK_SUBJECT => "email.change.subject",
             self::HOOK_SUBJECT_DEFAULT => "Hinweis",
             self::HOOK_TEMPLATE => '/email/hooks/change.html.twig',
             self::HOOK_CONTEXT => ['message'],
@@ -69,7 +69,7 @@ class EmailService
     private Environment $twig;
     private IdmRepository $userRepository;
     private GroupService $groupService;
-    private TextBlockService $textBlockService;
+    private SettingService $settingService;
     private MessageBusInterface $messageBus;
     private string $appSecret;
 
@@ -77,7 +77,7 @@ class EmailService
                                 LoggerInterface $logger,
                                 EntityManagerInterface $em,
                                 GroupService $groupService,
-                                TextBlockService $textBlockService,
+                                SettingService $settingService,
                                 EmailRepository $templateRepository,
                                 Environment $twig,
                                 MessageBusInterface $messageBus,
@@ -87,7 +87,7 @@ class EmailService
         $this->logger = $logger;
         $this->mailer = $mailer;
         $this->groupService = $groupService;
-        $this->textBlockService = $textBlockService;
+        $this->settingService = $settingService;
         $this->em = $em;
         $this->twig = $twig;
         $this->appSecret = $appSecret;
@@ -181,7 +181,7 @@ class EmailService
             $this->logger->error('Invalid Hook configuration');
             return null;
         }
-        $subject = $this->textBlockService->get($config[self::HOOK_SUBJECT]);
+        $subject = $this->settingService->get($config[self::HOOK_SUBJECT]);
         $subject = empty($subject) ? $config[self::HOOK_SUBJECT_DEFAULT] : $subject;
 
         return (new TemplatedEmail())

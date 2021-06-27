@@ -1,0 +1,66 @@
+{% extends 'site/siteBase.html.twig' %}
+
+{% block title %}KLMS - {{ teamsite.title }}{% endblock %}
+
+{% block main %}
+    <div class="container">
+        <div class="row">
+            <div class="col mb-2">
+                <h1 class="card-title">{{ teamsite.title }}</h1>
+                <div class="card-text">
+                    {{ teamsite.description }}
+                </div>
+            </div>
+        </div>
+                <hr>
+        {% for category in teamsite.categories %}
+            <h3>{{ category.title }}</h3>
+            <div class="mb-2">{{ category.description }}</div>
+            {% if category.entries is not empty %}
+                <div class="row">
+                    {% for entry in category.entries %}
+                        {% set user = entry.userUuid | user %}
+                        {% set image = user | user_image %}
+                        <div class="col-xs-1 col-xl-6 mb-4">
+                            <div class="card team-card" data-index="0">
+                                <div class="row no-gutters">
+                                    <div class="col-auto">
+                                        {% if image %}
+                                            <img class="card-img" src="{{ image | imagine_filter('user_img') }}" alt="User Image">
+                                        {% else %}
+                                            <i style="font-size:64px; padding: 118px 68px;" class="far fa-user-circle"></i>
+                                        {% endif %}
+                                    </div>
+                                    <div class="col">
+                                        <div class="card-body pb-0">
+                                            <h4 class="card-title mb-0 h5"><a href="{{ path('user_show', {'uuid': user.uuid } ) }}">{{ user.nickname }}</a></h4>
+                                            <p class="card-text mb-0">{{ user.firstname }} {{ user.surname }}
+                                                {% if is_granted('IS_AUTHENTICATED_REMEMBERED') %}
+                                                    {% if entry.displayEmail is not empty %}
+                                                        <br><a href="mailto:{{ entry.displayEmail }}">{{ entry.displayEmail }}</a>
+                                                    {% else %}
+                                                        <br><a href="mailto:{{ user.email }}">{{ user.email }}</a>
+                                                    {% endif %}
+                                                {% else %}
+                                                    <br><a href="{{ path('app_login') }}">[Anmelden um E-Mail Adresse zu sehen]</a>
+                                                {% endif %}
+                                            </p>
+                                        </div>
+                                        <div class="card-body">
+                                            <h5 class="card-title mb-1">{{ entry.title }}</h5>
+                                            <p class="card-text">{{ entry.description|nl2br }}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <p class="text-muted">Keine Einträge in dieser Kategorie.</p>
+            {% endif %}
+
+            <hr>
+        {% endfor %}
+    </div>
+{% endblock %}

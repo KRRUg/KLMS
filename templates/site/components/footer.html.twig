@@ -1,12 +1,12 @@
 <div id="foot-bar" class="container py-5 bg-dark text-white">
     <div class="row">
-        <div class="col">
+        <div class="col-8">
             <h3>Über uns</h3>
-            <p>{{ textblock.get('ABOUT_US')|raw }}</p>
+            <p>{{ settings.get('site.about')|raw }}</p>
         </div>
-        <div class="col">
+        <div class="col-4">
             <h3>Links</h3>
-            {% include 'site/components/nav/navLinks.html.twig' %}
+            {% include 'site/components/socialLinks.html.twig' %}
         </div>
     </div>
 </div>

@@ -3,15 +3,10 @@
 {% block title %}Registrieren{% endblock %}
 
 {% block main %}
-    {% embed "site/components/cards/skeletons/cardProfileRound.html.twig"  with {'cardSymbole': 'fas fa-user-plus'} %}
+    {% embed "site/components/cards/skeletons/cardProfileRound.html.twig"  with {'cardSymbol': 'fas fa-user-plus'} %}
         {% block cardBody %}
             <h1 class=" h3 card-title text-center">Registrieren</h1>
                 {{ form_start(form) }}
-                {% if not form.vars.valid %}
-                    <div class="alert alert-danger">
-                        <i class="fas fa-exclamation-circle"></i> {{ form_errors(form) }}
-                    </div>
-                {% endif %}
                 {{ form_row(form.nickname, {'input_group_prepend' : '<i class="fas fa-headset"></i>'}) }}
                 <div class="row">
                     <div class="col">

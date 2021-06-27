@@ -1,7 +1,7 @@
 <div class="container py-2">
     <div class="row small text-muted">
         <div class="col text-left">
-            {{ textblock.get('organisation_name') }}
+            {{ settings.get('site.organisation') }}
         </div>
         <div class="col text-right">
             {% if unsubscribe is defined %}

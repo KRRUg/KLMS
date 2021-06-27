@@ -9,16 +9,18 @@ use Doctrine\ORM\Mapping as ORM;
  * @ORM\Table(
  *     name="navigation_node",
  *     uniqueConstraints={
- *        @ORM\UniqueConstraint(name="lft_unique", columns={"navigation_id", "lft" }),
- *        @ORM\UniqueConstraint(name="rgt_unique", columns={"navigation_id", "rgt" }),
- * })
+ *        @ORM\UniqueConstraint(name="nav_node_lft_unique", columns={"navigation_id", "lft" }),
+ *        @ORM\UniqueConstraint(name="nav_node_rgt_unique", columns={"navigation_id", "rgt" }),
+ *     },
+ * )
  * @ORM\InheritanceType("SINGLE_TABLE")
  * @ORM\DiscriminatorColumn(name="type", type="string", length=25)
  * @ORM\DiscriminatorMap({
  *     "root" = "NavigationNodeRoot",
  *     "empty" = "NavigationNodeEmpty",
+ *     "generic" = "NavigationNodeGeneric",
  *     "content" = "NavigationNodeContent",
- *     "generic" = "NavigationNodeGeneric"
+ *     "teamsite" = "NavigationNodeTeamsite",
  * })
  */
 abstract class NavigationNode
@@ -27,12 +29,14 @@ abstract class NavigationNode
     const NAV_NODE_TYPE_EMPTY = "empty";
     const NAV_NODE_TYPE_PATH = "path";
     const NAV_NODE_TYPE_CONTENT = "content";
+    const NAV_NODE_TYPE_TEAMSITE = "teamsite";
 
     const NAV_NODE_TYPES = [
         self::NAV_NODE_TYPE_ROOT,
         self::NAV_NODE_TYPE_EMPTY,
         self::NAV_NODE_TYPE_PATH,
         self::NAV_NODE_TYPE_CONTENT,
+        self::NAV_NODE_TYPE_TEAMSITE,
     ];
 
     /**
@@ -73,7 +77,11 @@ abstract class NavigationNode
         return $this->getName();
     }
 
-    abstract public function getPath(): ?string;
+    public function getPath(): ?string
+    {
+        $id = $this->getTargetId();
+        return is_null($id) ? null : "/{$this->getType()}/{$id}";
+    }
 
     abstract public function getType(): ?string;
 
@@ -144,7 +152,7 @@ abstract class NavigationNode
 /**
  * @ORM\Entity()
  */
-final class NavigationNodeRoot extends NavigationNode
+class NavigationNodeRoot extends NavigationNode
 {
     public function __construct()
     {
@@ -155,11 +163,6 @@ final class NavigationNodeRoot extends NavigationNode
     public function __toString()
     {
         return "";
-    }
-
-    public function getPath(): ?string
-    {
-        return null;
     }
 
     public function getType(): ?string
@@ -176,7 +179,7 @@ final class NavigationNodeRoot extends NavigationNode
 /**
  * @ORM\Entity()
  */
-final class NavigationNodeContent extends NavigationNode
+class NavigationNodeContent extends NavigationNode
 {
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\Content", fetch="LAZY")
@@ -191,27 +194,16 @@ final class NavigationNodeContent extends NavigationNode
         $this->content = $content;
     }
 
-    /**
-     * @return Content
-     */
     public function getContent(): ?Content
     {
         return $this->content;
     }
 
-    /**
-     * @param Content $content
-     */
     public function setContent(Content $content): self
     {
         $this->content = $content;
 
         return $this;
-    }
-
-    public function getPath(): ?string
-    {
-        return "/content/" . $this->content->getId();
     }
 
     public function getType(): ?string
@@ -228,7 +220,7 @@ final class NavigationNodeContent extends NavigationNode
 /**
  * @ORM\Entity()
  */
-final class NavigationNodeEmpty extends NavigationNode
+class NavigationNodeEmpty extends NavigationNode
 {
     /**
      * NavigationNodeEmpty constructor.
@@ -236,11 +228,6 @@ final class NavigationNodeEmpty extends NavigationNode
     public function __construct()
     {
         parent::__construct();
-    }
-
-    public function getPath(): ?string
-    {
-        return null;
     }
 
     public function getType(): ?string
@@ -257,7 +244,7 @@ final class NavigationNodeEmpty extends NavigationNode
 /**
  * @ORM\Entity()
  */
-final class NavigationNodeGeneric extends NavigationNode
+class NavigationNodeGeneric extends NavigationNode
 {
     /**
      * @ORM\Column(type="string", length=50, nullable=false)
@@ -279,7 +266,6 @@ final class NavigationNodeGeneric extends NavigationNode
     public function setPath(string $path): self
     {
         $this->path = $path;
-
         return $this;
     }
 
@@ -291,5 +277,46 @@ final class NavigationNodeGeneric extends NavigationNode
     public function getTargetId(): ?int
     {
         return null;
+    }
+}
+
+/**
+ * @ORM\Entity()
+ */
+class NavigationNodeTeamsite extends NavigationNode
+{
+    /**
+     * @ORM\ManyToOne(targetEntity="App\Entity\Teamsite", fetch="LAZY")
+     * @ORM\JoinColumn(name="teamsite_id", referencedColumnName="id")
+     * @var Teamsite
+     */
+    private $teamsite;
+
+    public function __construct(Teamsite $teamsite = null)
+    {
+        parent::__construct();
+        $this->teamsite = $teamsite;
+    }
+
+    public function getTeamsite(): ?Teamsite
+    {
+        return $this->teamsite;
+    }
+
+    public function setTeamsite(Teamsite $teamsite): self
+    {
+        $this->teamsite = $teamsite;
+
+        return $this;
+    }
+
+    public function getType(): ?string
+    {
+        return self::NAV_NODE_TYPE_TEAMSITE;
+    }
+
+    public function getTargetId(): ?int
+    {
+        return $this->teamsite->getId();
     }
 }

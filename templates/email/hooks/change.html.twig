@@ -1,11 +1,8 @@
 {% extends 'email/design/standard.html.twig' %}
 
 {% block main %}
-  {% set text = textblock.get('reset.text') %}
-  {% set org = textblock.get('organisation_name') %}
-  {% if text is empty %}
-    <h1>Benachrichtigung</h1>
-  {% endif %}
+  {% set org = settings.get('site.organisation') %}
+  <h1>Benachrichtigung</h1>
   <p>{{ message }}</p>
   <p>Solltest das nicht du gewesen sein, kontaktiere uns bitte.</p>
 {% endblock %}

@@ -8,7 +8,11 @@ use App\Entity\NavigationNodeContent;
 use App\Entity\NavigationNodeEmpty;
 use App\Entity\NavigationNodeGeneric;
 use App\Entity\NavigationNodeRoot;
-use App\Entity\TextBlock;
+use App\Entity\NavigationNodeTeamsite;
+use App\Entity\Teamsite;
+use App\Entity\TeamsiteCategory;
+use App\Entity\TeamsiteEntry;
+use App\Entity\Setting;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Persistence\ObjectManager;
 use joshtronic\LoremIpsum;
@@ -16,12 +20,9 @@ use Ramsey\Uuid\Uuid;
 
 class ContentFixture extends Fixture
 {
-    public function load(ObjectManager $manager)
+    private function createContent(ObjectManager $manager): array
     {
-        $lipsum = new LoremIpsum();
-
         // Generate Content
-
         $content[0] = new Content();
         $content[0]->setTitle("Lan is");
         $content[0]->setContent("Lan is wieder einmal.");
@@ -54,11 +55,113 @@ class ContentFixture extends Fixture
             $manager->persist($c);
         }
 
+        return $content;
+    }
+
+    private function createTeamsite(ObjectManager $manager): array
+    {
+        $ts = (new Teamsite())
+            ->setTitle("KLMS-Team")
+            ->setDescription("Das Team hinter dem KLMS.")
+            ->setAuthorId(Uuid::fromInteger(18))
+            ->setModifierId(Uuid::fromInteger(18))
+        ;
+
+        $cat1 = (new TeamsiteCategory())
+            ->setTitle("Backend")
+            ->setDescription("Die Backend Developer")
+            ->setOrd(1)
+            ->addEntry((new TeamsiteEntry())
+                ->setTitle('Chief Developer')
+                ->setUserUuid(Uuid::fromInteger(18))
+                ->setDescription('<i>Hacky</i> Hacker')
+                ->setOrd(1)
+            )
+            ->addEntry((new TeamsiteEntry())
+                ->setTitle('Senior Developer')
+                ->setUserUuid(Uuid::fromInteger(7))
+                ->setOrd(3)
+            )
+            ->addEntry((new TeamsiteEntry())
+                ->setTitle('Senior Developer')
+                ->setUserUuid(Uuid::fromInteger(18))
+                ->setOrd(2)
+            );
+
+        $cat2 = (new TeamsiteCategory())
+            ->setTitle("Frontend")
+            ->setOrd(2)
+            ->addEntry((new TeamsiteEntry())
+                ->setUserUuid(Uuid::fromInteger(13))
+                ->setTitle("JS Developer")
+                ->setDescription("I ❤ JS")
+                ->setOrd(1)
+            );
+
+        $cat3 = (new TeamsiteCategory())
+            ->setTitle('Q&A Team')
+            ->setOrd(3);
+
+        $ts->addCategory($cat1);
+        $ts->addCategory($cat2);
+        $ts->addCategory($cat3);
+
+        $manager->persist($ts);
+
+        return [$ts];
+    }
+
+    private function createSetting(ObjectManager $manager): array
+    {
+        $lipsum = new LoremIpsum();
+
+        $tb_reg = new Setting("site.organisation");
+        $tb_reg->setText('KLMS Team');
+
+        $tb_title = new Setting("site.title");
+        $tb_title->setText('KRRU Lan Management System');
+
+        $tb_subtitle = new Setting("site.subtitle");
+        $tb_subtitle->setText('System zur Organisation von professionellen LAN-Partys');
+
+        $tb_subject = new Setting("email.register.subject");
+        $tb_subject->setText('Registrierung');
+
+        $tb_about = new Setting("site.about");
+        $tb_about->setText($lipsum->words(20));
+
+        $tb_email_text = new Setting("email.register.text");
+        $tb_email_text->setText("<h2>{$lipsum->words()}</h2><p>{$lipsum->paragraphs(2)}</p><h2>{$lipsum->words(2)}</h2><p>{$lipsum->paragraphs(3)}}</p>");
+
+        $tb_link_steam = new Setting("link.steam");
+        $tb_link_steam->setText("https://store.steampowered.com/");
+
+        $tb_link_discord = new Setting("link.discord");
+        $tb_link_discord->setText("https://discord.com/");
+
+        $manager->persist($tb_reg);
+        $manager->persist($tb_about);
+        $manager->persist($tb_email_text);
+        $manager->persist($tb_subject);
+        $manager->persist($tb_link_steam);
+        $manager->persist($tb_link_discord);
+        $manager->persist($tb_title);
+        $manager->persist($tb_subtitle);
+
+        return [$tb_about, $tb_email_text, $tb_link_steam, $tb_link_discord, $tb_reg, $tb_subject, $tb_title, $tb_subtitle];
+    }
+
+    public function load(ObjectManager $manager)
+    {
+        $tb = $this->createSetting($manager);
+        $ts = $this->createTeamsite($manager);
+        $content = $this->createContent($manager);
+
         // Generate Navigation
         $nav = new Navigation();
         $nav->setName('main_menu');
         $nav->setMaxDepth(2);
-        $nav->addNode((new NavigationNodeRoot())->setPos(1,16));
+        $nav->addNode((new NavigationNodeRoot())->setPos(1,18));
         $nav->addNode((new NavigationNodeGeneric())->setName("Home")->setPos(2,3));
         $nav->addNode((new NavigationNodeEmpty())->setName("Lan Party")->setPos(4, 15));
         $nav->addNode((new NavigationNodeContent($content[0]))->setName("Facts")->setPos(5, 6));
@@ -66,6 +169,7 @@ class ContentFixture extends Fixture
         $nav->addNode((new NavigationNodeContent($content[3]))->setName("Catering")->setPos(9,10));
         $nav->addNode((new NavigationNodeContent($content[1]))->setName("FAQ")->setPos(11,12));
         $nav->addNode((new NavigationNodeContent($content[2]))->setName("Location")->setPos(13, 14));
+        $nav->addNode((new NavigationNodeTeamsite($ts[0]))->setName("Team")->setPos(16,17));
         $manager->persist($nav);
 
         $footer = new Navigation();
@@ -81,24 +185,6 @@ class ContentFixture extends Fixture
         $manager->flush();
         $manager->refresh($nav);
         $manager->refresh($footer);
-
-        // Generate Textblocks
-        $tb_reg = new TextBlock("organisation_name");
-        $tb_reg->setText('KLMS Team');
-
-        $tb_subject = new TextBlock("register.subject");
-        $tb_subject->setText('Registrierung');
-
-        $tb_about = new TextBlock("about_us");
-        $tb_about->setText($lipsum->words(20));
-
-        $tb_agb = new TextBlock("agb");
-        $tb_agb->setText("<h2>{$lipsum->words()}</h2><p>{$lipsum->paragraphs(2)}</p><h2>{$lipsum->words(2)}</h2><p>{$lipsum->paragraphs(3)}}</p>");
-
-        $manager->persist($tb_reg);
-        $manager->persist($tb_about);
-        $manager->persist($tb_agb);
-        $manager->persist($tb_subject);
 
         $manager->flush();
     }

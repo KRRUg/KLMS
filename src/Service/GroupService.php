@@ -3,9 +3,11 @@
 namespace App\Service;
 
 use App\Entity\User;
+use App\Entity\UserAdmin;
 use App\Entity\UserGamer;
 use App\Idm\IdmManager;
 use App\Idm\IdmRepository;
+use App\Repository\UserAdminsRepository;
 use App\Repository\UserGamerRepository;
 use Ramsey\Uuid\Uuid;
 use Ramsey\Uuid\UuidInterface;
@@ -17,6 +19,7 @@ class GroupService
     const GROUP_PAYED = '8ae23ac3-ced7-40f7-b092-79da065f0b02';
     const GROUP_PAYED_NO_SEAT = '5ec12941-0448-4a6f-a194-fd9ce2874925';
     const GROUP_REGISTERED_NOT_PAYED = '225db67c-54ae-4f30-a3a9-6589d8336c8a';
+    const GROUP_ADMINS = 'c74aaa27-c501-454d-a8cd-0026ff671f53';
 
     private const NAME = 'name';
     private const METHOD = 'method';
@@ -48,14 +51,21 @@ class GroupService
             self::METHOD => "getGamer",
             self::FILTER => ["registered" => true, "payed" => false]
         ],
+        self::GROUP_ADMINS => [
+            self::NAME => "KLMS Admins",
+            self::METHOD => "getAdmin",
+            self::FILTER => [],
+        ],
     ];
 
     private IdmRepository $userRepo;
     private UserGamerRepository $gamerRepo;
+    private UserAdminsRepository $adminRepo;
 
-    public function __construct(IdmManager $manager, UserGamerRepository $gamerRepo)
+    public function __construct(IdmManager $manager, UserGamerRepository $gamerRepo, UserAdminsRepository $adminRepo)
     {
         $this->gamerRepo = $gamerRepo;
+        $this->adminRepo = $adminRepo;
         $this->userRepo = $manager->getRepository(User::class);
     }
 
@@ -93,8 +103,16 @@ class GroupService
         $payed = $filter['payed'] ?? null;
         $seat = $filter['seat'] ?? null;
         $gamer = $this->gamerRepo->findByState($registered, $payed, $seat);
-        $gamer = array_map(function (UserGamer $ug) { return $ug->getId(); }, $gamer);
-        return $this->userRepo->findById($gamer);
+	    $gamer = array_map(function (UserGamer $ug) { return $ug->getUuid(); }, $gamer);
+	    return $this->userRepo->findById($gamer);
+    }
+
+    private function getAdmin(array $filter)
+    {
+        $admins = $this->adminRepo->findAll();
+        $admins = array_filter($admins, function (UserAdmin $a) { return !empty($a->getPermissions()); });
+        $ids = array_map(function (UserAdmin $a) { return $a->getUuid(); }, $admins);
+        return $this->userRepo->findById($ids);
     }
 
     private function getIdm(array $filter)

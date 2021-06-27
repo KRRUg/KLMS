@@ -22,6 +22,7 @@
                     <option value="all">Alles</option>
                     <option value="image">Bilder</option>
                     <option value="application">Dokumente</option>
+                    <option value="audio">Audio</option>
                 </select>
             </div>
         </div>
@@ -55,11 +56,15 @@
                                 </a>
                             {% else %}
                                 <div class="card-img-top border-bottom" style="height: 200px">
-                                    {% set icon = i.mimeType == "application/pdf" ? "fa-file-pdf" : (i.mimeType == 'application/zip' ? "fa-file-archive" : "fa-file") %}
+                                    {% if i.isAudio() %}
+                                        {% set icon = "fa-file-audio" %}
+                                    {% else %}
+                                        {% set icon = i.mimeType == "application/pdf" ? "fa-file-pdf" : (i.mimeType == 'application/zip' ? "fa-file-archive" : "fa-file") %}
+                                    {% endif %}
                                     <div class="h-100 w-100 d-flex align-items-center justify-content-center">
                                         <i class="far {{ icon }} fa-6x text-black-50"></i>
                                     </div>
-                                </div>s
+                                </div>
                             {% endif %}
 
                             <div class="card-img-btn-bar">

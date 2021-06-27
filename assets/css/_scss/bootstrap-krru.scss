@@ -1,4 +1,4 @@
-@import './helper/variables';
+@import '../helper/variables';
 
 @import '~bootstrap/scss/bootstrap.scss';
 
@@ -8,6 +8,7 @@
 @import './card.scss';
 @import './forms.scss';
 @import './nav_tree.scss';
+@import './clan.scss';
 @import './hover.scss';
 
 html, body {
@@ -70,4 +71,12 @@ input.datetimepicker[readonly]:not([disabled]) {
 
 input.datepicker[readonly]:not([disabled]) {
     background:$input-bg;
+}
+
+.social-btn-group {
+    .btn {
+        font-size:1.5rem;
+        padding: 0.1rem 0.3rem;
+        margin-right:0.5rem;
+    }
 }

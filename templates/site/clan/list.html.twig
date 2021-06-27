@@ -16,7 +16,7 @@
                                         <i class="fas fa-search"></i>
                                     </span>
                                 </div>
-                                <input type="text" name="q"class="form-control block-search-input" placeholder="Clan suchen" value="{{ search }}">
+                                <input type="text" name="q" class="form-control block-search-input" placeholder="Clan suchen" value="{{ search }}">
                                 <div class="input-group-append">
                                     <button class="btn btn-outline-primary" type="button" id="button-addon2">Suchen</button>
                                 </div>
@@ -41,7 +41,7 @@
             {% endif %}
 
             {% for clan in clans %}
-                <div class="col-sm-6 mb-3">
+                <div class="col-md-6 mb-3">
                     {% include 'site/components/cards/cardClanPreview.html.twig' with {'clan': clan} %}
                 </div>
             {% endfor %}

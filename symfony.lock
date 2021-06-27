@@ -569,6 +569,9 @@
     "symfony/string": {
         "version": "v5.0.5"
     },
+    "symfony/templating": {
+        "version": "v4.4.16"
+    },
     "symfony/translation-contracts": {
         "version": "v2.0.1"
     },

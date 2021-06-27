@@ -3,13 +3,14 @@
 namespace App\Form;
 
 use App\Entity\User;
+use App\Entity\UserImage;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\BirthdayType;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\CountryType;
 use Symfony\Component\Form\Extension\Core\Type\EmailType;
-use Symfony\Component\Form\Extension\Core\Type\SubmitType;
+use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Core\Type\UrlType;
 use Symfony\Component\Form\FormBuilderInterface;
@@ -77,7 +78,7 @@ class UserType extends AbstractType
                 'label' => "Steam Account",
                 'required' => false,
             ])
-            ->add('hardware', TextType::class, [
+            ->add('hardware', TextareaType::class, [
                 'required' => false,
             ])
             ->add('statements', TextType::class, [
@@ -85,6 +86,12 @@ class UserType extends AbstractType
                 'required' => false,
             ])
         ;
+
+        if ($options['with_image']) {
+            $builder->add('image', UserImageType::class, [
+                'mapped' => false,
+            ]);
+        }
 
         if ($options['disable_on_lock']) {
             $builder->addEventListener(FormEvents::PRE_SET_DATA, array($this, 'onPreSetData'));
@@ -147,9 +154,14 @@ class UserType extends AbstractType
     {
         $resolver->setDefaults([
             'data_class' => User::class,
+            'allow_extra_fields' => true,
             'disable_on_lock' => true,
+            'with_image' => false,
         ]);
 
-        $resolver->setAllowedTypes('disable_on_lock', 'bool');
+        $resolver
+            ->setAllowedTypes('disable_on_lock', 'bool')
+            ->setAllowedTypes('with_image', 'bool')
+        ;
     }
 }

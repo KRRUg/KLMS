@@ -10,6 +10,8 @@ use App\Entity\NavigationNodeContent;
 use App\Entity\NavigationNodeEmpty;
 use App\Entity\NavigationNodeGeneric;
 use App\Entity\NavigationNodeRoot;
+use App\Entity\NavigationNodeTeamsite;
+use App\Entity\Teamsite;
 use App\Repository\ContentRepository;
 use App\Repository\NavigationNodeRepository;
 use App\Repository\NavigationRepository;
@@ -17,10 +19,9 @@ use Doctrine\ORM\EntityManagerInterface;
 
 class NavigationService
 {
-    private $em;
-    private $nodeRepo;
-    private $navRepo;
-    private $contentRepo;
+    private EntityManagerInterface $em;
+    private NavigationRepository $navRepo;
+    private NavigationNodeRepository $nodeRepo;
 
     const URL_REGEX = '(^(?:http(s)?:\/\/)?[\w.-]+(?:\.[\w\.-]+)+[\w\-\._~:\/?#[\]@!\$&\'\(\)\*\+,;=.]+$|^(\/[\w\-\._~:\/?#[\]@!\$&\'\(\)\*\+,;=.]*)+$)';
 
@@ -40,13 +41,11 @@ class NavigationService
     public function __construct(
         EntityManagerInterface $em,
         NavigationRepository $navRepo,
-        NavigationNodeRepository $nodeRepo,
-        ContentRepository $contentRepo
+        NavigationNodeRepository $nodeRepo
     ){
         $this->em = $em;
         $this->navRepo = $navRepo;
         $this->nodeRepo = $nodeRepo;
-        $this->contentRepo = $contentRepo;
     }
 
     /**
@@ -123,8 +122,14 @@ class NavigationService
         switch ($type) {
             case NavigationNode::NAV_NODE_TYPE_CONTENT:
                 if (preg_match('/^\/?content\/(\d+)\/?$/', $path, $output_array)) {
-                    $content = $this->contentRepo->findById(intval($output_array[1]));
+                    $content = $this->em->getRepository(Content::class)->findById(intval($output_array[1]));
                     return new NavigationNodeContent($content);
+                }
+                break;
+            case NavigationNode::NAV_NODE_TYPE_TEAMSITE:
+                if (preg_match('/^\/?teamsite\/(\d+)\/?$/', $path, $output_array)) {
+                    $teamsite = $this->em->getRepository(Teamsite::class)->findById(intval($output_array[1]));
+                    return new NavigationNodeTeamsite($teamsite);
                 }
                 break;
             case NavigationNode::NAV_NODE_TYPE_PATH:
@@ -147,7 +152,7 @@ class NavigationService
      * @param int $count The lft value to start with.
      * @return bool True if parsing was successful, false otherwise
      */
-    private function parse(array $parse, array &$result = [], int &$count = 1): bool
+    private function parse(array $parse, array &$result, int &$count = 1): bool
     {
         $path = $parse[self::ARRAY_PATH];
         $name = $parse[self::ARRAY_NAME];
@@ -238,9 +243,9 @@ class NavigationService
         $this->em->persist($nav);
         $this->em->flush();
 
-        foreach ($result as $item)
+        foreach ($result as $item) {
             $nav->addNode($item);
-        $this->em->persist($nav);
+        }
         $this->em->flush();
         $this->em->commit();
 

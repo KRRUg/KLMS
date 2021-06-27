@@ -4,6 +4,8 @@ namespace App\Twig;
 
 use App\Entity\User;
 use App\Idm\IdmManager;
+use App\Idm\IdmRepository;
+use App\Service\UserService;
 use App\Service\GroupService;
 use Ramsey\Uuid\Uuid;
 use Twig\Extension\AbstractExtension;
@@ -12,11 +14,13 @@ use Twig\TwigTest;
 
 class UserExtension extends AbstractExtension
 {
-    private $userRepo;
+    private IdmRepository $userRepo;
+    private UserService $userService;
 
-    public function __construct(IdmManager $manager)
+    public function __construct(IdmManager $manager, UserService $userService)
     {
         $this->userRepo = $manager->getRepository(User::class);
+        $this->userService = $userService;
     }
 
     /**
@@ -35,17 +39,24 @@ class UserExtension extends AbstractExtension
     public function getFilters()
     {
         return [
-            new TwigFilter('username', [$this, 'getUsername']),
+            new TwigFilter('user', [$this, 'getUser']),
+            new TwigFilter('username', [$this, 'getUserName']),
+            new TwigFilter('user_image', [$this, 'getUserImage']),
             new TwigFilter('groupname', [$this, 'getGroupname']),
         ];
     }
 
-    public function getUsername($userId)
+    public function getUser($userId): ?User
     {
         if (empty($userId) || !Uuid::isValid($userId))
-            return "";
+            return null;
 
-        $user = $this->userRepo->findOneById($userId);
+        return $this->userRepo->findOneById($userId);
+    }
+
+    public function getUserName($userId): string
+    {
+        $user = $this->getUser($userId);
 
         if (empty($user))
             return "";
@@ -61,12 +72,13 @@ class UserExtension extends AbstractExtension
         return GroupService::getName(Uuid::fromString($groupid));
     }
 
-    public function validUser($userId)
+    public function getUserImage(User $user): ?string
     {
-        if (!Uuid::isValid($userId))
-            return false;
+        return $this->userService->getUserImage($user);
+    }
 
-        $user = $this->userRepo->findOneById($userId);
-        return !empty($user);
+    public function validUser($userId): bool
+    {
+        return !empty($this->getUser($userId));
     }
 }

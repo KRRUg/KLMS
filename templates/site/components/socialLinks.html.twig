@@ -1,0 +1,19 @@
+<div class="social-btn-group">
+    {% set provider = [
+        {name: 'Facebook', key: 'link.fb', icon: 'fab fa-facebook-f' },
+        {name: 'Instagram', key: 'link.insta', icon: 'fab fa-instagram' },
+        {name: 'Steam', key: 'link.steam', icon: 'fab fa-steam-symbol' },
+        {name: 'You Tube', key: 'link.yt', icon: 'fab fa-youtube' },
+        {name: 'Twitter', key: 'link.twitter', icon: 'fab fa-twitter' },
+        {name: 'Discord', key: 'link.discord', icon: 'fab fa-discord' },
+        {name: 'Teamspeak', key: 'link.teamspeak', icon: 'fab fa-teamspeak' },
+    ] %}
+
+    {% for p in provider %}
+        {% if settings.isSet(p.key) %}
+            <a class="btn btn-secondary" title="{{ p.name }}" href="{{ settings.get(p.key) }}" target="_blank">
+                <i class="{{ p.icon }} fa-fw"></i>
+            </a>
+        {% endif %}
+    {% endfor %}
+</div>

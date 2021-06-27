@@ -204,7 +204,7 @@ class AccountController extends AbstractController
             } catch (PersistException $e) {
                 switch ($e->getCode()) {
                     case PersistException::REASON_NON_UNIQUE:
-                        $this->addFlash('error', 'Nickname und/oder Email Adresse schon in vergeben');
+                        $this->addFlash('error', 'Nickname und/oder Email Adresse schon vergeben');
                         break;
                     default:
                         $this->addFlash('error', 'Es ist ein unerwarteter Fehler aufgetreten');
