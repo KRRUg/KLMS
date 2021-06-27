@@ -49,7 +49,7 @@ class EmailService
             self::HOOK_CONTEXT => ['user', 'token'],
         ],
         self::APP_HOOK_CHANGE_NOTIFICATION => [
-            self::HOOK_SUBJECT => "email.change.subject",
+            self::HOOK_SUBJECT => "email.notify.subject",
             self::HOOK_SUBJECT_DEFAULT => "Hinweis",
             self::HOOK_TEMPLATE => '/email/hooks/change.html.twig',
             self::HOOK_CONTEXT => ['message'],
