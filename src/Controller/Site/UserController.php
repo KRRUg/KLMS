@@ -91,7 +91,7 @@ class UserController extends AbstractController
                 'invalid_message' => 'Das Passwort muss übereinstimmen.',
                 'required' => true,
                 'first_options'  => ['label' => 'Neues Passwort'],
-                'second_options' => ['label' => 'Password wiederholen'],
+                'second_options' => ['label' => 'Passwort wiederholen'],
             ])
             ->getForm()
         ;
