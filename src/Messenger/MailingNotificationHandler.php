@@ -9,7 +9,6 @@ use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ObjectRepository;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Mailer\Exception\TransportExceptionInterface;
-use Symfony\Component\Messenger\Handler\MessageHandlerInterface;
 use Symfony\Component\Messenger\Handler\MessageSubscriberInterface;
 
 class MailingNotificationHandler implements MessageSubscriberInterface
@@ -75,7 +74,10 @@ class MailingNotificationHandler implements MessageSubscriberInterface
      */
     public function hook(MailingHookNotification $mailingHookNotification)
     {
-        $this->mailService->sendByApplicationHook($mailingHookNotification->getHook(), $mailingHookNotification->getRecipient(), true);
+        $this->mailService->sendByApplicationHook(
+            $mailingHookNotification->getHook(),
+            $mailingHookNotification->getRecipient(),
+            $mailingHookNotification->getContext(), true);
     }
 
     public static function getHandledMessages(): iterable

@@ -13,7 +13,7 @@ class ServiceException extends \RuntimeException
     const CAUSE_EXIST = 'already_exists';
     const CAUSE_INVALID = 'invalid';
 
-    private $cause;
+    private string $cause;
 
     public function __construct($cause, $message = "")
     {

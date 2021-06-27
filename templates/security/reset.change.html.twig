@@ -1,0 +1,26 @@
+{% extends 'site/siteBase.html.twig' %}
+
+{% block title %}Passwort zurücksetzen{% endblock %}
+
+{% block main %}
+    {% embed "site/components/cards/skeletons/cardProfileRound.html.twig"  with {'cardSymbole': 'fas fa-unlock-alt'} %}
+        {% block cardBody %}
+            <h1 class=" h3 card-title text-center">Passwort zurücksetzen</h1>
+                {{ form_start(form) }}
+{#                    {% if error %}#}
+{#                        <div class="alert alert-danger"><i class="fas fa-exclamation-circle"></i> {{ error }}</div>#}
+{#                    {% endif %}#}
+                    <div class="form-group">
+                        {{ form_rest(form) }}
+                    </div>
+                    <div class="float-right">
+                        <button class="btn btn-lg btn-primary" type="submit">Abschicken</button>
+                    </div>
+                {{ form_end(form) }}
+        {% endblock %}
+
+        {% block cardFooter %}
+            Neu? <a href="{{ path('register') }}">Account erstellen</a>
+        {% endblock %}
+    {% endembed  %} 
+{% endblock %}
