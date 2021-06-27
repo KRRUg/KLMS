@@ -4,10 +4,12 @@ namespace App\Controller\Site;
 
 use App\Entity\User;
 use App\Form\UserType;
+use App\Helper\EmailRecipient;
 use App\Idm\Exception\PersistException;
 use App\Idm\IdmManager;
 use App\Idm\IdmRepository;
 use App\Security\LoginUser;
+use App\Service\EmailService;
 use Psr\Log\LoggerInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -21,11 +23,13 @@ class UserController extends AbstractController
     private IdmManager $manager;
     private IdmRepository $userRepo;
     private LoggerInterface $logger;
+    private EmailService $emailService;
 
-    public function __construct(IdmManager $manager, LoggerInterface $logger)
+    public function __construct(IdmManager $manager, EmailService $emailService, LoggerInterface $logger)
     {
         $this->manager = $manager;
         $this->userRepo = $manager->getRepository(User::class);
+        $this->emailService = $emailService;
         $this->logger = $logger;
     }
 
@@ -33,7 +37,7 @@ class UserController extends AbstractController
     {
         $u = parent::getUser();
         if (!$u instanceof LoginUser) {
-
+            $this->logger->critical("User Object of invalid type in session found.");
         }
         return $u->getUser();
     }
@@ -59,7 +63,7 @@ class UserController extends AbstractController
         $user = $this->userRepo->findOneById($uuid);
 
         if ($this->isGranted("IS_AUTHENTICATED_REMEMBERED")
-            && $user === $this->getUser()->getUser()) {
+            && $user === $this->getUser()) {
             return $this->redirectToRoute('user_profile');
         }
 
@@ -99,6 +103,12 @@ class UserController extends AbstractController
                 if ($this->userRepo->authenticate($user->getEmail(), $data)) {
                     $this->manager->flush();
                     $this->addFlash('success', 'Passwort wurde geändert');
+                    $this->emailService->scheduleHook(
+                        EmailService::APP_HOOK_CHANGE_NOTIFICATION,
+                        EmailRecipient::fromUser($user), [
+                            'message' => "Dein Passwort wurde geändert"
+                        ]
+                    );
                     return $this->redirectToRoute('user_profile');
                 } else {
                     $this->addFlash('error', 'Altes Passwort inkorrekt.');

@@ -7,4 +7,5 @@
     <h1>Passwort zurücksetzen</h1>
   {% endif %}
   <p>Zum Zurücksetzen des Passwort bei {{ org }} <a href="{{ url('reset_pw', {'user' : user, 'token' : token}) }}">hier</a> klicken.</p>
+  <p>Sollte das nicht du gewesen sein, kannst du diese Nachricht ignorieren.</p>
 {% endblock %}

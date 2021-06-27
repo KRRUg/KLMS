@@ -28,21 +28,31 @@ class EmailService
 {
     const APP_HOOK_REGISTRATION_CONFIRM = 'REGISTRATION_CONFIRMATION';
     const APP_HOOK_RESET_PW = 'PASSWORD_RESET';
+    const APP_HOOK_CHANGE_NOTIFICATION = 'CHANGE_NOTIFICATION';
 
     const HOOK_TEMPLATE = 'template';
     const HOOK_SUBJECT = 'subject';
+    const HOOK_SUBJECT_DEFAULT = 'subject_default';
     const HOOK_CONTEXT = 'context';
 
     const HOOKS = [
         self::APP_HOOK_REGISTRATION_CONFIRM => [
             self::HOOK_SUBJECT => "register.subject",
+            self::HOOK_SUBJECT_DEFAULT => "Registrierung",
             self::HOOK_TEMPLATE => '/email/hooks/registration.html.twig',
             self::HOOK_CONTEXT => ['user', 'token'],
         ],
         self::APP_HOOK_RESET_PW => [
             self::HOOK_SUBJECT => "reset.subject",
+            self::HOOK_SUBJECT_DEFAULT => "Passwort zurücksetzen",
             self::HOOK_TEMPLATE => '/email/hooks/reset.html.twig',
             self::HOOK_CONTEXT => ['user', 'token'],
+        ],
+        self::APP_HOOK_CHANGE_NOTIFICATION => [
+            self::HOOK_SUBJECT => "change.subject",
+            self::HOOK_SUBJECT_DEFAULT => "Hinweis",
+            self::HOOK_TEMPLATE => '/email/hooks/change.html.twig',
+            self::HOOK_CONTEXT => ['message'],
         ],
     ];
 
@@ -167,14 +177,17 @@ class EmailService
             return null;
         }
         $config = self::HOOKS[$hook] ?? null;
-        if (empty($config) || !$this->textBlockService->validKey($config[self::HOOK_SUBJECT])) {
+        if (empty($config)) {
             $this->logger->error('Invalid Hook configuration');
             return null;
         }
+        $subject = $this->textBlockService->get($config[self::HOOK_SUBJECT]);
+        $subject = empty($subject) ? $config[self::HOOK_SUBJECT_DEFAULT] : $subject;
+
         return (new TemplatedEmail())
             ->from($this->senderAddress)
             ->to($recipient->getAddressObject())
-            ->subject($this->textBlockService->get($config[self::HOOK_SUBJECT]))
+            ->subject($subject)
             ->htmlTemplate($config[self::HOOK_TEMPLATE])
             ->context($context);
     }
