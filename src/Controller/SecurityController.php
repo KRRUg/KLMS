@@ -38,9 +38,12 @@ class SecurityController extends AbstractController
         // last username entered by the user
         $lastUsername = $authenticationUtils->getLastUsername();
 
+        if ($error) {
+            $this->addFlash('error-raw', $this->errorMsgToHtml($error));
+        }
+
         return $this->render('security/login.html.twig', [
             'last_username' => $lastUsername,
-            'error' => $this->errorMsgToHtml($error),
         ]);
     }
 
@@ -52,11 +55,11 @@ class SecurityController extends AbstractController
         switch (true) {
             case $error instanceof BadCredentialsException:
             case $error instanceof UsernameNotFoundException:
-                return "E-Mail-Addresse oder Password falsch.";
+                return "E-Mail-Addresse oder Passwort falsch";
             case $error instanceof AccountNotConfirmedException:
                 $user = $error->getUser();
                 $url = $this->urlGenerator->generate('app_register_resend', ['email' => $user->getUsername()]);
-                return "E-Mail-Addresse nicht bestätigt. <a href=\"{$url}\">E-Mail erneut senden.</a>";
+                return "E-Mail-Addresse nicht bestätigt. <a href=\"{$url}\">E-Mail erneut senden</a>";
             case $error instanceof InvalidCsrfTokenException:
                 return "Es ist ein Fehler aufgetreten. Bitte Seite neu laden.";
             default:
