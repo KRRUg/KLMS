@@ -25,6 +25,10 @@ class ContentType extends AbstractType
             ->add('title', TextType::class, [
                 'label' => 'Titel',
             ])
+            ->add('alias', TextType::class, [
+                'label' => 'Slug',
+                'required' => false,
+            ])
             ->add('description', TextType::class, [
                 'label' => 'Beschreibung',
                 'required' => false,

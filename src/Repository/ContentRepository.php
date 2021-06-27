@@ -32,4 +32,12 @@ class ContentRepository extends ServiceEntityRepository
     {
         return $this->findOneBy(['id' => $id]);
     }
+
+    public function findBySlug(string $slug): ?Content
+    {
+        if (empty($slug)) {
+            return null;
+        }
+        return $this->findOneBy(['alias' => $slug]);
+    }
 }
