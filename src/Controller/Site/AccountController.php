@@ -82,7 +82,7 @@ class AccountController extends AbstractController
     /**
      * @Route("/reset_pw", name="reset_pw")
      */
-    public function resetPW(Request $request, LoginFormAuthenticator $login, GuardAuthenticatorHandler $guard)
+    public function resetPW(Request $request)
     {
         if (!($user = $this->checkTokenAndGetUser($request, self::TOKEN_PW_RESET_STRING, false))) {
             return $this->redirectToRoute('app_login');
@@ -104,9 +104,9 @@ class AccountController extends AbstractController
             try {
                 $this->manager->flush();
             } catch (PersistException $e) {
-                $this->addFlash('success', 'Passwort konnte nicht gesetzt werden.');
+                $this->addFlash('error', 'Passwort konnte nicht gesetzt werden.');
             }
-            return $guard->authenticateUserAndHandleSuccess(new LoginUser($user), $request, $login, 'main');
+            return $this->redirectToRoute('app_login');
         }
 
         return $this->render('security/reset.change.html.twig', [
