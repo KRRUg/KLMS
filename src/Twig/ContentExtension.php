@@ -6,6 +6,7 @@ use App\Repository\ContentRepository;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Twig\Extension\AbstractExtension;
 use Twig\TwigFilter;
+use Twig\TwigFunction;
 use Twig\TwigTest;
 
 class ContentExtension extends AbstractExtension
@@ -23,6 +24,13 @@ class ContentExtension extends AbstractExtension
     {
         return [
             new TwigTest('slug', [$this, 'slugExists'])
+        ];
+    }
+
+    public function getFunctions()
+    {
+        return [
+            new TwigFunction('slug_url', [$this, 'slugUrl'])
         ];
     }
 
@@ -48,5 +56,14 @@ class ContentExtension extends AbstractExtension
         $link = $this->urlGenerator->generate('content_slug', ['slug' => $content->getAlias()]);
         $title = $content->getTitle();
         return "<a href=\"{$link}\">{$title}</a>";
+    }
+
+    public function slugUrl(string $slug): string
+    {
+        $content = $this->repo->findBySlug($slug);
+        if (empty($content)) {
+            return "#";
+        }
+        return $this->urlGenerator->generate('content_slug', ['slug' => $content->getAlias()]);
     }
 }
