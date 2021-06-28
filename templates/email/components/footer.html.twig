@@ -4,7 +4,13 @@
             {{ settings.get('site.organisation') }}
         </div>
         <div class="col text-right">
-            {% if unsubscribe is defined %}
+            {% set imprint = 'imprint' is slug %}
+            {% set unsub = unsubscribe is defined %}
+            {% if imprint %}
+                {{ 'imprint' | slug_link }}
+            {% endif %}
+            {% if imprint and unsub %} | {% endif %}
+            {% if unsub %}
                 <a class="text-muted" href="{{ url('email_token', {'token' : unsubscribe}) }}">Unsubscribe</a>
             {% endif %}
         </div>
