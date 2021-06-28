@@ -1,0 +1,31 @@
+{% extends 'site/siteBase.html.twig' %}
+
+{% block title %}Passwort zurücksetzen{% endblock %}
+
+{% block main %}
+    {% embed "site/components/cards/skeletons/cardProfileRound.html.twig"  with {'cardSymbole': 'fas fa-unlock-alt'} %}
+        {% block cardBody %}
+            <h1 class=" h3 card-title text-center">Passwort zurücksetzen</h1>
+                {{ form_start(form) }}
+                    {# TODO change this with flash #}
+                    {% if error %}
+                        <div class="alert alert-danger"><i class="fas fa-exclamation-circle"></i> {{ error }}</div>
+                    {% endif %}
+                    <div class="form-group">
+                        <label for="inputUsername">Username</label>
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text" id="logon-user-addon"><i class="far fa-envelope"></i> </span>
+                            </div>
+                            {{ form_widget(form.email, {'attr': {'placeholder': "Username (E-Mail)"}}) }}
+{#                            <input type="email" class="form-control" id="inputUsername" value="{{ last_username }}" name="username" placeholder="Username (E-Mail)" aria-label="Username (E-Mail)" aria-describedby="logon-user-addon">#}
+                        </div>
+                    </div>
+                    {{ form_rest(form) }}
+                    <div class="float-right">
+                        <button class="btn btn-lg btn-primary" type="submit">Abschicken</button>
+                    </div>
+                {{ form_end(form) }}
+        {% endblock %}
+    {% endembed  %} 
+{% endblock %}

@@ -35,6 +35,7 @@ class UserRegisterType extends AbstractType
             ->add('nickname', TextType::class, [
                 'label' => 'Nickname',
             ])
+            // TODO add link to privacy information site (once content alias is done)
             ->add('infoMails', CheckboxType::class, [
                 'label' => 'Newsletter abonnieren',
                 'required' => false,

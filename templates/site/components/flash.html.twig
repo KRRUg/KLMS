@@ -10,4 +10,16 @@
         </div>
     {% endfor %}
 {% endfor %}
+{% for label, messages in app.flashes(['success-raw', 'info-raw', 'warning-raw', 'danger-raw', 'error-raw']) %}
+    {% for message in messages %}
+        {% set label = label[:-4]  %}
+        <div class="alert alert-{{ label }} alert-dismissible fade show d-block alert-flash-msg mb-3 ">
+            <span class="badge badge-{{ label }} text-uppercase">{{ label }}</span>
+            {{ message | raw }}
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+    {% endfor %}
+{% endfor %}
 </div>

@@ -3,29 +3,43 @@
 namespace App\Controller\Site;
 
 use App\Entity\User;
-use App\Form\UserRegisterType;
 use App\Form\UserType;
+use App\Helper\EmailRecipient;
 use App\Idm\Exception\PersistException;
 use App\Idm\IdmManager;
 use App\Idm\IdmRepository;
-use App\Security\LoginFormAuthenticator;
 use App\Security\LoginUser;
+use App\Service\EmailService;
+use Psr\Log\LoggerInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Form\Extension\Core\Type\PasswordType;
+use Symfony\Component\Form\Extension\Core\Type\RepeatedType;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\Security\Core\User\UserProviderInterface;
-use Symfony\Component\Security\Guard\GuardAuthenticatorHandler;
 
 class UserController extends AbstractController
 {
     private IdmManager $manager;
     private IdmRepository $userRepo;
+    private LoggerInterface $logger;
+    private EmailService $emailService;
 
-    public function __construct(IdmManager $manager)
+    public function __construct(IdmManager $manager, EmailService $emailService, LoggerInterface $logger)
     {
         $this->manager = $manager;
         $this->userRepo = $manager->getRepository(User::class);
+        $this->emailService = $emailService;
+        $this->logger = $logger;
+    }
+
+    public function getUser(): User
+    {
+        $u = parent::getUser();
+        if (!$u instanceof LoginUser) {
+            $this->logger->critical("User Object of invalid type in session found.");
+        }
+        return $u->getUser();
     }
 
     /**
@@ -34,7 +48,7 @@ class UserController extends AbstractController
      */
     public function userProfile()
     {
-        $user = $this->getUser()->getUser();
+        $user = $this->getUser();
 
         return $this->render('site/user/show.html.twig', [
             'user' => $user,
@@ -49,7 +63,7 @@ class UserController extends AbstractController
         $user = $this->userRepo->findOneById($uuid);
 
         if ($this->isGranted("IS_AUTHENTICATED_REMEMBERED")
-            && $user === $this->getUser()->getUser()) {
+            && $user === $this->getUser()) {
             return $this->redirectToRoute('user_profile');
         }
 
@@ -59,63 +73,88 @@ class UserController extends AbstractController
     }
 
     /**
+     * @IsGranted("IS_AUTHENTICATED_REMEMBERED")
+     * @Route("/user/profile/edit/pw", name="user_profile_edit_pw")
+     */
+    public function userProfileEditPw(Request $request)
+    {
+        $user = $this->getUser();
+
+        $form = $this->createFormBuilder($user)
+            ->add('oldPassword', PasswordType::class, [
+                'required' => true,
+                'mapped' => false,
+                'label' => 'Aktuelles Passwort',
+            ])
+            ->add('password', RepeatedType::class, [
+                'type' => PasswordType::class,
+                'invalid_message' => 'Das Passwort muss übereinstimmen.',
+                'required' => true,
+                'first_options'  => ['label' => 'Neues Passwort'],
+                'second_options' => ['label' => 'Passwort wiederholen'],
+            ])
+            ->getForm()
+        ;
+        
+        $form->handleRequest($request);
+        if ($form->isSubmitted() && $form->isValid()) {
+            $data = $form->get('oldPassword')->getData();
+            try{
+                if ($this->userRepo->authenticate($user->getEmail(), $data)) {
+                    $this->manager->flush();
+                    $this->addFlash('success', 'Passwort wurde geändert');
+                    $this->emailService->scheduleHook(
+                        EmailService::APP_HOOK_CHANGE_NOTIFICATION,
+                        EmailRecipient::fromUser($user), [
+                            'message' => "Dein Passwort wurde geändert"
+                        ]
+                    );
+                    return $this->redirectToRoute('user_profile');
+                } else {
+                    $this->addFlash('error', 'Altes Passwort inkorrekt.');
+                }
+            } catch (PersistException $e) {
+                $this->addFlash('error', 'Passwort konnte nicht geändert werden');
+                $this->logger->error('PW change failed');
+            }
+        }
+
+        return $this->render('site/user/edit.pw.html.twig', [
+            'form' => $form->createView(),
+        ]);
+    }
+
+    /**
      * @IsGranted("IS_AUTHENTICATED_FULLY")
      * @Route("/user/profile/edit", name="user_profile_edit")
      */
     public function userProfileEdit(Request $request)
     {
-        $user = $this->getUser()->getUser();
+        $user = $this->getUser();
 
         $form = $this->createForm(UserType::class, $user);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
             // TODO: add Support for changing the EMail
-
             $user = $form->getData();
-            $this->manager->persist($user);
-            $this->manager->flush();
-            return $this->redirectToRoute('user_profile');
-        }
-
-        return $this->render('site/user/edit.html.twig', [
-            'form' => $form->createView(),
-        ]);
-    }
-
-    /**
-     * @Route("/register", name="register")
-     */
-    public function register(Request $request, LoginFormAuthenticator $login, GuardAuthenticatorHandler $guard, UserProviderInterface $userProvider)
-    {
-        if ($this->isGranted('IS_AUTHENTICATED_REMEMBERED')){
-            return $this->redirectToRoute('user_profile');
-        }
-
-        $form = $this->createForm(UserRegisterType::class);
-        $form->handleRequest($request);
-
-        if ($form->isSubmitted() && $form->isValid()) {
-            $user = $form->getData();
-
-            try {
+            try{
                 $this->manager->persist($user);
                 $this->manager->flush();
-                $this->addFlash('info', 'Erfolgreich registriert!');
-                return $guard->authenticateUserAndHandleSuccess(new LoginUser($user), $request, $login, 'main');
+                return $this->redirectToRoute('user_profile');
             } catch (PersistException $e) {
-                switch ($e->getCode()) {
+                switch($e->getCode()) {
                     case PersistException::REASON_NON_UNIQUE:
-                        $this->addFlash('error', 'Nickname und/oder Email Adresse schon in vergeben');
+                        $this->addFlash('error', "Nickname und/oder Email gibt es schon.");
                         break;
                     default:
-                        $this->addFlash('error', 'Es ist ein unerwarteter Fehler aufgetreten');
+                        $this->addFlash('error', "Unbekannter Fehler beim Speichern.");
                         break;
                 }
             }
         }
 
-        return $this->render('site/user/register.html.twig', [
+        return $this->render('site/user/edit.html.twig', [
             'form' => $form->createView(),
         ]);
     }

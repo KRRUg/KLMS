@@ -64,12 +64,11 @@ class LoginFormAuthenticator extends AbstractFormLoginAuthenticator
         if(filter_var($credentials['username'], FILTER_VALIDATE_EMAIL)) {
             $user = $userProvider->loadUserByUsername($credentials['username']);
         } else {
-            throw new CustomUserMessageAuthenticationException('Es wurde keine gültige E-Mail Adresse angegeben!');
+            return null;
         }
 
         if (empty($user)) {
-            // fail authentication with a custom error
-            throw new CustomUserMessageAuthenticationException('E-Mail Adresse oder Kennwort falsch');
+            return null;
         }
 
         return $user;
@@ -77,9 +76,16 @@ class LoginFormAuthenticator extends AbstractFormLoginAuthenticator
 
     public function checkCredentials($credentials, UserInterface $user): bool
     {
-        // Check the user's password or other credentials and return true or false
-        // If there are no credentials to check, you can just return true
-        return $this->repository->authenticate($credentials['username'], $credentials['password']);
+        if (!$this->repository->authenticate($credentials['username'], $credentials['password']))
+            return false;
+        if (!($user instanceof LoginUser))
+            return false;
+        if (!$user->getUser()->getEmailConfirmed()) {
+            $ex = new AccountNotConfirmedException();
+            $ex->setUser($user);
+            throw $ex;
+        }
+        return true;
     }
 
     public function onAuthenticationSuccess(Request $request, TokenInterface $token, $providerKey)

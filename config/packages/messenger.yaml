@@ -13,3 +13,4 @@ framework:
             # Route your messages to the transports
             'App\Messenger\MailingNotification': async
             'App\Messenger\MailingGroupNotification': async
+            'App\Messenger\MailingHookNotification': async

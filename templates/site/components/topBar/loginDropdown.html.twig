@@ -22,7 +22,7 @@
                         </div>
                         <input type="password" class="form-control" id="inputPassword" name="password"  placeholder="Password" aria-label="Password" aria-describedby="logon-password-addon">
                     </div>
-                    <small class="form-text text-right"><a href="{# TODO: Link Passwort vergessen einbauen #}" data-toggle="modal" data-target="#modalPassword">Passwort vergessen?</a></small>
+                    <small class="form-text text-right"><a href="{{ path('app_reset') }}">Passwort vergessen?</a></small>
                 </div>
                 <div class="form-group">
                     <button type="submit" class="btn btn-primary btn-block">Login</button>

@@ -1,5 +1,6 @@
 security:
-    # https://symfony.com/doc/current/security.html#where-do-users-come-from-user-providers
+    # Symfony team fixed CVE-2021-21424, which caught AccountNotConfirmedException and throw another exception
+    hide_user_not_found: false
     providers:
         # used to reload user from session & other features (e.g. switch_user)
         app_user_provider:
