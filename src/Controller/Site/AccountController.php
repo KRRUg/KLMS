@@ -60,15 +60,15 @@ class AccountController extends AbstractController
             if ($user) {
                 try {
                     $token = $this->tokenService->generateToken($user->getUuid(), self::TOKEN_PW_RESET_STRING);
+                    $this->emailService->scheduleHook(
+                        EmailService::APP_HOOK_RESET_PW,
+                        EmailRecipient::fromUser($user),
+                        ['token' => $token, 'user' => $user->getUuid()->toString()]
+                    );
                 } catch (TokenException $e) {
-                    $this->addFlash('error', 'Zu viele Versuche. Bitte warten.');
-                    return $this->redirectToRoute('app_login');
+                    // don't show an error here to avoid user enumeration attacks
+                    // $this->addFlash('error', 'Zu viele Versuche. Bitte warten.');
                 }
-                $this->emailService->scheduleHook(
-                    EmailService::APP_HOOK_RESET_PW,
-                    EmailRecipient::fromUser($user),
-                    ['token' => $token, 'user' => $user->getUuid()->toString()]
-                );
             }
             $this->addFlash('success', "Falls {$email} registriert ist, wurde eine E-Mail verschickt");
             return $this->redirectToRoute('app_login');
@@ -185,7 +185,8 @@ class AccountController extends AbstractController
         try{
             $token = $this->tokenService->generateToken($user->getUuid(), self::TOKEN_MAIL_CONFIRM_STRING);
         } catch (TokenException $e) {
-            $this->addFlash('error', 'Zu viele Versuche. Bitte warten.');
+            // don't show an error here to avoid user enumeration attacks
+            // $this->addFlash('error', 'Zu viele Versuche. Bitte warten.');
             return;
         }
         $this->emailService->scheduleHook(
