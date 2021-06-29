@@ -98,7 +98,8 @@ $.extend(TeamSiteAdmin.prototype, {
         if(sectionElement.hideEmail) {
             hideEmail.setAttribute("checked", "true");
         }
-        hideEmail.value = "true";
+        //hideEmail.value = "true";
+        hideEmail.textContent = "hideEmail";
         section.appendChild(hideEmail);
 
         let hideName = document.createElement("input");
@@ -113,7 +114,7 @@ $.extend(TeamSiteAdmin.prototype, {
         if(sectionElement.hideName) {
             hideName.setAttribute("checked", "true");
         }
-        hideName.value = "true";
+        //hideName.value = "true";
         section.appendChild(hideName);
 
         let teamEntries = document.createElement("DIV");
@@ -294,19 +295,14 @@ $.extend(TeamSiteAdmin.prototype, {
         let ele = Array.isArray(index) ? this.teamSite[index[0]].entries[index[1]] : this.teamSite[index];
         
         $items.each((_, element) => {
-            console.log(element);
             let name = element.getAttribute("name");
             let val = this._toggleItemEditMode($(element));
-            console.log(val);
-            console.log(name);
 
             if(!name) {
-                console.log('returned!');
                 return;
             }
             
             ele[name] = val;
-            console.log(ele);
         });
 
         this.refresh();
@@ -347,19 +343,18 @@ $.extend(TeamSiteAdmin.prototype, {
                 break;
             case "checkbox":
                 val = this._toggleCheckboxEdit($item);
+                break;
             default:
                 val = this._toogleTextEdit($item);
         }
-        
         return val;
     },
     //TODO: WIP
     _toggleCheckboxEdit($item) {
-        if($item.is('input:disabled')) {
+        if($item.is('input:enabled')) {
             let $wrap = $item.parents("div.form-group").first();
             let val = $item.prop("checked");
-            //$wrap.prev().removeClass("hidden");
-            console.log($item);
+            $wrap.prev().removeClass("hidden");
             //$item.setAttribute("disabled", "false")
             $item.prop("disabled", false);
             $wrap.prev().show();
@@ -373,9 +368,29 @@ $.extend(TeamSiteAdmin.prototype, {
             let targetText = $item.data("inputTarget");
             let labelText = targetText.charAt(0).toUpperCase() + targetText.slice(1);
             $("<label></label>").text(labelText).appendTo($inputGroup);
-            $("<input>", {"type": "checkbox", "class": "form-control edit-item-value", "value": "true", "name": $item.data("inputTarget"),"data-input-type": $item.data("inputType"),"data-parent": $item.data("parent")}).appendTo($inputGroup);
-            //$item.addClass("hidden");
-            console.log($item);
+            if($item.prop("checked")) {
+                console.log('checked!');
+                $("<input>", {
+                    "type": "checkbox",
+                    "class": "form-control edit-item-value",
+                    "value": "true",
+                    "name": $item.data("inputTarget"),
+                    "data-input-type": $item.data("inputType"),
+                    "data-parent": $item.data("parent"),
+                    "checked": "true"
+                }).appendTo($inputGroup);
+            }else {
+                console.log('unchecked!');
+                $("<input>", {
+                    "type": "checkbox",
+                    "class": "form-control edit-item-value",
+                    "value": "true",
+                    "name": $item.data("inputTarget"),
+                    "data-input-type": $item.data("inputType"),
+                    "data-parent": $item.data("parent")
+                }).appendTo($inputGroup);
+            }
+            $item.addClass("hidden");
             $item.prop("disabled", true);
             //$item.setAttribute("disabled", "true")
             $item.hide();
