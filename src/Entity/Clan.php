@@ -11,7 +11,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 /**
  * Class User
  *
- * @Idm\Entity(path="/clans", authorize=true)
+ * @Idm\Entity(path="/clans", authorize=true, bulk=true)
  */
 class Clan
 {

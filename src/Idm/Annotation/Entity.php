@@ -27,6 +27,11 @@ class Entity
     public bool $search = false;
 
     /**
+     * @var bool Has a bulk endpoint
+     */
+    public bool $bulk = false;
+
+    /**
      * @return string
      */
     public function getPath(): string
@@ -48,5 +53,13 @@ class Entity
     public function hasSearch(): bool
     {
         return $this->search;
+    }
+
+    /**
+     * @return bool
+     */
+    public function hasBulk(): bool
+    {
+        return $this->bulk;
     }
 }
