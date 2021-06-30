@@ -51,7 +51,9 @@ $.extend(TeamSiteAdmin.prototype, {
     },
     _generateSection(sectionElement, index) {
         let id = 'team-section-' + index;
-        
+        let hideEmailStatus = sectionElement.hideEmail ? 'Ja' : 'Nein';
+        let hideNameStatus = sectionElement.hideName ? 'Ja' : 'Nein';
+
         let section = document.createElement("SECTION");
         section.setAttribute("id", id);
         section.setAttribute("class", "row team-section");
@@ -65,8 +67,28 @@ $.extend(TeamSiteAdmin.prototype, {
         editAreaHTML +=    '<a href="#" class="team-section-action action-btn text-danger" data-action="delete" data-index="'+ index + '"  data-target="' + id + '"><i class="fas fa-trash"></i> Löschen</a>';
         editAreaHTML +=    '<a href="#" class="team-section-action action-btn mr-4 text-success hidden" data-action="submit" data-index="' + index + '" data-target="' + id + '" style="display: none;"><i class="fas fa-check"></i> Änderungen übernehmen</a>';
         editAreaHTML +=    '<a href="#" class="team-section-action action-btn text-secondary hidden" data-action="cancel" data-index="' + index + '" data-target="' + id + '" style="display: none;"><i class="fas fa-times"></i> Abbrechen</a>';
+        editAreaHTML +=    '<a href="#" class="team-section-action badge badge-pill badge-primary" data-value="' + sectionElement.hideEmail + '" data-action="hideEmail" data-index="' + index + '" data-target="' + id + '" style="margin-left: 10px; pointer-events: none; cursor: default;">E-Mail verstecken: ' + hideEmailStatus + '</a>';
+        editAreaHTML +=    '<a href="#" class="team-section-action badge badge-pill badge-primary" data-value="' + sectionElement.hideName + '" data-action="hideName" data-index="' + index + '" data-target="' + id + ' " style="margin-left: 10px; pointer-events: none; cursor: default;">Vor-/Nachnamen verstecken: ' + hideNameStatus + '</a>';
         editArea.innerHTML = editAreaHTML;
         section.appendChild(editArea);
+
+
+        let hideEmail = document.createElement("span");
+        hideEmail.setAttribute("style", "display: none;");
+        hideEmail.setAttribute("class", "col-12");
+        hideEmail.setAttribute("data-parent", "team-section");
+        hideEmail.setAttribute("data-input-target", "hideEmail");
+        hideEmail.setAttribute("data-input-type", "checkbox");
+        section.appendChild(hideEmail);
+
+        let hideName = document.createElement("span");
+        hideName.setAttribute("style", "display: none;");
+        hideName.setAttribute("class", "col-12");
+        hideName.setAttribute("data-parent", "team-section");
+        hideName.setAttribute("data-input-target", "hideName");
+        hideName.setAttribute("data-input-type", "checkbox");
+        section.appendChild(hideName);
+
 
         let heading = document.createElement("H3");
         heading.setAttribute("class", "col-12");
@@ -85,37 +107,6 @@ $.extend(TeamSiteAdmin.prototype, {
         description.setAttribute("data-input-type", "textarea");
         description.textContent = sectionElement.description;
         section.appendChild(description);
-
-        let hideEmail = document.createElement("input");
-        hideEmail.setAttribute("type", "checkbox");
-        hideEmail.setAttribute("class", "col-12");
-        //Hide the Field in the Preview, so it's only shown in the Edit Window
-        //hideEmail.setAttribute("style", "display: none;");
-        hideEmail.setAttribute("disabled",  "true");
-        hideEmail.setAttribute("data-parent", "team-section");
-        hideEmail.setAttribute("data-input-target", "hideEmail");
-        hideEmail.setAttribute("data-input-type", "checkbox");
-        if(sectionElement.hideEmail) {
-            hideEmail.setAttribute("checked", "true");
-        }
-        //hideEmail.value = "true";
-        hideEmail.textContent = "hideEmail";
-        section.appendChild(hideEmail);
-
-        let hideName = document.createElement("input");
-        hideName.setAttribute("type", "checkbox");
-        hideName.setAttribute("class", "col-12");
-        //Hide the Field in the Preview, so it's only shown in the Edit Window
-        //hideName.setAttribute("style", "display: none;");
-        hideName.setAttribute("disabled", "true");
-        hideName.setAttribute("data-parent", "team-section");
-        hideName.setAttribute("data-input-target", "hideName");
-        hideName.setAttribute("data-input-type", "checkbox");
-        if(sectionElement.hideName) {
-            hideName.setAttribute("checked", "true");
-        }
-        //hideName.value = "true";
-        section.appendChild(hideName);
 
         let teamEntries = document.createElement("DIV");
         teamEntries.setAttribute("class", "row row-cols-1 row-cols-md-2 row-cols-lg-3 row-cols-xl-5");
@@ -263,16 +254,29 @@ $.extend(TeamSiteAdmin.prototype, {
             case "edit":
                 this._toggleCardEditMode($card);
                 this.$root.find('a.action-btn').addClass('disabled');
+                this.$root.find('a.badge').attr('style', 'margin-left: 10px;');
                 break;
             case "cancel":
                 this._toggleCardEditMode($card);
                 this.$root.find('a.action-btn').removeClass('disabled');
+                this.$root.find('a.badge').attr('style', 'margin-left: 10px; pointer-events: none; cursor: default;');
                 break;
             case "delete":
                 this._deleteCard($card);
                 break;
             case "submit":
                 this._submitCard($card);
+                break;
+            case "hideEmail":
+                console.log('wub!');
+                console.log($(e.currentTarget));
+                this._toggleHideEmail($(e.currentTarget));
+                break;
+            case "hideName":
+                console.log('wub!');
+                console.log($(e.currentTarget));
+                //this._toggleHideName($(e.currentTarget));
+                this._toggleHideEmail($(e.currentTarget));
                 break;
         }
     },
@@ -352,26 +356,30 @@ $.extend(TeamSiteAdmin.prototype, {
     //TODO: WIP
     _toggleCheckboxEdit($item) {
         if($item.is('input:enabled')) {
+            //Happens when Saving
             let $wrap = $item.parents("div.form-group").first();
             let val = $item.prop("checked");
-            $wrap.prev().removeClass("hidden");
+            //$wrap.prev().removeClass("hidden");
             //$item.setAttribute("disabled", "false")
             $item.prop("disabled", false);
-            $wrap.prev().show();
+            //$wrap.prev().show();
             $wrap.remove();
 
             return val;
         } else {
-            let addClass = $item.hasClass("col-12") ? " col-12" : "";
+            //Happens when pressing "edit"
+            //let addClass = $item.hasClass("col-12") ? " col-12" : "";
 
             let $inputGroup = $('<div></div>', {"class": "form-group" + addClass});
             let targetText = $item.data("inputTarget");
-            let labelText = targetText.charAt(0).toUpperCase() + targetText.slice(1);
-            $("<label></label>").text(labelText).appendTo($inputGroup);
+            //let labelText = targetText.charAt(0).toUpperCase() + targetText.slice(1);
+            //$("<label></label>").text(labelText).appendTo($inputGroup);
             if($item.prop("checked")) {
                 console.log('checked!');
+
                 $("<input>", {
                     "type": "checkbox",
+                    "style": "display: none;",
                     "class": "form-control edit-item-value",
                     "value": "true",
                     "name": $item.data("inputTarget"),
@@ -379,22 +387,26 @@ $.extend(TeamSiteAdmin.prototype, {
                     "data-parent": $item.data("parent"),
                     "checked": "true"
                 }).appendTo($inputGroup);
+
             }else {
+
                 console.log('unchecked!');
                 $("<input>", {
                     "type": "checkbox",
+                    "style": "display: none;",
                     "class": "form-control edit-item-value",
                     "value": "true",
                     "name": $item.data("inputTarget"),
                     "data-input-type": $item.data("inputType"),
                     "data-parent": $item.data("parent")
                 }).appendTo($inputGroup);
+
             }
-            $item.addClass("hidden");
+            //$item.addClass("hidden");
             $item.prop("disabled", true);
             //$item.setAttribute("disabled", "true")
-            $item.hide();
-            $item.after($inputGroup);
+            //$item.hide();
+            //$item.after($inputGroup);
         }
 
         return null;
@@ -445,6 +457,84 @@ $.extend(TeamSiteAdmin.prototype, {
             $item.after($inputGroup);
         }
         
+        return null;
+    },
+    _toggleHideEmail($item) {
+        console.log($item.data('value'));
+        if($item.data('value') === true) {
+            console.log('true!');
+            //let $wrap = $item.parents("div.form-group").first();
+            //let val = $item.prop("checked");
+            //$wrap.prev().removeClass("hidden");
+            //$item.setAttribute("disabled", "false")
+            //$item.prop("disabled", false);
+            //$wrap.prev().show();
+            //$wrap.remove();
+
+            let $hiddenCheckbox = $('*[data-input-target="hideEmail"]');
+            console.log($hiddenCheckbox);
+            //$hiddenCheckbox.attr('checked', '');
+            $hiddenCheckbox.removeAttr('checked');
+            $item.attr('data-value', false);
+            $item.data('value', false);
+            $item.removeClass('badge-primary');
+            $item.addClass('badge-secondary');
+            $item.text('E-Mail verstecken: Nein');
+            console.log($item.data('value'));
+
+            //return val;
+            return null;
+        } else {
+            console.log('false!');
+            let $hiddenCheckbox = $('*[data-input-target="hideEmail"]');
+            console.log($hiddenCheckbox);
+            $hiddenCheckbox.attr('checked', '');
+            $item.attr('data-value', true);
+            $item.data('value', true);
+            $item.removeClass('badge-secondary');
+            $item.addClass('badge-primary');
+            $item.text('E-Mail verstecken: Ja');
+            console.log($item.data('value'));
+
+            /*
+            let $inputGroup = $('<div></div>', {"class": "form-group" + addClass});
+            let targetText = $item.data("inputTarget");
+            let labelText = targetText.charAt(0).toUpperCase() + targetText.slice(1);
+            $("<label></label>").text(labelText).appendTo($inputGroup);
+            if($item.prop("checked")) {
+                console.log('checked!');
+                $("<input>", {
+                    "type": "checkbox",
+                    "class": "form-control edit-item-value",
+                    "value": "true",
+                    "name": $item.data("inputTarget"),
+                    "data-input-type": $item.data("inputType"),
+                    "data-parent": $item.data("parent"),
+                    "checked": "true"
+                }).appendTo($inputGroup);
+            }else {
+                console.log('unchecked!');
+                $("<input>", {
+                    "type": "checkbox",
+                    "class": "form-control edit-item-value",
+                    "value": "true",
+                    "name": $item.data("inputTarget"),
+                    "data-input-type": $item.data("inputType"),
+                    "data-parent": $item.data("parent")
+                }).appendTo($inputGroup);
+            }
+            $item.addClass("hidden");
+            $item.prop("disabled", true);
+            //$item.setAttribute("disabled", "true")
+            $item.hide();
+            $item.after($inputGroup);
+            */
+        }
+
+        return null;
+    },
+    _toggleHideName($item) {
+        //TODO: WIP
         return null;
     },
     appendSection() {
