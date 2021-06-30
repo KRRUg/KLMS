@@ -67,7 +67,7 @@ class NewsController extends AbstractController
     }
 
     /**
-     * @Route("/{id}", name="_detail")
+     * @Route("/{id}", requirements={"id"="\d+"}, name="_detail")
      * @ParamConverter()
      */
     public function byId(News $news)
