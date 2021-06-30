@@ -1,5 +1,6 @@
 const $ = require('jquery');
 require('jquery-serializejson');
+import Sortable from 'sortablejs';
 require('bootstrap');
 
 let TeamSiteAdmin = function ($wrapper) {
@@ -10,29 +11,29 @@ let TeamSiteAdmin = function ($wrapper) {
 
     this.initTSAdmin();
     this.drawTSAdmin();
-    
+
     this.$root.on(
-            'click',
-            '.team-section-action',
-            this._processTeamCardAction.bind(this)
-            );
-    
+        'click',
+        '.team-section-action',
+        this._processTeamCardAction.bind(this)
+    );
+
     this.$root.on(
-            'click',
-            '.team-section-add',
-            this.appendSection.bind(this)
-            );
-    
+        'click',
+        '.team-section-add',
+        this.appendSection.bind(this)
+    );
+
     this.$root.on(
-            'click',
-            '.team-card-action',
-            this._processTeamCardAction.bind(this)
-            );
+        'click',
+        '.team-card-action',
+        this._processTeamCardAction.bind(this)
+    );
     this.$root.on(
-            'click',
-            '.team-card-add',
-            this._processTeamCardAction.bind(this)
-            );
+        'click',
+        '.team-card-add',
+        this._processTeamCardAction.bind(this)
+    );
 };
 
 $.extend(TeamSiteAdmin.prototype, {
@@ -60,15 +61,15 @@ $.extend(TeamSiteAdmin.prototype, {
         section.setAttribute("data-index", index);
         section.setAttribute("data-wrap", "team-section");
 
-        
+
         let editArea = document.createElement("DIV");
         editArea.setAttribute("class", "col-12 pb-3");
         let editAreaHTML = '<a href="#" class="team-section-action action-btn mr-4" data-action="edit" data-index="' + index + '" data-target="' + id + '"><i class="fas fa-edit"></i> Bearbeiten</a>';
-        editAreaHTML +=    '<a href="#" class="team-section-action action-btn text-danger" data-action="delete" data-index="'+ index + '"  data-target="' + id + '"><i class="fas fa-trash"></i> Löschen</a>';
-        editAreaHTML +=    '<a href="#" class="team-section-action action-btn mr-4 text-success hidden" data-action="submit" data-index="' + index + '" data-target="' + id + '" style="display: none;"><i class="fas fa-check"></i> Änderungen übernehmen</a>';
-        editAreaHTML +=    '<a href="#" class="team-section-action action-btn text-secondary hidden" data-action="cancel" data-index="' + index + '" data-target="' + id + '" style="display: none;"><i class="fas fa-times"></i> Abbrechen</a>';
-        editAreaHTML +=    '<a href="#" class="team-section-action badge badge-pill ' + this._getBadgeColor(sectionElement.hideEmail) + '" data-value="' + sectionElement.hideEmail + '" data-action="hideEmail" data-index="' + index + '" data-target="' + id + '" style="margin-left: 10px; pointer-events: none; cursor: default;">E-Mail verstecken: ' + hideEmailStatus + '</a>';
-        editAreaHTML +=    '<a href="#" class="team-section-action badge badge-pill ' + this._getBadgeColor(sectionElement.hideName) + '" data-value="' + sectionElement.hideName + '" data-action="hideName" data-index="' + index + '" data-target="' + id + ' " style="margin-left: 10px; pointer-events: none; cursor: default;">Vor-/Nachnamen verstecken: ' + hideNameStatus + '</a>';
+        editAreaHTML += '<a href="#" class="team-section-action action-btn text-danger" data-action="delete" data-index="' + index + '"  data-target="' + id + '"><i class="fas fa-trash"></i> Löschen</a>';
+        editAreaHTML += '<a href="#" class="team-section-action action-btn mr-4 text-success hidden" data-action="submit" data-index="' + index + '" data-target="' + id + '" style="display: none;"><i class="fas fa-check"></i> Änderungen übernehmen</a>';
+        editAreaHTML += '<a href="#" class="team-section-action action-btn text-secondary hidden" data-action="cancel" data-index="' + index + '" data-target="' + id + '" style="display: none;"><i class="fas fa-times"></i> Abbrechen</a>';
+        editAreaHTML += '<a href="#" class="team-section-action badge badge-pill ' + this._getBadgeColor(sectionElement.hideEmail) + '" data-value="' + sectionElement.hideEmail + '" data-action="hideEmail" data-index="' + index + '" data-target="' + id + '" style="margin-left: 10px; pointer-events: none; cursor: default;">E-Mail verstecken: ' + hideEmailStatus + '</a>';
+        editAreaHTML += '<a href="#" class="team-section-action badge badge-pill ' + this._getBadgeColor(sectionElement.hideName) + '" data-value="' + sectionElement.hideName + '" data-action="hideName" data-index="' + index + '" data-target="' + id + ' " style="margin-left: 10px; pointer-events: none; cursor: default;">Vor-/Nachnamen verstecken: ' + hideNameStatus + '</a>';
         editArea.innerHTML = editAreaHTML;
         section.appendChild(editArea);
 
@@ -78,7 +79,7 @@ $.extend(TeamSiteAdmin.prototype, {
         hideEmail.setAttribute("type", "checkbox");
         hideEmail.setAttribute("class", "col-12");
         hideEmail.setAttribute("disabled", "true");
-        if(sectionElement.hideEmail) {
+        if (sectionElement.hideEmail) {
             hideEmail.setAttribute("checked", "true");
         }
         hideEmail.setAttribute("data-parent", "team-section");
@@ -95,7 +96,7 @@ $.extend(TeamSiteAdmin.prototype, {
         hideName.setAttribute("data-parent", "team-section");
         hideName.setAttribute("data-input-target", "hideName");
         hideName.setAttribute("data-input-type", "checkbox");
-        if(sectionElement.hideName) {
+        if (sectionElement.hideName) {
             hideName.setAttribute("checked", "true");
         }
         section.appendChild(hideName);
@@ -105,7 +106,7 @@ $.extend(TeamSiteAdmin.prototype, {
         heading.setAttribute("data-parent", "team-section");
         heading.setAttribute("data-input-target", "title");
         heading.setAttribute("data-input-type", "text");
-        
+
         heading.textContent = sectionElement.title;
         section.appendChild(heading);
         section.appendChild(document.createElement("BR"));
@@ -119,7 +120,7 @@ $.extend(TeamSiteAdmin.prototype, {
         section.appendChild(description);
 
         let teamEntries = document.createElement("DIV");
-        teamEntries.setAttribute("class", "row row-cols-1 row-cols-md-2 row-cols-lg-3 row-cols-xl-5");
+        teamEntries.setAttribute("class", "row row-cols-1 row-cols-md-2 row-cols-lg-3 row-cols-xl-5 sortable");
         var i = 0;
         for (let sectionEntry of sectionElement.entries) {
             let entry = this._generateTeamEntry(sectionEntry, i, index);
@@ -138,7 +139,7 @@ $.extend(TeamSiteAdmin.prototype, {
         entryDetails.innerHTML = '<h5><i class="fas fa-plus"></i></h5><p class="card-text">Teammitglied hinzufügen</span>';
         entry.appendChild(entryDetails);
         let entryWrap = document.createElement("DIV");
-        entryWrap.setAttribute("class", "col mb-4");
+        entryWrap.setAttribute("class", "col mb-4 sortable-ignore");
         entryWrap.appendChild(entry);
         teamEntries.appendChild(entryWrap);
 
@@ -152,7 +153,7 @@ $.extend(TeamSiteAdmin.prototype, {
     _generateTeamEntry(teamEntry, index, parentIndex) {
         let eleIndex = parentIndex + '_' + index;
         let id = 'team-card-' + eleIndex;
-        
+
         let entry = document.createElement("DIV");
         entry.setAttribute("id", id);
         entry.setAttribute("class", "card team-card");
@@ -196,9 +197,9 @@ $.extend(TeamSiteAdmin.prototype, {
         let footer = document.createElement("DIV");
         footer.setAttribute("class", "card-footer");
         let footerHTML = '<a href="#" class="team-card-action action-btn" data-action="edit" data-index="' + eleIndex + '" data-target="' + id + '"><i class="fas fa-edit"></i> Bearbeiten</a><a href="#" class="team-card-action action-btn float-right text-danger" data-action="delete" data-index="' + parentIndex + '_' + index + '"  data-target="' + id + '"><i class="fas fa-trash"></i> Löschen</a>';
-        footerHTML +=    '<a href="#" class="team-card-action action-btn text-success hidden" data-action="submit" data-index="' + eleIndex + '" data-target="' + id + '" style="display: none;"><i class="fas fa-check"></i> Änderungen übernehmen</a><a href="#" class="team-card-action action-btn float-right text-secondary hidden" data-action="cancel" data-index="' + parentIndex + '_' + index + '" data-target="' + id + '" style="display: none;"><i class="fas fa-times"></i> Abbrechen</a>';
+        footerHTML += '<a href="#" class="team-card-action action-btn text-success hidden" data-action="submit" data-index="' + eleIndex + '" data-target="' + id + '" style="display: none;"><i class="fas fa-check"></i> Änderungen übernehmen</a><a href="#" class="team-card-action action-btn float-right text-secondary hidden" data-action="cancel" data-index="' + parentIndex + '_' + index + '" data-target="' + id + '" style="display: none;"><i class="fas fa-times"></i> Abbrechen</a>';
         footer.innerHTML = footerHTML;
-        
+
         entry.appendChild(footer);
 
         let entryWrap = document.createElement("DIV");
@@ -238,7 +239,7 @@ $.extend(TeamSiteAdmin.prototype, {
         bd.appendChild(userName);
 
         //Test if displayEmail is set
-        if(displayEmail) {
+        if (displayEmail) {
             let email = document.createElement("p");
             email.setAttribute("class", "mb-0");
             email.textContent = displayEmail;
@@ -258,9 +259,9 @@ $.extend(TeamSiteAdmin.prototype, {
         e.preventDefault();
         let target = $(e.currentTarget).data("target");
         let action = $(e.currentTarget).data("action");
-        let $card = $("#"+target);
+        let $card = $("#" + target);
 
-        switch(action) {
+        switch (action) {
             case "edit":
                 this._toggleCardEditMode($card);
                 this.$root.find('a.action-btn').addClass('disabled');
@@ -287,8 +288,8 @@ $.extend(TeamSiteAdmin.prototype, {
     },
     _toggleCardEditMode($card) {
         let parent = $card.data("wrap");
-        let $items = $card.find('[data-parent="'+ parent +'"]').not(".hidden");
-        
+        let $items = $card.find('[data-parent="' + parent + '"]').not(".hidden");
+
         $items.each((_, element) => {
             this._toggleItemEditMode($(element));
         });
@@ -299,21 +300,21 @@ $.extend(TeamSiteAdmin.prototype, {
         let cardIndex = String($card.data("index"));
         let index = cardIndex.includes("_") ? cardIndex.split("_") : cardIndex;
         let parent = $card.data("wrap");
-        let $items = $card.find('[data-parent="'+ parent +'"]').not(".hidden");
-        
+        let $items = $card.find('[data-parent="' + parent + '"]').not(".hidden");
+
         let ele = Array.isArray(index) ? this.teamSite[index[0]].entries[index[1]] : this.teamSite[index];
-        
+
         $items.each((_, element) => {
             let name = element.getAttribute("name");
             let val = this._toggleItemEditMode($(element));
 
-            if(!name) {
+            if (!name) {
                 return;
             }
-            
+
             ele[name] = val;
         });
-
+        debugger;
         this.refresh();
     },
     _deleteCard($card) {
@@ -321,18 +322,19 @@ $.extend(TeamSiteAdmin.prototype, {
         let index = cardIndex.includes("_") ? cardIndex.split("_") : cardIndex;
         let ele = this.teamSite;
 
-        if(Array.isArray(index)) {
+        if (Array.isArray(index)) {
             let area = ele[index[0]];
             area.entries.splice(index[1], 1);
         } else {
             ele.splice(index, 1);
         }
-        
+
         this.refresh();
     },
     refresh() {
         this._synchroniseData();
         this.drawTSAdmin();
+        this.createSortable();
     },
     _synchroniseData() {
         let json = JSON.stringify(this.teamSite);
@@ -343,8 +345,8 @@ $.extend(TeamSiteAdmin.prototype, {
         let type = $item.data("inputType");
         let inputTarget = $item.data("inputTarget");
         let val = "";
-        
-        switch(type) {
+
+        switch (type) {
             case "textarea":
                 val = this._toogleTextAreaEdit($item);
                 break;
@@ -359,7 +361,7 @@ $.extend(TeamSiteAdmin.prototype, {
         return val;
     },
     _toggleCheckboxEdit($item) {
-        if($item.is('input:enabled')) {
+        if ($item.is('input:enabled')) {
             //Happens when Saving
             let $wrap = $item.parents("div.form-group").first();
             let val = $item.prop("checked");
@@ -377,7 +379,7 @@ $.extend(TeamSiteAdmin.prototype, {
             let targetText = $item.data("inputTarget");
             let labelText = targetText.charAt(0).toUpperCase() + targetText.slice(1);
             $("<label></label>").text(labelText).appendTo($inputGroup);
-            if($item.prop("checked")) {
+            if ($item.prop("checked")) {
                 $("<input>", {
                     "type": "checkbox",
                     "style": "display: none;",
@@ -389,7 +391,7 @@ $.extend(TeamSiteAdmin.prototype, {
                     "checked": "true"
                 }).appendTo($inputGroup);
 
-            }else {
+            } else {
                 $("<input>", {
                     "type": "checkbox",
                     "style": "display: none;",
@@ -411,55 +413,69 @@ $.extend(TeamSiteAdmin.prototype, {
         return null;
     },
     _toogleTextEdit($item) {
-        if($item.is('input')) {
+        if ($item.is('input')) {
             let $wrap = $item.parents("div.form-group").first();
             let val = $item.val();
             $wrap.prev().removeClass("hidden");
             $wrap.prev().show();
             $wrap.remove();
-            
+
             return val;
         } else {
             let addClass = $item.hasClass("col-12") ? " col-12" : "";
-            
+
             let $inputGroup = $('<div></div>', {"class": "form-group" + addClass});
             let targetText = $item.data("inputTarget");
             let labelText = targetText.charAt(0).toUpperCase() + targetText.slice(1);
             $("<label></label>").text(labelText).appendTo($inputGroup);
-            $("<input>", {"type": "text", "class": "form-control edit-item-value", "value": $item.text(), "name": $item.data("inputTarget"),"data-input-type": $item.data("inputType"),"data-parent": $item.data("parent")}).appendTo($inputGroup);
+            $("<input>", {
+                "type": "text",
+                "class": "form-control edit-item-value",
+                "value": $item.text(),
+                "name": $item.data("inputTarget"),
+                "data-input-type": $item.data("inputType"),
+                "data-parent": $item.data("parent")
+            }).appendTo($inputGroup);
             $item.addClass("hidden");
             $item.hide();
             $item.after($inputGroup);
         }
-        
+
         return null;
     },
     _toogleTextAreaEdit($item) {
-        if($item.is('textarea')) {
+        if ($item.is('textarea')) {
             let $wrap = $item.parents("div.form-group").first();
             let val = $item.val();
             $wrap.prev().removeClass("hidden");
             $wrap.prev().show();
             $wrap.remove();
-            
+
             return val;
         } else {
             let addClass = $item.hasClass("col-12") ? " col-12" : "";
-            
+
             let $inputGroup = $('<div></div>', {"class": "form-group" + addClass});
             let targetText = $item.data("inputTarget");
             let labelText = targetText.charAt(0).toUpperCase() + targetText.slice(1);
             $("<label></label>").text(labelText).appendTo($inputGroup);
-            $("<textarea></textarea>", {"type": "text", "class": "form-control edit-item-value", "name": $item.data("inputTarget"),"data-input-type": $item.data("inputType"),"data-parent": $item.data("parent"), "rows":10}).text($item.text()).appendTo($inputGroup);
+            $("<textarea></textarea>", {
+                "type": "text",
+                "class": "form-control edit-item-value",
+                "name": $item.data("inputTarget"),
+                "data-input-type": $item.data("inputType"),
+                "data-parent": $item.data("parent"),
+                "rows": 10
+            }).text($item.text()).appendTo($inputGroup);
             $item.addClass("hidden");
             $item.hide();
             $item.after($inputGroup);
         }
-        
+
         return null;
     },
     _toggleHideEmail($item) {
-        if($item.data('value') === true) {
+        if ($item.data('value') === true) {
             let $hiddenCheckbox = $($item).parent().parent().find('input[name="hideEmail"].edit-item-value');
             $hiddenCheckbox.removeAttr('checked');
             $item.attr('data-value', false);
@@ -480,7 +496,7 @@ $.extend(TeamSiteAdmin.prototype, {
         return null;
     },
     _toggleHideName($item) {
-        if($item.data('value') === true) {
+        if ($item.data('value') === true) {
             let $hiddenCheckbox = $($item).parent().parent().find('input[name="hideName"].edit-item-value');
             $hiddenCheckbox.removeAttr('checked');
             $item.attr('data-value', false);
@@ -500,8 +516,8 @@ $.extend(TeamSiteAdmin.prototype, {
 
         return null;
     },
-    _getBadgeColor($v){
-        if($v) {
+    _getBadgeColor($v) {
+        if ($v) {
             return "badge-primary";
         } else {
             return "badge-secondary";
@@ -513,7 +529,7 @@ $.extend(TeamSiteAdmin.prototype, {
 
         this.refresh();
         let ele = $('.team-section-action[data-action="edit"]').last();
-        $(window).animate({scrollTop:ele.offset().top});
+        $(window).animate({scrollTop: ele.offset().top});
         ele.click();
     },
     addTeamMember(index, user) {
@@ -525,11 +541,110 @@ $.extend(TeamSiteAdmin.prototype, {
 
         this.teamSite[index].entries.push(teamMember);
         this.refresh();
+    },
+    createSortable() {
+        const elements = document.querySelectorAll('.sortable');
+        console.log(elements);
+        Array.from(elements).forEach((element, index) => {
+            var self = this;
+            Sortable.create(element, {
+                group: "teamsite-" + index,
+                sort: true,
+                filter: ".sortable-ignore",
+                //draggable: ".team-card",  // Specifies which items inside the element should be draggable
+                onEnd: function (/**Event*/evt) {
+                    var itemEl = evt.item;  // dragged HTMLElement
+                    evt.to;    // target list
+                    evt.from;  // previous list
+                    evt.oldIndex;  // element's old index within old parent
+                    evt.newIndex;  // element's new index within new parent
+                    evt.oldDraggableIndex; // element's old index within old parent, only counting draggable elements
+                    evt.newDraggableIndex; // element's new index within new parent, only counting draggable elements
+                    evt.clone // the clone element
+                    evt.pullMode;  // when item is in another sortable: `"clone"` if cloning, `true` if moving
+
+                    //TODO: make MultiSection Working -> WIP
+                    /*
+                    console.log(evt);
+                    //Need to rewrite all the Index Variables before starting _submitCard
+                    let $parent = $(evt.item).parent();
+                    //let $allCards = $($parent).children().not('.sortable-ignore');
+                    let $allCards = $('#teamSiteAdmin').find('div:not(.sortable-ignore) div.team-card');
+                    //let $card = $(evt.item).children('.team-card');
+                    console.log($allCards);
+                    let sectionIndexes = [];
+                    let newArray = [];
+                    $.each( self.teamSite, function( key, value ) {
+                        $.each( value, function( subkey, subvalue ) {
+                        //newArray[key] =  $.extend( true, {}, value);
+                    });
+                    //Working with all Sections
+                    $allCards.each(function (index) {
+                        let $section = $(this).closest('.team-section');
+                        let newSection = $section.data('index');
+                        console.log(this);
+                        let $this = $(this);
+                        let currentSection = $this.data('index').split("_")[0];
+                        let oldRow = $this.data('index').split("_")[1];
+
+                        if(!(newSection in sectionIndexes)) {
+                            sectionIndexes[newSection] = 0;
+                        }
+                        let newIndex = newSection + "_" + sectionIndexes[newSection];
+
+                        $this.data('index', newIndex);
+                        $this.attr('data-index', newIndex);
+                        $this.attr('id', 'team-card-' + newIndex);
+
+                        newArray[newSection].entries[sectionIndexes[newSection]] = $.extend( true, {}, self.teamSite[currentSection].entries[oldRow]);
+
+                        sectionIndexes[newSection]++;
+
+                    });
+                     */
+
+                    //Need to rewrite all the Index Variables before starting _submitCard
+                    let $parent = $(evt.item).parent();
+                    let $allCards = $($parent).children().not('.sortable-ignore');
+                    let $card = $(evt.item).children('.team-card');
+                    console.log($allCards);
+                    let i = 0;
+                    let newArray = [];
+                    $.each( self.teamSite, function( key, value ) {
+                        newArray[key] =  $.extend( true, {}, value);
+                    });
+                    //Working with only one Section per Time
+                    $allCards.each(function (index) {
+                        console.log(this);
+                        console.log('IMPORTANTE: ' + i);
+                        let $teamCard = $(this).children();
+                        let $entry = $(this).children().first();
+                        let currentSection = $entry.data('index').split("_")[0];
+                        let oldRow = $entry.data('index').split("_")[1];
+                        let newIndex = currentSection + "_" + i;
+
+                        $teamCard.data('index', newIndex);
+                        $teamCard.attr('data-index', newIndex);
+                        $teamCard.attr('id', 'team-card-' + newIndex);
+
+                        newArray[currentSection].entries[i] = $.extend( true, {}, self.teamSite[currentSection].entries[oldRow]);
+
+                        i++;
+
+                    });
+                    console.log(newArray);
+                    self.teamSite = newArray;
+                    console.log(self.teamSite);
+
+                    self.refresh();
+                },
+            });
+        });
     }
 });
 
 let showAreYouSureFunction = function (e) {
-    var confirmationMessage = "You have unchanched things!";
+    var confirmationMessage = "You have unsaved things!";
 
     (e || window.event).returnValue = confirmationMessage; //Gecko + IE
     return confirmationMessage;                            //Webkit, Safari, Chrome
@@ -558,7 +673,7 @@ $(document).ready(() => {
         form.find('input[name="index"]').val(index);
     });
 
-    $(".team-section-add").on("click", function(e) {
+    $(".team-section-add").on("click", function (e) {
         e.preventDefault();
         teamSiteAdmin.appendSection();
     });
@@ -570,10 +685,12 @@ $(document).ready(() => {
         let selectedUserData = $(this).find('select.select2-enable').select2('data');
         let user = selectedUserData[0].user
 
-        if(user) {
+        if (user) {
             teamSiteAdmin.addTeamMember(index, user);
         }
 
         $("#addTeamMemberModal").modal('hide');
     });
+
+    teamSiteAdmin.createSortable();
 });
