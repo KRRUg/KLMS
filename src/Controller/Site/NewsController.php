@@ -10,6 +10,7 @@ use App\Entity\UserGamer;
 use App\Idm\IdmManager;
 use App\Repository\NewsRepository;
 use App\Service\NewsService;
+use App\Service\UserService;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityManagerInterface;
 use Ramsey\Uuid\Uuid;
@@ -24,7 +25,8 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class NewsController extends AbstractController
 {
-    private $newsService;
+    private NewsService $newsService;
+    private UserService $userService;
 
     private const PRELOAD_NEWS_CNT = 6;
 
@@ -32,9 +34,10 @@ class NewsController extends AbstractController
      * NewsController constructor.
      * @param $newsService
      */
-    public function __construct(NewsService $newsService)
+    public function __construct(NewsService $newsService, UserService $userService)
     {
         $this->newsService = $newsService;
+        $this->userService = $userService;
     }
 
     /**
@@ -46,6 +49,7 @@ class NewsController extends AbstractController
         $cnt = max($cnt, NewsController::PRELOAD_NEWS_CNT);
         $news = $this->newsService->get(0, $cnt);
         $total = $this->newsService->count();
+        $this->userService->preloadUsers(array_map(function (News $news) { return $news->getAuthorId(); }, $news));
         return $this->render('site/news/index.html.twig', [
             'news' => $news,
             'news_total_cnt' => $total,

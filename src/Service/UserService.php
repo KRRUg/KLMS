@@ -3,6 +3,8 @@
 namespace App\Service;
 
 use App\Entity\User;
+use App\Idm\IdmManager;
+use App\Idm\IdmRepository;
 use App\Repository\UserImageRepository;
 use Ramsey\Uuid\Uuid;
 use Ramsey\Uuid\UuidInterface;
@@ -10,13 +12,15 @@ use Vich\UploaderBundle\Templating\Helper\UploaderHelper;
 
 class UserService
 {
+    private IdmRepository $userRepo;
     private UserImageRepository $imageRepo;
     private UploaderHelper $uploadHelper;
 
-    public function __construct(UserImageRepository $imageRepo, UploaderHelper $uploadHelper)
+    public function __construct(UserImageRepository $imageRepo, UploaderHelper $uploadHelper, IdmManager $manager)
     {
         $this->imageRepo = $imageRepo;
         $this->uploadHelper = $uploadHelper;
+        $this->userRepo = $manager->getRepository(User::class);
     }
 
     public function getUserImage(User $user): ?string
@@ -51,5 +55,13 @@ class UserService
     public static function array2Uuid(array $a): ?UuidInterface
     {
         return array_key_exists("uuid", $a) && Uuid::isValid($a["uuid"]) ? Uuid::fromString($a["uuid"]) : null;
+    }
+
+    /**
+     * Preloads multiple users to avoid multiple IDM requests
+     */
+    public function preloadUsers(array $uuids)
+    {
+        $this->userRepo->findById($uuids);
     }
 }
