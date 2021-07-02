@@ -80,6 +80,8 @@ class TeamsiteService
                 self::ARRAY_ENTRIES => array(),
             ];
             foreach ($category->getEntries() as $entry) {
+                if (!isset($users[$entry->getUserUuid()->toString()]))
+                    continue;
                 $cat_array[self::ARRAY_ENTRIES][] = [
                     self::ARRAY_TITLE => $entry->getTitle(),
                     self::ARRAY_DESCRIPTION => $entry->getDescription(),
