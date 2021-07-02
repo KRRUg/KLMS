@@ -10,6 +10,7 @@ use App\Idm\Exception\PersistException;
 use App\Idm\Exception\UnsupportedClassException;
 use App\Idm\Serializer\UuidNormalizer;
 use App\Idm\Transfer\AuthObject;
+use App\Idm\Transfer\BulkRequest;
 use App\Idm\Transfer\PaginationCollection;
 use App\Idm\Transfer\UuidObject;
 use Closure;
@@ -176,6 +177,13 @@ final class IdmManager
         // this checks registers the path in $this->config
         $this->throwOnNotManaged($class);
         return $this->config[$class]->hasAuthorize();
+    }
+
+    private function hasBulkByClass(string $class): bool
+    {
+        // this checks registers the path in $this->config
+        $this->throwOnNotManaged($class);
+        return $this->config[$class]->hasBulk();
     }
 
     private function hasSearchByClass(string $class): bool
@@ -460,6 +468,18 @@ final class IdmManager
         $response = [];
         $code = $this->send('POST', $this->createUrl($class, 'authorize'), $response, [ Response::HTTP_NOT_FOUND ], [], $this->object2Array(new AuthObject($name, $secret)));
         return $code === Response::HTTP_OK;
+    }
+
+    public function bulk(string $class, array $ids)
+    {
+        if (!$this->hasBulkByClass($class))
+            throw new UnsupportedClassException("Class {$class} does not support bulk access.");
+
+        $collection = $this->post($this->createUrl($class, 'bulk'), new BulkRequest($ids));
+        foreach ($collection as &$item) {
+            $item = $this->hydrateObject($item, $class);
+        }
+        return $collection;
     }
 
     public function search(string $class, array $parameter = [])
