@@ -56,16 +56,17 @@ class TeamsiteService
         return $this->repo->findAll();
     }
 
-    private function getUsersOfTeamsite(Teamsite $teamsite): array
+    public function getUsersOfTeamsite(Teamsite $teamsite): array
     {
         $uuids = [];
         foreach ($teamsite->getCategories() as $category) {
             foreach ($category->getEntries() as $entry) {
-                $uuids[] = $entry->getUserUuid()->toString();
+                $uuids[] = $entry->getUserUuid();
             }
         }
         $users = $this->userRepo->findById($uuids);
-        return array_combine($uuids, $users);
+        $ids = array_map(function(User $user) { return $user->getUuid(); }, $users);
+        return array_combine($ids, $users);
     }
 
     public function renderSite(Teamsite $teamsite): ?array
@@ -79,6 +80,8 @@ class TeamsiteService
                 self::ARRAY_ENTRIES => array(),
             ];
             foreach ($category->getEntries() as $entry) {
+                if (!isset($users[$entry->getUserUuid()->toString()]))
+                    continue;
                 $cat_array[self::ARRAY_ENTRIES][] = [
                     self::ARRAY_TITLE => $entry->getTitle(),
                     self::ARRAY_DESCRIPTION => $entry->getDescription(),
