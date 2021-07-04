@@ -228,6 +228,11 @@ $.extend(TeamSiteAdmin.prototype, {
         let bd = document.createElement("DIV");
         bd.setAttribute("class", "media-body");
 
+        let sortingHandle = document.createElement("span");
+        sortingHandle.setAttribute("class", "fas fa-arrows-alt fa-lg sortable-handle float-right");
+        sortingHandle.setAttribute("style", "cursor: move; cursor: -webkit-grabbing;");
+        bd.appendChild(sortingHandle);
+
         let userNickname = document.createElement("h5");
         userNickname.setAttribute("class", "mb-0");
         userNickname.textContent = user.nickname;
@@ -582,7 +587,10 @@ $.extend(TeamSiteAdmin.prototype, {
             Sortable.create(element, {
                 group: "teamsite-" + index,
                 sort: true,
+                disabled: false,
                 filter: ".sortable-ignore",
+                handle: '.sortable-handle',
+                animation: 150,
                 //draggable: ".team-card",  // Specifies which items inside the element should be draggable
                 //onEnd: function (/**Event*/evt) {
                 onSort: function (/**Event*/evt) {
