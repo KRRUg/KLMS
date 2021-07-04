@@ -596,24 +596,14 @@ $.extend(TeamSiteAdmin.prototype, {
                 //onEnd: function (/**Event*/evt) {
                 onSort: function (/**Event*/evt) {
                     var itemEl = evt.item;  // dragged HTMLElement
-                    evt.to;    // target list
-                    evt.from;  // previous list
-                    evt.oldIndex;  // element's old index within old parent
-                    evt.newIndex;  // element's new index within new parent
-                    evt.oldDraggableIndex; // element's old index within old parent, only counting draggable elements
-                    evt.newDraggableIndex; // element's new index within new parent, only counting draggable elements
-                    evt.clone // the clone element
-                    evt.pullMode;  // when item is in another sortable: `"clone"` if cloning, `true` if moving
 
                     //TODO: make MultiSection Working -> WIP
                     /*
-                    console.log(evt);
                     //Need to rewrite all the Index Variables before starting _submitCard
                     let $parent = $(evt.item).parent();
                     //let $allCards = $($parent).children().not('.sortable-ignore');
                     let $allCards = $('#teamSiteAdmin').find('div:not(.sortable-ignore) div.team-card');
                     //let $card = $(evt.item).children('.team-card');
-                    console.log($allCards);
                     let sectionIndexes = [];
                     let newArray = [];
                     $.each( self.teamSite, function( key, value ) {
@@ -624,7 +614,6 @@ $.extend(TeamSiteAdmin.prototype, {
                     $allCards.each(function (index) {
                         let $section = $(this).closest('.team-section');
                         let newSection = $section.data('index');
-                        console.log(this);
                         let $this = $(this);
                         let currentSection = $this.data('index').split("_")[0];
                         let oldRow = $this.data('index').split("_")[1];
