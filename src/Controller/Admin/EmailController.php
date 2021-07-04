@@ -106,9 +106,9 @@ class EmailController extends AbstractController
         $recipient = $this->getUserFromLoginUser();
         $success = $this->mailService->sendByTemplate($template, $recipient, false);
         if ($success) {
-            $this->addFlash('success', "Test-EMail wurde an {$recipient->getEmailAddress()} gesendet.");
+            $this->addFlash('success', "Test-E-Mail wurde an {$recipient->getEmailAddress()} gesendet.");
         } else {
-            $this->addFlash('error', "Test-EMail konnte nicht an {$recipient->getEmailAddress()} gesendet werden.");
+            $this->addFlash('error', "Test-E-Mail konnte nicht an {$recipient->getEmailAddress()} gesendet werden.");
         }
         return $this->redirectToRoute('admin_email', ['page' => 'template']);
     }

@@ -15,6 +15,7 @@ services:
 
         bind:
             string $publicDir: '%kernel.project_dir%/public'
+            string $appSecret: '%env(APP_SECRET)%'
 
     #Register PSR-3 LogHandler for Sentry to resolve PSR-3 Placeholders in Reports
     Monolog\Processor\PsrLogMessageProcessor:

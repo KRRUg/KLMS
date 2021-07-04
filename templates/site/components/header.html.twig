@@ -1,6 +1,11 @@
-<div class="head-wrap {{ css_prefix|default('') }}" class=""  style="background-image: url({{ asset("build/images/header.jpg") }})">
+<div class="head-wrap {{ css_prefix|default('') }} bg-primary" style="background-image: url({{ settings.get('style.bg_image') }})">
     <div class="head-content container">
-        <img class="logo mb-4" src="{{ asset("build/images/logo-white.png") }}" alt="KRRU Logo">
+        {% set logo = settings.get('style.logo') %}
+        {% if logo is empty %}
+            <img class="logo mb-4" src="{{ asset("build/images/logo-white.png") }}" alt="Logo">
+        {% else %}
+            <img class="logo mb-4" src="{{ logo }}" alt="Logo">
+        {% endif %}
         {% block headerContent %}
         {% endblock %}
     </div>

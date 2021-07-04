@@ -2,9 +2,9 @@
 
 {% block main %}
   {% set text = settings.get('email.register.text') %}
-  {% set org = settings.get('organisation_name') %}
+  {% set org = settings.get('site.organisation') %}
   {% if text is empty %}
     <h1>Deine Registrierung bei {{ org }}</h1>
   {% endif %}
-  <p>Zum Bestätigen der Registrierung <a href="{{ url('email_token', {'token' : token}) }}">hier</a> klicken.</p>
+  <p>Zum Bestätigen der Registrierung <a href="{{ url('app_register_confirm', {'user' : user, 'token' : token}) }}">hier</a> klicken.</p>
 {% endblock %}

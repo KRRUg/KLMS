@@ -1,0 +1,36 @@
+{% extends 'site/siteBase.html.twig' %}
+
+{% block title %}Registrieren{% endblock %}
+
+{% block main %}
+    {% embed "site/components/cards/skeletons/cardProfileRound.html.twig"  with {'cardSymbol': 'fas fa-user-plus'} %}
+        {% block cardBody %}
+            <h1 class=" h3 card-title text-center">Registrieren</h1>
+            {{ form_start(form) }}
+            {{ form_row(form.nickname, {'input_group_prepend' : '<i class="fas fa-headset"></i>'}) }}
+            <div class="row">
+                <div class="col">
+                    {{ form_row(form.firstname, {'input_group_prepend' : '<i class="fas fa-signature"></i>'}) }}
+                </div>
+                <div class="col">
+                    {{ form_row(form.surname, {'input_group_prepend' : '<i class="fas fa-signature"></i>'}) }}
+                </div>
+            </div>
+            {{ form_row(form.email, {'input_group_prepend' : '<i class="far fa-envelope"></i>'}) }}
+            {{ form_row(form.password.first, {'input_group_prepend' : '<i class="fas fa-key"></i>'}) }}
+            {{ form_row(form.password.second, {'input_group_prepend' : '<i class="fas fa-key"></i>'}) }}
+            {{ form_row(form.infoMails) }}
+            {% if 'agb' is slug %}
+                <p>Weitere Infos zum Newsletter findest du in unseren {{ 'agb' | slug_link }}.</p>
+            {% endif %}
+            <div class="float-right">
+                <button type="submit" class="btn btn-primary">Registrieren</button>
+            </div>
+            {{ form_end(form) }}
+        {% endblock %}
+        
+        {% block cardFooter %}
+            Bereits registriert? <a href="{{ path('app_login') }}">Anmelden</a>
+        {% endblock %}
+    {% endembed  %}
+{% endblock %}

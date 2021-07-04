@@ -94,10 +94,10 @@ class UserController extends AbstractController
                 $this->manager->flush();
 
                 $image = $form->get('image')->getData();
-                if (!$form->get('image')->isEmpty()) {
-                    $this->em->persist($image);
-                } else {
+                if ($image->isEmpty()) {
                     $this->em->remove($image);
+                } else {
+                    $this->em->persist($image);
                 }
                 $this->em->flush();
                 $this->addFlash('success', 'User erfolgreich bearbeitet!');

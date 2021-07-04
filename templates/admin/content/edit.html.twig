@@ -6,17 +6,13 @@
     {% set data = form.vars.data %}
     <div class="clearfix mb-4">
         {{ form_start(form) }}
-        {% if not form.vars.valid %}
-            <div class="alert alert-error">
-                {{ form_errors(form) }}
-            </div>
-        {% endif %}
 
         <div class="row">
             <div class="col">
                 <div class="card mb-4">
                     <div class="card-body">
                         {{ form_row(form.title) }}
+                        {{ form_row(form.alias) }}
                         {{ form_row(form.description) }}
                     </div>
                 </div>

@@ -4,6 +4,7 @@ namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
 use App\Helper\HistoryAwareEntity;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\ContentRepository")
@@ -35,6 +36,7 @@ class Content implements HistoryAwareEntity
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true, unique=true)
+     * @Assert\Regex("/^[a-z]*$/", message="Nur Kleinbuchstaben sind hier erlaubt.")
      */
     private $alias;
 

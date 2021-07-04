@@ -41,7 +41,14 @@ Encore
         .enableSingleRuntimeChunk()
 
         //Need to disable AMD-Loader with imports-loader for DataTables to work
-        .addLoader({ test: /datatables\.net.*/, loader: 'imports-loader?define=>false' })
+        .addLoader({
+            test: /datatables\.net.*/,
+            loader: 'imports-loader',
+            options: {
+                additionalCode:
+                    "var define = false; /* Disable AMD for misbehaving libraries */",
+            },
+        })
 
         /*
          * FEATURE CONFIG
@@ -62,22 +69,26 @@ Encore
             config.corejs = 3;
         })
 
-// enables Sass/SCSS support
+        // enables Sass/SCSS support
         .enableSassLoader()
 
-// uncomment if you use TypeScript
-//.enableTypeScriptLoader()
+        // uncomment if you use TypeScript
+        //.enableTypeScriptLoader()
+        //.enableBabelTypeScriptPreset()
 
-// uncomment to get integrity="..." attributes on your script & link tags
-// requires WebpackEncoreBundle 1.4 or higher
+        // uncomment to get integrity="..." attributes on your script & link tags
+        // requires WebpackEncoreBundle 1.4 or higher
         .enableIntegrityHashes(Encore.isProduction())
 
-// uncomment if you're having problems with a jQuery plugin
+        // uncomment if you're having problems with a jQuery plugin
         .autoProvidejQuery()
 
-// uncomment if you use API Platform Admin (composer require api-admin)
-//.enableReactPreset()
-//.addEntry('admin', './assets/js/admin.js')
+        // uncomment if you use API Platform Admin (composer require api-admin)
+        //.enableReactPreset()
+        //.addEntry('admin', './assets/js/admin.js')
+
+        // enable WebPack5 Build Caching (EXPERIMENTAL)
+        //.enableBuildCache()
 
         .copyFiles({
             from: './assets/images',
@@ -85,13 +96,17 @@ Encore
             pattern: /\.(png|jpg|jpeg|svg|ico)$/
         })
 
-//copy TineMCE Skin Files
+        //copy TineMCE Skin Files
         .copyFiles({
             from: './node_modules/tinymce/skins',
             to: 'skins/[path][name].[ext]'
         })
-//Load .env.local Variables into JS
-        .addPlugin(new Dotenv({path: './.env.local', systemvars: false}))
+        //Load .env.local Variables into JS
+        .addPlugin(new Dotenv({
+            path: './.env.local',
+            systemvars: false,
+            ignoreStub: true,
+        }))
         ;
 
 module.exports = Encore.getWebpackConfig();

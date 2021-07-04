@@ -3,11 +3,15 @@
 namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\HttpFoundation\File\File;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
+use Vich\UploaderBundle\Mapping\Annotation as Vich;
 
 /**
- * @ORM\Entity(repositoryClass="SettingRepository")
+ * @ORM\Entity(repositoryClass="App\Repository\SettingRepository")
  * @ORM\Table(indexes={@ORM\Index(name="key_idx", columns={"key"})})
  * @ORM\HasLifecycleCallbacks
+ * @Vich\Uploadable
  */
 class Setting
 {
@@ -24,7 +28,7 @@ class Setting
     private $key;
 
     /**
-     * @ORM\Column(type="text")
+     * @ORM\Column(type="text", nullable=true)
      */
     private $text;
 
@@ -32,6 +36,28 @@ class Setting
      * @ORM\Column(type="datetime")
      */
     private $last_modified;
+
+    /**
+     * @Vich\UploadableField(mapping="setting", fileNameProperty="text")
+     *
+     * @var UploadedFile
+     */
+    private $file;
+
+
+    public function setFile(File $file = null)
+    {
+        $this->file = $file;
+
+        if ($file) {
+            $this->last_modified = new \DateTime('now');
+        }
+    }
+
+    public function getFile()
+    {
+        return $this->file;
+    }
 
     public function __construct(string $key)
     {
@@ -61,7 +87,7 @@ class Setting
         return $this->text;
     }
 
-    public function setText(string $text): self
+    public function setText(?string $text): self
     {
         $this->text = $text;
 

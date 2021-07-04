@@ -3,6 +3,7 @@
 namespace App\Idm;
 
 use App\Idm\Exception\PersistException;
+use App\Idm\Exception\UnsupportedClassException;
 use InvalidArgumentException;
 use ReflectionClass;
 
@@ -35,10 +36,13 @@ class IdmRepository
 
     public function findById(array $ids): array
     {
-        // TODO replace this with an parallel request approach and return LazyLoaderCollection
-        return array_map(function($id) {
-            return $this->findOneById($id);
-        }, $ids);
+        try {
+            return $this->manager->bulk($this->class, $ids);
+        } catch (UnsupportedClassException $exception) {
+            return array_map(function($id) {
+                return $this->findOneById($id);
+            }, $ids);
+        }
     }
 
     public function authenticate(string $name, string $secret): bool
