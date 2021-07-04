@@ -68,8 +68,8 @@ $.extend(TeamSiteAdmin.prototype, {
         editAreaHTML += '<a href="#" class="team-section-action action-btn text-danger" data-action="delete" data-index="' + index + '"  data-target="' + id + '"><i class="fas fa-trash"></i> Löschen</a>';
         editAreaHTML += '<a href="#" class="team-section-action action-btn mr-4 text-success hidden" data-action="submit" data-index="' + index + '" data-target="' + id + '" style="display: none;"><i class="fas fa-check"></i> Änderungen übernehmen</a>';
         editAreaHTML += '<a href="#" class="team-section-action action-btn text-secondary hidden" data-action="cancel" data-index="' + index + '" data-target="' + id + '" style="display: none;"><i class="fas fa-times"></i> Abbrechen</a>';
-        editAreaHTML += '<a href="#" class="team-section-action badge badge-pill ' + this._getBadgeColor(sectionElement.hideEmail) + '" data-value="' + sectionElement.hideEmail + '" data-action="hideEmail" data-index="' + index + '" data-target="' + id + '" style="margin-left: 10px; pointer-events: none; cursor: default;">E-Mail verstecken: ' + hideEmailStatus + '</a>';
-        editAreaHTML += '<a href="#" class="team-section-action badge badge-pill ' + this._getBadgeColor(sectionElement.hideName) + '" data-value="' + sectionElement.hideName + '" data-action="hideName" data-index="' + index + '" data-target="' + id + ' " style="margin-left: 10px; pointer-events: none; cursor: default;">Vor-/Nachnamen verstecken: ' + hideNameStatus + '</a>';
+        editAreaHTML += '<a href="#" class="team-section-action badge badge-pill ml-3 ' + this._getBadgeColor(sectionElement.hideEmail) + '" data-value="' + sectionElement.hideEmail + '" data-action="hideEmail" data-index="' + index + '" data-target="' + id + '" style="pointer-events: none; cursor: default;">E-Mail verstecken: ' + hideEmailStatus + '</a>';
+        editAreaHTML += '<a href="#" class="team-section-action badge badge-pill ml-2 ' + this._getBadgeColor(sectionElement.hideName) + '" data-value="' + sectionElement.hideName + '" data-action="hideName" data-index="' + index + '" data-target="' + id + ' " style="pointer-events: none; cursor: default;">Vor-/Nachnamen verstecken: ' + hideNameStatus + '</a>';
         editArea.innerHTML = editAreaHTML;
         section.appendChild(editArea);
 
@@ -265,12 +265,12 @@ $.extend(TeamSiteAdmin.prototype, {
             case "edit":
                 this._toggleCardEditMode($card);
                 this.$root.find('a.action-btn').addClass('disabled');
-                this.$root.find('a.badge').attr('style', 'margin-left: 10px;');
+                this.$root.find('a.badge').removeAttr('style');
                 break;
             case "cancel":
                 this._toggleCardEditMode($card);
                 this.$root.find('a.action-btn').removeClass('disabled');
-                this.$root.find('a.badge').attr('style', 'margin-left: 10px; pointer-events: none; cursor: default;');
+                this.$root.find('a.badge').attr('style', 'pointer-events: none; cursor: default;');
                 this._resetBadgeState($card);
                 break;
             case "delete":
