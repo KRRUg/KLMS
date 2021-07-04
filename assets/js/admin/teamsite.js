@@ -271,6 +271,7 @@ $.extend(TeamSiteAdmin.prototype, {
                 this._toggleCardEditMode($card);
                 this.$root.find('a.action-btn').removeClass('disabled');
                 this.$root.find('a.badge').attr('style', 'margin-left: 10px; pointer-events: none; cursor: default;');
+                this._resetBadgeState($card);
                 break;
             case "delete":
                 this._deleteCard($card);
@@ -366,7 +367,7 @@ $.extend(TeamSiteAdmin.prototype, {
             let val = $item.prop("checked");
             $wrap.prev().removeClass("hidden");
             $item.prop("disabled", false);
-            $wrap.prev().show();
+            //$wrap.prev().show();
             $wrap.remove();
 
             return val;
@@ -374,14 +375,13 @@ $.extend(TeamSiteAdmin.prototype, {
             //Happens when pressing "edit"
             let addClass = $item.hasClass("col-12") ? " col-12" : "";
 
-            let $inputGroup = $('<div></div>', {"class": "form-group" + addClass});
+            let $inputGroup = $('<div></div>', {"class": "form-group" + addClass}).attr("style", "display: none;");
             let targetText = $item.data("inputTarget");
             let labelText = targetText.charAt(0).toUpperCase() + targetText.slice(1);
             $("<label></label>").text(labelText).appendTo($inputGroup);
             if ($item.prop("checked")) {
                 $("<input>", {
                     "type": "checkbox",
-                    "style": "display: none;",
                     "class": "form-control edit-item-value",
                     "value": "true",
                     "name": $item.data("inputTarget"),
@@ -393,7 +393,6 @@ $.extend(TeamSiteAdmin.prototype, {
             } else {
                 $("<input>", {
                     "type": "checkbox",
-                    "style": "display: none;",
                     "class": "form-control edit-item-value",
                     "value": "true",
                     "name": $item.data("inputTarget"),
@@ -404,7 +403,6 @@ $.extend(TeamSiteAdmin.prototype, {
             }
             $item.addClass("hidden");
             $item.prop("disabled", true);
-            //$item.setAttribute("disabled", "true")
             $item.hide();
             $item.after($inputGroup);
         }
@@ -521,6 +519,42 @@ $.extend(TeamSiteAdmin.prototype, {
         } else {
             return "badge-secondary";
         }
+    },
+    _resetBadgeState($card) {
+      let $emailBadge = $card.find('a[data-action="hideEmail"].team-section-action');
+      let $nameBadge = $card.find('a[data-action="hideName"].team-section-action');
+      let $emailCheckbox = $card.find('input[data-input-target="hideEmail"]');
+      let $nameCheckbox = $card.find('input[data-input-target="hideName"]');
+
+      if($nameCheckbox.prop("checked")) {
+          $nameBadge.attr('data-value', true);
+          $nameBadge.data('value', true);
+          $nameBadge.removeClass('badge-secondary');
+          $nameBadge.addClass('badge-primary');
+          $nameBadge.text('Vor-/Nachnamen verstecken: ✔');
+      } else {
+          $nameBadge.attr('data-value', false);
+          $nameBadge.data('value', false);
+          $nameBadge.removeClass('badge-primary');
+          $nameBadge.addClass('badge-secondary');
+          $nameBadge.text('Vor-/Nachnamen verstecken: ❌');
+      }
+
+        if($emailCheckbox.prop("checked")) {
+            $emailBadge.attr('data-value', true);
+            $emailBadge.data('value', true);
+            $emailBadge.removeClass('badge-secondary');
+            $emailBadge.addClass('badge-primary');
+            $emailBadge.text('E-Mail verstecken: ✔');
+        } else {
+            $emailBadge.attr('data-value', false);
+            $emailBadge.data('value', false);
+            $emailBadge.removeClass('badge-primary');
+            $emailBadge.addClass('badge-secondary');
+            $emailBadge.text('E-Mail verstecken: ❌');
+        }
+
+        return null;
     },
     appendSection() {
         let newSection = {title: "", description: "", entries: []};
