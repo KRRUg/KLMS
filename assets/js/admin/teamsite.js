@@ -314,7 +314,6 @@ $.extend(TeamSiteAdmin.prototype, {
 
             ele[name] = val;
         });
-        debugger;
         this.refresh();
     },
     _deleteCard($card) {
@@ -544,7 +543,6 @@ $.extend(TeamSiteAdmin.prototype, {
     },
     createSortable() {
         const elements = document.querySelectorAll('.sortable');
-        console.log(elements);
         Array.from(elements).forEach((element, index) => {
             var self = this;
             Sortable.create(element, {
@@ -552,7 +550,8 @@ $.extend(TeamSiteAdmin.prototype, {
                 sort: true,
                 filter: ".sortable-ignore",
                 //draggable: ".team-card",  // Specifies which items inside the element should be draggable
-                onEnd: function (/**Event*/evt) {
+                //onEnd: function (/**Event*/evt) {
+                onSort: function (/**Event*/evt) {
                     var itemEl = evt.item;  // dragged HTMLElement
                     evt.to;    // target list
                     evt.from;  // previous list
@@ -606,8 +605,6 @@ $.extend(TeamSiteAdmin.prototype, {
                     //Need to rewrite all the Index Variables before starting _submitCard
                     let $parent = $(evt.item).parent();
                     let $allCards = $($parent).children().not('.sortable-ignore');
-                    let $card = $(evt.item).children('.team-card');
-                    console.log($allCards);
                     let i = 0;
                     let newArray = [];
                     $.each( self.teamSite, function( key, value ) {
@@ -615,8 +612,6 @@ $.extend(TeamSiteAdmin.prototype, {
                     });
                     //Working with only one Section per Time
                     $allCards.each(function (index) {
-                        console.log(this);
-                        console.log('IMPORTANTE: ' + i);
                         let $teamCard = $(this).children();
                         let $entry = $(this).children().first();
                         let currentSection = $entry.data('index').split("_")[0];
@@ -632,10 +627,7 @@ $.extend(TeamSiteAdmin.prototype, {
                         i++;
 
                     });
-                    console.log(newArray);
                     self.teamSite = newArray;
-                    console.log(self.teamSite);
-
                     self.refresh();
                 },
             });
