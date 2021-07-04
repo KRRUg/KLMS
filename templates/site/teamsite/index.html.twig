@@ -21,7 +21,7 @@
                     {% for entry in category.entries %}
                         {% set user = entry.userUuid | user %}
                         {% if user is not empty %}
-                        {% set image = user | user_image %}
+                            {% set image = user | user_image %}
                             <div class="col-xs-1 col-xl-6 mb-4">
                                 <div class="card team-card" data-index="0">
                                     <div class="row no-gutters">
@@ -34,31 +34,31 @@
                                         </div>
                                         <div class="col">
                                             <div class="card-body pb-0">
-                                            <h4 class="card-title mb-0 h5"><a href="{{ path('user_show', {'uuid': user.uuid } ) }}">{{ user.nickname }}</a></h4>
-                                            <p class="card-text mb-0">{% if category.hideName is empty %}{{ user.firstname }} {{ user.surname }}{% else %}&nbsp;{% endif %}
-                                                {% if category.hideEmail is empty %}
-                                                    {% if is_granted('IS_AUTHENTICATED_REMEMBERED') %}
-                                                        {% if entry.displayEmail is not empty %}
-                                                            <br><a href="mailto:{{ entry.displayEmail }}">{{ entry.displayEmail }}</a>
+                                                <h4 class="card-title mb-0 h5"><a href="{{ path('user_show', {'uuid': user.uuid } ) }}">{{ user.nickname }}</a></h4>
+                                                <p class="card-text mb-0">{% if category.hideName is empty %}{{ user.firstname }} {{ user.surname }}{% else %}&nbsp;{% endif %}
+                                                    {% if category.hideEmail is empty %}
+                                                        {% if is_granted('IS_AUTHENTICATED_REMEMBERED') %}
+                                                            {% if entry.displayEmail is not empty %}
+                                                                <br><a href="mailto:{{ entry.displayEmail }}">{{ entry.displayEmail }}</a>
+                                                            {% else %}
+                                                                <br><a href="mailto:{{ user.email }}">{{ user.email }}</a>
+                                                            {% endif %}
                                                         {% else %}
-                                                            <br><a href="mailto:{{ user.email }}">{{ user.email }}</a>
+                                                            <br><a href="{{ path('app_login') }}">[Anmelden um E-Mail Adresse zu sehen]</a>
                                                         {% endif %}
                                                     {% else %}
-                                                        <br><a href="{{ path('app_login') }}">[Anmelden um E-Mail Adresse zu sehen]</a>
+                                                        &nbsp;
                                                     {% endif %}
-                                                {% else %}
-                                                    &nbsp;
-                                                {% endif %}
-                                            </p>
-                                        </div>
-                                        <div class="card-body">
-                                            <h5 class="card-title mb-1">{{ entry.title }}</h5>
-                                            <p class="card-text">{{ entry.description|nl2br }}</p>
+                                                </p>
+                                            </div>
+                                            <div class="card-body">
+                                                <h5 class="card-title mb-1">{{ entry.title }}</h5>
+                                                <p class="card-text">{{ entry.description|nl2br }}</p>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
                         {% endif %}
                     {% endfor %}
                 </div>

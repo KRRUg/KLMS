@@ -1,6 +1,7 @@
 const $ = require('jquery');
 require('jquery-serializejson');
 import Sortable from 'sortablejs';
+
 require('bootstrap');
 
 let TeamSiteAdmin = function ($wrapper) {
@@ -526,26 +527,26 @@ $.extend(TeamSiteAdmin.prototype, {
         }
     },
     _resetBadgeState($card) {
-      let $emailBadge = $card.find('a[data-action="hideEmail"].team-section-action');
-      let $nameBadge = $card.find('a[data-action="hideName"].team-section-action');
-      let $emailCheckbox = $card.find('input[data-input-target="hideEmail"]');
-      let $nameCheckbox = $card.find('input[data-input-target="hideName"]');
+        let $emailBadge = $card.find('a[data-action="hideEmail"].team-section-action');
+        let $nameBadge = $card.find('a[data-action="hideName"].team-section-action');
+        let $emailCheckbox = $card.find('input[data-input-target="hideEmail"]');
+        let $nameCheckbox = $card.find('input[data-input-target="hideName"]');
 
-      if($nameCheckbox.prop("checked")) {
-          $nameBadge.attr('data-value', true);
-          $nameBadge.data('value', true);
-          $nameBadge.removeClass('badge-secondary');
-          $nameBadge.addClass('badge-primary');
-          $nameBadge.text('Vor-/Nachnamen verstecken: ✔');
-      } else {
-          $nameBadge.attr('data-value', false);
-          $nameBadge.data('value', false);
-          $nameBadge.removeClass('badge-primary');
-          $nameBadge.addClass('badge-secondary');
-          $nameBadge.text('Vor-/Nachnamen verstecken: ❌');
-      }
+        if ($nameCheckbox.prop("checked")) {
+            $nameBadge.attr('data-value', true);
+            $nameBadge.data('value', true);
+            $nameBadge.removeClass('badge-secondary');
+            $nameBadge.addClass('badge-primary');
+            $nameBadge.text('Vor-/Nachnamen verstecken: ✔');
+        } else {
+            $nameBadge.attr('data-value', false);
+            $nameBadge.data('value', false);
+            $nameBadge.removeClass('badge-primary');
+            $nameBadge.addClass('badge-secondary');
+            $nameBadge.text('Vor-/Nachnamen verstecken: ❌');
+        }
 
-        if($emailCheckbox.prop("checked")) {
+        if ($emailCheckbox.prop("checked")) {
             $emailBadge.attr('data-value', true);
             $emailBadge.data('value', true);
             $emailBadge.removeClass('badge-secondary');
@@ -649,8 +650,8 @@ $.extend(TeamSiteAdmin.prototype, {
                     let $allCards = $($parent).children().not('.sortable-ignore');
                     let i = 0;
                     let newArray = [];
-                    $.each( self.teamSite, function( key, value ) {
-                        newArray[key] =  $.extend( true, {}, value);
+                    $.each(self.teamSite, function (key, value) {
+                        newArray[key] = $.extend(true, {}, value);
                     });
                     //Working with only one Section per Time
                     $allCards.each(function (index) {
@@ -664,7 +665,7 @@ $.extend(TeamSiteAdmin.prototype, {
                         $teamCard.attr('data-index', newIndex);
                         $teamCard.attr('id', 'team-card-' + newIndex);
 
-                        newArray[currentSection].entries[i] = $.extend( true, {}, self.teamSite[currentSection].entries[oldRow]);
+                        newArray[currentSection].entries[i] = $.extend(true, {}, self.teamSite[currentSection].entries[oldRow]);
 
                         i++;
 
