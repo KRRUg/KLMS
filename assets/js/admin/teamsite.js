@@ -53,8 +53,8 @@ $.extend(TeamSiteAdmin.prototype, {
     },
     _generateSection(sectionElement, index) {
         let id = 'team-section-' + index;
-        let hideEmailStatus = sectionElement.hideEmail ? '✔' : '❌';
-        let hideNameStatus = sectionElement.hideName ? '✔' : '❌';
+        let hideEmailStatus = sectionElement.hideEmail ? '<i class="fas fa-check" style="color: LimeGreen;"></i>' : '<i class="fas fa-times" style="color: Tomato;"></i>';
+        let hideNameStatus = sectionElement.hideName ? '<i class="fas fa-check" style="color: LimeGreen;"></i>' : '<i class="fas fa-times" style="color: Tomato;"></i>';
 
         let section = document.createElement("SECTION");
         section.setAttribute("id", id);
@@ -485,7 +485,7 @@ $.extend(TeamSiteAdmin.prototype, {
             $item.data('value', false);
             $item.removeClass('badge-primary');
             $item.addClass('badge-secondary');
-            $item.text('E-Mail verstecken: ❌');
+            $item.html('E-Mail verstecken: <i class="fas fa-times" style="color: Tomato;"></i>');
         } else {
             let $hiddenCheckbox = $($item).parent().parent().find('input[name="hideEmail"].edit-item-value');
             $hiddenCheckbox.attr('checked', '');
@@ -493,7 +493,7 @@ $.extend(TeamSiteAdmin.prototype, {
             $item.data('value', true);
             $item.removeClass('badge-secondary');
             $item.addClass('badge-primary');
-            $item.text('E-Mail verstecken: ✔');
+            $item.html('E-Mail verstecken: <i class="fas fa-check" style="color: LimeGreen;"></i>');
         }
 
         return null;
@@ -506,7 +506,7 @@ $.extend(TeamSiteAdmin.prototype, {
             $item.data('value', false);
             $item.removeClass('badge-primary');
             $item.addClass('badge-secondary');
-            $item.text('Vor-/Nachnamen verstecken: ❌');
+            $item.html('Vor-/Nachnamen verstecken: <i class="fas fa-times" style="color: Tomato;"></i>');
         } else {
             let $hiddenCheckbox = $($item).parent().parent().find('input[name="hideName"].edit-item-value');
             $hiddenCheckbox.attr('checked', '');
@@ -514,7 +514,7 @@ $.extend(TeamSiteAdmin.prototype, {
             $item.data('value', true);
             $item.removeClass('badge-secondary');
             $item.addClass('badge-primary');
-            $item.text('Vor-/Nachnamen verstecken: ✔');
+            $item.html('Vor-/Nachnamen verstecken: <i class="fas fa-check" style="color: LimeGreen;"></i>');
         }
 
         return null;
@@ -537,13 +537,13 @@ $.extend(TeamSiteAdmin.prototype, {
             $nameBadge.data('value', true);
             $nameBadge.removeClass('badge-secondary');
             $nameBadge.addClass('badge-primary');
-            $nameBadge.text('Vor-/Nachnamen verstecken: ✔');
+            $nameBadge.html('Vor-/Nachnamen verstecken: <i class="fas fa-check" style="color: LimeGreen;"></i>');
         } else {
             $nameBadge.attr('data-value', false);
             $nameBadge.data('value', false);
             $nameBadge.removeClass('badge-primary');
             $nameBadge.addClass('badge-secondary');
-            $nameBadge.text('Vor-/Nachnamen verstecken: ❌');
+            $nameBadge.html('Vor-/Nachnamen verstecken: <i class="fas fa-times" style="color: Tomato;"></i>');
         }
 
         if ($emailCheckbox.prop("checked")) {
@@ -551,13 +551,13 @@ $.extend(TeamSiteAdmin.prototype, {
             $emailBadge.data('value', true);
             $emailBadge.removeClass('badge-secondary');
             $emailBadge.addClass('badge-primary');
-            $emailBadge.text('E-Mail verstecken: ✔');
+            $emailBadge.html('E-Mail verstecken: <i class="fas fa-check" style="color: LimeGreen;"></i>');
         } else {
             $emailBadge.attr('data-value', false);
             $emailBadge.data('value', false);
             $emailBadge.removeClass('badge-primary');
             $emailBadge.addClass('badge-secondary');
-            $emailBadge.text('E-Mail verstecken: ❌');
+            $emailBadge.html('E-Mail verstecken: <i class="fas fa-times" style="color: #dc3545;"></i>');
         }
 
         return null;
