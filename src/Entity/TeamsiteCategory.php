@@ -57,6 +57,16 @@ class TeamsiteCategory
      */
     private $entries;
 
+    /**
+     * @ORM\Column(type="boolean")
+     */
+    private $hideEmail;
+
+    /**
+     * @ORM\Column(type="boolean")
+     */
+    private $hideName;
+
     public function __construct()
     {
         $this->entries = new ArrayCollection();
@@ -137,6 +147,30 @@ class TeamsiteCategory
                 $entry->setCategory(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getHideEmail(): ?bool
+    {
+        return $this->hideEmail;
+    }
+
+    public function setHideEmail(bool $hideEmail): self
+    {
+        $this->hideEmail = $hideEmail;
+
+        return $this;
+    }
+
+    public function getHideName(): ?bool
+    {
+        return $this->hideName;
+    }
+
+    public function setHideName(bool $hideName): self
+    {
+        $this->hideName = $hideName;
 
         return $this;
     }

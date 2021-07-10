@@ -18,11 +18,13 @@
     "flatpickr": "^4.6.6",
     "jquery": "^3.4.1",
     "jquery-serializejson": "^3.2.1",
+    "jquery-sortablejs": "^1.0.1",
     "lightbox2": "^2.11.3",
     "mark.js": "^8.11.1",
     "popper.js": "^1.16.1",
     "select2": "^4.0.13",
     "select2-bootstrap4-theme": "^1.0.0",
+    "sortablejs": "^1.13.0",
     "tinymce": "^5.2.1"
   },
   "browserslist": [

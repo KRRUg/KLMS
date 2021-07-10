@@ -70,6 +70,8 @@ class ContentFixture extends Fixture
         $cat1 = (new TeamsiteCategory())
             ->setTitle("Backend")
             ->setDescription("Die Backend Developer")
+            ->setHideName(false)
+            ->setHideEmail(false)
             ->setOrd(1)
             ->addEntry((new TeamsiteEntry())
                 ->setTitle('Chief Developer')
@@ -90,6 +92,8 @@ class ContentFixture extends Fixture
 
         $cat2 = (new TeamsiteCategory())
             ->setTitle("Frontend")
+            ->setHideName(false)
+            ->setHideEmail(true)
             ->setOrd(2)
             ->addEntry((new TeamsiteEntry())
                 ->setUserUuid(Uuid::fromInteger(13))
@@ -100,6 +104,8 @@ class ContentFixture extends Fixture
 
         $cat3 = (new TeamsiteCategory())
             ->setTitle('Q&A Team')
+            ->setHideName(true)
+            ->setHideEmail(true)
             ->setOrd(3);
 
         $ts->addCategory($cat1);
