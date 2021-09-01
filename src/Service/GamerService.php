@@ -101,7 +101,7 @@ class GamerService
         $gamer = $this->repo->findAll();
         $gamer = array_filter($gamer, function (UserGamer $gamer) { return $gamer->hasRegistered(); });
         $gamer_uuid = array_map(function (UserGamer $gamer) { return $gamer->getUuid(); }, $gamer);
-        return $this->userRepo->findOneById($gamer_uuid);
+        return $this->userRepo->findById($gamer_uuid);
     }
 
     public function getRegisteredGamerWithStatus()
