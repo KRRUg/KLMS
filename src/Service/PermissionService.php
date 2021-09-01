@@ -25,7 +25,9 @@ final class PermissionService
     const ADMIN_NEWS = "ADMIN_NEWS";           // May edit and publish news
     const ADMIN_MAIL = "ADMIN_MAIL";           // May edit and send newsletters and emails
     const ADMIN_USER = "ADMIN_USER";           // May edit users and clans
-    
+    const ADMIN_PAYMENT = "ADMIN_PAYMENT";     // May set Gamers to paid/unpaid
+    const ADMIN_CHECKIN = "ADMIN_CHECKIN";     // May check in Gamers at the LAN
+
     // extend here
 
     const PERMISSIONS = [
@@ -35,6 +37,8 @@ final class PermissionService
         self::ADMIN_NEWS,
         self::ADMIN_MAIL,
         self::ADMIN_USER,
+        self::ADMIN_PAYMENT,
+        self::ADMIN_CHECKIN,
         // extend here
     ];
 

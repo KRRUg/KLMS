@@ -1,0 +1,52 @@
+{% embed "admin/components/modals/skeleton.html.twig"
+    with {
+    'id': 'showCheckInModal',
+    'title' : 'CheckIn ' ~ user.nickname,
+    'dialogClass' : 'modal-lg'
+} %}
+    {% block modalBody %}
+        <div class="container-fluid">
+            <div class="d-flex justify-content-between w-100 pb-3">
+                <div class="py-1">
+                    <span class="badge badge-primary">KLMS ID: #{{ user.id }}</span> <br>
+                    <span class="badge badge-secondary">UUID: {{ user.uuid }}</span>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-auto">
+                    {% set img = user | user_image %}
+                    {% if img is not empty %}
+                        <img src="{{ img | imagine_filter('user_img') }}"/>
+                    {% else %}
+                        <i class="far fa-user-circle fa-9x"></i>
+                    {% endif %}
+                </div>
+                <div class="col">
+                    <i class="fas fa-headset fa-fw mr-2" title="Name"></i>
+                    <h1 title="Nickname: {{ user.nickname }}" class="h3 d-inline-block">{{ user.nickname|defaultBadge('Nickname n.v.') }}</h1>
+                    <br>
+                    <i class="fas fa-signature fa-fw mr-2" title="Name"></i>
+                    <h2 class="h4 d-inline-block">
+                        <span title="Vorname: {{ user.firstname }}">{{ user.firstname|defaultBadge('Vorname n.v.') }}</span>
+                        <span title="Nachname: {{ user.surname }}">{{ user.surname|defaultBadge('Nachname n.v.') }}</span>
+                    </h2>
+                    </p>
+                    <p>
+                        <i class="far fa-envelope fa-fw mr-2" title="E-Mail Adresse"></i>{{ user.email|defaultBadge('E-Mailadresse n.v.') }}
+                    </p>
+                    <p>
+                        <i class="fas fa-mobile-alt fa-fw mr-2" title="Telefonnummer"></i>{{ user.phone|defaultBadge(' n.v. ') }}
+                    </p>
+                </div>
+            </div>
+        </div>
+    {% endblock %}
+    {% block modalFooter %}
+        {{ form_start(form) }}
+        {{ form_row(form.action) }}
+        {{ form_rest(form) }}
+        <button type="submit" class="btn btn-primary"><i class="fas fa-user-check"></i> ausschecken</button>
+        {{ form_end(form) }}
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Schließen</button>
+    {% endblock %}
+{% endembed %}
