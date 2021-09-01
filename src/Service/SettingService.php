@@ -16,6 +16,7 @@ class SettingService
     public const TB_TYPE_HTML = 'html';
     public const TB_TYPE_URL = 'url';
     public const TB_TYPE_FILE = 'file';
+    public const TB_TYPE_CONTENT = 'content';
 
     ////////////////////////////////////////////////
     /// Text block names
@@ -25,6 +26,10 @@ class SettingService
         "site.subtitle" => [self::TB_DESCRIPTION => "Untertitel der Seite", self::TB_TYPE => self::TB_TYPE_STRING],
         "site.about" => [self::TB_DESCRIPTION => "Über uns, Homepage links unten", self::TB_TYPE => self::TB_TYPE_HTML],
         "site.organisation" => [self::TB_DESCRIPTION => "Organisationsname / Vereinsname", self::TB_TYPE => self::TB_TYPE_STRING],
+
+        "lan.page.paymentinfo" => [self::TB_DESCRIPTION => "Link zu den Einzahlungsinformationen", self::TB_TYPE => self::TB_TYPE_CONTENT],
+        "lan.page.terms" => [self::TB_DESCRIPTION => "Link zu den AGBs", self::TB_TYPE => self::TB_TYPE_CONTENT],
+        "lan.signupinfo" => [self::TB_DESCRIPTION => "Inhalt der beim \"Anmelden\" zu einer LAN angezeigt wird", self::TB_TYPE => self::TB_TYPE_HTML],
 
         "style.logo" => [self::TB_DESCRIPTION => "Logo", self::TB_TYPE => self::TB_TYPE_FILE],
         "style.bg_image" => [self::TB_DESCRIPTION => "Hintergrundbild", self::TB_TYPE => self::TB_TYPE_FILE],

@@ -1,6 +1,11 @@
 <div id="top-bar" class="bg-dark text-white">
     <div class="container">
         <div class="row">
+            <div class="col text-left">
+                {% if app.user.username is defined %}
+                    {%  include 'site/components/topBar/lanStatus.html.twig' %}
+                {% endif %}
+            </div>
             <div class="col text-right">
                 {% if is_granted('ROLE_ADMIN') %}
                     <a class="btn btn-link" href="{{ path('admin_dashboard') }}">
