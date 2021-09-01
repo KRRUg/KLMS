@@ -10,6 +10,7 @@
                 <h1 class="card-title">Anmeldung zur LAN Party</h1>
                 <div class="card-text">
                     {{ settings.get('lan.signupinfo')|raw }}
+                    {% if settings.get('lan.signup.enabled') %}
                     {% if userGamer.hasRegistered() %}
                         <h2>Du bist bereits zur LAN angemeldet!</h2>
                     {% else %}
@@ -20,6 +21,12 @@
 
                     {{ form_start(form) }}
                     {{ form_end(form) }}
+                    {% endif %}
+                    {% else %}
+                        <h2>
+                            Die LAN Anmeldung ist im Moment noch gesperrt. <br/>
+                            Du wirst per E-Mail informiert sobald die Anmeldung möglich ist.
+                        </h2>
                     {% endif %}
                 </div>
             </div>
