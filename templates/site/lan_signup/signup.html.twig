@@ -1,0 +1,29 @@
+{% extends 'site/siteBase.html.twig' %}
+
+{% block title %}KLMS - LAN-Anmeldung{% endblock %}
+
+{% block main %}
+    <div class="container mb-5">
+        <img class="card-img-top mb-4 shadow-sm"/>
+        <div class="card">
+            <div class="card-body">
+                <h1 class="card-title">Anmeldung zur LAN Party</h1>
+                <div class="card-text">
+                    {{ settings.get('lan.signupinfo')|raw }}
+                    {% if userGamer.hasRegistered() %}
+                        <h2>Du bist bereits zur LAN angemeldet!</h2>
+                    {% else %}
+                    {% if termsUrl %}
+                        {{ form_widget(form.confirm) }}
+                        <label for="{{ form.confirm.vars.id }}">Ich stimme den <a href="{{ termsUrl }}" target="_blank">AGBs</a> zu</label>
+                    {% endif %}
+
+                    {{ form_start(form) }}
+                    {{ form_end(form) }}
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}
