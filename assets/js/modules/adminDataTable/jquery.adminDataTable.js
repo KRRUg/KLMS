@@ -96,7 +96,6 @@ import '../../modules/confirmModal/confirmModal.js';
 
                                 h += (typeof attrValue.append !== 'undefined') ? attrValue.append : "";
 
-                                //const matches = h.matchAll(/--(\w+)--/g);
                                 const matches = h.matchAll(/--(\w+)--|--(\w+.\w+)--/g);
                                 for (const match of matches) {
                                     if(match[2] !== undefined) {
