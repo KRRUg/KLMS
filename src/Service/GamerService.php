@@ -18,6 +18,8 @@ class GamerService
     private UserGamerRepository $repo;
     private IdmRepository $userRepo;
 
+    const DATETIME_FORMAT = 'Y.m.d H:i:s';
+
     /*
      * Clarification: User is the Symfony User with information from IDM, while Gamer is the local KLMS information,
      * i.e. the status w.r.t this KLMS instance.
@@ -109,5 +111,30 @@ class GamerService
         $gamer = $this->getRegisteredGamer();
         $gamer = array_map(function (User $user) { return ['user' => $user, 'status' => $this->repo->findByUser($user)]; }, $gamer);
         return $gamer;
+    }
+
+    public function getPaidGamers()
+    {
+        $gamer = $this->repo->findAll();
+        $gamer = array_filter($gamer, function (UserGamer $gamer) { return $gamer->hasPayed(); });
+        $gamer_uuid = array_map(function (UserGamer $gamer) { return $gamer->getUuid(); }, $gamer);
+        return $this->userRepo->findById($gamer_uuid);
+    }
+
+    public function getPaidGamersWithStatus()
+    {
+        $gamer = $this->getPaidGamers();
+        $gamer = array_map(function (User $user) { return ['user' => $user, 'status' => $this->repo->findByUser($user)]; }, $gamer);
+        return $gamer;
+    }
+
+    public function gamer2Array(UserGamer $userGamer): array
+    {
+        return [
+            'uuid' => $userGamer->getUuid(),
+            'registered' => $userGamer->getRegistered() ? $userGamer->getRegistered()->format(self::DATETIME_FORMAT) : null,
+            'payed' => $userGamer->getPayed() ? $userGamer->getPayed()->format(self::DATETIME_FORMAT) : null,
+            'checkedIn' => $userGamer->getCheckedIn() ? $userGamer->getCheckedIn()->format(self::DATETIME_FORMAT) : null,
+        ];
     }
 }
