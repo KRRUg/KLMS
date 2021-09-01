@@ -5,6 +5,8 @@ namespace App\Controller\Admin;
 use App\Form\Type\ContentSelectorType;
 use App\Service\SettingService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Form\CallbackTransformer;
+use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
@@ -90,6 +92,28 @@ class SettingController extends AbstractController
                     'required' => false,
                     'label' => false,
                 ]);
+                break;
+            case SettingService::TB_TYPE_BOOL:
+                $fb->add('text', CheckboxType::class, [
+                    'required' => false,
+                    'label' => false,
+                ]);
+                $fb->get('text')->addModelTransformer(new CallbackTransformer(
+                    function($textToBool) {
+                        if($textToBool == '1') {
+                            return true;
+                        } else {
+                            return false;
+                        }
+                    },
+                    function($boolToText) {
+                        if($boolToText) {
+                            return '1';
+                        } else {
+                            return '0';
+                        }
+                    }
+                ));
                 break;
         }
 

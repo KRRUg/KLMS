@@ -17,6 +17,7 @@ class SettingService
     public const TB_TYPE_URL = 'url';
     public const TB_TYPE_FILE = 'file';
     public const TB_TYPE_CONTENT = 'content';
+    public const TB_TYPE_BOOL = 'bool';
 
     ////////////////////////////////////////////////
     /// Text block names
