@@ -80,20 +80,43 @@ import '../../modules/confirmModal/confirmModal.js';
                                 let h = (typeof attrValue.prepend !== 'undefined') ? attrValue.prepend : "";
 
                                 if (typeof attrValue.data !== 'undefined') {
-                                    let s = document.createElement("SPAN");
-                                    s.textContent = row[attrValue.data];
-                                    h += s.innerHTML;
+                                    if(attrValue.data.includes('.')) {
+                                        const object = attrValue.data.split('.')[0];
+                                        const parameter = attrValue.data.split('.')[1];
+
+                                        let s = document.createElement("SPAN");
+                                        s.textContent = row[object][parameter];
+                                        h += s.innerHTML;
+                                    } else {
+                                        let s = document.createElement("SPAN");
+                                        s.textContent = row[attrValue.data];
+                                        h += s.innerHTML;
+                                    }
                                 }
 
                                 h += (typeof attrValue.append !== 'undefined') ? attrValue.append : "";
 
-                                const matches = h.matchAll(/--(\w+)--/g);
+                                //const matches = h.matchAll(/--(\w+)--/g);
+                                const matches = h.matchAll(/--(\w+)--|--(\w+.\w+)--/g);
                                 for (const match of matches) {
-                                    if (row[match[1]]) {
-                                        let s = document.createElement("SPAN");
-                                        s.textContent = row[attrValue.data];
-                                        let rep = row[match[1]];
-                                        h = h.replace(match[0], rep);
+                                    if(match[2] !== undefined) {
+                                        const object = match[2].split('.')[0];
+                                        const parameter = match[2].split('.')[1];
+                                        //If match contains an Object
+                                        if (row[object][parameter]) {
+                                            let s = document.createElement("SPAN");
+                                            s.textContent = row[object][attrValue.data];
+                                            let rep = row[object][parameter];
+                                            h = h.replace(match[0], rep);
+                                        }
+                                    } else {
+                                        //if match contains a string
+                                        if (row[match[1]]) {
+                                            let s = document.createElement("SPAN");
+                                            s.textContent = row[attrValue.data];
+                                            let rep = row[match[1]];
+                                            h = h.replace(match[0], rep);
+                                        }
                                     }
                                 }
 
