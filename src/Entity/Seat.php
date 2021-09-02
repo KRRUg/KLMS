@@ -45,6 +45,11 @@ class Seat
      */
     private $owner;
 
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $comment;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -106,6 +111,18 @@ class Seat
     public function setOwner(?UserGamer $owner): self
     {
         $this->owner = $owner;
+
+        return $this;
+    }
+
+    public function getComment(): ?string
+    {
+        return $this->comment;
+    }
+
+    public function setComment(?string $comment): self
+    {
+        $this->comment = $comment;
 
         return $this;
     }
