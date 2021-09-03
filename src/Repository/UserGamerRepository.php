@@ -35,7 +35,7 @@ class UserGamerRepository extends ServiceEntityRepository
         }
     }
 
-    public function findByState(?bool $registered, ?bool $payed, ?bool $seat)
+    public function findByState(?bool $registered, ?bool $paid, ?bool $seat)
     {
         $qb = $this->createQueryBuilder('u');
         if (!is_null($seat)) {
@@ -50,9 +50,9 @@ class UserGamerRepository extends ServiceEntityRepository
             $neg = $registered ? "not" : "";
             $qb->andWhere("u.registered is {$neg} null");
         }
-        if (!is_null($payed)) {
-            $neg = $payed ? "not" : "";
-            $qb->andWhere("u.payed is {$neg} null");
+        if (!is_null($paid)) {
+            $neg = $paid ? "not" : "";
+            $qb->andWhere("u.paid is {$neg} null");
         }
         return $qb
             ->getQuery()

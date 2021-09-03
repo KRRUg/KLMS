@@ -56,7 +56,7 @@ class CheckInController extends AbstractController
 
         $gamer = $this->userGamerRepository->findByUser($user);
 
-        if($gamer->hasPayed()) {
+        if($gamer->hasPaid()) {
             //checkOut
             $fb = $this->createFormBuilder()
                 ->add('action', HiddenType::class, [

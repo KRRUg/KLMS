@@ -27,7 +27,7 @@ class UserGamer
     /**
      * @ORM\Column(type="datetime", nullable=true)
      */
-    private $payed;
+    private $paid;
 
     /**
      * @ORM\OneToMany(targetEntity="App\Entity\Seat", mappedBy="owner")
@@ -72,21 +72,21 @@ class UserGamer
         $this->uuid = $uuid;
     }
 
-    public function getPayed(): ?DateTimeInterface
+    public function getPaid(): ?DateTimeInterface
     {
-        return $this->payed;
+        return $this->paid;
     }
 
-    public function setPayed(?DateTimeInterface $payed): self
+    public function setPaid(?DateTimeInterface $paid): self
     {
-        $this->payed = $payed;
+        $this->paid = $paid;
 
         return $this;
     }
 
-    public function hasPayed(): bool
+    public function hasPaid(): bool
     {
-        return $this->payed !== null;
+        return $this->paid !== null;
     }
 
     /**

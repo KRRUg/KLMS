@@ -44,7 +44,7 @@ class LanStatusExtension extends AbstractExtension {
 
         if($gamer) {
             if($gamer->getRegistered()) {
-                if($gamer->getPayed()) {
+                if($gamer->getPaid()) {
                     if($gamer->getSeats()->count() === 0) {
                         $status = "Angemeldet | Bezahlt | Kein Sitzplatz";
                     } else {

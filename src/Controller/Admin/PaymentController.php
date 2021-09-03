@@ -63,7 +63,7 @@ class PaymentController extends AbstractController
 
         $gamer = $this->userGamerRepository->findByUser($user);
 
-        if($gamer->hasPayed()) {
+        if($gamer->hasPaid()) {
             //unPay
             $fb = $this->createFormBuilder()
                 ->add('action', HiddenType::class, [

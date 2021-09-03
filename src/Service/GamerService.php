@@ -79,8 +79,8 @@ class GamerService
         if (!$gamer->hasRegistered())
             throw new GamerLifecycleException($user, "User not registered yet.");
 
-        $this->logger->info("Gamer {$user->getNickname()} got payed status set.");
-        $gamer->setPayed(new \DateTime());
+        $this->logger->info("Gamer {$user->getNickname()} got paid status set.");
+        $gamer->setPaid(new \DateTime());
         $this->em->persist($gamer);
         $this->em->flush();
     }
@@ -89,11 +89,11 @@ class GamerService
     {
         $gamer = $this->getGamer($user);
 
-        if (!$gamer->hasPayed())
-            throw new GamerLifecycleException($user, "User not payed yet.");
+        if (!$gamer->hasPaid())
+            throw new GamerLifecycleException($user, "User not paid yet.");
 
-        $this->logger->info("Gamer {$user->getNickname()} got payed status cleared.");
-        $gamer->setPayed(null);
+        $this->logger->info("Gamer {$user->getNickname()} got paid status cleared.");
+        $gamer->setPaid(null);
         $this->em->persist($gamer);
         $this->em->flush();
     }
@@ -116,7 +116,7 @@ class GamerService
     public function getPaidGamers()
     {
         $gamer = $this->repo->findAll();
-        $gamer = array_filter($gamer, function (UserGamer $gamer) { return $gamer->hasPayed(); });
+        $gamer = array_filter($gamer, function (UserGamer $gamer) { return $gamer->hasPaid(); });
         $gamer_uuid = array_map(function (UserGamer $gamer) { return $gamer->getUuid(); }, $gamer);
         return $this->userRepo->findById($gamer_uuid);
     }
@@ -133,7 +133,7 @@ class GamerService
         return [
             'uuid' => $userGamer->getUuid(),
             'registered' => $userGamer->getRegistered() ? $userGamer->getRegistered()->format(self::DATETIME_FORMAT) : null,
-            'payed' => $userGamer->getPayed() ? $userGamer->getPayed()->format(self::DATETIME_FORMAT) : null,
+            'paid' => $userGamer->getPaid() ? $userGamer->getPaid()->format(self::DATETIME_FORMAT) : null,
             'checkedIn' => $userGamer->getCheckedIn() ? $userGamer->getCheckedIn()->format(self::DATETIME_FORMAT) : null,
         ];
     }
