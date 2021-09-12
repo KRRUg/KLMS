@@ -1,0 +1,27 @@
+{% if seat.type == "locked" %}
+    {% if seat.name is not empty %}
+        Sitzplatz: {{ seat.name }} <small>({{ seat.sector }}-{{ seat.seatNumber }})</small>
+    {% else %}
+        Sitzplatz: {{ seat.sector }}-{{ seat.seatNumber }}
+    {% endif %}
+    <br>
+    Status: Gesperrt
+{% endif %}
+{% if seat.type == "seat" %}
+    {% if seat.name is not empty %}
+        Sitzplatz: {{ seat.name }} <small>({{ seat.sector }}-{{ seat.seatNumber }})</small>
+    {% else %}
+        Sitzplatz: {{ seat.sector }}-{{ seat.seatNumber }}
+    {% endif %}
+    {% if seat.owner is not empty %}
+        <br>
+        User: {# TODO: FIXME #}
+        <br>
+        Clan: {# TODO: FIXME #}
+        <br>
+        Status: Reserviert
+    {% else %}
+        <br>
+        Status: Frei
+    {% endif %}
+{% endif %}

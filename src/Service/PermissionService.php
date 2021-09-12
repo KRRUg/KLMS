@@ -27,6 +27,7 @@ final class PermissionService
     const ADMIN_USER = "ADMIN_USER";           // May edit users and clans
     const ADMIN_PAYMENT = "ADMIN_PAYMENT";     // May set Gamers to paid/unpaid
     const ADMIN_CHECKIN = "ADMIN_CHECKIN";     // May check in Gamers at the LAN
+    const ADMIN_SEATMAP = "ADMIN_SEATMAP";     // May edit Seatmap and assign Gamers Seats
 
     // extend here
 
@@ -39,6 +40,7 @@ final class PermissionService
         self::ADMIN_USER,
         self::ADMIN_PAYMENT,
         self::ADMIN_CHECKIN,
+        self::ADMIN_SEATMAP,
         // extend here
     ];
 

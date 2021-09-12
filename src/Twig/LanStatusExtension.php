@@ -3,6 +3,7 @@
 namespace App\Twig;
 
 use App\Repository\UserGamerRepository;
+use App\Service\SeatmapService;
 use App\Service\SettingService;
 use Symfony\Component\Routing\Exception\RouteNotFoundException;
 use Symfony\Component\Routing\RouterInterface;
@@ -22,13 +23,15 @@ class LanStatusExtension extends AbstractExtension {
     private TokenStorageInterface $tokenStorage;
     private RouterInterface $router;
     private SettingService $settingService;
+    private SeatmapService $seatmapService;
 
-    public function __construct(TokenStorageInterface $tokenStorage, UserGamerRepository $userGamerRepository, RouterInterface $router, SettingService $settingService)
+    public function __construct(TokenStorageInterface $tokenStorage, UserGamerRepository $userGamerRepository, RouterInterface $router, SettingService $settingService, SeatmapService $seatmapService)
     {
         $this->gamerRepository = $userGamerRepository;
         $this->tokenStorage = $tokenStorage;
         $this->router = $router;
         $this->settingService = $settingService;
+        $this->seatmapService = $seatmapService;
     }
 
     public function getFunctions() {
@@ -46,26 +49,26 @@ class LanStatusExtension extends AbstractExtension {
             if($gamer->getRegistered()) {
                 if($gamer->getPaid()) {
                     if($gamer->getSeats()->count() === 0) {
-                        $status = "Angemeldet | Bezahlt | Kein Sitzplatz";
+                        $status = "Angemeldet | Bezahlt | {$this->_getSeatmapInfo(true)}";
                     } else {
                         $seats = '';
                         foreach ($gamer->getSeats() as $index => $seat) {
                             if ($index !== 0) {
                                 $seats .= ', ';
                             }
-                            $seats .= "<a href=\"{$this->router->generate('index')}\">{$seat->getName()}</a>";
+                            $seats .= "<a href=\"{$this->router->generate('seatmap', ['seat' => $seat->getId()])}\">{$this->seatmapService->getSeatName($seat)}</a>";
                         }
                         $status = 'Angemeldet | Bezahlt | ' . $seats;
                     }
                 } else {
 
-                    $status = "Angemeldet | {$this->_getPaymentInfo(true)} | Kein Sitzplatz";
+                    $status = "Angemeldet | {$this->_getPaymentInfo(true)} | {$this->_getSeatmapInfo()}";
                 }
             } else {
-                $status = "{$this->_getSignUpInfo(true)} | {$this->_getPaymentInfo()} | Kein Sitzplatz";
+                $status = "{$this->_getSignUpInfo(true)} | {$this->_getPaymentInfo()} | {$this->_getSeatmapInfo()}";
             }
         } else {
-            $status = "{$this->_getSignUpInfo(true)} | {$this->_getPaymentInfo()} | Kein Sitzplatz";
+            $status = "{$this->_getSignUpInfo(true)} | {$this->_getPaymentInfo()} | {$this->_getSeatmapInfo()}";
         }
         return new Markup($status, 'UTF-8');
     }
@@ -89,10 +92,17 @@ class LanStatusExtension extends AbstractExtension {
 
     private function _getSignUpInfo(bool $hyperlink = false): string {
                 if($hyperlink) {
-                    //FIXME
                     return "<a href=\"{$this->router->generate('lan_signup')}\">Nicht Angemeldet</a>";
                 } else {
                     return "Nicht Angemeldet";
                 }
+    }
+
+    private function _getSeatmapInfo(bool $hyperlink = false): string {
+        if($hyperlink) {
+            return "<a href=\"{$this->router->generate('seatmap')}\">Kein Sitzplatz</a>";
+        } else {
+            return "Kein Sitzplatz";
+        }
     }
 }

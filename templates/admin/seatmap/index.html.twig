@@ -1,0 +1,55 @@
+{% extends 'admin/adminBase.html.twig' %}
+
+{% block title %}Sitzplan - KLMS - Admin{% endblock %}
+{% block siteheading %}<i class="fas fa-chair"></i> Sitzplan{% endblock %}
+{% block main %}
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-title">
+                    <div class="d-flex justify-content-between seatmap-legend">
+                        <span class="seat seat-empty"></span> Frei
+                        <span class="seat seat-taken"></span> Reserviert
+                        <span class="seat seat-locked"></span> Gesperrt
+                        <span class="seat seat-own"></span> Eigener Sitzplatz
+                    </div>
+                    {% if settings.get('lan.seatmap.locked') %}
+                        <div class="card-title">
+                            Der Sitzplan ist aktuell gesperrt! Er Kann nur von Admins bearbeitet werden.
+                        </div>
+                    {% endif %}
+                </div>
+                <div class="card-body">
+                    <button id="toggleEditmode" type="button" class="btn btn-primary" data-edit-mode="false">Drag & Drop aktivieren</button>
+                </div>
+            </div>
+            <div class="d-flex justify-content-center">
+                <div class="card">
+                    <div class="seatmap" data-position-url="{{ path('admin_seatmap_seat_pos') }}" data-create-url="{{ path('admin_seatmap_seat_create') }}">
+                        {% set seatmap_bg = settings.get('lan.seatmap.bg_image') %}
+                        {% if seatmap_bg is not empty %}
+                            <img class="seatmap-bg" src="{{ seatmap_bg }}" aria-hidden="true">
+                        {% endif %}
+                        <div class="seatmap-wrapper">
+                            {% for seat in seatmap %}
+                                    <a style="top: {{ seat.posY }}px; left: {{ seat.posX }}px;"
+                                       class="seat seat-{{ seat.type }}{% if app.user is not null and seat.owner is not null and seat.owner.uuid == app.user.user.uuid %} seat-own{% endif %}{% if seat.owner is not empty %} seat-taken{% else %} seat-empty{% endif %}"
+                                       data-chair-position="{{ seat.chairPosition }}" data-toggle="ajaxModal" data-id="{{ seat.id }}"
+                                       data-html="true" title="{{ include('site/seatmap/tooltip.html.twig') }}" href="{{ path('admin_seatmap_seat_edit', {'id' : seat.id}) }}">
+                                        {% if seat.type == 'information' %}
+                                            <i class="fas fa-info-circle"></i>
+                                        {% endif %}
+                                    </a>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    {{ encore_entry_script_tags('admin_seatmap') }}
+{% endblock %}

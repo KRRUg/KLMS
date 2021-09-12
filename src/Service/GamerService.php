@@ -38,7 +38,7 @@ class GamerService
      * @param User $user The user to get the UserGamer of
      * @return UserGamer A (potentially created) UserGamer object
      */
-    private function getGamer(User $user) : UserGamer
+    public function getGamer(User $user) : UserGamer
     {
         $userGamer = $this->repo->findByUser($user);
         if ($userGamer)
@@ -136,5 +136,20 @@ class GamerService
             'paid' => $userGamer->getPaid() ? $userGamer->getPaid()->format(self::DATETIME_FORMAT) : null,
             'checkedIn' => $userGamer->getCheckedIn() ? $userGamer->getCheckedIn()->format(self::DATETIME_FORMAT) : null,
         ];
+    }
+
+    public function getUserFromGamer(UserGamer $userGamer): ?User
+    {
+        return $this->userRepo->findOneById($userGamer->getUuid());
+    }
+
+    public function getGamerPaidSeatCount(User $user): int
+    {
+        $gamer = $this->getGamer($user);
+        $seats = 0;
+        if(is_int($gamer->getSeatsPaid())) {
+            $seats = $gamer->getSeatsPaid();
+        }
+        return $seats;
     }
 }

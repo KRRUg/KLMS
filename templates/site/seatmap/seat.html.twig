@@ -1,0 +1,80 @@
+{% embed "admin/components/modals/skeleton.html.twig"
+    with {
+    'id': 'showSeatModal',
+    'title' : 'Sitzplatz ' ~ seat.sector ~ '-' ~ seat.seatNumber,
+    'dialogClass' : 'modal-lg'
+} %}
+    {% if app.user is not empty and seat.owner is not empty and seat.owner.uuid == app.user.user.uuid %}
+        {% set owner =  true %}
+    {% else %}
+        {% set owner = false %}
+    {% endif %}
+    {% block modalBody %}
+        <div class="container-fluid">
+            <div class="d-flex justify-content-between w-100 pb-3">
+                <div class="py-1">
+                    {# TODOO: Copy Link to ClipBoard and show PopUp #}
+                    <a class="ml-auto" href="{{ path('seatmap', {'seat': seat.id}) }}" title="Permalink kopieren"><i class="fas fa-copy"></i></a>
+                </div>
+            </div>
+                <div class="col">
+                    <p>
+                        Sitzplatz:
+                        {% if seat.name is empty %}
+                            {{ seat.sector }}-{{ seat.seatNumber }}
+                        {% else %}
+                            {{ seat.name }} ({{ seat.sector }}-{{ seat.seatNumber }})
+                        {% endif %}
+                        <br>
+                        Status:
+                        {% if seat.owner is not empty %}
+                            Reserviert
+                        {% elseif seat.type == 'locked' %}
+                            Gesperrt
+                        {% else %}
+                            Frei
+                        {% endif %}
+
+                    </p>
+                    {% if seat.owner is not empty %}
+                        <h1 title="Nickname" class="h3 d-inline-block">Nickname: <a target="_blank" href="{{ path('user_show', {'uuid': user.uuid }) }}">{{ user.nickname }}</a></h1>
+                        <br/>
+                        {% if user.clans is not empty %}
+                            <h5 title="Clan" class="d-inline-block">Clans:</h5>
+                            <ul>
+                                {% for clan in user.clans %}
+                                    <li>
+                                        <a target="_blank" href="{{ path('clan_show', {'uuid': clan.uuid}) }}">[{{ clan.clantag }}]</a>
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        {% endif %}
+                    {% endif %}
+                    <br>
+                </div>
+        </div>
+        {% if not gamerEligible and app.user is not empty and owner == false and seat.type == 'seat' %}
+            <h1>Du hast die maximal Anzahl deiner bezahlten Sitzplätze erreicht!</h1>
+        {% endif %}
+
+    {% endblock %}
+
+    {% block modalFooter %}
+        {% if not settings.get('lan.seatmap.locked') %}
+        {% if seat.owner is empty and seat.type == 'seat' and gamerEligible %}
+        {{ form_start(form) }}
+        {{ form_row(form.action) }}
+        {{ form_rest(form) }}
+            <button type="submit" class="btn btn-primary"><i class="fas fa-user-check"></i> Sitzplatz reservieren</button>
+        {{ form_end(form) }}
+        {% elseif owner == true %}
+                {{ form_start(form) }}
+                {{ form_row(form.action) }}
+                {{ form_rest(form) }}
+                <button type="submit" class="btn btn-primary"><i class="fas fa-user-times"></i> Sitzplatz freigeben</button>
+                {{ form_end(form) }}
+        {% endif %}
+        {% endif %}
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Schließen</button>
+    {% endblock %}
+{% endembed %}

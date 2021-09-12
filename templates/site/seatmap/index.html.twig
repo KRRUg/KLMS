@@ -1,0 +1,55 @@
+{% extends 'site/siteBase.html.twig' %}
+
+{% block title %}KLMS - Sitzplan{% endblock %}
+
+{% block main %}
+    <div class="container mb-5">
+        <div class="card">
+            <div class="card-body">
+                <h1 class="card-title">Sitzplan</h1>
+                {% if settings.get('lan.seatmap.locked') %}
+                    <h3 class="card-header">Der Sitzplan ist aktuell gesperrt und kann zurzeit nur von den Adminstratoren bearbeitet werden.</h3>
+                {% endif %}
+                <div class="d-flex justify-content-between seatmap-legend">
+                    <span class="seat seat-empty"></span> Frei
+                    <span class="seat seat-taken"></span> Reserviert
+                    <span class="seat seat-locked"></span> Gesperrt
+                    <span class="seat seat-own"></span> Eigener Sitzplatz
+                </div>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-body p-0">
+                <div class="seatmap">
+                    {% set seatmap_bg = settings.get('lan.seatmap.bg_image') %}
+                    {% if seatmap_bg is not empty %}
+                        <img class="seatmap-bg" src="{{ seatmap_bg }}" aria-hidden="true">
+                    {% endif %}
+                    <div class="seatmap-wrapper">
+                        {% for seat in seatmap %}
+                            {% if seat.type == 'information' %}
+                                <span style="top: {{ seat.posY }}px; left: {{ seat.posX }}px;" class="seat seat-{{ seat.type }} seat-taken" data-html="true"
+                                      title="{{ seat.name }}"><i class="fas fa-info-circle"></i></span>
+                            {% else %}
+                                <a style="top: {{ seat.posY }}px; left: {{ seat.posX }}px;"
+                                   class="seat seat-{{ seat.type }}{% if app.user is not null and seat.owner is not null and seat.owner.uuid == app.user.user.uuid %} seat-own{% endif %}{% if seat.owner is not empty %} seat-taken{% else %} seat-empty{% endif %}"
+                                   data-chair-position="{{ seat.chairPosition }}" data-toggle="ajaxModal"
+                                   data-html="true" title="{{ include('site/seatmap/tooltip.html.twig') }}" href="{{ path('seatmap_seat_show', {'id' : seat.id}) }}"></a>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    {{ encore_entry_script_tags('site_seatmap') }}
+{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    {{ encore_entry_css_source('site_seatmap') }}
+{% endblock %}

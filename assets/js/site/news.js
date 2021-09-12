@@ -92,6 +92,7 @@ $.extend(AjaxLoader.prototype, {
 
 $(document).ready(() => {
     const al = new AjaxLoader($('#news'), {
+        //TODO: fix Hardcoding Path
         path: '/news/cards',
         button: '#loadMore',
         end_label: '#noMore',

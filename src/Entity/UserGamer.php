@@ -39,6 +39,11 @@ class UserGamer
      */
     private $checkedIn;
 
+    /**
+     * @ORM\Column(type="integer", nullable=true)
+     */
+    private $seatsPaid;
+
     public function __construct(?UuidInterface $uuid)
     {
         $this->uuid = $uuid;
@@ -128,6 +133,18 @@ class UserGamer
     public function setCheckedIn(?\DateTimeInterface $checkedIn): self
     {
         $this->checkedIn = $checkedIn;
+
+        return $this;
+    }
+
+    public function getSeatsPaid(): ?int
+    {
+        return $this->seatsPaid;
+    }
+
+    public function setSeatsPaid(?int $seatsPaid): self
+    {
+        $this->seatsPaid = $seatsPaid;
 
         return $this;
     }
