@@ -54,12 +54,9 @@ class LanSignupController extends AbstractController
                 ]);
         }
 
-
-
         $fb->add('submit', SubmitType::class, [
-            'label' => 'Zur LAN anmelden!',
+            'label' => 'Anmelden',
         ]);
-
 
         $form = $fb->getForm();
         $form->handleRequest($request);

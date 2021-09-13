@@ -110,7 +110,7 @@ class PaymentController extends AbstractController
                     $this->gamerService->gamerPay($user);
                     $this->addFlash('success', $user->getNickname() . ' erfolgreich als bezahlt markiert!');
                     if($this->settingsService->isSet('site.title')) {
-                        $message = "Wir haben dein Geld erhalten! Der Sitzplan für die \"{$this->settingService->get('site.title')}\" wurde freigeschalten.";
+                        $message = "Wir haben dein Geld erhalten! Der Sitzplan für die \"{$this->settingsService->get('site.title')}\" wurde freigeschalten.";
                     } else {
                         $message = "Wir haben dein Geld erhalten! Der Sitzplan wurde freigeschalten.";
                     }

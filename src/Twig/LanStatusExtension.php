@@ -88,11 +88,11 @@ class LanStatusExtension extends AbstractExtension {
     }
 
     private function _getSignUpInfo(bool $hyperlink = false): string {
-                if($hyperlink) {
-                    //FIXME
-                    return "<a href=\"{$this->router->generate('lan_signup')}\">Nicht Angemeldet</a>";
-                } else {
-                    return "Nicht Angemeldet";
-                }
+        if($hyperlink) {
+            //FIXME
+            return "<a href=\"{$this->router->generate('lan_signup')}\">Nicht Angemeldet</a>";
+        } else {
+            return "Nicht Angemeldet";
+        }
     }
 }

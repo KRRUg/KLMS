@@ -11,7 +11,7 @@
                 <div class="card-text">
                     {{ settings.get('lan.signupinfo')|raw }}
                     {% if settings.get('lan.signup.enabled') %}
-                    {% if userGamer.hasRegistered() %}
+                    {% if userGamer is not empty and userGamer.hasRegistered() %}
                         <h2>Du bist bereits zur LAN angemeldet!</h2>
                     {% else %}
                     {% if termsUrl %}
