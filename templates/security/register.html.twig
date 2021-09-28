@@ -20,8 +20,8 @@
             {{ form_row(form.password.first, {'input_group_prepend' : '<i class="fas fa-key"></i>'}) }}
             {{ form_row(form.password.second, {'input_group_prepend' : '<i class="fas fa-key"></i>'}) }}
             {{ form_row(form.infoMails) }}
-            {% if 'agb' is slug %}
-                <p>Weitere Infos zum Newsletter findest du in unseren {{ 'agb' | slug_link }}.</p>
+            {% if 'privacy' is slug %}
+                <p>Weitere Infos zum Newsletter findest du unter {{ 'privacy' | slug_link }}.</p>
             {% endif %}
             <div class="float-right">
                 <button type="submit" class="btn btn-primary">Registrieren</button>

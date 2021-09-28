@@ -38,7 +38,7 @@ class GamerService
      * @param User $user The user to get the UserGamer of
      * @return UserGamer A (potentially created) UserGamer object
      */
-    private function getGamer(User $user) : UserGamer
+    private function getOrCreateGamer(User $user) : UserGamer
     {
         $userGamer = $this->repo->findByUser($user);
         if ($userGamer)
@@ -50,9 +50,14 @@ class GamerService
         return $userGamer;
     }
 
+    private function getGamer(User $user) : ?UserGamer
+    {
+        return $this->repo->findByUser($user);
+    }
+
     public function gamerRegister(User $user)
     {
-        $gamer = $this->getGamer($user);
+        $gamer = $this->getOrCreateGamer($user);
         $this->logger->info("Gamer {$user->getNickname()} got registration status set.");
         $gamer->setRegistered(new \DateTime());
         $this->em->persist($gamer);
@@ -61,7 +66,7 @@ class GamerService
 
     public function gamerUnregister(User $user)
     {
-        $gamer = $this->getGamer($user);
+        $gamer = $this->getOrCreateGamer($user);
 
         if (!$gamer->hasRegistered())
             throw new GamerLifecycleException($user, "User not registered yet.");
@@ -72,9 +77,15 @@ class GamerService
         $this->em->flush();
     }
 
+    public function gamerHasRegistered(User $user): bool
+    {
+        $gamer = $this->getGamer($user) ?? false;
+        return $gamer && $gamer->hasRegistered();
+    }
+
     public function gamerPay(User $user)
     {
-        $gamer = $this->getGamer($user);
+        $gamer = $this->getOrCreateGamer($user);
 
         if (!$gamer->hasRegistered())
             throw new GamerLifecycleException($user, "User not registered yet.");
@@ -87,7 +98,7 @@ class GamerService
 
     public function gamerUnPay(User $user)
     {
-        $gamer = $this->getGamer($user);
+        $gamer = $this->getOrCreateGamer($user);
 
         if (!$gamer->hasPayed())
             throw new GamerLifecycleException($user, "User not payed yet.");
