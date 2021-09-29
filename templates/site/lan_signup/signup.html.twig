@@ -8,8 +8,8 @@
             <div class="card-body">
                 <h1 class="card-title">Anmeldung zur Veranstaltung</h1>
                 <div class="card-text">
-                    {% if settings.get('lan.signupinfo') is not empty %}
-                            {{ settings.get('lan.signupinfo') | raw }}
+                    {% if settings.get('lan.signup.info') is not empty %}
+                            {{ settings.get('lan.signup.info') | raw }}
                     {% else %}
                         <p>
                             Hier kannst du dich zur Veranstaltung anmelden.<br>

@@ -7,6 +7,7 @@ use App\Service\SettingService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\CallbackTransformer;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
+use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
@@ -87,33 +88,16 @@ class SettingController extends AbstractController
                     'delete_label' => "Löschen",
                     ]);
                 break;
-            case SettingService::TB_TYPE_CONTENT:
-                $fb->add('text', ContentSelectorType::class, [
-                    'required' => false,
-                    'label' => false,
-                ]);
-                break;
             case SettingService::TB_TYPE_BOOL:
-                $fb->add('text', CheckboxType::class, [
-                    'required' => false,
+                $fb->add('text', ChoiceType::class, [
+                    'choices' => [
+                        'Aktiviert' => '1',
+                        'Deaktiviert' => '0'
+                    ],
+                    'expanded' => true,
+                    'required' => true,
                     'label' => false,
                 ]);
-                $fb->get('text')->addModelTransformer(new CallbackTransformer(
-                    function($textToBool) {
-                        if($textToBool == '1') {
-                            return true;
-                        } else {
-                            return false;
-                        }
-                    },
-                    function($boolToText) {
-                        if($boolToText) {
-                            return '1';
-                        } else {
-                            return '0';
-                        }
-                    }
-                ));
                 break;
         }
 
