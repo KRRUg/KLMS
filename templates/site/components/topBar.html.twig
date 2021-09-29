@@ -1,12 +1,13 @@
 <div id="top-bar" class="bg-dark text-white">
     <div class="container">
         <div class="row">
-            <div class="col text-left">
-                {% if app.user.username is defined %}
-                    {%  include 'site/components/topBar/lanStatus.html.twig' %}
-                {% endif %}
-            </div>
-            <div class="col text-right">
+            <div class="col d-flex justify-content-between">
+                <div>
+                    {% if is_granted('IS_AUTHENTICATED_REMEMBERED') %}
+                        {%  include 'site/components/topBar/lanStatus.html.twig' %}
+                    {% endif %}
+                </div>
+                <div>
                 {% if is_granted('ROLE_ADMIN') %}
                     <a class="btn btn-link" href="{{ path('admin_dashboard') }}">
                         <i class="fas fa-cogs"></i> Admin
@@ -20,6 +21,7 @@
                 {% else %}
                     {%  include 'site/components/topBar/loginDropdown.html.twig' %}
                 {% endif %}
+                </div>
             </div>
         </div>
     </div>

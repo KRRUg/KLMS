@@ -109,6 +109,12 @@ class GamerService
         $this->em->flush();
     }
 
+    public function gamerHasPayed(User $user): bool
+    {
+        $gamer = $this->getGamer($user) ?? false;
+        return $gamer && $gamer->hasPayed();
+    }
+
     public function getRegisteredGamer()
     {
         $gamer = $this->repo->findAll();

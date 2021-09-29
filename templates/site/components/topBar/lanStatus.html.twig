@@ -1,5 +1,26 @@
 <div class="small d-inline-block">
-    {% if settings.isSet('lan.page.paymentinfo') == true %}
-    Dein Status: {{ lan_status_gamer_summary() }}
+    {% if settings.get('lan.signup.enabled') %}
+        <p class="text-muted">
+            {% set user = app.user.user %}
+            {% if user is not empty %}
+                Dein Status:
+                {% if user is not registered_gamer %}
+                    <a href="{{ url('lan_signup') }}">Nicht Angemeldet</a>
+                {% else %}
+                    Angemeldet&nbsp;&nbsp;|&nbsp;
+                    {% if user is payed_gamer %}
+                        Bezahlt
+                    {% else %}
+                        {{ 'payment' | slug_link('Nicht Bezahlt') }}
+                    {% endif %}
+                    &nbsp;|&nbsp;
+                    {% if user is seated_gamer %}
+                        Sitzplatz {{ user | seat }}
+                    {% else %}
+                        Kein Sitzplatz
+                    {% endif %}
+                {% endif %}
+            {% endif %}
+        </p>
     {% endif %}
 </div>
