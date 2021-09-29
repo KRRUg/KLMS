@@ -41,7 +41,8 @@ class PermissionController extends BaseController
 
         if ($request->getRequestFormat() === 'json') {
             return $this->apiResponse(
-                array_values($local_admins)
+                array_values($local_admins),
+                true
             );
         } else {
             $formEdit = $this->get('form.factory')->createNamed('edit', PermissionType::class, null, ['include_user' => true]);

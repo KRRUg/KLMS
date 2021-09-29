@@ -22,12 +22,20 @@ abstract class BaseController extends AbstractController
      * @param int $statusCode
      * @return JsonResponse
      */
-    protected function apiResponse($data = null, $statusCode = 200)
+    protected function apiResponse($data = null, bool $wrap = false, $statusCode = 200)
     {
         if (empty($data)) {
             return new JsonResponse(null, $statusCode);
         }
 
+        if ($wrap) {
+            $count = count($data);
+            $data = [
+                'count' => $count,
+                'total' => $count,
+                'items' => $data,
+            ];
+        }
         $json = $this->get('serializer')->serialize($data, 'json');
         return new JsonResponse($json, $statusCode, [], true);
     }

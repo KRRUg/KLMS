@@ -131,4 +131,9 @@ class UserGamer
 
         return $this;
     }
+
+    public function hasCheckedIn(): bool
+    {
+        return $this->checkedIn !== null;
+    }
 }

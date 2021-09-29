@@ -115,35 +115,51 @@ class GamerService
         return $gamer && $gamer->hasPayed();
     }
 
-    public function getRegisteredGamer()
+    public function getGamers() : array
     {
-        $gamer = $this->repo->findAll();
-        $gamer = array_filter($gamer, function (UserGamer $gamer) { return $gamer->hasRegistered(); });
-        $gamer_uuid = array_map(function (UserGamer $gamer) { return $gamer->getUuid(); }, $gamer);
-        return $this->userRepo->findById($gamer_uuid);
+        $gamers = $this->repo->findAll();
+        $gamers = array_filter($gamers, function (UserGamer $g) { return $g->hasRegistered(); });
+        $ids = array_map(function (UserGamer $g) { return $g->getUuid()->toString(); }, $gamers);
+        $gamers = array_combine($ids, $gamers);
+        $users = $this->userRepo->findById($ids);
+
+        $ret = [];
+        foreach ($users as $user) {
+            $uuid = $user->getUuid()->toString();
+            $ret[$uuid] = ['user' => $user, 'status' => $gamers[$uuid]];
+        }
+        return $ret;
     }
 
-    public function getRegisteredGamerWithStatus()
-    {
-        $gamer = $this->getRegisteredGamer();
-        $gamer = array_map(function (User $user) { return ['user' => $user, 'status' => $this->repo->findByUser($user)]; }, $gamer);
-        return $gamer;
-    }
-
-    public function getPaidGamers()
-    {
-        $gamer = $this->repo->findAll();
-        $gamer = array_filter($gamer, function (UserGamer $gamer) { return $gamer->hasPayed(); });
-        $gamer_uuid = array_map(function (UserGamer $gamer) { return $gamer->getUuid(); }, $gamer);
-        return $this->userRepo->findById($gamer_uuid);
-    }
-
-    public function getPaidGamersWithStatus()
-    {
-        $gamer = $this->getPaidGamers();
-        $gamer = array_map(function (User $user) { return ['user' => $user, 'status' => $this->repo->findByUser($user)]; }, $gamer);
-        return $gamer;
-    }
+//    public function getRegisteredGamer()
+//    {
+//        $gamer = $this->repo->findAll();
+//        $gamer = array_filter($gamer, function (UserGamer $gamer) { return $gamer->hasRegistered(); });
+//        $gamer_uuid = array_map(function (UserGamer $gamer) { return $gamer->getUuid(); }, $gamer);
+//        return $this->userRepo->findById($gamer_uuid);
+//    }
+//
+//    public function getRegisteredGamerWithStatus()
+//    {
+//        $gamer = $this->getRegisteredGamer();
+//        $gamer = array_map(function (User $user) { return ['user' => $user, 'status' => $this->repo->findByUser($user)]; }, $gamer);
+//        return $gamer;
+//    }
+//
+//    public function getPaidGamers()
+//    {
+//        $gamer = $this->repo->findAll();
+//        $gamer = array_filter($gamer, function (UserGamer $gamer) { return $gamer->hasPayed(); });
+//        $gamer_uuid = array_map(function (UserGamer $gamer) { return $gamer->getUuid(); }, $gamer);
+//        return $this->userRepo->findById($gamer_uuid);
+//    }
+//
+//    public function getPaidGamersWithStatus()
+//    {
+//        $gamer = $this->getPaidGamers();
+//        $gamer = array_map(function (User $user) { return ['user' => $user, 'status' => $this->repo->findByUser($user)]; }, $gamer);
+//        return $gamer;
+//    }
 
     public function gamer2Array(UserGamer $userGamer): array
     {

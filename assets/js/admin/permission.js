@@ -10,7 +10,7 @@ let UserTable = function ($wrapper) {
         language : dTLang,
         ajax: {
             url: this.remoteTarget,
-            dataSrc: ""
+            dataSrc: 'items',
         },
         columns: [
             {data: 0},
