@@ -167,8 +167,6 @@ class SeatmapController extends AbstractController
                 $i = 1;
                 $seatNumber = $seat->getSeatNumber();
                 while ($i <= $count) {
-                    dump($x);
-                    dump($y);
                     $newSeat = clone($seat);
                     $newSeat->setPosX($x);
                     $newSeat->setPosY($y);
