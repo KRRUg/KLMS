@@ -5,9 +5,11 @@ namespace App\Service;
 use App\Entity\User;
 use App\Entity\UserGamer;
 use App\Exception\GamerLifecycleException;
+use App\Helper\EmailRecipient;
 use App\Idm\IdmManager;
 use App\Idm\IdmRepository;
 use App\Repository\UserGamerRepository;
+use DateTime;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 
@@ -17,6 +19,8 @@ class GamerService
     private EntityManagerInterface $em;
     private UserGamerRepository $repo;
     private IdmRepository $userRepo;
+    private EmailService $emailService;
+    private SettingService $settingService;
 
     const DATETIME_FORMAT = 'Y.m.d H:i:s';
 
@@ -25,11 +29,18 @@ class GamerService
      * i.e. the status w.r.t this KLMS instance.
      */
 
-    public function __construct(LoggerInterface $logger, EntityManagerInterface $em, UserGamerRepository $repo, IdmManager $manager)
+    public function __construct(LoggerInterface $logger,
+                                EntityManagerInterface $em,
+                                UserGamerRepository $repo,
+                                EmailService $emailService,
+                                SettingService $settingService,
+                                IdmManager $manager)
     {
         $this->logger = $logger;
         $this->em = $em;
         $this->repo = $repo;
+        $this->emailService = $emailService;
+        $this->settingService = $settingService;
         $this->userRepo = $manager->getRepository(User::class);
     }
 
@@ -63,7 +74,7 @@ class GamerService
             throw new GamerLifecycleException($user, "User already registered.");
 
         $this->logger->info("Gamer {$user->getNickname()} got registration status set.");
-        $gamer->setRegistered(new \DateTime());
+        $gamer->setRegistered(new DateTime());
         $this->em->persist($gamer);
         $this->em->flush();
     }
@@ -100,9 +111,22 @@ class GamerService
             throw new GamerLifecycleException($user, "User already payed.");
 
         $this->logger->info("Gamer {$user->getNickname()} got payed status set.");
-        $gamer->setPayed(new \DateTime());
+
+        $gamer->setPayed(new DateTime());
         $this->em->persist($gamer);
         $this->em->flush();
+
+        if ($this->settingService->isSet('site.title')) {
+            $message = "Wir haben dein Geld erhalten! Der Sitzplan für die Veranstaltung \"{$this->settingService->get('site.title')}\" wurde freigeschaltet.";
+        } else {
+            $message = "Wir haben dein Geld erhalten! Der Sitzplan wurde freigeschaltet.";
+        }
+        $this->emailService->scheduleHook(
+            EmailService::APP_HOOK_CHANGE_NOTIFICATION,
+            EmailRecipient::fromUser($user), [
+                'message' => $message,
+            ]
+        );
     }
 
     public function gamerUnPay(User $user)
@@ -147,36 +171,6 @@ class GamerService
         }
         return $ret;
     }
-
-//    public function getRegisteredGamer()
-//    {
-//        $gamer = $this->repo->findAll();
-//        $gamer = array_filter($gamer, function (UserGamer $gamer) { return $gamer->hasRegistered(); });
-//        $gamer_uuid = array_map(function (UserGamer $gamer) { return $gamer->getUuid(); }, $gamer);
-//        return $this->userRepo->findById($gamer_uuid);
-//    }
-//
-//    public function getRegisteredGamerWithStatus()
-//    {
-//        $gamer = $this->getRegisteredGamer();
-//        $gamer = array_map(function (User $user) { return ['user' => $user, 'status' => $this->repo->findByUser($user)]; }, $gamer);
-//        return $gamer;
-//    }
-//
-//    public function getPaidGamers()
-//    {
-//        $gamer = $this->repo->findAll();
-//        $gamer = array_filter($gamer, function (UserGamer $gamer) { return $gamer->hasPayed(); });
-//        $gamer_uuid = array_map(function (UserGamer $gamer) { return $gamer->getUuid(); }, $gamer);
-//        return $this->userRepo->findById($gamer_uuid);
-//    }
-//
-//    public function getPaidGamersWithStatus()
-//    {
-//        $gamer = $this->getPaidGamers();
-//        $gamer = array_map(function (User $user) { return ['user' => $user, 'status' => $this->repo->findByUser($user)]; }, $gamer);
-//        return $gamer;
-//    }
 
     public function gamer2Array(UserGamer $userGamer): array
     {
