@@ -338,9 +338,6 @@
             "config/packages/dev/debug.yaml"
         ]
     },
-    "symfony/debug-pack": {
-        "version": "v1.0.7"
-    },
     "symfony/dependency-injection": {
         "version": "v4.4.4"
     },
@@ -477,9 +474,6 @@
     "symfony/options-resolver": {
         "version": "v4.4.4"
     },
-    "symfony/orm-pack": {
-        "version": "v1.0.8"
-    },
     "symfony/polyfill-intl-grapheme": {
         "version": "v1.14.0"
     },
@@ -512,9 +506,6 @@
     },
     "symfony/process": {
         "version": "v4.4.9"
-    },
-    "symfony/profiler-pack": {
-        "version": "v1.0.4"
     },
     "symfony/property-access": {
         "version": "v4.4.4"
@@ -594,9 +585,6 @@
             "config/packages/twig.yaml",
             "templates/base.html.twig"
         ]
-    },
-    "symfony/twig-pack": {
-        "version": "v1.0.0"
     },
     "symfony/validator": {
         "version": "4.3",

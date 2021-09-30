@@ -19,7 +19,11 @@
                             <td style="width: 75%">
                                 {% set value = service.get(key) %}
                                 {% if value is not empty %}
-                                    {{ value | striptags | u.truncate(100, '...', false) | raw }}
+                                    {% if service.getType(key) == 'bool' %}
+                                        {{ value ? 'Aktiviert' : 'Deaktiviert' }}
+                                    {% else %}
+                                        {{ value | striptags | u.truncate(100, '...', false) | raw }}
+                                    {% endif %}
                                 {% else %}
                                     <p class="text-disabled">(nicht gesetzt)</p>
                                 {% endif %}

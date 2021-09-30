@@ -5,9 +5,11 @@ namespace App\Service;
 use App\Entity\User;
 use App\Entity\UserGamer;
 use App\Exception\GamerLifecycleException;
+use App\Helper\EmailRecipient;
 use App\Idm\IdmManager;
 use App\Idm\IdmRepository;
 use App\Repository\UserGamerRepository;
+use DateTime;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 
@@ -17,17 +19,28 @@ class GamerService
     private EntityManagerInterface $em;
     private UserGamerRepository $repo;
     private IdmRepository $userRepo;
+    private EmailService $emailService;
+    private SettingService $settingService;
+
+    const DATETIME_FORMAT = 'Y.m.d H:i:s';
 
     /*
      * Clarification: User is the Symfony User with information from IDM, while Gamer is the local KLMS information,
      * i.e. the status w.r.t this KLMS instance.
      */
 
-    public function __construct(LoggerInterface $logger, EntityManagerInterface $em, UserGamerRepository $repo, IdmManager $manager)
+    public function __construct(LoggerInterface $logger,
+                                EntityManagerInterface $em,
+                                UserGamerRepository $repo,
+                                EmailService $emailService,
+                                SettingService $settingService,
+                                IdmManager $manager)
     {
         $this->logger = $logger;
         $this->em = $em;
         $this->repo = $repo;
+        $this->emailService = $emailService;
+        $this->settingService = $settingService;
         $this->userRepo = $manager->getRepository(User::class);
     }
 
@@ -36,7 +49,7 @@ class GamerService
      * @param User $user The user to get the UserGamer of
      * @return UserGamer A (potentially created) UserGamer object
      */
-    private function getGamer(User $user) : UserGamer
+    private function getOrCreateGamer(User $user) : UserGamer
     {
         $userGamer = $this->repo->findByUser($user);
         if ($userGamer)
@@ -48,66 +61,124 @@ class GamerService
         return $userGamer;
     }
 
+    private function getGamer(User $user) : ?UserGamer
+    {
+        return $this->repo->findByUser($user);
+    }
+
     public function gamerRegister(User $user)
     {
-        $gamer = $this->getGamer($user);
+        $gamer = $this->getOrCreateGamer($user);
+
+        if ($gamer->hasRegistered())
+            throw new GamerLifecycleException($user, "User already registered.");
+
         $this->logger->info("Gamer {$user->getNickname()} got registration status set.");
-        $gamer->setRegistered(new \DateTime());
+        $gamer->setRegistered(new DateTime());
         $this->em->persist($gamer);
         $this->em->flush();
     }
 
     public function gamerUnregister(User $user)
     {
-        $gamer = $this->getGamer($user);
+        $gamer = $this->getOrCreateGamer($user);
 
         if (!$gamer->hasRegistered())
             throw new GamerLifecycleException($user, "User not registered yet.");
 
         $this->logger->info("Gamer {$user->getNickname()} got registration status cleared.");
-        $gamer->setRegistered(new \DateTime());
+        $gamer->setRegistered(null);
+        $gamer->setPayed(null);
+        $gamer->setCheckedIn(null);
         $this->em->persist($gamer);
         $this->em->flush();
+    }
+
+    public function gamerHasRegistered(User $user): bool
+    {
+        $gamer = $this->getGamer($user) ?? false;
+        return $gamer && $gamer->hasRegistered();
     }
 
     public function gamerPay(User $user)
     {
-        $gamer = $this->getGamer($user);
+        $gamer = $this->getOrCreateGamer($user);
 
         if (!$gamer->hasRegistered())
             throw new GamerLifecycleException($user, "User not registered yet.");
 
+        if ($gamer->hasPayed())
+            throw new GamerLifecycleException($user, "User already payed.");
+
         $this->logger->info("Gamer {$user->getNickname()} got payed status set.");
-        $gamer->setPayed(new \DateTime());
+
+        $gamer->setPayed(new DateTime());
         $this->em->persist($gamer);
         $this->em->flush();
+
+        if ($this->settingService->isSet('site.title')) {
+            $message = "Wir haben dein Geld erhalten! Der Sitzplan für die Veranstaltung \"{$this->settingService->get('site.title')}\" wurde freigeschaltet.";
+        } else {
+            $message = "Wir haben dein Geld erhalten! Der Sitzplan wurde freigeschaltet.";
+        }
+        $this->emailService->scheduleHook(
+            EmailService::APP_HOOK_CHANGE_NOTIFICATION,
+            EmailRecipient::fromUser($user), [
+                'message' => $message,
+            ]
+        );
     }
 
     public function gamerUnPay(User $user)
     {
-        $gamer = $this->getGamer($user);
+        $gamer = $this->getOrCreateGamer($user);
 
         if (!$gamer->hasPayed())
             throw new GamerLifecycleException($user, "User not payed yet.");
 
         $this->logger->info("Gamer {$user->getNickname()} got payed status cleared.");
         $gamer->setPayed(null);
+        $gamer->setCheckedIn(null);
         $this->em->persist($gamer);
         $this->em->flush();
     }
 
-    public function getRegisteredGamer()
+    public function gamerGetStatus(User $user): UserGamer
     {
-        $gamer = $this->repo->findAll();
-        $gamer = array_filter($gamer, function (UserGamer $gamer) { return $gamer->hasRegistered(); });
-        $gamer_uuid = array_map(function (UserGamer $gamer) { return $gamer->getUuid(); }, $gamer);
-        return $this->userRepo->findOneById($gamer_uuid);
+        $gamer = $this->repo->findByUser($user);
+        // clone to detach from Doctrine to avoid bypassing this service
+        return clone($gamer);
     }
 
-    public function getRegisteredGamerWithStatus()
+    public function gamerHasPayed(User $user): bool
     {
-        $gamer = $this->getRegisteredGamer();
-        $gamer = array_map(function (User $user) { return ['user' => $user, 'status' => $this->repo->findByUser($user)]; }, $gamer);
-        return $gamer;
+        $gamer = $this->getGamer($user) ?? false;
+        return $gamer && $gamer->hasPayed();
+    }
+
+    public function getGamers() : array
+    {
+        $gamers = $this->repo->findAll();
+        $gamers = array_filter($gamers, function (UserGamer $g) { return $g->hasRegistered(); });
+        $ids = array_map(function (UserGamer $g) { return $g->getUuid()->toString(); }, $gamers);
+        $gamers = array_combine($ids, $gamers);
+        $users = $this->userRepo->findById($ids);
+
+        $ret = [];
+        foreach ($users as $user) {
+            $uuid = $user->getUuid()->toString();
+            $ret[$uuid] = ['user' => $user, 'status' => $gamers[$uuid]];
+        }
+        return $ret;
+    }
+
+    public function gamer2Array(UserGamer $userGamer): array
+    {
+        return [
+            'uuid' => $userGamer->getUuid(),
+            'registered' => $userGamer->getRegistered() ? $userGamer->getRegistered()->format(self::DATETIME_FORMAT) : null,
+            'payed' => $userGamer->getPayed() ? $userGamer->getPayed()->format(self::DATETIME_FORMAT) : null,
+            'checkedIn' => $userGamer->getCheckedIn() ? $userGamer->getCheckedIn()->format(self::DATETIME_FORMAT) : null,
+        ];
     }
 }

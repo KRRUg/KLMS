@@ -48,6 +48,18 @@
             </ul>
         </li>
     {% endif %}
+    {% if is_granted('ROLE_ADMIN_PAYMENT') %}
+        <li class="nav-item">
+            <a class="nav-link" href="#lanMenu" data-toggle="collapse"><i class="fas fa-laptop-house fa-fw"></i> LAN</a></a>
+            <ul id="lanMenu" class="collapse show list-group">
+                {% if is_granted('ROLE_ADMIN_PAYMENT') %}
+                <li class="nav-item">
+                    <a class="nav-link {% if app.request.get('_route') starts with 'admin_payment' %}active{% endif %}" href="{{ path('admin_payment') }}"><i class="fas fa-money-bill fa-fw"></i> Einzahlungen </a>
+                </li>
+                {% endif %}
+            </ul>
+        </li>
+    {% endif %}
     {% if is_granted('ROLE_ADMIN_MAIL') %}
         <li class="nav-item">
             <a class="nav-link {% if app.request.get('_route') starts with 'admin_email' %}active{% endif %}" href="{{ path('admin_email') }}"><i class="far fa-envelope fa-fw"></i> E-Mails </a>

@@ -2,8 +2,12 @@
 
 namespace App\Controller\Admin;
 
+use App\Form\Type\ContentSelectorType;
 use App\Service\SettingService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Form\CallbackTransformer;
+use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
+use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
@@ -83,6 +87,17 @@ class SettingController extends AbstractController
                     'allow_delete' => true,
                     'delete_label' => "Löschen",
                     ]);
+                break;
+            case SettingService::TB_TYPE_BOOL:
+                $fb->add('text', ChoiceType::class, [
+                    'choices' => [
+                        'Aktiviert' => '1',
+                        'Deaktiviert' => '0'
+                    ],
+                    'expanded' => true,
+                    'required' => true,
+                    'label' => false,
+                ]);
                 break;
         }
 

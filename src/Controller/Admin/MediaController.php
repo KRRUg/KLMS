@@ -103,11 +103,10 @@ class MediaController extends BaseController
     {
         $token = $request->request->get('_token');
         if(!$this->isCsrfTokenValid(self::CSRF_TOKEN_DELETE, $token)) {
-            $this->addFlash('error', 'The CSRF token is invalid.');
-        } else {
-            $this->mediaService->delete($image);
-            $this->addFlash('success', 'Medium gelöscht.');
+            throw $this->createAccessDeniedException('The CSRF token is invalid.');
         }
+        $this->mediaService->delete($image);
+        $this->addFlash('success', 'Medium gelöscht.');
         return $this->redirectToRoute('admin_media');
     }
 

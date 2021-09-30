@@ -25,7 +25,9 @@ final class PermissionService
     const ADMIN_NEWS = "ADMIN_NEWS";           // May edit and publish news
     const ADMIN_MAIL = "ADMIN_MAIL";           // May edit and send newsletters and emails
     const ADMIN_USER = "ADMIN_USER";           // May edit users and clans
-    
+    const ADMIN_PAYMENT = "ADMIN_PAYMENT";     // May set Gamers to paid/unpaid
+    const ADMIN_CHECKIN = "ADMIN_CHECKIN";     // May check in Gamers at the LAN
+
     // extend here
 
     const PERMISSIONS = [
@@ -35,6 +37,8 @@ final class PermissionService
         self::ADMIN_NEWS,
         self::ADMIN_MAIL,
         self::ADMIN_USER,
+        self::ADMIN_PAYMENT,
+        self::ADMIN_CHECKIN,
         // extend here
     ];
 
@@ -169,16 +173,15 @@ final class PermissionService
     {
         $admins = $this->repo->findAll();
         $admins = array_filter($admins, function (UserAdmin $a) { return !empty($a->getPermissions()); });
-        $ids = array_map(function (UserAdmin $a) { return $a->getUuid(); }, $admins);
+        $ids = array_map(function (UserAdmin $a) { return $a->getUuid()->toString(); }, $admins);
+        $admins = array_combine($ids, $admins);
         $users = $this->userRepo->findById($ids);
 
         $ret = [];
-        foreach ($admins as $key => $admin) {
-            $u = $users[$key];
-            if (empty($u))
-                continue;
-            $p = $admin->getPermissions();
-            $ret[$u->getUuid()->toString()] = array($u, $p);
+        foreach ($users as $user) {
+            $uuid = $user->getUuid()->toString();
+            $permissions = $admins[$uuid]->getPermissions();
+            $ret[$uuid] = array($user, $permissions);
         }
         return $ret;
     }

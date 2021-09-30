@@ -11,7 +11,8 @@ import '../../modules/confirmModal/confirmModal.js';
         this.element = element;
 
         let defaults = {
-            remoteTarget: element.dataset.remoteTarget
+            remoteTarget: element.dataset.remoteTarget,
+            serverSideProcessing: element.dataset.serverSideProcessing !== "false",
         };
 
         this.settings = $.extend({}, defaults, options);
@@ -29,37 +30,44 @@ import '../../modules/confirmModal/confirmModal.js';
             };
 
             if (this.settings.remoteTarget) {
-                dtOptions.ajax = {
-                    url: this.settings.remoteTarget,
-                    dataSrc: 'items',
-                    dataFilter: function (data) {
-                        //Process server response from KLMS API
-                        var json = jQuery.parseJSON(data);
-                        json.recordsTotal = json.total;
-                        json.recordsFiltered = json.total;
-                        json.data = json.items;
+                if (this.settings.serverSideProcessing) {
+                    dtOptions.ajax = {
+                        url: this.settings.remoteTarget,
+                        dataSrc: 'items',
+                        dataFilter: function (data) {
+                            //Process server response from KLMS API
+                            var json = jQuery.parseJSON(data);
+                            json.recordsTotal = json.total;
+                            json.recordsFiltered = json.total;
+                            json.data = json.items;
 
-                        return JSON.stringify(json);
-                    },
-                    data: function (dtData) {
-                        //Add data for KLMS API for Ajax Request
-                        let request = {};
-                        request.draw = dtData.draw;
-                        request.q = dtData.search.value;
-                        request.limit = dtData.length;
-                        request.page = Math.floor(dtData.start / dtData.length) + 1;
-                        request.sort = {};
+                            return JSON.stringify(json);
+                        },
+                        data: function (dtData) {
+                            //Add data for KLMS API for Ajax Request
+                            let request = {};
+                            request.draw = dtData.draw;
+                            request.q = dtData.search.value;
+                            request.limit = dtData.length;
+                            request.page = Math.floor(dtData.start / dtData.length) + 1;
+                            request.sort = {};
 
-                        for (let sortCol of dtData.order) {
-                            let colName = dtData.columns[sortCol.column].data;
-                            request.sort[colName] = sortCol.dir;
+                            for (let sortCol of dtData.order) {
+                                let colName = dtData.columns[sortCol.column].data;
+                                request.sort[colName] = sortCol.dir;
+                            }
+
+                            return request;
                         }
-
-                        return request;
-                    }
-                };
-                dtOptions.serverSide = true;
-                dtOptions.processing = true;
+                    };
+                    dtOptions.serverSide = true;
+                    dtOptions.processing = true;
+                } else {
+                    dtOptions.ajax = {
+                        url: this.settings.remoteTarget,
+                        dataSrc: 'items',
+                    };
+                }
             }
 
             let columnDefs = [];
@@ -80,20 +88,42 @@ import '../../modules/confirmModal/confirmModal.js';
                                 let h = (typeof attrValue.prepend !== 'undefined') ? attrValue.prepend : "";
 
                                 if (typeof attrValue.data !== 'undefined') {
-                                    let s = document.createElement("SPAN");
-                                    s.textContent = row[attrValue.data];
-                                    h += s.innerHTML;
+                                    if(attrValue.data.includes('.')) {
+                                        const object = attrValue.data.split('.')[0];
+                                        const parameter = attrValue.data.split('.')[1];
+
+                                        let s = document.createElement("SPAN");
+                                        s.textContent = row[object][parameter];
+                                        h += s.innerHTML;
+                                    } else {
+                                        let s = document.createElement("SPAN");
+                                        s.textContent = row[attrValue.data];
+                                        h += s.innerHTML;
+                                    }
                                 }
 
                                 h += (typeof attrValue.append !== 'undefined') ? attrValue.append : "";
 
-                                const matches = h.matchAll(/--(\w+)--/g);
+                                const matches = h.matchAll(/--(\w+)--|--(\w+.\w+)--/g);
                                 for (const match of matches) {
-                                    if (row[match[1]]) {
-                                        let s = document.createElement("SPAN");
-                                        s.textContent = row[attrValue.data];
-                                        let rep = row[match[1]];
-                                        h = h.replace(match[0], rep);
+                                    if(match[2] !== undefined) {
+                                        const object = match[2].split('.')[0];
+                                        const parameter = match[2].split('.')[1];
+                                        //If match contains an Object
+                                        if (row[object][parameter]) {
+                                            let s = document.createElement("SPAN");
+                                            s.textContent = row[object][attrValue.data];
+                                            let rep = row[object][parameter];
+                                            h = h.replace(match[0], rep);
+                                        }
+                                    } else {
+                                        //if match contains a string
+                                        if (row[match[1]]) {
+                                            let s = document.createElement("SPAN");
+                                            s.textContent = row[attrValue.data];
+                                            let rep = row[match[1]];
+                                            h = h.replace(match[0], rep);
+                                        }
                                     }
                                 }
 

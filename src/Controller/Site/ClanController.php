@@ -82,8 +82,7 @@ class ClanController extends AbstractController
 
         $token = $request->request->get('_token');
         if(!$this->isCsrfTokenValid(self::CSRF_TOKEN_MEMBER_LEAVE, $token)) {
-            $this->addFlash('error', 'The CSRF token is invalid.');
-            return $this->redirectToRoute('clan_show', ['uuid' => $clan->getUuid()]);
+            throw $this->createAccessDeniedException('The CSRF token is invalid.');
         }
 
         $user = $this->getUser()->getUser();
@@ -101,11 +100,12 @@ class ClanController extends AbstractController
         if (empty($clan)) {
             throw $this->createNotFoundException('Clan not found');
         }
+
         $token = $request->request->get('_token');
         if(!$this->isCsrfTokenValid(self::CSRF_TOKEN_MEMBER_EDIT, $token)) {
-            $this->addFlash('error', 'The CSRF token is invalid.');
-            return $this->redirectToRoute('clan_show', ['uuid' => $clan->getUuid()]);
+            throw $this->createAccessDeniedException('The CSRF token is invalid.');
         }
+
         $admin = $this->getUser()->getUser();
         if (!$clan->isAdmin($admin)) {
             $this->addFlash('error', 'Nur Admins dürfen das.');
@@ -332,8 +332,7 @@ class ClanController extends AbstractController
 
         $token = $request->request->get('_token');
         if(!$this->isCsrfTokenValid(self::CSRF_TOKEN_DELETE, $token)) {
-            $this->addFlash('error', 'The CSRF token is invalid.');
-            return $this->redirectToRoute('clan');
+            throw $this->createAccessDeniedException('The CSRF token is invalid.');
         }
 
         try {

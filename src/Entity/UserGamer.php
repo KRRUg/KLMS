@@ -34,6 +34,11 @@ class UserGamer
      */
     private $seats;
 
+    /**
+     * @ORM\Column(type="datetime", nullable=true)
+     */
+    private $checkedIn;
+
     public function __construct(?UuidInterface $uuid)
     {
         $this->uuid = $uuid;
@@ -113,5 +118,22 @@ class UserGamer
         }
 
         return $this;
+    }
+
+    public function getCheckedIn(): ?\DateTimeInterface
+    {
+        return $this->checkedIn;
+    }
+
+    public function setCheckedIn(?\DateTimeInterface $checkedIn): self
+    {
+        $this->checkedIn = $checkedIn;
+
+        return $this;
+    }
+
+    public function hasCheckedIn(): bool
+    {
+        return $this->checkedIn !== null;
     }
 }
