@@ -32,22 +32,13 @@ class PaymentController extends AbstractController
     private const CSRF_TOKEN_PAYMENT = "paymentToken";
 
     private GamerService $gamerService;
-    private UserGamerRepository $userGamerRepository;
     private IdmRepository $userRepo;
-    private EmailService $emailService;
-    private SettingService $settingsService;
 
-    public function __construct(EmailService $emailService,
-                                GamerService $gamerService,
-                                IdmManager $manager,
-                                UserGamerRepository $userGamerRepository,
-                                SettingService $settingService)
+    public function __construct(GamerService $gamerService,
+                                IdmManager $manager)
     {
-        $this->emailService = $emailService;
-        $this->userRepo = $manager->getRepository(User::class);
         $this->gamerService = $gamerService;
-        $this->userGamerRepository = $userGamerRepository;
-        $this->settingsService = $settingService;
+        $this->userRepo = $manager->getRepository(User::class);
     }
 
     private function createUserSelectForm(): FormInterface
@@ -67,6 +58,31 @@ class PaymentController extends AbstractController
             'gamers' => $gamers,
             'form_add' => $this->createUserSelectForm()->createView(),
         ]);
+    }
+
+    /**
+     * @Route("", name="_add", methods={"POST"})
+     */
+    public function add(Request $request)
+    {
+        $form = $this->createUserSelectForm();
+        $form->handleRequest($request);
+        if ($form->isSubmitted() && $form->isValid()) {
+            $user = $form->getData()['user'];
+            if (empty($user)) {
+                $this->addFlash('error', "Ungültigen User ausgewählt.");
+            } elseif ($this->gamerService->gamerHasRegistered($user)) {
+                $this->addFlash('warning', "User {$user->getNickname()} ist schon registriert.");
+            } else {
+                try {
+                    $this->gamerService->gamerRegister($user);
+                    $this->addFlash('success', "User {$user->getNickname()} wurde zur Veranstaltung registriert.");
+                } catch (GamerLifecycleException $exception) {
+                    $this->addFlash('error', "User {$user->getNickname()}  konnte nicht registriert werden.");
+                }
+            }
+        }
+        return $this->redirectToRoute('admin_payment');
     }
 
     /**
@@ -127,7 +143,7 @@ class PaymentController extends AbstractController
             throw $this->createNotFoundException('User not found');
         }
 
-        $gamer = $this->userGamerRepository->findByUser($user);
+        $gamer = $this->gamerService->gamerGetStatus($user);
 
         return $this->render('admin/payment/show.html.twig', [
             'user' => $user,

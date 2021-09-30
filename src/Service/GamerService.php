@@ -119,6 +119,13 @@ class GamerService
         $this->em->flush();
     }
 
+    public function gamerGetStatus(User $user): UserGamer
+    {
+        $gamer = $this->repo->findByUser($user);
+        // clone to detach from Doctrine to avoid bypassing this service
+        return clone($gamer);
+    }
+
     public function gamerHasPayed(User $user): bool
     {
         $gamer = $this->getGamer($user) ?? false;

@@ -55,11 +55,12 @@
         {% endmacro %}
 
         <div class="container">
+            {% set dateformat = "d.m.Y" %}
             {% set href = path('admin_payment_update', {"uuid" : gamer.uuid}) %}
             <div class="row align-items-center m-2">
                 <div class="col-8">
                     {% if gamer.hasRegistered() %}
-                        Angemeldet am {{ gamer.registered | date('Y-m-d') }}
+                        Angemeldet am {{ gamer.registered | date(dateformat) }}
                     {% else %}
                         <span class="text-muted">Nicht angemeldet</span>
                     {% endif %}
@@ -75,7 +76,7 @@
             <div class="row align-items-center m-2">
                 <div class="col-8">
                     {% if gamer.hasPayed() %}
-                        Bezahlt am {{ gamer.payed | date('Y-m-d') }}
+                        Bezahlt am {{ gamer.payed | date(dateformat) }}
                     {% else %}
                         <span class="text-muted">Nicht bezahlt</span>
                     {% endif %}
@@ -93,7 +94,7 @@
             <div class="row align-items-center m-2">
                 <div class="col-8">
                     {% if gamer.hasCheckedIn() %}
-                        Bezahlt am {{ gamer.checkedIn | date('Y-m-d') }}
+                        Bezahlt am {{ gamer.checkedIn | date(dateformat) }}
                     {% else %}
                         <span class="text-muted">Nicht eingechecked</span>
                     {% endif %}
