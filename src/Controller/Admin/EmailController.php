@@ -156,8 +156,10 @@ class EmailController extends AbstractController
     {
         $token = $request->request->get('_token');
         if(!$this->isCsrfTokenValid(self::CSRF_TOKEN_DELETE, $token)) {
-            $this->addFlash('error', 'The CSRF token is invalid.');
-        } elseif ($this->mailService->deleteTemplate($template)) {
+            throw $this->createAccessDeniedException('The CSRF token is invalid.');
+        }
+
+        if ($this->mailService->deleteTemplate($template)) {
             $this->addFlash('success', "Erfolgreich gelöscht!");
         } else {
             $this->addFlash('error', "Konnte nicht gelöscht werden, da Sendung läuft!");
@@ -172,8 +174,10 @@ class EmailController extends AbstractController
     {
         $token = $request->request->get('_token');
         if(!$this->isCsrfTokenValid(self::CSRF_TOKEN_CANCEL, $token)) {
-            $this->addFlash('error', 'The CSRF token is invalid.');
-        } elseif ($this->mailService->cancelSending($template)) {
+            throw $this->createAccessDeniedException('The CSRF token is invalid.');
+        }
+
+        if ($this->mailService->cancelSending($template)) {
             $this->addFlash('success', "Erfolgreich abgebrochen!");
         } else {
             $this->addFlash('error', "Konnte nicht gelöscht werden, da schon in Sendung!");

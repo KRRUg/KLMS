@@ -93,19 +93,19 @@ class ContentController extends AbstractController
     public function delete(Request $request, Content $content) {
         $token = $request->request->get('_token');
         if(!$this->isCsrfTokenValid(self::CSRF_TOKEN_DELETE, $token)) {
-            $this->addFlash('error', 'The CSRF token is invalid.');
-        } else {
-            try {
-                $this->contentService->delete($content);
-            } catch (ServiceException $e) {
-                switch ($e->getCause()) {
-                    case ServiceException::CAUSE_IN_USE:
-                        $this->addFlash('danger', 'Konnte Content nicht löschen, da in Verwendung.');
-                        break;
-                    case ServiceException::CAUSE_DONT_EXIST:
-                        $this->addFlash('warning', 'Content nicht gefunden.');
-                        break;
-                }
+            throw $this->createAccessDeniedException('The CSRF token is invalid.');
+        }
+
+        try {
+            $this->contentService->delete($content);
+        } catch (ServiceException $e) {
+            switch ($e->getCause()) {
+                case ServiceException::CAUSE_IN_USE:
+                    $this->addFlash('danger', 'Konnte Content nicht löschen, da in Verwendung.');
+                    break;
+                case ServiceException::CAUSE_DONT_EXIST:
+                    $this->addFlash('warning', 'Content nicht gefunden.');
+                    break;
             }
         }
         return $this->redirectToRoute("admin_content");
