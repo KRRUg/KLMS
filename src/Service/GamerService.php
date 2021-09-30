@@ -58,6 +58,10 @@ class GamerService
     public function gamerRegister(User $user)
     {
         $gamer = $this->getOrCreateGamer($user);
+
+        if ($gamer->hasRegistered())
+            throw new GamerLifecycleException($user, "User already registered.");
+
         $this->logger->info("Gamer {$user->getNickname()} got registration status set.");
         $gamer->setRegistered(new \DateTime());
         $this->em->persist($gamer);
@@ -72,7 +76,9 @@ class GamerService
             throw new GamerLifecycleException($user, "User not registered yet.");
 
         $this->logger->info("Gamer {$user->getNickname()} got registration status cleared.");
-        $gamer->setRegistered(new \DateTime());
+        $gamer->setRegistered(null);
+        $gamer->setPayed(null);
+        $gamer->setCheckedIn(null);
         $this->em->persist($gamer);
         $this->em->flush();
     }
@@ -90,6 +96,9 @@ class GamerService
         if (!$gamer->hasRegistered())
             throw new GamerLifecycleException($user, "User not registered yet.");
 
+        if ($gamer->hasPayed())
+            throw new GamerLifecycleException($user, "User already payed.");
+
         $this->logger->info("Gamer {$user->getNickname()} got payed status set.");
         $gamer->setPayed(new \DateTime());
         $this->em->persist($gamer);
@@ -105,6 +114,7 @@ class GamerService
 
         $this->logger->info("Gamer {$user->getNickname()} got payed status cleared.");
         $gamer->setPayed(null);
+        $gamer->setCheckedIn(null);
         $this->em->persist($gamer);
         $this->em->flush();
     }

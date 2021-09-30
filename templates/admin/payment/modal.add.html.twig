@@ -1,0 +1,15 @@
+{% embed "admin/components/modals/form.html.twig"
+    with {
+    'id': 'newModal',
+    'title' : 'Gamer anmelden',
+    'attr' : {'data-remote-target' : path('admin_payment'), 'data-backdrop': 'static'},
+    'button_save' : 'Anmelden',
+    'form' : form_add
+}
+%}
+    {% block modalForm %}
+        <div class="form-group">
+            {{ form_row(form_add.user) }}
+        </div>
+    {% endblock %}
+{% endembed %}

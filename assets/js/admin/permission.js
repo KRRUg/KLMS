@@ -92,8 +92,8 @@ $.extend(NewModal.prototype, {
                 this.onupdate();
                 this.$modal.modal('hide');
             }).catch((errorData) => {
-            this._mapErrorsToForm(errorData);
-        });
+                console.log(errorData);
+            });
     },
 
     _saveData(data) {

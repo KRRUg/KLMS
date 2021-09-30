@@ -46,11 +46,11 @@ class PermissionController extends BaseController
             );
         } else {
             $formEdit = $this->get('form.factory')->createNamed('edit', PermissionType::class, null, ['include_user' => true]);
-            $formNew  = $this->get('form.factory')->createNamed('new', PermissionType::class, null, ['include_user' => false]);
+            $formAdd  = $this->get('form.factory')->createNamed('new', PermissionType::class, null, ['include_user' => false]);
             return $this->render('admin/permission/index.html.twig', [
                 'admins' => $local_admins,
                 'form_edit' => $formEdit->createView(),
-                'form_add' => $formNew->createView(),
+                'form_add' => $formAdd->createView(),
             ]);
         }
     }
@@ -70,7 +70,7 @@ class PermissionController extends BaseController
             $errors = $this->getErrorsFromForm($form);
             return $this->apiResponse([
                 'errors' => $errors
-            ], 400);
+            ], false, 400);
         }
 
         $data = $form->getData();
@@ -88,7 +88,7 @@ class PermissionController extends BaseController
     {
         $user = $this->userRepo->findOneById($id);
         if (empty($user)) {
-            return $this->apiResponse([], 404);
+            return $this->apiResponse([], false, 404);
         }
 
         $perm = $this->permissionService->getPermissions($user);
@@ -103,7 +103,7 @@ class PermissionController extends BaseController
         $user = $this->userRepo->findOneById($id);
 
         if (empty($user)) {
-            return $this->apiResponse([], 404);
+            return $this->apiResponse([], false, 404);
         }
 
         $data = json_decode($request->getContent(), true);
@@ -118,7 +118,7 @@ class PermissionController extends BaseController
 
             return $this->apiResponse([
                 'errors' => $errors
-            ], 400);
+            ], false, 400);
         }
 
         $data = $form->getData();
@@ -131,7 +131,7 @@ class PermissionController extends BaseController
 
             return $this->apiResponse([
                 'errors' => $errors
-            ], 400);
+            ], false, 400);
         }
 
         return $this->apiResponse([]);

@@ -5,6 +5,8 @@ namespace App\Controller\Admin;
 use App\Controller\BaseController;
 use App\Entity\User;
 use App\Exception\GamerLifecycleException;
+use App\Form\PermissionType;
+use App\Form\UserSelectType;
 use App\Helper\EmailRecipient;
 use App\Idm\IdmManager;
 use App\Idm\IdmRepository;
@@ -15,7 +17,9 @@ use App\Service\SettingService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\Extension\Core\Type\HiddenType;
+use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\Routing\Annotation\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 
@@ -23,8 +27,10 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
  * @IsGranted("ROLE_ADMIN_PAYMENT")
  * @Route("/payment", name="payment")
  */
-class GamerController extends BaseController
+class PaymentController extends AbstractController
 {
+    private const CSRF_TOKEN_PAYMENT = "paymentToken";
+
     private GamerService $gamerService;
     private UserGamerRepository $userGamerRepository;
     private IdmRepository $userRepo;
@@ -44,28 +50,76 @@ class GamerController extends BaseController
         $this->settingsService = $settingService;
     }
 
+    private function createUserSelectForm(): FormInterface
+    {
+        $form = $this->createFormBuilder();
+        $form->add('user', UserSelectType::class);
+        return $form->getForm();
+    }
+
     /**
-     * @Route(".{_format}", name="", defaults={"_format"="html"}, methods={"GET"})
+     * @Route("", name="", methods={"GET"})
      */
     public function index(Request $request)
     {
         $gamers = $this->gamerService->getGamers();
-        if ($request->getRequestFormat() === 'json') {
-            return $this->apiResponse(
-                array_values($gamers),
-                true
-            );
-        } else {
-            return $this->render('admin/payment/index.html.twig', [
-                'gamers' => $gamers,
-            ]);
-        }
+        return $this->render('admin/payment/index.html.twig', [
+            'gamers' => $gamers,
+            'form_add' => $this->createUserSelectForm()->createView(),
+        ]);
     }
 
     /**
-     * @Route("/{uuid}", name="_show", methods={"GET", "POST"})
+     * @Route("/{uuid}", name="_update", methods={"POST"})
      */
-    public function show(string $uuid, Request $request)
+    public function update(Request $request, string $uuid)
+    {
+        $token = $request->request->get('_token');
+        if(!$this->isCsrfTokenValid(self::CSRF_TOKEN_PAYMENT, $token)) {
+            throw $this->createAccessDeniedException("Invalid CSRF token presented");
+        }
+
+        $user = $this->userRepo->findOneById($uuid);
+        if (empty($user)) {
+            throw $this->createNotFoundException('User not found');
+        }
+
+        $action = $request->request->get('action');
+        try{
+            switch ($action) {
+                case "register":
+                    $this->gamerService->gamerRegister($user);
+                    break;
+                case "unregister":
+                    $this->gamerService->gamerUnregister($user);
+                    break;
+                case "pay":
+                    $this->gamerService->gamerPay($user);
+                    break;
+                case "unpay":
+                    $this->gamerService->gamerUnPay($user);
+                    break;
+                case "checkin":
+                case "checkout":
+                    // TODO implement me
+                    $this->addFlash('error', 'Not yet implemented action.');
+                    break;
+                default:
+                    $this->addFlash('error', 'Invalid action specified.');
+                    return $this->redirectToRoute('admin_payment');
+            }
+        } catch(GamerLifecycleException $exception) {
+            $this->addFlash('error', "Aktion konnte nicht durchgeführt werden ({$exception->getMessage()}).");
+            return $this->redirectToRoute('admin_payment');
+        }
+        $this->addFlash('success', "Änderung an User {$user->getNickname()} erfolgreich.");
+        return $this->redirectToRoute('admin_payment');
+    }
+
+    /**
+     * @Route("/{uuid}", name="_show", methods={"GET"})
+     */
+    public function show(Request $request, string $uuid)
     {
         $user = $this->userRepo->findOneById($uuid);
 
@@ -75,9 +129,10 @@ class GamerController extends BaseController
 
         $gamer = $this->userGamerRepository->findByUser($user);
 
-        return $this->render('admin/payment/modal.html.twig', [
+        return $this->render('admin/payment/show.html.twig', [
             'user' => $user,
             'gamer' => $gamer,
+            'csrf_token' => self::CSRF_TOKEN_PAYMENT,
         ]);
 
 //        if($gamer->hasPayed()) {
