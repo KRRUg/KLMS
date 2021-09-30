@@ -41,23 +41,24 @@ class ClanController extends AbstractController
         $this->userRepo = $manager->getRepository(User::class);
     }
 
+    private const SHOW_LIMIT = 10;
+
     /**
      * @Route("/clan", name="clan", methods={"GET"})
      */
     public function index(Request $request)
     {
         $search = $request->query->get('q', '');
-        $limit = $request->query->getInt('limit', 10);
         $page = $request->query->getInt('page', 1);
 
         $collection = $this->clanRepo->findFuzzy($search);
-        $clans = $collection->getPage($page, $limit);
+        $clans = $collection->getPage($page, self::SHOW_LIMIT);
 
         return $this->render('site/clan/list.html.twig', [
             'search' => $search,
             'clans' => $clans,
             'total' => $collection->count(),
-            'limit' => $limit,
+            'limit' => self::SHOW_LIMIT,
             'page' => $page,
         ]);
     }

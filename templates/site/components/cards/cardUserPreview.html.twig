@@ -1,0 +1,14 @@
+<div class="card h-100 card-clan-preview">
+    <div class="row no-gutters h-100">
+        <div class="col">
+            <div class="card-body p-3">
+                <h4 class="card-title mb-1">
+                    {% block userName %}
+                        <a href="{{ path('user_show', {'uuid' : user.uuid}) }}">{{ user.nickname }}</a>
+                        <span class="text-muted ml-4">{{ user.firstname }}</span>
+                    {% endblock %}
+                </h4>
+            </div>
+        </div>
+    </div>
+</div>
