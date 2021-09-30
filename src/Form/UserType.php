@@ -49,6 +49,10 @@ class UserType extends AbstractType
                     'Divers' => 'x',
                 ],
             ])
+            ->add('infoMails', CheckboxType::class, [
+                'label' => "Newsletter abonnieren",
+                'required' => false,
+            ])
             ->add('postcode', TextType::class, [
                 'required' => false,
                 'label' => 'PLZ',

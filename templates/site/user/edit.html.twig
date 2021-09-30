@@ -9,11 +9,10 @@
             {% block cardBody %}
                 <h1 class="h3 card-title mb-4">Profil bearbeiten</h1>
                 {{ form_start(form) }}
-                <div class="float-right py-2">
+                <div class="float-right">
                     <a class="btn btn-outline-primary" href="{{ path('user_profile_edit_pw') }}"><i class="fas fa-user-edit"></i> Passwort ändern</a>
                 </div>
-                <h2 class="h4 pt-3">Persönliche Informationen</h2>
-                <hr>
+                <h2 class="h4 pt-3 border-bottom">Persönliche Informationen</h2>
                 {{ form_row(form.nickname, {'input_group_prepend' : '<i class="fas fa-headset"></i>'}) }}
                 <div class="row">
                     <div class="col-md-6">
@@ -33,8 +32,10 @@
                     <span class="text-muted">Persönliche Daten können nicht geändert werden.</span>
                 {% endif %}
 
-                <h2 class="h4 pt-3">Adresse</h2>
-                <hr> 
+                <h2 class="h4 pt-3 border-bottom">Newsletter</h2>
+                {{ form_row(form.infoMails) }}
+
+                <h2 class="h4 pt-3 border-bottom">Adresse</h2>
                 {{ form_row(form.street, {'input_group_prepend' : '<i class="fas fa-road"></i>'}) }}
                 <div class="row">
                     <div class="col-md-4">
@@ -46,8 +47,7 @@
                 </div>
                 {{ form_row(form.country, {'input_group_prepend' : '<i class="fas fa-globe-europe"></i>'}) }}
 
-                <h2 class="h4 pt-3">Allgemeines</h2>
-                <hr>
+                <h2 class="h4 pt-3 border-bottom">Allgemeines</h2>
                 {{ form_row(form.statements, {'input_group_prepend' : '<i class="far fa-comment-dots"></i>'}) }}
                 {{ form_row(form.phone, {'input_group_prepend' : '<i class="fas fa-mobile-alt"></i>'}) }}
                 {{ form_row(form.steamAccount, {'input_group_prepend' : '<i class="fab fa-steam"></i>'}) }}
