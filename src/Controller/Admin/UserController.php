@@ -16,7 +16,7 @@ use Symfony\Component\Routing\Annotation\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 
 /**
- * @IsGranted("ROLE_ADMIN_USER")
+ * @IsGranted("ROLE_ADMIN")
  */
 class UserController extends AbstractController
 {
@@ -35,6 +35,7 @@ class UserController extends AbstractController
 
     /**
      * @Route("/user", name="user", methods={"GET"})
+     * @IsGranted("ROLE_ADMIN_USER")
      */
     public function index(Request $request)
     {
@@ -57,6 +58,7 @@ class UserController extends AbstractController
 
     /**
      * @Route("/user/{uuid}", name="user_show", methods={"GET"})
+     * @IsGranted("ROLE_ADMIN")
      */
     public function show(string $uuid)
     {
@@ -73,6 +75,7 @@ class UserController extends AbstractController
 
     /**
      * @Route("/user/{uuid}/edit", name="user_edit", methods={"GET", "POST"})
+     * @IsGranted("ROLE_ADMIN_USER")
      */
     public function edit(string $uuid, Request $request)
     {

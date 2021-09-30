@@ -13,7 +13,9 @@
                     <span class="badge badge-secondary">UUID: {{ user.uuid }}</span>
                 </div>
                 <div class="p-1">
-                    <a class="btn btn-outline-primary" href="{{ path('admin_user_edit', {'uuid' : user.uuid}) }}" title="{{ user.nickname }} bearbeiten"><i class="fas fa-user-edit"></i> Profil bearbeiten</a>   
+                    {% if is_granted('ROLE_ADMIN_USER') %}
+                    <a class="btn btn-outline-primary" href="{{ path('admin_user_edit', {'uuid' : user.uuid}) }}" title="{{ user.nickname }} bearbeiten"><i class="fas fa-user-edit"></i> Profil bearbeiten</a>
+                    {% endif %}
                 </div>
             </div>
             <div class="row">
