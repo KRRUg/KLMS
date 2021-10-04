@@ -20,13 +20,16 @@ class IdmPagedCollection implements ArrayAccess, Iterator, Countable
     private array $sort;
     private string $class;
 
+    private bool $case;
+    private bool $fuzzy;
+
     private int $total;
     private int $page_size;
     private int $position;
 
     private array $items;
 
-    private function __construct(IdmManager $manager, string $class, $filter, array $sort, int $page_size)
+    private function __construct(IdmManager $manager, string $class, $filter, bool $fuzzy, bool $case, array $sort, int $page_size)
     {
         $this->manager = $manager;
         $this->class = $class;
@@ -35,11 +38,13 @@ class IdmPagedCollection implements ArrayAccess, Iterator, Countable
         $this->page_size = $page_size;
         $this->items = [];
         $this->position = 0;
+        $this->case = $case;
+        $this->fuzzy = $fuzzy;
     }
 
-    public static function create(IdmManager $manager, string $class, $filter = [], array $sort = [], int $page_size = 10): self
+    public static function create(IdmManager $manager, string $class, $filter = [], bool $fuzzy = false, bool $case = false, array $sort = [], int $page_size = 10): self
     {
-        $result = new self($manager, $class, $filter, $sort, $page_size);
+        $result = new self($manager, $class, $filter, $fuzzy, $case, $sort, $page_size);
         $result->request(0);
         return $result;
     }
@@ -47,7 +52,7 @@ class IdmPagedCollection implements ArrayAccess, Iterator, Countable
     private function request(int $offset): void
     {
         $page = intdiv($offset, $this->page_size);
-        $result = $this->manager->find($this->class, $this->filter, $this->sort, $page + 1, $this->page_size);
+        $result = $this->manager->find($this->class, $this->filter, $this->fuzzy, $this->case, $this->sort, $page + 1, $this->page_size);
         $this->total = $result->total;
         for ($i = 0; $i < $result->count; $i++) {
             $this->items[$page * $this->page_size + $i] = $result->items[$i];
