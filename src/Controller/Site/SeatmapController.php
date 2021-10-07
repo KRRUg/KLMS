@@ -75,9 +75,8 @@ class SeatmapController extends AbstractController
 
         if ($seat->getType() == 'seat') {
             if ($this->isGranted('IS_AUTHENTICATED_REMEMBERED')) {
-                $user = $this->userRepo->findOneBy(['uuid' => $this->getUser()->getUser()->getUuid()]);
+                $user = $this->getUser()->getUser();
                 $gamerEligible = $this->seatmapService->hasSeatEligibility($user);
-
 
                 if ($this->seatmapService->isSeatOwner($seat, $user)) {
 

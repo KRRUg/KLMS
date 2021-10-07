@@ -16,7 +16,7 @@
                 {% if user is seated_gamer %}
                     Sitzplatz {{ user | seat }}
                 {% else %}
-                    Kein Sitzplatz
+                    <a href="{{ url('seatmap') }}">Kein Sitzplatz</a>
                 {% endif %}
             {% endif %}
         {% endif %}

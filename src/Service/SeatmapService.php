@@ -6,7 +6,6 @@ namespace App\Service;
 
 use App\Entity\Seat;
 use App\Entity\User;
-use App\Exception\GamerLifecycleException;
 use App\Exception\SeatmapAlreadyOwnedException;
 use App\Exception\SeatmapNotBookableException;
 use App\Repository\SeatRepository;
@@ -39,13 +38,14 @@ class SeatmapService
     public function getSeatmap(): array
     {
         return $this->seatRepository->findAll();
-        //foo
     }
 
     public function getSeatName(Seat $seat): string
     {
-        $name = "{$seat->getSector()}-{$seat->getSeatNumber()}";
-        return $name;
+        if ($seat->getName())
+            return $seat->getName();
+        else
+            return "{$seat->getSector()}-{$seat->getSeatNumber()}";
     }
 
     /**
@@ -53,27 +53,13 @@ class SeatmapService
      */
     public function hasSeatEligibility(User $user): bool
     {
-        $current_seat = $this->_getGamerCurrentSeatCount($user);
-        $paid_seat = $this->gamerService->getGamerPaidSeatCount($user);
-        if(is_int($current_seat) && is_int($paid_seat)) {
-            if ($current_seat < $paid_seat) {
-                return true;
-            }
-
-            return false;
-        } else {
-            throw new GamerLifecycleException($user, 'Could not verify Seat eligibility!');
-        }
+        $current_seat = $this->getGamerCurrentSeatCount($user);
+        return $current_seat == 0 && $this->gamerService->gamerHasPaid($user);
     }
 
     public function canBookSeat(Seat $seat, User $user): bool
     {
-        if($this->hasSeatEligibility($user)) {
-            if($this->_isSeatBookable($seat)) {
-                return true;
-            }
-        }
-        return false;
+        return $this->hasSeatEligibility($user) && $this->isSeatBookable($seat);
     }
 
     public function isSeatOwner(Seat $seat, User $user): bool
@@ -102,18 +88,18 @@ class SeatmapService
         $this->adminMode = $adminMode;
     }
 
-    private function _getGamerCurrentSeatCount(User $user): int
+    private function getGamerCurrentSeatCount(User $user): int
     {
         $userGamer = $this->gamerService->getGamer($user);
 
         return $this->seatRepository->count(['owner' => $userGamer]);
     }
 
-    private function _isSeatBookable(Seat $seat): bool
+    private function isSeatBookable(Seat $seat): bool
     {
         switch ($seat->getType()) {
             case 'seat':
-                    $this->_isSeatOwned($seat);
+                    $this->isSeatOwned($seat);
                     return true;
             case 'locked':
                 if ($this->security->isGranted('ROLE_ADMIN_SEATMAP') && $this->adminMode) {
@@ -126,7 +112,7 @@ class SeatmapService
         }
     }
 
-    private function _isSeatOwned(Seat $seat): void
+    private function isSeatOwned(Seat $seat): void
     {
         if($seat->getOwner()){
             throw new SeatmapAlreadyOwnedException($seat);
