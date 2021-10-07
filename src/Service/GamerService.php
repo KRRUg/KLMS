@@ -172,16 +172,6 @@ class GamerService
         return $ret;
     }
 
-    public function gamer2Array(UserGamer $userGamer): array
-    {
-        return [
-            'uuid' => $userGamer->getUuid(),
-            'registered' => $userGamer->getRegistered() ? $userGamer->getRegistered()->format(self::DATETIME_FORMAT) : null,
-            'paid' => $userGamer->getPaid() ? $userGamer->getPaid()->format(self::DATETIME_FORMAT) : null,
-            'checkedIn' => $userGamer->getCheckedIn() ? $userGamer->getCheckedIn()->format(self::DATETIME_FORMAT) : null,
-        ];
-    }
-
     public function getUserFromGamer(UserGamer $userGamer): ?User
     {
         return $this->userRepo->findOneById($userGamer->getUuid());

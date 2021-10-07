@@ -8,16 +8,10 @@
     Status: Gesperrt
 {% endif %}
 {% if seat.type == "seat" %}
-    {% if seat.name is not empty %}
-        Sitzplatz: {{ seat.name }} <small>({{ seat.sector }}-{{ seat.seatNumber }})</small>
-    {% else %}
-        Sitzplatz: {{ seat.sector }}-{{ seat.seatNumber }}
-    {% endif %}
-    {% if seat.owner is not empty %}
+    Sitzplatz: {{ seat.generateSeatName }}
+    {% if seat.id in users | keys and users[seat.id] is not empty  %}
         <br>
-        User: {# TODO: FIXME #}
-        <br>
-        Clan: {# TODO: FIXME #}
+        User: {{ users[seat.id].nickname }}
         <br>
         Status: Reserviert
     {% else %}

@@ -7,9 +7,12 @@ namespace App\Service;
 use App\Entity\Seat;
 use App\Entity\User;
 use App\Exception\GamerLifecycleException;
+use App\Idm\IdmManager;
+use App\Idm\IdmRepository;
 use App\Repository\SeatRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Security\Core\Security;
+use function Clue\StreamFilter\fun;
 
 class SeatmapService
 {
@@ -17,14 +20,17 @@ class SeatmapService
     private SeatRepository $seatRepository;
     private GamerService $gamerService;
     private Security $security;
+    private IdmRepository $userRepo;
 
     public function __construct(
         EntityManagerInterface $entityManager,
         GamerService $gamerService,
         SeatRepository $seatRepository,
+        IdmManager $manager,
         Security $security)
     {
         $this->em = $entityManager;
+        $this->userRepo = $manager->getRepository(User::class);
         $this->seatRepository = $seatRepository;
         $this->gamerService = $gamerService;
         $this->security = $security;
@@ -33,6 +39,24 @@ class SeatmapService
     public function getSeatmap(): array
     {
         return $this->seatRepository->findAll();
+    }
+
+    public function getSeatedUser(array $seats): array
+    {
+        $uuids = array_map(function (Seat $seat) { return $seat->getOwner() ? $seat->getOwner()->getUuid()->toString() : null; }, $seats);
+        $uuids = array_filter($uuids); // remove null from uuids
+        $users = $this->userRepo->findById($uuids);
+
+        $uuids = array_map(function (User $u) { return $u->getUuid()->toString(); }, $users);
+        $users = array_combine($uuids, $users);
+
+        $ret = [];
+        foreach ($seats as $seat) {
+            $ret[$seat->getId()] = $seat->getOwner() ?
+                $users[$seat->getOwner()->getUuid()->toString()] :
+                null;
+        }
+        return $ret;
     }
 
     /**

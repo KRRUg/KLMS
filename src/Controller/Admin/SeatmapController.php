@@ -47,8 +47,10 @@ class SeatmapController extends AbstractController
      */
     public function index()
     {
+        $seats = $this->seatmapService->getSeatmap();
         return $this->render('admin/seatmap/index.html.twig', [
-            'seatmap' => $this->seatmapService->getSeatmap(),
+            'seatmap' => $seats,
+            'users' => $this->seatmapService->getSeatedUser($seats),
         ]);
     }
 
