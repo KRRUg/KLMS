@@ -64,7 +64,7 @@ class SeatmapService
      */
     public function hasSeatEligibility(User $user): bool
     {
-        $current_seat = $this->getGamerCurrentSeatCount($user);
+        $current_seat = $this->getUserSeatCount($user);
         return $current_seat == 0 && $this->gamerService->gamerHasPaid($user);
     }
 
@@ -98,7 +98,14 @@ class SeatmapService
         }
     }
 
-    private function getGamerCurrentSeatCount(User $user): int
+    public function getUserSeats(User $user): array
+    {
+        $userGamer = $this->gamerService->getGamer($user);
+
+        return $this->seatRepository->findBy(['owner' => $userGamer]);
+    }
+
+    public function getUserSeatCount(User $user): int
     {
         $userGamer = $this->gamerService->getGamer($user);
 

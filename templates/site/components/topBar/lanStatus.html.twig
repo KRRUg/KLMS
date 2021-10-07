@@ -14,9 +14,13 @@
                 {% endif %}
                 &nbsp;|&nbsp;
                 {% if user is seated_gamer %}
-                    Sitzplatz {{ user | seat }}
+                    <a href="{{ url('seatmap') }}">Sitzplatz {{ user | seat }}</a>
                 {% else %}
-                    <a href="{{ url('seatmap') }}">Kein Sitzplatz</a>
+                    {% if user is paid_gamer %}
+                        <a href="{{ url('seatmap') }}">Kein Sitzplatz</a>
+                    {% else %}
+                        Kein Sitzplatz
+                    {% endif %}
                 {% endif %}
             {% endif %}
         {% endif %}
