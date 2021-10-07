@@ -26,7 +26,7 @@ class GamerExtension extends AbstractExtension
     {
         return [
             new TwigTest('registered_gamer', [$this, 'gamerIsRegistered']),
-            new TwigTest('payed_gamer', [$this, 'gamerIsPayed']),
+            new TwigTest('paid_gamer', [$this, 'gamerIsPaid']),
             new TwigTest('seated_gamer', [$this, 'gamerIsSeated']),
         ];
     }
@@ -46,9 +46,9 @@ class GamerExtension extends AbstractExtension
         return $this->gamerService->gamerHasRegistered($user);
     }
 
-    public function gamerIsPayed(User $user): bool
+    public function gamerIsPaid(User $user): bool
     {
-        return $this->gamerService->gamerHasPayed($user);
+        return $this->gamerService->gamerHasPaid($user);
     }
 
     public function gamerIsSeated(User $user): bool

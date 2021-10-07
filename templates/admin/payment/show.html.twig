@@ -75,15 +75,15 @@
             </div>
             <div class="row align-items-center m-2">
                 <div class="col-8">
-                    {% if gamer.hasPayed() %}
-                        Bezahlt am {{ gamer.payed | date(dateformat) }}
+                    {% if gamer.hasPaid() %}
+                        Bezahlt am {{ gamer.paid | date(dateformat) }}
                     {% else %}
                         <span class="text-muted">Nicht bezahlt</span>
                     {% endif %}
                 </div>
                 <div class="col-4 text-right">
                     {% if gamer.hasRegistered() %}
-                        {% if gamer.hasPayed() %}
+                        {% if gamer.hasPaid() %}
                             {{ _self.confirm_button('Unbezahlt', href, csrf_token, "unpay", true) }}
                         {% else %}
                             {{ _self.confirm_button('Bezahlt', href, csrf_token, "pay") }}
@@ -100,7 +100,7 @@
                     {% endif %}
                 </div>
                 <div class="col-4 text-right">
-                    {% if gamer.hasRegistered() and gamer.hasPayed() %}
+                    {% if gamer.hasRegistered() and gamer.hasPaid() %}
                         {% if gamer.hasCheckedIn() %}
                             {{ _self.confirm_button('Check Out', href, csrf_token, "checkout", true) }}
                         {% else %}

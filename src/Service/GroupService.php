@@ -16,9 +16,9 @@ class GroupService
 {
     const GROUP_NEWSLETTER = '083ae2b4-0351-4f82-936c-4f8716cd790f';
     const GROUP_REGISTERED = 'f0c2d3c2-5860-4569-9d13-0dc0d2766117';
-    const GROUP_PAYED = '8ae23ac3-ced7-40f7-b092-79da065f0b02';
-    const GROUP_PAYED_NO_SEAT = '5ec12941-0448-4a6f-a194-fd9ce2874925';
-    const GROUP_REGISTERED_NOT_PAYED = '225db67c-54ae-4f30-a3a9-6589d8336c8a';
+    const GROUP_PAID = '8ae23ac3-ced7-40f7-b092-79da065f0b02';
+    const GROUP_PAID_NO_SEAT = '5ec12941-0448-4a6f-a194-fd9ce2874925';
+    const GROUP_REGISTERED_NOT_PAID = '225db67c-54ae-4f30-a3a9-6589d8336c8a';
     const GROUP_ADMINS = 'c74aaa27-c501-454d-a8cd-0026ff671f53';
 
     private const NAME = 'name';
@@ -36,20 +36,20 @@ class GroupService
             self::METHOD => "getGamer",
             self::FILTER => ["registered" => true]
         ],
-        self::GROUP_PAYED => [
+        self::GROUP_PAID => [
             self::NAME => "Bezahlt",
             self::METHOD => "getGamer",
-            self::FILTER => ["payed" => true]
+            self::FILTER => ["paid" => true]
         ],
-        self::GROUP_PAYED_NO_SEAT => [
+        self::GROUP_PAID_NO_SEAT => [
             self::NAME => "Bezahlt ohne Sitzplatz",
             self::METHOD => "getGamer",
-            self::FILTER => ["payed" => true, "seat" => false]
+            self::FILTER => ["paid" => true, "seat" => false]
         ],
-        self::GROUP_REGISTERED_NOT_PAYED => [
+        self::GROUP_REGISTERED_NOT_PAID => [
             self::NAME => "Registriert ohne Bezahlung",
             self::METHOD => "getGamer",
-            self::FILTER => ["registered" => true, "payed" => false]
+            self::FILTER => ["registered" => true, "paid" => false]
         ],
         self::GROUP_ADMINS => [
             self::NAME => "KLMS Admins",
@@ -100,9 +100,9 @@ class GroupService
     private function getGamer(array $filter)
     {
         $registered = $filter['registered'] ?? null;
-        $payed = $filter['payed'] ?? null;
+        $paid = $filter['paid'] ?? null;
         $seat = $filter['seat'] ?? null;
-        $gamer = $this->gamerRepo->findByState($registered, $payed, $seat);
+        $gamer = $this->gamerRepo->findByState($registered, $paid, $seat);
 	    $gamer = array_map(function (UserGamer $ug) { return $ug->getUuid(); }, $gamer);
 	    return $this->userRepo->findById($gamer);
     }
