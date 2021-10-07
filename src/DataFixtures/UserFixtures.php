@@ -25,7 +25,6 @@ class UserFixtures extends Fixture
         $gamer = new UserGamer(Uuid::fromInteger(strval(18)));
         $gamer->setRegistered(new \DateTime());
         $gamer->setPaid(new \DateTime());
-        $gamer->setSeatsPaid(2);
         $manager->persist($gamer);
 
         $manager->flush();

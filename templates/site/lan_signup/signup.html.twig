@@ -4,33 +4,33 @@
 
 {% block main %}
     <div class="container mb-5">
-        <img class="card-img-top mb-4 shadow-sm"/>
         <div class="card">
             <div class="card-body">
-                <h1 class="card-title">Anmeldung zur LAN Party</h1>
+                <h1 class="card-title">Anmeldung zur Veranstaltung</h1>
                 <div class="card-text">
-                    {{ settings.get('lan.signupinfo')|raw }}
-                    {% if settings.get('lan.signup.enabled') %}
-                    {% if userGamer.hasRegistered() %}
-                        <h2>Du bist bereits zur LAN angemeldet!</h2>
+                    {% if settings.get('lan.signup.info') is not empty %}
+                            {{ settings.get('lan.signup.info') | raw }}
                     {% else %}
-                    {% if termsUrl %}
-                        {{ form_widget(form.confirm) }}
-                        <label for="{{ form.confirm.vars.id }}">Ich stimme den <a href="{{ termsUrl }}" target="_blank">AGBs</a> zu</label>
+                        <p>
+                            Hier kannst du dich zur Veranstaltung anmelden.<br>
+                            Beachte, dass eine Abmeldung danach nur durch Kontaktaufnahme mit dem Team möglich ist.
+                        </p>
+                    {% endif %}
+                    <hr/>
+                    {{ form_start(form) }}
+
+                    {% if 'agb' is slug %}
+                        <p>Durch das Anmelden zu Veranstaltung stimmst du unseren {{ 'agb' | slug_link }} zu.</p>
                     {% endif %}
 
-                    {{ form_start(form) }}
+                    {{ form_row(form.confirm) }}
+                    {# <label for="{{ form.confirm.vars.id }}">Ich stimme den {{  }} zu</label> #}
+
+                    <button class="btn btn-primary" type="submit">Anmelden</button>
+                    <a class="btn btn-secondary" href="{{ url('index') }}">Abbrechen</a>
                     {{ form_end(form) }}
-                    {% endif %}
-                    {% else %}
-                        <h2>
-                            Die LAN Anmeldung ist im Moment noch gesperrt. <br/>
-                            Du wirst per E-Mail informiert sobald die Anmeldung möglich ist.
-                        </h2>
-                    {% endif %}
                 </div>
             </div>
         </div>
     </div>
-
 {% endblock %}

@@ -1,0 +1,117 @@
+{% embed "admin/components/modals/skeleton.html.twig"
+    with {
+    'id': 'showPaymentModal',
+    'title' : 'Anmeldung ' ~ user.nickname,
+    'dialogClass' : 'modal-md'
+} %}
+    {% block modalBody %}
+        <div class="container-fluid">
+            <div class="d-flex justify-content-between w-100 pb-3">
+                <div class="py-1">
+                    <span class="badge badge-primary">KLMS ID: #{{ user.id }}</span> <br>
+                    <span class="badge badge-secondary">UUID: {{ user.uuid }}</span>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-auto">
+                    {% set img = user | user_image %}
+                    {% if img is not empty %}
+                        <img src="{{ img | imagine_filter('user_img') }}"/>
+                    {% else %}
+                        <i class="far fa-user-circle fa-9x"></i>
+                    {% endif %}
+                </div>
+                <div class="col">
+                    <i class="fas fa-headset fa-fw mr-2" title="Name"></i>
+                    <h1 title="Nickname: {{ user.nickname }}"
+                        class="h3 d-inline-block">{{ user.nickname|defaultBadge('Nickname n.v.') }}</h1>
+                    <br>
+                    <i class="fas fa-signature fa-fw mr-2" title="Name"></i>
+                    <h2 class="h4 d-inline-block">
+                        <span title="Vorname: {{ user.firstname }}">{{ user.firstname|defaultBadge('Vorname n.v.') }}</span>
+                        <span title="Nachname: {{ user.surname }}">{{ user.surname|defaultBadge('Nachname n.v.') }}</span>
+                    </h2>
+                    </p>
+                    <p>
+                        <i class="far fa-envelope fa-fw mr-2"
+                           title="E-Mail Adresse"></i>{{ user.email|defaultBadge('E-Mailadresse n.v.') }}
+                    </p>
+                    <p>
+                        <i class="fas fa-mobile-alt fa-fw mr-2"
+                           title="Telefonnummer"></i>{{ user.phone|defaultBadge(' n.v. ') }}
+                    </p>
+                </div>
+            </div>
+        </div>
+        <hr/>
+
+        {# TODO make AJAX request to show controller and reaload only the ajaxModal and the table #}
+        {% macro confirm_button(title, href, csrf_token, action="", danger = false) %}
+            <form method="post" action="{{ href }}" {% if danger %} data-toggle="confirmModal" data-modal-title="Bestätigen" data-modal-text="Sind Sie sicher?" {% endif %}>
+                <input type="hidden" name="_token" value="{{ csrf_token(csrf_token) }}">
+                <input type="hidden" name="action" value="{{ action }}">
+                <button type="submit" class="btn w-100 {% if danger %} btn-danger {% else %} btn-outline-dark {% endif %}">{{ title }}</button>
+            </form>
+        {% endmacro %}
+
+        <div class="container">
+            {% set dateformat = "d.m.Y" %}
+            {% set href = path('admin_payment_update', {"uuid" : gamer.uuid}) %}
+            <div class="row align-items-center m-2">
+                <div class="col-8">
+                    {% if gamer.hasRegistered() %}
+                        Angemeldet am {{ gamer.registered | date(dateformat) }}
+                    {% else %}
+                        <span class="text-muted">Nicht angemeldet</span>
+                    {% endif %}
+                </div>
+                <div class="col-4 text-right">
+                    {% if gamer.hasRegistered() %}
+                        {{ _self.confirm_button('Abmelden', href, csrf_token, "unregister", true) }}
+                    {% else %}
+                        {{ _self.confirm_button('Anmelden', href, csrf_token, "register") }}
+                    {% endif %}
+                </div>
+            </div>
+            <div class="row align-items-center m-2">
+                <div class="col-8">
+                    {% if gamer.hasPaid() %}
+                        Bezahlt am {{ gamer.paid | date(dateformat) }}
+                    {% else %}
+                        <span class="text-muted">Nicht bezahlt</span>
+                    {% endif %}
+                </div>
+                <div class="col-4 text-right">
+                    {% if gamer.hasRegistered() %}
+                        {% if gamer.hasPaid() %}
+                            {{ _self.confirm_button('Unbezahlt', href, csrf_token, "unpay", true) }}
+                        {% else %}
+                            {{ _self.confirm_button('Bezahlt', href, csrf_token, "pay") }}
+                        {% endif %}
+                    {% endif %}
+                </div>
+            </div>
+            <div class="row align-items-center m-2">
+                <div class="col-8">
+                    {% if gamer.hasCheckedIn() %}
+                        Bezahlt am {{ gamer.checkedIn | date(dateformat) }}
+                    {% else %}
+                        <span class="text-muted">Nicht eingechecked</span>
+                    {% endif %}
+                </div>
+                <div class="col-4 text-right">
+                    {% if gamer.hasRegistered() and gamer.hasPaid() %}
+                        {% if gamer.hasCheckedIn() %}
+                            {{ _self.confirm_button('Check Out', href, csrf_token, "checkout", true) }}
+                        {% else %}
+                            {{ _self.confirm_button('Check In', href, csrf_token, "checkout") }}
+                        {% endif %}
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    {% endblock %}
+    {% block modalFooter %}
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Schließen</button>
+    {% endblock %}
+{% endembed %}

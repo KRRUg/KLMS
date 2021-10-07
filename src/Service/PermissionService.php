@@ -175,16 +175,15 @@ final class PermissionService
     {
         $admins = $this->repo->findAll();
         $admins = array_filter($admins, function (UserAdmin $a) { return !empty($a->getPermissions()); });
-        $ids = array_map(function (UserAdmin $a) { return $a->getUuid(); }, $admins);
+        $ids = array_map(function (UserAdmin $a) { return $a->getUuid()->toString(); }, $admins);
+        $admins = array_combine($ids, $admins);
         $users = $this->userRepo->findById($ids);
 
         $ret = [];
-        foreach ($admins as $key => $admin) {
-            $u = $users[$key];
-            if (empty($u))
-                continue;
-            $p = $admin->getPermissions();
-            $ret[$u->getUuid()->toString()] = array($u, $p);
+        foreach ($users as $user) {
+            $uuid = $user->getUuid()->toString();
+            $permissions = $admins[$uuid]->getPermissions();
+            $ret[$uuid] = array($user, $permissions);
         }
         return $ret;
     }

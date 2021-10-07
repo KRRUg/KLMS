@@ -3,42 +3,73 @@
 {% block title %}Einzahlungen - KLMS - Admin{% endblock %}
 {% block siteheading %}<i class="fas fa-money-bill"></i> Einzahlungen{% endblock %}
 {% block main %}
+    <div class="row mb-4">
+        <div class="col-12">
+            <button class="btn btn-success" data-toggle="modal" data-target="#newModal" id="new">
+                <i class="fas fa-plus"></i> Gamer anmelden
+            </button>
+        </div>
+    </div>
     <div class="row">
         <div class="col-12">
             <div class="card">
-                <table id="UserTable" class="table table-striped admin-data-table" data-order='[[1, "asc"]]' data-remote-target="{{ path('api_gamers_registered') }}">
+                <table id="GamerTable" class="table table-striped admin-data-table" data-order='[[1, "asc"]]'
+{#                       data-remote-target="{{ path('admin_payment') }}.json" data-server-side-processing="false"#}
+                >
                     <thead>
-                        <tr>
-                            <th class="text-nowrap w-1" data-data="user.id">KLMS-ID</th>
-                            <th 
-                                class="w-25" 
-                                data-data="user.nickname"
-                                data-render-function='{"elemType":"A", "attributes":{"data-toggle":"ajaxModal", "href": {"prepend":"{{ path('admin_user_show', {'uuid' : "--user.uuid--"}) }}"}}}'
-                                >
-                                Nickname
-                            </th>
-                            <th class="w-25" data-data="user.firstname">Vorname</th>
-                            <th class="w-25" data-data="user.surname">Nachname</th>
-                            <th class="w-25" data-data="status.paid">Eingezahlt</th>
-                            <th
-                                class="text-nowrap w-1" 
-                                data-orderable="false" 
-                                data-searchable="false" 
-                                data-default-content='<i class="fas fa-money-check"></i> Bezahlstatus ändern'
-                                data-render-function='{"elemType":"A", "attributes":{"class":"btn btn-outline-dark text-nowrap", "data-toggle":"ajaxModal", "href": {"prepend":"{{ path('admin_payment_show', {'uuid' : "--user.uuid--"}) }}"} , "title":{"data":"user.nickname", "append":" Bezahlstatus ändern"}}}'
-                                >
-                                Aktionen
-                            </th>
-                        </tr>
+                    <tr>
+                        <th class="text-nowrap w-1" data-data="user.id">KLMS-ID</th>
+                        <th
+                                class="w-25"
+{#                                data-data="user.nickname"#}
+{#                                data-render-function='{"elemType":"A", "attributes":{"data-toggle":"ajaxModal", "href": {"prepend":"{{ path('admin_user_show', {'uuid' : "--user.uuid--"}) }}"}}}'#}
+                        >
+                            Nickname
+                        </th>
+                        <th class="w-25" data-data="user.firstname">Vorname</th>
+                        <th class="w-25" data-data="user.surname">Nachname</th>
+                        <th class="w-25" data-data="status.paid">Status</th>
+                        <th
+                                class="text-nowrap w-1"
+                                data-orderable="false"
+                                data-searchable="false"
+{#                                data-default-content='<i class="fas fa-money-check"></i> Status ändern'#}
+{#                                data-render-function='{"elemType":"A", "attributes":{"class":"btn btn-outline-dark text-nowrap", "data-toggle":"ajaxModal", "href": {"prepend":"{{ path('admin_payment_show', {'uuid' : "--user.uuid--"}) }}"} , "title":{"data":"user.nickname", "append":" Bezahlstatus ändern"}}}'#}
+                        >
+                            Aktionen
+                        </th>
+                    </tr>
                     </thead>
                     <tbody>
+                    {% for uuid, v in gamers %}
+                        <tr>
+                            <td class="text-center">{{ v.user.id }}</td>
+                            <td><a href="{{ path('admin_user_show', {'uuid' : v.user.uuid }) }}" data-toggle="ajaxModal">{{ v.user.nickname }}</a></td>
+                            <td>{{ v.user.surname }}</td>
+                            <td>{{ v.user.firstname }}</td>
+                            <td>
+                                {% if v.status.hasRegistered() %}
+                                    <span class="badge badge-secondary">Angemeldet</span>
+                                {% endif %}
+                                {% if v.status.hasPaid() %}
+                                    <span class="badge badge-primary">Bezahlt</span>
+                                {% endif %}
+                                {% if v.status.hasCheckedIn() %}
+                                    <span class="badge badge-info">Checked-In</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <a class="btn btn-outline-dark text-nowrap" data-toggle="ajaxModal" href="{{ path('admin_payment_show', {'uuid' : v.user.uuid}) }}">
+                                    <i class="fas fa-money-check"></i> Status ändern
+                                </a>
+                            </td>
+                        </tr>
+                    {% endfor %}
                     </tbody>
                 </table>
             </div>
         </div>
     </div>
-{% endblock %}
 
-{% block javascripts %}
-    {{ parent() }}
+    {% include 'admin/payment/modal.add.html.twig' %}
 {% endblock %}

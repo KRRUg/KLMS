@@ -47,14 +47,14 @@ class ContentExtension extends AbstractExtension
         return !empty($content);
     }
 
-    public function slugLink(string $slug): string
+    public function slugLink(string $slug, ?string $title = null): string
     {
         $content = $this->repo->findBySlug($slug);
         if (empty($content)) {
-            return "";
+            return $title ?? "";
         }
         $link = $this->urlGenerator->generate('content_slug', ['slug' => $content->getAlias()]);
-        $title = $content->getTitle();
+        $title = $title ?? $content->getTitle();
         return "<a href=\"{$link}\">{$title}</a>";
     }
 

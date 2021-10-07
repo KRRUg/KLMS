@@ -27,10 +27,11 @@
                     {{ form_row(form.birthdate, {'input_group_prepend' : '<i class="fas fa-birthday-cake fa-fw"></i>'}) }}
                     {{ form_row(form.email, {'input_group_prepend' : '<i class="far fa-envelope fa-fw"></i>'}) }}
                     {% if data.emailConfirmed %}
-                        Email Confirmed
+                        <p><i class="fas fa-check"></i> Email Confirmed</p>
                     {% endif %}
                     {{ form_row(form.gender, {'input_group_prepend' : '<i class="fas fa-venus-mars fa-fw"></i>'}) }}
                     {{ form_row(form.personalDataConfirmed) }}
+                    {{ form_row(form.infoMails) }}
                 {% endblock %}
             {% endembed  %}
         </div>

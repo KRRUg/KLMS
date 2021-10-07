@@ -16,7 +16,6 @@ class SettingService
     public const TB_TYPE_HTML = 'html';
     public const TB_TYPE_URL = 'url';
     public const TB_TYPE_FILE = 'file';
-    public const TB_TYPE_CONTENT = 'content';
     public const TB_TYPE_BOOL = 'bool';
 
     ////////////////////////////////////////////////
@@ -28,10 +27,9 @@ class SettingService
         "site.about" => [self::TB_DESCRIPTION => "Über uns, Homepage links unten", self::TB_TYPE => self::TB_TYPE_HTML],
         "site.organisation" => [self::TB_DESCRIPTION => "Organisationsname / Vereinsname", self::TB_TYPE => self::TB_TYPE_STRING],
 
-        "lan.page.paymentinfo" => [self::TB_DESCRIPTION => "Link zu den Einzahlungsinformationen", self::TB_TYPE => self::TB_TYPE_CONTENT],
-        "lan.page.terms" => [self::TB_DESCRIPTION => "Link zu den AGBs", self::TB_TYPE => self::TB_TYPE_CONTENT],
-        "lan.signupinfo" => [self::TB_DESCRIPTION => "Inhalt der beim \"Anmelden\" zu einer LAN angezeigt wird", self::TB_TYPE => self::TB_TYPE_HTML],
         "lan.signup.enabled" => [self::TB_DESCRIPTION => "LAN-Anmeldung erlauben", self::TB_TYPE => self::TB_TYPE_BOOL],
+        "lan.signup.info" => [self::TB_DESCRIPTION => "Inhalt der beim \"Anmelden\" zu einer LAN angezeigt wird", self::TB_TYPE => self::TB_TYPE_HTML],
+
         "lan.seatmap.bg_image" => [self::TB_DESCRIPTION => "Sitzplan Hintergrundbild", self::TB_TYPE => self::TB_TYPE_FILE],
         "lan.seatmap.locked" => [self::TB_DESCRIPTION => "Sitzplanbuchungen sperren (Kein Reservieren/Freigeben für User)", self::TB_TYPE => self::TB_TYPE_BOOL],
 

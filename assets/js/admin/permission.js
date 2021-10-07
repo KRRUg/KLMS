@@ -10,7 +10,7 @@ let UserTable = function ($wrapper) {
         language : dTLang,
         ajax: {
             url: this.remoteTarget,
-            dataSrc: ""
+            dataSrc: 'items',
         },
         columns: [
             {data: 0},
@@ -92,8 +92,8 @@ $.extend(NewModal.prototype, {
                 this.onupdate();
                 this.$modal.modal('hide');
             }).catch((errorData) => {
-            this._mapErrorsToForm(errorData);
-        });
+                console.log(errorData);
+            });
     },
 
     _saveData(data) {

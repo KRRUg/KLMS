@@ -11,7 +11,8 @@ import '../../modules/confirmModal/confirmModal.js';
         this.element = element;
 
         let defaults = {
-            remoteTarget: element.dataset.remoteTarget
+            remoteTarget: element.dataset.remoteTarget,
+            serverSideProcessing: element.dataset.serverSideProcessing !== "false",
         };
 
         this.settings = $.extend({}, defaults, options);
@@ -29,37 +30,44 @@ import '../../modules/confirmModal/confirmModal.js';
             };
 
             if (this.settings.remoteTarget) {
-                dtOptions.ajax = {
-                    url: this.settings.remoteTarget,
-                    dataSrc: 'items',
-                    dataFilter: function (data) {
-                        //Process server response from KLMS API
-                        var json = jQuery.parseJSON(data);
-                        json.recordsTotal = json.total;
-                        json.recordsFiltered = json.total;
-                        json.data = json.items;
+                if (this.settings.serverSideProcessing) {
+                    dtOptions.ajax = {
+                        url: this.settings.remoteTarget,
+                        dataSrc: 'items',
+                        dataFilter: function (data) {
+                            //Process server response from KLMS API
+                            var json = jQuery.parseJSON(data);
+                            json.recordsTotal = json.total;
+                            json.recordsFiltered = json.total;
+                            json.data = json.items;
 
-                        return JSON.stringify(json);
-                    },
-                    data: function (dtData) {
-                        //Add data for KLMS API for Ajax Request
-                        let request = {};
-                        request.draw = dtData.draw;
-                        request.q = dtData.search.value;
-                        request.limit = dtData.length;
-                        request.page = Math.floor(dtData.start / dtData.length) + 1;
-                        request.sort = {};
+                            return JSON.stringify(json);
+                        },
+                        data: function (dtData) {
+                            //Add data for KLMS API for Ajax Request
+                            let request = {};
+                            request.draw = dtData.draw;
+                            request.q = dtData.search.value;
+                            request.limit = dtData.length;
+                            request.page = Math.floor(dtData.start / dtData.length) + 1;
+                            request.sort = {};
 
-                        for (let sortCol of dtData.order) {
-                            let colName = dtData.columns[sortCol.column].data;
-                            request.sort[colName] = sortCol.dir;
+                            for (let sortCol of dtData.order) {
+                                let colName = dtData.columns[sortCol.column].data;
+                                request.sort[colName] = sortCol.dir;
+                            }
+
+                            return request;
                         }
-
-                        return request;
-                    }
-                };
-                dtOptions.serverSide = true;
-                dtOptions.processing = true;
+                    };
+                    dtOptions.serverSide = true;
+                    dtOptions.processing = true;
+                } else {
+                    dtOptions.ajax = {
+                        url: this.settings.remoteTarget,
+                        dataSrc: 'items',
+                    };
+                }
             }
 
             let columnDefs = [];

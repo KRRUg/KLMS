@@ -64,11 +64,11 @@ class NewsController extends AbstractController
     public function delete(Request $request, News $news) {
         $token = $request->request->get('_token');
         if(!$this->isCsrfTokenValid(self::CSRF_TOKEN_DELETE, $token)) {
-            $this->addFlash('error', 'The CSRF token is invalid.');
-        } else {
-            $this->newsService->delete($news);
-            $this->addFlash('success', "Erfolgreich gelöscht!");
+            throw $this->createAccessDeniedException('The CSRF token is invalid.');
         }
+
+        $this->newsService->delete($news);
+        $this->addFlash('success', "Erfolgreich gelöscht!");
         return $this->redirectToRoute("admin_news");
     }
 
