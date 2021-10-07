@@ -42,6 +42,29 @@ class UserController extends AbstractController
         return $u->getUser();
     }
 
+    private const SHOW_LIMIT = 20;
+
+    /**
+     * @IsGranted("IS_AUTHENTICATED_REMEMBERED")
+     * @Route("/user", name="user")
+     */
+    public function index(Request $request)
+    {
+        $search = $request->query->get('q', '');
+        $page = $request->query->getInt('page', 1);
+
+        $collection = $this->userRepo->findFuzzy($search);
+        $users = $collection->getPage($page, self::SHOW_LIMIT);
+
+        return $this->render('site/user/list.html.twig', [
+            'search' => $search,
+            'users' => $users,
+            'page' => $page,
+            'total' => $collection->count(),
+            'limit' => self::SHOW_LIMIT,
+        ]);
+    }
+
     /**
      * @IsGranted("IS_AUTHENTICATED_REMEMBERED")
      * @Route("/user/profile", name="user_profile")
