@@ -5,6 +5,7 @@ namespace App\Controller\Site;
 
 use App\Entity\Seat;
 use App\Entity\User;
+use App\Exception\GamerLifecycleException;
 use App\Idm\IdmManager;
 use App\Idm\IdmRepository;
 use App\Service\GamerService;
@@ -23,26 +24,13 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class SeatmapController extends AbstractController
 {
-    private EntityManagerInterface $em;
-    private GamerService $gamerService;
     private SeatmapService $seatmapService;
     private SettingService $settingService;
-    private LoggerInterface $logger;
-    private IdmRepository $userRepo;
 
     public function __construct(
-        EntityManagerInterface $entityManager,
-        GamerService           $gamerService,
-        LoggerInterface        $logger,
         SettingService         $settingService,
-        SeatmapService         $seatmapService,
-        IdmManager             $manager
-    )
+        SeatmapService         $seatmapService)
     {
-        $this->em = $entityManager;
-        $this->gamerService = $gamerService;
-        $this->userRepo = $manager->getRepository(User::class);
-        $this->logger = $logger;
         $this->settingService = $settingService;
         $this->seatmapService = $seatmapService;
     }
@@ -52,11 +40,19 @@ class SeatmapController extends AbstractController
      */
     public function index()
     {
-
-
         return $this->render('site/seatmap/index.html.twig', [
             'seatmap' => $this->seatmapService->getSeatmap(),
         ]);
+    }
+
+    private function generateForm(Seat $seat, string $action) {
+        $fb = $this->createFormBuilder()
+            ->add('action', HiddenType::class, [
+                'data' => $action
+            ]);
+
+        $fb->setAction($this->generateUrl('seatmap_seat_show', ['id' => $seat->getId()]));
+        return $fb->getForm();
     }
 
     /**
@@ -65,95 +61,51 @@ class SeatmapController extends AbstractController
      */
     public function seatShow(Seat $seat, Request $request)
     {
-        $formView = null;
-        $gamerEligible = false;
-        $seatmapLocked = false;
-
-        if ($this->settingService->isSet('lan.seatmap.locked')) {
-            $seatmapLocked = $this->settingService->get('lan.seatmap.locked');
-        }
-
-        if ($seat->getType() == 'seat') {
-            if ($this->isGranted('IS_AUTHENTICATED_REMEMBERED')) {
-                $user = $this->getUser()->getUser();
-                $gamerEligible = $this->seatmapService->hasSeatEligibility($user);
-
-                if ($this->seatmapService->isSeatOwner($seat, $user)) {
-
-                    $fb = $this->createFormBuilder()
-                        ->add('action', HiddenType::class, [
-                            'data' => 'unbook'
-                        ]);
-
-                    $fb->setAction($this->generateUrl('seatmap_seat_show', ['id' => $seat->getId()]));
-
-                    $form = $fb->getForm();
-                    $form->handleRequest($request);
-
-                    if ($form->isSubmitted() && $form->isValid()) {
+        $view = null;
+        $locked = $this->settingService->get('lan.seatmap.locked') === true;
+        if ($this->isGranted('IS_AUTHENTICATED_REMEMBERED')) {
+            $user = $this->getUser()->getUser();
+            if ($this->seatmapService->canBookSeat($seat, $user)) {
+                $form = $this->generateForm($seat, 'book');
+            } elseif ($this->seatmapService->isSeatOwner($seat, $user)) {
+                $form = $this->generateForm($seat, 'unbook');
+            } else {
+                $form = null;
+            }
+            if ($form) {
+                $form->handleRequest($request);
+                if ($form->isSubmitted() && $form->isValid()) {
+                    if ($locked) {
+                        $this->addFlash('error', "Der Sitzplan ist aktuell von den Administratoren gesperrt!");
+                    } else {
                         $action = $form->get('action')->getData();
-
-                        if ($action == 'unbook') {
-                            if ($seatmapLocked) {
-                                $this->addFlash('error', "Der Sitzplan ist aktuell von den Administratoren gesperrt!");
-
-                                return $this->redirectToRoute('seatmap');
+                        try {
+                            switch ($action) {
+                                case 'book':
+                                    $this->seatmapService->bookSeat($seat, $user);
+                                    $this->addFlash('success', "Sitzplatz {$seat->generateSeatName()} erfolgreich reserviert!");
+                                    break;
+                                case 'unbook':
+                                    $this->seatmapService->unBookSeat($seat, $user);
+                                    $this->addFlash('success', "Sitzplatz {$seat->generateSeatName()} erfolgreich freigegeben.");
+                                    break;
                             }
-                            $this->seatmapService->unBookSeat($seat, $user);
-                            $this->addFlash('success', "Sitzplatz {$seat->getSector()}-{$seat->getSeatNumber()} erfolgreich freigegeben.");
-
-                            return $this->redirectToRoute('seatmap');
+                        } catch (GamerLifecycleException $exception) {
+                            $this->addFlash('error', "Aktion konnte nicht durchgeführt werden!");
                         }
-                        throw new GamerLifecycleException($user, 'User already owns Seat!');
                     }
-                    $formView = $form->createView();
-                } else {
-                    if ($this->seatmapService->canBookSeat($seat, $user)) {
-                        $fb = $this->createFormBuilder()
-                            ->add('action', HiddenType::class, [
-                                'data' => 'book'
-                            ]);
-
-                        $fb->setAction($this->generateUrl('seatmap_seat_show', ['id' => $seat->getId()]));
-
-                        $form = $fb->getForm();
-                        $form->handleRequest($request);
-
-                        if ($form->isSubmitted() && $form->isValid()) {
-                            $action = $form->get('action')->getData();
-
-                            if ($action == 'book') {
-                                if ($seatmapLocked) {
-                                    $this->addFlash('error', "Der Sitzplan ist aktuell von den Administratoren gesperrt!");
-
-                                    return $this->redirectToRoute('seatmap');
-                                }
-                                $this->seatmapService->bookSeat($seat, $user);
-                                $this->addFlash('success', "Sitzplatz {$seat->getSector()}-{$seat->getSeatNumber()} erfolgreich reserviert!");
-
-                                return $this->redirectToRoute('seatmap');
-                            }
-                            throw new GamerLifecycleException($user, "Cannot unbook seat that isn't yours!");
-                        }
-                        $formView = $form->createView();
-                    }
+                    return $this->redirectToRoute('seatmap');
                 }
+                $view = $form->createView();
             }
         }
 
-
-        if ($seat->getOwner()) {
-            $seatUser = $this->gamerService->getUserFromGamer($seat->getOwner());
-        } else {
-            $seatUser = null;
-        }
-
+        $owner = $this->seatmapService->getSeatOwner($seat);
 
         return $this->render('site/seatmap/seat.html.twig', [
             'seat' => $seat,
-            'user' => $seatUser,
-            'form' => $formView,
-            'gamerEligible' => $gamerEligible,
+            'user' => $owner,
+            'form' => $view,
         ]);
     }
 }

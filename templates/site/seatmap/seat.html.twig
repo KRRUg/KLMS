@@ -9,12 +9,7 @@
         <div class="container-fluid">
             <div class="col">
                 <p>
-                    Sitzplatz:
-                    {% if seat.name is empty %}
-                        {{ seat.sector }}-{{ seat.seatNumber }}
-                    {% else %}
-                        {{ seat.name }} ({{ seat.sector }}-{{ seat.seatNumber }})
-                    {% endif %}
+                    Sitzplatz: {{ seat.generateSeatName }}
                     <br>
                     Status:
                     {% if seat.owner is not empty %}
@@ -26,8 +21,8 @@
                     {% endif %}
                 </p>
                 {% if seat.owner is not empty %}
-                    <h1 title="Nickname" class="h3 d-inline-block">Nickname: <a target="_blank"
-                                                                                href="{{ path('user_show', {'uuid': user.uuid }) }}">{{ user.nickname }}</a>
+                    <h1 title="Nickname" class="h4 d-inline-block">Nickname:
+                        <a target="_blank" href="{{ path('user_show', {'uuid': user.uuid }) }}">{{ user.nickname }}</a>
                     </h1>
                     <br/>
                     {% if user.clans is not empty %}
@@ -45,14 +40,11 @@
                 <br>
             </div>
         </div>
-        {% if not gamerEligible and app.user is not empty and not owner and seat.type == 'seat' %}
-            <p>Du hast die maximal Anzahl deiner bezahlten Sitzplätze erreicht!</p>
-        {% endif %}
     {% endblock %}
 
     {% block modalFooter %}
-        {% if not settings.get('lan.seatmap.locked') %}
-            {% if seat.owner is empty and seat.type == 'seat' and gamerEligible %}
+        {% if form is not empty %}
+            {% if seat.owner is empty %}
                 {{ form_start(form) }}
                 {{ form_row(form.action) }}
                 {{ form_rest(form) }}

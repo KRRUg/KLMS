@@ -165,4 +165,11 @@ class Seat
         return $this;
     }
 
+    public function generateSeatName(): string
+    {
+        if ($this->getName())
+            return $this->getName();
+        else
+            return "{$this->getSector()}-{$this->getSeatNumber()}";
+    }
 }
