@@ -3,29 +3,41 @@
 namespace App\Form;
 
 use App\Entity\User;
+use App\Entity\UserGamer;
 use App\Idm\Exception\PersistException;
 use App\Idm\IdmManager;
 use App\Idm\IdmRepository;
+use App\Repository\UserGamerRepository;
 use Ramsey\Uuid\Uuid;
 use Ramsey\Uuid\UuidInterface;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\CallbackTransformer;
 use Symfony\Component\Form\DataTransformerInterface;
 use Symfony\Component\Form\Exception\TransformationFailedException;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
-class UserSelectType extends AbstractType implements DataTransformerInterface
+class UserSelectType extends AbstractType
 {
     private IdmRepository $userRepository;
+    private UserGamerRepository $gamerRepository;
 
-    public function __construct(IdmManager $manager)
+    public function __construct(IdmManager $manager, UserGamerRepository $gamerRepository)
     {
         $this->userRepository = $manager->getRepository(User::class);
+        $this->gamerRepository = $gamerRepository;
     }
 
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
-        $builder->addViewTransformer($this);
+        switch ($options['type']) {
+            case User::class:
+                $builder->addViewTransformer(new CallbackTransformer([$this,'transform'], [$this,'reverseTransformUser']));
+                break;
+            case UserGamer::class:
+                $builder->addViewTransformer(new CallbackTransformer([$this,'transform'], [$this,'reverseTransformGamer']));
+                break;
+        }
     }
 
     public function configureOptions(OptionsResolver $resolver)
@@ -33,7 +45,13 @@ class UserSelectType extends AbstractType implements DataTransformerInterface
         $resolver->setDefaults([
             'multiple' => false,
             'compound' => false,
+            'type' => User::class,
         ]);
+
+        $resolver
+            ->setAllowedTypes('type', 'string')
+            ->setAllowedValues('type', [User::class, UserGamer::class])
+        ;
     }
 
     public function getBlockPrefix()
@@ -41,9 +59,6 @@ class UserSelectType extends AbstractType implements DataTransformerInterface
         return 'select2';
     }
 
-    /**
-     * @inheritDoc
-     */
     public function transform($entity)
     {
         $data = array();
@@ -51,22 +66,41 @@ class UserSelectType extends AbstractType implements DataTransformerInterface
             return $data;
         }
 
-        if (!($entity instanceof User)) {
-            throw new TransformationFailedException('Unknown type to convert');
+        switch (true) {
+            case $entity instanceof User:
+                $data[$entity->getUuid()->toString()] = $entity->getEmail();
+                break;
+            case $entity instanceof UserGamer:
+                $email = $this->userRepository->findOneById($entity->getUuid())->getEmail();
+                $data[$entity->getUuid()->toString()] = $email;
+                break;
+            default:
+                throw new TransformationFailedException('Unknown type to convert');
         }
-
-        $data[$entity->getUuid()->toString()] = $entity->getEmail();
         return $data;
     }
 
-    /**
-     * @inheritDoc
-     */
-    public function reverseTransform($value)
+    public function reverseTransformUser($value)
     {
+        if (empty($value))
+            return null;
+
         $value = $value instanceof UuidInterface ? $value : Uuid::fromString($value);
         try {
             return $this->userRepository->findOneById($value);
+        } catch (PersistException $e) {
+            throw new TransformationFailedException('Unknown type to convert');
+        }
+    }
+
+    public function reverseTransformGamer($value)
+    {
+        if (empty($value))
+            return null;
+
+        $value = $value instanceof UuidInterface ? $value : Uuid::fromString($value);
+        try {
+            return $this->gamerRepository->findOneBy(['uuid' => $value]);
         } catch (PersistException $e) {
             throw new TransformationFailedException('Unknown type to convert');
         }

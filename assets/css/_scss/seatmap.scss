@@ -15,22 +15,28 @@
   }
 
   .seat-taken {
-    background-color: red;
+    background-color: darkred;
 
     &:before {
-      background-color: red;
+      background-color: darkred;
       border-radius: 50%;
     }
   }
+
   .seat-own {
-    background-color: deeppink;
+    background-color: orangered;
+
+    &:before {
+      background-color: orangered;
+      border-radius: 50%;
+    }
   }
 
   .seat-locked {
-    background-color: cornflowerblue;
+    background-color: gray;
 
     &:before {
-      background-color: cornflowerblue;
+      background-color: gray;
     }
   }
 }
@@ -98,22 +104,28 @@
   }
 
   .seat-taken {
-    background-color: red;
+    background-color: darkred;
 
     &:before {
-      background-color: red;
+      background-color: darkred;
       border-radius: 50%;
     }
   }
+
   .seat-own {
-    background-color: deeppink;
+    background-color: orangered;
+
+    &:before {
+      background-color: orangered;
+      border-radius: 50%;
+    }
   }
 
   .seat-locked {
-    background-color: cornflowerblue;
+    background-color: gray;
 
     &:before {
-      background-color: cornflowerblue;
+      background-color: gray;
     }
   }
 

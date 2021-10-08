@@ -4,7 +4,9 @@ namespace App\Controller\Admin;
 
 use App\Entity\Seat;
 use App\Entity\User;
+use App\Entity\UserGamer;
 use App\Form\SeatType;
+use App\Form\UserSelectType;
 use App\Idm\IdmManager;
 use App\Idm\IdmRepository;
 use App\Repository\SeatRepository;
@@ -70,19 +72,15 @@ class SeatmapController extends AbstractController
             'action' => $this->generateUrl('admin_seatmap_seat_edit', ['id' => $seat->getId()]),
         ]);
 
-        $form->remove('owner');
-
-
+        $form->add('owner', UserSelectType::class, ['type' => UserGamer::class, 'required' => false]);
+        $form->setData($seat);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
             $seat = $form->getData();
-
             $this->em->flush();
             $this->addFlash('success', "Sitzplatz {$seat->getSector()}-{$seat->getSeatNumber()} erfolgreich geändert.");
-
             return $this->redirectToRoute('admin_seatmap');
-
         }
 
         return $this->render('admin/seatmap/seat.html.twig', [
@@ -121,8 +119,6 @@ class SeatmapController extends AbstractController
 
         $this->addFlash('success', "Sitzplatz {$seat->getSector()}-{$seat->getSeatNumber()} erfolgreich gelöscht.");
         return $this->redirectToRoute('admin_seatmap');
-
-
     }
 
     /**
