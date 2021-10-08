@@ -40,6 +40,15 @@ class SeatmapController extends AbstractController
      */
     public function index()
     {
+        if (!$this->settingService->getOrDefault('lan.seatmap.enabled', false)) {
+            if ($this->settingService->getOrDefault('lan.signup.enabled', false)) {
+                $this->addFlash('warning', 'Sitzplan ist noch nicht verfügbar');
+                return $this->redirectToRoute('index');
+            } else {
+                throw $this->createNotFoundException();
+            }
+        }
+
         $seats = $this->seatmapService->getSeatmap();
         return $this->render('site/seatmap/index.html.twig', [
             'seatmap' => $seats,
