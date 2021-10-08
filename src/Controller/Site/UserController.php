@@ -60,7 +60,7 @@ class UserController extends AbstractController
      */
     public function index(Request $request)
     {
-        if (!$this->settingService->getOrDefault('community.enabled', false)) {
+        if (!$this->settingService->get('community.enabled', false)) {
             throw $this->createNotFoundException();
         }
 
@@ -68,7 +68,7 @@ class UserController extends AbstractController
         $page = $request->query->getInt('page', 1);
         $page = $page < 1 ? 1 : $page;
 
-        if ($this->settingService->getOrDefault('community.all', false)) {
+        if ($this->settingService->get('community.all', false)) {
             $collection = $this->userRepo->findFuzzy($search);
             $users = $collection->getPage($page, self::SHOW_LIMIT);
             $count = $collection->count();

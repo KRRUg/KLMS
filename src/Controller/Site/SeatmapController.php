@@ -40,8 +40,8 @@ class SeatmapController extends AbstractController
      */
     public function index()
     {
-        if (!$this->settingService->getOrDefault('lan.seatmap.enabled', false)) {
-            if ($this->settingService->getOrDefault('lan.signup.enabled', false)) {
+        if (!$this->settingService->get('lan.seatmap.enabled', false)) {
+            if ($this->settingService->get('lan.signup.enabled', false)) {
                 $this->addFlash('warning', 'Sitzplan ist noch nicht verfügbar');
                 return $this->redirectToRoute('index');
             } else {

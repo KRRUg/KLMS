@@ -109,7 +109,7 @@ class SettingService
         return $this->repo->findByKey($key) ?? new Setting($key);
     }
 
-    public function getOrDefault(string $key, $default)
+    public function get(string $key, $default = "")
     {
         $key = strtolower($key);
         if (!$this->validKey($key)) {
@@ -117,7 +117,7 @@ class SettingService
             return null;
         }
         $block = $this->repo->findByKey($key);
-        if (is_null($block)) {
+        if (isset($block)) {
             // valid key, but not yet crated
             return $default;
         }
@@ -126,11 +126,6 @@ class SettingService
         } else {
             return $block->getText() ?? '';
         }
-    }
-
-    public function get(string $key): ?string
-    {
-        return $this->getOrDefault($key, "");
     }
 
     public function set(string $key, string $value)
