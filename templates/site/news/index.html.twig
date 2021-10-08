@@ -6,8 +6,12 @@
     {% embed 'site/components/header.html.twig' with {'css_prefix': 'startpage'}%}
         {% block headerContent %}
             {{ parent() }}
+            {% if settings.getOrDefault('site.title.show', false) %}
             <h3>{{ settings.get('site.title') }}</h3>
+            {% endif %}
+            {% if settings.getOrDefault('site.subtitle.show', false) %}
             <p>{{ settings.get('site.subtitle') }}</p>
+            {% endif %}
         {% endblock %}
     {% endembed %}
 {% endblock %}
