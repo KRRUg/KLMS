@@ -489,7 +489,7 @@ final class IdmManager
         throw new NotImplementedException("Search support is not implemented yet");
     }
 
-    public function find(string $class, $filter = [], array $sort = [], ?int $page = 0, ?int $limit = null)
+    public function find(string $class, $filter = [], bool $fuzzy = false, bool $case = true, array $sort = [], ?int $page = 0, ?int $limit = null)
     {
         $this->throwOnNotManaged($class);
 
@@ -498,6 +498,8 @@ final class IdmManager
             $query['filter'] = $filter;
             $query['exact'] = is_array($filter) ? 'true' : 'false';
         }
+        $query['exact'] = $fuzzy ? 'false' : 'true';
+        $query['case'] = $case ? 'true' : 'false';
         if (!empty($sort)) {
             $query['sort'] = $sort;
         }

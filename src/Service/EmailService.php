@@ -29,6 +29,7 @@ class EmailService
     const APP_HOOK_REGISTRATION_CONFIRM = 'REGISTRATION_CONFIRMATION';
     const APP_HOOK_RESET_PW = 'PASSWORD_RESET';
     const APP_HOOK_CHANGE_NOTIFICATION = 'CHANGE_NOTIFICATION';
+    const APP_HOOK_LAN_SIGNUP = 'LAN_SIGNUP';
 
     const HOOK_TEMPLATE = 'template';
     const HOOK_SUBJECT = 'subject';
@@ -52,6 +53,12 @@ class EmailService
             self::HOOK_SUBJECT => "email.notify.subject",
             self::HOOK_SUBJECT_DEFAULT => "Hinweis",
             self::HOOK_TEMPLATE => '/email/hooks/change.html.twig',
+            self::HOOK_CONTEXT => ['message'],
+        ],
+        self::APP_HOOK_LAN_SIGNUP => [
+            self::HOOK_SUBJECT => "email.notify.subject",
+            self::HOOK_SUBJECT_DEFAULT => "Anmeldung erfolgreich",
+            self::HOOK_TEMPLATE => '/email/hooks/lan_signup.html.twig',
             self::HOOK_CONTEXT => ['message'],
         ],
     ];

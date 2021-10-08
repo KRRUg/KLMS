@@ -3,8 +3,8 @@
 namespace App\Twig;
 
 use App\Entity\User;
-use App\Entity\Seat;
 use App\Service\GamerService;
+use App\Entity\Seat;
 use App\Service\SeatmapService;
 use Twig\Extension\AbstractExtension;
 use Twig\TwigFilter;

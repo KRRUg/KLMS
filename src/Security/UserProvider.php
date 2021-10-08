@@ -69,7 +69,7 @@ class UserProvider implements UserProviderInterface
         // The $username argument may not actually be a username:
         // it is whatever value is being returned by the getUsername()
         // method in your User class.
-        $user = $this->userRepo->findOneBy(['email' => $username]);
+        $user = $this->userRepo->findOneCiBy(['email' => $username]);
         if (empty($user)) {
             throw new UsernameNotFoundException();
         }

@@ -4,7 +4,7 @@
     </li>
     {% if is_granted('ROLE_ADMIN_NEWS') or is_granted('ROLE_ADMIN_CONTENT') %}
         <li class="nav-item">
-            <a class="nav-link" href="#contentMenu" data-toggle="collapse"><i class="far fa-file-alt fa-fw"></i> Inhalt</a></a>
+            <a class="nav-link" href="#contentMenu" data-toggle="collapse"><i class="far fa-file-alt fa-fw"></i> Inhalt</a>
             <ul id="contentMenu" class="collapse show list-group">
                 {% if is_granted('ROLE_ADMIN_NEWS') %}
                     <li class="nav-item">
@@ -37,7 +37,7 @@
     {% endif %}
     {% if is_granted('ROLE_ADMIN_USER') %}
         <li class="nav-item">
-            <a class="nav-link" href="#communityMenu" data-toggle="collapse"><i class="fas fa-user-friends fa-fw"></i> Community</a></a>
+            <a class="nav-link" href="#communityMenu" data-toggle="collapse"><i class="fas fa-user-friends fa-fw"></i> Community</a>
             <ul id="communityMenu" class="collapse show list-group">
                 <li class="nav-item">
                     <a class="nav-link {% if app.request.get('_route') starts with 'admin_user' %}active{% endif %}" href="{{ path('admin_user') }}"><i class="fas fa-user fa-fw"></i> User </a>
@@ -50,7 +50,7 @@
     {% endif %}
     {% if is_granted('ROLE_ADMIN_PAYMENT') %}
         <li class="nav-item">
-            <a class="nav-link" href="#lanMenu" data-toggle="collapse"><i class="fas fa-laptop-house fa-fw"></i> LAN</a></a>
+            <a class="nav-link" href="#lanMenu" data-toggle="collapse"><i class="fas fa-laptop-house fa-fw"></i> LAN</a>
             <ul id="lanMenu" class="collapse show list-group">
                 {% if is_granted('ROLE_ADMIN_PAYMENT') %}
                 <li class="nav-item">
