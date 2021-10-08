@@ -1,43 +1,35 @@
+@mixin seat($color) {
+  background-color: $color;
+
+  &:before {
+    background-color: $color;
+    border-radius: 50%;
+  }
+}
+
+.seatmap-legend, .seatmap-wrapper {
+  .seat-empty {
+    @include seat(green)
+  }
+
+  .seat-taken {
+    @include seat(darkred)
+  }
+
+  .seat-own {
+    @include seat(orange)
+  }
+
+  .seat-locked {
+    @include seat(gray)
+  }
+}
+
 .seatmap-legend {
   .seat {
     height: 40px;
     width: 40px;
     border-radius: 30%;
-  }
-
-  .seat-empty {
-    background-color: green;
-
-    &:before {
-      background-color: green;
-      border-radius: 50%;
-    }
-  }
-
-  .seat-taken {
-    background-color: darkred;
-
-    &:before {
-      background-color: darkred;
-      border-radius: 50%;
-    }
-  }
-
-  .seat-own {
-    background-color: orangered;
-
-    &:before {
-      background-color: orangered;
-      border-radius: 50%;
-    }
-  }
-
-  .seat-locked {
-    background-color: gray;
-
-    &:before {
-      background-color: gray;
-    }
   }
 }
 
@@ -57,75 +49,31 @@
     border-radius: 30%;
     cursor: pointer;
 
-    &[data-chair-position="top"]::before {
+    &::before {
       content: '';
       position: absolute;
-      top: -10px;
-      left: 7px;
       width: 5px;
       height: 5px;
+    }
+
+    &[data-chair-position="top"]::before {
+      top: -10px;
+      left: 7px;
     }
 
     &[data-chair-position="bottom"]::before {
-      content: '';
-      position: absolute;
       left: 7px;
       bottom: -10px;
-      width: 5px;
-      height: 5px;
     }
 
     &[data-chair-position="left"]::before {
-      content: '';
-      position: absolute;
       top: 7px;
       left: -10px;
-      width: 5px;
-      height: 5px;
     }
 
     &[data-chair-position="right"]::before {
-      content: '';
-      position: absolute;
       top: 7px;
       right: -10px;
-      width: 5px;
-      height: 5px;
-    }
-  }
-
-  .seat-empty {
-    background-color: green;
-
-    &:before {
-      background-color: green;
-      border-radius: 50%;
-    }
-  }
-
-  .seat-taken {
-    background-color: darkred;
-
-    &:before {
-      background-color: darkred;
-      border-radius: 50%;
-    }
-  }
-
-  .seat-own {
-    background-color: orangered;
-
-    &:before {
-      background-color: orangered;
-      border-radius: 50%;
-    }
-  }
-
-  .seat-locked {
-    background-color: gray;
-
-    &:before {
-      background-color: gray;
     }
   }
 
