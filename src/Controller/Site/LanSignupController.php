@@ -79,7 +79,7 @@ class LanSignupController extends AbstractController
                         $message = "Du hast dich zu der Veranstaltung erfolgreich angemeldet!";
                     }
                     $this->emailService->scheduleHook(
-                        EmailService::APP_HOOK_CHANGE_NOTIFICATION,
+                        EmailService::APP_HOOK_LAN_SIGNUP,
                         EmailRecipient::fromUser($this->getUser()->getUser()), [
                             'message' => $message,
                         ]
@@ -89,7 +89,7 @@ class LanSignupController extends AbstractController
 
                 } catch (GamerLifecycleException $gamerLifecycleException) {
                     $this->addFlash('error', 'Anmeldung ist fehlgeschlagen!');
-                    $this->logger->error("Gamer  registrierung ist Fehlgeschlagen.");
+                    $this->logger->error("Gamerregistrierung ist fehlgeschlagen.");
                 }
             }
         }
