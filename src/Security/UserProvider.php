@@ -43,8 +43,8 @@ class UserProvider implements UserProviderInterface
         $roles = [];
 //        $gamer = $this->gr->find($userGuid);
 //        if ($gamer) {
-//            if ($gamer->getPayed()) {
-//                array_push($roles, "ROLE_USER_PAYED");
+//            if ($gamer->getPaid()) {
+//                array_push($roles, "ROLE_USER_PAID");
 //            }
 //            // check if user has seat,...
 //        }

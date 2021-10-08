@@ -1,0 +1,63 @@
+{% embed "admin/components/modals/skeleton.html.twig"
+    with {
+    'id': 'showSeatModal',
+    'title' : 'Sitzplatz ' ~ seat.sector ~ '-' ~ seat.seatNumber,
+    'dialogClass' : 'modal-lg'
+} %}
+    {% set owner = app.user is not empty and seat.owner is not empty and seat.owner.uuid == app.user.user.uuid %}
+    {% block modalBody %}
+        <div class="container-fluid">
+            <div class="col">
+                <p>
+                    Sitzplatz: {{ seat.generateSeatName }}
+                    <br>
+                    Status:
+                    {% if seat.owner is not empty %}
+                        Reserviert
+                    {% elseif seat.type == 'locked' %}
+                        Gesperrt
+                    {% else %}
+                        Frei
+                    {% endif %}
+                </p>
+                {% if seat.owner is not empty %}
+                    <h1 title="Nickname" class="h4 d-inline-block">Nickname:
+                        <a target="_blank" href="{{ path('user_show', {'uuid': user.uuid }) }}">{{ user.nickname }}</a>
+                    </h1>
+                    <br/>
+                    {% if user.clans is not empty %}
+                        <h5 title="Clan" class="d-inline-block">Clans:</h5>
+                        <ul>
+                            {% for clan in user.clans %}
+                                <li>
+                                    <a target="_blank"
+                                       href="{{ path('clan_show', {'uuid': clan.uuid}) }}">[{{ clan.clantag }}]</a>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+                {% endif %}
+                <br>
+            </div>
+        </div>
+    {% endblock %}
+
+    {% block modalFooter %}
+        {% if form is not empty %}
+            {% if seat.owner is empty %}
+                {{ form_start(form) }}
+                {{ form_row(form.action) }}
+                {{ form_rest(form) }}
+                <button type="submit" class="btn btn-primary"><i class="fas fa-user-check"></i> Sitzplatz reservieren</button>
+                {{ form_end(form) }}
+            {% elseif owner %}
+                {{ form_start(form) }}
+                {{ form_row(form.action) }}
+                {{ form_rest(form) }}
+                <button type="submit" class="btn btn-primary"><i class="fas fa-user-times"></i> Sitzplatz freigeben</button>
+                {{ form_end(form) }}
+            {% endif %}
+        {% endif %}
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Schließen</button>
+    {% endblock %}
+{% endembed %}

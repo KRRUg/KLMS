@@ -28,7 +28,7 @@
                         </th>
                         <th class="w-25" data-data="user.firstname">Vorname</th>
                         <th class="w-25" data-data="user.surname">Nachname</th>
-                        <th class="w-25" data-data="status.payed">Status</th>
+                        <th class="w-25" data-data="status.paid">Status</th>
                         <th
                                 class="text-nowrap w-1"
                                 data-orderable="false"
@@ -51,7 +51,7 @@
                                 {% if v.status.hasRegistered() %}
                                     <span class="badge badge-secondary">Angemeldet</span>
                                 {% endif %}
-                                {% if v.status.hasPayed() %}
+                                {% if v.status.hasPaid() %}
                                     <span class="badge badge-primary">Bezahlt</span>
                                 {% endif %}
                                 {% if v.status.hasCheckedIn() %}

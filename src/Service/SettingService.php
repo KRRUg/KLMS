@@ -30,6 +30,9 @@ class SettingService
         "lan.signup.enabled" => [self::TB_DESCRIPTION => "LAN-Anmeldung erlauben", self::TB_TYPE => self::TB_TYPE_BOOL],
         "lan.signup.info" => [self::TB_DESCRIPTION => "Inhalt der beim \"Anmelden\" zu einer LAN angezeigt wird", self::TB_TYPE => self::TB_TYPE_HTML],
 
+        "lan.seatmap.bg_image" => [self::TB_DESCRIPTION => "Sitzplan Hintergrundbild", self::TB_TYPE => self::TB_TYPE_FILE],
+        "lan.seatmap.locked" => [self::TB_DESCRIPTION => "Sitzplanbuchungen sperren (Kein Reservieren/Freigeben für User)", self::TB_TYPE => self::TB_TYPE_BOOL],
+
         "style.logo" => [self::TB_DESCRIPTION => "Logo", self::TB_TYPE => self::TB_TYPE_FILE],
         "style.bg_image" => [self::TB_DESCRIPTION => "Hintergrundbild", self::TB_TYPE => self::TB_TYPE_FILE],
 

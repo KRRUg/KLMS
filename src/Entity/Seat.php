@@ -7,7 +7,9 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * @ORM\Entity(repositoryClass="App\Repository\SeatRepository")
  * @ORM\Table(
- *     uniqueConstraints={@ORM\UniqueConstraint(name="seat_pos", columns={"pos_x", "pos_y"})}
+ *     uniqueConstraints={
+ *     @ORM\UniqueConstraint(name="seat_pos", columns={"pos_x", "pos_y"}),
+ *     @ORM\UniqueConstraint(name="sector_seat", columns={"sector", "seat_number"})}
  * )
  */
 class Seat
@@ -30,20 +32,37 @@ class Seat
     private $posY;
 
     /**
-     * @ORM\Column(type="string", length=10)
+     * @ORM\Column(type="string", length=10, nullable=true)
      */
     private $name;
 
-    /**
-     * @ORM\Column(type="boolean")
-     */
-    private $locked = false;
 
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\UserGamer", inversedBy="seats" )
      * @ORM\JoinColumn(name="owner", referencedColumnName="uuid")
      */
     private $owner;
+
+    /**
+     * @ORM\Column(type="string", length=1)
+     */
+    private $sector;
+
+    /**
+     * @ORM\Column(type="integer")
+     */
+    private $seatNumber;
+
+    /**
+     * @ORM\Column(type="string", length=32)
+     */
+    private $type;
+
+    /**
+     * @ORM\Column(type="string", length=10)
+     */
+    private $chairPosition;
+
 
     public function getId(): ?int
     {
@@ -86,18 +105,6 @@ class Seat
         return $this;
     }
 
-    public function getLocked(): ?bool
-    {
-        return $this->locked;
-    }
-
-    public function setLocked(bool $locked): self
-    {
-        $this->locked = $locked;
-
-        return $this;
-    }
-
     public function getOwner(): ?UserGamer
     {
         return $this->owner;
@@ -108,5 +115,61 @@ class Seat
         $this->owner = $owner;
 
         return $this;
+    }
+
+    public function getSector(): ?string
+    {
+        return $this->sector;
+    }
+
+    public function setSector(string $sector): self
+    {
+        $this->sector = $sector;
+
+        return $this;
+    }
+
+    public function getSeatNumber(): ?int
+    {
+        return $this->seatNumber;
+    }
+
+    public function setSeatNumber(int $seatNumber): self
+    {
+        $this->seatNumber = $seatNumber;
+
+        return $this;
+    }
+
+    public function getType(): ?string
+    {
+        return $this->type;
+    }
+
+    public function setType(string $type): self
+    {
+        $this->type = $type;
+
+        return $this;
+    }
+
+    public function getChairPosition(): ?string
+    {
+        return $this->chairPosition;
+    }
+
+    public function setChairPosition(string $chairPosition): self
+    {
+        $this->chairPosition = $chairPosition;
+
+        return $this;
+    }
+
+    public function generateSeatName(): string
+    {
+        if ($this->getName())
+            return $this->getName();
+        else
+            return "{$this->getSector()}-{$this->getSeatNumber()}";
     }
 }

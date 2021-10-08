@@ -4,8 +4,8 @@ namespace App\Twig;
 
 use App\Entity\User;
 use App\Service\GamerService;
-use Ramsey\Uuid\Uuid;
-use Ramsey\Uuid\UuidInterface;
+use App\Entity\Seat;
+use App\Service\SeatmapService;
 use Twig\Extension\AbstractExtension;
 use Twig\TwigFilter;
 use Twig\TwigTest;
@@ -13,10 +13,12 @@ use Twig\TwigTest;
 class GamerExtension extends AbstractExtension
 {
     private GamerService $gamerService;
+    private SeatmapService $seatmapService;
 
-    public function __construct(GamerService $gamerService)
+    public function __construct(GamerService $gamerService, SeatmapService $seatmapService)
     {
         $this->gamerService = $gamerService;
+        $this->seatmapService = $seatmapService;
     }
 
     /**
@@ -26,7 +28,7 @@ class GamerExtension extends AbstractExtension
     {
         return [
             new TwigTest('registered_gamer', [$this, 'gamerIsRegistered']),
-            new TwigTest('payed_gamer', [$this, 'gamerIsPayed']),
+            new TwigTest('paid_gamer', [$this, 'gamerIsPaid']),
             new TwigTest('seated_gamer', [$this, 'gamerIsSeated']),
         ];
     }
@@ -46,18 +48,20 @@ class GamerExtension extends AbstractExtension
         return $this->gamerService->gamerHasRegistered($user);
     }
 
-    public function gamerIsPayed(User $user): bool
+    public function gamerIsPaid(User $user): bool
     {
-        return $this->gamerService->gamerHasPayed($user);
+        return $this->gamerService->gamerHasPaid($user);
     }
 
     public function gamerIsSeated(User $user): bool
     {
-        return false; // TODO implement me
+        return $this->seatmapService->getUserSeatCount($user) > 0;
     }
 
     public function getSeat(User $user): ?string
     {
-        return null; // TODO implement me
+        $seats = $this->seatmapService->getUserSeats($user);
+        $names = array_map(function (Seat $seat) { return $seat->generateSeatName(); }, $seats);
+        return implode(',', $names);
     }
 }

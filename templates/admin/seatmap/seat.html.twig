@@ -1,0 +1,32 @@
+{% embed "admin/components/modals/skeleton.html.twig"
+    with {
+    'id': 'showSeatModal',
+    'title' : 'Sitzplatz',
+    'dialogClass' : 'modal-lg'
+} %}
+    {% block modalBody %}
+        <div class="container-fluid">
+            <div class="d-flex justify-content-center">
+                <div class="p-2">
+                {{ form_start(form) }}
+                {{ form_rest(form) }}
+                <button type="submit" class="btn btn-secondary">Editieren</button>
+                {{ form_end(form) }}
+                </div>
+                <div class="p-2">
+                    <h5>Sitzplatz zuweisen</h5>
+                    {% if user is null %}
+                        Kein User zugeordnet!
+                    {% else %}
+                        User zugeordnet!
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    {% endblock %}
+
+    {% block modalFooter %}
+        <a type="button" class="btn btn-danger" href="{{ path('admin_seatmap_seat_delete', {'id': form.vars.data.id}) }}">Löschen</a>
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Schließen</button>
+    {% endblock %}
+{% endembed %}

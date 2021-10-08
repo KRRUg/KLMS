@@ -61,7 +61,7 @@ class GamerService
         return $userGamer;
     }
 
-    private function getGamer(User $user) : ?UserGamer
+    public function getGamer(User $user) : ?UserGamer
     {
         return $this->repo->findByUser($user);
     }
@@ -88,7 +88,7 @@ class GamerService
 
         $this->logger->info("Gamer {$user->getNickname()} got registration status cleared.");
         $gamer->setRegistered(null);
-        $gamer->setPayed(null);
+        $gamer->setPaid(null);
         $gamer->setCheckedIn(null);
         $this->em->persist($gamer);
         $this->em->flush();
@@ -107,12 +107,12 @@ class GamerService
         if (!$gamer->hasRegistered())
             throw new GamerLifecycleException($user, "User not registered yet.");
 
-        if ($gamer->hasPayed())
-            throw new GamerLifecycleException($user, "User already payed.");
+        if ($gamer->hasPaid())
+            throw new GamerLifecycleException($user, "User already paid.");
 
-        $this->logger->info("Gamer {$user->getNickname()} got payed status set.");
+        $this->logger->info("Gamer {$user->getNickname()} got paid status set.");
 
-        $gamer->setPayed(new DateTime());
+        $gamer->setPaid(new DateTime());
         $this->em->persist($gamer);
         $this->em->flush();
 
@@ -133,11 +133,11 @@ class GamerService
     {
         $gamer = $this->getOrCreateGamer($user);
 
-        if (!$gamer->hasPayed())
-            throw new GamerLifecycleException($user, "User not payed yet.");
+        if (!$gamer->hasPaid())
+            throw new GamerLifecycleException($user, "User not paid yet.");
 
-        $this->logger->info("Gamer {$user->getNickname()} got payed status cleared.");
-        $gamer->setPayed(null);
+        $this->logger->info("Gamer {$user->getNickname()} got paid status cleared.");
+        $gamer->setPaid(null);
         $gamer->setCheckedIn(null);
         $this->em->persist($gamer);
         $this->em->flush();
@@ -150,10 +150,10 @@ class GamerService
         return clone($gamer);
     }
 
-    public function gamerHasPayed(User $user): bool
+    public function gamerHasPaid(User $user): bool
     {
         $gamer = $this->getGamer($user) ?? false;
-        return $gamer && $gamer->hasPayed();
+        return $gamer && $gamer->hasPaid();
     }
 
     public function getGamers() : array
@@ -172,13 +172,8 @@ class GamerService
         return $ret;
     }
 
-    public function gamer2Array(UserGamer $userGamer): array
+    public function getUserFromGamer(UserGamer $userGamer): ?User
     {
-        return [
-            'uuid' => $userGamer->getUuid(),
-            'registered' => $userGamer->getRegistered() ? $userGamer->getRegistered()->format(self::DATETIME_FORMAT) : null,
-            'payed' => $userGamer->getPayed() ? $userGamer->getPayed()->format(self::DATETIME_FORMAT) : null,
-            'checkedIn' => $userGamer->getCheckedIn() ? $userGamer->getCheckedIn()->format(self::DATETIME_FORMAT) : null,
-        ];
+        return $this->userRepo->findOneById($userGamer->getUuid());
     }
 }
