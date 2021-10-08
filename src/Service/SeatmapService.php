@@ -75,7 +75,10 @@ class SeatmapService
 
     public function isSeatOwner(Seat $seat, User $user): bool
     {
-        return $seat->getOwner() === $this->gamerService->getGamer($user);
+        $owner = $seat->getOwner();
+        if (empty($owner))
+            return false;
+        return $owner === $this->gamerService->getGamer($user);
     }
 
     public function bookSeat(Seat $seat, User $user)
