@@ -10,6 +10,8 @@ use App\Idm\IdmManager;
 use App\Idm\IdmRepository;
 use App\Security\LoginUser;
 use App\Service\EmailService;
+use App\Service\GamerService;
+use App\Service\SettingService;
 use Psr\Log\LoggerInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -22,14 +24,22 @@ class UserController extends AbstractController
 {
     private IdmManager $manager;
     private IdmRepository $userRepo;
-    private LoggerInterface $logger;
     private EmailService $emailService;
+    private SettingService $settingService;
+    private GamerService $gamerService;
+    private LoggerInterface $logger;
 
-    public function __construct(IdmManager $manager, EmailService $emailService, LoggerInterface $logger)
+    public function __construct(IdmManager $manager,
+                                EmailService $emailService,
+                                SettingService $settingService,
+                                GamerService $gamerService,
+                                LoggerInterface $logger)
     {
         $this->manager = $manager;
         $this->userRepo = $manager->getRepository(User::class);
         $this->emailService = $emailService;
+        $this->settingService = $settingService;
+        $this->gamerService = $gamerService;
         $this->logger = $logger;
     }
 
@@ -50,17 +60,36 @@ class UserController extends AbstractController
      */
     public function index(Request $request)
     {
+        if (!$this->settingService->get('community.enabled', false)) {
+            throw $this->createNotFoundException();
+        }
+
         $search = $request->query->get('q', '');
         $page = $request->query->getInt('page', 1);
+        $page = $page < 1 ? 1 : $page;
 
-        $collection = $this->userRepo->findFuzzy($search);
-        $users = $collection->getPage($page, self::SHOW_LIMIT);
+        if ($this->settingService->get('community.all', false)) {
+            $collection = $this->userRepo->findFuzzy($search);
+            $users = $collection->getPage($page, self::SHOW_LIMIT);
+            $count = $collection->count();
+        } else {
+            $gamers = array_values($this->gamerService->getGamers(false));
+            $users = array_map(function (array $in) { return $in['user'];}, $gamers);
+            if (!empty($search)) {
+                $users = array_filter($users, function (User $u) use ($search) {
+                    return stripos($u->getNickname(), $search) !== false || stripos($u->getFirstname(), $search) !== false;
+                });
+            }
+            usort($users, function (User $a, User $b) { return $a->getNickname() <=> $b->getNickname(); });
+            $users = array_slice($users, ($page - 1) * self::SHOW_LIMIT, self::SHOW_LIMIT);
+            $count = count($users);
+        }
 
         return $this->render('site/user/list.html.twig', [
             'search' => $search,
             'users' => $users,
             'page' => $page,
-            'total' => $collection->count(),
+            'total' => $count,
             'limit' => self::SHOW_LIMIT,
         ]);
     }

@@ -8,6 +8,8 @@ use App\Form\ClanType;
 use App\Idm\Exception\PersistException;
 use App\Idm\IdmManager;
 use App\Idm\IdmRepository;
+use App\Service\GamerService;
+use App\Service\SettingService;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\Extension\Core\Type\PasswordType;
@@ -24,8 +26,6 @@ use Symfony\Component\Security\Core\Exception\AccessDeniedException;
  */
 class ClanController extends AbstractController
 {
-    //TODO: Better Exception/Error Handling see https://github.com/KRRUg/KLMS/blob/feature/admin-mgmt/src/Controller/BaseController.php and Admin/PermissionController.php
-
     private const CSRF_TOKEN_DELETE = "clanDeleteToken";
     private const CSRF_TOKEN_MEMBER_EDIT = "clanMemberEditToken";
     private const CSRF_TOKEN_MEMBER_LEAVE = "clanMemberLeaveToken";
@@ -33,12 +33,16 @@ class ClanController extends AbstractController
     private IdmManager $im;
     private IdmRepository $clanRepo;
     private IdmRepository $userRepo;
+    private SettingService $settingService;
+    private GamerService $gamerService;
 
-    public function __construct(IdmManager $manager)
+    public function __construct(IdmManager $manager, SettingService $settingService, GamerService $gamerService)
     {
         $this->im = $manager;
         $this->clanRepo = $manager->getRepository(Clan::class);
         $this->userRepo = $manager->getRepository(User::class);
+        $this->settingService = $settingService;
+        $this->gamerService = $gamerService;
     }
 
     private const SHOW_LIMIT = 10;
@@ -48,18 +52,36 @@ class ClanController extends AbstractController
      */
     public function index(Request $request)
     {
+        if (!$this->settingService->get('community.enabled', false)) {
+            throw $this->createNotFoundException();
+        }
+
         $search = $request->query->get('q', '');
         $page = $request->query->getInt('page', 1);
+        $page = $page < 1 ? 1 : $page;
 
-        $collection = $this->clanRepo->findFuzzy($search);
-        $clans = $collection->getPage($page, self::SHOW_LIMIT);
+        if ($this->settingService->get('community.all', false)) {
+            $collection = $this->clanRepo->findFuzzy($search);
+            $clans = $collection->getPage($page, self::SHOW_LIMIT);
+            $count = $collection->count();
+        } else {
+            $clans = array_values($this->gamerService->getClans());
+            if (!empty($search)) {
+                $clans = array_filter($clans, function (Clan $u) use ($search) {
+                    return stripos($u->getClantag(), $search) !== false || stripos($u->getName(), $search) !== false;
+                });
+            }
+            usort($clans, function (Clan $a, Clan $b) { return $a->getName() <=> $b->getName(); });
+            $clans = array_slice($clans, ($page - 1) * self::SHOW_LIMIT, self::SHOW_LIMIT);
+            $count = count($clans);
+        }
 
         return $this->render('site/clan/list.html.twig', [
             'search' => $search,
             'clans' => $clans,
-            'total' => $collection->count(),
-            'limit' => self::SHOW_LIMIT,
             'page' => $page,
+            'total' => $count,
+            'limit' => self::SHOW_LIMIT,
         ]);
     }
 

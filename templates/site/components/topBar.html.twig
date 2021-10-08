@@ -12,7 +12,7 @@
                         <i class="fas fa-cogs"></i> Admin
                     </a>
                 {% endif %}
-                {% if is_granted('IS_AUTHENTICATED_REMEMBERED') %}
+                {% if is_granted('IS_AUTHENTICATED_REMEMBERED') and settings.get('community.enabled', false) %}
                     {% include 'site/components/topBar/communityDropdown.html.twig' %}
                 {% endif %}
                 {% if app.user.username is defined %}

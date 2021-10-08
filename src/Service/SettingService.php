@@ -20,18 +20,25 @@ class SettingService
 
     ////////////////////////////////////////////////
     /// Text block names
-    ///////////////////////////////////////////////
+    ////////////////////////////////////////////////
+
     private const TEXT_BLOCK_KEYS = [
         "site.title" => [self::TB_DESCRIPTION => "Titel der Seite", self::TB_TYPE => self::TB_TYPE_STRING],
+        "site.title.show" => [self::TB_DESCRIPTION => "Titel der Seite anzeigen", self::TB_TYPE => self::TB_TYPE_BOOL],
         "site.subtitle" => [self::TB_DESCRIPTION => "Untertitel der Seite", self::TB_TYPE => self::TB_TYPE_STRING],
+        "site.subtitle.show" => [self::TB_DESCRIPTION => "Untertitel der Seite anzeigen", self::TB_TYPE => self::TB_TYPE_BOOL],
         "site.about" => [self::TB_DESCRIPTION => "Über uns, Homepage links unten", self::TB_TYPE => self::TB_TYPE_HTML],
         "site.organisation" => [self::TB_DESCRIPTION => "Organisationsname / Vereinsname", self::TB_TYPE => self::TB_TYPE_STRING],
+
+        "community.enabled" => [self::TB_DESCRIPTION => "Community Sektion einschalten", self::TB_TYPE => self::TB_TYPE_BOOL],
+        "community.all" => [self::TB_DESCRIPTION => "Alle IDM User in Community anzeigen", self::TB_TYPE => self::TB_TYPE_BOOL],
 
         "lan.signup.enabled" => [self::TB_DESCRIPTION => "LAN-Anmeldung erlauben", self::TB_TYPE => self::TB_TYPE_BOOL],
         "lan.signup.info" => [self::TB_DESCRIPTION => "Inhalt der beim \"Anmelden\" zu einer LAN angezeigt wird", self::TB_TYPE => self::TB_TYPE_HTML],
 
-        "lan.seatmap.bg_image" => [self::TB_DESCRIPTION => "Sitzplan Hintergrundbild", self::TB_TYPE => self::TB_TYPE_FILE],
+        "lan.seatmap.enabled" => [self::TB_DESCRIPTION => "Sitzplanbuchungen einschalten", self::TB_TYPE => self::TB_TYPE_BOOL],
         "lan.seatmap.locked" => [self::TB_DESCRIPTION => "Sitzplanbuchungen sperren (Kein Reservieren/Freigeben für User)", self::TB_TYPE => self::TB_TYPE_BOOL],
+        "lan.seatmap.bg_image" => [self::TB_DESCRIPTION => "Sitzplan Hintergrundbild", self::TB_TYPE => self::TB_TYPE_FILE],
 
         "style.logo" => [self::TB_DESCRIPTION => "Logo", self::TB_TYPE => self::TB_TYPE_FILE],
         "style.bg_image" => [self::TB_DESCRIPTION => "Hintergrundbild", self::TB_TYPE => self::TB_TYPE_FILE],
@@ -102,7 +109,7 @@ class SettingService
         return $this->repo->findByKey($key) ?? new Setting($key);
     }
 
-    public function get(string $key): ?string
+    public function get(string $key, $default = "")
     {
         $key = strtolower($key);
         if (!$this->validKey($key)) {
@@ -110,9 +117,9 @@ class SettingService
             return null;
         }
         $block = $this->repo->findByKey($key);
-        if (empty($block)) {
+        if (isset($block)) {
             // valid key, but not yet crated
-            return "";
+            return $default;
         }
         if (self::getType($key) == self::TB_TYPE_FILE) {
             return $this->uploaderHelper->asset($block, 'file', Setting::class);

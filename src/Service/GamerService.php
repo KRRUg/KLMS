@@ -2,6 +2,7 @@
 
 namespace App\Service;
 
+use App\Entity\Clan;
 use App\Entity\User;
 use App\Entity\UserGamer;
 use App\Exception\GamerLifecycleException;
@@ -19,6 +20,7 @@ class GamerService
     private EntityManagerInterface $em;
     private UserGamerRepository $repo;
     private IdmRepository $userRepo;
+    private IdmRepository $clanRepo;
     private EmailService $emailService;
     private SettingService $settingService;
 
@@ -42,6 +44,7 @@ class GamerService
         $this->emailService = $emailService;
         $this->settingService = $settingService;
         $this->userRepo = $manager->getRepository(User::class);
+        $this->clanRepo = $manager->getRepository(Clan::class);
     }
 
     /**
@@ -156,7 +159,7 @@ class GamerService
         return $gamer && $gamer->hasPaid();
     }
 
-    public function getGamers() : array
+    public function getGamers(bool $associative = true) : array
     {
         $gamers = $this->repo->findAll();
         $gamers = array_filter($gamers, function (UserGamer $g) { return $g->hasRegistered(); });
@@ -167,9 +170,31 @@ class GamerService
         $ret = [];
         foreach ($users as $user) {
             $uuid = $user->getUuid()->toString();
-            $ret[$uuid] = ['user' => $user, 'status' => $gamers[$uuid]];
+            if ($associative)
+                $ret[$uuid] = ['user' => $user, 'status' => $gamers[$uuid]];
+            else
+                $ret[] = ['user' => $user, 'status' => $gamers[$uuid]];
         }
         return $ret;
+    }
+
+    public function getClans(bool $associative = true) : array
+    {
+        $gamers = $this->getGamers(false);
+        $clan_uuid = [];
+        foreach ($gamers as $gamer) {
+            $g = $gamer['user'];
+            foreach ($g->getClans()->toUuidArray() as $clan) {
+                $clan_uuid[] = $clan->getUuid();
+            }
+        }
+        $clans = $this->clanRepo->findById($clan_uuid);
+        if ($associative) {
+            // TODO implement me
+            return $clans;
+        } else {
+            return $clans;
+        }
     }
 
     public function getUserFromGamer(UserGamer $userGamer): ?User
