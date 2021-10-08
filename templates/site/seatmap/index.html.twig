@@ -10,11 +10,15 @@
                 {% if settings.get('lan.seatmap.locked') %}
                     <h3 class="card-header">Der Sitzplan ist aktuell gesperrt und kann zurzeit nur von den Adminstratoren bearbeitet werden.</h3>
                 {% endif %}
-                <div class="d-flex justify-content-between seatmap-legend">
-                    <span class="seat seat-empty"></span> Frei
-                    <span class="seat seat-taken"></span> Reserviert
-                    <span class="seat seat-locked"></span> Gesperrt
-                    <span class="seat seat-own"></span> Eigener Sitzplatz
+                <div class="container seatmap-legend">
+                    <div class="row justify-content-center">
+                        <div class="col-md-3 col-lg-2"><span class="seat seat-empty"></span> Frei </div>
+                        <div class="col-md-3 col-lg-2"><span class="seat seat-taken"></span> Reserviert</div>
+                        <div class="col-md-3 col-lg-2"><span class="seat seat-locked"></span> Gesperrt</div>
+                        {% if is_granted('IS_AUTHENTICATED_REMEMBERED') %}
+                            <div class="col-md-3 col-lg-2"><span class="seat seat-own"></span> Sitzplatz</div>
+                        {% endif %}
+                    </div>
                 </div>
             </div>
         </div>
