@@ -117,7 +117,7 @@ class SettingService
             return null;
         }
         $block = $this->repo->findByKey($key);
-        if (isset($block)) {
+        if (is_null($block)) {
             // valid key, but not yet crated
             return $default;
         }
