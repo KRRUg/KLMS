@@ -10,6 +10,7 @@ use App\Idm\IdmManager;
 use App\Idm\IdmRepository;
 use App\Security\LoginUser;
 use App\Service\EmailService;
+use App\Service\SettingService;
 use Psr\Log\LoggerInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -22,14 +23,19 @@ class UserController extends AbstractController
 {
     private IdmManager $manager;
     private IdmRepository $userRepo;
-    private LoggerInterface $logger;
     private EmailService $emailService;
+    private SettingService $settingService;
+    private LoggerInterface $logger;
 
-    public function __construct(IdmManager $manager, EmailService $emailService, LoggerInterface $logger)
+    public function __construct(IdmManager $manager,
+                                EmailService $emailService,
+                                SettingService $settingService,
+                                LoggerInterface $logger)
     {
         $this->manager = $manager;
         $this->userRepo = $manager->getRepository(User::class);
         $this->emailService = $emailService;
+        $this->settingService = $settingService;
         $this->logger = $logger;
     }
 
@@ -50,6 +56,10 @@ class UserController extends AbstractController
      */
     public function index(Request $request)
     {
+        if (!$this->settingService->getOrDefault('community.enabled', false)) {
+            throw $this->createNotFoundException();
+        }
+
         $search = $request->query->get('q', '');
         $page = $request->query->getInt('page', 1);
 
