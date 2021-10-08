@@ -156,7 +156,7 @@ class GamerService
         return $gamer && $gamer->hasPaid();
     }
 
-    public function getGamers() : array
+    public function getGamers(bool $associative = true) : array
     {
         $gamers = $this->repo->findAll();
         $gamers = array_filter($gamers, function (UserGamer $g) { return $g->hasRegistered(); });
@@ -167,7 +167,10 @@ class GamerService
         $ret = [];
         foreach ($users as $user) {
             $uuid = $user->getUuid()->toString();
-            $ret[$uuid] = ['user' => $user, 'status' => $gamers[$uuid]];
+            if ($associative)
+                $ret[$uuid] = ['user' => $user, 'status' => $gamers[$uuid]];
+            else
+                $ret[] = ['user' => $user, 'status' => $gamers[$uuid]];
         }
         return $ret;
     }
