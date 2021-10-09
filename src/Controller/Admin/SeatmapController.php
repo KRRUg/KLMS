@@ -173,9 +173,9 @@ class SeatmapController extends AbstractController
                     $this->em->persist($newSeat);
 
                     if ($seat->getChairPosition() == "top" || $seat->getChairPosition() == "bottom") {
-                        $x += 22;
+                        $x += 29;
                     } else {
-                        $y += 22;
+                        $y += 29;
                     }
                     $seatNumber += 2;
                     $i++;

@@ -45,36 +45,36 @@
 
   .seat {
     position: absolute;
-    height: 20px;
-    width: 20px;
+    height: 27px;
+    width: 27px;
     border-radius: 30%;
     cursor: pointer;
 
     &::before {
       content: '';
       position: absolute;
-      width: 5px;
-      height: 5px;
+      width: 7px;
+      height: 7px;
     }
 
     &[data-chair-position="top"]::before {
-      top: -10px;
-      left: 7px;
+      top: -11px;
+      left: 9px;
     }
 
     &[data-chair-position="bottom"]::before {
-      left: 7px;
-      bottom: -10px;
+      left: 9px;
+      bottom: -11px;
     }
 
     &[data-chair-position="left"]::before {
-      top: 7px;
-      left: -10px;
+      top: 9px;
+      left: -11px;
     }
 
     &[data-chair-position="right"]::before {
-      top: 7px;
-      right: -10px;
+      top: 9px;
+      right: -11px;
     }
   }
 
