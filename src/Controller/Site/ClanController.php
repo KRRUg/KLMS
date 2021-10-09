@@ -72,8 +72,8 @@ class ClanController extends AbstractController
                 });
             }
             usort($clans, function (Clan $a, Clan $b) { return $a->getName() <=> $b->getName(); });
-            $clans = array_slice($clans, ($page - 1) * self::SHOW_LIMIT, self::SHOW_LIMIT);
             $count = count($clans);
+            $clans = array_slice($clans, ($page - 1) * self::SHOW_LIMIT, self::SHOW_LIMIT);
         }
 
         return $this->render('site/clan/list.html.twig', [

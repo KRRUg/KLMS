@@ -10,11 +10,15 @@
                 {% if settings.get('lan.seatmap.locked') %}
                     <h3 class="card-header">Der Sitzplan ist aktuell gesperrt und kann zurzeit nur von den Adminstratoren bearbeitet werden.</h3>
                 {% endif %}
-                <div class="d-flex justify-content-between seatmap-legend">
-                    <span class="seat seat-empty"></span> Frei
-                    <span class="seat seat-taken"></span> Reserviert
-                    <span class="seat seat-locked"></span> Gesperrt
-                    <span class="seat seat-own"></span> Eigener Sitzplatz
+                <div class="container seatmap-legend">
+                    <div class="row justify-content-center">
+                        <div class="col-md-3 col-lg-2"><span class="seat seat-empty"></span> Frei </div>
+                        <div class="col-md-3 col-lg-2"><span class="seat seat-taken"></span> Reserviert</div>
+                        <div class="col-md-3 col-lg-2"><span class="seat seat-locked"></span> Gesperrt</div>
+                        {% if is_granted('IS_AUTHENTICATED_REMEMBERED') %}
+                            <div class="col-md-3 col-lg-2"><span class="seat seat-own"></span> Sitzplatz</div>
+                        {% endif %}
+                    </div>
                 </div>
             </div>
         </div>
@@ -31,8 +35,19 @@
                                 <span style="top: {{ seat.posY }}px; left: {{ seat.posX }}px;" class="seat seat-{{ seat.type }} seat-taken" data-html="true"
                                       title="{{ seat.name }}"><i class="fas fa-info-circle"></i></span>
                             {% else %}
+                                {% set ownSeat = app.user is not null and seat.owner is not null and seat.owner.uuid == app.user.user.uuid %}
+                                {% set taken = seat.owner is not empty %}
+                                {% set locked = seat.type == 'locked' %}
                                 <a style="top: {{ seat.posY }}px; left: {{ seat.posX }}px;"
-                                   class="seat seat-{{ seat.type }}{% if app.user is not null and seat.owner is not null and seat.owner.uuid == app.user.user.uuid %} seat-own{% endif %}{% if seat.owner is not empty %} seat-taken{% else %} seat-empty{% endif %}"
+                                    {% if ownSeat %}
+                                        class="seat seat-own"
+                                    {% elseif taken %}
+                                        class="seat seat-taken"
+                                    {% elseif locked %}
+                                        class="seat seat-locked"
+                                    {% else %}
+                                        class="seat seat-empty"
+                                    {% endif %}
                                    data-chair-position="{{ seat.chairPosition }}" data-toggle="ajaxModal"
                                    data-html="true" title="{{ include('site/seatmap/tooltip.html.twig') }}" href="{{ path('seatmap_seat_show', {'id' : seat.id}) }}"></a>
                             {% endif %}

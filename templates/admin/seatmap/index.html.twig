@@ -7,11 +7,13 @@
         <div class="col-12">
             <div class="card">
                 <div class="card-title">
-                    <div class="d-flex justify-content-between seatmap-legend">
-                        <span class="seat seat-empty"></span> Frei
-                        <span class="seat seat-taken"></span> Reserviert
-                        <span class="seat seat-locked"></span> Gesperrt
-                        <span class="seat seat-own"></span> Eigener Sitzplatz
+                    <div class="container seatmap-legend">
+                        <div class="row justify-content-center">
+                            <div class="col-md-3 col-lg-2"><span class="seat seat-empty"></span> Frei </div>
+                            <div class="col-md-3 col-lg-2"><span class="seat seat-taken"></span> Reserviert</div>
+                            <div class="col-md-3 col-lg-2"><span class="seat seat-locked"></span> Gesperrt</div>
+                            <div class="col-md-3 col-lg-2"><span class="seat seat-own"></span> Sitzplatz</div>
+                        </div>
                     </div>
                     {% if settings.get('lan.seatmap.locked') %}
                         <div class="card-title">

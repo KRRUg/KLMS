@@ -45,7 +45,6 @@ class SeatType extends AbstractType
                     'Rechts' => 'right',
                 ]
             ])
-            ->add('owner')
         ;
     }
 

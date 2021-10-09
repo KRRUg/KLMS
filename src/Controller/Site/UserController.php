@@ -81,8 +81,8 @@ class UserController extends AbstractController
                 });
             }
             usort($users, function (User $a, User $b) { return $a->getNickname() <=> $b->getNickname(); });
-            $users = array_slice($users, ($page - 1) * self::SHOW_LIMIT, self::SHOW_LIMIT);
             $count = count($users);
+            $users = array_slice($users, ($page - 1) * self::SHOW_LIMIT, self::SHOW_LIMIT);
         }
 
         return $this->render('site/user/list.html.twig', [

@@ -1,12 +1,12 @@
 <div id="top-bar" class="bg-dark text-white">
     <div class="container">
         <div class="row align-items-center">
-            <div class="col-lg-5">
+            <div class="col-lg-6">
                 {% if is_granted('IS_AUTHENTICATED_REMEMBERED') %}
                     {% include 'site/components/topBar/lanStatus.html.twig' %}
                 {% endif %}
             </div>
-            <div class="col-lg-7 text-right">
+            <div class="col-lg-6 text-right">
                 {% if is_granted('ROLE_ADMIN') %}
                     <a class="btn btn-link" href="{{ path('admin_dashboard') }}">
                         <i class="fas fa-cogs"></i> Admin

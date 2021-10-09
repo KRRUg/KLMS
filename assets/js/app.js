@@ -22,7 +22,6 @@ import './modules/confirmModal/confirmModal.js';
 
 $(document).ready(function () {
     cfi.init();
-    select2Init();
     $('.datetimepicker').DateTimePicker();
     $('.datepicker').flatpickr({
         altInput: true,
@@ -32,6 +31,7 @@ $(document).ready(function () {
     }
     );
     $('.datatable').AdminDataTable();
+    $('.select2-enable').Select2();
 
     setTimeout(function () {
         $('.alert-flash-msg').alert('close');

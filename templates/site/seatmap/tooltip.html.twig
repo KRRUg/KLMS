@@ -1,21 +1,11 @@
-{% if seat.type == "locked" %}
-    {% if seat.name is not empty %}
-        Sitzplatz: {{ seat.name }} <small>({{ seat.sector }}-{{ seat.seatNumber }})</small>
-    {% else %}
-        Sitzplatz: {{ seat.sector }}-{{ seat.seatNumber }}
-    {% endif %}
+Sitzplatz: {{ seat.generateSeatName }}
+<br>
+{% if seat.id in users | keys and users[seat.id] is not empty %}
+    User: {{ users[seat.id].nickname }}
     <br>
+    Status: Reserviert
+{% elseif seat.type == "locked" %}
     Status: Gesperrt
-{% endif %}
-{% if seat.type == "seat" %}
-    Sitzplatz: {{ seat.generateSeatName }}
-    {% if seat.id in users | keys and users[seat.id] is not empty  %}
-        <br>
-        User: {{ users[seat.id].nickname }}
-        <br>
-        Status: Reserviert
-    {% else %}
-        <br>
-        Status: Frei
-    {% endif %}
+{% elseif seat.type == "seat" %}
+    Status: Frei
 {% endif %}
