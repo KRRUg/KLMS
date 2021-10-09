@@ -45,8 +45,8 @@
                         <tr>
                             <td class="text-center">{{ v.user.id }}</td>
                             <td><a href="{{ path('admin_user_show', {'uuid' : v.user.uuid }) }}" data-toggle="ajaxModal">{{ v.user.nickname }}</a></td>
-                            <td>{{ v.user.surname }}</td>
                             <td>{{ v.user.firstname }}</td>
+                            <td>{{ v.user.surname }}</td>
                             <td>
                                 {% if v.status.hasRegistered() %}
                                     <span class="badge badge-secondary">Angemeldet</span>
