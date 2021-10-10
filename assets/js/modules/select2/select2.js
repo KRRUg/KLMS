@@ -6,6 +6,15 @@ import 'select2/dist/js/i18n/de.js';
 import 'mark.js';
 import 'mark.js/dist/jquery.mark.js';
 
+$(document).on('select2:open', (event) => {
+    const searchField = document.querySelector(
+        `.select2-search__field[aria-controls="select2-${event.target.getAttribute('data-select2-id')}-results"]`,
+    );
+    if (searchField) {
+        searchField.focus();
+    }
+});
+
 (function ($, window, document, undefined) {
     let Select2Fup = function (element, options) {
         this.element = element;
