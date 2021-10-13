@@ -18,8 +18,8 @@
                 >
                     <thead>
                     <tr>
-                        <th class="text-nowrap w-1" data-data="user.clans">Clans</th>
                         <th class="text-nowrap w-1" data-data="user.id">KLMS-ID</th>
+                        <th class="text-nowrap w-1" data-data="user.clans">Clans</th>
                         <th
                                 class="w-25"
 {#                                data-data="user.nickname"#}
@@ -44,12 +44,12 @@
                     <tbody>
                     {% for uuid, v in gamers %}
                         <tr>
+                            <td class="text-center">{{ v.user.id }}</td>
                             <td>
                                 {% for clan in v.user.clans %}
-                                    <a href="{{ path('admin_clan_show', {'uuid' : clan.uuid }) }}" data-toggle="ajaxModal">{{clan.clantag }}</a>{% if not loop.last %}, {% endif %}
+                                    <a class="badge badge-pill badge-primary" href="{{ path('admin_clan_show', {'uuid' : clan.uuid }) }}" data-toggle="ajaxModal">{{clan.clantag }}</a>
                                 {% endfor %}
                             </td>
-                            <td class="text-center">{{ v.user.id }}</td>
                             <td><a href="{{ path('admin_user_show', {'uuid' : v.user.uuid }) }}" data-toggle="ajaxModal">{{ v.user.nickname }}</a></td>
                             <td>{{ v.user.firstname }}</td>
                             <td>{{ v.user.surname }}</td>
