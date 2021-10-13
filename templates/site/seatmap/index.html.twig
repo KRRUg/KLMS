@@ -32,7 +32,7 @@
                     <div class="seatmap-wrapper">
                         {% for seat in seatmap %}
                             {% if seat.type == 'information' %}
-                                <span style="top: {{ seat.posY }}px; left: {{ seat.posX }}px;" class="seat seat-{{ seat.type }} seat-taken" data-html="true"
+                                <span style="top: {{ seat.posY }}px; left: {{ seat.posX }}px;" class="seat seat-{{ seat.type }}" data-html="true"
                                       title="{{ seat.name }}"><i class="fas fa-info-circle"></i></span>
                             {% else %}
                                 {% set ownSeat = app.user is not null and seat.owner is not null and seat.owner.uuid == app.user.user.uuid %}
