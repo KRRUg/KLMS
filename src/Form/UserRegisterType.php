@@ -44,7 +44,7 @@ class UserRegisterType extends AbstractType
             ]);
             $recaptchaSiteKey = !empty($_ENV['EWZ_RECAPTCHA_SITE_KEY']) && $_ENV['EWZ_RECAPTCHA_SITE_KEY'];
             $recaptchaSecret = !empty($_ENV['EWZ_RECAPTCHA_SECRET']) && $_ENV['EWZ_RECAPTCHA_SECRET'];
-            if($recaptchaSiteKey && $recaptchaSecret) {
+            if($options['captcha'] && $recaptchaSiteKey && $recaptchaSecret) {
                 $builder->add('recaptcha', EWZRecaptchaType::class, array(
                     'label' => false,
                     'attr' => array(
@@ -69,6 +69,11 @@ class UserRegisterType extends AbstractType
     {
         $resolver->setDefaults([
             'data_class' => User::class,
+            'captcha' => true,
         ]);
+
+        $resolver
+            ->setAllowedTypes('captcha', 'bool')
+        ;
     }
 }
