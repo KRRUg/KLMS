@@ -12,6 +12,7 @@
         "doctrine/doctrine-bundle": "^2",
         "doctrine/doctrine-migrations-bundle": "^2",
         "doctrine/orm": "^2",
+        "excelwebzone/recaptcha-bundle": "^1.5",
         "liip/imagine-bundle": "^2.3",
         "nyholm/psr7": "^1.2",
         "phpdocumentor/reflection-docblock": "^5.1",

@@ -3,6 +3,8 @@
 namespace App\Form;
 
 use App\Entity\User;
+use EWZ\Bundle\RecaptchaBundle\Form\Type\EWZRecaptchaType;
+use EWZ\Bundle\RecaptchaBundle\Validator\Constraints\IsTrue as RecaptchaTrue;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\EmailType;
@@ -39,14 +41,39 @@ class UserRegisterType extends AbstractType
             ->add('infoMails', CheckboxType::class, [
                 'label' => 'Newsletter abonnieren',
                 'required' => false,
-            ])
-        ;
+            ]);
+            $recaptchaSiteKey = !empty($_ENV['EWZ_RECAPTCHA_SITE_KEY']) && $_ENV['EWZ_RECAPTCHA_SITE_KEY'];
+            $recaptchaSecret = !empty($_ENV['EWZ_RECAPTCHA_SECRET']) && $_ENV['EWZ_RECAPTCHA_SECRET'];
+            if($options['captcha'] && $recaptchaSiteKey && $recaptchaSecret) {
+                $builder->add('recaptcha', EWZRecaptchaType::class, array(
+                    'label' => false,
+                    'attr' => array(
+                        'options' => array(
+                            'theme' => 'light',
+                            'type' => 'image',
+                            'size' => 'normal',
+                            'defer' => true,
+                            'async' => true,
+                        )
+                    ),
+                    'mapped' => false,
+                    'required' => true,
+                    'constraints' => array(
+                        new RecaptchaTrue()
+                    )
+                ));
+            }
     }
 
     public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefaults([
             'data_class' => User::class,
+            'captcha' => true,
         ]);
+
+        $resolver
+            ->setAllowedTypes('captcha', 'bool')
+        ;
     }
 }
