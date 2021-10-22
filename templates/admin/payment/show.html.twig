@@ -104,7 +104,7 @@
                         {% if gamer.hasCheckedIn() %}
                             {{ _self.confirm_button('Check Out', href, csrf_token, "checkout", true) }}
                         {% else %}
-                            {{ _self.confirm_button('Check In', href, csrf_token, "checkout") }}
+                            {{ _self.confirm_button('Check In', href, csrf_token, "checkin") }}
                         {% endif %}
                     {% endif %}
                 </div>
