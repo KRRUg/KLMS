@@ -146,6 +146,43 @@ class GamerService
         $this->em->flush();
     }
 
+    public function gamerCheckIn(User $user) {
+        $gamer = $this->getOrCreateGamer($user);
+
+        if (!$gamer->hasRegistered())
+            throw new GamerLifecycleException($user, "User not registered yet.");
+
+        if (!$gamer->hasPaid())
+            throw new GamerLifecycleException($user, "User not paid yet.");
+
+        $this->logger->info("Gamer {$user->getNickname()} checkIn Status set.");
+
+        $gamer->setCheckedIn(new DateTime());
+        $this->em->persist($gamer);
+        $this->em->flush();
+
+    }
+
+    public function gamerCheckOut(User $user) {
+        $gamer = $this->getOrCreateGamer($user);
+
+        if (!$gamer->hasRegistered())
+            throw new GamerLifecycleException($user, "User not registered yet.");
+
+        if (!$gamer->hasPaid())
+            throw new GamerLifecycleException($user, "User not paid yet.");
+
+        if (!$gamer->hasCheckedIn())
+            throw new GamerLifecycleException($user, "User not checkedIn yet.");
+
+        $this->logger->info("Gamer {$user->getNickname()} checkIn Status set.");
+
+        $gamer->setCheckedIn(null);
+        $this->em->persist($gamer);
+        $this->em->flush();
+
+    }
+
     public function gamerGetStatus(User $user): UserGamer
     {
         $gamer = $this->repo->findByUser($user);
