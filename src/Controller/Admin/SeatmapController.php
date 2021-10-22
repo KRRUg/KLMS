@@ -220,6 +220,8 @@ class SeatmapController extends AbstractController
             $csvData[] = [
                 'id' => $seatUser->getId(),
                 'nickname' => $seatUser->getNickname(),
+                'vorname' => $seatUser->getFirstname(),
+                'nachname' => $seatUser->getSurname(),
                 'seat' => $seatLocation,
                 'clans' => implode(', ', $clanTags),
                 'seatname' => $seatName,
