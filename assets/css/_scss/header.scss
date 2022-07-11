@@ -6,18 +6,22 @@ header, #header {
         background-repeat: no-repeat;
         box-shadow: $box-shadow;
         height:12rem;
-        
-        &.startpage {
-            height:23rem;
-        }
+        background-color: $primary;
         
         .head-content {
             text-align: center;
             align-self: center;
             color:$header-color;
-            
+
             .logo {
-                max-height: 6rem;
+                max-height: 10rem;
+            }
+        }
+
+        &.startpage {
+            height:23rem;
+            .head-content .logo {
+                max-height: 20rem;
             }
         }
     }
