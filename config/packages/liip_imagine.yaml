@@ -42,3 +42,9 @@ liip_imagine:
                 fixed:
                     width: 200
                     height: 300
+
+        sponsor_logo:
+            filters:
+                fixed:
+                    width: 500
+                    height: 300
