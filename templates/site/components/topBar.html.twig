@@ -1,4 +1,4 @@
-<div id="top-bar" class="bg-dark text-white">
+<div id="top-bar" class="bg-dark text-light-muted">
     <div class="container">
         <div class="row align-items-center">
             <div class="col-lg-6">
@@ -8,7 +8,7 @@
             </div>
             <div class="col-lg-6 text-right">
                 {% if is_granted('ROLE_ADMIN') %}
-                    <a class="btn btn-link" href="{{ path('admin_dashboard') }}">
+                    <a class="btn btn-link text-light-muted" href="{{ path('admin_dashboard') }}">
                         <i class="fas fa-cogs"></i> Admin
                     </a>
                 {% endif %}
