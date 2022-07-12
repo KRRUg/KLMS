@@ -3,6 +3,7 @@
 {% block title %}KLMS - Admin{% endblock %}
 {% block siteheading %}<i class="fas fa-coins"></i> Sponsoren{% endblock %}
 {% block main %}
+    {% if settings.get('site.sponsor.show') %}
     <div class="row mb-4">
         <div class="col-12">
             <a class="btn btn-success" href="{{ path('admin_sponsor_new') }}"><i class="fas fa-plus"></i> Anlegen</a>
@@ -23,7 +24,6 @@
                         <tr>
                             <td class="text-center">{{ sponsor.getId() }}</td>
                             <td><a href="{{ path('admin_sponsor_edit', {'id' : sponsor.id}) }}" title="Bearbeiten {{ sponsor.name }}"> {{ sponsor.name }}</a></td>
-{#                            <td>{{ sponsor.name }}</td>#}
                         </tr>
                     {% endfor %}
                     </tbody>
@@ -31,4 +31,16 @@
             </div>
         </div>
     </div>
+    {% else %}
+    <div class="row mb-4">
+        <div class="col-12">
+            <span class="m-1">Sponsoring ist nicht eingeschalten und wird nicht angezeigt.
+            <form data-toggle="confirmModal" data-modal-title="Feature aktivieren" data-modal-text="Wollen Sie Sponsoring anzeigen?" method="post" action="{{ path('admin_sponsor_activate') }}" class="d-inline-block">
+                <input type="hidden" name="_token" value="{{ csrf_token(csrf_token_activate) }}">
+                <button class="btn btn-link" type="submit" value="activate">Jetzt einschalten.</button>
+            </form>
+        </span>
+        </div>
+    </div>
+    {% endif %}
 {% endblock %}

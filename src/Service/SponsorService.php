@@ -11,9 +11,12 @@ use Psr\Log\LoggerInterface;
 
 class SponsorService
 {
-    private $repo;
-    private $em;
-    private $logger;
+    private SponsorRepository $repo;
+    private SettingService $settings;
+    private EntityManagerInterface $em;
+    private LoggerInterface $logger;
+
+    private const SETTING_ENABLED = 'site.sponsor.show';
 
     /**
      * NewsService constructor.
@@ -21,9 +24,10 @@ class SponsorService
      * @param $em
      * @param $logger
      */
-    public function __construct(SponsorRepository $repo, EntityManagerInterface $em, LoggerInterface $logger)
+    public function __construct(SponsorRepository $repo, SettingService $settings, EntityManagerInterface $em, LoggerInterface $logger)
     {
         $this->repo = $repo;
+        $this->settings = $settings;
         $this->em = $em;
         $this->logger = $logger;
     }
@@ -39,6 +43,16 @@ class SponsorService
     public function count() : int
     {
         return $this->repo->count([]);
+    }
+
+    public function active() : bool
+    {
+        return $this->settings->get(self::SETTING_ENABLED, false);
+    }
+
+    public function activate()
+    {
+        $this->settings->set(self::SETTING_ENABLED, true);
     }
 
     public function delete(Sponsor $sponsor)

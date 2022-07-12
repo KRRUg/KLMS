@@ -18,6 +18,7 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 class SponsorController extends AbstractController
 {
     private const CSRF_TOKEN_DELETE = "sponsorDeleteToken";
+    private const CSRF_TOKEN_ACTIVATE = "sponsorActivateToken";
 
     private SponsorService $sponsorService;
 
@@ -34,13 +35,19 @@ class SponsorController extends AbstractController
         $sponsors = $this->sponsorService->getAll();
         return $this->render('admin/sponsor/index.html.twig', [
             'sponsors' => $sponsors,
+            'csrf_token_activate' => self::CSRF_TOKEN_ACTIVATE,
         ]);
     }
 
     /**
      * @Route("/new", name="_new")
      */
-    public function new(Request $request) {
+    public function new(Request $request)
+    {
+        if (!$this->sponsorService->active()) {
+            throw $this->createNotFoundException();
+        }
+
         $form = $this->createForm(SponsorType::class);
 
         $form->handleRequest($request);
@@ -58,7 +65,12 @@ class SponsorController extends AbstractController
      * @Route("/delete/{id}", name="_delete")
      * @ParamConverter()
      */
-    public function delete(Request $request, Sponsor $news) {
+    public function delete(Request $request, Sponsor $news)
+    {
+        if (!$this->sponsorService->active()) {
+            throw $this->createNotFoundException();
+        }
+
         $token = $request->request->get('_token');
         if(!$this->isCsrfTokenValid(self::CSRF_TOKEN_DELETE, $token)) {
             throw $this->createAccessDeniedException('The CSRF token is invalid.');
@@ -73,7 +85,12 @@ class SponsorController extends AbstractController
      * @Route("/edit/{id}", name="_edit")
      * @ParamConverter()
      */
-    public function edit(Request $request, Sponsor $news) {
+    public function edit(Request $request, Sponsor $news)
+    {
+        if (!$this->sponsorService->active()) {
+            throw $this->createNotFoundException();
+        }
+
         $form = $this->createForm(SponsorType::class, $news);
 
         $form->handleRequest($request);
@@ -86,5 +103,21 @@ class SponsorController extends AbstractController
             'form' => $form->createView(),
             'csrf_token_delete' => self::CSRF_TOKEN_DELETE,
         ]);
+    }
+
+    /**
+     * @Route("/activate", name="_activate")
+     */
+    public function activate(Request $request)
+    {
+        $token = $request->request->get('_token');
+        if(!$this->isCsrfTokenValid(self::CSRF_TOKEN_ACTIVATE, $token)) {
+            throw $this->createAccessDeniedException('The CSRF token is invalid.');
+        }
+
+        if (!$this->sponsorService->active()) {
+            $this->sponsorService->activate();
+        }
+        return $this->redirectToRoute("admin_sponsor");
     }
 }
