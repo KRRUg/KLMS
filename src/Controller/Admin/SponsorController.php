@@ -85,13 +85,13 @@ class SponsorController extends AbstractController
      * @Route("/edit/{id}", name="_edit")
      * @ParamConverter()
      */
-    public function edit(Request $request, Sponsor $news)
+    public function edit(Request $request, Sponsor $sponsor)
     {
         if (!$this->sponsorService->active()) {
             throw $this->createNotFoundException();
         }
 
-        $form = $this->createForm(SponsorType::class, $news);
+        $form = $this->createForm(SponsorType::class, $sponsor, ['edit' => true]);
 
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
