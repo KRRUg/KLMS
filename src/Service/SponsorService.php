@@ -19,8 +19,9 @@ class SponsorService
     private const SETTING_ENABLED = 'sponsor.enabled';
 
     /**
-     * NewsService constructor.
+     * SponsorService constructor.
      * @param $repo
+     * @param $settings
      * @param $em
      * @param $logger
      */
