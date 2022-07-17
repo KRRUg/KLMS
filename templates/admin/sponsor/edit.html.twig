@@ -27,6 +27,11 @@
                 </div>
             </div>
         </div>
+        <div class="row mb-4">
+            <div class="col">
+                {% include 'admin/components/lastModified.html.twig' with { 'data': data } %}
+            </div>
+        </div>
         <hr>
         {{ form_rest(form) }}
         <div class="float-right">

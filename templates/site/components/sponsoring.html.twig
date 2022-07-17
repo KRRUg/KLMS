@@ -1,0 +1,15 @@
+{% if sponsor.active() %}
+    {% set s = sponsor.getRandom() %}
+    {% if s is not empty %}
+        <div class="container mb-5">
+            <div class="card">
+                <div class="card-body">
+                    <h5>Supported by</h5>
+                      <img src="{{ vich_uploader_asset(s, 'logoFile') | imagine_filter('sponsor_logo') }}">
+{#                    <img src="{{ vich_uploader_asset(s, 'logoFile') }}">#}
+                    <span>{{ s.name }}</span>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+{% endif %}

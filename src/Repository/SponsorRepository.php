@@ -23,56 +23,55 @@ class SponsorRepository extends ServiceEntityRepository
         parent::__construct($registry, Sponsor::class);
     }
 
-    /**
-     * @throws ORMException
-     * @throws OptimisticLockException
-     */
-    public function add(Sponsor $entity, bool $flush = true): void
-    {
-        $this->_em->persist($entity);
-        if ($flush) {
-            $this->_em->flush();
-        }
-    }
+//    /**
+//     * @throws ORMException
+//     * @throws OptimisticLockException
+//     */
+//    public function add(Sponsor $entity, bool $flush = true): void
+//    {
+//        $this->_em->persist($entity);
+//        if ($flush) {
+//            $this->_em->flush();
+//        }
+//    }
+//
+//    /**
+//     * @throws ORMException
+//     * @throws OptimisticLockException
+//     */
+//    public function remove(Sponsor $entity, bool $flush = true): void
+//    {
+//        $this->_em->remove($entity);
+//        if ($flush) {
+//            $this->_em->flush();
+//        }
+//    }
 
-    /**
-     * @throws ORMException
-     * @throws OptimisticLockException
-     */
-    public function remove(Sponsor $entity, bool $flush = true): void
+    public function findOneRandomBy($criteria = [])
     {
-        $this->_em->remove($entity);
-        if ($flush) {
-            $this->_em->flush();
-        }
-    }
-
-    // /**
-    //  * @return Sponsor[] Returns an array of Sponsor objects
-    //  */
-    /*
-    public function findByExampleField($value)
-    {
-        return $this->createQueryBuilder('s')
-            ->andWhere('s.exampleField = :val')
-            ->setParameter('val', $value)
-            ->orderBy('s.id', 'ASC')
-            ->setMaxResults(10)
-            ->getQuery()
-            ->getResult()
+        $qb = $this->createQueryBuilder('entity')
+            ->select('MIN(entity.id)', 'MAX(entity.id)')
         ;
-    }
-    */
 
-    /*
-    public function findOneBySomeField($value): ?Sponsor
-    {
-        return $this->createQueryBuilder('s')
-            ->andWhere('s.exampleField = :val')
-            ->setParameter('val', $value)
+        foreach ($criteria as $field => $value) {
+            $qb
+                ->andWhere(sprintf('entity.%s=:%s', $field, $field))
+                ->setParameter(':'.$field, $value)
+            ;
+        }
+
+        $id_limits = $qb
+            ->getQuery()
+            ->getOneOrNullResult();
+        $random_possible_id = rand($id_limits[1], $id_limits[2]);
+
+        return $qb
+            ->select('entity')
+            ->andWhere('entity.id >= :random_id')
+            ->setParameter('random_id', $random_possible_id)
+            ->setMaxResults(1)
             ->getQuery()
             ->getOneOrNullResult()
-        ;
+            ;
     }
-    */
 }

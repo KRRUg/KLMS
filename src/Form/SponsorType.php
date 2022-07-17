@@ -3,6 +3,7 @@
 namespace App\Form;
 
 use App\Entity\Sponsor;
+use App\Helper\AuthorInsertSubscriber;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
@@ -10,6 +11,13 @@ use Vich\UploaderBundle\Form\Type\VichImageType;
 
 class SponsorType extends AbstractType
 {
+    private AuthorInsertSubscriber $userInsertSubscriber;
+
+    public function __construct(AuthorInsertSubscriber $userInsertSubscriber)
+    {
+        $this->userInsertSubscriber = $userInsertSubscriber;
+    }
+
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
@@ -26,6 +34,7 @@ class SponsorType extends AbstractType
             'imagine_pattern' => 'sponsor_logo',
             'label' => 'Logo',
         ]);
+        $builder->addEventSubscriber($this->userInsertSubscriber);
     }
 
     public function configureOptions(OptionsResolver $resolver): void

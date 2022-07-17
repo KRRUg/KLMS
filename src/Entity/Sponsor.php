@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use App\Helper\HistoryAwareEntity;
 use App\Repository\SponsorRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\HttpFoundation\File\File;
@@ -12,9 +13,10 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ORM\Entity(repositoryClass=SponsorRepository::class)
+ * @ORM\HasLifecycleCallbacks
  * @Vich\Uploadable
  */
-class Sponsor
+class Sponsor implements HistoryAwareEntity
 {
     /**
      * @ORM\Id
@@ -54,6 +56,13 @@ class Sponsor
      */
     private $text;
 
+    use Traits\EntityHistoryTrait;
+
+    public function __construct()
+    {
+        $this->logo = new EmbeddedFile();
+    }
+
     public function getId(): ?int
     {
         return $this->id;
@@ -87,12 +96,11 @@ class Sponsor
     {
         $this->logoFile = $logoFile;
 
-        // TODO how to handle this
-  /*      if (null !== $imageFile) {
+        if (null !== $logoFile) {
             // It is required that at least one field changes if you are using doctrine
             // otherwise the event listeners won't be called and the file is lost
             $this->setLastModified(new \DateTime());
-        }*/
+        }
     }
 
     public function getLogoFile(): ?File

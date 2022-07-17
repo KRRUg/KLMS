@@ -40,6 +40,11 @@ class SponsorService
         return $this->repo->findAll();
     }
 
+    public function getRandom() : ?Sponsor
+    {
+        return $this->repo->findOneRandomBy();
+    }
+
     public function count() : int
     {
         return $this->repo->count([]);
