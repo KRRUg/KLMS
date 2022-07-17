@@ -111,20 +111,29 @@ class SettingService
 
     public function get(string $key, $default = "")
     {
+        static $cache = null;
+
         $key = strtolower($key);
         if (!$this->validKey($key)) {
             $this->logger->error("Invalid key {$key} was requested by SettingService");
             return null;
         }
-        $block = $this->repo->findByKey($key);
-        if (is_null($block)) {
+
+        if (is_null($cache)) {
+            $cache = array();
+            foreach ($this->repo->findAll() as $item) {
+                $cache[$item->getKey()] = $item;
+            }
+        }
+
+        if (!isset($cache[$key])) {
             // valid key, but not yet crated
             return $default;
         }
         if (self::getType($key) == self::TB_TYPE_FILE) {
-            return $this->uploaderHelper->asset($block, 'file', Setting::class);
+            return $this->uploaderHelper->asset($cache[$key], 'file', Setting::class);
         } else {
-            return $block->getText() ?? '';
+            return $cache[$key]->getText() ?? '';
         }
     }
 
