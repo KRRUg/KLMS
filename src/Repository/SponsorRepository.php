@@ -22,31 +22,37 @@ class SponsorRepository extends ServiceEntityRepository
     {
         parent::__construct($registry, Sponsor::class);
     }
+    
+    public function findOneRandomBy($criteria = [])
+    {
+        $qb = $this->createQueryBuilder('entity')
+            ->select('COUNT(entity.id)')
+        ;
 
-//    /**
-//     * @throws ORMException
-//     * @throws OptimisticLockException
-//     */
-//    public function add(Sponsor $entity, bool $flush = true): void
-//    {
-//        $this->_em->persist($entity);
-//        if ($flush) {
-//            $this->_em->flush();
-//        }
-//    }
-//
-//    /**
-//     * @throws ORMException
-//     * @throws OptimisticLockException
-//     */
-//    public function remove(Sponsor $entity, bool $flush = true): void
-//    {
-//        $this->_em->remove($entity);
-//        if ($flush) {
-//            $this->_em->flush();
-//        }
-//    }
+        foreach ($criteria as $field => $value) {
+            $qb
+                ->andWhere(sprintf('entity.%s=:%s', $field, $field))
+                ->setParameter(':'.$field, $value)
+            ;
+        }
 
+        $count = $qb
+            ->getQuery()
+            ->getSingleScalarResult();
+
+        $offset = rand(0, $count-1);
+
+        return $qb
+            ->select('entity')
+            ->setMaxResults(1)
+            ->setFirstResult($offset)
+            ->getQuery()
+            ->getOneOrNullResult()
+            ;
+    }
+
+/*
+//    possibly faster but unfair implementation (unfair in case not all indexes are present)
     public function findOneRandomBy($criteria = [])
     {
         $qb = $this->createQueryBuilder('entity')
@@ -69,9 +75,10 @@ class SponsorRepository extends ServiceEntityRepository
             ->select('entity')
             ->andWhere('entity.id >= :random_id')
             ->setParameter('random_id', $random_possible_id)
+            ->orderBy('entity.id')
             ->setMaxResults(1)
             ->getQuery()
             ->getOneOrNullResult()
             ;
-    }
+    }*/
 }
