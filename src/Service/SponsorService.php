@@ -16,7 +16,7 @@ class SponsorService
     private EntityManagerInterface $em;
     private LoggerInterface $logger;
 
-    private const SETTING_ENABLED = 'site.sponsor.show';
+    private const SETTING_ENABLED = 'sponsor.enabled';
 
     /**
      * NewsService constructor.

@@ -45,6 +45,5 @@ liip_imagine:
 
         sponsor_logo:
             filters:
-                fixed:
-                    width: 500
-                    height: 300
+                downscale:
+                    max: [600, 600]

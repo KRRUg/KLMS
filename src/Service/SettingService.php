@@ -29,7 +29,12 @@ class SettingService
         "site.subtitle.show" => [self::TB_DESCRIPTION => "Untertitel der Seite anzeigen", self::TB_TYPE => self::TB_TYPE_BOOL],
         "site.about" => [self::TB_DESCRIPTION => "Über uns, Homepage links unten", self::TB_TYPE => self::TB_TYPE_HTML],
         "site.organisation" => [self::TB_DESCRIPTION => "Organisationsname / Vereinsname", self::TB_TYPE => self::TB_TYPE_STRING],
-        "site.sponsor.show" => [self::TB_DESCRIPTION => "Sponsorenbanner einschalten", self::TB_TYPE => self::TB_TYPE_BOOL],
+
+        "sponsor.enabled" => [self::TB_DESCRIPTION => "Sponsorenbanner einschalten", self::TB_TYPE => self::TB_TYPE_BOOL],
+        "sponsor.title" => [self::TB_DESCRIPTION => "Titel des Sponsorenbanner", self::TB_TYPE => self::TB_TYPE_STRING],
+        "sponsor.show_title" => [self::TB_DESCRIPTION => "Titel des Sponsorenbanner anzeigen", self::TB_TYPE => self::TB_TYPE_BOOL],
+        "sponsor.show_name" => [self::TB_DESCRIPTION => "Sponsorname im Sponsorenbanner anzeigen", self::TB_TYPE => self::TB_TYPE_BOOL],
+        "sponsor.show_text" => [self::TB_DESCRIPTION => "Detailtext im Sponsorenbanner anzeigen", self::TB_TYPE => self::TB_TYPE_BOOL],
 
         "community.enabled" => [self::TB_DESCRIPTION => "Community Sektion einschalten", self::TB_TYPE => self::TB_TYPE_BOOL],
         "community.all" => [self::TB_DESCRIPTION => "Alle IDM User in Community anzeigen", self::TB_TYPE => self::TB_TYPE_BOOL],
