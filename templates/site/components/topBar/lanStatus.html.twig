@@ -4,22 +4,22 @@
         {% if user is not empty %}
             Dein Status:
             {% if user is not registered_gamer %}
-                <a href="{{ url('lan_signup') }}">Nicht Angemeldet</a>
+                <a class="text-light" href="{{ url('lan_signup') }}">Nicht Angemeldet</a>
             {% else %}
-                Angemeldet&nbsp;&nbsp;|&nbsp;
+                <span>Angemeldet</span>&nbsp;&nbsp;|&nbsp;
                 {% if user is paid_gamer %}
-                    Bezahlt
+                    <span>Bezahlt</span>
                 {% else %}
-                    {{ 'payment' | slug_link('Nicht Bezahlt') }}
+                    {{ 'payment' | slug_link('Nicht Bezahlt', 'text-light') }}
                 {% endif %}
                 &nbsp;|&nbsp;
                 {% if user is seated_gamer %}
-                    <a href="{{ url('seatmap') }}">Sitzplatz {{ user | seat }}</a>
+                    <a class="text-light" href="{{ url('seatmap') }}">Sitzplatz {{ user | seat }}</a>
                 {% else %}
                     {% if user is paid_gamer %}
-                        <a href="{{ url('seatmap') }}">Kein Sitzplatz</a>
+                        <a class="text-light" href="{{ url('seatmap') }}">Kein Sitzplatz</a>
                     {% else %}
-                        Kein Sitzplatz
+                        <span>Kein Sitzplatz</span>
                     {% endif %}
                 {% endif %}
             {% endif %}
