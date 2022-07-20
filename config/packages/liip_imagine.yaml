@@ -52,4 +52,4 @@ liip_imagine:
         sponsor_logo:
             filters:
                 downscale:
-                    max: [450, 450]
+                    max: [350, 350]
