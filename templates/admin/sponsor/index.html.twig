@@ -16,15 +16,17 @@
                 <table class="table table-striped admin-data-table">
                     <thead>
                     <tr>
-                        <th scope="col" style="width: 4em" class="text-center">#</th>
+                        <th scope="col" style="width: 4em;" class="text-center">#</th>
                         <th scope="col" style="width: auto">Name</th>
+                        <th scope="col" style="width: 10em;">Kategorie</th>
                     </tr>
                     </thead>
                     <tbody>
-                    {% for sponsor in sponsors %}
+                    {% for s in sponsors %}
                         <tr>
-                            <td class="text-center">{{ sponsor.getId() }}</td>
-                            <td><a href="{{ path('admin_sponsor_edit', {'id' : sponsor.id}) }}" title="Bearbeiten {{ sponsor.name }}"> {{ sponsor.name }}</a></td>
+                            <td class="text-center">{{ s.getId() }}</td>
+                            <td><a href="{{ path('admin_sponsor_edit', {'id' : s.id}) }}" title="Bearbeiten {{ s.name }}"> {{ s.name }}</a></td>
+                            <td><span class="badge badge-secondary">{{ s.category.name }}</span></td>
                         </tr>
                     {% endfor %}
                     </tbody>
