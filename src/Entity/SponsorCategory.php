@@ -31,6 +31,7 @@ class SponsorCategory
 
     /**
      * @ORM\OneToMany(targetEntity=Sponsor::class, mappedBy="category")
+     * @ORM\OrderBy({"name" = "ASC"})
      */
     private $sponsors;
 
