@@ -90,15 +90,19 @@ class SponsorService
         $this->em->flush();
     }
 
+    /**
+     * @return SponsorCategory[] categories in correct order
+     */
     public function getCategories()
     {
-        return $this->categoryRepository->findAll();
+        $categories = $this->categoryRepository->findAll();
+        usort($categories, function ($a, $b) { return $a->getPriority() - $b->getPriority(); });
+        return $categories;
     }
 
     public function renderCategories(): array
     {
-        $categories = $this->categoryRepository->findAll();
-        return self::render($categories);
+        return self::render($this->getCategories());
     }
 
     public function parseCategories(?array $input): bool
@@ -158,7 +162,6 @@ class SponsorService
     private static function render(array $cats): array
     {
         $result = array();
-        usort($cats, function ($a, $b) { return $a->getPriority() - $b->getPriority(); });
         foreach ($cats as $cat) {
             $result[] = [
                 self::ARRAY_ID => $cat->getId(),

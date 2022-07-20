@@ -1,0 +1,48 @@
+{% extends 'site/siteBase.html.twig' %}
+
+{% block title %}{{ settings.get('site.title') }} - Sponsoren{% endblock %}
+
+{% block main %}
+    <div class="container">
+        <div class="row">
+            <div class="col mb-2">
+                <h1 class="card-title">{{ settings.get("sponsor.page.title") | default("Sponsoren") }}</h1>
+                <p>{{ settings.get("sponsor.page.text") | raw }}</p>
+            </div>
+        </div>
+        {% for category in categories %}
+            {% if category.sponsors is not empty or settings.get("sponsor.page.show_empty") %}
+            <div class="row">
+                <div class="col">
+                    <div class="card w-100 mb-4">
+                        <div class="card-header">
+                            <h3>{{ category.name }}</h3>
+                        </div>
+                        <div class="card-body">
+                            <ul class="list-unstyled">
+                            {% for s in category.sponsors %}
+                                <li class="row mb-4">
+                                    <div class="col-lg-5 col-12 text-center">
+                                        <a href="{{ s.url }}" target="_blank">
+                                        <img style="max-width: 350px; max-height: 350px;" src="{{ vich_uploader_asset(s, 'logoFile') | imagine_filter('sponsor_logo') }}">
+                                        </a>
+                                    </div>
+                                    <div class="col-lg-7 col-12">
+                                        <h6 class="mt-2 mb-2">{{ s.name }}</h6>
+                                        {{ s.text | raw }}
+                                    </div>
+                                </li>
+                            {% endfor %}
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        {% endfor %}
+    </div>
+{% endblock %}
+
+{% block sponsor %}
+    {# Don't show sponsor banner on sponsor page #}
+{% endblock %}

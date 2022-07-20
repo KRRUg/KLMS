@@ -32,9 +32,13 @@ class SettingService
 
         "sponsor.enabled" => [self::TB_DESCRIPTION => "Sponsorenbanner einschalten", self::TB_TYPE => self::TB_TYPE_BOOL],
         "sponsor.title" => [self::TB_DESCRIPTION => "Titel des Sponsorenbanner", self::TB_TYPE => self::TB_TYPE_STRING],
+//        TODO rename the next 3 to sponsor.banner.* and add sponsor.banner.show
         "sponsor.show_title" => [self::TB_DESCRIPTION => "Titel des Sponsorenbanner anzeigen", self::TB_TYPE => self::TB_TYPE_BOOL],
         "sponsor.show_name" => [self::TB_DESCRIPTION => "Sponsorname im Sponsorenbanner anzeigen", self::TB_TYPE => self::TB_TYPE_BOOL],
         "sponsor.show_text" => [self::TB_DESCRIPTION => "Detailtext im Sponsorenbanner anzeigen", self::TB_TYPE => self::TB_TYPE_BOOL],
+        "sponsor.page.title" => [self::TB_DESCRIPTION => "Titel der Sponsoren-Seite", self::TB_TYPE => self::TB_TYPE_STRING],
+        "sponsor.page.text" => [self::TB_DESCRIPTION => "Einleitungstext der Sponsoren-Seite", self::TB_TYPE => self::TB_TYPE_HTML],
+        "sponsor.page.show_empty" => [self::TB_DESCRIPTION => "Leere Sponsor Kategorien anzeigen", self::TB_TYPE => self::TB_TYPE_BOOL],
 
         "community.enabled" => [self::TB_DESCRIPTION => "Community Sektion einschalten", self::TB_TYPE => self::TB_TYPE_BOOL],
         "community.all" => [self::TB_DESCRIPTION => "Alle IDM User in Community anzeigen", self::TB_TYPE => self::TB_TYPE_BOOL],
