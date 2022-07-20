@@ -56,6 +56,12 @@ class Sponsor implements HistoryAwareEntity
      */
     private $text;
 
+    /**
+     * @ORM\ManyToOne(targetEntity=SponsorCategory::class, inversedBy="sponsors")
+     * @ORM\JoinColumn(nullable=false)
+     */
+    private $category;
+
     use Traits\EntityHistoryTrait;
 
     public function __construct()
@@ -126,6 +132,18 @@ class Sponsor implements HistoryAwareEntity
     public function setText(?string $text): self
     {
         $this->text = $text;
+
+        return $this;
+    }
+
+    public function getCategory(): ?SponsorCategory
+    {
+        return $this->category;
+    }
+
+    public function setCategory(?SponsorCategory $category): self
+    {
+        $this->category = $category;
 
         return $this;
     }

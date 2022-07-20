@@ -30,6 +30,7 @@ Encore
         .addEntry('navigation', './assets/js/admin/navigation.js')
         .addEntry('media', './assets/js/admin/media.js')
         .addEntry('teamsite', './assets/js/admin/teamsite.js')
+        .addEntry('sponsor', './assets/js/admin/sponsor.js')
         .addEntry('news', './assets/js/site/news.js')
         .addEntry('site_seatmap', './assets/js/site/seatmap.js')
         .addEntry('admin_seatmap', './assets/js/admin/seatmap.js')

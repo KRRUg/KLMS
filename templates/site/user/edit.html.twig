@@ -1,6 +1,6 @@
 {% extends 'site/siteBase.html.twig' %}
 
-{% block title %}Profil bearbeiten{% endblock %}
+{% block title %}{{ settings.get('site.title') }} - Profil bearbeiten{% endblock %}
 
 {% block main %}
     {% set user = form.vars.data %}
