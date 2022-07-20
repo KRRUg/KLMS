@@ -67,6 +67,7 @@ class NavigationController extends BaseController
                 'constraints' => [new Assert\Json()],
             ])
             ->getForm();
+
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
             $array = json_decode($form->getData()['navigation'], true);
@@ -78,6 +79,7 @@ class NavigationController extends BaseController
             }
             return $this->redirectToRoute('admin_navigation');
         }
+
         return $this->render('admin/navigation/edit.html.twig', [
             'navMenu' => $navigation,
             'form' => $form->createView(),
