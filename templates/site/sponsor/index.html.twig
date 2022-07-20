@@ -4,19 +4,30 @@
 
 {% block main %}
     <div class="container">
-        <div class="row">
-            <div class="col mb-2">
+        <div class="row mb-2">
+            <div class="col">
                 <h1 class="card-title">{{ settings.get("sponsor.page.title") | default("Sponsoren") }}</h1>
                 <p>{{ settings.get("sponsor.page.text") | raw }}</p>
             </div>
         </div>
+        {% if settings.get("sponsor.page.site_links") %}
+        <div class="row mb-4">
+            <div class="col">
+                {%  for category in categories %}
+                    {% if category.sponsors is not empty or settings.get("sponsor.page.show_empty") %}
+                        <a class="btn btn-secondary ml-1" href="#cat{{ category.id }}">{{ category.name }}</a>
+                    {% endif %}
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
         {% for category in categories %}
             {% if category.sponsors is not empty or settings.get("sponsor.page.show_empty") %}
             <div class="row">
                 <div class="col">
                     <div class="card w-100 mb-4">
                         <div class="card-header">
-                            <h3>{{ category.name }}</h3>
+                            <h3 id="cat{{ category.id }}">{{ category.name }}</h3>
                         </div>
                         <div class="card-body">
                             <ul class="list-unstyled">
