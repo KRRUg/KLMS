@@ -1,6 +1,6 @@
 {% extends 'site/siteBase.html.twig' %}
 
-{% block title %}KLMS - {{ content.title }}{% endblock %}
+{% block title %}{{ settings.get('site.title') }} - {{ content.title }}{% endblock %}
 
 {% block main %}
     <div class="container mb-5">       
