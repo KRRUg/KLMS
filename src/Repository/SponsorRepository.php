@@ -40,6 +40,9 @@ class SponsorRepository extends ServiceEntityRepository
             ->getQuery()
             ->getSingleScalarResult();
 
+        if ($count == 0)
+            return null;
+
         $offset = rand(0, $count-1);
 
         return $qb

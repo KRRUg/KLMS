@@ -15,6 +15,7 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @Route("/navigation", name="navigation")
@@ -63,6 +64,7 @@ class NavigationController extends BaseController
             ->add('navigation', HiddenType::class, [
                 'required' => true,
                 'data' => json_encode($array),
+                'constraints' => [new Assert\Json()],
             ])
             ->getForm();
         $form->handleRequest($request);
