@@ -1,18 +1,19 @@
 {% extends 'admin/adminBase.html.twig' %}
 
 {% block title %}KLMS - Admin{% endblock %}
-{% block siteheading %}<i class="fas fa-coins"></i> Sponsoren{% endblock %}
+{% block siteheading %}<i class="fas fa-coins"></i> Sponsor{% endblock %}
 {% block main %}
     {% if sponsor.active() %}
     <div class="row mb-4">
         <div class="col-12">
             <a class="btn btn-success" href="{{ path('admin_sponsor_new') }}"><i class="fas fa-plus"></i> Anlegen</a>
+            <a class="btn btn-success" href="{{ path('admin_sponsor_categories') }}"><i class=""></i> Kategorien bearbeiten</a>
         </div>
     </div>
     <div class="row">
         <div class="col-12">
             <div class="card">
-                <table class="table table-striped admin-data-table" data-order="[[ 3, &quot;desc&quot; ], [ 5, &quot;asc&quot; ]]">
+                <table class="table table-striped admin-data-table">
                     <thead>
                     <tr>
                         <th scope="col" style="width: 4em" class="text-center">#</th>

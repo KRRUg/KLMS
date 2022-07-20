@@ -7,9 +7,11 @@ use App\Form\SponsorType;
 use App\Service\SponsorService;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @Route("/sponsor", name="sponsor")
@@ -48,6 +50,11 @@ class SponsorController extends AbstractController
             throw $this->createNotFoundException();
         }
 
+        if (!$this->sponsorService->hasCategories()) {
+            $this->addFlash('warning', 'Keine Kategorien vorhanden.');
+            return $this->redirectToRoute('admin_sponsor');
+        }
+
         $form = $this->createForm(SponsorType::class);
 
         $form->handleRequest($request);
@@ -57,6 +64,41 @@ class SponsorController extends AbstractController
         }
 
         return $this->render("admin/sponsor/edit.html.twig", [
+            'form' => $form->createView(),
+        ]);
+    }
+
+    /**
+     * @Route("/categories", name="_categories")
+     */
+    public function category_edit(Request $request)
+    {
+        if (!$this->sponsorService->active()) {
+            throw $this->createNotFoundException();
+        }
+
+        $array = $this->sponsorService->renderCategories();
+        $form = $this->createFormBuilder()
+            ->add('categories', HiddenType::class, [
+                'required' => true,
+                'data' => json_encode($array),
+                'constraints' => [new Assert\Json()],
+            ])
+            ->getForm();
+
+        $form->handleRequest($request);
+        if ($form->isSubmitted() && $form->isValid()) {
+            $array = json_decode($form->getData()['categories'], true);
+            $success = $this->sponsorService->parseCategories($array);
+            if ($success) {
+                $this->addFlash('success', 'Sponsor-Kategorien erfolgreich geändert');
+            } else {
+                $this->addFlash('danger', 'Sponsor-Kategorien Speichern fehlgeschlagen');
+            }
+            return $this->redirectToRoute('admin_sponsor');
+        }
+
+        return $this->render("admin/sponsor/categories.html.twig",[
             'form' => $form->createView(),
         ]);
     }

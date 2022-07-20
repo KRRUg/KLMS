@@ -6,13 +6,21 @@
     {% set data = form.vars.data %}
     <div class="clearfix mb-4">
         {{ form_start(form) }}
-
         <div class="row">
             <div class="col">
                 <div class="card mb-4">
                     <div class="card-body">
                         {{ form_row(form.name) }}
                         {{ form_row(form.url) }}
+                        {{ form_row(form.category) }}
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col">
+                <div class="card mb-4">
+                    <div class="card-body">
                         {{ form_row(form.logoFile) }}
                     </div>
                 </div>
