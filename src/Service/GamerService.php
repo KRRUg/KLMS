@@ -155,7 +155,7 @@ class GamerService
         if (!$gamer->hasPaid())
             throw new GamerLifecycleException($user, "User not paid yet.");
 
-        $this->logger->info("Gamer {$user->getNickname()} checkIn Status set.");
+        $this->logger->info("Gamer {$user->getNickname()} checkIn status set.");
 
         $gamer->setCheckedIn(new DateTime());
         $this->em->persist($gamer);
@@ -175,7 +175,7 @@ class GamerService
         if (!$gamer->hasCheckedIn())
             throw new GamerLifecycleException($user, "User not checkedIn yet.");
 
-        $this->logger->info("Gamer {$user->getNickname()} checkIn Status set.");
+        $this->logger->info("Gamer {$user->getNickname()} checkOut status set.");
 
         $gamer->setCheckedIn(null);
         $this->em->persist($gamer);
