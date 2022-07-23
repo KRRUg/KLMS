@@ -1,6 +1,6 @@
 {% extends 'site/siteBase.html.twig' %}
 
-{% block title %}KLMS - News{% endblock %}
+{% block title %}{{ settings.get('site.title') }} - News{% endblock %}
 
 {% block header %}
     {% embed 'site/components/header.html.twig' with {'css_prefix': 'startpage'}%}

@@ -13,12 +13,13 @@
     <div class="row">
         <div class="col-12">
             <div class="card">
-                <table id="GamerTable" class="table table-striped admin-data-table" data-order='[[1, "asc"]]'
+                <table id="GamerTable" class="table table-striped admin-data-table" data-order='[[2, "asc"]]'
 {#                       data-remote-target="{{ path('admin_payment') }}.json" data-server-side-processing="false"#}
                 >
                     <thead>
                     <tr>
                         <th class="text-nowrap w-1" data-data="user.id">KLMS-ID</th>
+                        <th class="text-nowrap w-1" data-data="user.clans">Clans</th>
                         <th
                                 class="w-25"
 {#                                data-data="user.nickname"#}
@@ -44,6 +45,11 @@
                     {% for uuid, v in gamers %}
                         <tr>
                             <td class="text-center">{{ v.user.id }}</td>
+                            <td>
+                                {% for clan in v.user.clans %}
+                                    <a class="badge badge-pill badge-primary" href="{{ path('admin_clan_show', {'uuid' : clan.uuid }) }}" data-toggle="ajaxModal">{{clan.clantag }}</a>
+                                {% endfor %}
+                            </td>
                             <td><a href="{{ path('admin_user_show', {'uuid' : v.user.uuid }) }}" data-toggle="ajaxModal">{{ v.user.nickname }}</a></td>
                             <td>{{ v.user.firstname }}</td>
                             <td>{{ v.user.surname }}</td>

@@ -167,7 +167,7 @@ class ContentFixture extends Fixture
         $nav = new Navigation();
         $nav->setName('main_menu');
         $nav->setMaxDepth(2);
-        $nav->addNode((new NavigationNodeRoot())->setPos(1,20));
+        $nav->addNode((new NavigationNodeRoot())->setPos(1,22));
         $nav->addNode((new NavigationNodeGeneric())->setName("Home")->setPos(2,3));
         $nav->addNode((new NavigationNodeEmpty())->setName("Lan Party")->setPos(4, 15));
         $nav->addNode((new NavigationNodeContent($content[0]))->setName("Facts")->setPos(5, 6));
@@ -177,6 +177,7 @@ class ContentFixture extends Fixture
         $nav->addNode((new NavigationNodeContent($content[2]))->setName("Location")->setPos(13, 14));
         $nav->addNode((new NavigationNodeTeamsite($ts[0]))->setName("Team")->setPos(16,17));
         $nav->addNode((new NavigationNodeGeneric('/seatmap'))->setName("Sitzplan")->setPos(18,19));
+        $nav->addNode((new NavigationNodeGeneric('/sponsor'))->setName("Sponsoren")->setPos(20,21));
         $manager->persist($nav);
 
         $footer = new Navigation();

@@ -1,6 +1,6 @@
 {% extends 'site/siteBase.html.twig' %}
 
-{% block title %}Clans{% endblock %}
+{% block title %}{{ settings.get('site.title') }} - Clans{% endblock %}
 
 {% block main %}
     <div class="container block-search" data-limit="{{ limit }}">

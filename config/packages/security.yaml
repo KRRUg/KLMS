@@ -9,6 +9,9 @@ security:
         dev:
             pattern: ^/(_(profiler|wdt)|css|images|js)/
             security: false
+        assets:
+            pattern: ^/(media|images|cache|build)/
+            security: false
         main:
             anonymous: lazy
             provider: app_user_provider

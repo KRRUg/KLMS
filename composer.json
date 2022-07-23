@@ -12,6 +12,7 @@
         "doctrine/doctrine-bundle": "^2",
         "doctrine/doctrine-migrations-bundle": "^2",
         "doctrine/orm": "^2",
+        "excelwebzone/recaptcha-bundle": "^1.5",
         "liip/imagine-bundle": "^2.3",
         "nyholm/psr7": "^1.2",
         "phpdocumentor/reflection-docblock": "^5.1",
@@ -35,7 +36,7 @@
         "symfony/serializer": "4.4.*",
         "symfony/twig-bundle": "4.4.*",
         "symfony/validator": "4.4.*",
-        "symfony/webpack-encore-bundle": "^1.7",
+        "symfony/webpack-encore-bundle": "^1.15",
         "symfony/yaml": "4.4.*",
         "twig/cssinliner-extra": "^3.3",
         "twig/extra-bundle": "^2.12|^3.0",
@@ -57,7 +58,10 @@
         "preferred-install": {
             "*": "dist"
         },
-        "sort-packages": true
+        "sort-packages": true,
+        "allow-plugins": {
+            "symfony/flex": true
+        }
     },
     "autoload": {
         "psr-4": {

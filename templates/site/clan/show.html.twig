@@ -1,6 +1,6 @@
 {% extends 'site/siteBase.html.twig' %}
 
-{% block title %}{{ clan.name }} - Clanseite{% endblock %}
+{% block title %}{{ settings.get('site.title') }} - {{ clan.name }} - Clanseite{% endblock %}
 
 {% block main %}
     <div class="container">
