@@ -3,7 +3,7 @@ KRRU LAN-Party Management System
 
 ## Development setup
 
-### Instalation
+### Installation
 Follow the Symfony setup guidelines to set up a basic Symfony installation: https://symfony.com/doc/4.4/setup.html
 
 When running `symfony check:requirements` ensure that no errors nor warnings are displayed.
@@ -12,6 +12,13 @@ In addition to the basic Symfony setup, install:
 * PHP PostgreSQL module
 * Node.js
 * Yarn (see https://yarnpkg.com/getting-started/install/)  
+
+KLMS is tested and running in Production with the following Versions:
+* PHP 7.4
+* PostgreSQL 12
+* Node.js 16 LTS
+* Yarn 1
+* Composer 2
 
 ### Database setup
 Login as the PostgreSQL admin user (usually `postgres`) and create a user
@@ -29,7 +36,7 @@ exit
 First create the local env file to tell the framework the database and IDM connections.
 Create a file `.env.local` in the project's main directory with the following content:
 ```
-DATABASE_URL=postgresql://<db_user>:<db_pw>@<db_ip>:<db_port>/<db_name>?serverVersion=11&charset=utf8
+DATABASE_URL=postgresql://<db_user>:<db_pw>@<db_ip>:<db_port>/<db_name>?serverVersion=12&charset=utf8
 KLMS_IDM_URL=https://<idm_host>:<idm_port>
 KLMS_IDM_APIKEY=<idm_key>
 ```
