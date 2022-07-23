@@ -112,7 +112,6 @@ class News implements HistoryAwareEntity
         return $this->imageFile;
     }
 
-
     public function setImage(EmbeddedFile $image): void
     {
         $this->image = $image;

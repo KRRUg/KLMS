@@ -1,0 +1,41 @@
+{% extends 'admin/adminBase.html.twig' %}
+
+{% block title %}KLMS - Admin{% endblock %}
+{% block siteheading %}<i class="fas fa-coins"></i> Sponsor Kategorien{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    {{ encore_entry_script_tags('sponsor') }}
+{% endblock %}
+
+{% block main %}
+    <div class="row mb-4">
+        <div class="col-12">
+            <a class="btn btn-success" id="new"> <i class="fas fa-plus"></i> Kategorie hinzufügen</a>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col mb-2">
+            <div class="card">
+                <div class="card-body">
+                    <ul id="categoryList" class="list-group list-group-hover" data-source-input="#form_categories">
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col">
+            <span class="p-2 text-muted small">Hinweis: Nur leere Kategorien können gelöscht werden.</span>
+        </div>
+    </div>
+    <hr>
+    {{ form_start(form, {'attr': {'id': 'category_edit_form'}}) }}
+    <div class="float-right">
+        {{ form_row(form.categories) }}
+
+        <a class="btn btn-secondary" href="{{ path('admin_sponsor') }}">Abbrechen</a>
+        <button type="submit" id="news_save" class="btn-primary btn">Speichern</button>
+    </div>
+    {{ form_end(form) }}
+{% endblock %}

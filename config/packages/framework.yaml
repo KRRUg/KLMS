@@ -25,6 +25,7 @@ framework:
         scoped_clients:
             idm_client:
                 base_uri: '%env(KLMS_IDM_URL)%'
+                auth_basic: '%env(KLMS_IDM_AUTH)%'
                 max_redirects: 3
                 headers:
                     Accept: 'application/json'

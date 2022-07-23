@@ -30,6 +30,17 @@ class SettingService
         "site.about" => [self::TB_DESCRIPTION => "Über uns, Homepage links unten", self::TB_TYPE => self::TB_TYPE_HTML],
         "site.organisation" => [self::TB_DESCRIPTION => "Organisationsname / Vereinsname", self::TB_TYPE => self::TB_TYPE_STRING],
 
+        "sponsor.enabled" => [self::TB_DESCRIPTION => "Sponsorenbanner einschalten", self::TB_TYPE => self::TB_TYPE_BOOL],
+        "sponsor.banner.show" => [self::TB_DESCRIPTION => "Sponsoren-Banner anzeigen", self::TB_TYPE => self::TB_TYPE_BOOL],
+        "sponsor.banner.title" => [self::TB_DESCRIPTION => "Titel des Sponsorenbanner", self::TB_TYPE => self::TB_TYPE_STRING],
+        "sponsor.banner.show_title" => [self::TB_DESCRIPTION => "Titel des Sponsoren-Banner anzeigen", self::TB_TYPE => self::TB_TYPE_BOOL],
+        "sponsor.banner.show_name" => [self::TB_DESCRIPTION => "Sponsorname im Sponsoren-Banner anzeigen", self::TB_TYPE => self::TB_TYPE_BOOL],
+        "sponsor.banner.show_text" => [self::TB_DESCRIPTION => "Detailtext im Sponsoren-Banner anzeigen", self::TB_TYPE => self::TB_TYPE_BOOL],
+        "sponsor.page.title" => [self::TB_DESCRIPTION => "Titel der Sponsoren-Seite", self::TB_TYPE => self::TB_TYPE_STRING],
+        "sponsor.page.text" => [self::TB_DESCRIPTION => "Einleitungstext der Sponsoren-Seite", self::TB_TYPE => self::TB_TYPE_HTML],
+        "sponsor.page.site_links" => [self::TB_DESCRIPTION => "Links zu den Kategorien anzeigen", self::TB_TYPE => self::TB_TYPE_BOOL],
+        "sponsor.page.show_empty" => [self::TB_DESCRIPTION => "Leere Sponsor Kategorien anzeigen", self::TB_TYPE => self::TB_TYPE_BOOL],
+
         "community.enabled" => [self::TB_DESCRIPTION => "Community Sektion einschalten", self::TB_TYPE => self::TB_TYPE_BOOL],
         "community.all" => [self::TB_DESCRIPTION => "Alle IDM User in Community anzeigen", self::TB_TYPE => self::TB_TYPE_BOOL],
 
@@ -111,20 +122,29 @@ class SettingService
 
     public function get(string $key, $default = "")
     {
+        static $cache = null;
+
         $key = strtolower($key);
         if (!$this->validKey($key)) {
             $this->logger->error("Invalid key {$key} was requested by SettingService");
             return null;
         }
-        $block = $this->repo->findByKey($key);
-        if (is_null($block)) {
+
+        if (is_null($cache)) {
+            $cache = array();
+            foreach ($this->repo->findAll() as $item) {
+                $cache[$item->getKey()] = $item;
+            }
+        }
+
+        if (!isset($cache[$key])) {
             // valid key, but not yet crated
             return $default;
         }
         if (self::getType($key) == self::TB_TYPE_FILE) {
-            return $this->uploaderHelper->asset($block, 'file', Setting::class);
+            return $this->uploaderHelper->asset($cache[$key], 'file', Setting::class);
         } else {
-            return $block->getText() ?? '';
+            return $cache[$key]->getText() ?? '';
         }
     }
 

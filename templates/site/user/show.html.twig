@@ -1,6 +1,6 @@
 {% extends 'site/siteBase.html.twig' %}
 
-{% block title %}Profil - {{ user.nickname }}{% endblock %}
+{% block title %}{{ settings.get('site.title') }} - Profil - {{ user.nickname }}{% endblock %}
 
 {% block main %}
     <div class="container">

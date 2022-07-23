@@ -3,6 +3,12 @@ liip_imagine:
     # valid drivers options include "gd" or "gmagick" or "imagick"
     driver: "gd"
 
+    twig:
+        mode: lazy
+
+    webp:
+        generate: true
+
     resolvers:
         default:
             web_path:
@@ -42,3 +48,8 @@ liip_imagine:
                 fixed:
                     width: 200
                     height: 300
+
+        sponsor_logo:
+            filters:
+                downscale:
+                    max: [350, 350]
