@@ -19,8 +19,10 @@ use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Form\Extension\Core\Type\IntegerType;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
+use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\Validator\Constraints\Positive;
 
 /**
@@ -34,14 +36,16 @@ class SeatmapController extends AbstractController
     private GamerService $gamerService;
     private SeatmapService $seatmapService;
     private SeatRepository $seatRepository;
+    private SerializerInterface $serializer;
 
-    public function __construct(EntityManagerInterface $em, GamerService $gamerService, IdmManager $manager, SeatmapService $seatmapService, SeatRepository $seatRepository)
+    public function __construct(EntityManagerInterface $em, GamerService $gamerService, IdmManager $manager, SeatmapService $seatmapService, SeatRepository $seatRepository, SerializerInterface $serializer)
     {
         $this->em = $em;
         $this->userRepo = $manager->getRepository(User::class);
         $this->gamerService = $gamerService;
         $this->seatmapService = $seatmapService;
         $this->seatRepository = $seatRepository;
+        $this->serializer = $serializer;
     }
 
     /**
@@ -190,6 +194,45 @@ class SeatmapController extends AbstractController
         return $this->render('admin/seatmap/create.html.twig', [
             'form' => $form->createView(),
         ]);
+    }
+
+    /**
+     * @Route("/export", name="_export", methods={"GET"})
+     */
+    public function export()
+    {
+        $csvData = array();
+
+        $seatmap = $this->seatRepository->findTakenSeats();
+        $seatmapUsers = $this->seatmapService->getSeatedUser($seatmap);
+
+
+        foreach ($seatmap as $seat) {
+            $seatName = $seat->getName() ?: null;
+            $seatUser = $seatmapUsers[$seat->getId()];
+            $clanTags = array();
+
+            foreach ($seatUser->getClans() as $clan) {
+                $clanTags[] = $clan->getClantag();
+            }
+
+            $csvData[] = [
+                'id' => $seatUser->getId(),
+                'nickname' => $seatUser->getNickname(),
+                'vorname' => $seatUser->getFirstname(),
+                'nachname' => $seatUser->getSurname(),
+                'seat' => $seat->getLocation(),
+                'clans' => implode(', ', $clanTags),
+                'seatname' => $seatName,
+            ];
+        }
+
+        $response = new Response($this->serializer->serialize($csvData, 'csv'));
+        $response->headers->set('Content-Type', 'text/csv');
+        $response->headers->set('Content-Disposition', 'attachment; filename="seatmap.csv"');
+
+        return $response;
+
     }
 
 }

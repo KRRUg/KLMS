@@ -19,6 +19,19 @@ class SeatRepository extends ServiceEntityRepository
         parent::__construct($registry, Seat::class);
     }
 
+    /**
+     * @return Seat[] Returns an array of Seat objects
+     */
+    public function findTakenSeats()
+    {
+        return $this->createQueryBuilder('s')
+            ->andWhere('s.owner IS NOT NULL')
+            ->addOrderBy('s.sector', 'ASC')
+            ->addOrderBy('s.seatNumber', 'ASC')
+            ->getQuery()
+            ->getResult();
+    }
+
     // /**
     //  * @return Seat[] Returns an array of Seat objects
     //  */
