@@ -48,7 +48,7 @@ class GamerService
     }
 
     /**
-     * Returns a UserGamer object of an user. Does not perform a EntityManager flush operation!
+     * Returns a UserGamer object of a user. Does not perform a EntityManager flush operation!
      * @param User $user The user to get the UserGamer of
      * @return UserGamer A (potentially created) UserGamer object
      */
@@ -144,6 +144,46 @@ class GamerService
         $gamer->setCheckedIn(null);
         $this->em->persist($gamer);
         $this->em->flush();
+    }
+
+    public function gamerCheckIn(User $user) {
+        $gamer = $this->getOrCreateGamer($user);
+
+        if (!$gamer->hasRegistered())
+            throw new GamerLifecycleException($user, "User not registered yet.");
+
+        if (!$gamer->hasPaid())
+            throw new GamerLifecycleException($user, "User not paid yet.");
+
+        if (!$user->getPersonalDataConfirmed())
+            throw new GamerLifecycleException($user, "PersonalData from User not confirmed yet.");
+
+        $this->logger->info("Gamer {$user->getNickname()} checkIn status set.");
+
+        $gamer->setCheckedIn(new DateTime());
+        $this->em->persist($gamer);
+        $this->em->flush();
+
+    }
+
+    public function gamerCheckOut(User $user) {
+        $gamer = $this->getOrCreateGamer($user);
+
+        if (!$gamer->hasRegistered())
+            throw new GamerLifecycleException($user, "User not registered yet.");
+
+        if (!$gamer->hasPaid())
+            throw new GamerLifecycleException($user, "User not paid yet.");
+
+        if (!$gamer->hasCheckedIn())
+            throw new GamerLifecycleException($user, "User not checkedIn yet.");
+
+        $this->logger->info("Gamer {$user->getNickname()} checkOut status set.");
+
+        $gamer->setCheckedIn(null);
+        $this->em->persist($gamer);
+        $this->em->flush();
+
     }
 
     public function gamerGetStatus(User $user): UserGamer

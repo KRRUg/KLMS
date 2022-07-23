@@ -107,9 +107,10 @@ class PaymentController extends AbstractController
                     $this->gamerService->gamerUnPay($user);
                     break;
                 case "checkin":
+                    $this->gamerService->gamerCheckIn($user);
+                    break;
                 case "checkout":
-                    // TODO implement me
-                    $this->addFlash('error', 'Not yet implemented action.');
+                    $this->gamerService->gamerCheckOut($user);
                     break;
                 default:
                     $this->addFlash('error', 'Invalid action specified.');
