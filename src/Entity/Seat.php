@@ -165,6 +165,11 @@ class Seat
         return $this;
     }
 
+    public function getLocation(): string
+    {
+        return "{$this->getSector()}-{$this->getSeatNumber()}   ";
+    }
+
     public function generateSeatName(): string
     {
         if ($this->getName())

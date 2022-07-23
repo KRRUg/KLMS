@@ -208,7 +208,6 @@ class SeatmapController extends AbstractController
 
 
         foreach ($seatmap as $seat) {
-            $seatLocation = "{$seat->getSector()}-{$seat->getSeatNumber()}";
             $seatName = $seat->getName() ?: null;
             $seatUser = $seatmapUsers[$seat->getId()];
             $clanTags = array();
@@ -222,7 +221,7 @@ class SeatmapController extends AbstractController
                 'nickname' => $seatUser->getNickname(),
                 'vorname' => $seatUser->getFirstname(),
                 'nachname' => $seatUser->getSurname(),
-                'seat' => $seatLocation,
+                'seat' => $seat->getLocation(),
                 'clans' => implode(', ', $clanTags),
                 'seatname' => $seatName,
             ];
