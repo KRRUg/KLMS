@@ -48,7 +48,7 @@ class GamerService
     }
 
     /**
-     * Returns a UserGamer object of an user. Does not perform a EntityManager flush operation!
+     * Returns a UserGamer object of a user. Does not perform a EntityManager flush operation!
      * @param User $user The user to get the UserGamer of
      * @return UserGamer A (potentially created) UserGamer object
      */
