@@ -155,6 +155,9 @@ class GamerService
         if (!$gamer->hasPaid())
             throw new GamerLifecycleException($user, "User not paid yet.");
 
+        if (!$user->getPersonalDataConfirmed())
+            throw new GamerLifecycleException($user, "PersonalData from User not confirmed yet.");
+
         $this->logger->info("Gamer {$user->getNickname()} checkIn status set.");
 
         $gamer->setCheckedIn(new DateTime());
