@@ -67,7 +67,7 @@ class SettingService
         "link.twitter" => [self::TB_DESCRIPTION => "Link zur Twitter Seite", self::TB_TYPE => self::TB_TYPE_URL],
         "link.discord" => [self::TB_DESCRIPTION => "Link zur Discord Server", self::TB_TYPE => self::TB_TYPE_URL],
         "link.teamspeak" => [self::TB_DESCRIPTION => "Teamspeak Invite Link", self::TB_TYPE => self::TB_TYPE_URL],
-        "link.twitch" => [self::TB_DESCRIPTION => "Twitch Site Link", self::TB_TYPE => self::TB_TYPE_URL],
+        "link.twitch" => [self::TB_DESCRIPTION => "Link zum Twitchkanal", self::TB_TYPE => self::TB_TYPE_URL],
 
         // extend here
     ];
