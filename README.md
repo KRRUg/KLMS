@@ -15,7 +15,7 @@ In addition to the basic Symfony setup, install:
 
 KLMS is tested and running in Production with the following Versions:
 * PHP 7.4
-* PostgreSQL 12
+* PostgreSQL 9 & 12
 * Node.js 16 LTS
 * Yarn 1
 * Composer 2
