@@ -76,6 +76,9 @@ class NewsController extends AbstractController
      */
     public function byId(News $news)
     {
+        if (!$news->isActive())
+            throw $this->createNotFoundException();
+
         return $this->render('site/news/show.html.twig', [
             'content' => $news,
         ]);
