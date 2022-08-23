@@ -35,13 +35,16 @@ export function init() {
             'removeformat',
         font_formats: '',
         fontsize_formats:'0.5rem 0.75rem 1rem 1.25rem 1.5rem 1.75rem 2rem',
-        // image plugin
         relative_urls: false,
+        remove_script_host: false,
+
+        // image plugin
         image_list: '/admin/media.json?filter=image',
 
         // link plugin
         link_default_protocol: 'https',
         link_list: '/admin/media.json',
+        default_link_target: '_blank',
 
         //table plugin
         table_default_attributes: {
