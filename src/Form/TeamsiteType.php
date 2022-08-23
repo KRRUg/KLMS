@@ -3,7 +3,6 @@
 namespace App\Form;
 
 use App\Entity\Teamsite;
-use App\Helper\AuthorInsertSubscriber;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;

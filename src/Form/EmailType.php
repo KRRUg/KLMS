@@ -3,7 +3,6 @@
 namespace App\Form;
 
 use App\Entity\Email;
-use App\Helper\AuthorInsertSubscriber;
 use App\Service\EmailService;
 use App\Service\GroupService;
 use Ramsey\Uuid\UuidInterface;

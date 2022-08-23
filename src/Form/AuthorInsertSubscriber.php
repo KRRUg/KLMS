@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Helper;
+namespace App\Form;
 
 use App\Security\LoginUser;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
