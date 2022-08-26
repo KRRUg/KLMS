@@ -4,7 +4,6 @@ namespace App\Form;
 
 use App\Entity\Content;
 use Symfony\Component\Form\AbstractType;
-use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
@@ -12,13 +11,10 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 class ContentType extends AbstractType
 {
     private AuthorInsertSubscriber $userInsertSubscriber;
-    private HtmlHandlingSubscriber $htmlHandlingSubscriber;
 
-    public function __construct(AuthorInsertSubscriber $userInsertSubscriber,
-                                HtmlHandlingSubscriber $htmlHandlingSubscriber)
+    public function __construct(AuthorInsertSubscriber $userInsertSubscriber)
     {
         $this->userInsertSubscriber = $userInsertSubscriber;
-        $this->htmlHandlingSubscriber = $htmlHandlingSubscriber;
     }
 
     public function buildForm(FormBuilderInterface $builder, array $options)
@@ -35,15 +31,14 @@ class ContentType extends AbstractType
                 'label' => 'Beschreibung',
                 'required' => false,
             ])
-            ->add('content', TextareaType::class, [
+            ->add('content', HtmlTextareaType::class, [
                 'label' => 'Inhalt',
                 'empty_data' => '',
                 'required' => false,
+                'fix_relative_urls' => true,
             ])
         ;
-        $builder
-            ->addEventSubscriber($this->userInsertSubscriber)
-            ->addEventSubscriber($this->htmlHandlingSubscriber);
+        $builder->addEventSubscriber($this->userInsertSubscriber);
     }
 
     public function configureOptions(OptionsResolver $resolver)
