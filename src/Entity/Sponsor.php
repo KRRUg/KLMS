@@ -2,7 +2,7 @@
 
 namespace App\Entity;
 
-use App\Helper\HistoryAwareEntity;
+use App\Entity\Traits\HistoryAwareEntity;
 use App\Repository\SponsorRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\HttpFoundation\File\File;

@@ -1,4 +1,4 @@
-{% if data is defined and data is not empty and data is instanceof('App\\Helper\\HistoryAwareEntity') %}
+{% if data is defined and data is not empty and data is instanceof('App\\Entity\\Traits\\HistoryAwareEntity') %}
 <div class="card">
     <div class="card-body">
         {% set dateModified = data.getLastModified() | date('d.m.Y H:i') %}

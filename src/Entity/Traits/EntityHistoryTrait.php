@@ -13,7 +13,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  * An entity using this trait fulfils the HistoryAwareEntity interface. The class is
  * required to have the HasLifecycleCallbacks ORM annotation.
  *
- * @see App\Helper\HistoryAwareEntity
+ * @see App\Entity\Traits\HistoryAwareEntity
  *
  * @ORM\HasLifecycleCallbacks
  */
