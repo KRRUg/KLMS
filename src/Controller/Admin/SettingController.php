@@ -2,11 +2,11 @@
 
 namespace App\Controller\Admin;
 
+use App\Form\HtmlTextareaType;
 use App\Service\SettingService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\HiddenType;
-use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Core\Type\UrlType;
 use Symfony\Component\HttpFoundation\Request;
@@ -71,7 +71,7 @@ class SettingController extends AbstractController
                 $fb->add('text', TextType::class, ['required' => false, 'label' => false]);
                 break;
             case SettingService::TB_TYPE_HTML:
-                $fb->add('text', TextareaType::class, ['required' => false, 'label' => false, 'attr' => ['class' => 'wysiwyg']]);
+                $fb->add('text', HtmlTextareaType::class, ['required' => false, 'label' => false]);
                 break;
             case SettingService::TB_TYPE_URL:
                 $fb->add('text', UrlType::class, ['required' => false, 'label' => false]);

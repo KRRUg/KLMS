@@ -36,5 +36,6 @@ class HtmlTextareaType extends TextareaType
             ->setDefault(self::CLEAR_SCRIPTS, true)
             ->setAllowedTypes(self::CLEAR_SCRIPTS, 'bool')
         ;
+        $resolver->setDefault('attr', ['class' => 'wysiwyg']);
     }
 }

@@ -27,7 +27,10 @@ class SponsorType extends AbstractType
         $builder
             ->add('name')
             ->add('url', null, ['label' => 'URL'])
-            ->add('text')
+            ->add('text', HtmlTextareaType::class,[
+                'label' => "Text",
+                'fix_urls' => 'relative',
+            ])
             ->add('category', ChoiceType::class, [
                 'label' => 'Kategorie',
                 'choices' => $this->em->getRepository(SponsorCategory::class)->findAll(),
