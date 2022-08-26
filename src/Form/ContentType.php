@@ -12,10 +12,13 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 class ContentType extends AbstractType
 {
     private AuthorInsertSubscriber $userInsertSubscriber;
+    private HtmlHandlingSubscriber $htmlHandlingSubscriber;
 
-    public function __construct(AuthorInsertSubscriber $userInsertSubscriber)
+    public function __construct(AuthorInsertSubscriber $userInsertSubscriber,
+                                HtmlHandlingSubscriber $htmlHandlingSubscriber)
     {
         $this->userInsertSubscriber = $userInsertSubscriber;
+        $this->htmlHandlingSubscriber = $htmlHandlingSubscriber;
     }
 
     public function buildForm(FormBuilderInterface $builder, array $options)
@@ -38,7 +41,9 @@ class ContentType extends AbstractType
                 'required' => false,
             ])
         ;
-        $builder->addEventSubscriber($this->userInsertSubscriber);
+        $builder
+            ->addEventSubscriber($this->userInsertSubscriber)
+            ->addEventSubscriber($this->htmlHandlingSubscriber);
     }
 
     public function configureOptions(OptionsResolver $resolver)
