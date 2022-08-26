@@ -12,12 +12,15 @@ use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 class HtmlHandlingSubscriber implements EventSubscriberInterface
 {
     private String $urlRegex;
+    private String $baseUrl;
 
     public function __construct(UrlGeneratorInterface $router)
     {
         $context = $router->getContext();
         $baseUrl = str_replace("/", "\\/", $context->getBaseUrl());
         $this->urlRegex = "/^(({$context->getScheme()}:\\/\\/)?{$context->getHost()}(:{$context->getHttpPort()}|:{$context->getHttpsPort()})?)?{$baseUrl}/";
+        $port = $context->getScheme() === 'http' ? $context->getHttpPort() : $context->getHttpsPort();
+        $this->baseUrl = "{$context->getScheme()}://{$context->getHost()}:{$port}{$baseUrl}";
     }
 
     public static function getSubscribedEvents()
@@ -46,27 +49,37 @@ class HtmlHandlingSubscriber implements EventSubscriberInterface
             $doc->loadHTML('<p></p>');
         }
         $crawler = new Crawler($doc);
-        if($form->getConfig()->getOption(HtmlTextareaType::RELATIVE_URLS)) $this->relativeUrls($crawler);
-        if($form->getConfig()->getOption(HtmlTextareaType::CLEAR_SCRIPTS)) $this->clearScripts($crawler);
+        $this->relativeUrls($crawler, $form->getConfig()->getOption(HtmlTextareaType::FIX_URLS));
+        $this->clearScripts($crawler, $form->getConfig()->getOption(HtmlTextareaType::CLEAR_SCRIPTS));
         $event->setData($crawler->html());
     }
 
-    private function relativeUrls(Crawler $crawler)
+    private function relativeUrls(Crawler $crawler, $mode)
     {
+        if ($mode === false)
+            return;
+
         $target = ['a' => 'href', 'img' => 'src'];
 
         foreach ($target as $item => $attr) {
             foreach ($crawler->filter($item) as $node) {
                 $url = $node->getAttribute($attr);
-                // remove base url
+                // first generate relative url
                 $url = preg_replace($this->urlRegex, '', $url);
+                if ($mode === 'absolute') {
+                    // add base url for absolute urls
+                    $url = $this->baseUrl . $url;
+                }
                 $node->setAttribute($attr, $url);
             }
         }
     }
 
-    private function clearScripts(Crawler $crawler)
+    private function clearScripts(Crawler $crawler, $enabled)
     {
+        if (!$enabled)
+            return;
+
         foreach ($crawler->filter('script') as $node) {
             $node->parentNode->removeChild($node);
         }

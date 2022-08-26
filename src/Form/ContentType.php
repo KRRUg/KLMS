@@ -35,7 +35,7 @@ class ContentType extends AbstractType
                 'label' => 'Inhalt',
                 'empty_data' => '',
                 'required' => false,
-                'fix_relative_urls' => true,
+                'fix_urls' => 'relative',
             ])
         ;
         $builder->addEventSubscriber($this->userInsertSubscriber);

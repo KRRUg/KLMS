@@ -35,10 +35,11 @@ class EmailType extends AbstractType
                 'choices' => GroupService::getGroups(),
                 'choice_value' => function (?UuidInterface $uuid) { return is_null($uuid) ? null : $uuid->toString(); },
             ])
-            ->add('body', TextareaType::class, [
+            ->add('body', HtmlTextareaType::class, [
 			    'label' => 'Inhalt',
                 'empty_data' => '',
                 'required' => false,
+                'fix_urls' => 'absolute',
             ])
 			->add('designFile', ChoiceType::class, [
                 'label' => 'Design',

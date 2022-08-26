@@ -21,16 +21,19 @@ class HtmlTextareaType extends TextareaType
         $builder->addEventSubscriber($this->htmlHandlingSubscriber);
     }
 
-    public const RELATIVE_URLS = 'fix_relative_urls';
+    public const FIX_URLS = 'fix_urls';
     public const CLEAR_SCRIPTS = 'clear_scripts';
 
     public function configureOptions(OptionsResolver $resolver)
     {
         parent::configureOptions($resolver);
         $resolver
-            ->setDefault(self::RELATIVE_URLS, false)
+            ->setDefault(self::FIX_URLS, false)
+            ->setAllowedTypes(self::FIX_URLS, ['bool', 'string'])
+            ->setAllowedValues(self::FIX_URLS, [false, 'relative', 'absolute'])
+        ;
+        $resolver
             ->setDefault(self::CLEAR_SCRIPTS, true)
-            ->setAllowedTypes(self::RELATIVE_URLS, 'bool')
             ->setAllowedTypes(self::CLEAR_SCRIPTS, 'bool')
         ;
     }
