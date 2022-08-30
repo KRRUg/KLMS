@@ -28,8 +28,8 @@ header, #header {
 }
 
 
-//Tablet iPad
-@media (min-width: 768px) {
+// Medium devices (tablets, 768px and up)
+@include media-breakpoint-up(md) {
     header, #header {
         .head-wrap {
             height: 12rem;
@@ -49,8 +49,8 @@ header, #header {
     }
 }
 
-//Desktop
-@media (min-width: 992px) {
+// Large devices (desktops, 992px and up)
+@include media-breakpoint-up(lg) {
     header, #header {
         .head-wrap {
             height: 12rem;
