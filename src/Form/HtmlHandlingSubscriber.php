@@ -51,6 +51,7 @@ class HtmlHandlingSubscriber implements EventSubscriberInterface
         $crawler = new Crawler($doc);
         $this->relativeUrls($crawler, $form->getConfig()->getOption(HtmlTextareaType::FIX_URLS));
         $this->clearScripts($crawler, $form->getConfig()->getOption(HtmlTextareaType::CLEAR_SCRIPTS));
+        $this->emptyHeadlines($crawler, $form->getConfig()->getOption(HtmlTextareaType::FIX_HEADLINES));
         $event->setData($crawler->html());
     }
 
@@ -82,6 +83,26 @@ class HtmlHandlingSubscriber implements EventSubscriberInterface
 
         foreach ($crawler->filter('script') as $node) {
             $node->parentNode->removeChild($node);
+        }
+    }
+
+    private function emptyHeadlines(Crawler $crawler, $enabled)
+    {
+        if (!$enabled)
+            return;
+
+        $tags = ['h1','h2','h3','h4','h5','h6'];
+
+        foreach ($tags as $tag) {
+            foreach ($crawler->filter($tag) as $node) {
+                $text = $node->textContent;
+                // replace &nbsp;
+                $text = str_replace("\xC2\xA0", "", $text);
+                $text = trim($text);
+                if (empty($text)) {
+                    $node->parentNode->removeChild($node);
+                }
+            }
         }
     }
 }

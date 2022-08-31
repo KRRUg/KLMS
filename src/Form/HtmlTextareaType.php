@@ -23,6 +23,7 @@ class HtmlTextareaType extends TextareaType
 
     public const FIX_URLS = 'fix_urls';
     public const CLEAR_SCRIPTS = 'clear_scripts';
+    public const FIX_HEADLINES = 'fix_headlines';
 
     public function configureOptions(OptionsResolver $resolver)
     {
@@ -35,6 +36,10 @@ class HtmlTextareaType extends TextareaType
         $resolver
             ->setDefault(self::CLEAR_SCRIPTS, true)
             ->setAllowedTypes(self::CLEAR_SCRIPTS, 'bool')
+        ;
+        $resolver
+            ->setDefault(self::FIX_HEADLINES, true)
+            ->setAllowedTypes(self::FIX_HEADLINES, 'bool')
         ;
         $resolver->setDefault('attr', ['class' => 'wysiwyg']);
     }
