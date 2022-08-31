@@ -4,10 +4,10 @@
     "require": {
         "php": "^7.4",
         "ext-ctype": "*",
+        "ext-dom": "*",
         "ext-gd": "*",
         "ext-iconv": "*",
         "ext-json": "*",
-        "ext-dom": "*",
         "ext-libxml": "*",
         "composer/package-versions-deprecated": "1.11.99.4",
         "doctrine/common": "^2",
@@ -46,7 +46,8 @@
         "twig/intl-extra": "^3.2",
         "twig/string-extra": "^3.0",
         "twig/twig": "^2.12|^3.0",
-        "vich/uploader-bundle": "^1.13"
+        "vich/uploader-bundle": "^1.13",
+        "wa72/url": "^0.7.1"
     },
     "require-dev": {
         "doctrine/doctrine-fixtures-bundle": "^3.3",

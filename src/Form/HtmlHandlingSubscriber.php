@@ -8,19 +8,21 @@ use Symfony\Component\Form\Event\PreSubmitEvent;
 use Symfony\Component\Form\FormEvents;
 use Symfony\Component\DomCrawler\Crawler;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+use Wa72\Url\Url;
 
 class HtmlHandlingSubscriber implements EventSubscriberInterface
 {
-    private String $urlRegex;
-    private String $baseUrl;
+    private Url $serverUrl;
 
     public function __construct(UrlGeneratorInterface $router)
     {
         $context = $router->getContext();
-        $baseUrl = str_replace("/", "\\/", $context->getBaseUrl());
-        $this->urlRegex = "/^(({$context->getScheme()}:\\/\\/)?{$context->getHost()}(:{$context->getHttpPort()}|:{$context->getHttpsPort()})?)?{$baseUrl}/";
-        $port = $context->getScheme() === 'http' ? $context->getHttpPort() : $context->getHttpsPort();
-        $this->baseUrl = "{$context->getScheme()}://{$context->getHost()}:{$port}{$baseUrl}";
+        $port = $context->getScheme() == 'https' ? $context->getHttpsPort() : $context->getHttpPort();
+        $this->serverUrl = new Url('');
+        $this->serverUrl->setScheme($context->getScheme());
+        $this->serverUrl->setHost($context->getHost());
+        $this->serverUrl->setPort($port);
+        $this->serverUrl->setPath($context->getBaseUrl());
     }
 
     public static function getSubscribedEvents()
@@ -65,18 +67,28 @@ class HtmlHandlingSubscriber implements EventSubscriberInterface
         foreach ($target as $item => $attr) {
             foreach ($crawler->filter($item) as $node) {
                 $url = $node->getAttribute($attr);
-                // first generate relative url
-                $url = preg_replace($this->urlRegex, '', $url);
-                if ($mode === 'absolute') {
-                    // add base url for absolute urls
-                    $url = $this->baseUrl . $url;
+                $url = new Url($url);
+
+                if (!$url->is_url())
+                    continue;
+
+                $newUrl = $url->write();
+                if ($mode === 'relative'){
+                    // Url::host is not set for relative urls
+                    if ($url->getHost() == $this->serverUrl->getHost()) {
+                        $newUrl = $url->write(Url::WRITE_FLAG_OMIT_SCHEME | Url::WRITE_FLAG_OMIT_HOST);
+                    }
+                } elseif ($mode === 'absolute') {
+                    if (!$url->is_absolute()) {
+                        $newUrl = $url->makeAbsolute($this->serverUrl)->write();
+                    }
                 }
-                $node->setAttribute($attr, $url);
+                $node->setAttribute($attr, $newUrl);
             }
         }
     }
 
-    private function clearScripts(Crawler $crawler, $enabled)
+    private function clearScripts(Crawler $crawler, bool $enabled)
     {
         if (!$enabled)
             return;
@@ -86,7 +98,7 @@ class HtmlHandlingSubscriber implements EventSubscriberInterface
         }
     }
 
-    private function emptyHeadlines(Crawler $crawler, $enabled)
+    private function emptyHeadlines(Crawler $crawler, bool $enabled)
     {
         if (!$enabled)
             return;
