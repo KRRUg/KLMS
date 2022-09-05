@@ -51,6 +51,8 @@ class SettingService
         "lan.seatmap.locked" => [self::TB_DESCRIPTION => "Sitzplanbuchungen sperren (Kein Reservieren/Freigeben für User)", self::TB_TYPE => self::TB_TYPE_BOOL],
         "lan.seatmap.bg_image" => [self::TB_DESCRIPTION => "Sitzplan Hintergrundbild", self::TB_TYPE => self::TB_TYPE_FILE],
 
+        "lan.stats.show" => [self::TB_DESCRIPTION => "Statistiken zur Anmeldung anzeigen", self::TB_TYPE => self::TB_TYPE_BOOL],
+
         "style.logo" => [self::TB_DESCRIPTION => "Logo", self::TB_TYPE => self::TB_TYPE_FILE],
         "style.bg_image" => [self::TB_DESCRIPTION => "Hintergrundbild", self::TB_TYPE => self::TB_TYPE_FILE],
 

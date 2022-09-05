@@ -32,32 +32,33 @@ class SeatRepository extends ServiceEntityRepository
             ->getResult();
     }
 
-    // /**
-    //  * @return Seat[] Returns an array of Seat objects
-    //  */
-    /*
-    public function findByExampleField($value)
+    private function createCountQueryBuilder(string $alias = "s")
     {
-        return $this->createQueryBuilder('s')
-            ->andWhere('s.exampleField = :val')
-            ->setParameter('val', $value)
-            ->orderBy('s.id', 'ASC')
-            ->setMaxResults(10)
-            ->getQuery()
-            ->getResult()
-        ;
+        return $this->createQueryBuilder($alias)
+            ->select("count({$alias})")
+            ->andWhere("{$alias}.type != 'information'");
     }
-    */
 
-    /*
-    public function findOneBySomeField($value): ?Seat
+    public function countSeatsTotal() : int
     {
-        return $this->createQueryBuilder('s')
-            ->andWhere('s.exampleField = :val')
-            ->setParameter('val', $value)
+        return $this->createCountQueryBuilder('s')
             ->getQuery()
-            ->getOneOrNullResult()
-        ;
+            ->getSingleScalarResult();
     }
-    */
+
+    public function countFreeSeats() : int
+    {
+        return $this->createCountQueryBuilder('s')
+            ->andWhere('s.owner IS NULL')
+            ->getQuery()
+            ->getSingleScalarResult();
+    }
+
+    public function countTakenSeats() : int
+    {
+        return $this->createCountQueryBuilder('s')
+            ->andWhere('s.owner IS NOT NULL')
+            ->getQuery()
+            ->getSingleScalarResult();
+    }
 }
