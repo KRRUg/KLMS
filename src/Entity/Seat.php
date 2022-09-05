@@ -36,10 +36,9 @@ class Seat
      */
     private $name;
 
-
     /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\UserGamer", inversedBy="seats" )
-     * @ORM\JoinColumn(name="owner", referencedColumnName="uuid")
+     * @ORM\ManyToOne(targetEntity="App\Entity\UserGamer", inversedBy="seats")
+     * @ORM\JoinColumn(name="owner", referencedColumnName="uuid", nullable=true)
      */
     private $owner;
 
