@@ -43,6 +43,9 @@ Encore
         // but, you probably want this, unless you're building a single-page app
         .enableSingleRuntimeChunk()
 
+        // Provide the location of your controllers.json file
+        .enableStimulusBridge('./assets/js/controllers.json')
+
         //Need to disable AMD-Loader with imports-loader for DataTables to work
         .addLoader({
             test: /datatables\.net.*/,
