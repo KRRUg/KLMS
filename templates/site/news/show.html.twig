@@ -11,7 +11,7 @@
                  src="{{ vich_uploader_asset(content, 'imageFile') | imagine_filter('news_header') }}"
              {% endif %}
              />
-        <div class="card">
+        <div class="card mb-4">
             <div class="card-body">
                 <h1 class="card-title">{{ content.title }}</h1>
                 <p class="card-subtitle mb-3 text-muted">
@@ -19,6 +19,20 @@
                 </p>
                 <div class="card-text">
                     {{ content.content|raw }}
+                </div>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-body" data-controller="comment">
+                <div data-comment-target="hideable" class="text-right">
+                    <a class="btn btn-primary" data-action="comment#toggleForm">Kommentar schreiben</a>
+                </div>
+                <div data-comment-target="hideable" hidden>
+                    <form data-comment-target="form">
+                    <textarea style="width: 100%;">Your text here</textarea><br>
+                    <button class="btn btn-primary">Senden</button>
+                    <a class="btn btn-secondary" data-action="comment#cancel">Doch nicht</a>
+                    </form>
                 </div>
             </div>
         </div>
