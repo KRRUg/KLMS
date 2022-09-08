@@ -1,16 +1,10 @@
-@import '../helper/variables';
+@import 'helper/variables';
 
-@import '~bootstrap/scss/bootstrap.scss';
+@import '~bootstrap/scss/bootstrap';
 
-@import './header.scss';
-@import './navigation.scss';
-@import './sidebar.scss';
-@import './card.scss';
-@import './forms.scss';
-@import './nav_tree.scss';
-@import './clan.scss';
-@import './hover.scss';
-@import './seatmap.scss';
+@import 'helper/header';
+@import 'helper/card';
+@import 'helper/hover';
 
 html, body {
     height: 100%;
