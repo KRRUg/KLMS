@@ -1,28 +1,28 @@
-header, #header {
-    .head-wrap {
-        display: flex;
-        background-size: cover;
-        background-position: center center;
-        background-repeat: no-repeat;
-        box-shadow: $box-shadow;
-        height: 12rem;
-        background-color: $primary;
+@import '../helper/variables';
 
-        .head-content {
-            text-align: center;
-            align-self: center;
-            color:$header-color;
+#header .head-wrap {
+    display: flex;
+    background-size: cover;
+    background-position: center center;
+    background-repeat: no-repeat;
+    box-shadow: $box-shadow;
+    height: 12rem;
+    background-color: $primary;
 
-            .logo {
-                max-height: 5.5rem;
-            }
+    .head-content {
+        text-align: center;
+        align-self: center;
+        color:$header-color;
+
+        .logo {
+            max-height: 5.5rem;
         }
+    }
 
-        &.startpage {
-            height: 16rem;
-            .head-content .logo {
-                max-height: 5.5rem;
-            }
+    &.startpage {
+        height: 16rem;
+        .head-content .logo {
+            max-height: 5.5rem;
         }
     }
 }
@@ -30,20 +30,15 @@ header, #header {
 
 // Medium devices (tablets, 768px and up)
 @include media-breakpoint-up(md) {
-    header, #header {
-        .head-wrap {
-            height: 12rem;
-            .head-content {
-                .logo {
-                    max-height: 8rem;
-                }
-            }
-
-            &.startpage {
-                height: 16rem;
-                .head-content .logo {
-                    max-height: 10rem;
-                }
+    #header .head-wrap {
+        height: 12rem;
+        .head-content .logo {
+            max-height: 8rem;
+        }
+        &.startpage {
+            height: 16rem;
+            .head-content .logo {
+                max-height: 10rem;
             }
         }
     }
@@ -51,20 +46,15 @@ header, #header {
 
 // Large devices (desktops, 992px and up)
 @include media-breakpoint-up(lg) {
-    header, #header {
-        .head-wrap {
-            height: 12rem;
-            .head-content {
-                .logo {
-                    max-height: 9rem;
-                }
-            }
-
-            &.startpage {
-                height: 23rem;
-                .head-content .logo {
-                    max-height: 16rem;
-                }
+    #header .head-wrap {
+        height: 12rem;
+        .head-content .logo {
+            max-height: 9rem;
+        }
+        &.startpage {
+            height: 23rem;
+            .head-content .logo {
+                max-height: 16rem;
             }
         }
     }
