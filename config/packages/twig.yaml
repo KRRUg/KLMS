@@ -10,6 +10,7 @@ twig:
         nav: '@App\Service\NavigationService'
         settings: '@App\Service\SettingService'
         sponsor: '@App\Service\SponsorService'
+        stats: '@App\Service\StatisticService'
     paths:
         '%kernel.project_dir%/assets/images': images
         '%kernel.project_dir%/assets/css': styles

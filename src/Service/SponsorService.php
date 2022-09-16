@@ -1,8 +1,6 @@
 <?php
 
-
 namespace App\Service;
-
 
 use App\Entity\Sponsor;
 use App\Entity\SponsorCategory;
@@ -11,15 +9,12 @@ use App\Repository\SponsorRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 
-class SponsorService
+class SponsorService extends OptimalService
 {
     private SponsorRepository $sponsorRepository;
     private SponsorCategoryRepository $categoryRepository;
-    private SettingService $settings;
     private EntityManagerInterface $em;
     private LoggerInterface $logger;
-
-    private const SETTING_ENABLED = 'sponsor.enabled';
 
     /**
      * SponsorService constructor.
@@ -36,11 +31,16 @@ class SponsorService
         EntityManagerInterface $em,
         LoggerInterface $logger
     ){
+        parent::__construct($settings);
         $this->sponsorRepository = $sponsorRepository;
         $this->categoryRepository = $categoryRepository;
-        $this->settings = $settings;
         $this->em = $em;
         $this->logger = $logger;
+    }
+
+    protected static function getSettingKey(): string
+    {
+        return 'sponsor.enabled';
     }
 
     /**
@@ -59,16 +59,6 @@ class SponsorService
     public function count() : int
     {
         return $this->sponsorRepository->count([]);
-    }
-
-    public function active() : bool
-    {
-        return $this->settings->get(self::SETTING_ENABLED, false);
-    }
-
-    public function activate()
-    {
-        $this->settings->set(self::SETTING_ENABLED, true);
     }
 
     public function hasCategories() : bool

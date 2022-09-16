@@ -18,6 +18,8 @@
 
 
 {% block main %}
+    {% include 'site/components/stats.html.twig' %}
+
     {% set cnt = news | length %}
 
     <div class="container pt-4">

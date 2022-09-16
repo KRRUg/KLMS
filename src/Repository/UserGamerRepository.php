@@ -35,27 +35,39 @@ class UserGamerRepository extends ServiceEntityRepository
         }
     }
 
-    public function findByState(?bool $registered, ?bool $paid, ?bool $seat)
+    private function createQueryFilterBuilder(?bool $registered, ?bool $paid, ?bool $seat, string $alias = "u")
     {
-        $qb = $this->createQueryBuilder('u');
+        $qb = $this->createQueryBuilder($alias);
         if (!is_null($seat)) {
-            // TODO check this magic
             $cmp = $seat ? '>' : '=';
             $qb
-                ->leftJoin('u.seats', 'seats')
-                ->groupBy('u.guid')
+                ->leftJoin("{$alias}.seats", 'seats')
+                ->groupBy("{$alias}.guid")
                 ->having("count(seats) {$cmp} 0");
         }
         if (!is_null($registered)) {
             $neg = $registered ? "not" : "";
-            $qb->andWhere("u.registered is {$neg} null");
+            $qb->andWhere("{$alias}.registered is {$neg} null");
         }
         if (!is_null($paid)) {
             $neg = $paid ? "not" : "";
-            $qb->andWhere("u.paid is {$neg} null");
+            $qb->andWhere("{$alias}.paid is {$neg} null");
         }
-        return $qb
+        return $qb;
+    }
+
+    public function findByState(?bool $registered, ?bool $paid, ?bool $seat)
+    {
+        return $this->createQueryFilterBuilder($registered, $paid, $seat)
             ->getQuery()
             ->getResult();
+    }
+
+    public function countByState(?bool $registered, ?bool $paid, ?bool $seat) : int
+    {
+        return $this->createQueryFilterBuilder($registered, $paid, $seat, 'u')
+            ->select('count(u)')
+            ->getQuery()
+            ->getSingleScalarResult();
     }
 }
