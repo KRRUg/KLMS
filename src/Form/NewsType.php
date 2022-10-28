@@ -3,10 +3,8 @@
 namespace App\Form;
 
 use App\Entity\News;
-use App\Helper\AuthorInsertSubscriber;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
-use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Vich\UploaderBundle\Form\Type\VichImageType;
@@ -26,7 +24,7 @@ class NewsType extends AbstractType
             ->add('title', TextType::class, [
                 'label' => 'Titel',
             ])
-            ->add('content', TextareaType::class, [
+            ->add('content', HtmlTextareaType::class, [
                 'required' => false,
                 'empty_data' => '',
                 'label' => 'Inhalt',

@@ -3,14 +3,12 @@
 namespace App\Form;
 
 use App\Entity\Email;
-use App\Helper\AuthorInsertSubscriber;
 use App\Service\EmailService;
 use App\Service\GroupService;
 use Ramsey\Uuid\UuidInterface;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
-use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
@@ -36,10 +34,11 @@ class EmailType extends AbstractType
                 'choices' => GroupService::getGroups(),
                 'choice_value' => function (?UuidInterface $uuid) { return is_null($uuid) ? null : $uuid->toString(); },
             ])
-            ->add('body', TextareaType::class, [
+            ->add('body', HtmlTextareaType::class, [
 			    'label' => 'Inhalt',
                 'empty_data' => '',
                 'required' => false,
+                'fix_urls' => 'absolute',
             ])
 			->add('designFile', ChoiceType::class, [
                 'label' => 'Design',

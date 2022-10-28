@@ -4,9 +4,11 @@
     "require": {
         "php": "^7.4",
         "ext-ctype": "*",
+        "ext-dom": "*",
         "ext-gd": "*",
         "ext-iconv": "*",
         "ext-json": "*",
+        "ext-libxml": "*",
         "composer/package-versions-deprecated": "1.11.99.4",
         "doctrine/common": "^2",
         "doctrine/doctrine-bundle": "^2",
@@ -22,6 +24,7 @@
         "sentry/sentry-symfony": "^3.5",
         "symfony/asset": "4.4.*",
         "symfony/console": "4.4.*",
+        "symfony/dom-crawler": "4.4.*",
         "symfony/dotenv": "4.4.*",
         "symfony/filesystem": "4.4.*",
         "symfony/flex": "^1.3.1",
@@ -43,7 +46,8 @@
         "twig/intl-extra": "^3.2",
         "twig/string-extra": "^3.0",
         "twig/twig": "^2.12|^3.0",
-        "vich/uploader-bundle": "^1.13"
+        "vich/uploader-bundle": "^1.13",
+        "wa72/url": "^0.7.1"
     },
     "require-dev": {
         "doctrine/doctrine-fixtures-bundle": "^3.3",

@@ -8,7 +8,7 @@
                     <h4>{{ settings.get("sponsor.banner.title") | default("Supported by") }}</h4>
                     {% endif %}
                     <div class="d-flex justify-content-center p-2">
-                        <a href="{{ s.url }}" target="_blank">
+                        <a {% if s.url is not empty %} href="{{ s.url }}" target="_blank" {% endif %}>
                         <img style="max-width: 300px; max-height: 300px; " src="{{ vich_uploader_asset(s, 'logoFile') | imagine_filter('sponsor_logo') }}">
                         </a>
                     </div>

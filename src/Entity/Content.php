@@ -3,7 +3,7 @@
 namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
-use App\Helper\HistoryAwareEntity;
+use App\Entity\Traits\HistoryAwareEntity;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**

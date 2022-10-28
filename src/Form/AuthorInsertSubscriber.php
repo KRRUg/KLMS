@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Helper;
+namespace App\Form;
 
+use App\Entity\Traits\HistoryAwareEntity;
 use App\Security\LoginUser;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\Form\Event\PostSubmitEvent;

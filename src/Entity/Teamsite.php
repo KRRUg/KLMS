@@ -3,7 +3,7 @@
 namespace App\Entity;
 
 use App\Entity\Traits\EntityHistoryTrait;
-use App\Helper\HistoryAwareEntity;
+use App\Entity\Traits\HistoryAwareEntity;
 use App\Repository\TeamsiteRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
