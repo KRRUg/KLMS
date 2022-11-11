@@ -4,10 +4,8 @@ namespace App\Repository;
 
 use App\Entity\Email;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
-use Doctrine\Common\Persistence\ManagerRegistry;
-use Doctrine\ORM\NonUniqueResultException;
-use Doctrine\ORM\NoResultException;
-use phpDocumentor\Reflection\Types\Array_;
+use Doctrine\Persistence\ManagerRegistry;
+
 
 /**
  * @method Email|null find($id, $lockMode = null, $lockVersion = null)
