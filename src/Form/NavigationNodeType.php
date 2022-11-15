@@ -8,9 +8,7 @@ use App\Entity\NavigationNodeContent;
 use App\Entity\NavigationNodeGeneric;
 use App\Entity\NavigationNodeTeamsite;
 use App\Entity\Teamsite;
-use App\Repository\ContentRepository;
 use App\Service\NavigationService;
-use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
@@ -19,7 +17,6 @@ use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
 use Symfony\Component\OptionsResolver\OptionsResolver;
-
 
 class NavigationNodeType extends AbstractType
 {

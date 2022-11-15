@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\TokenRepository;
+use DateTimeImmutable;
+use DateTimeInterface;
 use Doctrine\ORM\Mapping as ORM;
 use Ramsey\Uuid\UuidInterface;
 
@@ -42,10 +44,9 @@ class Token
      */
     private $expiresAt;
 
-
     public function __construct()
     {
-        $this->requestedAt = new \DateTimeImmutable('now');
+        $this->requestedAt = new DateTimeImmutable('now');
     }
 
     public function getSelector(): ?string
@@ -72,24 +73,24 @@ class Token
         return $this;
     }
 
-    public function getRequestedAt(): ?\DateTimeInterface
+    public function getRequestedAt(): ?DateTimeInterface
     {
         return $this->requestedAt;
     }
 
-    public function setRequestedAt(\DateTimeInterface $requestedAt): self
+    public function setRequestedAt(DateTimeInterface $requestedAt): self
     {
         $this->requestedAt = $requestedAt;
 
         return $this;
     }
 
-    public function getExpiresAt(): ?\DateTimeInterface
+    public function getExpiresAt(): ?DateTimeInterface
     {
         return $this->expiresAt;
     }
 
-    public function setExpiresAt(\DateTimeInterface $expiresAt): self
+    public function setExpiresAt(DateTimeInterface $expiresAt): self
     {
         $this->expiresAt = $expiresAt;
 

@@ -55,7 +55,6 @@ class TeamsiteEntry
      */
     private $displayEmail;
 
-
     public function __construct()
     {
     }
@@ -73,6 +72,7 @@ class TeamsiteEntry
     public function setUserUuid($userUuid): self
     {
         $this->userUuid = $userUuid;
+
         return $this;
     }
 
@@ -84,6 +84,7 @@ class TeamsiteEntry
     public function setTitle(string $title): self
     {
         $this->title = $title;
+
         return $this;
     }
 
@@ -95,6 +96,7 @@ class TeamsiteEntry
     public function setDescription(string $description): self
     {
         $this->description = $description;
+
         return $this;
     }
 
@@ -106,6 +108,7 @@ class TeamsiteEntry
     public function setOrd(int $ord): self
     {
         $this->ord = $ord;
+
         return $this;
     }
 
@@ -117,6 +120,7 @@ class TeamsiteEntry
     public function setCategory(?TeamsiteCategory $category): self
     {
         $this->category = $category;
+
         return $this;
     }
 

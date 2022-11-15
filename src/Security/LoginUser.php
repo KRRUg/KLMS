@@ -1,17 +1,12 @@
 <?php
 
-
 namespace App\Security;
-
 
 use App\Entity\User;
 use Symfony\Component\Security\Core\User\UserInterface;
 
 class LoginUser implements UserInterface
 {
-    /**
-     * @var User
-     */
     private User $user;
 
     /**
@@ -21,18 +16,17 @@ class LoginUser implements UserInterface
 
     /**
      * LoginUser constructor.
-     * @param $user
      */
     public function __construct(User $user)
     {
         $this->user = $user;
     }
 
-    public function getUser() : User
+    public function getUser(): User
     {
         return $this->user;
     }
-    
+
     /**
      * @see UserInterface
      */

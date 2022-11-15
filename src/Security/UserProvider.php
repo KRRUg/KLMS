@@ -5,10 +5,10 @@ namespace App\Security;
 use App\Entity\User;
 use App\Idm\IdmManager;
 use App\Idm\IdmRepository;
-use App\Service\PermissionService;
 use App\Service\GamerService;
+use App\Service\PermissionService;
 use Symfony\Component\Security\Core\Exception\UnsupportedUserException;
-use Symfony\Component\Security\Core\Exception\UsernameNotFoundException;
+use Symfony\Component\Security\Core\Exception\UserNotFoundException;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Core\User\UserProviderInterface;
 
@@ -32,8 +32,8 @@ class UserProvider implements UserProviderInterface
     {
         $perm = $this->permissionService->handleLogin($user->getUser());
         if (!empty($perm)) {
-            $roles = array_map(function (string $p) { return "ROLE_" . $p; }, $perm);
-            array_push($roles, "ROLE_ADMIN");
+            $roles = array_map(function (string $p) { return 'ROLE_'.$p; }, $perm);
+            array_push($roles, 'ROLE_ADMIN');
             $user->addRoles($roles);
         }
     }
@@ -58,10 +58,9 @@ class UserProvider implements UserProviderInterface
      * If you're not using these features, you do not need to implement
      * this method.
      *
-     * @param $username
      * @return UserInterface
      *
-     * @throws UsernameNotFoundException
+     * @throws UserNotFoundException
      */
     public function loadUserByUsername($username)
     {
@@ -71,12 +70,13 @@ class UserProvider implements UserProviderInterface
         // method in your User class.
         $user = $this->userRepo->findOneCiBy(['email' => $username]);
         if (empty($user)) {
-            throw new UsernameNotFoundException();
+            throw new UserNotFoundException();
         }
 
         $lu = new LoginUser($user);
         $this->loadUserRoles($lu);
         $this->loadAdminRoles($lu);
+
         return $lu;
     }
 

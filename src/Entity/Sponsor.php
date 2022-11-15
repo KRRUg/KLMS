@@ -4,12 +4,12 @@ namespace App\Entity;
 
 use App\Entity\Traits\HistoryAwareEntity;
 use App\Repository\SponsorRepository;
+use DateTime;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\HttpFoundation\File\File;
+use Symfony\Component\Validator\Constraints as Assert;
 use Vich\UploaderBundle\Entity\File as EmbeddedFile;
 use Vich\UploaderBundle\Mapping\Annotation as Vich;
-use Symfony\Component\Validator\Constraints as Assert;
-
 
 /**
  * @ORM\Entity(repositoryClass=SponsorRepository::class)
@@ -18,6 +18,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  */
 class Sponsor implements HistoryAwareEntity
 {
+    use Traits\EntityHistoryTrait;
     /**
      * @ORM\Id
      * @ORM\GeneratedValue
@@ -62,8 +63,6 @@ class Sponsor implements HistoryAwareEntity
      */
     private $category;
 
-    use Traits\EntityHistoryTrait;
-
     public function __construct()
     {
         $this->logo = new EmbeddedFile();
@@ -105,7 +104,7 @@ class Sponsor implements HistoryAwareEntity
         if (null !== $logoFile) {
             // It is required that at least one field changes if you are using doctrine
             // otherwise the event listeners won't be called and the file is lost
-            $this->setLastModified(new \DateTime());
+            $this->setLastModified(new DateTime());
         }
     }
 

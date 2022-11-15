@@ -39,7 +39,6 @@ class UserImage
      */
     private ?DateTimeInterface $lastModified = null;
 
-
     public function __construct(?UuidInterface $uuid)
     {
         $this->uuid = $uuid;
@@ -54,6 +53,7 @@ class UserImage
     public function setUuid(?UuidInterface $uuid): self
     {
         $this->uuid = $uuid;
+
         return $this;
     }
 
@@ -65,6 +65,7 @@ class UserImage
     public function setImage(?EmbeddedFile $image): self
     {
         $this->image = $image;
+
         return $this;
     }
 
@@ -76,6 +77,7 @@ class UserImage
     public function setLastModified(?DateTimeInterface $lastModified): self
     {
         $this->lastModified = $lastModified;
+
         return $this;
     }
 
@@ -104,7 +106,8 @@ class UserImage
      * @ORM\PrePersist()
      * @ORM\PreUpdate()
      */
-    public function updateModifiedDatetime() {
+    public function updateModifiedDatetime()
+    {
         // update the modified time and creation time
         $this->setLastModified(new DateTime());
     }

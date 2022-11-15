@@ -39,7 +39,6 @@ class EmailSending
      */
     private $recipientCount;
 
-
     public function __construct()
     {
         $this->created = new DateTime();
@@ -105,8 +104,8 @@ class EmailSending
         return is_null($this->started);
     }
 
-	public function isInSending(): bool
-	{
-		return !is_null($this->started);
-	}
+    public function isInSending(): bool
+    {
+        return !is_null($this->started);
+    }
 }

@@ -4,9 +4,9 @@ namespace App\Idm;
 
 use App\Idm\Transfer\UuidObject;
 use ArrayAccess;
-use Iterator;
 use Countable;
 use InvalidArgumentException;
+use Iterator;
 
 class LazyLoaderCollection implements ArrayAccess, Iterator, Countable
 {
@@ -18,8 +18,6 @@ class LazyLoaderCollection implements ArrayAccess, Iterator, Countable
 
     /**
      * LazyLoaderCollection constructor.
-     * @param IdmManager $manager
-     * @param string $class
      */
     public function __construct(IdmManager $manager, string $class)
     {
@@ -34,9 +32,11 @@ class LazyLoaderCollection implements ArrayAccess, Iterator, Countable
         $result = new self($manager, $class);
         $result->loaded = false;
 
-        foreach ($uuids as $uuid)
-            if ($uuid instanceof UuidObject)
+        foreach ($uuids as $uuid) {
+            if ($uuid instanceof UuidObject) {
                 $result->items[] = $uuid;
+            }
+        }
 
         return $result;
     }
@@ -46,9 +46,11 @@ class LazyLoaderCollection implements ArrayAccess, Iterator, Countable
         $result = new self($manager, $class);
         $result->loaded = true;
 
-        foreach ($objects as $object)
-            if (get_class($object) === $class)
+        foreach ($objects as $object) {
+            if (get_class($object) === $class) {
                 $result->items[] = $object;
+            }
+        }
 
         return $result;
     }
@@ -68,31 +70,38 @@ class LazyLoaderCollection implements ArrayAccess, Iterator, Countable
 
     public function get($offset)
     {
-        if (!isset($this->items[$offset]))
+        if (!isset($this->items[$offset])) {
             return null;
-        if (!$this->loaded)
+        }
+        if (!$this->loaded) {
             $this->load();
+        }
+
         return $this->items[$offset];
     }
 
     public function toArray(bool $load = true): array
     {
-        if (!$this->loaded && $load)
+        if (!$this->loaded && $load) {
             $this->load();
+        }
+
         return $this->items;
     }
 
     public function getUuid($offset): ?UuidObject
     {
-        if (!isset($this->items[$offset]))
+        if (!isset($this->items[$offset])) {
             return null;
+        }
         $item = $this->items[$offset];
+
         return $this->loaded ? UuidObject::fromObject($item) : $item;
     }
 
     public function toUuidArray(): array
     {
-        return array_map(function($item) {
+        return array_map(function ($item) {
             return $this->loaded ? UuidObject::fromObject($item) : $item;
         }, $this->items);
     }
@@ -115,7 +124,7 @@ class LazyLoaderCollection implements ArrayAccess, Iterator, Countable
     public function offsetSet($offset, $value)
     {
         if (!is_a($value, $this->class)) {
-            throw new InvalidArgumentException("Incorrect type");
+            throw new InvalidArgumentException('Incorrect type');
         }
         $this->items[$offset] = $value;
     }

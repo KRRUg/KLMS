@@ -13,15 +13,13 @@ use App\Repository\SeatRepository;
 use App\Service\GamerService;
 use App\Service\SeatmapService;
 use Doctrine\ORM\EntityManagerInterface;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Form\Extension\Core\Type\IntegerType;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\Validator\Constraints\Positive;
 
@@ -51,9 +49,10 @@ class SeatmapController extends AbstractController
     /**
      * @Route("", name="", methods={"GET"})
      */
-    public function index()
+    public function index(): Response
     {
         $seats = $this->seatmapService->getSeatmap();
+
         return $this->render('admin/seatmap/index.html.twig', [
             'seatmap' => $seats,
             'users' => $this->seatmapService->getSeatedUser($seats),
@@ -63,7 +62,7 @@ class SeatmapController extends AbstractController
     /**
      * @Route("/show/{id}", name="_seat_edit", methods={"GET", "POST"})
      */
-    public function seatShow(Seat $seat, Request $request)
+    public function seatShow(Seat $seat, Request $request): Response
     {
         if ($seat->getOwner()) {
             $seatUser = $this->gamerService->getUserFromGamer($seat->getOwner());
@@ -83,6 +82,7 @@ class SeatmapController extends AbstractController
             $seat = $form->getData();
             $this->em->flush();
             $this->addFlash('success', "Sitzplatz {$seat->getSector()}-{$seat->getSeatNumber()} erfolgreich geändert.");
+
             return $this->redirectToRoute('admin_seatmap');
         }
 
@@ -95,7 +95,7 @@ class SeatmapController extends AbstractController
     /**
      * @Route("/seatposition", name="_seat_pos", methods={"POST"})
      */
-    public function changeSeatPosition(Request $request)
+    public function changeSeatPosition(Request $request): Response
     {
         $json = json_decode($request->getContent());
         $seat = $this->seatRepository->findOneBy(['id' => $json->id]);
@@ -105,28 +105,29 @@ class SeatmapController extends AbstractController
             $seat->setPosY($json->top);
             $this->em->flush();
 
-            return new JsonResponse(json_encode(true), 200, [], true);
+            return new JsonResponse(json_encode(true), \Symfony\Component\HttpFoundation\Response::HTTP_OK, [], true);
         }
-        return new JsonResponse(json_encode(false), 200, [], true);
 
+        return new JsonResponse(json_encode(false), \Symfony\Component\HttpFoundation\Response::HTTP_OK, [], true);
     }
 
     /**
      * @Route("/seat/delete/{id}", name="_seat_delete", methods={"GET"})
      */
-    public function deleteSeat(Seat $seat)
+    public function deleteSeat(Seat $seat): Response
     {
-            $this->em->remove($seat);
-            $this->em->flush();
+        $this->em->remove($seat);
+        $this->em->flush();
 
         $this->addFlash('success', "Sitzplatz {$seat->getSector()}-{$seat->getSeatNumber()} erfolgreich gelöscht.");
+
         return $this->redirectToRoute('admin_seatmap');
     }
 
     /**
      * @Route("/seats/create", name="_seat_create", methods={"GET","POST"})
      */
-    public function createSeats(Request $request)
+    public function createSeats(Request $request): Response
     {
         $offsetX = intval($request->query->get('x'));
         $offsetY = intval($request->query->get('y'));
@@ -146,7 +147,6 @@ class SeatmapController extends AbstractController
         ]);
         $form->remove('owner');
 
-
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
@@ -154,36 +154,36 @@ class SeatmapController extends AbstractController
             $seat = $form->getData();
 
             if ($count === 1) {
-                //Create a single Seat
+                // Create a single Seat
                 $this->em->persist($seat);
                 $this->em->flush();
                 $this->addFlash('success', "Sitzplatz {$seat->getSector()}-{$seat->getSeatNumber()} erfolgreich erstellt.");
 
                 return $this->redirectToRoute('admin_seatmap');
             } else {
-                //Create multiple Seats
+                // Create multiple Seats
                 $x = $seat->getPosX();
                 $y = $seat->getPosY();
                 $i = 1;
                 $seatNumber = $seat->getSeatNumber();
                 while ($i <= $count) {
-                    $newSeat = clone($seat);
+                    $newSeat = clone $seat;
                     $newSeat->setPosX($x);
                     $newSeat->setPosY($y);
                     $newSeat->setSeatNumber($seatNumber);
-                    //Create the Seat
+                    // Create the Seat
                     $this->em->persist($newSeat);
 
-                    if ($seat->getChairPosition() == "top" || $seat->getChairPosition() == "bottom") {
+                    if ($seat->getChairPosition() == 'top' || $seat->getChairPosition() == 'bottom') {
                         $x += 29;
                     } else {
                         $y += 29;
                     }
                     $seatNumber += 2;
-                    $i++;
+                    ++$i;
                 }
                 $this->em->flush();
-                $this->addFlash('success', $count . " Sitzplätze erfolgreich erstellt.");
+                $this->addFlash('success', $count.' Sitzplätze erfolgreich erstellt.');
 
                 return $this->redirectToRoute('admin_seatmap');
             }
@@ -197,18 +197,17 @@ class SeatmapController extends AbstractController
     /**
      * @Route("/export", name="_export", methods={"GET"})
      */
-    public function export()
+    public function export(): Response
     {
-        $csvData = array();
+        $csvData = [];
 
         $seatmap = $this->seatRepository->findTakenSeats();
         $seatmapUsers = $this->seatmapService->getSeatedUser($seatmap);
 
-
         foreach ($seatmap as $seat) {
             $seatName = $seat->getName() ?: null;
             $seatUser = $seatmapUsers[$seat->getId()];
-            $clanTags = array();
+            $clanTags = [];
 
             foreach ($seatUser->getClans() as $clan) {
                 $clanTags[] = $clan->getClantag();
@@ -230,7 +229,5 @@ class SeatmapController extends AbstractController
         $response->headers->set('Content-Disposition', 'attachment; filename="seatmap.csv"');
 
         return $response;
-
     }
-
 }

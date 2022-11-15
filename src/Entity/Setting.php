@@ -2,6 +2,8 @@
 
 namespace App\Entity;
 
+use DateTime;
+use DateTimeInterface;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
@@ -44,13 +46,12 @@ class Setting
      */
     private $file;
 
-
     public function setFile(File $file = null)
     {
         $this->file = $file;
 
         if ($file) {
-            $this->last_modified = new \DateTime('now');
+            $this->last_modified = new DateTime('now');
         }
     }
 
@@ -62,7 +63,7 @@ class Setting
     public function __construct(string $key)
     {
         $this->key = $key;
-        $this->text = "";
+        $this->text = '';
     }
 
     public function getId(): ?int
@@ -94,12 +95,12 @@ class Setting
         return $this;
     }
 
-    public function getLastModified(): ?\DateTimeInterface
+    public function getLastModified(): ?DateTimeInterface
     {
         return $this->last_modified;
     }
 
-    public function setLastModified(?\DateTimeInterface $last_modified): self
+    public function setLastModified(?DateTimeInterface $last_modified): self
     {
         $this->last_modified = $last_modified;
 
@@ -110,8 +111,9 @@ class Setting
      * @ORM\PrePersist()
      * @ORM\PreUpdate()
      */
-    public function updateModifiedDatetime() {
+    public function updateModifiedDatetime()
+    {
         // update the modified time
-        $this->setLastModified(new \DateTime());
+        $this->setLastModified(new DateTime());
     }
 }

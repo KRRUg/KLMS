@@ -2,9 +2,9 @@
 
 namespace App\Twig;
 
+use App\Entity\Seat;
 use App\Entity\User;
 use App\Service\GamerService;
-use App\Entity\Seat;
 use App\Service\SeatmapService;
 use Twig\Extension\AbstractExtension;
 use Twig\TwigFilter;
@@ -62,6 +62,7 @@ class GamerExtension extends AbstractExtension
     {
         $seats = $this->seatmapService->getUserSeats($user);
         $names = array_map(function (Seat $seat) { return $seat->generateSeatName(); }, $seats);
+
         return implode(',', $names);
     }
 }

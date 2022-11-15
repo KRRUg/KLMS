@@ -26,7 +26,7 @@ class TeamsiteService
         TeamsiteRepository $repo,
         TeamsiteEntryRepository $entry,
         UserService $userService
-    ){
+    ) {
         $this->em = $em;
         $this->repo = $repo;
         $this->entry = $entry;
@@ -69,7 +69,8 @@ class TeamsiteService
             }
         }
         $users = $this->userRepo->findById($uuids);
-        $ids = array_map(function(User $user) { return $user->getUuid(); }, $users);
+        $ids = array_map(function (User $user) { return $user->getUuid(); }, $users);
+
         return array_combine($ids, $users);
     }
 
@@ -83,11 +84,12 @@ class TeamsiteService
                 self::ARRAY_DESCRIPTION => $category->getDescription(),
                 self::ARRAY_HIDEEMAIL => $category->getHideEmail(),
                 self::ARRAY_HIDENAME => $category->getHideName(),
-                self::ARRAY_ENTRIES => array(),
+                self::ARRAY_ENTRIES => [],
             ];
             foreach ($category->getEntries() as $entry) {
-                if (!isset($users[$entry->getUserUuid()->toString()]))
+                if (!isset($users[$entry->getUserUuid()->toString()])) {
                     continue;
+                }
                 $cat_array[self::ARRAY_ENTRIES][] = [
                     self::ARRAY_TITLE => $entry->getTitle(),
                     self::ARRAY_DESCRIPTION => $entry->getDescription(),
@@ -97,6 +99,7 @@ class TeamsiteService
             }
             $result[] = $cat_array;
         }
+
         return $result;
     }
 
@@ -116,6 +119,7 @@ class TeamsiteService
         )) {
             return false;
         }
+
         return true;
     }
 
@@ -138,10 +142,11 @@ class TeamsiteService
             return false;
         }
         foreach ($a[self::ARRAY_ENTRIES] as $entry) {
-            if (!self::checkEntry($entry)){
+            if (!self::checkEntry($entry)) {
                 return false;
             }
         }
+
         return true;
     }
 
@@ -152,6 +157,7 @@ class TeamsiteService
                 return false;
             }
         }
+
         return true;
     }
 
@@ -181,8 +187,9 @@ class TeamsiteService
         }
 
         if ($users = $this->userRepo->findById($uuids)) {
-            if (array_search(null, $users))
+            if (array_search(null, $users)) {
                 return false;
+            }
         }
 
         return true;
@@ -192,12 +199,15 @@ class TeamsiteService
     {
         $result = [];
 
-        if (is_null($input))
+        if (is_null($input)) {
             return false;
-        if (!self::check($input))
+        }
+        if (!self::check($input)) {
             return false;
-        if (!$this->parse($input, $result))
+        }
+        if (!$this->parse($input, $result)) {
             return false;
+        }
 
         $this->em->beginTransaction();
         $teamsite->clearCategories();

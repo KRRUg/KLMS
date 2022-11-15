@@ -12,6 +12,7 @@ use Ramsey\Uuid\UuidInterface;
  */
 class Email implements HistoryAwareEntity
 {
+    use Traits\EntityHistoryTrait;
     /**
      * @ORM\Id()
      * @ORM\GeneratedValue()
@@ -48,8 +49,6 @@ class Email implements HistoryAwareEntity
      * @ORM\OneToOne(targetEntity="App\Entity\EmailSending", mappedBy="template", cascade={"persist"}, fetch="EAGER", orphanRemoval=true)
      */
     private $emailSending;
-
-    use Traits\EntityHistoryTrait;
 
     public function getId(): ?int
     {
@@ -124,6 +123,7 @@ class Email implements HistoryAwareEntity
     public function setEmailSending(?EmailSending $emailSending): self
     {
         $this->emailSending = $emailSending;
+
         return $this;
     }
 

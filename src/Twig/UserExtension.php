@@ -5,8 +5,8 @@ namespace App\Twig;
 use App\Entity\User;
 use App\Idm\IdmManager;
 use App\Idm\IdmRepository;
-use App\Service\UserService;
 use App\Service\GroupService;
+use App\Service\UserService;
 use Ramsey\Uuid\Uuid;
 use Twig\Extension\AbstractExtension;
 use Twig\TwigFilter;
@@ -29,7 +29,7 @@ class UserExtension extends AbstractExtension
     public function getTests()
     {
         return [
-            new TwigTest('valid_user', [$this, 'validUser'])
+            new TwigTest('valid_user', [$this, 'validUser']),
         ];
     }
 
@@ -48,8 +48,9 @@ class UserExtension extends AbstractExtension
 
     public function getUser($userId): ?User
     {
-        if (empty($userId) || !Uuid::isValid($userId))
+        if (empty($userId) || !Uuid::isValid($userId)) {
             return null;
+        }
 
         return $this->userRepo->findOneById($userId);
     }
@@ -58,16 +59,18 @@ class UserExtension extends AbstractExtension
     {
         $user = $this->getUser($userId);
 
-        if (empty($user))
-            return "";
+        if (empty($user)) {
+            return '';
+        }
 
         return $user->getNickname();
     }
 
     public function getGroupname($groupid)
     {
-        if (empty($groupid) || !Uuid::isValid($groupid))
-            return "";
+        if (empty($groupid) || !Uuid::isValid($groupid)) {
+            return '';
+        }
 
         return GroupService::getName(Uuid::fromString($groupid));
     }

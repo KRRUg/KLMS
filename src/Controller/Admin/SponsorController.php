@@ -5,12 +5,11 @@ namespace App\Controller\Admin;
 use App\Entity\Sponsor;
 use App\Form\SponsorType;
 use App\Service\SponsorService;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
@@ -19,8 +18,8 @@ use Symfony\Component\Validator\Constraints as Assert;
  */
 class SponsorController extends AbstractController
 {
-    private const CSRF_TOKEN_DELETE = "sponsorDeleteToken";
-    private const CSRF_TOKEN_ACTIVATE = "sponsorActivateToken";
+    private const CSRF_TOKEN_DELETE = 'sponsorDeleteToken';
+    private const CSRF_TOKEN_ACTIVATE = 'sponsorActivateToken';
 
     private SponsorService $sponsorService;
 
@@ -32,9 +31,10 @@ class SponsorController extends AbstractController
     /**
      * @Route("/", name="", methods={"GET"})
      */
-    public function index()
+    public function index(): \Symfony\Component\HttpFoundation\Response
     {
         $sponsors = $this->sponsorService->getAll();
+
         return $this->render('admin/sponsor/index.html.twig', [
             'sponsors' => $sponsors,
             'csrf_token_activate' => self::CSRF_TOKEN_ACTIVATE,
@@ -44,7 +44,7 @@ class SponsorController extends AbstractController
     /**
      * @Route("/new", name="_new")
      */
-    public function new(Request $request)
+    public function new(Request $request): \Symfony\Component\HttpFoundation\Response
     {
         if (!$this->sponsorService->active()) {
             throw $this->createNotFoundException();
@@ -52,6 +52,7 @@ class SponsorController extends AbstractController
 
         if (!$this->sponsorService->hasCategories()) {
             $this->addFlash('warning', 'Keine Kategorien vorhanden.');
+
             return $this->redirectToRoute('admin_sponsor');
         }
 
@@ -60,10 +61,11 @@ class SponsorController extends AbstractController
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
             $this->sponsorService->save($form->getData());
-            return $this->redirectToRoute("admin_sponsor");
+
+            return $this->redirectToRoute('admin_sponsor');
         }
 
-        return $this->render("admin/sponsor/edit.html.twig", [
+        return $this->render('admin/sponsor/edit.html.twig', [
             'form' => $form->createView(),
         ]);
     }
@@ -71,7 +73,7 @@ class SponsorController extends AbstractController
     /**
      * @Route("/categories", name="_categories")
      */
-    public function category_edit(Request $request)
+    public function category_edit(Request $request): \Symfony\Component\HttpFoundation\Response
     {
         if (!$this->sponsorService->active()) {
             throw $this->createNotFoundException();
@@ -95,10 +97,11 @@ class SponsorController extends AbstractController
             } else {
                 $this->addFlash('danger', 'Sponsor-Kategorien Speichern fehlgeschlagen');
             }
+
             return $this->redirectToRoute('admin_sponsor');
         }
 
-        return $this->render("admin/sponsor/categories.html.twig",[
+        return $this->render('admin/sponsor/categories.html.twig', [
             'form' => $form->createView(),
         ]);
     }
@@ -106,26 +109,27 @@ class SponsorController extends AbstractController
     /**
      * @Route("/delete/{id}", name="_delete")
      */
-    public function delete(Request $request, Sponsor $news)
+    public function delete(Request $request, Sponsor $news): \Symfony\Component\HttpFoundation\Response
     {
         if (!$this->sponsorService->active()) {
             throw $this->createNotFoundException();
         }
 
         $token = $request->request->get('_token');
-        if(!$this->isCsrfTokenValid(self::CSRF_TOKEN_DELETE, $token)) {
+        if (!$this->isCsrfTokenValid(self::CSRF_TOKEN_DELETE, $token)) {
             throw $this->createAccessDeniedException('The CSRF token is invalid.');
         }
 
         $this->sponsorService->delete($news);
-        $this->addFlash('success', "Erfolgreich gelöscht!");
-        return $this->redirectToRoute("admin_sponsor");
+        $this->addFlash('success', 'Erfolgreich gelöscht!');
+
+        return $this->redirectToRoute('admin_sponsor');
     }
 
     /**
      * @Route("/edit/{id}", name="_edit")
      */
-    public function edit(Request $request, Sponsor $sponsor)
+    public function edit(Request $request, Sponsor $sponsor): \Symfony\Component\HttpFoundation\Response
     {
         if (!$this->sponsorService->active()) {
             throw $this->createNotFoundException();
@@ -136,10 +140,11 @@ class SponsorController extends AbstractController
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
             $this->sponsorService->save($form->getData());
-            return $this->redirectToRoute("admin_sponsor");
+
+            return $this->redirectToRoute('admin_sponsor');
         }
 
-        return $this->render("admin/sponsor/edit.html.twig", [
+        return $this->render('admin/sponsor/edit.html.twig', [
             'form' => $form->createView(),
             'csrf_token_delete' => self::CSRF_TOKEN_DELETE,
         ]);
@@ -148,16 +153,17 @@ class SponsorController extends AbstractController
     /**
      * @Route("/activate", name="_activate")
      */
-    public function activate(Request $request)
+    public function activate(Request $request): \Symfony\Component\HttpFoundation\Response
     {
         $token = $request->request->get('_token');
-        if(!$this->isCsrfTokenValid(self::CSRF_TOKEN_ACTIVATE, $token)) {
+        if (!$this->isCsrfTokenValid(self::CSRF_TOKEN_ACTIVATE, $token)) {
             throw $this->createAccessDeniedException('The CSRF token is invalid.');
         }
 
         if (!$this->sponsorService->active()) {
             $this->sponsorService->activate();
         }
-        return $this->redirectToRoute("admin_sponsor");
+
+        return $this->redirectToRoute('admin_sponsor');
     }
 }

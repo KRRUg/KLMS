@@ -7,7 +7,6 @@ use App\Repository\ContentRepository;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Sensio\Bundle\FrameworkExtraBundle\Request\ParamConverter\ParamConverterInterface;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class ContentParamConverter implements ParamConverterInterface
 {
@@ -27,13 +26,13 @@ class ContentParamConverter implements ParamConverterInterface
         $id = $request->attributes->get('id');
 
         $content = $this->contentRepository->createQueryBuilder('u')
-            ->andWhere("u.id = :id OR u.alias = :id")
-            ->setParameter("id", $id)
+            ->andWhere('u.id = :id OR u.alias = :id')
+            ->setParameter('id', $id)
             ->getQuery()
             ->getOneOrNullResult()
         ;
 
-        if ( ! $content) {
+        if (!$content) {
             return false;
         }
 

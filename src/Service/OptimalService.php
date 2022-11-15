@@ -1,8 +1,6 @@
 <?php
 
-
 namespace App\Service;
-
 
 abstract class OptimalService
 {
@@ -13,7 +11,7 @@ abstract class OptimalService
         $this->settings = $settings;
     }
 
-    public function active() : bool
+    public function active(): bool
     {
         return $this->settings->get(static::getSettingKey(), false);
     }
@@ -23,5 +21,5 @@ abstract class OptimalService
         $this->settings->set(static::getSettingKey(), true);
     }
 
-    protected static abstract function getSettingKey() : string;
+    abstract protected static function getSettingKey(): string;
 }

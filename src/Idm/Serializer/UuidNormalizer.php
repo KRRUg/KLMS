@@ -13,15 +13,15 @@ use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 final class UuidNormalizer implements NormalizerInterface, DenormalizerInterface
 {
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
-    public function normalize($object, $format = null, array $context = array())
+    public function normalize($object, $format = null, array $context = [])
     {
         return $object->toString();
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function denormalize($data, $type, $format = null, array $context = [])
     {
@@ -37,7 +37,7 @@ final class UuidNormalizer implements NormalizerInterface, DenormalizerInterface
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function supportsNormalization($data, $format = null)
     {
@@ -45,11 +45,11 @@ final class UuidNormalizer implements NormalizerInterface, DenormalizerInterface
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function supportsDenormalization($data, $type, $format = null)
     {
-        return (Uuid::class === $type || UuidInterface::class === $type);
+        return Uuid::class === $type || UuidInterface::class === $type;
     }
 
     private function isValid($data)

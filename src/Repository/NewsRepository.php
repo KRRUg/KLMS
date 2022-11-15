@@ -3,11 +3,12 @@
 namespace App\Repository;
 
 use App\Entity\News;
+use DateTime;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
-use Doctrine\Persistence\ManagerRegistry;
 use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\ORM\NoResultException;
 use Doctrine\ORM\QueryBuilder;
+use Doctrine\Persistence\ManagerRegistry;
 use Psr\Log\LoggerInterface;
 
 /**
@@ -35,7 +36,7 @@ class NewsRepository extends ServiceEntityRepository
     {
         $q->andWhere('(n.publishedTo is null) or (n.publishedTo >= :now)')
           ->andWhere('(n.publishedFrom is null) or (n.publishedFrom <= :now)')
-          ->setParameter('now', new \DateTime('now'));
+          ->setParameter('now', new DateTime('now'));
     }
 
     private function addOrder(QueryBuilder $q)
@@ -52,6 +53,7 @@ class NewsRepository extends ServiceEntityRepository
     {
         $q = $this->createQuery();
         $this->addOrder($q);
+
         return $q
             ->getQuery()
             ->getResult();
@@ -65,27 +67,32 @@ class NewsRepository extends ServiceEntityRepository
         $q = $this->createQuery();
         $this->addActiveFilter($q);
         $this->addOrder($q);
-        if (is_int($offset))
+        if (is_int($offset)) {
             $q->setFirstResult($offset);
-        if (is_int($count))
+        }
+        if (is_int($count)) {
             $q->setMaxResults($count);
+        }
+
         return $q
             ->getQuery()
             ->getResult();
     }
 
-    public function countActive() : int
+    public function countActive(): int
     {
         try {
             $q = $this->createQuery();
             $this->addActiveFilter($q);
+
             return $q
                 ->select('count(n.id)')
                 ->getQuery()
                 ->getSingleScalarResult();
-        } catch (NoResultException | NonUniqueResultException $e) {
+        } catch (NoResultException|NonUniqueResultException $e) {
             // should not happen
             $this->logger->emergency('News Count query returned something odd.');
+
             return 0;
         }
     }

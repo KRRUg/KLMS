@@ -10,10 +10,10 @@ use App\Idm\IdmManager;
 use App\Idm\IdmRepository;
 use App\Repository\UserImageRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 
 /**
  * @IsGranted("ROLE_ADMIN")
@@ -37,7 +37,7 @@ class UserController extends AbstractController
      * @Route("/user", name="user", methods={"GET"})
      * @IsGranted("ROLE_ADMIN_USER")
      */
-    public function index(Request $request)
+    public function index(Request $request): \Symfony\Component\HttpFoundation\Response
     {
         $search = $request->query->get('q', '');
         $limit = $request->query->getInt('limit', 10);
@@ -53,14 +53,13 @@ class UserController extends AbstractController
         return $this->render('admin/user/index.html.twig', [
             'users' => $users,
         ]);
-
     }
 
     /**
      * @Route("/user/{uuid}", name="user_show", methods={"GET"})
      * @IsGranted("ROLE_ADMIN")
      */
-    public function show(string $uuid)
+    public function show(string $uuid): \Symfony\Component\HttpFoundation\Response
     {
         $user = $this->userRepo->findOneById($uuid);
 
@@ -77,7 +76,7 @@ class UserController extends AbstractController
      * @Route("/user/{uuid}/edit", name="user_edit", methods={"GET", "POST"})
      * @IsGranted("ROLE_ADMIN_USER")
      */
-    public function edit(string $uuid, Request $request)
+    public function edit(string $uuid, Request $request): \Symfony\Component\HttpFoundation\Response
     {
         $user = $this->userRepo->findOneById($uuid);
 
@@ -104,6 +103,7 @@ class UserController extends AbstractController
                 }
                 $this->em->flush();
                 $this->addFlash('success', 'User erfolgreich bearbeitet!');
+
                 return $this->redirectToRoute('admin_user');
             } catch (PersistException $e) {
                 switch ($e->getCode()) {

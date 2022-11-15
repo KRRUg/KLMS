@@ -15,6 +15,7 @@ use Doctrine\ORM\Mapping as ORM;
  */
 class Teamsite implements HistoryAwareEntity
 {
+    use EntityHistoryTrait;
     /**
      * @ORM\Id
      * @ORM\GeneratedValue
@@ -42,8 +43,6 @@ class Teamsite implements HistoryAwareEntity
      * @ORM\OrderBy({"ord" = "ASC"})
      */
     private $categories;
-
-    use EntityHistoryTrait;
 
     public function __construct()
     {
@@ -75,6 +74,7 @@ class Teamsite implements HistoryAwareEntity
     public function setDescription($description)
     {
         $this->description = $description;
+
         return $this;
     }
 
@@ -104,6 +104,7 @@ class Teamsite implements HistoryAwareEntity
             }
         }
         $this->categories->clear();
+
         return $this;
     }
 

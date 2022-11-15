@@ -7,6 +7,7 @@ use App\Entity\SponsorCategory;
 use App\Repository\SponsorCategoryRepository;
 use App\Repository\SponsorRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use Exception;
 use Psr\Log\LoggerInterface;
 
 class SponsorService extends OptimalService
@@ -18,11 +19,6 @@ class SponsorService extends OptimalService
 
     /**
      * SponsorService constructor.
-     * @param SponsorRepository $sponsorRepository
-     * @param SponsorCategoryRepository $categoryRepository
-     * @param SettingService $settings
-     * @param EntityManagerInterface $em
-     * @param LoggerInterface $logger
      */
     public function __construct(
         SponsorRepository $sponsorRepository,
@@ -30,7 +26,7 @@ class SponsorService extends OptimalService
         SettingService $settings,
         EntityManagerInterface $em,
         LoggerInterface $logger
-    ){
+    ) {
         parent::__construct($settings);
         $this->sponsorRepository = $sponsorRepository;
         $this->categoryRepository = $categoryRepository;
@@ -46,22 +42,22 @@ class SponsorService extends OptimalService
     /**
      * @return array All content elements
      */
-    public function getAll() : array
+    public function getAll(): array
     {
         return $this->sponsorRepository->findAll();
     }
 
-    public function getRandom() : ?Sponsor
+    public function getRandom(): ?Sponsor
     {
         return $this->sponsorRepository->findOneRandomBy();
     }
 
-    public function count() : int
+    public function count(): int
     {
         return $this->sponsorRepository->count([]);
     }
 
-    public function hasCategories() : bool
+    public function hasCategories(): bool
     {
         return $this->categoryRepository->count([]) > 0;
     }
@@ -87,6 +83,7 @@ class SponsorService extends OptimalService
     {
         $categories = $this->categoryRepository->findAll();
         usort($categories, function ($a, $b) { return $a->getPriority() - $b->getPriority(); });
+
         return $categories;
     }
 
@@ -97,13 +94,14 @@ class SponsorService extends OptimalService
 
     public function parseCategories(?array $input): bool
     {
-        if (!self::check($input))
+        if (!self::check($input)) {
             return false;
+        }
 
         $this->em->beginTransaction();
         $ids = [];
         $categories = $this->categoryRepository->findAll();
-        $categories = array_combine(array_map(function($c) {return $c->getId(); }, $categories), $categories);
+        $categories = array_combine(array_map(function ($c) {return $c->getId(); }, $categories), $categories);
 
         // add new categories and update existing
         foreach ($input as $index => $a) {
@@ -126,13 +124,15 @@ class SponsorService extends OptimalService
                 $this->em->remove($category);
             }
         }
-        try{
+        try {
             $this->em->flush();
             $this->em->commit();
-        } catch (\Exception $exception) {
+        } catch (Exception $exception) {
             $this->em->rollback();
+
             return false;
         }
+
         return true;
     }
 
@@ -147,11 +147,10 @@ class SponsorService extends OptimalService
 
     /**
      * @param SponsorCategory[] $cats
-     * @return array
      */
     private static function render(array $cats): array
     {
-        $result = array();
+        $result = [];
         foreach ($cats as $cat) {
             $result[] = [
                 self::ARRAY_ID => $cat->getId(),
@@ -159,6 +158,7 @@ class SponsorService extends OptimalService
                 self::ARRAY_CAN_DELETE => $cat->getSponsors()->count() == 0,
             ];
         }
+
         return $result;
     }
 
@@ -174,6 +174,7 @@ class SponsorService extends OptimalService
                 return false;
             }
         }
+
         return true;
     }
 }

@@ -1,6 +1,5 @@
 <?php
 
-
 namespace App\Service;
 
 use App\Entity\Media;
@@ -18,8 +17,6 @@ class MediaService
 
     /**
      * ImageService constructor.
-     * @param $em
-     * @param $repo
      */
     public function __construct(LoggerInterface $logger, EntityManagerInterface $em, MediaRepository $repo)
     {
@@ -31,7 +28,7 @@ class MediaService
     /**
      * @return Media[] All content elements
      */
-    public function getAll() : array
+    public function getAll(): array
     {
         return $this->repo->findAll();
     }
@@ -66,6 +63,7 @@ class MediaService
                 $name = $file->getClientOriginalName();
             }
         }
+
         return $name;
     }
 

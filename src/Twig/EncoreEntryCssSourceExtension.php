@@ -19,7 +19,8 @@ class EncoreEntryCssSourceExtension extends AbstractExtension implements Service
         $this->publicDir = $publicDir;
     }
 
-    public function getFunctions() {
+    public function getFunctions()
+    {
         return [
             new TwigFunction('encore_entry_css_source', [$this, 'getEncoreEntryCssSource']),
         ];

@@ -1,18 +1,16 @@
 <?php
 
-
 namespace App\Idm\Annotation;
 
 /**
  * @Annotation
+ *
  * @Target("CLASS")
  */
 class Entity
 {
     /**
      * @Required
-     *
-     * @var string
      */
     public string $path;
 
@@ -31,33 +29,21 @@ class Entity
      */
     public bool $bulk = false;
 
-    /**
-     * @return string
-     */
     public function getPath(): string
     {
         return $this->path;
     }
 
-    /**
-     * @return bool
-     */
     public function hasAuthorize(): bool
     {
         return $this->authorize;
     }
 
-    /**
-     * @return bool
-     */
     public function hasSearch(): bool
     {
         return $this->search;
     }
 
-    /**
-     * @return bool
-     */
     public function hasBulk(): bool
     {
         return $this->bulk;

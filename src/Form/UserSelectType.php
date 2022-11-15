@@ -12,7 +12,6 @@ use Ramsey\Uuid\Uuid;
 use Ramsey\Uuid\UuidInterface;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\CallbackTransformer;
-use Symfony\Component\Form\DataTransformerInterface;
 use Symfony\Component\Form\Exception\TransformationFailedException;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
@@ -32,10 +31,10 @@ class UserSelectType extends AbstractType
     {
         switch ($options['type']) {
             case User::class:
-                $builder->addViewTransformer(new CallbackTransformer([$this,'transform'], [$this,'reverseTransformUser']));
+                $builder->addViewTransformer(new CallbackTransformer([$this, 'transform'], [$this, 'reverseTransformUser']));
                 break;
             case UserGamer::class:
-                $builder->addViewTransformer(new CallbackTransformer([$this,'transform'], [$this,'reverseTransformGamer']));
+                $builder->addViewTransformer(new CallbackTransformer([$this, 'transform'], [$this, 'reverseTransformGamer']));
                 break;
         }
     }
@@ -61,7 +60,7 @@ class UserSelectType extends AbstractType
 
     public function transform($entity)
     {
-        $data = array();
+        $data = [];
         if (empty($entity)) {
             return $data;
         }
@@ -77,13 +76,15 @@ class UserSelectType extends AbstractType
             default:
                 throw new TransformationFailedException('Unknown type to convert');
         }
+
         return $data;
     }
 
     public function reverseTransformUser($value)
     {
-        if (empty($value))
+        if (empty($value)) {
             return null;
+        }
 
         $value = $value instanceof UuidInterface ? $value : Uuid::fromString($value);
         try {
@@ -95,8 +96,9 @@ class UserSelectType extends AbstractType
 
     public function reverseTransformGamer($value)
     {
-        if (empty($value))
+        if (empty($value)) {
             return null;
+        }
 
         $value = $value instanceof UuidInterface ? $value : Uuid::fromString($value);
         try {

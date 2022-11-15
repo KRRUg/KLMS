@@ -19,7 +19,6 @@ class MediaRepository extends ServiceEntityRepository
     }
 
     /**
-     * @param $name
      * @return Media|null
      */
     public function findByName(string $name)
@@ -42,16 +41,18 @@ class MediaRepository extends ServiceEntityRepository
 
     /**
      * @param string $mime Mime prefix to search for (e.g. image or document)
+     *
      * @return Media[]
      */
     public function findByMimeClass(string $mime)
     {
-        if (empty($mime))
+        if (empty($mime)) {
             return $this->findAll();
+        }
 
         return $this->createQueryBuilder('m')
             ->where('m.mimeType LIKE :mime')
-            ->setParameter('mime', $mime . '/%')
+            ->setParameter('mime', $mime.'/%')
             ->orderBy('m.displayName', 'ASC')
             ->addOrderBy('m.created', 'ASC')
             ->getQuery()

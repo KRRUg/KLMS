@@ -8,7 +8,6 @@ use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
-use Symfony\Component\Security\Core\Exception\CustomUserMessageAuthenticationException;
 use Symfony\Component\Security\Core\Exception\InvalidCsrfTokenException;
 use Symfony\Component\Security\Core\Security;
 use Symfony\Component\Security\Core\User\UserInterface;
@@ -61,7 +60,7 @@ class LoginFormAuthenticator extends AbstractFormLoginAuthenticator
             throw new InvalidCsrfTokenException();
         }
 
-        if(filter_var($credentials['username'], FILTER_VALIDATE_EMAIL)) {
+        if (filter_var($credentials['username'], FILTER_VALIDATE_EMAIL)) {
             $user = $userProvider->loadUserByUsername($credentials['username']);
         } else {
             return null;
@@ -76,31 +75,34 @@ class LoginFormAuthenticator extends AbstractFormLoginAuthenticator
 
     public function checkCredentials($credentials, UserInterface $user): bool
     {
-        if (!$this->repository->authenticate($credentials['username'], $credentials['password']))
+        if (!$this->repository->authenticate($credentials['username'], $credentials['password'])) {
             return false;
-        if (!($user instanceof LoginUser))
+        }
+        if (!($user instanceof LoginUser)) {
             return false;
+        }
         if (!$user->getUser()->getEmailConfirmed()) {
             $ex = new AccountNotConfirmedException();
             $ex->setUser($user);
             throw $ex;
         }
+
         return true;
     }
 
     public function onAuthenticationSuccess(Request $request, TokenInterface $token, $providerKey)
     {
-        //Redirect back after Forced Login (Opening Page that you have no Access to)
+        // Redirect back after Forced Login (Opening Page that you have no Access to)
         if ($targetPath = $this->getTargetPath($request->getSession(), $providerKey)) {
             return new RedirectResponse($targetPath);
         }
 
-        //Redirect back when logging in via the Dropdown Login
+        // Redirect back when logging in via the Dropdown Login
         if ($targetPath = $request->request->get('_target_path')) {
             return new RedirectResponse($targetPath);
         }
 
-        return new RedirectResponse("/");
+        return new RedirectResponse('/');
     }
 
     protected function getLoginUrl()

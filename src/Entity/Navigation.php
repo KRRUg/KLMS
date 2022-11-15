@@ -47,7 +47,7 @@ class Navigation
         $this->nodes = new ArrayCollection();
     }
 
-    //use Traits\EntityHistoryTrait;
+    // use Traits\EntityHistoryTrait;
 
     public function getId(): ?int
     {

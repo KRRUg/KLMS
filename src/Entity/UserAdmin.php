@@ -55,7 +55,8 @@ class UserAdmin
 
     public function addPermisison(string $permission): self
     {
-        if (!$this->hasPermisison($permission))
+        if (!$this->hasPermisison($permission)) {
             array_push($this->permissions, $permission);
+        }
     }
 }

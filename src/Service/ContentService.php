@@ -1,8 +1,6 @@
 <?php
 
-
 namespace App\Service;
-
 
 use App\Entity\Content;
 use App\Exception\ServiceException;
@@ -20,9 +18,6 @@ class ContentService
 
     /**
      * ContentService constructor.
-     * @param $repo
-     * @param $em
-     * @param $logger
      */
     public function __construct(ContentRepository $repo, EntityManagerInterface $em, LoggerInterface $logger, NavigationService $navService)
     {
@@ -35,18 +30,20 @@ class ContentService
     /**
      * @return array All content elements
      */
-    public function getAll() : array
+    public function getAll(): array
     {
         $allTheContent = $this->repo->findAll();
-        $ret = array();
+        $ret = [];
         foreach ($allTheContent as $content) {
             $ret[$content->getId()] = $content;
         }
+
         return $ret;
     }
 
     /**
      * @param Content $content Content object to check
+     *
      * @return bool If content is in use
      */
     public function inUse(Content $content)
@@ -56,6 +53,7 @@ class ContentService
 
     /**
      * @param Content $content Content object to delete
+     *
      * @throws ServiceException If deletion fails, bacause Content is still in use
      */
     public function delete(Content $content)

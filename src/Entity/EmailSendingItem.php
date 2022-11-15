@@ -33,7 +33,6 @@ class EmailSendingItem
      */
     private $tries = 0;
 
-
     public function getGuid(): ?UuidInterface
     {
         return $this->guid;

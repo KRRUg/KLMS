@@ -9,7 +9,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
- * Class User
+ * Class User.
  *
  * @Idm\Entity(path="/clans", authorize=true, bulk=true)
  */
@@ -104,13 +104,10 @@ class Clan
         return $this->uuid;
     }
 
-    /**
-     * @param UuidInterface $uuid
-     * @return Clan
-     */
     public function setUuid(UuidInterface $uuid): Clan
     {
         $this->uuid = $uuid;
+
         return $this;
     }
 
@@ -122,13 +119,10 @@ class Clan
         return $this->name;
     }
 
-    /**
-     * @param string $name
-     * @return Clan
-     */
     public function setName(string $name): Clan
     {
         $this->name = $name;
+
         return $this;
     }
 
@@ -140,13 +134,10 @@ class Clan
         return $this->joinPassword;
     }
 
-    /**
-     * @param string $joinPassword
-     * @return Clan
-     */
     public function setJoinPassword(string $joinPassword): Clan
     {
         $this->joinPassword = $joinPassword;
+
         return $this;
     }
 
@@ -161,6 +152,7 @@ class Clan
     public function setCreatedAt(DateTimeInterface $createdAt): Clan
     {
         $this->createdAt = $createdAt;
+
         return $this;
     }
 
@@ -169,10 +161,10 @@ class Clan
         return $this->modifiedAt;
     }
 
-
     public function setModifiedAt(DateTimeInterface $modifiedAt): Clan
     {
         $this->modifiedAt = $modifiedAt;
+
         return $this;
     }
 
@@ -184,12 +176,14 @@ class Clan
     public function setUsers($users): Clan
     {
         $this->users = $users;
+
         return $this;
     }
 
     public function addUser(User $user): Clan
     {
         $this->users[] = $user;
+
         return $this;
     }
 
@@ -201,6 +195,7 @@ class Clan
                 break;
             }
         }
+
         return $this;
     }
 
@@ -212,12 +207,14 @@ class Clan
     public function setAdmins($admins): Clan
     {
         $this->admins = $admins;
+
         return $this;
     }
 
     public function addAdmin(User $user): Clan
     {
         $this->admins[] = $user;
+
         return $this;
     }
 
@@ -229,6 +226,7 @@ class Clan
                 break;
             }
         }
+
         return $this;
     }
 
@@ -239,6 +237,7 @@ class Clan
                 return true;
             }
         }
+
         return false;
     }
 
@@ -250,13 +249,10 @@ class Clan
         return $this->clantag;
     }
 
-    /**
-     * @param string $clantag
-     * @return Clan
-     */
     public function setClantag(string $clantag): Clan
     {
         $this->clantag = $clantag;
+
         return $this;
     }
 
@@ -268,13 +264,10 @@ class Clan
         return $this->website;
     }
 
-    /**
-     * @param string $website
-     * @return Clan
-     */
     public function setWebsite(string $website): Clan
     {
         $this->website = $website;
+
         return $this;
     }
 
@@ -286,13 +279,10 @@ class Clan
         return $this->description;
     }
 
-    /**
-     * @param string $description
-     * @return Clan
-     */
     public function setDescription(string $description): Clan
     {
         $this->description = $description;
+
         return $this;
     }
 }

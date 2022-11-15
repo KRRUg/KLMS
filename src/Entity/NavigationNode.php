@@ -25,13 +25,13 @@ use Doctrine\ORM\Mapping as ORM;
  */
 abstract class NavigationNode
 {
-    const NAV_NODE_TYPE_ROOT = "root";
-    const NAV_NODE_TYPE_EMPTY = "empty";
-    const NAV_NODE_TYPE_PATH = "path";
-    const NAV_NODE_TYPE_CONTENT = "content";
-    const NAV_NODE_TYPE_TEAMSITE = "teamsite";
+    public const NAV_NODE_TYPE_ROOT = 'root';
+    public const NAV_NODE_TYPE_EMPTY = 'empty';
+    public const NAV_NODE_TYPE_PATH = 'path';
+    public const NAV_NODE_TYPE_CONTENT = 'content';
+    public const NAV_NODE_TYPE_TEAMSITE = 'teamsite';
 
-    const NAV_NODE_TYPES = [
+    public const NAV_NODE_TYPES = [
         self::NAV_NODE_TYPE_ROOT,
         self::NAV_NODE_TYPE_EMPTY,
         self::NAV_NODE_TYPE_PATH,
@@ -69,7 +69,7 @@ abstract class NavigationNode
 
     public function __construct()
     {
-        $this->name = "";
+        $this->name = '';
     }
 
     public function __toString()
@@ -80,6 +80,7 @@ abstract class NavigationNode
     public function getPath(): ?string
     {
         $id = $this->getTargetId();
+
         return is_null($id) ? null : "/{$this->getType()}/{$id}";
     }
 
@@ -157,12 +158,12 @@ class NavigationNodeRoot extends NavigationNode
     public function __construct()
     {
         parent::__construct();
-        $this->setName("KLMS");
+        $this->setName('KLMS');
     }
 
     public function __toString()
     {
-        return "";
+        return '';
     }
 
     public function getType(): ?string
@@ -184,6 +185,7 @@ class NavigationNodeContent extends NavigationNode
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\Content", fetch="LAZY")
      * @ORM\JoinColumn(name="content_id", referencedColumnName="id")
+     *
      * @var Content
      */
     private $content;
@@ -248,6 +250,7 @@ class NavigationNodeGeneric extends NavigationNode
 {
     /**
      * @ORM\Column(type="string", length=50, nullable=false)
+     *
      * @var string
      */
     private $path;
@@ -266,6 +269,7 @@ class NavigationNodeGeneric extends NavigationNode
     public function setPath(string $path): self
     {
         $this->path = $path;
+
         return $this;
     }
 
@@ -288,6 +292,7 @@ class NavigationNodeTeamsite extends NavigationNode
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\Teamsite", fetch="LAZY")
      * @ORM\JoinColumn(name="teamsite_id", referencedColumnName="id")
+     *
      * @var Teamsite
      */
     private $teamsite;

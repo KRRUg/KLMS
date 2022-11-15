@@ -1,10 +1,10 @@
 <?php
 
-
 namespace App\Idm\Exception;
 
+use RuntimeException;
 
-class PersistException extends \RuntimeException
+class PersistException extends RuntimeException
 {
     public const REASON_UNKNOWN = 1;
     public const REASON_INVALID = 2;
@@ -18,15 +18,12 @@ class PersistException extends \RuntimeException
     /**
      * PersistException constructor.
      */
-    public function __construct(?object $entity, $code = self::REASON_UNKNOWN, $message = "")
+    public function __construct(?object $entity, $code = self::REASON_UNKNOWN, $message = '')
     {
         parent::__construct($message, $code);
         $this->entity = $entity;
     }
 
-    /**
-     * @return object
-     */
     public function getEntity(): object
     {
         return $this->entity;

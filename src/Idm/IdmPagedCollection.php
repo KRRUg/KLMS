@@ -1,8 +1,6 @@
 <?php
 
-
 namespace App\Idm;
-
 
 use ArrayAccess;
 use Countable;
@@ -46,6 +44,7 @@ class IdmPagedCollection implements ArrayAccess, Iterator, Countable
     {
         $result = new self($manager, $class, $filter, $fuzzy, $case, $sort, $page_size);
         $result->request(0);
+
         return $result;
     }
 
@@ -54,7 +53,7 @@ class IdmPagedCollection implements ArrayAccess, Iterator, Countable
         $page = intdiv($offset, $this->page_size);
         $result = $this->manager->find($this->class, $this->filter, $this->fuzzy, $this->case, $this->sort, $page + 1, $this->page_size);
         $this->total = $result->total;
-        for ($i = 0; $i < $result->count; $i++) {
+        for ($i = 0; $i < $result->count; ++$i) {
             $this->items[$page * $this->page_size + $i] = $result->items[$i];
         }
     }
@@ -62,21 +61,25 @@ class IdmPagedCollection implements ArrayAccess, Iterator, Countable
     public function getPage(int $page, int $limit)
     {
         $result = [];
-        for ($i = 0; $i < $limit; $i++) {
-            $val = $this[($page-1) * $limit + $i];
-            if (!empty($val))
+        for ($i = 0; $i < $limit; ++$i) {
+            $val = $this[($page - 1) * $limit + $i];
+            if (!empty($val)) {
                 $result[$i] = $val;
+            }
         }
+
         return $result;
     }
 
     public function offsetGet($offset): ?object
     {
-        if (!$this->offsetExists($offset))
+        if (!$this->offsetExists($offset)) {
             return null;
+        }
 
-        if (!isset($this->items[$offset]))
+        if (!isset($this->items[$offset])) {
             $this->request($offset);
+        }
 
         return isset($this->items[$offset]) ? $this->items[$offset] : null;
     }
@@ -89,7 +92,7 @@ class IdmPagedCollection implements ArrayAccess, Iterator, Countable
     public function offsetSet($offset, $value)
     {
         if (!is_a($value, $this->class)) {
-            throw new InvalidArgumentException("Incorrect type");
+            throw new InvalidArgumentException('Incorrect type');
         }
         $this->items[$offset] = $value;
     }
@@ -111,7 +114,7 @@ class IdmPagedCollection implements ArrayAccess, Iterator, Countable
 
     public function next()
     {
-        $this->position++;
+        ++$this->position;
     }
 
     public function key()

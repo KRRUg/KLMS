@@ -3,7 +3,6 @@
 namespace App\Form;
 
 use App\Entity\User;
-use App\Entity\UserImage;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\BirthdayType;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
@@ -25,23 +24,23 @@ class UserType extends AbstractType
     {
         $builder
             ->add('email', EmailType::class, [
-                'disabled' => true
+                'disabled' => true,
             ])
             ->add('nickname')
             ->add('firstname', TextType::class, [
-                'label' => 'Vorname'
+                'label' => 'Vorname',
             ])
             ->add('surname', TextType::class, [
-                'label' => 'Nachname'
+                'label' => 'Nachname',
             ])
             ->add('birthdate', BirthdayType::class, [
-                'label' => "Geburtsdatum",
+                'label' => 'Geburtsdatum',
                 'widget' => 'single_text',
                 'attr' => ['class' => 'datepicker'],
                 'required' => false,
             ])
             ->add('gender', ChoiceType::class, [
-                'label' => "Geschlecht",
+                'label' => 'Geschlecht',
                 'required' => false,
                 'choices' => [
                     'Weiblich' => 'f',
@@ -50,7 +49,7 @@ class UserType extends AbstractType
                 ],
             ])
             ->add('infoMails', CheckboxType::class, [
-                'label' => "Newsletter abonnieren",
+                'label' => 'Newsletter abonnieren',
                 'required' => false,
             ])
             ->add('postcode', TextType::class, [
@@ -58,35 +57,35 @@ class UserType extends AbstractType
                 'label' => 'PLZ',
             ])
             ->add('city', TextType::class, [
-                'label' => "Ort",
-                'required' => false
+                'label' => 'Ort',
+                'required' => false,
             ])
             ->add('street', TextType::class, [
-                'label' => "Straße",
-                'required' => false
+                'label' => 'Straße',
+                'required' => false,
             ])
             ->add('country', CountryType::class, [
-                'label' => "Land",
+                'label' => 'Land',
                 'required' => false,
                 'choice_translation_locale' => 'de',
                 'preferred_choices' => ['AT', 'DE', 'CH'],
             ])
             ->add('phone', TextType::class, [
-                'label' => "Telefon",
+                'label' => 'Telefon',
                 'required' => false,
             ])
             ->add('website', UrlType::class, [
                 'required' => false,
             ])
             ->add('steamAccount', TextType::class, [
-                'label' => "Steam Account",
+                'label' => 'Steam Account',
                 'required' => false,
             ])
             ->add('hardware', TextareaType::class, [
                 'required' => false,
             ])
             ->add('statements', TextType::class, [
-                'label' => "Statement",
+                'label' => 'Statement',
                 'required' => false,
             ])
         ;
@@ -98,15 +97,15 @@ class UserType extends AbstractType
         }
 
         if ($options['disable_on_lock']) {
-            $builder->addEventListener(FormEvents::PRE_SET_DATA, array($this, 'onPreSetData'));
+            $builder->addEventListener(FormEvents::PRE_SET_DATA, [$this, 'onPreSetData']);
         } else {
             $builder
                 ->add('personalDataConfirmed', CheckboxType::class, [
                     'required' => false,
-                    'label' => "Daten überprüft"
+                    'label' => 'Daten überprüft',
                     ])
             ;
-            $builder->addEventListener(FormEvents::POST_SUBMIT, array($this, 'onPostSubmit'));
+            $builder->addEventListener(FormEvents::POST_SUBMIT, [$this, 'onPostSubmit']);
         }
     }
 
@@ -117,7 +116,7 @@ class UserType extends AbstractType
         $form = $event->getForm();
         $data = $event->getData();
 
-        if (!$data){
+        if (!$data) {
             return;
         }
 

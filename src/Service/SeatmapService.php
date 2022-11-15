@@ -1,8 +1,6 @@
 <?php
 
-
 namespace App\Service;
-
 
 use App\Entity\Seat;
 use App\Entity\User;
@@ -12,7 +10,6 @@ use App\Idm\IdmRepository;
 use App\Repository\SeatRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Security\Core\Security;
-use function Clue\StreamFilter\fun;
 
 class SeatmapService
 {
@@ -56,15 +53,17 @@ class SeatmapService
                 $users[$seat->getOwner()->getUuid()->toString()] :
                 null;
         }
+
         return $ret;
     }
 
     /**
-     * Returns true if the provided User can still book a seat
+     * Returns true if the provided User can still book a seat.
      */
     public function hasSeatEligibility(User $user): bool
     {
         $current_seat = $this->getUserSeatCount($user);
+
         return $current_seat == 0 && $this->gamerService->gamerHasPaid($user);
     }
 
@@ -76,14 +75,16 @@ class SeatmapService
     public function isSeatOwner(Seat $seat, User $user): bool
     {
         $owner = $seat->getOwner();
-        if (empty($owner))
+        if (empty($owner)) {
             return false;
+        }
+
         return $owner === $this->gamerService->getGamer($user);
     }
 
     public function bookSeat(Seat $seat, User $user)
     {
-        if($this->canBookSeat($seat, $user)) {
+        if ($this->canBookSeat($seat, $user)) {
             $seat->setOwner($this->gamerService->getGamer($user));
             $this->em->flush();
         } else {
@@ -93,7 +94,7 @@ class SeatmapService
 
     public function unBookSeat(Seat $seat, User $user)
     {
-        if($this->isSeatOwner($seat, $user)) {
+        if ($this->isSeatOwner($seat, $user)) {
             $seat->setOwner(null);
             $this->em->flush();
         } else {

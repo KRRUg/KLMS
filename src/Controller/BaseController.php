@@ -1,6 +1,5 @@
 <?php
 
-
 namespace App\Controller;
 
 use App\Exception\ServiceException;
@@ -18,8 +17,9 @@ abstract class BaseController extends AbstractController
     }
 
     /**
-     * @param mixed $data Usually an object you want to serialize
-     * @param int $statusCode
+     * @param mixed $data       Usually an object you want to serialize
+     * @param int   $statusCode
+     *
      * @return JsonResponse
      */
     protected function apiResponse($data = null, bool $wrap = false, $statusCode = 200)
@@ -37,21 +37,23 @@ abstract class BaseController extends AbstractController
             ];
         }
         $json = $this->get('serializer')->serialize($data, 'json');
+
         return new JsonResponse($json, $statusCode, [], true);
     }
 
     /**
      * @param $message string The error Message you want ot send
      * @param int $statusCode
+     *
      * @return JsonResponse
      */
     protected function apiError(string $message, $statusCode = 400)
     {
-        return $this->apiResponse(["Error" => ["message" => $message]], $statusCode);
+        return $this->apiResponse(['Error' => ['message' => $message]], $statusCode);
     }
 
     /**
-     * Returns an associative array of validation errors
+     * Returns an associative array of validation errors.
      *
      * {
      *     'firstName': 'This value is required',
@@ -60,7 +62,6 @@ abstract class BaseController extends AbstractController
      *     }
      * }
      *
-     * @param FormInterface $form
      * @return array|string
      */
     protected function getErrorsFromForm(FormInterface $form)
@@ -72,7 +73,7 @@ abstract class BaseController extends AbstractController
             return $error->getMessage();
         }
 
-        $errors = array();
+        $errors = [];
         foreach ($form->all() as $childForm) {
             if ($childForm instanceof FormInterface) {
                 if ($childError = $this->getErrorsFromForm($childForm)) {
@@ -84,7 +85,7 @@ abstract class BaseController extends AbstractController
         return $errors;
     }
 
-    protected function createBadRequestException($message = "Invalid JSON")
+    protected function createBadRequestException($message = 'Invalid JSON')
     {
         return new BadRequestHttpException($message);
     }
@@ -92,18 +93,24 @@ abstract class BaseController extends AbstractController
     protected function flashException(ServiceException $e)
     {
         switch ($e->getCause()) {
-            case ServiceException::CAUSE_DONT_EXIST: $cause = "nicht vorhanden"; break;
-            case ServiceException::CAUSE_EMPTY: $cause = "leer"; break;
-            case ServiceException::CAUSE_EXIST: $cause = "bereits vorhanden"; break;
-            case ServiceException::CAUSE_IN_USE: $cause = "in Verwendung"; break;
-            default: $cause = ""; break;
+            case ServiceException::CAUSE_DONT_EXIST: $cause = 'nicht vorhanden';
+            break;
+            case ServiceException::CAUSE_EMPTY: $cause = 'leer';
+            break;
+            case ServiceException::CAUSE_EXIST: $cause = 'bereits vorhanden';
+            break;
+            case ServiceException::CAUSE_IN_USE: $cause = 'in Verwendung';
+            break;
+            default: $cause = '';
+            break;
         }
 
-        $msg = "Operation kann nicht durchgeführt werden";
-        if (!empty($cause))
-            $msg = $msg . " ($cause).";
-        else
-            $msg = $msg . ".";
+        $msg = 'Operation kann nicht durchgeführt werden';
+        if (!empty($cause)) {
+            $msg = $msg." ($cause).";
+        } else {
+            $msg = $msg.'.';
+        }
         $this->addFlash('danger', $msg);
     }
 }

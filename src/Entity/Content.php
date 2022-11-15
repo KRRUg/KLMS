@@ -2,8 +2,8 @@
 
 namespace App\Entity;
 
-use Doctrine\ORM\Mapping as ORM;
 use App\Entity\Traits\HistoryAwareEntity;
+use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
@@ -12,6 +12,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  */
 class Content implements HistoryAwareEntity
 {
+    use Traits\EntityHistoryTrait;
     /**
      * @ORM\Id()
      * @ORM\GeneratedValue()
@@ -39,8 +40,6 @@ class Content implements HistoryAwareEntity
      * @Assert\Regex("/^[a-z]*$/", message="Nur Kleinbuchstaben sind hier erlaubt.")
      */
     private $alias;
-
-    use Traits\EntityHistoryTrait;
 
     public function __construct()
     {

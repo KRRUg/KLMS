@@ -4,6 +4,7 @@ namespace App\Controller\Admin;
 
 use App\Form\HtmlTextareaType;
 use App\Service\SettingService;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\HiddenType;
@@ -11,7 +12,6 @@ use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Core\Type\UrlType;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Vich\UploaderBundle\Form\Type\VichFileType;
 
 /**
@@ -30,7 +30,7 @@ class SettingController extends AbstractController
     /**
      * @Route("/", name="", methods={"GET"})
      */
-    public function index()
+    public function index(): \Symfony\Component\HttpFoundation\Response
     {
         $k = [];
         $k[''] = [];
@@ -55,7 +55,7 @@ class SettingController extends AbstractController
     /**
      * @Route("/edit", name="_edit", methods={"GET", "POST"})
      */
-    public function edit(Request $request)
+    public function edit(Request $request): \Symfony\Component\HttpFoundation\Response
     {
         $key = $request->get('key');
         if (!$this->service->validKey($key)) {
@@ -82,14 +82,14 @@ class SettingController extends AbstractController
                     'label' => false,
                     'download_uri' => false,
                     'allow_delete' => true,
-                    'delete_label' => "Löschen",
+                    'delete_label' => 'Löschen',
                     ]);
                 break;
             case SettingService::TB_TYPE_BOOL:
                 $fb->add('text', ChoiceType::class, [
                     'choices' => [
                         'Aktiviert' => '1',
-                        'Deaktiviert' => '0'
+                        'Deaktiviert' => '0',
                     ],
                     'expanded' => true,
                     'required' => true,
@@ -103,7 +103,8 @@ class SettingController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             $data = $form->getData();
             $this->service->setSettingsObject($data);
-            return $this->redirectToRoute("admin_setting");
+
+            return $this->redirectToRoute('admin_setting');
         }
 
         return $this->render('admin/settings/edit.html.twig', [

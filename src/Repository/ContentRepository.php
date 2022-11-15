@@ -21,6 +21,7 @@ class ContentRepository extends ServiceEntityRepository
 
     /**
      * @param string $alias Alias to search for
+     *
      * @return Content|null
      */
     public function findByAlias(string $alias)
@@ -38,6 +39,7 @@ class ContentRepository extends ServiceEntityRepository
         if (empty($slug)) {
             return null;
         }
+
         return $this->findOneBy(['alias' => $slug]);
     }
 }

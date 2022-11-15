@@ -13,10 +13,8 @@ final class BulkRequest
      *      @Assert\Uuid(strict=false)
      * })
      * @Groups({"write"})
-     * @var array
      */
     public array $uuid = [];
-
 
     public function __construct(array $uuid)
     {

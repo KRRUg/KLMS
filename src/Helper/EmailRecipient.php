@@ -32,6 +32,7 @@ class EmailRecipient
         if (empty($user->getUuid()) || empty($user->getEmail())) {
             return null;
         }
+
         return new self($user->getUuid(), $user->getEmail(), $user->getNickname(), $user->getFirstname(), $user->getSurname());
     }
 
@@ -62,19 +63,21 @@ class EmailRecipient
 
     public function getAddressObject(): Address
     {
-        $name = $this->getFirstname() . ' ' . $this->getSurname();
+        $name = $this->getFirstname().' '.$this->getSurname();
+
         return new Address($this->emailAddress, $name);
     }
 
     public function getDataArray(): array
     {
         $dataset = [
-            "id" => $this->id->toString(),
-            "nickname" => $this->nickname,
-            "firstname" => $this->firstname,
-            "surname" => $this->surname,
-            "email" => $this->emailAddress,
+            'id' => $this->id->toString(),
+            'nickname' => $this->nickname,
+            'firstname' => $this->firstname,
+            'surname' => $this->surname,
+            'email' => $this->emailAddress,
         ];
+
         return array_change_key_case($dataset, CASE_LOWER);
     }
 }

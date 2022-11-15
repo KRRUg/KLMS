@@ -57,11 +57,11 @@ class UserGamer
         return $this;
     }
 
-    public function hasRegistered() : bool
+    public function hasRegistered(): bool
     {
         return $this->registered !== null;
     }
-    
+
     public function getUuid(): ?UuidInterface
     {
         return $this->uuid;
@@ -120,12 +120,12 @@ class UserGamer
         return $this;
     }
 
-    public function getCheckedIn(): ?\DateTimeInterface
+    public function getCheckedIn(): ?DateTimeInterface
     {
         return $this->checkedIn;
     }
 
-    public function setCheckedIn(?\DateTimeInterface $checkedIn): self
+    public function setCheckedIn(?DateTimeInterface $checkedIn): self
     {
         $this->checkedIn = $checkedIn;
 

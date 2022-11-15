@@ -7,7 +7,6 @@ use App\Entity\Teamsite;
 use App\Form\TeamsiteType;
 use App\Service\TeamsiteService;
 use Psr\Log\LoggerInterface;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -28,9 +27,10 @@ class TeamsiteController extends BaseController
     /**
      * @Route("", name="", methods={"GET"})
      */
-    public function index()
+    public function index(): \Symfony\Component\HttpFoundation\Response
     {
         $sites = $this->teamsiteService->getAll();
+
         return $this->render('admin/teamsite/index.html.twig', [
             'teamsites' => $sites,
         ]);
@@ -39,7 +39,7 @@ class TeamsiteController extends BaseController
     /**
      * @Route("/edit/{id}", name="_edit", methods={"GET", "POST"})
      */
-    public function edit(Request $request, Teamsite $teamsite)
+    public function edit(Request $request, Teamsite $teamsite): \Symfony\Component\HttpFoundation\Response
     {
         $array = $this->teamsiteService->renderSite($teamsite);
 
@@ -55,8 +55,10 @@ class TeamsiteController extends BaseController
             } else {
                 $this->addFlash('danger', 'Teamsite Speichern fehlgeschlagen');
             }
+
             return $this->redirectToRoute('admin_teamsite');
         }
+
         return $this->render('admin/teamsite/edit.html.twig', [
             'teamsite' => $teamsite,
             'form' => $form->createView(),
@@ -66,7 +68,7 @@ class TeamsiteController extends BaseController
     /**
      * @Route("/new", name="_new", methods={"GET", "POST"})
      */
-    public function new(Request $request)
+    public function new(Request $request): \Symfony\Component\HttpFoundation\Response
     {
         $teamsite = new Teamsite();
 
@@ -82,8 +84,10 @@ class TeamsiteController extends BaseController
             } else {
                 $this->addFlash('danger', 'Teamsite Speichern fehlgeschlagen');
             }
+
             return $this->redirectToRoute('admin_teamsite');
         }
+
         return $this->render('admin/teamsite/edit.html.twig', [
             'teamsite' => null,
             'form' => $form->createView(),

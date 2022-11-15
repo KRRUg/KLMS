@@ -20,7 +20,7 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class PaymentController extends AbstractController
 {
-    private const CSRF_TOKEN_PAYMENT = "paymentToken";
+    private const CSRF_TOKEN_PAYMENT = 'paymentToken';
 
     private GamerService $gamerService;
     private IdmRepository $userRepo;
@@ -36,15 +36,17 @@ class PaymentController extends AbstractController
     {
         $form = $this->createFormBuilder();
         $form->add('user', UserSelectType::class);
+
         return $form->getForm();
     }
 
     /**
      * @Route("", name="", methods={"GET"})
      */
-    public function index(Request $request)
+    public function index(): \Symfony\Component\HttpFoundation\Response
     {
         $gamers = $this->gamerService->getGamers();
+
         return $this->render('admin/payment/index.html.twig', [
             'gamers' => $gamers,
             'form_add' => $this->createUserSelectForm()->createView(),
@@ -54,14 +56,14 @@ class PaymentController extends AbstractController
     /**
      * @Route("", name="_add", methods={"POST"})
      */
-    public function add(Request $request)
+    public function add(Request $request): \Symfony\Component\HttpFoundation\Response
     {
         $form = $this->createUserSelectForm();
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
             $user = $form->getData()['user'];
             if (empty($user)) {
-                $this->addFlash('error', "Ungültigen User ausgewählt.");
+                $this->addFlash('error', 'Ungültigen User ausgewählt.');
             } elseif ($this->gamerService->gamerHasRegistered($user)) {
                 $this->addFlash('warning', "User {$user->getNickname()} ist schon registriert.");
             } else {
@@ -73,17 +75,18 @@ class PaymentController extends AbstractController
                 }
             }
         }
+
         return $this->redirectToRoute('admin_payment');
     }
 
     /**
      * @Route("/{uuid}", name="_update", methods={"POST"})
      */
-    public function update(Request $request, string $uuid)
+    public function update(Request $request, string $uuid): \Symfony\Component\HttpFoundation\Response
     {
         $token = $request->request->get('_token');
-        if(!$this->isCsrfTokenValid(self::CSRF_TOKEN_PAYMENT, $token)) {
-            throw $this->createAccessDeniedException("Invalid CSRF token presented");
+        if (!$this->isCsrfTokenValid(self::CSRF_TOKEN_PAYMENT, $token)) {
+            throw $this->createAccessDeniedException('Invalid CSRF token presented');
         }
 
         $user = $this->userRepo->findOneById($uuid);
@@ -92,42 +95,45 @@ class PaymentController extends AbstractController
         }
 
         $action = $request->request->get('action');
-        try{
+        try {
             switch ($action) {
-                case "register":
+                case 'register':
                     $this->gamerService->gamerRegister($user);
                     break;
-                case "unregister":
+                case 'unregister':
                     $this->gamerService->gamerUnregister($user);
                     break;
-                case "pay":
+                case 'pay':
                     $this->gamerService->gamerPay($user);
                     break;
-                case "unpay":
+                case 'unpay':
                     $this->gamerService->gamerUnPay($user);
                     break;
-                case "checkin":
+                case 'checkin':
                     $this->gamerService->gamerCheckIn($user);
                     break;
-                case "checkout":
+                case 'checkout':
                     $this->gamerService->gamerCheckOut($user);
                     break;
                 default:
                     $this->addFlash('error', 'Invalid action specified.');
+
                     return $this->redirectToRoute('admin_payment');
             }
-        } catch(GamerLifecycleException $exception) {
+        } catch (GamerLifecycleException $exception) {
             $this->addFlash('error', "Aktion konnte nicht durchgeführt werden ({$exception->getMessage()}).");
+
             return $this->redirectToRoute('admin_payment');
         }
         $this->addFlash('success', "Änderung an User {$user->getNickname()} erfolgreich.");
+
         return $this->redirectToRoute('admin_payment');
     }
 
     /**
      * @Route("/{uuid}", name="_show", methods={"GET"})
      */
-    public function show(Request $request, string $uuid)
+    public function show(string $uuid): \Symfony\Component\HttpFoundation\Response
     {
         $user = $this->userRepo->findOneById($uuid);
 

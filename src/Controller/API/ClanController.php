@@ -1,17 +1,14 @@
 <?php
 
-
 namespace App\Controller\API;
 
 use App\Entity\Clan;
 use App\Idm\IdmManager;
 use App\Idm\IdmRepository;
-use App\Transfer\Error;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
-
 
 /**
  * @Route("/clans", name="clans")
@@ -27,10 +24,10 @@ class ClanController extends AbstractController
 
     /**
      * @Route("", name="", methods={"GET"})
-     * @param Request $request
+     *
      * @return JsonResponse
      */
-    public function search(Request $request)
+    public function search(Request $request): \Symfony\Component\HttpFoundation\Response
     {
         $search = $request->query->get('q', '');
         $limit = $request->query->getInt('limit', 10);
@@ -39,7 +36,7 @@ class ClanController extends AbstractController
         $lazyLoadingCollection = $this->clanRepo->findFuzzy($search);
         $items = $lazyLoadingCollection->getPage($page, $limit);
 
-        $result = array();
+        $result = [];
         $result['count'] = count($items);
         $result['total'] = $lazyLoadingCollection->count();
         $result['items'] = array_map(function (Clan $clan) {
@@ -51,6 +48,6 @@ class ClanController extends AbstractController
             ];
         }, $items);
 
-        return new JsonResponse(json_encode($result), 200, [], true);
+        return new JsonResponse(json_encode($result), \Symfony\Component\HttpFoundation\Response::HTTP_OK, [], true);
     }
 }

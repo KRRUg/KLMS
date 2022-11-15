@@ -1,8 +1,6 @@
 <?php
 
-
 namespace App\Messenger;
-
 
 use App\Helper\EmailRecipient;
 

@@ -18,13 +18,14 @@ class SponsorController extends AbstractController
     /**
      * @Route("/sponsor", name="sponsor")
      */
-    public function index()
+    public function index(): \Symfony\Component\HttpFoundation\Response
     {
         if (!$this->service->active()) {
             throw $this->createNotFoundException();
         }
 
         $categories = $this->service->getCategories();
+
         return $this->render('site/sponsor/index.html.twig', [
             'categories' => $categories,
         ]);

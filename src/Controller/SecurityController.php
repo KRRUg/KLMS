@@ -3,13 +3,13 @@
 namespace App\Controller;
 
 use App\Security\AccountNotConfirmedException;
+use Exception;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Security\Core\Exception\BadCredentialsException;
 use Symfony\Component\Security\Core\Exception\InvalidCsrfTokenException;
-use Symfony\Component\Security\Core\Exception\UsernameNotFoundException;
 use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 
 /**
@@ -49,29 +49,31 @@ class SecurityController extends AbstractController
 
     private function errorMsgToHtml($error): string
     {
-        if (empty($error))
+        if (empty($error)) {
             return '';
+        }
 
         switch (true) {
             case $error instanceof BadCredentialsException:
-            case $error instanceof UsernameNotFoundException:
-                return "E-Mail-Addresse oder Passwort falsch";
+            case $error instanceof \Symfony\Component\Security\Core\Exception\UserNotFoundException:
+                return 'E-Mail-Addresse oder Passwort falsch';
             case $error instanceof AccountNotConfirmedException:
                 $user = $error->getUser();
                 $url = $this->urlGenerator->generate('app_register_resend', ['email' => $user->getUsername()]);
+
                 return "E-Mail-Addresse nicht bestätigt. <a href=\"{$url}\">Bestätigung anfordern.</a>";
             case $error instanceof InvalidCsrfTokenException:
-                return "Es ist ein Fehler aufgetreten. Bitte Seite neu laden.";
+                return 'Es ist ein Fehler aufgetreten. Bitte Seite neu laden.';
             default:
-                return "Es ist ein unbekannter Fehler aufgetreten.";
+                return 'Es ist ein unbekannter Fehler aufgetreten.';
         }
     }
 
     /**
      * @Route("/logout", name="app_logout")
      */
-    public function logout()
+    public function logout(): Response
     {
-        throw new \Exception('This method can be blank - it will be intercepted by the logout key on your firewall');
+        throw new Exception('This method can be blank - it will be intercepted by the logout key on your firewall');
     }
 }

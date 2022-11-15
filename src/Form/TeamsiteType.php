@@ -20,18 +20,17 @@ class TeamsiteType extends AbstractType
         $this->authorInsertSubscriber = $authorInsertSubscriber;
     }
 
-
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
             ->add('title', TextType::class, [
                 'required' => true,
-                'label' => "Titel",
+                'label' => 'Titel',
             ])
             ->add('description', TextareaType::class, [
                 'required' => true,
                 'empty_data' => '',
-                'label' => "Beschreibung",
+                'label' => 'Beschreibung',
             ])
             ->add('content', HiddenType::class, [
                 'mapped' => false,

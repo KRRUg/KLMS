@@ -6,7 +6,6 @@ use App\Entity\Email;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
-
 /**
  * @method Email|null find($id, $lockMode = null, $lockVersion = null)
  * @method Email|null findOneBy(array $criteria, array $orderBy = null)
@@ -15,12 +14,12 @@ use Doctrine\Persistence\ManagerRegistry;
  */
 class EmailRepository extends ServiceEntityRepository
 {
-	public function __construct(ManagerRegistry $registry)
-	{
-		parent::__construct($registry, Email::class);
-	}
+    public function __construct(ManagerRegistry $registry)
+    {
+        parent::__construct($registry, Email::class);
+    }
 
-	public function findAllTemplatesWithoutSendings()
+    public function findAllTemplatesWithoutSendings()
     {
         return $this->createQueryBuilder('emailTemplate')
             ->leftJoin('emailTemplate.emailSending', 'emailSending')
@@ -31,7 +30,7 @@ class EmailRepository extends ServiceEntityRepository
     }
 
     /**
-     * @return array with keys 'tbd', 'success', and 'fail' and int values.
+     * @return array with keys 'tbd', 'success', and 'fail' and int values
      */
     public function countMails(Email $template): array
     {
@@ -47,7 +46,7 @@ class EmailRepository extends ServiceEntityRepository
         foreach ($qr as $r) {
             $v = $r['val'];
             $c = $r['cnt'];
-            if (is_null($v)){
+            if (is_null($v)) {
                 $result['tbd'] = $c;
             } elseif ($v === false) {
                 $result['fail'] = $c;
@@ -55,16 +54,15 @@ class EmailRepository extends ServiceEntityRepository
                 $result['success'] = $c;
             }
         }
+
         return $result;
     }
 
     public function countMailsSuccess(): int
     {
-
     }
 
     public function countMailsFail(): int
     {
-
     }
 }

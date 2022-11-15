@@ -1,14 +1,13 @@
 <?php
 
-
 namespace App\Entity;
 
 use App\Entity\Traits\HistoryAwareEntity;
 use DateTime;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\Validator\Constraints as Assert;
 use Vich\UploaderBundle\Mapping\Annotation as Vich;
-use Symfony\Component\HttpFoundation\File\File;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\MediaRepository")
@@ -18,8 +17,9 @@ use Symfony\Component\HttpFoundation\File\File;
  */
 class Media implements HistoryAwareEntity
 {
-    const MAX_FILE_SIZE = "16384k";
-    const MIME_TYPES = ["image/png", "image/jpeg", "image/gif", "application/pdf", "application/zip", "audio/mpeg", "audio/ogg"];
+    use Traits\EntityHistoryTrait;
+    public const MAX_FILE_SIZE = '16384k';
+    public const MIME_TYPES = ['image/png', 'image/jpeg', 'image/gif', 'application/pdf', 'application/zip', 'audio/mpeg', 'audio/ogg'];
 
     /**
      * @ORM\Id()
@@ -40,6 +40,7 @@ class Media implements HistoryAwareEntity
      *     mimeType="mimeType",
      *     originalName="displayName"
      * )
+     *
      * @var File
      */
     private $mediaFile;
@@ -58,8 +59,6 @@ class Media implements HistoryAwareEntity
      * @ORM\Column(name="mime_type", nullable=false)
      */
     private $mimeType;
-
-    use Traits\EntityHistoryTrait;
 
     public function getId()
     {
@@ -126,32 +125,35 @@ class Media implements HistoryAwareEntity
         $mimeType = null;
         if (!empty($this->getMimeType())) {
             $mimeType = $this->getMimeType();
-        } else if (!empty($this->getMediaFile())) {
+        } elseif (!empty($this->getMediaFile())) {
             $mimeType = $this->getMediaFile()->getMimeType();
         }
+
         return substr($mimeType, 0, strlen($prefix)) === $prefix;
     }
 
     public function getMediaType()
     {
         $mime = $this->getMimeType();
-        if(!preg_match('/^(\w+)\/(\w*)$/', $mime, $output))
-            return "";
+        if (!preg_match('/^(\w+)\/(\w*)$/', $mime, $output)) {
+            return '';
+        }
+
         return $output[1];
     }
 
     public function isImage(): bool
     {
-        return $this->checkMediaType("image/");
+        return $this->checkMediaType('image/');
     }
 
     public function isDocument(): bool
     {
-        return $this->checkMediaType("application/");
+        return $this->checkMediaType('application/');
     }
 
     public function isAudio(): bool
     {
-        return $this->checkMediaType("audio/");
+        return $this->checkMediaType('audio/');
     }
 }

@@ -32,21 +32,21 @@ class SeatRepository extends ServiceEntityRepository
             ->getResult();
     }
 
-    private function createCountQueryBuilder(string $alias = "s")
+    private function createCountQueryBuilder(string $alias = 's')
     {
         return $this->createQueryBuilder($alias)
             ->select("count({$alias})")
             ->andWhere("{$alias}.type != 'information'");
     }
 
-    public function countSeatsTotal() : int
+    public function countSeatsTotal(): int
     {
         return $this->createCountQueryBuilder('s')
             ->getQuery()
             ->getSingleScalarResult();
     }
 
-    public function countFreeSeats() : int
+    public function countFreeSeats(): int
     {
         return $this->createCountQueryBuilder('s')
             ->andWhere('s.owner IS NULL')
@@ -54,7 +54,7 @@ class SeatRepository extends ServiceEntityRepository
             ->getSingleScalarResult();
     }
 
-    public function countTakenSeats() : int
+    public function countTakenSeats(): int
     {
         return $this->createCountQueryBuilder('s')
             ->andWhere('s.owner IS NOT NULL')

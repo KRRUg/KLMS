@@ -22,17 +22,19 @@ class PermissionController extends BaseController
 {
     private PermissionService $permissionService;
     private IdmRepository $userRepo;
+    private \Symfony\Component\Form\FormFactoryInterface $formFactory;
 
-    public function __construct(PermissionService $permissionService, IdmManager $manager)
+    public function __construct(PermissionService $permissionService, IdmManager $manager, \Symfony\Component\Form\FormFactoryInterface $formFactory)
     {
         $this->permissionService = $permissionService;
         $this->userRepo = $manager->getRepository(User::class);
+        $this->formFactory = $formFactory;
     }
 
     /**
      * @Route(".{_format}", name="", defaults={"_format"="html"}, methods={"GET"})
      */
-    public function index(Request $request)
+    public function index(Request $request): \Symfony\Component\HttpFoundation\Response
     {
         $local_admins = $this->permissionService->getAdmins();
         uasort($local_admins, function ($a, $b) {
@@ -45,8 +47,9 @@ class PermissionController extends BaseController
                 true
             );
         } else {
-            $formEdit = $this->get('form.factory')->createNamed('edit', PermissionType::class, null, ['include_user' => true]);
-            $formAdd  = $this->get('form.factory')->createNamed('new', PermissionType::class, null, ['include_user' => false]);
+            $formEdit = $this->formFactory->createNamed('edit', PermissionType::class, null, ['include_user' => true]);
+            $formAdd = $this->formFactory->createNamed('new', PermissionType::class, null, ['include_user' => false]);
+
             return $this->render('admin/permission/index.html.twig', [
                 'admins' => $local_admins,
                 'form_edit' => $formEdit->createView(),
@@ -58,24 +61,26 @@ class PermissionController extends BaseController
     /**
      * @Route("", name="_add", methods={"POST"})
      */
-    public function addPermission(Request $request) {
+    public function addPermission(Request $request): \Symfony\Component\HttpFoundation\Response
+    {
         $data = json_decode($request->getContent(), true);
         if ($data === null) {
             throw new BadRequestHttpException('Invalid JSON');
         }
 
-        $form = $this->get('form.factory')->createNamed('new', PermissionType::class);
+        $form = $this->formFactory->createNamed('new', PermissionType::class);
         $form->submit($data[$form->getName()]);
         if (!$form->isValid()) {
             $errors = $this->getErrorsFromForm($form);
+
             return $this->apiResponse([
-                'errors' => $errors
+                'errors' => $errors,
             ], false, 400);
         }
 
         $data = $form->getData();
         if (!$this->permissionService->setPermissions($data['user'], $data['perm'])) {
-            $form->get('perm')->addError(new FormError("Invalide Berechtigungen gesetzt"));
+            $form->get('perm')->addError(new FormError('Invalide Berechtigungen gesetzt'));
         }
 
         return $this->apiResponse([]);
@@ -84,7 +89,7 @@ class PermissionController extends BaseController
     /**
      * @Route("/{id}", name="_get", methods={"GET"})
      */
-    public function getPermission(Request $request, $id)
+    public function getPermission($id): \Symfony\Component\HttpFoundation\Response
     {
         $user = $this->userRepo->findOneById($id);
         if (empty($user)) {
@@ -92,13 +97,14 @@ class PermissionController extends BaseController
         }
 
         $perm = $this->permissionService->getPermissions($user);
+
         return $this->apiResponse(['user' => $user, 'perm' => $perm]);
     }
 
     /**
      * @Route("/{id}", name="_edit", methods={"POST"})
      */
-    public function updatePermission(Request $request, $id)
+    public function updatePermission(Request $request, $id): \Symfony\Component\HttpFoundation\Response
     {
         $user = $this->userRepo->findOneById($id);
 
@@ -111,26 +117,26 @@ class PermissionController extends BaseController
             throw new BadRequestHttpException('Invalid JSON');
         }
 
-        $form = $this->get('form.factory')->createNamed('edit', PermissionType::class, null, ['include_user' => true]);
+        $form = $this->formFactory->createNamed('edit', PermissionType::class, null, ['include_user' => true]);
         $form->submit($data[$form->getName()]);
         if (!$form->isValid()) {
             $errors = $this->getErrorsFromForm($form);
 
             return $this->apiResponse([
-                'errors' => $errors
+                'errors' => $errors,
             ], false, 400);
         }
 
         $data = $form->getData();
         if (!$this->permissionService->setPermissions($user, $data['perm'])) {
-            $form->get('perm')->addError(new FormError("Invalide Berechtigungen gesetzt"));
+            $form->get('perm')->addError(new FormError('Invalide Berechtigungen gesetzt'));
         }
 
-        if (!$form->isValid()){
+        if (!$form->isValid()) {
             $errors = $this->getErrorsFromForm($form);
 
             return $this->apiResponse([
-                'errors' => $errors
+                'errors' => $errors,
             ], false, 400);
         }
 

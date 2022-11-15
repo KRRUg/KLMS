@@ -29,25 +29,28 @@ class EmailController extends AbstractController
     /**
      * @Route("/unsubscribe", name="email_unsubscribe")
      */
-    public function unsubscribe(Request $request)
+    public function unsubscribe(Request $request): \Symfony\Component\HttpFoundation\Response
     {
-        $token = strval($request->get('token', ""));
+        $token = strval($request->get('token', ''));
         if (empty($token)) {
             return $this->redirectToRoute('news');
         }
         $uuid = $this->mailService->handleUnsubscribeToken($token);
         if (empty($uuid)) {
-            $this->addFlash('error', "Ungültigen Token übermittelt.");
+            $this->addFlash('error', 'Ungültigen Token übermittelt.');
+
             return $this->redirectToRoute('news');
         }
         $user = $this->userRepo->findOneById($uuid);
         if (empty($user)) {
-            $this->addFlash('error', "User nicht gefunden.");
+            $this->addFlash('error', 'User nicht gefunden.');
+
             return $this->redirectToRoute('news');
         }
         $user->setInfoMails(false);
         $this->manager->flush();
         $this->addFlash('success', "Newsletter für {$user->getEmail()} wurde abbestellt.");
+
         return $this->redirectToRoute('app_login');
     }
 }

@@ -6,11 +6,14 @@ use App\Entity\Token;
 use App\Exception\TokenException;
 use App\Helper\RandomStringGenerator;
 use App\Repository\TokenRepository;
+use DateInterval;
+use DateTimeImmutable;
+use DateTimeInterface;
 use Doctrine\ORM\EntityManagerInterface;
 use Ramsey\Uuid\UuidInterface;
 
 /**
- * Inspired by https://github.com/SymfonyCasts/reset-password-bundle
+ * Inspired by https://github.com/SymfonyCasts/reset-password-bundle.
  *
  * Some of the cryptographic strategies were taken from
  * https://paragonie.com/blog/2017/02/split-tokens-token-based-authentication-protocols-without-side-channels
@@ -55,8 +58,8 @@ class TokenService
 
         $this->handleGarbageCollection();
 
-        $generatedAt = new \DateTimeImmutable();
-        $expiresAt = $generatedAt->add(new \DateInterval(\sprintf('PT%dS', self::TOKEN_LIFETIME)));
+        $generatedAt = new DateTimeImmutable();
+        $expiresAt = $generatedAt->add(new DateInterval(\sprintf('PT%dS', self::TOKEN_LIFETIME)));
 
         $selector = RandomStringGenerator::create(self::SELECTOR_LENGTH);
         $verifier = RandomStringGenerator::create(self::SELECTOR_LENGTH);
@@ -70,7 +73,8 @@ class TokenService
             ->setExpiresAt($expiresAt);
         $this->em->persist($token);
         $this->em->flush();
-        return $selector . $verifier;
+
+        return $selector.$verifier;
     }
 
     /**
@@ -97,6 +101,7 @@ class TokenService
         if (!$success) {
             throw new TokenException(TokenException::CAUSE_INVALID);
         }
+
         return true;
     }
 
@@ -114,9 +119,10 @@ class TokenService
         return $this->repo->countValidToken($user, $type) >= self::THROTTLE_COUNT;
     }
 
-    private function getHashedToken(string $verifier, UuidInterface $user, string $type, \DateTimeInterface $expiresAt): string
+    private function getHashedToken(string $verifier, UuidInterface $user, string $type, DateTimeInterface $expiresAt): string
     {
-        $data = $verifier . $user->toString() . $type . $expiresAt->getTimestamp();
+        $data = $verifier.$user->toString().$type.$expiresAt->getTimestamp();
+
         return \base64_encode(\hash_hmac('sha256', $data, $this->appSecret, true));
     }
 }

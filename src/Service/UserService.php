@@ -29,6 +29,7 @@ class UserService
         if (empty($image) || empty($image->getImage())) {
             return '';
         }
+
         return $this->uploadHelper->asset($image, 'imageFile');
     }
 
@@ -54,11 +55,11 @@ class UserService
 
     public static function array2Uuid(array $a): ?UuidInterface
     {
-        return array_key_exists("uuid", $a) && Uuid::isValid($a["uuid"]) ? Uuid::fromString($a["uuid"]) : null;
+        return array_key_exists('uuid', $a) && Uuid::isValid($a['uuid']) ? Uuid::fromString($a['uuid']) : null;
     }
 
     /**
-     * Preloads multiple users to avoid multiple IDM requests
+     * Preloads multiple users to avoid multiple IDM requests.
      */
     public function preloadUsers(array $uuids)
     {

@@ -21,7 +21,7 @@ class AuthorInsertSubscriber implements EventSubscriberInterface
     public static function getSubscribedEvents()
     {
         return [
-            FormEvents::POST_SUBMIT => 'onPostSubmit'
+            FormEvents::POST_SUBMIT => 'onPostSubmit',
         ];
     }
 

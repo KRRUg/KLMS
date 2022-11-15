@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Entity\Traits\HistoryAwareEntity;
+use DateTime;
+use DateTimeInterface;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -16,6 +18,7 @@ use Vich\UploaderBundle\Mapping\Annotation as Vich;
  */
 class News implements HistoryAwareEntity
 {
+    use Traits\EntityHistoryTrait;
     /**
      * @ORM\Id()
      * @ORM\GeneratedValue()
@@ -60,8 +63,6 @@ class News implements HistoryAwareEntity
      */
     private $image;
 
-    use Traits\EntityHistoryTrait;
-
     public function __construct()
     {
         $this->image = new EmbeddedFile();
@@ -103,7 +104,7 @@ class News implements HistoryAwareEntity
         if (null !== $imageFile) {
             // It is required that at least one field changes if you are using doctrine
             // otherwise the event listeners won't be called and the file is lost
-            $this->setLastModified(new \DateTime());
+            $this->setLastModified(new DateTime());
         }
     }
 
@@ -122,24 +123,24 @@ class News implements HistoryAwareEntity
         return $this->image;
     }
 
-    public function getPublishedFrom(): ?\DateTimeInterface
+    public function getPublishedFrom(): ?DateTimeInterface
     {
         return $this->publishedFrom;
     }
 
-    public function setPublishedFrom(?\DateTimeInterface $publishedFrom): self
+    public function setPublishedFrom(?DateTimeInterface $publishedFrom): self
     {
         $this->publishedFrom = $publishedFrom;
 
         return $this;
     }
 
-    public function getPublishedTo(): ?\DateTimeInterface
+    public function getPublishedTo(): ?DateTimeInterface
     {
         return $this->publishedTo;
     }
 
-    public function setPublishedTo(?\DateTimeInterface $publishedTo): self
+    public function setPublishedTo(?DateTimeInterface $publishedTo): self
     {
         $this->publishedTo = $publishedTo;
 
@@ -148,12 +149,13 @@ class News implements HistoryAwareEntity
 
     public function isActive(): bool
     {
-        $now = new \DateTime();
+        $now = new DateTime();
+
         return (empty($this->getPublishedFrom()) || $this->getPublishedFrom() <= $now)
             && (empty($this->getPublishedTo()) || $this->getPublishedTo() >= $now);
     }
 
-    public function activeSince() : \DateTimeInterface
+    public function activeSince(): DateTimeInterface
     {
         if (empty($this->publishedFrom)) {
             return $this->getCreated();

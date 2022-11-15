@@ -9,7 +9,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
- * Class User
+ * Class User.
  *
  * @Idm\Entity(path="/users", authorize=true, bulk=true)
  */
@@ -222,7 +222,6 @@ class User
      */
     private $clans;
 
-
     public function getId(): ?int
     {
         return $this->id;
@@ -231,6 +230,7 @@ class User
     public function setId(?int $id): User
     {
         $this->id = $id;
+
         return $this;
     }
 
@@ -242,6 +242,7 @@ class User
     public function setUuid(?UuidInterface $uuid): User
     {
         $this->uuid = $uuid;
+
         return $this;
     }
 
@@ -277,6 +278,7 @@ class User
     public function setSurname(string $surname): self
     {
         $this->surname = $surname;
+
         return $this;
     }
 
@@ -288,6 +290,7 @@ class User
     public function setBirthdate(?DateTimeInterface $birthdate): self
     {
         $this->birthdate = $birthdate;
+
         return $this;
     }
 
@@ -299,6 +302,7 @@ class User
     public function setPersonalDataConfirmed(?bool $personalDataConfirmed): User
     {
         $this->personalDataConfirmed = $personalDataConfirmed;
+
         return $this;
     }
 
@@ -310,6 +314,7 @@ class User
     public function setPostcode(string $postcode): self
     {
         $this->postcode = $postcode;
+
         return $this;
     }
 
@@ -321,6 +326,7 @@ class User
     public function setCity(string $city): self
     {
         $this->city = $city;
+
         return $this;
     }
 
@@ -332,6 +338,7 @@ class User
     public function setStreet(string $street): self
     {
         $this->street = $street;
+
         return $this;
     }
 
@@ -343,6 +350,7 @@ class User
     public function setCountry(string $country): self
     {
         $this->country = $country;
+
         return $this;
     }
 
@@ -354,6 +362,7 @@ class User
     public function setPhone(string $phone): self
     {
         $this->phone = $phone;
+
         return $this;
     }
 
@@ -365,6 +374,7 @@ class User
     public function setGender(?string $gender): self
     {
         $this->gender = $gender;
+
         return $this;
     }
 
@@ -376,6 +386,7 @@ class User
     public function setEmailConfirmed(?bool $emailConfirmed): self
     {
         $this->emailConfirmed = $emailConfirmed;
+
         return $this;
     }
 
@@ -387,6 +398,7 @@ class User
     public function setNickname(string $nickname): self
     {
         $this->nickname = $nickname;
+
         return $this;
     }
 
@@ -398,6 +410,7 @@ class User
     public function setPersonalDataLocked(?bool $personalDataLocked): User
     {
         $this->personalDataLocked = $personalDataLocked;
+
         return $this;
     }
 
@@ -409,6 +422,7 @@ class User
     public function setIsSuperadmin(?bool $isSuperadmin): self
     {
         $this->isSuperadmin = $isSuperadmin;
+
         return $this;
     }
 
@@ -420,6 +434,7 @@ class User
     public function setPassword(?string $password): self
     {
         $this->password = $password;
+
         return $this;
     }
 
@@ -431,6 +446,7 @@ class User
     public function setWebsite(?string $website): self
     {
         $this->website = $website;
+
         return $this;
     }
 
@@ -442,28 +458,31 @@ class User
     public function setSteamAccount(?string $steamAccount): self
     {
         $this->steamAccount = $steamAccount;
+
         return $this;
     }
 
-    public function getRegisteredAt(): ?\DateTimeInterface
+    public function getRegisteredAt(): ?DateTimeInterface
     {
         return $this->registeredAt;
     }
 
-    public function setRegisteredAt(\DateTimeInterface $registeredAt): self
+    public function setRegisteredAt(DateTimeInterface $registeredAt): self
     {
         $this->registeredAt = $registeredAt;
+
         return $this;
     }
 
-    public function getModifiedAt(): ?\DateTimeInterface
+    public function getModifiedAt(): ?DateTimeInterface
     {
         return $this->modifiedAt;
     }
 
-    public function setModifiedAt(\DateTimeInterface $modifiedAt): self
+    public function setModifiedAt(DateTimeInterface $modifiedAt): self
     {
         $this->modifiedAt = $modifiedAt;
+
         return $this;
     }
 
@@ -475,6 +494,7 @@ class User
     public function setHardware(?string $hardware): self
     {
         $this->hardware = $hardware;
+
         return $this;
     }
 
@@ -486,6 +506,7 @@ class User
     public function setInfoMails(?bool $infoMails): self
     {
         $this->infoMails = $infoMails;
+
         return $this;
     }
 
@@ -497,6 +518,7 @@ class User
     public function setStatements(?string $statements): self
     {
         $this->statements = $statements;
+
         return $this;
     }
 
@@ -508,6 +530,7 @@ class User
     public function setClans($clans): self
     {
         $this->clans = $clans;
+
         return $this;
     }
 }

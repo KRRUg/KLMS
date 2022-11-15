@@ -2,18 +2,10 @@
 
 namespace App\Controller\Site;
 
-
 use App\Entity\Seat;
-use App\Entity\User;
 use App\Exception\GamerLifecycleException;
-use App\Idm\IdmManager;
-use App\Idm\IdmRepository;
-use App\Service\GamerService;
 use App\Service\SeatmapService;
 use App\Service\SettingService;
-use Doctrine\ORM\EntityManagerInterface;
-use Psr\Log\LoggerInterface;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\HttpFoundation\Request;
@@ -28,8 +20,8 @@ class SeatmapController extends AbstractController
     private SettingService $settingService;
 
     public function __construct(
-        SettingService         $settingService,
-        SeatmapService         $seatmapService)
+        SettingService $settingService,
+        SeatmapService $seatmapService)
     {
         $this->settingService = $settingService;
         $this->seatmapService = $seatmapService;
@@ -38,11 +30,12 @@ class SeatmapController extends AbstractController
     /**
      * @Route("", name="")
      */
-    public function index()
+    public function index(): \Symfony\Component\HttpFoundation\Response
     {
         if (!$this->settingService->get('lan.seatmap.enabled', false)) {
             if ($this->settingService->get('lan.signup.enabled', false)) {
                 $this->addFlash('warning', 'Sitzplan ist noch nicht verfügbar');
+
                 return $this->redirectToRoute('index');
             } else {
                 throw $this->createNotFoundException();
@@ -50,26 +43,29 @@ class SeatmapController extends AbstractController
         }
 
         $seats = $this->seatmapService->getSeatmap();
+
         return $this->render('site/seatmap/index.html.twig', [
             'seatmap' => $seats,
             'users' => $this->seatmapService->getSeatedUser($seats),
         ]);
     }
 
-    private function generateForm(Seat $seat, string $action) {
+    private function generateForm(Seat $seat, string $action)
+    {
         $fb = $this->createFormBuilder()
             ->add('action', HiddenType::class, [
-                'data' => $action
+                'data' => $action,
             ]);
 
         $fb->setAction($this->generateUrl('seatmap_seat_show', ['id' => $seat->getId()]));
+
         return $fb->getForm();
     }
 
     /**
      * @Route("/seat/{id}", name="_seat_show", methods={"GET", "POST"})
      */
-    public function seatShow(Seat $seat, Request $request)
+    public function seatShow(Seat $seat, Request $request): \Symfony\Component\HttpFoundation\Response
     {
         $view = null;
         $locked = $this->settingService->get('lan.seatmap.locked') === true;
@@ -86,7 +82,7 @@ class SeatmapController extends AbstractController
                 $form->handleRequest($request);
                 if ($form->isSubmitted() && $form->isValid()) {
                     if ($locked) {
-                        $this->addFlash('error', "Der Sitzplan ist aktuell von den Administratoren gesperrt!");
+                        $this->addFlash('error', 'Der Sitzplan ist aktuell von den Administratoren gesperrt!');
                     } else {
                         $action = $form->get('action')->getData();
                         try {
@@ -101,9 +97,10 @@ class SeatmapController extends AbstractController
                                     break;
                             }
                         } catch (GamerLifecycleException $exception) {
-                            $this->addFlash('error', "Aktion konnte nicht durchgeführt werden!");
+                            $this->addFlash('error', 'Aktion konnte nicht durchgeführt werden!');
                         }
                     }
+
                     return $this->redirectToRoute('seatmap');
                 }
                 $view = $form->createView();

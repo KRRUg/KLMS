@@ -2,6 +2,8 @@
 
 namespace App\Twig;
 
+use ReflectionClass;
+use ReflectionException;
 use Twig\Extension\AbstractExtension;
 use Twig\TwigTest;
 
@@ -12,9 +14,9 @@ class InstanceOfExtension extends AbstractExtension
      */
     public function getTests()
     {
-        return array(
-            new TwigTest('instanceof', [$this, 'isInstanceOf'])
-        );
+        return [
+            new TwigTest('instanceof', [$this, 'isInstanceOf']),
+        ];
     }
 
     public function isInstanceOf($object, $class)
@@ -23,9 +25,10 @@ class InstanceOfExtension extends AbstractExtension
             return false;
         }
         try {
-            $reflectionClass = new \ReflectionClass($class);
+            $reflectionClass = new ReflectionClass($class);
+
             return $reflectionClass->isInstance($object);
-        } catch (\ReflectionException $e) {
+        } catch (ReflectionException $e) {
             return false;
         }
     }

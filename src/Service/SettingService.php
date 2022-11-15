@@ -4,6 +4,7 @@ namespace App\Service;
 
 use App\Entity\Setting;
 use App\Repository\SettingRepository;
+use DateTimeInterface;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 use Vich\UploaderBundle\Templating\Helper\UploaderHelper;
@@ -18,58 +19,58 @@ class SettingService
     public const TB_TYPE_FILE = 'file';
     public const TB_TYPE_BOOL = 'bool';
 
-    ////////////////////////////////////////////////
-    /// Text block names
-    ////////////////////////////////////////////////
+    // //////////////////////////////////////////////
+    // / Text block names
+    // //////////////////////////////////////////////
 
     private const TEXT_BLOCK_KEYS = [
-        "site.title" => [self::TB_DESCRIPTION => "Titel der Seite", self::TB_TYPE => self::TB_TYPE_STRING],
-        "site.title.show" => [self::TB_DESCRIPTION => "Titel der Seite anzeigen", self::TB_TYPE => self::TB_TYPE_BOOL],
-        "site.subtitle" => [self::TB_DESCRIPTION => "Untertitel der Seite", self::TB_TYPE => self::TB_TYPE_STRING],
-        "site.subtitle.show" => [self::TB_DESCRIPTION => "Untertitel der Seite anzeigen", self::TB_TYPE => self::TB_TYPE_BOOL],
-        "site.about" => [self::TB_DESCRIPTION => "Über uns, Homepage links unten", self::TB_TYPE => self::TB_TYPE_HTML],
-        "site.organisation" => [self::TB_DESCRIPTION => "Organisationsname / Vereinsname", self::TB_TYPE => self::TB_TYPE_STRING],
+        'site.title' => [self::TB_DESCRIPTION => 'Titel der Seite', self::TB_TYPE => self::TB_TYPE_STRING],
+        'site.title.show' => [self::TB_DESCRIPTION => 'Titel der Seite anzeigen', self::TB_TYPE => self::TB_TYPE_BOOL],
+        'site.subtitle' => [self::TB_DESCRIPTION => 'Untertitel der Seite', self::TB_TYPE => self::TB_TYPE_STRING],
+        'site.subtitle.show' => [self::TB_DESCRIPTION => 'Untertitel der Seite anzeigen', self::TB_TYPE => self::TB_TYPE_BOOL],
+        'site.about' => [self::TB_DESCRIPTION => 'Über uns, Homepage links unten', self::TB_TYPE => self::TB_TYPE_HTML],
+        'site.organisation' => [self::TB_DESCRIPTION => 'Organisationsname / Vereinsname', self::TB_TYPE => self::TB_TYPE_STRING],
 
-        "sponsor.enabled" => [self::TB_DESCRIPTION => "Sponsorenbanner einschalten", self::TB_TYPE => self::TB_TYPE_BOOL],
-        "sponsor.banner.show" => [self::TB_DESCRIPTION => "Sponsoren-Banner anzeigen", self::TB_TYPE => self::TB_TYPE_BOOL],
-        "sponsor.banner.title" => [self::TB_DESCRIPTION => "Titel des Sponsorenbanner", self::TB_TYPE => self::TB_TYPE_STRING],
-        "sponsor.banner.show_title" => [self::TB_DESCRIPTION => "Titel des Sponsoren-Banner anzeigen", self::TB_TYPE => self::TB_TYPE_BOOL],
-        "sponsor.banner.show_name" => [self::TB_DESCRIPTION => "Sponsorname im Sponsoren-Banner anzeigen", self::TB_TYPE => self::TB_TYPE_BOOL],
-        "sponsor.banner.show_text" => [self::TB_DESCRIPTION => "Detailtext im Sponsoren-Banner anzeigen", self::TB_TYPE => self::TB_TYPE_BOOL],
-        "sponsor.page.title" => [self::TB_DESCRIPTION => "Titel der Sponsoren-Seite", self::TB_TYPE => self::TB_TYPE_STRING],
-        "sponsor.page.text" => [self::TB_DESCRIPTION => "Einleitungstext der Sponsoren-Seite", self::TB_TYPE => self::TB_TYPE_HTML],
-        "sponsor.page.site_links" => [self::TB_DESCRIPTION => "Links zu den Kategorien anzeigen", self::TB_TYPE => self::TB_TYPE_BOOL],
-        "sponsor.page.show_empty" => [self::TB_DESCRIPTION => "Leere Sponsor Kategorien anzeigen", self::TB_TYPE => self::TB_TYPE_BOOL],
+        'sponsor.enabled' => [self::TB_DESCRIPTION => 'Sponsorenbanner einschalten', self::TB_TYPE => self::TB_TYPE_BOOL],
+        'sponsor.banner.show' => [self::TB_DESCRIPTION => 'Sponsoren-Banner anzeigen', self::TB_TYPE => self::TB_TYPE_BOOL],
+        'sponsor.banner.title' => [self::TB_DESCRIPTION => 'Titel des Sponsorenbanner', self::TB_TYPE => self::TB_TYPE_STRING],
+        'sponsor.banner.show_title' => [self::TB_DESCRIPTION => 'Titel des Sponsoren-Banner anzeigen', self::TB_TYPE => self::TB_TYPE_BOOL],
+        'sponsor.banner.show_name' => [self::TB_DESCRIPTION => 'Sponsorname im Sponsoren-Banner anzeigen', self::TB_TYPE => self::TB_TYPE_BOOL],
+        'sponsor.banner.show_text' => [self::TB_DESCRIPTION => 'Detailtext im Sponsoren-Banner anzeigen', self::TB_TYPE => self::TB_TYPE_BOOL],
+        'sponsor.page.title' => [self::TB_DESCRIPTION => 'Titel der Sponsoren-Seite', self::TB_TYPE => self::TB_TYPE_STRING],
+        'sponsor.page.text' => [self::TB_DESCRIPTION => 'Einleitungstext der Sponsoren-Seite', self::TB_TYPE => self::TB_TYPE_HTML],
+        'sponsor.page.site_links' => [self::TB_DESCRIPTION => 'Links zu den Kategorien anzeigen', self::TB_TYPE => self::TB_TYPE_BOOL],
+        'sponsor.page.show_empty' => [self::TB_DESCRIPTION => 'Leere Sponsor Kategorien anzeigen', self::TB_TYPE => self::TB_TYPE_BOOL],
 
-        "community.enabled" => [self::TB_DESCRIPTION => "Community Sektion einschalten", self::TB_TYPE => self::TB_TYPE_BOOL],
-        "community.all" => [self::TB_DESCRIPTION => "Alle IDM User in Community anzeigen", self::TB_TYPE => self::TB_TYPE_BOOL],
+        'community.enabled' => [self::TB_DESCRIPTION => 'Community Sektion einschalten', self::TB_TYPE => self::TB_TYPE_BOOL],
+        'community.all' => [self::TB_DESCRIPTION => 'Alle IDM User in Community anzeigen', self::TB_TYPE => self::TB_TYPE_BOOL],
 
-        "lan.signup.enabled" => [self::TB_DESCRIPTION => "LAN-Anmeldung erlauben", self::TB_TYPE => self::TB_TYPE_BOOL],
-        "lan.signup.info" => [self::TB_DESCRIPTION => "Inhalt der beim \"Anmelden\" zu einer LAN angezeigt wird", self::TB_TYPE => self::TB_TYPE_HTML],
+        'lan.signup.enabled' => [self::TB_DESCRIPTION => 'LAN-Anmeldung erlauben', self::TB_TYPE => self::TB_TYPE_BOOL],
+        'lan.signup.info' => [self::TB_DESCRIPTION => 'Inhalt der beim "Anmelden" zu einer LAN angezeigt wird', self::TB_TYPE => self::TB_TYPE_HTML],
 
-        "lan.seatmap.enabled" => [self::TB_DESCRIPTION => "Sitzplanbuchungen einschalten", self::TB_TYPE => self::TB_TYPE_BOOL],
-        "lan.seatmap.locked" => [self::TB_DESCRIPTION => "Sitzplanbuchungen sperren (Kein Reservieren/Freigeben für User)", self::TB_TYPE => self::TB_TYPE_BOOL],
-        "lan.seatmap.bg_image" => [self::TB_DESCRIPTION => "Sitzplan Hintergrundbild", self::TB_TYPE => self::TB_TYPE_FILE],
+        'lan.seatmap.enabled' => [self::TB_DESCRIPTION => 'Sitzplanbuchungen einschalten', self::TB_TYPE => self::TB_TYPE_BOOL],
+        'lan.seatmap.locked' => [self::TB_DESCRIPTION => 'Sitzplanbuchungen sperren (Kein Reservieren/Freigeben für User)', self::TB_TYPE => self::TB_TYPE_BOOL],
+        'lan.seatmap.bg_image' => [self::TB_DESCRIPTION => 'Sitzplan Hintergrundbild', self::TB_TYPE => self::TB_TYPE_FILE],
 
-        "lan.stats.show" => [self::TB_DESCRIPTION => "Statistiken zur Anmeldung anzeigen", self::TB_TYPE => self::TB_TYPE_BOOL],
+        'lan.stats.show' => [self::TB_DESCRIPTION => 'Statistiken zur Anmeldung anzeigen', self::TB_TYPE => self::TB_TYPE_BOOL],
 
-        "style.logo" => [self::TB_DESCRIPTION => "Logo", self::TB_TYPE => self::TB_TYPE_FILE],
-        "style.bg_image" => [self::TB_DESCRIPTION => "Hintergrundbild", self::TB_TYPE => self::TB_TYPE_FILE],
+        'style.logo' => [self::TB_DESCRIPTION => 'Logo', self::TB_TYPE => self::TB_TYPE_FILE],
+        'style.bg_image' => [self::TB_DESCRIPTION => 'Hintergrundbild', self::TB_TYPE => self::TB_TYPE_FILE],
 
-        "email.register.subject" => [self::TB_DESCRIPTION => "Betreff der Registrierungsmail", self::TB_TYPE => self::TB_TYPE_STRING],
-        "email.register.text" => [self::TB_DESCRIPTION => "Text der Registrierungsmail", self::TB_TYPE => self::TB_TYPE_HTML],
-        "email.reset.subject" => [self::TB_DESCRIPTION => "Betreff der Passwort-Zurücksetzen Email", self::TB_TYPE => self::TB_TYPE_STRING],
-        "email.reset.text" => [self::TB_DESCRIPTION => "Text der Passwort-Zurücksetzen Email", self::TB_TYPE => self::TB_TYPE_HTML],
-        "email.notify.subject" => [self::TB_DESCRIPTION => "Betreff der Benachrichtigungs-Email", self::TB_TYPE => self::TB_TYPE_STRING],
+        'email.register.subject' => [self::TB_DESCRIPTION => 'Betreff der Registrierungsmail', self::TB_TYPE => self::TB_TYPE_STRING],
+        'email.register.text' => [self::TB_DESCRIPTION => 'Text der Registrierungsmail', self::TB_TYPE => self::TB_TYPE_HTML],
+        'email.reset.subject' => [self::TB_DESCRIPTION => 'Betreff der Passwort-Zurücksetzen Email', self::TB_TYPE => self::TB_TYPE_STRING],
+        'email.reset.text' => [self::TB_DESCRIPTION => 'Text der Passwort-Zurücksetzen Email', self::TB_TYPE => self::TB_TYPE_HTML],
+        'email.notify.subject' => [self::TB_DESCRIPTION => 'Betreff der Benachrichtigungs-Email', self::TB_TYPE => self::TB_TYPE_STRING],
 
-        "link.fb" => [self::TB_DESCRIPTION => "Link zur Facebook Seite", self::TB_TYPE => self::TB_TYPE_URL],
-        "link.insta" => [self::TB_DESCRIPTION => "Link zur Instagram Seite", self::TB_TYPE => self::TB_TYPE_URL],
-        "link.steam" => [self::TB_DESCRIPTION => "Link zur Steam Gruppe", self::TB_TYPE => self::TB_TYPE_URL],
-        "link.yt" => [self::TB_DESCRIPTION => "Link zur YouTube Seite", self::TB_TYPE => self::TB_TYPE_URL],
-        "link.twitter" => [self::TB_DESCRIPTION => "Link zur Twitter Seite", self::TB_TYPE => self::TB_TYPE_URL],
-        "link.discord" => [self::TB_DESCRIPTION => "Link zur Discord Server", self::TB_TYPE => self::TB_TYPE_URL],
-        "link.teamspeak" => [self::TB_DESCRIPTION => "Teamspeak Invite Link", self::TB_TYPE => self::TB_TYPE_URL],
-        "link.twitch" => [self::TB_DESCRIPTION => "Link zum Twitchkanal", self::TB_TYPE => self::TB_TYPE_URL],
+        'link.fb' => [self::TB_DESCRIPTION => 'Link zur Facebook Seite', self::TB_TYPE => self::TB_TYPE_URL],
+        'link.insta' => [self::TB_DESCRIPTION => 'Link zur Instagram Seite', self::TB_TYPE => self::TB_TYPE_URL],
+        'link.steam' => [self::TB_DESCRIPTION => 'Link zur Steam Gruppe', self::TB_TYPE => self::TB_TYPE_URL],
+        'link.yt' => [self::TB_DESCRIPTION => 'Link zur YouTube Seite', self::TB_TYPE => self::TB_TYPE_URL],
+        'link.twitter' => [self::TB_DESCRIPTION => 'Link zur Twitter Seite', self::TB_TYPE => self::TB_TYPE_URL],
+        'link.discord' => [self::TB_DESCRIPTION => 'Link zur Discord Server', self::TB_TYPE => self::TB_TYPE_URL],
+        'link.teamspeak' => [self::TB_DESCRIPTION => 'Teamspeak Invite Link', self::TB_TYPE => self::TB_TYPE_URL],
+        'link.twitch' => [self::TB_DESCRIPTION => 'Link zum Twitchkanal', self::TB_TYPE => self::TB_TYPE_URL],
 
         // extend here
     ];
@@ -95,17 +96,18 @@ class SettingService
     public static function validKey(string $key): bool
     {
         $key = strtolower($key);
+
         return array_key_exists($key, self::TEXT_BLOCK_KEYS);
     }
 
     public static function getType(string $key): string
     {
-        return self::validKey($key) ? self::TEXT_BLOCK_KEYS[$key][self::TB_TYPE] : "";
+        return self::validKey($key) ? self::TEXT_BLOCK_KEYS[$key][self::TB_TYPE] : '';
     }
 
     public static function getDescription(string $key): string
     {
-        return self::validKey($key) ? self::TEXT_BLOCK_KEYS[$key][self::TB_DESCRIPTION] : "";
+        return self::validKey($key) ? self::TEXT_BLOCK_KEYS[$key][self::TB_DESCRIPTION] : '';
     }
 
     public function isSet(string $key): bool
@@ -118,23 +120,26 @@ class SettingService
         $key = strtolower($key);
         if (!$this->validKey($key)) {
             $this->logger->error("Invalid key {$key} was requested by SettingService");
+
             return null;
         }
+
         return $this->repo->findByKey($key) ?? new Setting($key);
     }
 
-    public function get(string $key, $default = "")
+    public function get(string $key, $default = '')
     {
         static $cache = null;
 
         $key = strtolower($key);
         if (!$this->validKey($key)) {
             $this->logger->error("Invalid key {$key} was requested by SettingService");
+
             return null;
         }
 
         if (is_null($cache)) {
-            $cache = array();
+            $cache = [];
             foreach ($this->repo->findAll() as $item) {
                 $cache[$item->getKey()] = $item;
             }
@@ -156,6 +161,7 @@ class SettingService
         $key = strtolower($key);
         if (!array_key_exists($key, self::TEXT_BLOCK_KEYS)) {
             $this->logger->error("Invalid key {$key} was to be set at SettingService");
+
             return;
         }
         $block = $this->repo->findByKey($key);
@@ -180,29 +186,34 @@ class SettingService
         $key = strtolower($key);
         if (!$this->validKey($key)) {
             $this->logger->error("Invalid key {$key} was to be deleted by SettingService");
+
             return false;
         }
         $block = $this->repo->findByKey($key);
         if (empty($block)) {
             $this->logger->warning("Tried to delete non-existing key {$key}");
+
             return false;
         }
         $this->em->remove($block);
         $this->em->flush();
+
         return true;
     }
 
-    public function lastModification(string $key): ?\DateTimeInterface
+    public function lastModification(string $key): ?DateTimeInterface
     {
         $key = strtolower($key);
         if (!$this->validKey($key)) {
             $this->logger->error("Invalid key {$key} was to be deleted by SettingService");
+
             return null;
         }
         $block = $this->repo->findByKey($key);
         if (empty($block)) {
             return null;
         }
+
         return $block->getLastModified();
     }
 
@@ -212,6 +223,7 @@ class SettingService
         foreach (self::TEXT_BLOCK_KEYS as $key => $value) {
             $result[$key] = $value[self::TB_DESCRIPTION];
         }
+
         return $result;
     }
 
@@ -227,6 +239,7 @@ class SettingService
                 $ret[$key] = null;
             }
         }
+
         return $ret;
     }
 
@@ -235,6 +248,7 @@ class SettingService
         $key = $data->getKey();
         if (!$this->validKey($key)) {
             $this->logger->error("Invalid key {$key} was to be deleted by SettingService");
+
             return;
         }
         $this->em->persist($data);

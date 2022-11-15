@@ -4,14 +4,13 @@ namespace App\Controller\Admin;
 
 use App\Controller\BaseController;
 use App\Entity\Navigation;
-use App\Entity\NavigationNodeTeamsite;
-use App\Form\NavigationNodeType;
 use App\Entity\NavigationNodeContent;
 use App\Entity\NavigationNodeEmpty;
 use App\Entity\NavigationNodeGeneric;
+use App\Entity\NavigationNodeTeamsite;
+use App\Form\NavigationNodeType;
 use App\Service\NavigationService;
 use Psr\Log\LoggerInterface;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
@@ -27,11 +26,12 @@ class NavigationController extends BaseController
 
     private function getAllForms(): array
     {
-        $types = [ new NavigationNodeEmpty(), new NavigationNodeContent(), new NavigationNodeGeneric(), new NavigationNodeTeamsite() ];
+        $types = [new NavigationNodeEmpty(), new NavigationNodeContent(), new NavigationNodeGeneric(), new NavigationNodeTeamsite()];
         $result = [];
         foreach ($types as $type) {
             $result[$type->getType()] = $this->createForm(NavigationNodeType::class, $type)->createView();
         }
+
         return $result;
     }
 
@@ -44,9 +44,10 @@ class NavigationController extends BaseController
     /**
      * @Route("", name="", methods={"GET"})
      */
-    public function index(Request $request)
+    public function index(): \Symfony\Component\HttpFoundation\Response
     {
         $navs = $this->navService->getAll();
+
         return $this->render('admin/navigation/index.html.twig', [
             'navs' => $navs,
         ]);
@@ -55,7 +56,7 @@ class NavigationController extends BaseController
     /**
      * @Route("/edit/{id}.{_format}", name="_edit", defaults={"_format"="html"}, methods={"GET", "POST"})
      */
-    public function edit(Request $request, Navigation $navigation)
+    public function edit(Request $request, Navigation $navigation): \Symfony\Component\HttpFoundation\Response
     {
         $array = $this->navService->renderNav($navigation);
 
@@ -76,6 +77,7 @@ class NavigationController extends BaseController
             } else {
                 $this->addFlash('danger', 'Navigation Speichern fehlgeschlagen');
             }
+
             return $this->redirectToRoute('admin_navigation');
         }
 

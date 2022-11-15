@@ -62,7 +62,6 @@ class Seat
      */
     private $chairPosition;
 
-
     public function getId(): ?int
     {
         return $this->id;
@@ -171,9 +170,10 @@ class Seat
 
     public function generateSeatName(): string
     {
-        if ($this->getName())
+        if ($this->getName()) {
             return $this->getName();
-        else
+        } else {
             return "{$this->getSector()}-{$this->getSeatNumber()}";
+        }
     }
 }

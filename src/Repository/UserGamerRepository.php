@@ -5,8 +5,8 @@ namespace App\Repository;
 use App\Entity\User;
 use App\Entity\UserGamer;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
-use Doctrine\Persistence\ManagerRegistry;
 use Doctrine\ORM\NonUniqueResultException;
+use Doctrine\Persistence\ManagerRegistry;
 
 /**
  * @method UserGamer|null find($id, $lockMode = null, $lockVersion = null)
@@ -35,7 +35,7 @@ class UserGamerRepository extends ServiceEntityRepository
         }
     }
 
-    private function createQueryFilterBuilder(?bool $registered, ?bool $paid, ?bool $seat, string $alias = "u")
+    private function createQueryFilterBuilder(?bool $registered, ?bool $paid, ?bool $seat, string $alias = 'u')
     {
         $qb = $this->createQueryBuilder($alias);
         if (!is_null($seat)) {
@@ -46,13 +46,14 @@ class UserGamerRepository extends ServiceEntityRepository
                 ->having("count(seats) {$cmp} 0");
         }
         if (!is_null($registered)) {
-            $neg = $registered ? "not" : "";
+            $neg = $registered ? 'not' : '';
             $qb->andWhere("{$alias}.registered is {$neg} null");
         }
         if (!is_null($paid)) {
-            $neg = $paid ? "not" : "";
+            $neg = $paid ? 'not' : '';
             $qb->andWhere("{$alias}.paid is {$neg} null");
         }
+
         return $qb;
     }
 
@@ -63,7 +64,7 @@ class UserGamerRepository extends ServiceEntityRepository
             ->getResult();
     }
 
-    public function countByState(?bool $registered, ?bool $paid, ?bool $seat) : int
+    public function countByState(?bool $registered, ?bool $paid, ?bool $seat): int
     {
         return $this->createQueryFilterBuilder($registered, $paid, $seat, 'u')
             ->select('count(u)')

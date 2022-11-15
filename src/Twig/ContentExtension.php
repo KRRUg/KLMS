@@ -23,27 +23,28 @@ class ContentExtension extends AbstractExtension
     public function getTests()
     {
         return [
-            new TwigTest('slug', [$this, 'slugExists'])
+            new TwigTest('slug', [$this, 'slugExists']),
         ];
     }
 
     public function getFunctions()
     {
         return [
-            new TwigFunction('slug_url', [$this, 'slugUrl'])
+            new TwigFunction('slug_url', [$this, 'slugUrl']),
         ];
     }
 
     public function getFilters()
     {
         return [
-            new TwigFilter('slug_link', [$this, 'slugLink'], ['is_safe' => ['html']])
+            new TwigFilter('slug_link', [$this, 'slugLink'], ['is_safe' => ['html']]),
         ];
     }
 
     public function slugExists(string $slug): bool
     {
         $content = $this->repo->findBySlug($slug);
+
         return !empty($content);
     }
 
@@ -51,10 +52,11 @@ class ContentExtension extends AbstractExtension
     {
         $content = $this->repo->findBySlug($slug);
         if (empty($content)) {
-            return $title ?? "";
+            return $title ?? '';
         }
         $link = $this->urlGenerator->generate('content_slug', ['slug' => $content->getAlias()]);
         $title = $title ?? $content->getTitle();
+
         return "<a href=\"{$link}\">{$title}</a>";
     }
 
@@ -62,8 +64,9 @@ class ContentExtension extends AbstractExtension
     {
         $content = $this->repo->findBySlug($slug);
         if (empty($content)) {
-            return "#";
+            return '#';
         }
+
         return $this->urlGenerator->generate('content_slug', ['slug' => $content->getAlias()]);
     }
 }

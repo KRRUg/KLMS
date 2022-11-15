@@ -1,6 +1,5 @@
 <?php
 
-
 namespace App\Idm\Transfer;
 
 final class PaginationCollection

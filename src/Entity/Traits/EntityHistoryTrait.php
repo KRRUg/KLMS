@@ -44,7 +44,6 @@ trait EntityHistoryTrait
      */
     private ?DateTimeInterface $created = null;
 
-
     public function getAuthorId(): ?UuidInterface
     {
         return $this->authorId;
@@ -53,6 +52,7 @@ trait EntityHistoryTrait
     public function setAuthorId(?UuidInterface $authorId): self
     {
         $this->authorId = $authorId;
+
         return $this;
     }
 
@@ -64,6 +64,7 @@ trait EntityHistoryTrait
     public function setModifierId(?UuidInterface $modifierId): self
     {
         $this->modifierId = $modifierId;
+
         return $this;
     }
 
@@ -95,7 +96,8 @@ trait EntityHistoryTrait
      * @ORM\PrePersist()
      * @ORM\PreUpdate()
      */
-    public function updateModifiedDatetime() {
+    public function updateModifiedDatetime()
+    {
         // update the modified time and creation time
         $this->setLastModified(new DateTime());
         if ($this->getCreated() === null) {

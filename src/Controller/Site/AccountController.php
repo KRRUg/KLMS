@@ -24,8 +24,8 @@ use Symfony\Component\Security\Guard\GuardAuthenticatorHandler;
 
 class AccountController extends AbstractController
 {
-    const TOKEN_PW_RESET_STRING = 'pw_reset';
-    const TOKEN_MAIL_CONFIRM_STRING = 'confirm_email';
+    public const TOKEN_PW_RESET_STRING = 'pw_reset';
+    public const TOKEN_MAIL_CONFIRM_STRING = 'confirm_email';
 
     private IdmManager $manager;
     private IdmRepository $userRepo;
@@ -43,7 +43,7 @@ class AccountController extends AbstractController
     /**
      * @Route("/reset", name="app_reset")
      */
-    public function reset(Request $request)
+    public function reset(Request $request): \Symfony\Component\HttpFoundation\Response
     {
         if ($this->isGranted('IS_AUTHENTICATED_REMEMBERED')) {
             return $this->redirectToRoute('user_profile');
@@ -71,18 +71,20 @@ class AccountController extends AbstractController
                 }
             }
             $this->addFlash('success', "Falls {$email} registriert ist, wurde eine E-Mail verschickt");
+
             return $this->redirectToRoute('app_login');
         }
+
         return $this->render('security/reset.request.html.twig', [
             'error' => '',
-            'form' => $form->createView()
+            'form' => $form->createView(),
         ]);
     }
 
     /**
      * @Route("/reset_pw", name="reset_pw")
      */
-    public function resetPW(Request $request)
+    public function resetPW(Request $request): \Symfony\Component\HttpFoundation\Response
     {
         if (!($user = $this->checkTokenAndGetUser($request, self::TOKEN_PW_RESET_STRING, false))) {
             return $this->redirectToRoute('app_login');
@@ -92,7 +94,7 @@ class AccountController extends AbstractController
                 'type' => PasswordType::class,
                 'invalid_message' => 'Das Passwort muss übereinstimmen.',
                 'required' => true,
-                'first_options'  => ['label' => 'Passwort'],
+                'first_options' => ['label' => 'Passwort'],
                 'second_options' => ['label' => 'Password wiederholen'],
             ])
         ;
@@ -106,6 +108,7 @@ class AccountController extends AbstractController
             } catch (PersistException $e) {
                 $this->addFlash('error', 'Passwort konnte nicht gesetzt werden.');
             }
+
             return $this->redirectToRoute('app_login');
         }
 
@@ -133,7 +136,8 @@ class AccountController extends AbstractController
         try {
             $this->tokenService->validateToken($uuid, $method, $token);
         } catch (TokenException $te) {
-            $this->addFlash('error', "Token ist abgelaufen oder ungültig.");
+            $this->addFlash('error', 'Token ist abgelaufen oder ungültig.');
+
             return null;
         }
         if ($removeToken) {
@@ -141,16 +145,18 @@ class AccountController extends AbstractController
         }
         $user = $this->userRepo->findOneById($uuid);
         if (empty($user)) {
-            $this->addFlash('error', "User nicht gefunden.");
+            $this->addFlash('error', 'User nicht gefunden.');
+
             return null;
         }
+
         return $user;
     }
 
     /**
      * @Route("/resend", name="app_register_resend")
      */
-    public function resend(Request $request)
+    public function resend(Request $request): \Symfony\Component\HttpFoundation\Response
     {
         $email = $request->query->get('email');
         if (filter_var($email, FILTER_VALIDATE_EMAIL)) {
@@ -160,13 +166,14 @@ class AccountController extends AbstractController
             }
             $this->addFlash('success', "Falls {$email} registriert ist, wurde eine E-Mail verschickt");
         }
+
         return $this->redirectToRoute('app_login');
     }
 
     /**
      * @Route("/confirm", name="app_register_confirm")
      */
-    public function confirm(Request $request, LoginFormAuthenticator $login, GuardAuthenticatorHandler $guard)
+    public function confirm(Request $request, LoginFormAuthenticator $login, GuardAuthenticatorHandler $guard): \Symfony\Component\HttpFoundation\Response
     {
         if ($this->isGranted('IS_AUTHENTICATED_REMEMBERED')) {
             return $this->redirectToRoute('user_profile');
@@ -176,13 +183,14 @@ class AccountController extends AbstractController
         }
         $user->setEmailConfirmed(true);
         $this->manager->flush();
-        $this->addFlash('success', "User wurde freigeschalten. Herzlich Willkommen!");
+        $this->addFlash('success', 'User wurde freigeschalten. Herzlich Willkommen!');
+
         return $guard->authenticateUserAndHandleSuccess(new LoginUser($user), $request, $login, 'main');
     }
 
     private function sendRegisterToken(User $user)
     {
-        try{
+        try {
             $token = $this->tokenService->generateToken($user->getUuid(), self::TOKEN_MAIL_CONFIRM_STRING);
         } catch (TokenException $e) {
             // don't show an error here to avoid user enumeration attacks
@@ -201,9 +209,9 @@ class AccountController extends AbstractController
     /**
      * @Route("/register", name="register")
      */
-    public function register(Request $request)
+    public function register(Request $request): \Symfony\Component\HttpFoundation\Response
     {
-        if ($this->isGranted('IS_AUTHENTICATED_REMEMBERED')){
+        if ($this->isGranted('IS_AUTHENTICATED_REMEMBERED')) {
             return $this->redirectToRoute('user_profile');
         }
 
@@ -217,6 +225,7 @@ class AccountController extends AbstractController
                 $this->manager->flush();
                 $this->sendRegisterToken($user);
                 $this->addFlash('info', 'Registrierung abgeschlossen. Bestätigungsemail wurde gesendet.');
+
                 return $this->redirectToRoute('app_login');
             } catch (PersistException $e) {
                 switch ($e->getCode()) {

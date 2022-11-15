@@ -27,8 +27,8 @@ class SponsorType extends AbstractType
         $builder
             ->add('name')
             ->add('url', null, ['label' => 'URL'])
-            ->add('text', HtmlTextareaType::class,[
-                'label' => "Text",
+            ->add('text', HtmlTextareaType::class, [
+                'label' => 'Text',
                 'fix_urls' => 'relative',
             ])
             ->add('category', ChoiceType::class, [

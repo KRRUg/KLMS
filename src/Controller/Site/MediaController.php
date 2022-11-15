@@ -1,6 +1,5 @@
 <?php
 
-
 namespace App\Controller\Site;
 
 use App\Repository\MediaRepository;
@@ -19,6 +18,7 @@ class MediaController extends AbstractController
 
     /**
      * MediaController constructor.
+     *
      * @param $downloadHelper
      */
     public function __construct(MediaRepository $mediaRepository, DownloadHandler $downloadHandler)
@@ -30,12 +30,14 @@ class MediaController extends AbstractController
     /**
      * @Route("/{name}", name="")
      */
-    public function getMedia(Request $request)
+    public function getMedia(Request $request): \Symfony\Component\HttpFoundation\Response
     {
         $name = $request->get('name');
         $media = $this->mediaRepository->findByDisplayName($name);
-        if (empty($media))
+        if (empty($media)) {
             throw $this->createNotFoundException();
+        }
+
         return $this->downloadHandler->downloadObject($media, $fileField = 'mediaFile', $objectClass = null, $fileName = true, $forceDownload = false);
     }
 }
