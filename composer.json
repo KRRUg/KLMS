@@ -52,7 +52,6 @@
     },
     "require-dev": {
         "doctrine/doctrine-fixtures-bundle": "^3.4",
-        "friendsofphp/php-cs-fixer": "^2.16",
         "joshtronic/php-loremipsum": "^1.0",
         "symfony/debug-bundle": "^5.4",
         "symfony/maker-bundle": "^1.14",
