@@ -12,7 +12,7 @@ use Ramsey\Uuid\Uuid;
 
 class EmailFixtures extends Fixture
 {
-    public function load(ObjectManager $manager)
+    public function load(ObjectManager $manager): void
     {
         $template = (new Email())
             ->setName('KLMS Newsletter 1')

@@ -157,7 +157,7 @@ class ContentFixture extends Fixture
         return [$tb_about, $tb_email_text, $tb_link_steam, $tb_link_discord, $tb_reg, $tb_subject, $tb_title, $tb_subtitle];
     }
 
-    public function load(ObjectManager $manager)
+    public function load(ObjectManager $manager): void
     {
         $tb = $this->createSetting($manager);
         $ts = $this->createTeamsite($manager);

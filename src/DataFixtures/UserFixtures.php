@@ -11,7 +11,7 @@ use Ramsey\Uuid\Uuid;
 
 class UserFixtures extends Fixture
 {
-    public function load(ObjectManager $manager)
+    public function load(ObjectManager $manager): void
     {
         $admin = new UserAdmin(Uuid::fromInteger(strval(3)));
         $admin->setPermissions(['ADMIN_NEWS']);

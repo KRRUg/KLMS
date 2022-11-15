@@ -12,7 +12,7 @@ use Ramsey\Uuid\Uuid;
 
 class NewsFixtures extends Fixture
 {
-    public function load(ObjectManager $manager)
+    public function load(ObjectManager $manager): void
     {
         $lipsum = new LoremIpsum();
 
