@@ -62,7 +62,6 @@ class SeatmapController extends AbstractController
 
     /**
      * @Route("/show/{id}", name="_seat_edit", methods={"GET", "POST"})
-     * @ParamConverter()
      */
     public function seatShow(Seat $seat, Request $request)
     {
@@ -114,7 +113,6 @@ class SeatmapController extends AbstractController
 
     /**
      * @Route("/seat/delete/{id}", name="_seat_delete", methods={"GET"})
-     * @ParamConverter()
      */
     public function deleteSeat(Seat $seat)
     {

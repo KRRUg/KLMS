@@ -38,7 +38,6 @@ class TeamsiteController extends BaseController
 
     /**
      * @Route("/edit/{id}", name="_edit", methods={"GET", "POST"})
-     * @ParamConverter()
      */
     public function edit(Request $request, Teamsite $teamsite)
     {

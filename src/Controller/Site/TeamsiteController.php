@@ -19,7 +19,6 @@ class TeamsiteController extends AbstractController
 
     /**
      * @Route("/teamsite/{id}", name="teamsite")
-     * @ParamConverter()
      */
     public function byId(Teamsite $teamsite)
     {

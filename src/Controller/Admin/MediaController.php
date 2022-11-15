@@ -97,7 +97,6 @@ class MediaController extends BaseController
 
     /**
      * @Route("/delete/{id}", name="_delete")
-     * @ParamConverter()
      */
     public function delete(Request $request, Media $image)
     {
@@ -112,7 +111,6 @@ class MediaController extends BaseController
 
     /**
      * @Route("/detail/{id}.{_format}", name="_detail", defaults={"_format"="html"})
-     * @ParamConverter()
      */
     public function detail(Request $request, Media $image)
     {

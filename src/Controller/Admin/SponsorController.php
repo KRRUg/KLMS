@@ -105,7 +105,6 @@ class SponsorController extends AbstractController
 
     /**
      * @Route("/delete/{id}", name="_delete")
-     * @ParamConverter()
      */
     public function delete(Request $request, Sponsor $news)
     {
@@ -125,7 +124,6 @@ class SponsorController extends AbstractController
 
     /**
      * @Route("/edit/{id}", name="_edit")
-     * @ParamConverter()
      */
     public function edit(Request $request, Sponsor $sponsor)
     {

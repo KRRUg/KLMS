@@ -50,7 +50,6 @@ class ContentController extends AbstractController
 
     /**
      * @Route("/edit/{id}", name="_edit", methods={"GET","POST"})
-     * @ParamConverter()
      */
     public function edit(Request $request, Content $content)
     {
@@ -88,7 +87,6 @@ class ContentController extends AbstractController
 
     /**
      * @Route("/delete/{id}", name="_delete")
-     * @ParamConverter()
      */
     public function delete(Request $request, Content $content) {
         $token = $request->request->get('_token');

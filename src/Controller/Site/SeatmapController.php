@@ -68,7 +68,6 @@ class SeatmapController extends AbstractController
 
     /**
      * @Route("/seat/{id}", name="_seat_show", methods={"GET", "POST"})
-     * @ParamConverter()
      */
     public function seatShow(Seat $seat, Request $request)
     {

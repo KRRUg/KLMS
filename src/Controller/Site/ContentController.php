@@ -24,7 +24,6 @@ class ContentController extends AbstractController
 
     /**
      * @Route("/content/{id}", requirements={"id"="\d+"}, name="content")
-     * @ParamConverter()
      */
     public function byId(Content $content)
     {

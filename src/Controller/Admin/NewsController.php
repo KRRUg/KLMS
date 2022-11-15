@@ -59,7 +59,6 @@ class NewsController extends AbstractController
 
     /**
      * @Route("/delete/{id}", name="_delete")
-     * @ParamConverter()
      */
     public function delete(Request $request, News $news) {
         $token = $request->request->get('_token');
@@ -74,7 +73,6 @@ class NewsController extends AbstractController
 
     /**
      * @Route("/edit/{id}", name="_edit")
-     * @ParamConverter()
      */
     public function edit(Request $request, News $news) {
         $form = $this->createForm(NewsType::class, $news);

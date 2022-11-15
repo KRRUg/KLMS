@@ -54,7 +54,6 @@ class NavigationController extends BaseController
 
     /**
      * @Route("/edit/{id}.{_format}", name="_edit", defaults={"_format"="html"}, methods={"GET", "POST"})
-     * @ParamConverter()
      */
     public function edit(Request $request, Navigation $navigation)
     {
