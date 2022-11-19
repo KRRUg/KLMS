@@ -219,8 +219,8 @@ class GamerService
     public function getGamers(bool $associative = true): array
     {
         $gamers = $this->repo->findAll();
-        $gamers = array_filter($gamers, fn(UserGamer $g) => $g->hasRegistered());
-        $ids = array_map(fn(UserGamer $g) => $g->getUuid()->toString(), $gamers);
+        $gamers = array_filter($gamers, fn (UserGamer $g) => $g->hasRegistered());
+        $ids = array_map(fn (UserGamer $g) => $g->getUuid()->toString(), $gamers);
         $gamers = array_combine($ids, $gamers);
         $users = $this->userRepo->findById($ids);
 

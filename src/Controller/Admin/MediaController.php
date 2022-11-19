@@ -77,7 +77,7 @@ class MediaController extends BaseController
         }
 
         if ($request->getRequestFormat() === 'json') {
-            $result = array_map(fn(Media $m) => $this->image2json($m), $media);
+            $result = array_map(fn (Media $m) => $this->image2json($m), $media);
 
             return $this->apiResponse($result);
         } else {

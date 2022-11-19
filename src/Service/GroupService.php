@@ -105,7 +105,7 @@ class GroupService
         $paid = $filter['paid'] ?? null;
         $seat = $filter['seat'] ?? null;
         $gamer = $this->gamerRepo->findByState($registered, $paid, $seat);
-        $gamer = array_map(fn(UserGamer $ug) => $ug->getUuid(), $gamer);
+        $gamer = array_map(fn (UserGamer $ug) => $ug->getUuid(), $gamer);
 
         return $this->userRepo->findById($gamer);
     }
@@ -113,8 +113,8 @@ class GroupService
     private function getAdmin(array $filter)
     {
         $admins = $this->adminRepo->findAll();
-        $admins = array_filter($admins, fn(UserAdmin $a) => !empty($a->getPermissions()));
-        $ids = array_map(fn(UserAdmin $a) => $a->getUuid(), $admins);
+        $admins = array_filter($admins, fn (UserAdmin $a) => !empty($a->getPermissions()));
+        $ids = array_map(fn (UserAdmin $a) => $a->getUuid(), $admins);
 
         return $this->userRepo->findById($ids);
     }

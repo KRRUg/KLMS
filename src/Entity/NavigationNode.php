@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+use Stringable;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\NavigationNodeRepository")
@@ -23,7 +24,7 @@ use Doctrine\ORM\Mapping as ORM;
  *     "teamsite" = "NavigationNodeTeamsite",
  * })
  */
-abstract class NavigationNode implements \Stringable
+abstract class NavigationNode implements Stringable
 {
     public const NAV_NODE_TYPE_ROOT = 'root';
     public const NAV_NODE_TYPE_EMPTY = 'empty';
@@ -153,7 +154,7 @@ abstract class NavigationNode implements \Stringable
 /**
  * @ORM\Entity()
  */
-class NavigationNodeRoot extends NavigationNode implements \Stringable
+class NavigationNodeRoot extends NavigationNode implements Stringable
 {
     public function __construct()
     {

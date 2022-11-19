@@ -188,7 +188,7 @@ class NavigationService
     public function getAll()
     {
         $navs = $this->navRepo->findByNames(self::NAV_LOCATION_KEYS);
-        $names = array_map(fn($nav) => $nav->getName(), $navs);
+        $names = array_map(fn ($nav) => $nav->getName(), $navs);
         foreach (self::NAV_LOCATION_KEYS as $key) {
             if (!in_array($key, $names)) {
                 $navs[] = $this->createNav(
@@ -196,7 +196,7 @@ class NavigationService
                     array_key_exists($key, self::NAV_LOCATION_DEPTHS) ? self::NAV_LOCATION_DEPTHS[$key] : null);
             }
         }
-        usort($navs, fn(Navigation $a, Navigation $b) => strcmp($a->getName(), $b->getName()));
+        usort($navs, fn (Navigation $a, Navigation $b) => strcmp($a->getName(), $b->getName()));
 
         return $navs;
     }

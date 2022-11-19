@@ -76,11 +76,11 @@ class UserController extends AbstractController
             $count = $collection->count();
         } else {
             $gamers = array_values($this->gamerService->getGamers(false));
-            $users = array_map(fn(array $in) => $in['user'], $gamers);
+            $users = array_map(fn (array $in) => $in['user'], $gamers);
             if (!empty($search)) {
-                $users = array_filter($users, fn(User $u) => stripos($u->getNickname(), (string) $search) !== false || stripos($u->getFirstname(), (string) $search) !== false);
+                $users = array_filter($users, fn (User $u) => stripos($u->getNickname(), (string) $search) !== false || stripos($u->getFirstname(), (string) $search) !== false);
             }
-            usort($users, fn(User $a, User $b) => $a->getNickname() <=> $b->getNickname());
+            usort($users, fn (User $a, User $b) => $a->getNickname() <=> $b->getNickname());
             $count = count($users);
             $users = array_slice($users, ($page - 1) * self::SHOW_LIMIT, self::SHOW_LIMIT);
         }

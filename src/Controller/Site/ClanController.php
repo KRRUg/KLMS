@@ -67,9 +67,9 @@ class ClanController extends AbstractController
         } else {
             $clans = array_values($this->gamerService->getClans());
             if (!empty($search)) {
-                $clans = array_filter($clans, fn(Clan $u) => stripos($u->getClantag(), (string) $search) !== false || stripos($u->getName(), (string) $search) !== false);
+                $clans = array_filter($clans, fn (Clan $u) => stripos($u->getClantag(), (string) $search) !== false || stripos($u->getName(), (string) $search) !== false);
             }
-            usort($clans, fn(Clan $a, Clan $b) => $a->getName() <=> $b->getName());
+            usort($clans, fn (Clan $a, Clan $b) => $a->getName() <=> $b->getName());
             $count = count($clans);
             $clans = array_slice($clans, ($page - 1) * self::SHOW_LIMIT, self::SHOW_LIMIT);
         }

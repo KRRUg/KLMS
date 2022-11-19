@@ -185,8 +185,8 @@ final class PermissionService
     public function getAdmins(): array
     {
         $admins = $this->repo->findAll();
-        $admins = array_filter($admins, fn(UserAdmin $a) => !empty($a->getPermissions()));
-        $ids = array_map(fn(UserAdmin $a) => $a->getUuid()->toString(), $admins);
+        $admins = array_filter($admins, fn (UserAdmin $a) => !empty($a->getPermissions()));
+        $ids = array_map(fn (UserAdmin $a) => $a->getUuid()->toString(), $admins);
         $admins = array_combine($ids, $admins);
         $users = $this->userRepo->findById($ids);
 

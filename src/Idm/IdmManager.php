@@ -360,8 +360,8 @@ final class IdmManager
             return false;
         }
 
-        $a = array_map(fn($i_a) => $this->object2Id($i_a), $a);
-        $b = array_map(fn($i_b) => $this->object2Id($i_b), $b);
+        $a = array_map(fn ($i_a) => $this->object2Id($i_a), $a);
+        $b = array_map(fn ($i_b) => $this->object2Id($i_b), $b);
 
         return empty(array_diff($a, $b));
     }

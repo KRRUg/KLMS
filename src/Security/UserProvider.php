@@ -32,7 +32,7 @@ class UserProvider implements UserProviderInterface
     {
         $perm = $this->permissionService->handleLogin($user->getUser());
         if (!empty($perm)) {
-            $roles = array_map(fn(string $p) => 'ROLE_'.$p, $perm);
+            $roles = array_map(fn (string $p) => 'ROLE_'.$p, $perm);
             array_push($roles, 'ROLE_ADMIN');
             $user->addRoles($roles);
         }

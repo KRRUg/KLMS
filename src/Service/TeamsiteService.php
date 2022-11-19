@@ -69,7 +69,7 @@ class TeamsiteService
             }
         }
         $users = $this->userRepo->findById($uuids);
-        $ids = array_map(fn(User $user) => $user->getUuid(), $users);
+        $ids = array_map(fn (User $user) => $user->getUuid(), $users);
 
         return array_combine($ids, $users);
     }

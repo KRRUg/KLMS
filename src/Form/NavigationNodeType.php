@@ -38,8 +38,8 @@ class NavigationNodeType extends AbstractType
             if ($entry instanceof NavigationNodeContent) {
                 $form->add('content', ChoiceType::class, [
                     'choices' => $this->em->getRepository(Content::class)->findAll(),
-                    'choice_label' => fn(?Content $content) => $content ? "{$content->getTitle()} ({$content->getId()})" : '',
-                    'choice_value' => fn(?Content $content) => $content ? "/content/{$content->getId()}" : '',
+                    'choice_label' => fn (?Content $content) => $content ? "{$content->getTitle()} ({$content->getId()})" : '',
+                    'choice_value' => fn (?Content $content) => $content ? "/content/{$content->getId()}" : '',
                     'multiple' => false,
                     'expanded' => false,
                 ]);
@@ -47,8 +47,8 @@ class NavigationNodeType extends AbstractType
                 $repo = $this->em->getRepository($entry::class);
                 $form->add('teamsite', ChoiceType::class, [
                     'choices' => $this->em->getRepository(Teamsite::class)->findAll(),
-                    'choice_label' => fn(?Teamsite $teamsite) => $teamsite ? "{$teamsite->getTitle()} ({$teamsite->getId()})" : '',
-                    'choice_value' => fn(?Teamsite $teamsite) => $teamsite ? "/teamsite/{$teamsite->getId()}" : '',
+                    'choice_label' => fn (?Teamsite $teamsite) => $teamsite ? "{$teamsite->getTitle()} ({$teamsite->getId()})" : '',
+                    'choice_value' => fn (?Teamsite $teamsite) => $teamsite ? "/teamsite/{$teamsite->getId()}" : '',
                     'multiple' => false,
                     'expanded' => false,
                 ]);

@@ -82,7 +82,7 @@ class SponsorService extends OptimalService
     public function getCategories()
     {
         $categories = $this->categoryRepository->findAll();
-        usort($categories, fn($a, $b) => $a->getPriority() - $b->getPriority());
+        usort($categories, fn ($a, $b) => $a->getPriority() - $b->getPriority());
 
         return $categories;
     }
@@ -101,7 +101,7 @@ class SponsorService extends OptimalService
         $this->em->beginTransaction();
         $ids = [];
         $categories = $this->categoryRepository->findAll();
-        $categories = array_combine(array_map(fn($c) => $c->getId(), $categories), $categories);
+        $categories = array_combine(array_map(fn ($c) => $c->getId(), $categories), $categories);
 
         // add new categories and update existing
         foreach ($input as $index => $a) {

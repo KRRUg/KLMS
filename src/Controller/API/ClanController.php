@@ -41,7 +41,7 @@ class ClanController extends AbstractController
         $result['count'] = is_countable($items) ? count($items) : 0;
         $result['total'] = $lazyLoadingCollection->count();
         // TODO this is hacky, but required for front-end JS a.t.m.?
-        $result['items'] = array_map(fn(Clan $clan) => [
+        $result['items'] = array_map(fn (Clan $clan) => [
             'uuid' => $clan->getUuid(),
             'name' => $clan->getName(),
             'clantag' => $clan->getClantag(),

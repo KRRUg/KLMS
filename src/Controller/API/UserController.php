@@ -49,7 +49,7 @@ class UserController extends AbstractController
         $result = [];
         $result['count'] = count($items);
         $result['total'] = $lazyLoadingCollection->count();
-        $result['items'] = array_map(fn(User $user) => $this->userService->user2Array($user), $items);
+        $result['items'] = array_map(fn (User $user) => $this->userService->user2Array($user), $items);
 
         return new JsonResponse(json_encode($result, JSON_THROW_ON_ERROR), Response::HTTP_OK, [], true);
     }

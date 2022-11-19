@@ -40,7 +40,7 @@ class IdmRepository
         try {
             return $this->manager->bulk($this->class, $ids);
         } catch (UnsupportedClassException) {
-            return array_map(fn($id) => $this->findOneById($id), $ids);
+            return array_map(fn ($id) => $this->findOneById($id), $ids);
         }
     }
 

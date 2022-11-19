@@ -43,7 +43,7 @@ class UserService
             'firstname' => $user->getFirstname(),
             'surname' => $user->getSurname(),
             'image' => $this->getUserImage($user),
-            'clans' => array_map(fn($clan) => [
+            'clans' => array_map(fn ($clan) => [
                 'uuid' => $clan->getUuid(),
                 'name' => $clan->getName(),
                 'clantag' => $clan->getClantag(),

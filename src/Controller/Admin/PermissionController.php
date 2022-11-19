@@ -12,6 +12,7 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Component\Form\FormError;
 use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -35,10 +36,10 @@ class PermissionController extends BaseController
     /**
      * @Route(".{_format}", name="", defaults={"_format"="html"}, methods={"GET"})
      */
-    public function index(Request $request): \Symfony\Component\HttpFoundation\Response
+    public function index(Request $request): Response
     {
         $local_admins = $this->permissionService->getAdmins();
-        uasort($local_admins, fn($a, $b) => $a[0]->getNickname() < $b[0]->getNickname() ? -1 : 1);
+        uasort($local_admins, fn ($a, $b) => $a[0]->getNickname() < $b[0]->getNickname() ? -1 : 1);
 
         if ($request->getRequestFormat() === 'json') {
             return $this->apiResponse(
@@ -60,7 +61,7 @@ class PermissionController extends BaseController
     /**
      * @Route("", name="_add", methods={"POST"})
      */
-    public function addPermission(Request $request): \Symfony\Component\HttpFoundation\Response
+    public function addPermission(Request $request): Response
     {
         $data = json_decode($request->getContent(), true, 512, JSON_THROW_ON_ERROR);
         if ($data === null) {
@@ -88,7 +89,7 @@ class PermissionController extends BaseController
     /**
      * @Route("/{id}", name="_get", methods={"GET"})
      */
-    public function getPermission($id): \Symfony\Component\HttpFoundation\Response
+    public function getPermission($id): Response
     {
         $user = $this->userRepo->findOneById($id);
         if (empty($user)) {
@@ -103,7 +104,7 @@ class PermissionController extends BaseController
     /**
      * @Route("/{id}", name="_edit", methods={"POST"})
      */
-    public function updatePermission(Request $request, $id): \Symfony\Component\HttpFoundation\Response
+    public function updatePermission(Request $request, $id): Response
     {
         $user = $this->userRepo->findOneById($id);
 

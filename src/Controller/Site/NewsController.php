@@ -38,7 +38,7 @@ class NewsController extends AbstractController
         $cnt = max($cnt, NewsController::PRELOAD_NEWS_CNT);
         $news = $this->newsService->get(0, $cnt);
         $total = $this->newsService->count();
-        $this->userService->preloadUsers(array_map(fn(News $news) => $news->getAuthorId(), $news));
+        $this->userService->preloadUsers(array_map(fn (News $news) => $news->getAuthorId(), $news));
 
         return $this->render('site/news/index.html.twig', [
             'news' => $news,

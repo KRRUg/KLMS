@@ -32,7 +32,7 @@ class EmailType extends AbstractType
                 'placeholder' => '',
                 'required' => false,
                 'choices' => GroupService::getGroups(),
-                'choice_value' => fn(?UuidInterface $uuid) => is_null($uuid) ? null : $uuid->toString(),
+                'choice_value' => fn (?UuidInterface $uuid) => is_null($uuid) ? null : $uuid->toString(),
             ])
             ->add('body', HtmlTextareaType::class, [
                 'label' => 'Inhalt',

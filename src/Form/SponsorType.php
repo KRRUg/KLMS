@@ -34,7 +34,7 @@ class SponsorType extends AbstractType
             ->add('category', ChoiceType::class, [
                 'label' => 'Kategorie',
                 'choices' => $this->em->getRepository(SponsorCategory::class)->findAll(),
-                'choice_label' => fn(?SponsorCategory $content) => $content ? $content->getName() : '',
+                'choice_label' => fn (?SponsorCategory $content) => $content ? $content->getName() : '',
                 'multiple' => false,
                 'expanded' => false,
             ])

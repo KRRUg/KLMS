@@ -40,11 +40,11 @@ class SeatmapService
 
     public function getSeatedUser(array $seats): array
     {
-        $uuids = array_map(fn(Seat $seat) => $seat->getOwner() ? $seat->getOwner()->getUuid()->toString() : null, $seats);
+        $uuids = array_map(fn (Seat $seat) => $seat->getOwner() ? $seat->getOwner()->getUuid()->toString() : null, $seats);
         $uuids = array_filter($uuids); // remove null from uuids
         $users = $this->userRepo->findById($uuids);
 
-        $uuids = array_map(fn(User $u) => $u->getUuid()->toString(), $users);
+        $uuids = array_map(fn (User $u) => $u->getUuid()->toString(), $users);
         $users = array_combine($uuids, $users);
 
         $ret = [];

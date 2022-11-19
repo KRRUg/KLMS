@@ -61,7 +61,7 @@ class GamerExtension extends AbstractExtension
     public function getSeat(User $user): ?string
     {
         $seats = $this->seatmapService->getUserSeats($user);
-        $names = array_map(fn(Seat $seat) => $seat->generateSeatName(), $seats);
+        $names = array_map(fn (Seat $seat) => $seat->generateSeatName(), $seats);
 
         return implode(',', $names);
     }

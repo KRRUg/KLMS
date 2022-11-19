@@ -253,8 +253,8 @@ class UnitOfWork
                 $v_b = is_null($reference) ? [] : $property->getValue($reference);
                 $v_a = ($v_a instanceof LazyLoaderCollection) ? $v_a->toArray(false) : $v_a;
                 $v_b = ($v_b instanceof LazyLoaderCollection) ? $v_b->toArray(false) : $v_b;
-                $v_a = array_map(fn($i_a) => $this->manager->object2Id($i_a), $v_a);
-                $v_b = array_map(fn($i_b) => $this->manager->object2Id($i_b), $v_b);
+                $v_a = array_map(fn ($i_a) => $this->manager->object2Id($i_a), $v_a);
+                $v_b = array_map(fn ($i_b) => $this->manager->object2Id($i_b), $v_b);
                 $result[$property->getName()] = [array_diff($v_a, $v_b), array_diff($v_b, $v_a)];
             }
         }
