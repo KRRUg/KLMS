@@ -10,18 +10,18 @@ class EmailSendingItem
 {
     #[ORM\Id]
     #[ORM\Column(type: 'uuid')]
-    private $guid;
+    private ?UuidInterface $guid = null;
 
     #[ORM\Id]
-    #[ORM\ManyToOne(targetEntity: EmailSending::class)]
+    #[ORM\ManyToOne()]
     #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE', name: 'sending_id')]
-    private $sending;
+    private ?EmailSending $sending = null;
 
     #[ORM\Column(type: 'boolean', nullable: true)]
-    private $success = null;
+    private ?bool $success = null;
 
     #[ORM\Column(type: 'integer')]
-    private int $tries = 0;
+    private ?int $tries = null;
 
     public function getGuid(): ?UuidInterface
     {

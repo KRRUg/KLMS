@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use App\Entity\Traits\HistoryAwareEntity;
+use App\Repository\NewsRepository;
 use DateTime;
 use DateTimeInterface;
 use Doctrine\ORM\Mapping as ORM;
@@ -14,7 +15,7 @@ use Vich\UploaderBundle\Mapping\Annotation as Vich;
 /**
  * @Vich\Uploadable
  */
-#[ORM\Entity(repositoryClass: 'App\Repository\NewsRepository')]
+#[ORM\Entity(repositoryClass: NewsRepository::class)]
 #[ORM\HasLifecycleCallbacks]
 class News implements HistoryAwareEntity
 {
@@ -22,27 +23,27 @@ class News implements HistoryAwareEntity
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type: 'integer')]
-    private $id;
+    private ?int $id = null;
 
     #[ORM\Column(type: 'string', length: 255)]
-    private $title;
+    private ?string $title = null;
 
     #[ORM\Column(type: 'text')]
-    private $content;
+    private ?string $content = null;
 
     #[ORM\Column(type: 'datetime', nullable: true)]
     #[Assert\DateTime]
-    private $publishedFrom;
+    private ?DateTimeInterface $publishedFrom = null;
 
     #[ORM\Column(type: 'datetime', nullable: true)]
     #[Assert\DateTime]
     #[Assert\GreaterThan(propertyPath: 'publishedFrom')]
-    private $publishedTo;
+    private ?DateTimeInterface $publishedTo = null;
 
     /**
      * @Vich\UploadableField(mapping="news", fileNameProperty="image.name", size="image.size", mimeType="image.mimeType", originalName="image.originalName", dimensions="image.dimensions")
      */
-    private ?\Symfony\Component\HttpFoundation\File\File $imageFile = null;
+    private ?File $imageFile = null;
 
     #[ORM\Embedded(class: 'Vich\UploaderBundle\Entity\File')]
     private EmbeddedFile $image;

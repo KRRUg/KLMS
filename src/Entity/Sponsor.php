@@ -22,15 +22,15 @@ class Sponsor implements HistoryAwareEntity
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type: 'integer')]
-    private $id;
+    private ?int $id = null;
 
     #[ORM\Column(type: 'string', length: 255)]
     #[Assert\NotBlank]
-    private $name;
+    private ?string $name = null;
 
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
     #[Assert\Url]
-    private $url;
+    private ?string $url = null;
 
     /**
      * @Vich\UploadableField(mapping="sponsor", fileNameProperty="logo.name", size="logo.size", mimeType="logo.mimeType", originalName="logo.originalName", dimensions="logo.dimensions")
@@ -41,11 +41,11 @@ class Sponsor implements HistoryAwareEntity
     private EmbeddedFile $logo;
 
     #[ORM\Column(type: 'text', nullable: true)]
-    private $text;
+    private ?string $text = null;
 
-    #[ORM\ManyToOne(targetEntity: SponsorCategory::class, inversedBy: 'sponsors')]
+    #[ORM\ManyToOne(inversedBy: 'sponsors')]
     #[ORM\JoinColumn(nullable: false)]
-    private $category;
+    private ?SponsorCategory $category = null;
 
     public function __construct()
     {

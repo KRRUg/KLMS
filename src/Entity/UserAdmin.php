@@ -2,10 +2,11 @@
 
 namespace App\Entity;
 
+use App\Repository\UserAdminsRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Ramsey\Uuid\UuidInterface;
 
-#[ORM\Entity(repositoryClass: 'App\Repository\UserAdminsRepository')]
+#[ORM\Entity(repositoryClass: UserAdminsRepository::class)]
 class UserAdmin
 {
     #[ORM\Id]

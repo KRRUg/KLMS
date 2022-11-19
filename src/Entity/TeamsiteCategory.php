@@ -18,27 +18,27 @@ class TeamsiteCategory
     private ?int $id = null;
 
     #[ORM\Column(type: 'string', length: 255)]
-    private ?string $title = '';
+    private ?string $title = null;
 
     #[ORM\Column(type: 'text')]
-    private ?string $description = '';
+    private ?string $description = null;
 
     #[ORM\Column(type: 'integer')]
-    private ?int $ord = 0;
+    private ?int $ord = null;
 
-    #[ORM\ManyToOne(targetEntity: Teamsite::class, inversedBy: 'categories')]
+    #[ORM\ManyToOne(inversedBy: 'categories')]
     #[ORM\JoinColumn(name: 'teamsite_id', nullable: false)]
     private ?Teamsite $teamsite = null;
 
     #[ORM\OneToMany(targetEntity: TeamsiteEntry::class, mappedBy: 'category', orphanRemoval: true, cascade: ['all'])]
     #[ORM\OrderBy(['ord' => 'ASC'])]
-    private $entries;
+    private Collection $entries;
 
     #[ORM\Column(type: 'boolean')]
-    private $hideEmail;
+    private ?bool $hideEmail = null;
 
     #[ORM\Column(type: 'boolean')]
-    private $hideName;
+    private ?bool $hideName = null;
 
     public function __construct()
     {

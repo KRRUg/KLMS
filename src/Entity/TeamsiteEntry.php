@@ -20,24 +20,20 @@ class TeamsiteEntry
     private ?UuidInterface $userUuid = null;
 
     #[ORM\Column(type: 'string', length: 255)]
-    private ?string $title = '';
+    private ?string $title = null;
 
     #[ORM\Column(type: 'text')]
-    private ?string $description = '';
+    private ?string $description = null;
 
     #[ORM\Column(type: 'integer')]
-    private ?int $ord = 0;
+    private ?int $ord = null;
 
-    #[ORM\ManyToOne(targetEntity: TeamsiteCategory::class, inversedBy: 'entries')]
+    #[ORM\ManyToOne(inversedBy: 'entries')]
     #[ORM\JoinColumn(name: 'category_id', nullable: false)]
     private ?TeamsiteCategory $category = null;
 
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
-    private $displayEmail;
-
-    public function __construct()
-    {
-    }
+    private ?string $displayEmail = null;
 
     public function getId(): ?int
     {

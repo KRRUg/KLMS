@@ -17,17 +17,17 @@ class Teamsite implements HistoryAwareEntity
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type: 'integer')]
-    private ?int $id;
+    private ?int $id = null;
 
     #[ORM\Column(type: 'string', length: 255)]
-    private ?string $title = '';
+    private ?string $title = null;
 
     #[ORM\Column(type: 'text')]
-    private ?string $description = '';
+    private ?string $description = null;
 
     #[ORM\OneToMany(targetEntity: TeamsiteCategory::class, mappedBy: 'teamsite', orphanRemoval: true, cascade: ['all'])]
     #[ORM\OrderBy(['ord' => 'ASC'])]
-    private $categories;
+    private Collection $categories;
 
     public function __construct()
     {

@@ -3,10 +3,11 @@
 namespace App\Entity;
 
 use App\Entity\Traits\HistoryAwareEntity;
+use App\Repository\EmailRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Ramsey\Uuid\UuidInterface;
 
-#[ORM\Entity(repositoryClass: 'App\Repository\EmailRepository')]
+#[ORM\Entity(repositoryClass: EmailRepository::class)]
 #[ORM\HasLifecycleCallbacks]
 class Email implements HistoryAwareEntity
 {
@@ -14,25 +15,25 @@ class Email implements HistoryAwareEntity
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type: 'integer')]
-    private $id;
+    private ?int $id;
 
     #[ORM\Column(type: 'string', length: 255, nullable: false)]
-    private $name;
+    private ?string $name;
 
     #[ORM\Column(type: 'uuid', nullable: true)]
-    private $recipientGroup;
+    private ?UuidInterface $recipientGroup;
 
     #[ORM\Column(type: 'string', length: 255, nullable: false)]
-    private $subject;
+    private ?string $subject;
 
     #[ORM\Column(type: 'text', nullable: false)]
     private string $body = '';
 
     #[ORM\Column(type: 'string', length: 255)]
-    private $designFile;
+    private ?string $designFile;
 
-    #[ORM\OneToOne(targetEntity: 'App\Entity\EmailSending', mappedBy: 'template', cascade: ['persist'], fetch: 'EAGER', orphanRemoval: true)]
-    private $emailSending;
+    #[ORM\OneToOne(mappedBy: 'template', cascade: ['persist'], fetch: 'EAGER', orphanRemoval: true)]
+    private ?EmailSending $emailSending;
 
     public function getId(): ?int
     {

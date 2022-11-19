@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use App\Entity\Traits\HistoryAwareEntity;
+use App\Repository\MediaRepository;
 use DateTime;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\HttpFoundation\File\File;
@@ -14,7 +15,7 @@ use Vich\UploaderBundle\Mapping\Annotation as Vich;
  */
 #[ORM\Table]
 #[ORM\Index(name: 'filename_indes', columns: ['file_name'])]
-#[ORM\Entity(repositoryClass: 'App\Repository\MediaRepository')]
+#[ORM\Entity(repositoryClass: MediaRepository::class)]
 #[ORM\HasLifecycleCallbacks]
 class Media implements HistoryAwareEntity
 {
@@ -25,7 +26,7 @@ class Media implements HistoryAwareEntity
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type: 'integer')]
-    private $id;
+    private ?int $id = null;
 
     /**
      * @Vich\UploadableField(
@@ -36,18 +37,18 @@ class Media implements HistoryAwareEntity
      * )
      */
     #[Assert\File(maxSize: Media::MAX_FILE_SIZE, mimeTypes: Media::MIME_TYPES, mimeTypesMessage: 'Please upload a valid file (Image, PDF or ZIP)')]
-    private ?\Symfony\Component\HttpFoundation\File\File $mediaFile = null;
+    private ?File $mediaFile = null;
 
     #[ORM\Column(name: 'file_name', nullable: false)]
-    private $fileName;
+    private ?string $fileName;
 
     #[ORM\Column(name: 'display_name', nullable: false, unique: true)]
-    private $displayName;
+    private ?string $displayName;
 
     #[ORM\Column(name: 'mime_type', nullable: false)]
-    private $mimeType;
+    private ?string $mimeType;
 
-    public function getId()
+    public function getId(): ?int
     {
         return $this->id;
     }
@@ -68,10 +69,7 @@ class Media implements HistoryAwareEntity
         }
     }
 
-    /**
-     * @return mixed
-     */
-    public function getFileName()
+    public function getFileName(): ?string
     {
         return $this->fileName;
     }
@@ -83,7 +81,7 @@ class Media implements HistoryAwareEntity
         return $this;
     }
 
-    public function getDisplayName()
+    public function getDisplayName(): ?string
     {
         return $this->displayName;
     }
@@ -95,7 +93,7 @@ class Media implements HistoryAwareEntity
         return $this;
     }
 
-    public function getMimeType()
+    public function getMimeType(): ?string
     {
         return $this->mimeType;
     }

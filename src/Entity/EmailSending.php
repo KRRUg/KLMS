@@ -12,20 +12,20 @@ class EmailSending
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type: 'integer')]
-    private $id;
+    private ?int $id = null;
 
-    #[ORM\OneToOne(targetEntity: 'Email', inversedBy: 'emailSending', cascade: ['persist'])]
+    #[ORM\OneToOne(inversedBy: 'emailSending', cascade: ['persist'])]
     #[ORM\JoinColumn(name: 'template', nullable: false)]
-    private $template;
+    private ?Email $template = null;
 
     #[ORM\Column(type: 'datetime')]
-    private $created;
+    private ?DateTimeInterface $created = null;
 
     #[ORM\Column(type: 'datetime', nullable: true)]
-    private $started;
+    private ?DateTimeInterface $started = null;
 
     #[ORM\Column(type: 'integer', nullable: true)]
-    private $recipientCount;
+    private ?int $recipientCount = null;
 
     public function __construct()
     {

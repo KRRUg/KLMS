@@ -16,20 +16,20 @@ class Content implements HistoryAwareEntity
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type: 'integer')]
-    private $id;
+    private ?int $id;
 
     #[ORM\Column(type: 'string', length: 255)]
-    private $title;
+    private ?string $title;
 
     #[ORM\Column(type: 'text')]
-    private $content;
+    private ?string $content;
 
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
-    private $description;
+    private ?string $description;
 
     #[ORM\Column(type: 'string', length: 255, unique: true, nullable: true)]
     #[Assert\Regex('/^[a-z]*$/', message: 'Nur Kleinbuchstaben sind hier erlaubt.')]
-    private $alias;
+    private ?string $alias;
 
     public function __construct()
     {

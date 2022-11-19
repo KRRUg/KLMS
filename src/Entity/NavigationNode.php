@@ -31,20 +31,20 @@ abstract class NavigationNode implements Stringable
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type: 'integer')]
-    private $id;
+    private ?int $id = null;
 
     #[ORM\Column(type: 'string', length: 255)]
-    private $name;
+    private ?string $name = null;
 
-    #[ORM\ManyToOne(targetEntity: 'App\Entity\Navigation', inversedBy: 'nodes')]
+    #[ORM\ManyToOne(inversedBy: 'nodes')]
     #[ORM\JoinColumn(name: 'navigation_id', nullable: false)]
-    private $navigation;
+    private ?Navigation $navigation = null;
 
     #[ORM\Column(type: 'integer', nullable: false)]
-    private $lft;
+    private ?int $lft = null;
 
     #[ORM\Column(type: 'integer', nullable: false)]
-    private $rgt;
+    private ?int $rgt = null;
 
     public function __construct()
     {
@@ -157,9 +157,9 @@ class NavigationNodeRoot extends NavigationNode implements Stringable
 #[ORM\Entity]
 class NavigationNodeContent extends NavigationNode
 {
-    #[ORM\ManyToOne(targetEntity: 'App\Entity\Content', fetch: 'LAZY')]
+    #[ORM\ManyToOne(fetch: 'LAZY')]
     #[ORM\JoinColumn(name: 'content_id', referencedColumnName: 'id')]
-    private ?\App\Entity\Content $content;
+    private ?Content $content = null;
 
     public function __construct(Content $content = null)
     {
@@ -193,9 +193,6 @@ class NavigationNodeContent extends NavigationNode
 #[ORM\Entity]
 class NavigationNodeEmpty extends NavigationNode
 {
-    /**
-     * NavigationNodeEmpty constructor.
-     */
     public function __construct()
     {
         parent::__construct();
@@ -216,7 +213,7 @@ class NavigationNodeEmpty extends NavigationNode
 class NavigationNodeGeneric extends NavigationNode
 {
     #[ORM\Column(type: 'string', length: 50, nullable: false)]
-    private string $path;
+    private ?string $path;
 
     public function __construct(string $path = '/')
     {
@@ -250,9 +247,9 @@ class NavigationNodeGeneric extends NavigationNode
 #[ORM\Entity]
 class NavigationNodeTeamsite extends NavigationNode
 {
-    #[ORM\ManyToOne(targetEntity: 'App\Entity\Teamsite', fetch: 'LAZY')]
+    #[ORM\ManyToOne(fetch: 'LAZY')]
     #[ORM\JoinColumn(name: 'teamsite_id', referencedColumnName: 'id')]
-    private ?\App\Entity\Teamsite $teamsite;
+    private ?Teamsite $teamsite;
 
     public function __construct(Teamsite $teamsite = null)
     {

@@ -13,22 +13,22 @@ class Token
 {
     #[ORM\Id]
     #[ORM\Column(type: 'string', length: 20)]
-    private $selector;
+    private ?string $selector = null;
 
     #[ORM\Column(type: 'uuid')]
-    private $userUuid;
+    private ?UuidInterface $userUuid = null;
 
     #[ORM\Column(type: 'string', length: 100)]
-    private $hash;
+    private ?string $hash = null;
 
     #[ORM\Column(type: 'string', length: 255)]
-    private $type;
+    private ?string $type = null;
 
     #[ORM\Column(type: 'datetime')]
-    private $requestedAt;
+    private ?DateTimeInterface $requestedAt = null;
 
     #[ORM\Column(type: 'datetime')]
-    private $expiresAt;
+    private ?DateTimeInterface $expiresAt = null;
 
     public function __construct()
     {

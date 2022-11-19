@@ -2,13 +2,14 @@
 
 namespace App\Entity;
 
+use App\Repository\UserGamerRepository;
 use DateTimeInterface;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Ramsey\Uuid\UuidInterface;
 
-#[ORM\Entity(repositoryClass: 'App\Repository\UserGamerRepository')]
+#[ORM\Entity(repositoryClass: UserGamerRepository::class)]
 class UserGamer
 {
     #[ORM\Id]
@@ -16,16 +17,16 @@ class UserGamer
     private ?UuidInterface $uuid;
 
     #[ORM\Column(type: 'datetime', nullable: true)]
-    private $registered;
+    private ?DateTimeInterface $registered = null;
 
     #[ORM\Column(type: 'datetime', nullable: true)]
-    private $paid;
+    private ?DateTimeInterface $paid = null;
 
-    #[ORM\OneToMany(targetEntity: 'App\Entity\Seat', mappedBy: 'owner')]
-    private $seats;
+    #[ORM\OneToMany(targetEntity: Seat::class, mappedBy: 'owner')]
+    private Collection $seats;
 
     #[ORM\Column(type: 'datetime', nullable: true)]
-    private $checkedIn;
+    private ?DateTimeInterface $checkedIn = null;
 
     public function __construct(?UuidInterface $uuid)
     {

@@ -22,25 +22,23 @@ class Setting
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type: 'integer')]
-    private $id;
+    private ?int $id = null;
 
     #[ORM\Column(type: 'string', length: 255, unique: true)]
-    private $key;
+    private ?string $key = null;
 
     #[ORM\Column(type: 'text', nullable: true)]
-    private $text;
+    private ?string $text = null;
 
     #[ORM\Column(type: 'datetime')]
-    private $last_modified;
+    private ?DateTimeInterface $last_modified = null;
 
     /**
      * @Vich\UploadableField(mapping="setting", fileNameProperty="text")
-     *
-     * @var UploadedFile
      */
-    private $file;
+    private ?UploadedFile $file = null;
 
-    public function setFile(File $file = null)
+    public function setFile(File $file = null): void
     {
         $this->file = $file;
 
@@ -49,7 +47,7 @@ class Setting
         }
     }
 
-    public function getFile()
+    public function getFile(): ?UploadedFile
     {
         return $this->file;
     }

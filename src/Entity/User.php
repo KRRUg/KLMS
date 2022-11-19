@@ -23,7 +23,7 @@ class User
 
     #[Assert\NotBlank]
     #[Assert\Email]
-    #[Assert\Length(max: 300, maxMessage: 'The email cannot be longer than {{ limit }} characters', allowEmptyString: false)]
+    #[Assert\Length(max: 300, maxMessage: 'The email cannot be longer than {{ limit }} characters')]
     #[Groups(['read', 'write'])]
     private ?string $email = null;
 
@@ -33,19 +33,19 @@ class User
     #[Groups(['read', 'write'])]
     private ?bool $infoMails = null;
 
-    #[Assert\Length(min: 6, max: 128, minMessage: 'The password must be at least {{ limit }} characters long', maxMessage: 'The password cannot be longer than {{ limit }} characters', allowEmptyString: false)]
+    #[Assert\Length(min: 6, max: 128, minMessage: 'The password must be at least {{ limit }} characters long', maxMessage: 'The password cannot be longer than {{ limit }} characters')]
     #[Groups(['write'])]
     private ?string $password = null;
 
-    #[Assert\Length(min: 1, max: 64, minMessage: 'The nickname must be at least {{ limit }} characters long', maxMessage: 'The nickname cannot be longer than {{ limit }} characters', allowEmptyString: false)]
+    #[Assert\Length(min: 1, max: 64, minMessage: 'The nickname must be at least {{ limit }} characters long', maxMessage: 'The nickname cannot be longer than {{ limit }} characters')]
     #[Groups(['read', 'write'])]
     private ?string $nickname = null;
 
     #[Groups(['read', 'write'])]
-    #[Assert\Length(max: 250, maxMessage: 'The firstname cannot be longer than {{ limit }} characters', allowEmptyString: false)]
+    #[Assert\Length(max: 250, maxMessage: 'The firstname cannot be longer than {{ limit }} characters')]
     private ?string $firstname = null;
 
-    #[Assert\Length(max: 250, maxMessage: 'The surname cannot be longer than {{ limit }} characters', allowEmptyString: false)]
+    #[Assert\Length(max: 250, maxMessage: 'The surname cannot be longer than {{ limit }} characters')]
     #[Groups(['read', 'write'])]
     private ?string $surname = null;
 
@@ -66,15 +66,15 @@ class User
     #[Groups(['read'])]
     private ?bool $isSuperadmin = null;
 
-    #[Assert\Length(min: 1, max: 10, minMessage: 'The postcode must be at least {{ limit }} characters long', maxMessage: 'The postcode cannot be longer than {{ limit }} characters', allowEmptyString: false)]
+    #[Assert\Length(min: 1, max: 10, minMessage: 'The postcode must be at least {{ limit }} characters long', maxMessage: 'The postcode cannot be longer than {{ limit }} characters')]
     #[Groups(['read', 'write'])]
     private ?string $postcode = null;
 
-    #[Assert\Length(max: 250, maxMessage: 'The city cannot be longer than {{ limit }} characters', allowEmptyString: true)]
+    #[Assert\Length(max: 250, maxMessage: 'The city cannot be longer than {{ limit }} characters')]
     #[Groups(['read', 'write'])]
     private ?string $city = null;
 
-    #[Assert\Length(max: 250, maxMessage: 'The street cannot be longer than {{ limit }} characters', allowEmptyString: true)]
+    #[Assert\Length(max: 250, maxMessage: 'The street cannot be longer than {{ limit }} characters')]
     #[Groups(['read', 'write'])]
     private ?string $street = null;
 
@@ -83,16 +83,16 @@ class User
     private ?string $country = null;
 
     #[Groups(['read', 'write'])]
-    #[Assert\Length(max: 250, maxMessage: 'The phone number cannot be longer than {{ limit }} characters', allowEmptyString: true)]
+    #[Assert\Length(max: 250, maxMessage: 'The phone number cannot be longer than {{ limit }} characters')]
     #[Assert\Regex('/^[+]?\d([ \/()]?\d)*$/', message: 'Invalid phone number format.')]
     private ?string $phone = null;
 
     #[Assert\Url]
-    #[Assert\Length(max: 250, maxMessage: 'The website url cannot be longer than {{ limit }} characters', allowEmptyString: true)]
+    #[Assert\Length(max: 250, maxMessage: 'The website url cannot be longer than {{ limit }} characters')]
     #[Groups(['read', 'write'])]
     private ?string $website = null;
 
-    #[Assert\Length(max: 250, maxMessage: 'The steam account cannot be longer than {{ limit }} characters', allowEmptyString: true)]
+    #[Assert\Length(max: 250, maxMessage: 'The steam account cannot be longer than {{ limit }} characters')]
     #[Groups(['read', 'write'])]
     private ?string $steamAccount = null;
 
@@ -102,11 +102,11 @@ class User
     #[Groups(['read'])]
     private ?DateTimeInterface $modifiedAt = null;
 
-    #[Assert\Length(max: 4000, maxMessage: 'The hardware description cannot be longer than {{ limit }} characters', allowEmptyString: true)]
+    #[Assert\Length(max: 4000, maxMessage: 'The hardware description cannot be longer than {{ limit }} characters')]
     #[Groups(['read', 'write'])]
     private ?string $hardware = null;
 
-    #[Assert\Length(max: 4000, maxMessage: 'The statement cannot be longer than {{ limit }} characters', allowEmptyString: true)]
+    #[Assert\Length(max: 4000, maxMessage: 'The statement cannot be longer than {{ limit }} characters')]
     #[Groups(['read', 'write'])]
     private ?string $statements = null;
 
