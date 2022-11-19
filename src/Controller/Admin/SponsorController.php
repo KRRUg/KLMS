@@ -13,10 +13,8 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Validator\Constraints as Assert;
 
-/**
- * @Route("/sponsor", name="sponsor")
- * @IsGranted("ROLE_ADMIN_CONTENT")
- */
+#[Route(path: '/sponsor', name: 'sponsor')]
+#[IsGranted('ROLE_ADMIN_CONTENT')]
 class SponsorController extends AbstractController
 {
     private const CSRF_TOKEN_DELETE = 'sponsorDeleteToken';
@@ -29,9 +27,7 @@ class SponsorController extends AbstractController
         $this->sponsorService = $service;
     }
 
-    /**
-     * @Route("/", name="", methods={"GET"})
-     */
+    #[Route(path: '/', name: '', methods: ['GET'])]
     public function index(): Response
     {
         $sponsors = $this->sponsorService->getAll();
@@ -42,9 +38,7 @@ class SponsorController extends AbstractController
         ]);
     }
 
-    /**
-     * @Route("/new", name="_new")
-     */
+    #[Route(path: '/new', name: '_new')]
     public function new(Request $request): Response
     {
         if (!$this->sponsorService->active()) {
@@ -71,9 +65,7 @@ class SponsorController extends AbstractController
         ]);
     }
 
-    /**
-     * @Route("/categories", name="_categories")
-     */
+    #[Route(path: '/categories', name: '_categories')]
     public function category_edit(Request $request): Response
     {
         if (!$this->sponsorService->active()) {
@@ -107,9 +99,7 @@ class SponsorController extends AbstractController
         ]);
     }
 
-    /**
-     * @Route("/delete/{id}", name="_delete")
-     */
+    #[Route(path: '/delete/{id}', name: '_delete')]
     public function delete(Request $request, Sponsor $news): Response
     {
         if (!$this->sponsorService->active()) {
@@ -127,9 +117,7 @@ class SponsorController extends AbstractController
         return $this->redirectToRoute('admin_sponsor');
     }
 
-    /**
-     * @Route("/edit/{id}", name="_edit")
-     */
+    #[Route(path: '/edit/{id}', name: '_edit')]
     public function edit(Request $request, Sponsor $sponsor): Response
     {
         if (!$this->sponsorService->active()) {
@@ -151,9 +139,7 @@ class SponsorController extends AbstractController
         ]);
     }
 
-    /**
-     * @Route("/activate", name="_activate")
-     */
+    #[Route(path: '/activate', name: '_activate')]
     public function activate(Request $request): Response
     {
         $token = $request->request->get('_token');

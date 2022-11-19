@@ -12,10 +12,8 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
-/**
- * @Route("/media", name="media")
- * @IsGranted({"ROLE_ADMIN_CONTENT", "ROLE_ADMIN_NEWS"})
- */
+#[Route(path: '/media', name: 'media')]
+#[IsGranted(['ROLE_ADMIN_CONTENT', 'ROLE_ADMIN_NEWS'])]
 class MediaController extends BaseController
 {
     private const CSRF_TOKEN_DELETE = 'mediaDeleteToken';
@@ -50,9 +48,7 @@ class MediaController extends BaseController
         };
     }
 
-    /**
-     * @Route(".{_format}", name="", defaults={"_format"="html"})
-     */
+    #[Route(path: '.{_format}', name: '', defaults: ['_format' => 'html'])]
     public function index(Request $request): Response
     {
         $filter = $request->get('filter', '');
@@ -90,9 +86,7 @@ class MediaController extends BaseController
         }
     }
 
-    /**
-     * @Route("/delete/{id}", name="_delete")
-     */
+    #[Route(path: '/delete/{id}', name: '_delete')]
     public function delete(Request $request, Media $image): Response
     {
         $token = $request->request->get('_token');
@@ -105,9 +99,7 @@ class MediaController extends BaseController
         return $this->redirectToRoute('admin_media');
     }
 
-    /**
-     * @Route("/detail/{id}.{_format}", name="_detail", defaults={"_format"="html"})
-     */
+    #[Route(path: '/detail/{id}.{_format}', name: '_detail', defaults: ['_format' => 'html'])]
     public function detail(Request $request, Media $image): Response
     {
         if ($request->getRequestFormat() === 'json') {

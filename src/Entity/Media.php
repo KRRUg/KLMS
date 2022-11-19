@@ -10,30 +10,24 @@ use Symfony\Component\Validator\Constraints as Assert;
 use Vich\UploaderBundle\Mapping\Annotation as Vich;
 
 /**
- * @ORM\Entity(repositoryClass="App\Repository\MediaRepository")
- * @ORM\Table(indexes={ @ORM\Index(name="filename_indes", columns={"file_name"}) })
- * @ORM\HasLifecycleCallbacks
  * @Vich\Uploadable
  */
+#[ORM\Table]
+#[ORM\Index(name: 'filename_indes', columns: ['file_name'])]
+#[ORM\Entity(repositoryClass: 'App\Repository\MediaRepository')]
+#[ORM\HasLifecycleCallbacks]
 class Media implements HistoryAwareEntity
 {
     use Traits\EntityHistoryTrait;
     final public const MAX_FILE_SIZE = '16384k';
     final public const MIME_TYPES = ['image/png', 'image/jpeg', 'image/gif', 'application/pdf', 'application/zip', 'audio/mpeg', 'audio/ogg'];
 
-    /**
-     * @ORM\Id()
-     * @ORM\GeneratedValue()
-     * @ORM\Column(type="integer")
-     */
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column(type: 'integer')]
     private $id;
 
     /**
-     * @Assert\File(
-     *     maxSize=Media::MAX_FILE_SIZE,
-     *     mimeTypes=Media::MIME_TYPES,
-     *     mimeTypesMessage = "Please upload a valid file (Image, PDF or ZIP)"
-     * )
      * @Vich\UploadableField(
      *     mapping="media",
      *     fileNameProperty="fileName",
@@ -41,21 +35,16 @@ class Media implements HistoryAwareEntity
      *     originalName="displayName"
      * )
      */
+    #[Assert\File(maxSize: Media::MAX_FILE_SIZE, mimeTypes: Media::MIME_TYPES, mimeTypesMessage: 'Please upload a valid file (Image, PDF or ZIP)')]
     private ?\Symfony\Component\HttpFoundation\File\File $mediaFile = null;
 
-    /**
-     * @ORM\Column(name="file_name", nullable=false)
-     */
+    #[ORM\Column(name: 'file_name', nullable: false)]
     private $fileName;
 
-    /**
-     * @ORM\Column(name="display_name", nullable=false, unique=true)
-     */
+    #[ORM\Column(name: 'display_name', nullable: false, unique: true)]
     private $displayName;
 
-    /**
-     * @ORM\Column(name="mime_type", nullable=false)
-     */
+    #[ORM\Column(name: 'mime_type', nullable: false)]
     private $mimeType;
 
     public function getId()

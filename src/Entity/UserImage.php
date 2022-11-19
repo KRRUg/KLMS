@@ -12,21 +12,17 @@ use Vich\UploaderBundle\Entity\File as EmbeddedFile;
 use Vich\UploaderBundle\Mapping\Annotation as Vich;
 
 /**
- * @ORM\Entity(repositoryClass=UserImageRepository::class)
- * @ORM\HasLifecycleCallbacks
  * @Vich\Uploadable
  */
+#[ORM\Entity(repositoryClass: UserImageRepository::class)]
+#[ORM\HasLifecycleCallbacks]
 class UserImage
 {
-    /**
-     * @ORM\Id()
-     * @ORM\Column(type="uuid", unique=true)
-     */
+    #[ORM\Id]
+    #[ORM\Column(type: 'uuid', unique: true)]
     private ?UuidInterface $uuid;
 
-    /**
-     * @ORM\Embedded(class="Vich\UploaderBundle\Entity\File")
-     */
+    #[ORM\Embedded(class: 'Vich\UploaderBundle\Entity\File')]
     private ?EmbeddedFile $image;
 
     /**
@@ -34,9 +30,7 @@ class UserImage
      */
     private ?File $imageFile = null;
 
-    /**
-     * @ORM\Column(type="datetime", nullable=false)
-     */
+    #[ORM\Column(type: 'datetime', nullable: false)]
     private ?DateTimeInterface $lastModified = null;
 
     public function __construct(?UuidInterface $uuid)
@@ -102,10 +96,8 @@ class UserImage
         return empty($this->imageFile) && empty($this->image->getName()) && empty($this->image->getSize());
     }
 
-    /**
-     * @ORM\PrePersist()
-     * @ORM\PreUpdate()
-     */
+    #[ORM\PrePersist]
+    #[ORM\PreUpdate]
     public function updateModifiedDatetime()
     {
         // update the modified time and creation time

@@ -11,9 +11,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
-/**
- * @Route("/clans", name="clans")
- */
+#[Route(path: '/clans', name: 'clans')]
 class ClanController extends AbstractController
 {
     private readonly IdmRepository $clanRepo;
@@ -24,10 +22,9 @@ class ClanController extends AbstractController
     }
 
     /**
-     * @Route("", name="", methods={"GET"})
-     *
      * @return JsonResponse
      */
+    #[Route(path: '', name: '', methods: ['GET'])]
     public function search(Request $request): Response
     {
         $search = $request->query->get('q', '');

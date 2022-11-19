@@ -41,9 +41,7 @@ class AccountController extends AbstractController
         $this->tokenService = $tokenService;
     }
 
-    /**
-     * @Route("/reset", name="app_reset")
-     */
+    #[Route(path: '/reset', name: 'app_reset')]
     public function reset(Request $request): Response
     {
         if ($this->isGranted('IS_AUTHENTICATED_REMEMBERED')) {
@@ -82,9 +80,7 @@ class AccountController extends AbstractController
         ]);
     }
 
-    /**
-     * @Route("/reset_pw", name="reset_pw")
-     */
+    #[Route(path: '/reset_pw', name: 'reset_pw')]
     public function resetPW(Request $request): Response
     {
         if (!($user = $this->checkTokenAndGetUser($request, self::TOKEN_PW_RESET_STRING, false))) {
@@ -154,9 +150,7 @@ class AccountController extends AbstractController
         return $user;
     }
 
-    /**
-     * @Route("/resend", name="app_register_resend")
-     */
+    #[Route(path: '/resend', name: 'app_register_resend')]
     public function resend(Request $request): Response
     {
         $email = $request->query->get('email');
@@ -171,9 +165,7 @@ class AccountController extends AbstractController
         return $this->redirectToRoute('app_login');
     }
 
-    /**
-     * @Route("/confirm", name="app_register_confirm")
-     */
+    #[Route(path: '/confirm', name: 'app_register_confirm')]
     public function confirm(Request $request, LoginFormAuthenticator $login, GuardAuthenticatorHandler $guard): Response
     {
         if ($this->isGranted('IS_AUTHENTICATED_REMEMBERED')) {
@@ -207,9 +199,7 @@ class AccountController extends AbstractController
         );
     }
 
-    /**
-     * @Route("/register", name="register")
-     */
+    #[Route(path: '/register', name: 'register')]
     public function register(Request $request): Response
     {
         if ($this->isGranted('IS_AUTHENTICATED_REMEMBERED')) {

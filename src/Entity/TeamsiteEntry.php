@@ -6,53 +6,33 @@ use App\Repository\TeamsiteEntryRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Ramsey\Uuid\UuidInterface;
 
-/**
- * @ORM\Entity(repositoryClass=TeamsiteEntryRepository::class)
- * @ORM\Table(
- *     name="teamsite_entry",
- *     uniqueConstraints={
- *        @ORM\UniqueConstraint(name="teamsite_entry_ord_unique", columns={"category_id", "ord" }),
- *     },
- * )
- */
+#[ORM\Table(name: 'teamsite_entry')]
+#[ORM\UniqueConstraint(name: 'teamsite_entry_ord_unique', columns: ['category_id', 'ord'])]
+#[ORM\Entity(repositoryClass: TeamsiteEntryRepository::class)]
 class TeamsiteEntry
 {
-    /**
-     * @ORM\Id
-     * @ORM\GeneratedValue
-     * @ORM\Column(type="integer")
-     */
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column(type: 'integer')]
     private ?int $id = null;
 
-    /**
-     * @ORM\Column(type="uuid")
-     */
+    #[ORM\Column(type: 'uuid')]
     private ?UuidInterface $userUuid = null;
 
-    /**
-     * @ORM\Column(type="string", length=255)
-     */
+    #[ORM\Column(type: 'string', length: 255)]
     private ?string $title = '';
 
-    /**
-     * @ORM\Column(type="text")
-     */
+    #[ORM\Column(type: 'text')]
     private ?string $description = '';
 
-    /**
-     * @ORM\Column(type="integer")
-     */
+    #[ORM\Column(type: 'integer')]
     private ?int $ord = 0;
 
-    /**
-     * @ORM\ManyToOne(targetEntity=TeamsiteCategory::class, inversedBy="entries")
-     * @ORM\JoinColumn(name="category_id", nullable=false)
-     */
+    #[ORM\ManyToOne(targetEntity: TeamsiteCategory::class, inversedBy: 'entries')]
+    #[ORM\JoinColumn(name: 'category_id', nullable: false)]
     private ?TeamsiteCategory $category = null;
 
-    /**
-     * @ORM\Column(type="string", length=255, nullable=true)
-     */
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
     private $displayEmail;
 
     public function __construct()

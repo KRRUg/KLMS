@@ -11,10 +11,8 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
-/**
- * @Route("/news", name="news")
- * @IsGranted("ROLE_ADMIN_NEWS")
- */
+#[Route(path: '/news', name: 'news')]
+#[IsGranted('ROLE_ADMIN_NEWS')]
 class NewsController extends AbstractController
 {
     private const CSRF_TOKEN_DELETE = 'newsDeleteToken';
@@ -29,9 +27,7 @@ class NewsController extends AbstractController
         $this->newsService = $newsService;
     }
 
-    /**
-     * @Route("", name="")
-     */
+    #[Route(path: '', name: '')]
     public function index(): Response
     {
         $news = $this->newsService->getAll();
@@ -41,9 +37,7 @@ class NewsController extends AbstractController
         ]);
     }
 
-    /**
-     * @Route("/new", name="_new")
-     */
+    #[Route(path: '/new', name: '_new')]
     public function new(Request $request): Response
     {
         $form = $this->createForm(NewsType::class);
@@ -60,9 +54,7 @@ class NewsController extends AbstractController
         ]);
     }
 
-    /**
-     * @Route("/delete/{id}", name="_delete")
-     */
+    #[Route(path: '/delete/{id}', name: '_delete')]
     public function delete(Request $request, News $news): Response
     {
         $token = $request->request->get('_token');
@@ -76,9 +68,7 @@ class NewsController extends AbstractController
         return $this->redirectToRoute('admin_news');
     }
 
-    /**
-     * @Route("/edit/{id}", name="_edit")
-     */
+    #[Route(path: '/edit/{id}', name: '_edit')]
     public function edit(Request $request, News $news): Response
     {
         $form = $this->createForm(NewsType::class, $news);

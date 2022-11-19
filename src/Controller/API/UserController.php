@@ -14,9 +14,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
-/**
- * @Route("/users", name="users")
- */
+#[Route(path: '/users', name: 'users')]
 class UserController extends AbstractController
 {
     private readonly IdmRepository $userRepo;
@@ -28,9 +26,7 @@ class UserController extends AbstractController
         $this->userService = $userService;
     }
 
-    /**
-     * @Route("", name="", methods={"GET"})
-     */
+    #[Route(path: '', name: '', methods: ['GET'])]
     public function search(Request $request): Response
     {
         $search = $request->query->get('q', '');

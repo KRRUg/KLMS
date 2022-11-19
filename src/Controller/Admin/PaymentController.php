@@ -15,10 +15,8 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
-/**
- * @IsGranted("ROLE_ADMIN_PAYMENT")
- * @Route("/payment", name="payment")
- */
+#[IsGranted('ROLE_ADMIN_PAYMENT')]
+#[Route(path: '/payment', name: 'payment')]
 class PaymentController extends AbstractController
 {
     private const CSRF_TOKEN_PAYMENT = 'paymentToken';
@@ -41,9 +39,7 @@ class PaymentController extends AbstractController
         return $form->getForm();
     }
 
-    /**
-     * @Route("", name="", methods={"GET"})
-     */
+    #[Route(path: '', name: '', methods: ['GET'])]
     public function index(): Response
     {
         $gamers = $this->gamerService->getGamers();
@@ -54,9 +50,7 @@ class PaymentController extends AbstractController
         ]);
     }
 
-    /**
-     * @Route("", name="_add", methods={"POST"})
-     */
+    #[Route(path: '', name: '_add', methods: ['POST'])]
     public function add(Request $request): Response
     {
         $form = $this->createUserSelectForm();
@@ -80,9 +74,7 @@ class PaymentController extends AbstractController
         return $this->redirectToRoute('admin_payment');
     }
 
-    /**
-     * @Route("/{uuid}", name="_update", methods={"POST"})
-     */
+    #[Route(path: '/{uuid}', name: '_update', methods: ['POST'])]
     public function update(Request $request, string $uuid): Response
     {
         $token = $request->request->get('_token');
@@ -131,9 +123,7 @@ class PaymentController extends AbstractController
         return $this->redirectToRoute('admin_payment');
     }
 
-    /**
-     * @Route("/{uuid}", name="_show", methods={"GET"})
-     */
+    #[Route(path: '/{uuid}', name: '_show', methods: ['GET'])]
     public function show(string $uuid): Response
     {
         $user = $this->userRepo->findOneById($uuid);

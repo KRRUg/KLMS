@@ -7,64 +7,37 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @ORM\Entity(repositoryClass=TeamsiteCategoryRepository::class)
- * @ORM\Table(
- *     name="teamsite_category",
- *     uniqueConstraints={
- *        @ORM\UniqueConstraint(name="teamsite_category_ord_unique", columns={"teamsite_id", "ord" }),
- *     },
- * )
- */
+#[ORM\Table(name: 'teamsite_category')]
+#[ORM\UniqueConstraint(name: 'teamsite_category_ord_unique', columns: ['teamsite_id', 'ord'])]
+#[ORM\Entity(repositoryClass: TeamsiteCategoryRepository::class)]
 class TeamsiteCategory
 {
-    /**
-     * @ORM\Id
-     * @ORM\GeneratedValue
-     * @ORM\Column(type="integer")
-     */
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column(type: 'integer')]
     private ?int $id = null;
 
-    /**
-     * @ORM\Column(type="string", length=255)
-     */
+    #[ORM\Column(type: 'string', length: 255)]
     private ?string $title = '';
 
-    /**
-     * @ORM\Column(type="text")
-     */
+    #[ORM\Column(type: 'text')]
     private ?string $description = '';
 
-    /**
-     * @ORM\Column(type="integer")
-     */
+    #[ORM\Column(type: 'integer')]
     private ?int $ord = 0;
 
-    /**
-     * @ORM\ManyToOne(targetEntity=Teamsite::class, inversedBy="categories")
-     * @ORM\JoinColumn(name="teamsite_id", nullable=false)
-     */
+    #[ORM\ManyToOne(targetEntity: Teamsite::class, inversedBy: 'categories')]
+    #[ORM\JoinColumn(name: 'teamsite_id', nullable: false)]
     private ?Teamsite $teamsite = null;
 
-    /**
-     * @ORM\OneToMany(
-     *     targetEntity=TeamsiteEntry::class,
-     *     mappedBy="category",
-     *     orphanRemoval=true,
-     *     cascade={"all"},
-     * )
-     * @ORM\OrderBy({"ord" = "ASC"})
-     */
+    #[ORM\OneToMany(targetEntity: TeamsiteEntry::class, mappedBy: 'category', orphanRemoval: true, cascade: ['all'])]
+    #[ORM\OrderBy(['ord' => 'ASC'])]
     private $entries;
 
-    /**
-     * @ORM\Column(type="boolean")
-     */
+    #[ORM\Column(type: 'boolean')]
     private $hideEmail;
 
-    /**
-     * @ORM\Column(type="boolean")
-     */
+    #[ORM\Column(type: 'boolean')]
     private $hideName;
 
     public function __construct()

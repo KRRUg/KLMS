@@ -56,10 +56,8 @@ class UserController extends AbstractController
 
     private const SHOW_LIMIT = 20;
 
-    /**
-     * @IsGranted("IS_AUTHENTICATED_REMEMBERED")
-     * @Route("/user", name="user")
-     */
+    #[IsGranted('IS_AUTHENTICATED_REMEMBERED')]
+    #[Route(path: '/user', name: 'user')]
     public function index(Request $request): Response
     {
         if (!$this->settingService->get('community.enabled', false)) {
@@ -94,10 +92,8 @@ class UserController extends AbstractController
         ]);
     }
 
-    /**
-     * @IsGranted("IS_AUTHENTICATED_REMEMBERED")
-     * @Route("/user/profile", name="user_profile")
-     */
+    #[IsGranted('IS_AUTHENTICATED_REMEMBERED')]
+    #[Route(path: '/user/profile', name: 'user_profile')]
     public function userProfile(): Response
     {
         $user = $this->getUser();
@@ -107,9 +103,7 @@ class UserController extends AbstractController
         ]);
     }
 
-    /**
-     * @Route("/user/{uuid}", name="user_show", requirements= {"uuid"="[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}"})
-     */
+    #[Route(path: '/user/{uuid}', name: 'user_show', requirements: ['uuid' => '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}'])]
     public function userShow(string $uuid): Response
     {
         $user = $this->userRepo->findOneById($uuid);
@@ -124,10 +118,8 @@ class UserController extends AbstractController
         ]);
     }
 
-    /**
-     * @IsGranted("IS_AUTHENTICATED_REMEMBERED")
-     * @Route("/user/profile/edit/pw", name="user_profile_edit_pw")
-     */
+    #[IsGranted('IS_AUTHENTICATED_REMEMBERED')]
+    #[Route(path: '/user/profile/edit/pw', name: 'user_profile_edit_pw')]
     public function userProfileEditPw(Request $request): Response
     {
         $user = $this->getUser();
@@ -177,10 +169,8 @@ class UserController extends AbstractController
         ]);
     }
 
-    /**
-     * @IsGranted("IS_AUTHENTICATED_FULLY")
-     * @Route("/user/profile/edit", name="user_profile_edit")
-     */
+    #[IsGranted('IS_AUTHENTICATED_FULLY')]
+    #[Route(path: '/user/profile/edit', name: 'user_profile_edit')]
     public function userProfileEdit(Request $request): Response
     {
         $user = $this->getUser();

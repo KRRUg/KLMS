@@ -11,9 +11,7 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class ContentController extends AbstractController
 {
-    /**
-     * @Route("/content", name="content_index")
-     */
+    #[Route(path: '/content', name: 'content_index')]
     public function index(ContentRepository $repository): Response
     {
         $content = $repository->findAll();
@@ -23,9 +21,7 @@ class ContentController extends AbstractController
         ]);
     }
 
-    /**
-     * @Route("/content/{id}", requirements={"id"="\d+"}, name="content")
-     */
+    #[Route(path: '/content/{id}', requirements: ['id' => '\d+'], name: 'content')]
     public function byId(Content $content): Response
     {
         if (!empty($content->getAlias())) {
@@ -37,10 +33,8 @@ class ContentController extends AbstractController
         ]);
     }
 
-    /**
-     * @Route("/content/{slug}", requirements={"slug"="[a-z]+"}, name="content_slug")
-     * @ParamConverter("content", options={"mapping": {"slug": "alias"}})
-     */
+    #[Route(path: '/content/{slug}', requirements: ['slug' => '[a-z]+'], name: 'content_slug')]
+    #[ParamConverter('content', options: ['mapping' => ['slug' => 'alias']])]
     public function bySlug(Content $content): Response
     {
         return $this->render('site/content/index.html.twig', [

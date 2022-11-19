@@ -5,20 +5,14 @@ namespace App\Entity;
 use Doctrine\ORM\Mapping as ORM;
 use Ramsey\Uuid\UuidInterface;
 
-/**
- * @ORM\Entity(repositoryClass="App\Repository\UserAdminsRepository")
- */
+#[ORM\Entity(repositoryClass: 'App\Repository\UserAdminsRepository')]
 class UserAdmin
 {
-    /**
-     * @ORM\Id()
-     * @ORM\Column(type="uuid", unique=true)
-     */
+    #[ORM\Id]
+    #[ORM\Column(type: 'uuid', unique: true)]
     private ?UuidInterface $uuid;
 
-    /**
-     * @ORM\Column(type="array")
-     */
+    #[ORM\Column(type: 'array')]
     private array $permissions = [];
 
     public function __construct(?UuidInterface $uuid)

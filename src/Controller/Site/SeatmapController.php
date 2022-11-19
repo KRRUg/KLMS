@@ -12,9 +12,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
-/**
- * @Route("/seatmap", name="seatmap")
- */
+#[Route(path: '/seatmap', name: 'seatmap')]
 class SeatmapController extends AbstractController
 {
     private readonly SeatmapService $seatmapService;
@@ -28,9 +26,7 @@ class SeatmapController extends AbstractController
         $this->seatmapService = $seatmapService;
     }
 
-    /**
-     * @Route("", name="")
-     */
+    #[Route(path: '', name: '')]
     public function index(): Response
     {
         if (!$this->settingService->get('lan.seatmap.enabled', false)) {
@@ -63,9 +59,7 @@ class SeatmapController extends AbstractController
         return $fb->getForm();
     }
 
-    /**
-     * @Route("/seat/{id}", name="_seat_show", methods={"GET", "POST"})
-     */
+    #[Route(path: '/seat/{id}', name: '_seat_show', methods: ['GET', 'POST'])]
     public function seatShow(Seat $seat, Request $request): Response
     {
         $view = null;

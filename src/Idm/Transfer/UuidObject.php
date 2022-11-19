@@ -9,11 +9,9 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 final class UuidObject
 {
-    /**
-     * @Groups({"read", "write"})
-     * @Assert\Uuid(strict=false)
-     * @Assert\NotBlank()
-     */
+    #[Groups(['read', 'write'])]
+    #[Assert\Uuid(strict: false)]
+    #[Assert\NotBlank]
     public UuidInterface $uuid;
 
     /**

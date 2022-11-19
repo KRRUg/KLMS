@@ -17,9 +17,7 @@ class TeamsiteController extends AbstractController
         $this->service = $service;
     }
 
-    /**
-     * @Route("/teamsite/{id}", name="teamsite")
-     */
+    #[Route(path: '/teamsite/{id}', name: 'teamsite')]
     public function byId(Teamsite $teamsite): Response
     {
         // warm-up IDM UoW to avoid multiple requests

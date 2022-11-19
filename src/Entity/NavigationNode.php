@@ -5,25 +5,13 @@ namespace App\Entity;
 use Doctrine\ORM\Mapping as ORM;
 use Stringable;
 
-/**
- * @ORM\Entity(repositoryClass="App\Repository\NavigationNodeRepository")
- * @ORM\Table(
- *     name="navigation_node",
- *     uniqueConstraints={
- *        @ORM\UniqueConstraint(name="nav_node_lft_unique", columns={"navigation_id", "lft" }),
- *        @ORM\UniqueConstraint(name="nav_node_rgt_unique", columns={"navigation_id", "rgt" }),
- *     },
- * )
- * @ORM\InheritanceType("SINGLE_TABLE")
- * @ORM\DiscriminatorColumn(name="type", type="string", length=25)
- * @ORM\DiscriminatorMap({
- *     "root" = "NavigationNodeRoot",
- *     "empty" = "NavigationNodeEmpty",
- *     "generic" = "NavigationNodeGeneric",
- *     "content" = "NavigationNodeContent",
- *     "teamsite" = "NavigationNodeTeamsite",
- * })
- */
+#[ORM\Table(name: 'navigation_node')]
+#[ORM\UniqueConstraint(name: 'nav_node_lft_unique', columns: ['navigation_id', 'lft'])]
+#[ORM\UniqueConstraint(name: 'nav_node_rgt_unique', columns: ['navigation_id', 'rgt'])]
+#[ORM\Entity(repositoryClass: 'App\Repository\NavigationNodeRepository')]
+#[ORM\InheritanceType('SINGLE_TABLE')]
+#[ORM\DiscriminatorColumn(name: 'type', type: 'string', length: 25)]
+#[ORM\DiscriminatorMap(['root' => 'NavigationNodeRoot', 'empty' => 'NavigationNodeEmpty', 'generic' => 'NavigationNodeGeneric', 'content' => 'NavigationNodeContent', 'teamsite' => 'NavigationNodeTeamsite'])]
 abstract class NavigationNode implements Stringable
 {
     public const NAV_NODE_TYPE_ROOT = 'root';
@@ -40,32 +28,22 @@ abstract class NavigationNode implements Stringable
         self::NAV_NODE_TYPE_TEAMSITE,
     ];
 
-    /**
-     * @ORM\Id()
-     * @ORM\GeneratedValue()
-     * @ORM\Column(type="integer")
-     */
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column(type: 'integer')]
     private $id;
 
-    /**
-     * @ORM\Column(type="string", length=255)
-     */
+    #[ORM\Column(type: 'string', length: 255)]
     private $name;
 
-    /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\Navigation", inversedBy="nodes")
-     * @ORM\JoinColumn(name="navigation_id", nullable=false)
-     */
+    #[ORM\ManyToOne(targetEntity: 'App\Entity\Navigation', inversedBy: 'nodes')]
+    #[ORM\JoinColumn(name: 'navigation_id', nullable: false)]
     private $navigation;
 
-    /**
-     * @ORM\Column(type="integer", nullable=false)
-     */
+    #[ORM\Column(type: 'integer', nullable: false)]
     private $lft;
 
-    /**
-     * @ORM\Column(type="integer", nullable=false)
-     */
+    #[ORM\Column(type: 'integer', nullable: false)]
     private $rgt;
 
     public function __construct()
@@ -151,9 +129,7 @@ abstract class NavigationNode implements Stringable
     }
 }
 
-/**
- * @ORM\Entity()
- */
+#[ORM\Entity]
 class NavigationNodeRoot extends NavigationNode implements Stringable
 {
     public function __construct()
@@ -178,15 +154,11 @@ class NavigationNodeRoot extends NavigationNode implements Stringable
     }
 }
 
-/**
- * @ORM\Entity()
- */
+#[ORM\Entity]
 class NavigationNodeContent extends NavigationNode
 {
-    /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\Content", fetch="LAZY")
-     * @ORM\JoinColumn(name="content_id", referencedColumnName="id")
-     */
+    #[ORM\ManyToOne(targetEntity: 'App\Entity\Content', fetch: 'LAZY')]
+    #[ORM\JoinColumn(name: 'content_id', referencedColumnName: 'id')]
     private ?\App\Entity\Content $content;
 
     public function __construct(Content $content = null)
@@ -218,9 +190,7 @@ class NavigationNodeContent extends NavigationNode
     }
 }
 
-/**
- * @ORM\Entity()
- */
+#[ORM\Entity]
 class NavigationNodeEmpty extends NavigationNode
 {
     /**
@@ -242,14 +212,10 @@ class NavigationNodeEmpty extends NavigationNode
     }
 }
 
-/**
- * @ORM\Entity()
- */
+#[ORM\Entity]
 class NavigationNodeGeneric extends NavigationNode
 {
-    /**
-     * @ORM\Column(type="string", length=50, nullable=false)
-     */
+    #[ORM\Column(type: 'string', length: 50, nullable: false)]
     private string $path;
 
     public function __construct(string $path = '/')
@@ -281,15 +247,11 @@ class NavigationNodeGeneric extends NavigationNode
     }
 }
 
-/**
- * @ORM\Entity()
- */
+#[ORM\Entity]
 class NavigationNodeTeamsite extends NavigationNode
 {
-    /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\Teamsite", fetch="LAZY")
-     * @ORM\JoinColumn(name="teamsite_id", referencedColumnName="id")
-     */
+    #[ORM\ManyToOne(targetEntity: 'App\Entity\Teamsite', fetch: 'LAZY')]
+    #[ORM\JoinColumn(name: 'teamsite_id', referencedColumnName: 'id')]
     private ?\App\Entity\Teamsite $teamsite;
 
     public function __construct(Teamsite $teamsite = null)

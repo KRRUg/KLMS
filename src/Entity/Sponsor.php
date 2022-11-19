@@ -12,30 +12,24 @@ use Vich\UploaderBundle\Entity\File as EmbeddedFile;
 use Vich\UploaderBundle\Mapping\Annotation as Vich;
 
 /**
- * @ORM\Entity(repositoryClass=SponsorRepository::class)
- * @ORM\HasLifecycleCallbacks
  * @Vich\Uploadable
  */
+#[ORM\Entity(repositoryClass: SponsorRepository::class)]
+#[ORM\HasLifecycleCallbacks]
 class Sponsor implements HistoryAwareEntity
 {
     use Traits\EntityHistoryTrait;
-    /**
-     * @ORM\Id
-     * @ORM\GeneratedValue
-     * @ORM\Column(type="integer")
-     */
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column(type: 'integer')]
     private $id;
 
-    /**
-     * @ORM\Column(type="string", length=255)
-     * @Assert\NotBlank()
-     */
+    #[ORM\Column(type: 'string', length: 255)]
+    #[Assert\NotBlank]
     private $name;
 
-    /**
-     * @ORM\Column(type="string", length=255, nullable=true)
-     * @Assert\Url()
-     */
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    #[Assert\Url]
     private $url;
 
     /**
@@ -43,20 +37,14 @@ class Sponsor implements HistoryAwareEntity
      */
     private ?File $logoFile = null;
 
-    /**
-     * @ORM\Embedded(class="Vich\UploaderBundle\Entity\File")
-     */
+    #[ORM\Embedded(class: 'Vich\UploaderBundle\Entity\File')]
     private EmbeddedFile $logo;
 
-    /**
-     * @ORM\Column(type="text", nullable=true)
-     */
+    #[ORM\Column(type: 'text', nullable: true)]
     private $text;
 
-    /**
-     * @ORM\ManyToOne(targetEntity=SponsorCategory::class, inversedBy="sponsors")
-     * @ORM\JoinColumn(nullable=false)
-     */
+    #[ORM\ManyToOne(targetEntity: SponsorCategory::class, inversedBy: 'sponsors')]
+    #[ORM\JoinColumn(nullable: false)]
     private $category;
 
     public function __construct()

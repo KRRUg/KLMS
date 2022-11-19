@@ -3,42 +3,32 @@
 namespace App\Entity;
 
 use App\Entity\Traits\HistoryAwareEntity;
+use App\Repository\ContentRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 
-/**
- * @ORM\Entity(repositoryClass="App\Repository\ContentRepository")
- * @ORM\HasLifecycleCallbacks
- */
+#[ORM\Entity(repositoryClass: ContentRepository::class)]
+#[ORM\HasLifecycleCallbacks]
 class Content implements HistoryAwareEntity
 {
     use Traits\EntityHistoryTrait;
-    /**
-     * @ORM\Id()
-     * @ORM\GeneratedValue()
-     * @ORM\Column(type="integer")
-     */
+
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column(type: 'integer')]
     private $id;
 
-    /**
-     * @ORM\Column(type="string", length=255)
-     */
+    #[ORM\Column(type: 'string', length: 255)]
     private $title;
 
-    /**
-     * @ORM\Column(type="text")
-     */
+    #[ORM\Column(type: 'text')]
     private $content;
 
-    /**
-     * @ORM\Column(type="string", length=255, nullable=true)
-     */
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
     private $description;
 
-    /**
-     * @ORM\Column(type="string", length=255, nullable=true, unique=true)
-     * @Assert\Regex("/^[a-z]*$/", message="Nur Kleinbuchstaben sind hier erlaubt.")
-     */
+    #[ORM\Column(type: 'string', length: 255, unique: true, nullable: true)]
+    #[Assert\Regex('/^[a-z]*$/', message: 'Nur Kleinbuchstaben sind hier erlaubt.')]
     private $alias;
 
     public function __construct()

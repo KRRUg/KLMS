@@ -7,16 +7,12 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 final class AuthObject
 {
-    /**
-     * @Groups({"write"})
-     * @Assert\NotBlank()
-     */
+    #[Groups(['write'])]
+    #[Assert\NotBlank]
     public string $name;
 
-    /**
-     * @Groups({"write"})
-     * @Assert\NotBlank()
-     */
+    #[Groups(['write'])]
+    #[Assert\NotBlank]
     public string $secret;
 
     public function __construct(string $name, string $secret)

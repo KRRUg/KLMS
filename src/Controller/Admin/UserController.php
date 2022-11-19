@@ -16,9 +16,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
-/**
- * @IsGranted("ROLE_ADMIN")
- */
+#[IsGranted('ROLE_ADMIN')]
 class UserController extends AbstractController
 {
     private readonly IdmManager $manager;
@@ -34,10 +32,8 @@ class UserController extends AbstractController
         $this->userRepo = $manager->getRepository(User::class);
     }
 
-    /**
-     * @Route("/user", name="user", methods={"GET"})
-     * @IsGranted("ROLE_ADMIN_USER")
-     */
+    #[Route(path: '/user', name: 'user', methods: ['GET'])]
+    #[IsGranted('ROLE_ADMIN_USER')]
     public function index(Request $request): Response
     {
         $search = $request->query->get('q', '');
@@ -56,10 +52,8 @@ class UserController extends AbstractController
         ]);
     }
 
-    /**
-     * @Route("/user/{uuid}", name="user_show", methods={"GET"})
-     * @IsGranted("ROLE_ADMIN")
-     */
+    #[Route(path: '/user/{uuid}', name: 'user_show', methods: ['GET'])]
+    #[IsGranted('ROLE_ADMIN')]
     public function show(string $uuid): Response
     {
         $user = $this->userRepo->findOneById($uuid);
@@ -73,10 +67,8 @@ class UserController extends AbstractController
         ]);
     }
 
-    /**
-     * @Route("/user/{uuid}/edit", name="user_edit", methods={"GET", "POST"})
-     * @IsGranted("ROLE_ADMIN_USER")
-     */
+    #[Route(path: '/user/{uuid}/edit', name: 'user_edit', methods: ['GET', 'POST'])]
+    #[IsGranted('ROLE_ADMIN_USER')]
     public function edit(string $uuid, Request $request): Response
     {
         $user = $this->userRepo->findOneById($uuid);

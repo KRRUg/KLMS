@@ -15,85 +15,48 @@ use Symfony\Component\Validator\Constraints as Assert;
  */
 class Clan
 {
-    /**
-     * @Assert\Uuid(strict=false)
-     * @Groups({"read"})
-     */
+    #[Assert\Uuid(strict: false)]
+    #[Groups(['read'])]
     private ?UuidInterface $uuid = null;
 
-    /**
-     * @Assert\NotBlank()
-     * @Assert\Length(
-     *      min = 1,
-     *      max = 64,
-     *      minMessage = "The name must be at least {{ limit }} characters long",
-     *      maxMessage = "The name cannot be longer than {{ limit }} characters",
-     *      allowEmptyString="false",
-     * )
-     * @Groups({"read", "write"})
-     */
+    #[Assert\NotBlank]
+    #[Assert\Length(min: 1, max: 64, minMessage: 'The name must be at least {{ limit }} characters long', maxMessage: 'The name cannot be longer than {{ limit }} characters')]
+    #[Groups(['read', 'write'])]
     private ?string $name = null;
 
-    /**
-     * @Assert\Length(
-     *      min = 6,
-     *      max = 128,
-     *      minMessage = "The password must be at least {{ limit }} characters long",
-     *      maxMessage = "The password cannot be longer than {{ limit }} characters",
-     *      allowEmptyString="false",
-     * )
-     * @Groups({"write"})
-     */
+    #[Assert\Length(min: 6, max: 128, minMessage: 'The password must be at least {{ limit }} characters long', maxMessage: 'The password cannot be longer than {{ limit }} characters')]
+    #[Groups(['write'])]
     private ?string $joinPassword = null;
 
-    /**
-     * @Groups({"read"})
-     */
+    #[Groups(['read'])]
     private ?DateTimeInterface $createdAt = null;
 
-    /**
-     * @Groups({"read"})
-     */
+    #[Groups(['read'])]
     private ?DateTimeInterface $modifiedAt = null;
 
     /**
-     * @Groups({"read"})
      * @Idm\Collection(class="App\Entity\User")
      */
+    #[Groups(['read'])]
     private $users;
 
     /**
-     * @Groups({"read"})
      * @Idm\Collection(class="App\Entity\User")
      */
+    #[Groups(['read'])]
     private $admins;
 
-    /**
-     * @Assert\Length(
-     *      min = 1,
-     *      max = 10,
-     *      minMessage = "The clantag must be at least {{ limit }} characters long",
-     *      maxMessage = "The clantag cannot be longer than {{ limit }} characters",
-     *      allowEmptyString="false",
-     * )
-     * @Assert\NotBlank()
-     * @Groups({"read", "write"})
-     */
+    #[Assert\Length(min: 1, max: 10, minMessage: 'The clantag must be at least {{ limit }} characters long', maxMessage: 'The clantag cannot be longer than {{ limit }} characters')]
+    #[Assert\NotBlank]
+    #[Groups(['read', 'write'])]
     private ?string $clantag = null;
 
-    /**
-     * @Assert\Url()
-     * @Groups({"read", "write"})
-     */
+    #[Assert\Url]
+    #[Groups(['read', 'write'])]
     private ?string $website = null;
 
-    /**
-     * @Assert\Length(
-     *      max = 4096,
-     *      maxMessage = "The clan description cannot be longer than {{ limit }} characters",
-     * )
-     * @Groups({"read", "write"})
-     */
+    #[Assert\Length(max: 4096, maxMessage: 'The clan description cannot be longer than {{ limit }} characters')]
+    #[Groups(['read', 'write'])]
     private ?string $description = null;
 
     /**

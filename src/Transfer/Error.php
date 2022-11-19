@@ -6,20 +6,14 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 final class Error
 {
-    /**
-     * @Assert\Type(type="int")
-     */
+    #[Assert\Type(type: 'int')]
     public $code;
 
-    /**
-     * @Assert\Type(type="string")
-     * @Assert\NotBlank()
-     */
+    #[Assert\Type(type: 'string')]
+    #[Assert\NotBlank]
     public $message;
 
-    /**
-     * @Assert\Type(type="string")
-     */
+    #[Assert\Type(type: 'string')]
     public $detail;
 
     public static function withMessage(string $msg)

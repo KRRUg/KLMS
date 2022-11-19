@@ -17,9 +17,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Validator\Constraints as Assert;
 
-/**
- * @Route("/navigation", name="navigation")
- */
+#[Route(path: '/navigation', name: 'navigation')]
 class NavigationController extends BaseController
 {
     private readonly LoggerInterface $logger;
@@ -42,9 +40,7 @@ class NavigationController extends BaseController
         $this->navService = $navService;
     }
 
-    /**
-     * @Route("", name="", methods={"GET"})
-     */
+    #[Route(path: '', name: '', methods: ['GET'])]
     public function index(): Response
     {
         $navs = $this->navService->getAll();
@@ -54,9 +50,7 @@ class NavigationController extends BaseController
         ]);
     }
 
-    /**
-     * @Route("/edit/{id}.{_format}", name="_edit", defaults={"_format"="html"}, methods={"GET", "POST"})
-     */
+    #[Route(path: '/edit/{id}.{_format}', name: '_edit', defaults: ['_format' => 'html'], methods: ['GET', 'POST'])]
     public function edit(Request $request, Navigation $navigation): Response
     {
         $array = $this->navService->renderNav($navigation);

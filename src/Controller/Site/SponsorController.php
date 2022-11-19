@@ -16,9 +16,7 @@ class SponsorController extends AbstractController
         $this->service = $service;
     }
 
-    /**
-     * @Route("/sponsor", name="sponsor")
-     */
+    #[Route(path: '/sponsor', name: 'sponsor')]
     public function index(): Response
     {
         if (!$this->service->active()) {

@@ -16,10 +16,8 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
-/**
- * @Route("/email", name="email")
- * @IsGranted("ROLE_ADMIN_MAIL")
- */
+#[Route(path: '/email', name: 'email')]
+#[IsGranted('ROLE_ADMIN_MAIL')]
 class EmailController extends AbstractController
 {
     private const CSRF_TOKEN_DELETE = 'emailDeleteToken';
@@ -38,9 +36,7 @@ class EmailController extends AbstractController
         $this->templateRepository = $templateRepository;
     }
 
-    /**
-     * @Route("", name="")
-     */
+    #[Route(path: '', name: '')]
     public function index(Request $request): Response
     {
         $page = strval($request->get('page'));
@@ -60,9 +56,7 @@ class EmailController extends AbstractController
         ]);
     }
 
-    /**
-     * @Route("/new", name="_new")
-     */
+    #[Route(path: '/new', name: '_new')]
     public function new(Request $request): Response
     {
         $form = $this->createForm(EmailType::class, null, ['generate_buttons' => true]);
@@ -91,9 +85,7 @@ class EmailController extends AbstractController
         ]);
     }
 
-    /**
-     * @Route("/template/{id}", name="_show")
-     */
+    #[Route(path: '/template/{id}', name: '_show')]
     public function show(Email $template): Response
     {
         $email = $this->mailService->renderTemplate($template, $this->getUserFromLoginUser());
@@ -101,9 +93,7 @@ class EmailController extends AbstractController
         return new Response($email['html']);
     }
 
-    /**
-     * @Route("/test/{id}", name="_send_testmail")
-     */
+    #[Route(path: '/test/{id}', name: '_send_testmail')]
     public function sendTestmail(Email $template): Response
     {
         $recipient = $this->getUserFromLoginUser();
@@ -117,9 +107,7 @@ class EmailController extends AbstractController
         return $this->redirectToRoute('admin_email', ['page' => 'template']);
     }
 
-    /**
-     * @Route("/edit/{id}", name="_edit")
-     */
+    #[Route(path: '/edit/{id}', name: '_edit')]
     public function editTemplate(Request $request, Email $template): Response
     {
         if ($template->wasSent()) {
@@ -156,9 +144,7 @@ class EmailController extends AbstractController
         ]);
     }
 
-    /**
-     * @Route("/delete/{id}", name="_delete")
-     */
+    #[Route(path: '/delete/{id}', name: '_delete')]
     public function deleteTemplate(Request $request, Email $template): Response
     {
         $token = $request->request->get('_token');
@@ -175,9 +161,7 @@ class EmailController extends AbstractController
         return $this->redirectToRoute('admin_email', ['page' => 'template']);
     }
 
-    /**
-     * @Route("/cancel/{id}", name="_cancel")
-     */
+    #[Route(path: '/cancel/{id}', name: '_cancel')]
     public function cancelEmail(Request $request, Email $template): Response
     {
         $token = $request->request->get('_token');

@@ -8,40 +8,26 @@ use DateTimeInterface;
 use Doctrine\ORM\Mapping as ORM;
 use Ramsey\Uuid\UuidInterface;
 
-/**
- * @ORM\Entity(repositoryClass=TokenRepository::class)
- */
+#[ORM\Entity(repositoryClass: TokenRepository::class)]
 class Token
 {
-    /**
-     * @ORM\Id
-     * @ORM\Column(type="string", length=20)
-     */
+    #[ORM\Id]
+    #[ORM\Column(type: 'string', length: 20)]
     private $selector;
 
-    /**
-     * @ORM\Column(type="uuid")
-     */
+    #[ORM\Column(type: 'uuid')]
     private $userUuid;
 
-    /**
-     * @ORM\Column(type="string", length=100)
-     */
+    #[ORM\Column(type: 'string', length: 100)]
     private $hash;
 
-    /**
-     * @ORM\Column(type="string", length=255)
-     */
+    #[ORM\Column(type: 'string', length: 255)]
     private $type;
 
-    /**
-     * @ORM\Column(type="datetime")
-     */
+    #[ORM\Column(type: 'datetime')]
     private $requestedAt;
 
-    /**
-     * @ORM\Column(type="datetime")
-     */
+    #[ORM\Column(type: 'datetime')]
     private $expiresAt;
 
     public function __construct()

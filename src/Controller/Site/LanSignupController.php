@@ -15,10 +15,8 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
-/**
- * @IsGranted("IS_AUTHENTICATED_REMEMBERED")
- * @Route("/lan/signup", name="lan_signup")
- */
+#[IsGranted('IS_AUTHENTICATED_REMEMBERED')]
+#[Route(path: '/lan/signup', name: 'lan_signup')]
 class LanSignupController extends AbstractController
 {
     private readonly GamerService $gamerService;
@@ -40,9 +38,7 @@ class LanSignupController extends AbstractController
         $this->logger = $logger;
     }
 
-    /**
-     * @Route("", name="")
-     */
+    #[Route(path: '', name: '')]
     public function index(Request $request): Response
     {
         if (!$this->settingService->isSet('lan.signup.enabled')) {

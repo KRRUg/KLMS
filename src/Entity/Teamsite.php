@@ -9,39 +9,24 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @ORM\Entity(repositoryClass=TeamsiteRepository::class)
- * @ORM\HasLifecycleCallbacks
- */
+#[ORM\Entity(repositoryClass: TeamsiteRepository::class)]
+#[ORM\HasLifecycleCallbacks]
 class Teamsite implements HistoryAwareEntity
 {
     use EntityHistoryTrait;
-    /**
-     * @ORM\Id
-     * @ORM\GeneratedValue
-     * @ORM\Column(type="integer")
-     */
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column(type: 'integer')]
     private ?int $id;
 
-    /**
-     * @ORM\Column(type="string", length=255)
-     */
+    #[ORM\Column(type: 'string', length: 255)]
     private ?string $title = '';
 
-    /**
-     * @ORM\Column(type="text")
-     */
+    #[ORM\Column(type: 'text')]
     private ?string $description = '';
 
-    /**
-     * @ORM\OneToMany(
-     *     targetEntity=TeamsiteCategory::class,
-     *     mappedBy="teamsite",
-     *     orphanRemoval=true,
-     *     cascade={"all"},
-     * )
-     * @ORM\OrderBy({"ord" = "ASC"})
-     */
+    #[ORM\OneToMany(targetEntity: TeamsiteCategory::class, mappedBy: 'teamsite', orphanRemoval: true, cascade: ['all'])]
+    #[ORM\OrderBy(['ord' => 'ASC'])]
     private $categories;
 
     public function __construct()

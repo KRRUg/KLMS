@@ -10,9 +10,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
-/**
- * @Route("/news", name="news")
- */
+#[Route(path: '/news', name: 'news')]
 class NewsController extends AbstractController
 {
     private readonly NewsService $newsService;
@@ -29,9 +27,7 @@ class NewsController extends AbstractController
         $this->userService = $userService;
     }
 
-    /**
-     * @Route("", name="")
-     */
+    #[Route(path: '', name: '')]
     public function index(Request $request): Response
     {
         $cnt = intval($request->get('cnt', 0));
@@ -46,9 +42,7 @@ class NewsController extends AbstractController
         ]);
     }
 
-    /**
-     * @Route("/cards", name="_cards")
-     */
+    #[Route(path: '/cards', name: '_cards')]
     public function cards(Request $request): Response
     {
         $offset = $request->get('offset', NewsController::PRELOAD_NEWS_CNT);
@@ -61,9 +55,7 @@ class NewsController extends AbstractController
         ]);
     }
 
-    /**
-     * @Route("/{id}", requirements={"id"="\d+"}, name="_detail")
-     */
+    #[Route(path: '/{id}', requirements: ['id' => '\d+'], name: '_detail')]
     public function byId(News $news): Response
     {
         if (!$news->isActive()) {

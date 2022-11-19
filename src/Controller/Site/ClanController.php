@@ -21,9 +21,7 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
-/**
- * @IsGranted("IS_AUTHENTICATED_REMEMBERED")
- */
+#[IsGranted('IS_AUTHENTICATED_REMEMBERED')]
 class ClanController extends AbstractController
 {
     private const CSRF_TOKEN_DELETE = 'clanDeleteToken';
@@ -47,9 +45,7 @@ class ClanController extends AbstractController
 
     private const SHOW_LIMIT = 10;
 
-    /**
-     * @Route("/clan", name="clan", methods={"GET"})
-     */
+    #[Route(path: '/clan', name: 'clan', methods: ['GET'])]
     public function index(Request $request): Response
     {
         if (!$this->settingService->get('community.enabled', false)) {
@@ -91,9 +87,7 @@ class ClanController extends AbstractController
             ->getForm();
     }
 
-    /**
-     * @Route("/clan/{uuid}/leave", name="clan_leave", methods={"POST"})
-     */
+    #[Route(path: '/clan/{uuid}/leave', name: 'clan_leave', methods: ['POST'])]
     public function leave(string $uuid, Request $request): Response
     {
         $clan = $this->clanRepo->findOneById($uuid);
@@ -113,9 +107,7 @@ class ClanController extends AbstractController
         return $this->redirectToRoute('clan_show', ['uuid' => $clan->getUuid()]);
     }
 
-    /**
-     * @Route("/clan/{uuid}/member", name="clan_member_edit", methods={"POST"})
-     */
+    #[Route(path: '/clan/{uuid}/member', name: 'clan_member_edit', methods: ['POST'])]
     public function memberEdit(string $uuid, Request $request): RedirectResponse
     {
         $clan = $this->clanRepo->findOneById($uuid);
@@ -189,9 +181,7 @@ class ClanController extends AbstractController
         }
     }
 
-    /**
-     * @Route("/clan/{uuid}/join", name="clan_join", methods={"POST"})
-     */
+    #[Route(path: '/clan/{uuid}/join', name: 'clan_join', methods: ['POST'])]
     public function join(string $uuid, Request $request): RedirectResponse
     {
         $clan = $this->clanRepo->findOneById($uuid);
@@ -233,9 +223,7 @@ class ClanController extends AbstractController
         return $this->redirectToRoute('clan_show', ['uuid' => $clan->getUuid()]);
     }
 
-    /**
-     * @Route("/clan/create", name="clan_create", methods={"GET", "POST"})
-     */
+    #[Route(path: '/clan/create', name: 'clan_create', methods: ['GET', 'POST'])]
     public function create(Request $request): Response
     {
         $clan = new Clan();
@@ -264,9 +252,7 @@ class ClanController extends AbstractController
         ]);
     }
 
-    /**
-     * @Route("/clan/{uuid}", name="clan_show", methods={"GET"})
-     */
+    #[Route(path: '/clan/{uuid}', name: 'clan_show', methods: ['GET'])]
     public function show(string $uuid): Response
     {
         $clan = $this->clanRepo->findOneById($uuid);
@@ -296,10 +282,9 @@ class ClanController extends AbstractController
     }
 
     /**
-     * @Route("/clan/{uuid}/edit", name="clan_edit", methods={"GET", "POST"})
-     *
      * @return AccessDeniedException|RedirectResponse|Response
      */
+    #[Route(path: '/clan/{uuid}/edit', name: 'clan_edit', methods: ['GET', 'POST'])]
     public function edit(string $uuid, Request $request): Response
     {
         $clan = $this->clanRepo->findOneById($uuid);
@@ -334,10 +319,9 @@ class ClanController extends AbstractController
     }
 
     /**
-     * @Route("/clan/{uuid}/delete", name="clan_delete", methods={"POST"})
-     *
      * @return AccessDeniedException|RedirectResponse|NotFoundHttpException
      */
+    #[Route(path: '/clan/{uuid}/delete', name: 'clan_delete', methods: ['POST'])]
     public function delete(string $uuid, Request $request): Response
     {
         $clan = $this->clanRepo->findOneById($uuid);

@@ -23,10 +23,8 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\Validator\Constraints\Positive;
 
-/**
- * @IsGranted("ROLE_ADMIN_SEATMAP")
- * @Route("/seatmap", name="seatmap")
- */
+#[IsGranted('ROLE_ADMIN_SEATMAP')]
+#[Route(path: '/seatmap', name: 'seatmap')]
 class SeatmapController extends AbstractController
 {
     private readonly IdmRepository $userRepo;
@@ -46,9 +44,7 @@ class SeatmapController extends AbstractController
         $this->serializer = $serializer;
     }
 
-    /**
-     * @Route("", name="", methods={"GET"})
-     */
+    #[Route(path: '', name: '', methods: ['GET'])]
     public function index(): Response
     {
         $seats = $this->seatmapService->getSeatmap();
@@ -59,9 +55,7 @@ class SeatmapController extends AbstractController
         ]);
     }
 
-    /**
-     * @Route("/show/{id}", name="_seat_edit", methods={"GET", "POST"})
-     */
+    #[Route(path: '/show/{id}', name: '_seat_edit', methods: ['GET', 'POST'])]
     public function seatShow(Seat $seat, Request $request): Response
     {
         if ($seat->getOwner()) {
@@ -92,9 +86,7 @@ class SeatmapController extends AbstractController
         ]);
     }
 
-    /**
-     * @Route("/seatposition", name="_seat_pos", methods={"POST"})
-     */
+    #[Route(path: '/seatposition', name: '_seat_pos', methods: ['POST'])]
     public function changeSeatPosition(Request $request): Response
     {
         $json = json_decode($request->getContent(), null, 512, JSON_THROW_ON_ERROR);
@@ -111,9 +103,7 @@ class SeatmapController extends AbstractController
         return new JsonResponse(json_encode(false, JSON_THROW_ON_ERROR), Response::HTTP_OK, [], true);
     }
 
-    /**
-     * @Route("/seat/delete/{id}", name="_seat_delete", methods={"GET"})
-     */
+    #[Route(path: '/seat/delete/{id}', name: '_seat_delete', methods: ['GET'])]
     public function deleteSeat(Seat $seat): Response
     {
         $this->em->remove($seat);
@@ -124,9 +114,7 @@ class SeatmapController extends AbstractController
         return $this->redirectToRoute('admin_seatmap');
     }
 
-    /**
-     * @Route("/seats/create", name="_seat_create", methods={"GET","POST"})
-     */
+    #[Route(path: '/seats/create', name: '_seat_create', methods: ['GET', 'POST'])]
     public function createSeats(Request $request): Response
     {
         $offsetX = intval($request->query->get('x'));
@@ -194,9 +182,7 @@ class SeatmapController extends AbstractController
         ]);
     }
 
-    /**
-     * @Route("/export", name="_export", methods={"GET"})
-     */
+    #[Route(path: '/export', name: '_export', methods: ['GET'])]
     public function export(): Response
     {
         $csvData = [];

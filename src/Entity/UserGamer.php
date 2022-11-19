@@ -8,35 +8,23 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Ramsey\Uuid\UuidInterface;
 
-/**
- * @ORM\Entity(repositoryClass="App\Repository\UserGamerRepository")
- */
+#[ORM\Entity(repositoryClass: 'App\Repository\UserGamerRepository')]
 class UserGamer
 {
-    /**
-     * @ORM\Id()
-     * @ORM\Column(type="uuid", unique=true)
-     */
+    #[ORM\Id]
+    #[ORM\Column(type: 'uuid', unique: true)]
     private ?UuidInterface $uuid;
 
-    /**
-     * @ORM\Column(type="datetime", nullable=true)
-     */
+    #[ORM\Column(type: 'datetime', nullable: true)]
     private $registered;
 
-    /**
-     * @ORM\Column(type="datetime", nullable=true)
-     */
+    #[ORM\Column(type: 'datetime', nullable: true)]
     private $paid;
 
-    /**
-     * @ORM\OneToMany(targetEntity="App\Entity\Seat", mappedBy="owner")
-     */
+    #[ORM\OneToMany(targetEntity: 'App\Entity\Seat', mappedBy: 'owner')]
     private $seats;
 
-    /**
-     * @ORM\Column(type="datetime", nullable=true)
-     */
+    #[ORM\Column(type: 'datetime', nullable: true)]
     private $checkedIn;
 
     public function __construct(?UuidInterface $uuid)

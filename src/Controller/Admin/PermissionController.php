@@ -16,10 +16,8 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\Routing\Annotation\Route;
 
-/**
- * @Route("/permission", name="permission")
- * @IsGranted("ROLE_ADMIN_SUPER")
- */
+#[Route(path: '/permission', name: 'permission')]
+#[IsGranted('ROLE_ADMIN_SUPER')]
 class PermissionController extends BaseController
 {
     private readonly PermissionService $permissionService;
@@ -33,9 +31,7 @@ class PermissionController extends BaseController
         $this->formFactory = $formFactory;
     }
 
-    /**
-     * @Route(".{_format}", name="", defaults={"_format"="html"}, methods={"GET"})
-     */
+    #[Route(path: '.{_format}', name: '', defaults: ['_format' => 'html'], methods: ['GET'])]
     public function index(Request $request): Response
     {
         $local_admins = $this->permissionService->getAdmins();
@@ -58,9 +54,7 @@ class PermissionController extends BaseController
         }
     }
 
-    /**
-     * @Route("", name="_add", methods={"POST"})
-     */
+    #[Route(path: '', name: '_add', methods: ['POST'])]
     public function addPermission(Request $request): Response
     {
         $data = json_decode($request->getContent(), true, 512, JSON_THROW_ON_ERROR);
@@ -86,9 +80,7 @@ class PermissionController extends BaseController
         return $this->apiResponse([]);
     }
 
-    /**
-     * @Route("/{id}", name="_get", methods={"GET"})
-     */
+    #[Route(path: '/{id}', name: '_get', methods: ['GET'])]
     public function getPermission($id): Response
     {
         $user = $this->userRepo->findOneById($id);
@@ -101,9 +93,7 @@ class PermissionController extends BaseController
         return $this->apiResponse(['user' => $user, 'perm' => $perm]);
     }
 
-    /**
-     * @Route("/{id}", name="_edit", methods={"POST"})
-     */
+    #[Route(path: '/{id}', name: '_edit', methods: ['POST'])]
     public function updatePermission(Request $request, $id): Response
     {
         $user = $this->userRepo->findOneById($id);

@@ -9,9 +9,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Vich\UploaderBundle\Handler\DownloadHandler;
 
-/**
- * @Route("/media", name="media")
- */
+#[Route(path: '/media', name: 'media')]
 class MediaController extends AbstractController
 {
     private readonly MediaRepository $mediaRepository;
@@ -28,9 +26,7 @@ class MediaController extends AbstractController
         $this->downloadHandler = $downloadHandler;
     }
 
-    /**
-     * @Route("/{name}", name="")
-     */
+    #[Route(path: '/{name}', name: '')]
     public function getMedia(Request $request): Response
     {
         $name = $request->get('name');

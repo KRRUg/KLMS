@@ -7,39 +7,24 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 
-/**
- * @ORM\Entity(repositoryClass="App\Repository\NavigationRepository")
- * @ORM\HasLifecycleCallbacks
- * @UniqueEntity("name")
- */
+#[ORM\Entity(repositoryClass: 'App\Repository\NavigationRepository')]
+#[ORM\HasLifecycleCallbacks]
+#[UniqueEntity('name')]
 class Navigation
 {
-    /**
-     * @ORM\Id()
-     * @ORM\GeneratedValue()
-     * @ORM\Column(type="integer")
-     */
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column(type: 'integer')]
     private $id;
 
-    /**
-     * @ORM\Column(type="string", length=255, unique=true, nullable=false)
-     */
+    #[ORM\Column(type: 'string', length: 255, unique: true, nullable: false)]
     private $name;
 
-    /**
-     * @ORM\Column(type="integer", nullable=true)
-     */
+    #[ORM\Column(type: 'integer', nullable: true)]
     private $max_depth;
 
-    /**
-     * @ORM\OneToMany(
-     *     targetEntity="App\Entity\NavigationNode",
-     *     mappedBy="navigation",
-     *     orphanRemoval=true,
-     *     cascade={"all"},
-     * )
-     * @ORM\OrderBy({"lft" = "ASC"})
-     */
+    #[ORM\OneToMany(targetEntity: 'App\Entity\NavigationNode', mappedBy: 'navigation', orphanRemoval: true, cascade: ['all'])]
+    #[ORM\OrderBy(['lft' => 'ASC'])]
     private $nodes;
 
     public function __construct()

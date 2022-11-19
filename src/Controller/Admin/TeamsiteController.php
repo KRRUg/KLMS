@@ -11,9 +11,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
-/**
- * @Route("/teamsite", name="teamsite")
- */
+#[Route(path: '/teamsite', name: 'teamsite')]
 class TeamsiteController extends BaseController
 {
     private readonly LoggerInterface $logger;
@@ -25,9 +23,7 @@ class TeamsiteController extends BaseController
         $this->teamsiteService = $teamsiteService;
     }
 
-    /**
-     * @Route("", name="", methods={"GET"})
-     */
+    #[Route(path: '', name: '', methods: ['GET'])]
     public function index(): Response
     {
         $sites = $this->teamsiteService->getAll();
@@ -37,9 +33,7 @@ class TeamsiteController extends BaseController
         ]);
     }
 
-    /**
-     * @Route("/edit/{id}", name="_edit", methods={"GET", "POST"})
-     */
+    #[Route(path: '/edit/{id}', name: '_edit', methods: ['GET', 'POST'])]
     public function edit(Request $request, Teamsite $teamsite): Response
     {
         $array = $this->teamsiteService->renderSite($teamsite);
@@ -66,9 +60,7 @@ class TeamsiteController extends BaseController
         ]);
     }
 
-    /**
-     * @Route("/new", name="_new", methods={"GET", "POST"})
-     */
+    #[Route(path: '/new', name: '_new', methods: ['GET', 'POST'])]
     public function new(Request $request): Response
     {
         $teamsite = new Teamsite();

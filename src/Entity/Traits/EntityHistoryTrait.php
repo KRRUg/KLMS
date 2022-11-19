@@ -14,34 +14,25 @@ use Symfony\Component\Validator\Constraints as Assert;
  * required to have the HasLifecycleCallbacks ORM annotation.
  *
  * @see App\Entity\Traits\HistoryAwareEntity
- *
- * @ORM\HasLifecycleCallbacks
  */
+#[ORM\HasLifecycleCallbacks]
 trait EntityHistoryTrait
 {
-    /**
-     * @ORM\Column(type="uuid", nullable=false)
-     * @Assert\Uuid(strict=false)
-     */
+    #[ORM\Column(type: 'uuid', nullable: false)]
+    #[Assert\Uuid(strict: false)]
     private ?UuidInterface $authorId = null;
 
-    /**
-     * @ORM\Column(type="uuid", nullable=false)
-     * @Assert\Uuid(strict=false)
-     */
+    #[ORM\Column(type: 'uuid', nullable: false)]
+    #[Assert\Uuid(strict: false)]
     private ?UuidInterface $modifierId = null;
 
-    /**
-     * @ORM\Column(type="datetime", nullable=false)
-     * @Assert\GreaterThanOrEqual(propertyPath="created")
-     * @Assert\Type(type="DateTime")
-     */
+    #[ORM\Column(type: 'datetime', nullable: false)]
+    #[Assert\GreaterThanOrEqual(propertyPath: 'created')]
+    #[Assert\Type(type: 'DateTime')]
     private ?DateTimeInterface $last_modified = null;
 
-    /**
-     * @ORM\Column(type="datetime", nullable=false)
-     * @Assert\Type(type="DateTime")
-     */
+    #[ORM\Column(type: 'datetime', nullable: false)]
+    #[Assert\Type(type: 'DateTime')]
     private ?DateTimeInterface $created = null;
 
     public function getAuthorId(): ?UuidInterface
@@ -92,10 +83,8 @@ trait EntityHistoryTrait
         return $this;
     }
 
-    /**
-     * @ORM\PrePersist()
-     * @ORM\PreUpdate()
-     */
+    #[ORM\PrePersist]
+    #[ORM\PreUpdate]
     public function updateModifiedDatetime()
     {
         // update the modified time and creation time

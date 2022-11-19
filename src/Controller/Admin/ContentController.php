@@ -12,10 +12,8 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
-/**
- * @Route("/content", name="content")
- * @IsGranted("ROLE_ADMIN_CONTENT")
- */
+#[Route(path: '/content', name: 'content')]
+#[IsGranted('ROLE_ADMIN_CONTENT')]
 class ContentController extends AbstractController
 {
     private const CSRF_TOKEN_DELETE = 'contentDeleteToken';
@@ -30,9 +28,7 @@ class ContentController extends AbstractController
         $this->contentService = $contentService;
     }
 
-    /**
-     * @Route("", name="", methods={"GET"})
-     */
+    #[Route(path: '', name: '', methods: ['GET'])]
     public function index(): Response
     {
         $content = $this->contentService->getAll();
@@ -43,9 +39,7 @@ class ContentController extends AbstractController
         ]);
     }
 
-    /**
-     * @Route("/edit/{id}", name="_edit", methods={"GET","POST"})
-     */
+    #[Route(path: '/edit/{id}', name: '_edit', methods: ['GET', 'POST'])]
     public function edit(Request $request, Content $content): Response
     {
         $form = $this->createForm(ContentType::class, $content);
@@ -63,9 +57,7 @@ class ContentController extends AbstractController
         ]);
     }
 
-    /**
-     * @Route("/new", name="_new", methods={"GET","POST"})
-     */
+    #[Route(path: '/new', name: '_new', methods: ['GET', 'POST'])]
     public function new(Request $request): Response
     {
         $form = $this->createForm(ContentType::class);
@@ -82,9 +74,7 @@ class ContentController extends AbstractController
         ]);
     }
 
-    /**
-     * @Route("/delete/{id}", name="_delete")
-     */
+    #[Route(path: '/delete/{id}', name: '_delete')]
     public function delete(Request $request, Content $content): Response
     {
         $token = $request->request->get('_token');

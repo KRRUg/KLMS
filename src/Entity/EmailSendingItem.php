@@ -5,32 +5,22 @@ namespace App\Entity;
 use Doctrine\ORM\Mapping as ORM;
 use Ramsey\Uuid\UuidInterface;
 
-/**
- * @ORM\Entity()
- */
+#[ORM\Entity]
 class EmailSendingItem
 {
-    /**
-     * @ORM\Id
-     * @ORM\Column(type="uuid")
-     */
+    #[ORM\Id]
+    #[ORM\Column(type: 'uuid')]
     private $guid;
 
-    /**
-     * @ORM\Id
-     * @ORM\ManyToOne(targetEntity=EmailSending::class)
-     * @ORM\JoinColumn(nullable=false, onDelete="CASCADE", name="sending_id")
-     */
+    #[ORM\Id]
+    #[ORM\ManyToOne(targetEntity: EmailSending::class)]
+    #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE', name: 'sending_id')]
     private $sending;
 
-    /**
-     * @ORM\Column(type="boolean", nullable=true)
-     */
+    #[ORM\Column(type: 'boolean', nullable: true)]
     private $success = null;
 
-    /**
-     * @ORM\Column(type="integer")
-     */
+    #[ORM\Column(type: 'integer')]
     private int $tries = 0;
 
     public function getGuid(): ?UuidInterface

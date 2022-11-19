@@ -15,10 +15,8 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Vich\UploaderBundle\Form\Type\VichFileType;
 
-/**
- * @Route("/setting", name="setting")
- * @IsGranted("ROLE_ADMIN_CONTENT")
- */
+#[Route(path: '/setting', name: 'setting')]
+#[IsGranted('ROLE_ADMIN_CONTENT')]
 class SettingController extends AbstractController
 {
     private readonly SettingService $service;
@@ -28,9 +26,7 @@ class SettingController extends AbstractController
         $this->service = $service;
     }
 
-    /**
-     * @Route("/", name="", methods={"GET"})
-     */
+    #[Route(path: '/', name: '', methods: ['GET'])]
     public function index(): Response
     {
         $k = [];
@@ -53,9 +49,7 @@ class SettingController extends AbstractController
         ]);
     }
 
-    /**
-     * @Route("/edit", name="_edit", methods={"GET", "POST"})
-     */
+    #[Route(path: '/edit', name: '_edit', methods: ['GET', 'POST'])]
     public function edit(Request $request): Response
     {
         $key = $request->get('key');

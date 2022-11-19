@@ -4,62 +4,40 @@ namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @ORM\Entity(repositoryClass="App\Repository\SeatRepository")
- * @ORM\Table(
- *     uniqueConstraints={
- *     @ORM\UniqueConstraint(name="seat_pos", columns={"pos_x", "pos_y"}),
- *     @ORM\UniqueConstraint(name="sector_seat", columns={"sector", "seat_number"})}
- * )
- */
+#[ORM\Table]
+#[ORM\UniqueConstraint(name: 'seat_pos', columns: ['pos_x', 'pos_y'])]
+#[ORM\UniqueConstraint(name: 'sector_seat', columns: ['sector', 'seat_number'])]
+#[ORM\Entity(repositoryClass: 'App\Repository\SeatRepository')]
 class Seat
 {
-    /**
-     * @ORM\Id()
-     * @ORM\GeneratedValue()
-     * @ORM\Column(type="integer")
-     */
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column(type: 'integer')]
     private $id;
 
-    /**
-     * @ORM\Column(type="integer", name="pos_x")
-     */
+    #[ORM\Column(type: 'integer', name: 'pos_x')]
     private $posX;
 
-    /**
-     * @ORM\Column(type="integer", name="pos_y")
-     */
+    #[ORM\Column(type: 'integer', name: 'pos_y')]
     private $posY;
 
-    /**
-     * @ORM\Column(type="string", length=10, nullable=true)
-     */
+    #[ORM\Column(type: 'string', length: 10, nullable: true)]
     private $name;
 
-    /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\UserGamer", inversedBy="seats")
-     * @ORM\JoinColumn(name="owner", referencedColumnName="uuid", nullable=true)
-     */
+    #[ORM\ManyToOne(targetEntity: 'App\Entity\UserGamer', inversedBy: 'seats')]
+    #[ORM\JoinColumn(name: 'owner', referencedColumnName: 'uuid', nullable: true)]
     private $owner;
 
-    /**
-     * @ORM\Column(type="string", length=1)
-     */
+    #[ORM\Column(type: 'string', length: 1)]
     private $sector;
 
-    /**
-     * @ORM\Column(type="integer")
-     */
+    #[ORM\Column(type: 'integer')]
     private $seatNumber;
 
-    /**
-     * @ORM\Column(type="string", length=32)
-     */
+    #[ORM\Column(type: 'string', length: 32)]
     private $type;
 
-    /**
-     * @ORM\Column(type="string", length=10)
-     */
+    #[ORM\Column(type: 'string', length: 10)]
     private $chairPosition;
 
     public function getId(): ?int

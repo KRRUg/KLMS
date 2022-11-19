@@ -12,41 +12,31 @@ use Vich\UploaderBundle\Entity\File as EmbeddedFile;
 use Vich\UploaderBundle\Mapping\Annotation as Vich;
 
 /**
- * @ORM\Entity(repositoryClass="App\Repository\NewsRepository")
- * @ORM\HasLifecycleCallbacks
  * @Vich\Uploadable
  */
+#[ORM\Entity(repositoryClass: 'App\Repository\NewsRepository')]
+#[ORM\HasLifecycleCallbacks]
 class News implements HistoryAwareEntity
 {
     use Traits\EntityHistoryTrait;
-    /**
-     * @ORM\Id()
-     * @ORM\GeneratedValue()
-     * @ORM\Column(type="integer")
-     */
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column(type: 'integer')]
     private $id;
 
-    /**
-     * @ORM\Column(type="string", length=255)
-     */
+    #[ORM\Column(type: 'string', length: 255)]
     private $title;
 
-    /**
-     * @ORM\Column(type="text")
-     */
+    #[ORM\Column(type: 'text')]
     private $content;
 
-    /**
-     * @ORM\Column(type="datetime", nullable=true)
-     * @Assert\DateTime()
-     */
+    #[ORM\Column(type: 'datetime', nullable: true)]
+    #[Assert\DateTime]
     private $publishedFrom;
 
-    /**
-     * @ORM\Column(type="datetime", nullable=true)
-     * @Assert\DateTime()
-     * @Assert\GreaterThan(propertyPath="publishedFrom")
-     */
+    #[ORM\Column(type: 'datetime', nullable: true)]
+    #[Assert\DateTime]
+    #[Assert\GreaterThan(propertyPath: 'publishedFrom')]
     private $publishedTo;
 
     /**
@@ -54,9 +44,7 @@ class News implements HistoryAwareEntity
      */
     private ?\Symfony\Component\HttpFoundation\File\File $imageFile = null;
 
-    /**
-     * @ORM\Embedded(class="Vich\UploaderBundle\Entity\File")
-     */
+    #[ORM\Embedded(class: 'Vich\UploaderBundle\Entity\File')]
     private EmbeddedFile $image;
 
     public function __construct()

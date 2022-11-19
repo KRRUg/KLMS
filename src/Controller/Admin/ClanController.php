@@ -14,9 +14,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
-/**
- * @IsGranted("ROLE_ADMIN_USER")
- */
+#[IsGranted('ROLE_ADMIN_USER')]
 class ClanController extends AbstractController
 {
     // TODO: Better Exception/Error Handling see https://github.com/KRRUg/KLMS/blob/feature/admin-mgmt/src/Controller/BaseController.php and Admin/PermissionController.php
@@ -34,9 +32,7 @@ class ClanController extends AbstractController
         $this->userRepo = $manager->getRepository(User::class);
     }
 
-    /**
-     * @Route("/clan", name="clan", methods={"GET"})
-     */
+    #[Route(path: '/clan', name: 'clan', methods: ['GET'])]
     public function index(): Response
     {
         $clans = $this->clanRepo->findAll();
@@ -47,9 +43,7 @@ class ClanController extends AbstractController
         ]);
     }
 
-    /**
-     * @Route("/clan/create", name="clan_create", methods={"GET", "POST"})
-     */
+    #[Route(path: '/clan/create', name: 'clan_create', methods: ['GET', 'POST'])]
     public function create(Request $request): Response
     {
         $form = $this->createForm(ClanType::class, null, ['require_password' => true]);
@@ -77,9 +71,7 @@ class ClanController extends AbstractController
         ]);
     }
 
-    /**
-     * @Route("/clan/{uuid}/edit", name="clan_edit", methods={"GET", "POST"})
-     */
+    #[Route(path: '/clan/{uuid}/edit', name: 'clan_edit', methods: ['GET', 'POST'])]
     public function edit(string $uuid, Request $request): Response
     {
         $clan = $this->clanRepo->findOneById($uuid);
@@ -108,9 +100,7 @@ class ClanController extends AbstractController
         ]);
     }
 
-    /**
-     * @Route("/clan/{uuid}", name="clan_show", methods={"GET"})
-     */
+    #[Route(path: '/clan/{uuid}', name: 'clan_show', methods: ['GET'])]
     public function show(string $uuid): Response
     {
         $clan = $this->clanRepo->findOneById($uuid);
@@ -123,9 +113,7 @@ class ClanController extends AbstractController
         ]);
     }
 
-    /**
-     * @Route("/clan/{uuid}/member", name="clan_member", methods={"GET"})
-     */
+    #[Route(path: '/clan/{uuid}/member', name: 'clan_member', methods: ['GET'])]
     public function member(string $uuid): Response
     {
         $clan = $this->clanRepo->findOneById($uuid);
@@ -139,9 +127,7 @@ class ClanController extends AbstractController
         ]);
     }
 
-    /**
-     * @Route("/clan/{uuid}/member/edit", name="clan_member_edit", methods={"POST"})
-     */
+    #[Route(path: '/clan/{uuid}/member/edit', name: 'clan_member_edit', methods: ['POST'])]
     public function editMember(string $uuid, Request $request): Response
     {
         $token = $request->request->get('_token');
@@ -211,9 +197,7 @@ class ClanController extends AbstractController
         }
     }
 
-    /**
-     * @Route("/clan/{uuid}/delete", name="clan_delete", methods={"POST"})
-     */
+    #[Route(path: '/clan/{uuid}/delete', name: 'clan_delete', methods: ['POST'])]
     public function delete(string $uuid, Request $request): Response
     {
         $clan = $this->clanRepo->findOneById($uuid);

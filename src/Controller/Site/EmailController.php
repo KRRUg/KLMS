@@ -27,9 +27,7 @@ class EmailController extends AbstractController
         $this->userRepo = $manager->getRepository(User::class);
     }
 
-    /**
-     * @Route("/unsubscribe", name="email_unsubscribe")
-     */
+    #[Route(path: '/unsubscribe', name: 'email_unsubscribe')]
     public function unsubscribe(Request $request): Response
     {
         $token = strval($request->get('token', ''));

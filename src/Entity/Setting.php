@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use App\Repository\SettingRepository;
 use DateTime;
 use DateTimeInterface;
 use Doctrine\ORM\Mapping as ORM;
@@ -10,33 +11,26 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Vich\UploaderBundle\Mapping\Annotation as Vich;
 
 /**
- * @ORM\Entity(repositoryClass="App\Repository\SettingRepository")
- * @ORM\Table(indexes={@ORM\Index(name="key_idx", columns={"key"})})
- * @ORM\HasLifecycleCallbacks
  * @Vich\Uploadable
  */
+#[ORM\Table]
+#[ORM\Index(name: 'key_idx', columns: ['key'])]
+#[ORM\Entity(repositoryClass: SettingRepository::class)]
+#[ORM\HasLifecycleCallbacks]
 class Setting
 {
-    /**
-     * @ORM\Id()
-     * @ORM\GeneratedValue()
-     * @ORM\Column(type="integer")
-     */
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column(type: 'integer')]
     private $id;
 
-    /**
-     * @ORM\Column(type="string", length=255, unique=true)
-     */
+    #[ORM\Column(type: 'string', length: 255, unique: true)]
     private $key;
 
-    /**
-     * @ORM\Column(type="text", nullable=true)
-     */
+    #[ORM\Column(type: 'text', nullable: true)]
     private $text;
 
-    /**
-     * @ORM\Column(type="datetime")
-     */
+    #[ORM\Column(type: 'datetime')]
     private $last_modified;
 
     /**
@@ -107,10 +101,8 @@ class Setting
         return $this;
     }
 
-    /**
-     * @ORM\PrePersist()
-     * @ORM\PreUpdate()
-     */
+    #[ORM\PrePersist]
+    #[ORM\PreUpdate]
     public function updateModifiedDatetime()
     {
         // update the modified time
