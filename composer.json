@@ -22,7 +22,7 @@
         "ramsey/uuid": "^4.0",
         "ramsey/uuid-doctrine": "^1.6",
         "sensio/framework-extra-bundle": "^5.5",
-        "sentry/sentry-symfony": "^3.5",
+        "sentry/sentry-symfony": "^4.4",
         "symfony/asset": "5.4.*",
         "symfony/console": "5.4.*",
         "symfony/dom-crawler": "5.4.*",
