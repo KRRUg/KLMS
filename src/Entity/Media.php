@@ -10,13 +10,11 @@ use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\Validator\Constraints as Assert;
 use Vich\UploaderBundle\Mapping\Annotation as Vich;
 
-/**
- * @Vich\Uploadable
- */
 #[ORM\Table]
 #[ORM\Index(name: 'filename_indes', columns: ['file_name'])]
 #[ORM\Entity(repositoryClass: MediaRepository::class)]
 #[ORM\HasLifecycleCallbacks]
+#[Vich\Uploadable]
 class Media implements HistoryAwareEntity
 {
     use Traits\EntityHistoryTrait;
@@ -28,25 +26,18 @@ class Media implements HistoryAwareEntity
     #[ORM\Column(type: 'integer')]
     private ?int $id = null;
 
-    /**
-     * @Vich\UploadableField(
-     *     mapping="media",
-     *     fileNameProperty="fileName",
-     *     mimeType="mimeType",
-     *     originalName="displayName"
-     * )
-     */
+    #[Vich\UploadableField(mapping: 'media', fileNameProperty: 'fileName', mimeType: 'mimeType', originalName: 'displayName')]
     #[Assert\File(maxSize: Media::MAX_FILE_SIZE, mimeTypes: Media::MIME_TYPES, mimeTypesMessage: 'Please upload a valid file (Image, PDF or ZIP)')]
     private ?File $mediaFile = null;
 
     #[ORM\Column(name: 'file_name', nullable: false)]
-    private ?string $fileName;
+    private ?string $fileName = null;
 
     #[ORM\Column(name: 'display_name', nullable: false, unique: true)]
-    private ?string $displayName;
+    private ?string $displayName = null;
 
     #[ORM\Column(name: 'mime_type', nullable: false)]
-    private ?string $mimeType;
+    private ?string $mimeType = null;
 
     public function getId(): ?int
     {

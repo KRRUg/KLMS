@@ -11,11 +11,9 @@ use Symfony\Component\HttpFoundation\File\File;
 use Vich\UploaderBundle\Entity\File as EmbeddedFile;
 use Vich\UploaderBundle\Mapping\Annotation as Vich;
 
-/**
- * @Vich\Uploadable
- */
 #[ORM\Entity(repositoryClass: UserImageRepository::class)]
 #[ORM\HasLifecycleCallbacks]
+#[Vich\Uploadable]
 class UserImage
 {
     #[ORM\Id]
@@ -25,9 +23,7 @@ class UserImage
     #[ORM\Embedded(class: 'Vich\UploaderBundle\Entity\File')]
     private ?EmbeddedFile $image;
 
-    /**
-     * @Vich\UploadableField(mapping="user", fileNameProperty="image.name", size="image.size", mimeType="image.mimeType", originalName="image.originalName", dimensions="image.dimensions")
-     */
+    #[Vich\UploadableField(mapping: 'user', fileNameProperty: 'image.name', size: 'image.size', mimeType: 'image.mimeType', originalName: 'image.originalName', dimensions: 'image.dimensions')]
     private ?File $imageFile = null;
 
     #[ORM\Column(type: 'datetime', nullable: false)]

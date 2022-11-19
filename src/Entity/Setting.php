@@ -10,13 +10,11 @@ use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Vich\UploaderBundle\Mapping\Annotation as Vich;
 
-/**
- * @Vich\Uploadable
- */
 #[ORM\Table]
 #[ORM\Index(name: 'key_idx', columns: ['key'])]
 #[ORM\Entity(repositoryClass: SettingRepository::class)]
 #[ORM\HasLifecycleCallbacks]
+#[Vich\Uploadable]
 class Setting
 {
     #[ORM\Id]
@@ -33,9 +31,7 @@ class Setting
     #[ORM\Column(type: 'datetime')]
     private ?DateTimeInterface $last_modified = null;
 
-    /**
-     * @Vich\UploadableField(mapping="setting", fileNameProperty="text")
-     */
+    #[Vich\UploadableField(mapping: 'setting', fileNameProperty: 'text')]
     private ?UploadedFile $file = null;
 
     public function setFile(File $file = null): void

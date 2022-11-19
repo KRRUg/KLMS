@@ -12,11 +12,9 @@ use Symfony\Component\Validator\Constraints as Assert;
 use Vich\UploaderBundle\Entity\File as EmbeddedFile;
 use Vich\UploaderBundle\Mapping\Annotation as Vich;
 
-/**
- * @Vich\Uploadable
- */
 #[ORM\Entity(repositoryClass: NewsRepository::class)]
 #[ORM\HasLifecycleCallbacks]
+#[Vich\Uploadable]
 class News implements HistoryAwareEntity
 {
     use Traits\EntityHistoryTrait;
@@ -40,9 +38,8 @@ class News implements HistoryAwareEntity
     #[Assert\GreaterThan(propertyPath: 'publishedFrom')]
     private ?DateTimeInterface $publishedTo = null;
 
-    /**
-     * @Vich\UploadableField(mapping="news", fileNameProperty="image.name", size="image.size", mimeType="image.mimeType", originalName="image.originalName", dimensions="image.dimensions")
-     */
+
+    #[Vich\UploadableField(mapping: 'news', fileNameProperty: 'image.name', size: 'image.size', mimeType: 'image.mimeType', originalName: 'image.originalName', dimensions: 'image.dimensions')]
     private ?File $imageFile = null;
 
     #[ORM\Embedded(class: 'Vich\UploaderBundle\Entity\File')]
