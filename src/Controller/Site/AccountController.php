@@ -19,6 +19,7 @@ use Symfony\Component\Form\Extension\Core\Type\EmailType;
 use Symfony\Component\Form\Extension\Core\Type\PasswordType;
 use Symfony\Component\Form\Extension\Core\Type\RepeatedType;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Guard\GuardAuthenticatorHandler;
 
@@ -43,7 +44,7 @@ class AccountController extends AbstractController
     /**
      * @Route("/reset", name="app_reset")
      */
-    public function reset(Request $request): \Symfony\Component\HttpFoundation\Response
+    public function reset(Request $request): Response
     {
         if ($this->isGranted('IS_AUTHENTICATED_REMEMBERED')) {
             return $this->redirectToRoute('user_profile');
@@ -84,7 +85,7 @@ class AccountController extends AbstractController
     /**
      * @Route("/reset_pw", name="reset_pw")
      */
-    public function resetPW(Request $request): \Symfony\Component\HttpFoundation\Response
+    public function resetPW(Request $request): Response
     {
         if (!($user = $this->checkTokenAndGetUser($request, self::TOKEN_PW_RESET_STRING, false))) {
             return $this->redirectToRoute('app_login');
@@ -156,7 +157,7 @@ class AccountController extends AbstractController
     /**
      * @Route("/resend", name="app_register_resend")
      */
-    public function resend(Request $request): \Symfony\Component\HttpFoundation\Response
+    public function resend(Request $request): Response
     {
         $email = $request->query->get('email');
         if (filter_var($email, FILTER_VALIDATE_EMAIL)) {
@@ -173,7 +174,7 @@ class AccountController extends AbstractController
     /**
      * @Route("/confirm", name="app_register_confirm")
      */
-    public function confirm(Request $request, LoginFormAuthenticator $login, GuardAuthenticatorHandler $guard): \Symfony\Component\HttpFoundation\Response
+    public function confirm(Request $request, LoginFormAuthenticator $login, GuardAuthenticatorHandler $guard): Response
     {
         if ($this->isGranted('IS_AUTHENTICATED_REMEMBERED')) {
             return $this->redirectToRoute('user_profile');
@@ -209,7 +210,7 @@ class AccountController extends AbstractController
     /**
      * @Route("/register", name="register")
      */
-    public function register(Request $request): \Symfony\Component\HttpFoundation\Response
+    public function register(Request $request): Response
     {
         if ($this->isGranted('IS_AUTHENTICATED_REMEMBERED')) {
             return $this->redirectToRoute('user_profile');

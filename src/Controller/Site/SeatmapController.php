@@ -9,6 +9,7 @@ use App\Service\SettingService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
@@ -30,7 +31,7 @@ class SeatmapController extends AbstractController
     /**
      * @Route("", name="")
      */
-    public function index(): \Symfony\Component\HttpFoundation\Response
+    public function index(): Response
     {
         if (!$this->settingService->get('lan.seatmap.enabled', false)) {
             if ($this->settingService->get('lan.signup.enabled', false)) {
@@ -65,7 +66,7 @@ class SeatmapController extends AbstractController
     /**
      * @Route("/seat/{id}", name="_seat_show", methods={"GET", "POST"})
      */
-    public function seatShow(Seat $seat, Request $request): \Symfony\Component\HttpFoundation\Response
+    public function seatShow(Seat $seat, Request $request): Response
     {
         $view = null;
         $locked = $this->settingService->get('lan.seatmap.locked') === true;

@@ -5,6 +5,7 @@ namespace App\Controller\Site;
 use App\Entity\Teamsite;
 use App\Service\TeamsiteService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 class TeamsiteController extends AbstractController
@@ -19,7 +20,7 @@ class TeamsiteController extends AbstractController
     /**
      * @Route("/teamsite/{id}", name="teamsite")
      */
-    public function byId(Teamsite $teamsite): \Symfony\Component\HttpFoundation\Response
+    public function byId(Teamsite $teamsite): Response
     {
         // warm-up IDM UoW to avoid multiple requests
         $this->service->getUsersOfTeamsite($teamsite);

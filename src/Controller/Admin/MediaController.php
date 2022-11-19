@@ -9,6 +9,7 @@ use App\Form\MediaType;
 use App\Service\MediaService;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
@@ -52,7 +53,7 @@ class MediaController extends BaseController
     /**
      * @Route(".{_format}", name="", defaults={"_format"="html"})
      */
-    public function index(Request $request): \Symfony\Component\HttpFoundation\Response
+    public function index(Request $request): Response
     {
         $filter = $request->get('filter', '');
         $media = $this->mediaByFilter($filter);
@@ -92,7 +93,7 @@ class MediaController extends BaseController
     /**
      * @Route("/delete/{id}", name="_delete")
      */
-    public function delete(Request $request, Media $image): \Symfony\Component\HttpFoundation\Response
+    public function delete(Request $request, Media $image): Response
     {
         $token = $request->request->get('_token');
         if (!$this->isCsrfTokenValid(self::CSRF_TOKEN_DELETE, $token)) {
@@ -107,7 +108,7 @@ class MediaController extends BaseController
     /**
      * @Route("/detail/{id}.{_format}", name="_detail", defaults={"_format"="html"})
      */
-    public function detail(Request $request, Media $image): \Symfony\Component\HttpFoundation\Response
+    public function detail(Request $request, Media $image): Response
     {
         if ($request->getRequestFormat() === 'json') {
             return $this->apiResponse($this->image2json($image));

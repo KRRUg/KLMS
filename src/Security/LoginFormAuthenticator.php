@@ -2,6 +2,7 @@
 
 namespace App\Security;
 
+use App\Entity\User;
 use App\Idm\IdmManager;
 use App\Idm\IdmRepository;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -29,7 +30,7 @@ class LoginFormAuthenticator extends AbstractFormLoginAuthenticator
     {
         $this->urlGenerator = $urlGenerator;
         $this->csrfTokenManager = $csrfTokenManager;
-        $this->repository = $idm->getRepository(\App\Entity\User::class);
+        $this->repository = $idm->getRepository(User::class);
     }
 
     public function supports(Request $request)

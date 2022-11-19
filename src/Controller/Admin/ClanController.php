@@ -11,6 +11,7 @@ use App\Idm\IdmRepository;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
@@ -36,7 +37,7 @@ class ClanController extends AbstractController
     /**
      * @Route("/clan", name="clan", methods={"GET"})
      */
-    public function index(): \Symfony\Component\HttpFoundation\Response
+    public function index(): Response
     {
         $clans = $this->clanRepo->findAll();
 
@@ -49,7 +50,7 @@ class ClanController extends AbstractController
     /**
      * @Route("/clan/create", name="clan_create", methods={"GET", "POST"})
      */
-    public function create(Request $request): \Symfony\Component\HttpFoundation\Response
+    public function create(Request $request): Response
     {
         $form = $this->createForm(ClanType::class, null, ['require_password' => true]);
         $form->handleRequest($request);
@@ -79,7 +80,7 @@ class ClanController extends AbstractController
     /**
      * @Route("/clan/{uuid}/edit", name="clan_edit", methods={"GET", "POST"})
      */
-    public function edit(string $uuid, Request $request): \Symfony\Component\HttpFoundation\Response
+    public function edit(string $uuid, Request $request): Response
     {
         $clan = $this->clanRepo->findOneById($uuid);
         if (is_null($clan)) {
@@ -110,7 +111,7 @@ class ClanController extends AbstractController
     /**
      * @Route("/clan/{uuid}", name="clan_show", methods={"GET"})
      */
-    public function show(string $uuid): \Symfony\Component\HttpFoundation\Response
+    public function show(string $uuid): Response
     {
         $clan = $this->clanRepo->findOneById($uuid);
         if (is_null($clan)) {
@@ -125,7 +126,7 @@ class ClanController extends AbstractController
     /**
      * @Route("/clan/{uuid}/member", name="clan_member", methods={"GET"})
      */
-    public function member(string $uuid): \Symfony\Component\HttpFoundation\Response
+    public function member(string $uuid): Response
     {
         $clan = $this->clanRepo->findOneById($uuid);
         if (is_null($clan)) {
@@ -141,7 +142,7 @@ class ClanController extends AbstractController
     /**
      * @Route("/clan/{uuid}/member/edit", name="clan_member_edit", methods={"POST"})
      */
-    public function editMember(string $uuid, Request $request): \Symfony\Component\HttpFoundation\Response
+    public function editMember(string $uuid, Request $request): Response
     {
         $token = $request->request->get('_token');
         if (!$this->isCsrfTokenValid(self::CSRF_TOKEN_MEMBER_EDIT, $token)) {
@@ -213,7 +214,7 @@ class ClanController extends AbstractController
     /**
      * @Route("/clan/{uuid}/delete", name="clan_delete", methods={"POST"})
      */
-    public function delete(string $uuid, Request $request): \Symfony\Component\HttpFoundation\Response
+    public function delete(string $uuid, Request $request): Response
     {
         $clan = $this->clanRepo->findOneById($uuid);
         if (is_null($clan)) {

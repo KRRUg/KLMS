@@ -8,6 +8,7 @@ use App\Service\NewsService;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
@@ -31,7 +32,7 @@ class NewsController extends AbstractController
     /**
      * @Route("", name="")
      */
-    public function index(): \Symfony\Component\HttpFoundation\Response
+    public function index(): Response
     {
         $news = $this->newsService->getAll();
 
@@ -43,7 +44,7 @@ class NewsController extends AbstractController
     /**
      * @Route("/new", name="_new")
      */
-    public function new(Request $request): \Symfony\Component\HttpFoundation\Response
+    public function new(Request $request): Response
     {
         $form = $this->createForm(NewsType::class);
 
@@ -62,7 +63,7 @@ class NewsController extends AbstractController
     /**
      * @Route("/delete/{id}", name="_delete")
      */
-    public function delete(Request $request, News $news): \Symfony\Component\HttpFoundation\Response
+    public function delete(Request $request, News $news): Response
     {
         $token = $request->request->get('_token');
         if (!$this->isCsrfTokenValid(self::CSRF_TOKEN_DELETE, $token)) {
@@ -78,7 +79,7 @@ class NewsController extends AbstractController
     /**
      * @Route("/edit/{id}", name="_edit")
      */
-    public function edit(Request $request, News $news): \Symfony\Component\HttpFoundation\Response
+    public function edit(Request $request, News $news): Response
     {
         $form = $this->createForm(NewsType::class, $news);
 

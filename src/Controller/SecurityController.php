@@ -10,6 +10,7 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Security\Core\Exception\BadCredentialsException;
 use Symfony\Component\Security\Core\Exception\InvalidCsrfTokenException;
+use Symfony\Component\Security\Core\Exception\UserNotFoundException;
 use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 
 /**
@@ -55,7 +56,7 @@ class SecurityController extends AbstractController
 
         switch (true) {
             case $error instanceof BadCredentialsException:
-            case $error instanceof \Symfony\Component\Security\Core\Exception\UserNotFoundException:
+            case $error instanceof UserNotFoundException:
                 return 'E-Mail-Addresse oder Passwort falsch';
             case $error instanceof AccountNotConfirmedException:
                 $user = $error->getUser();

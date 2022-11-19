@@ -9,6 +9,7 @@ use App\Service\EmailService;
 use App\Service\TokenService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 class EmailController extends AbstractController
@@ -29,7 +30,7 @@ class EmailController extends AbstractController
     /**
      * @Route("/unsubscribe", name="email_unsubscribe")
      */
-    public function unsubscribe(Request $request): \Symfony\Component\HttpFoundation\Response
+    public function unsubscribe(Request $request): Response
     {
         $token = strval($request->get('token', ''));
         if (empty($token)) {

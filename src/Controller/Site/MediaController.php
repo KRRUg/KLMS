@@ -5,6 +5,7 @@ namespace App\Controller\Site;
 use App\Repository\MediaRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Vich\UploaderBundle\Handler\DownloadHandler;
 
@@ -30,7 +31,7 @@ class MediaController extends AbstractController
     /**
      * @Route("/{name}", name="")
      */
-    public function getMedia(Request $request): \Symfony\Component\HttpFoundation\Response
+    public function getMedia(Request $request): Response
     {
         $name = $request->get('name');
         $media = $this->mediaRepository->findByDisplayName($name);

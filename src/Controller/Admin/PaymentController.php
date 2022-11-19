@@ -12,6 +12,7 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
@@ -43,7 +44,7 @@ class PaymentController extends AbstractController
     /**
      * @Route("", name="", methods={"GET"})
      */
-    public function index(): \Symfony\Component\HttpFoundation\Response
+    public function index(): Response
     {
         $gamers = $this->gamerService->getGamers();
 
@@ -56,7 +57,7 @@ class PaymentController extends AbstractController
     /**
      * @Route("", name="_add", methods={"POST"})
      */
-    public function add(Request $request): \Symfony\Component\HttpFoundation\Response
+    public function add(Request $request): Response
     {
         $form = $this->createUserSelectForm();
         $form->handleRequest($request);
@@ -82,7 +83,7 @@ class PaymentController extends AbstractController
     /**
      * @Route("/{uuid}", name="_update", methods={"POST"})
      */
-    public function update(Request $request, string $uuid): \Symfony\Component\HttpFoundation\Response
+    public function update(Request $request, string $uuid): Response
     {
         $token = $request->request->get('_token');
         if (!$this->isCsrfTokenValid(self::CSRF_TOKEN_PAYMENT, $token)) {
@@ -133,7 +134,7 @@ class PaymentController extends AbstractController
     /**
      * @Route("/{uuid}", name="_show", methods={"GET"})
      */
-    public function show(string $uuid): \Symfony\Component\HttpFoundation\Response
+    public function show(string $uuid): Response
     {
         $user = $this->userRepo->findOneById($uuid);
 

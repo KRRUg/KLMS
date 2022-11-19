@@ -6,10 +6,10 @@ use App\Entity\Content;
 use App\Exception\ServiceException;
 use App\Form\ContentType;
 use App\Service\ContentService;
-use Psr\Log\LoggerInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
@@ -20,22 +20,20 @@ class ContentController extends AbstractController
 {
     private const CSRF_TOKEN_DELETE = 'contentDeleteToken';
 
-    private $logger;
-    private $contentService;
+    private ContentService $contentService;
 
     /**
      * ContentController constructor.
      */
-    public function __construct(LoggerInterface $logger, ContentService $contentService)
+    public function __construct(ContentService $contentService)
     {
-        $this->logger = $logger;
         $this->contentService = $contentService;
     }
 
     /**
      * @Route("", name="", methods={"GET"})
      */
-    public function index(): \Symfony\Component\HttpFoundation\Response
+    public function index(): Response
     {
         $content = $this->contentService->getAll();
         ksort($content);
@@ -48,7 +46,7 @@ class ContentController extends AbstractController
     /**
      * @Route("/edit/{id}", name="_edit", methods={"GET","POST"})
      */
-    public function edit(Request $request, Content $content): \Symfony\Component\HttpFoundation\Response
+    public function edit(Request $request, Content $content): Response
     {
         $form = $this->createForm(ContentType::class, $content);
 
@@ -68,7 +66,7 @@ class ContentController extends AbstractController
     /**
      * @Route("/new", name="_new", methods={"GET","POST"})
      */
-    public function new(Request $request): \Symfony\Component\HttpFoundation\Response
+    public function new(Request $request): Response
     {
         $form = $this->createForm(ContentType::class);
 
@@ -87,7 +85,7 @@ class ContentController extends AbstractController
     /**
      * @Route("/delete/{id}", name="_delete")
      */
-    public function delete(Request $request, Content $content): \Symfony\Component\HttpFoundation\Response
+    public function delete(Request $request, Content $content): Response
     {
         $token = $request->request->get('_token');
         if (!$this->isCsrfTokenValid(self::CSRF_TOKEN_DELETE, $token)) {

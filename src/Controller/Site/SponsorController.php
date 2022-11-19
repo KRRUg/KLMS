@@ -4,6 +4,7 @@ namespace App\Controller\Site;
 
 use App\Service\SponsorService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 class SponsorController extends AbstractController
@@ -18,7 +19,7 @@ class SponsorController extends AbstractController
     /**
      * @Route("/sponsor", name="sponsor")
      */
-    public function index(): \Symfony\Component\HttpFoundation\Response
+    public function index(): Response
     {
         if (!$this->service->active()) {
             throw $this->createNotFoundException();

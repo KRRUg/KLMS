@@ -39,7 +39,7 @@ class TokenService
 
     public static function isValid(string $token): bool
     {
-        return 2 * self::SELECTOR_LENGTH === \strlen($token);
+        return 2 * self::SELECTOR_LENGTH === strlen($token);
     }
 
     private function handleGarbageCollection()
@@ -59,7 +59,7 @@ class TokenService
         $this->handleGarbageCollection();
 
         $generatedAt = new DateTimeImmutable();
-        $expiresAt = $generatedAt->add(new DateInterval(\sprintf('PT%dS', self::TOKEN_LIFETIME)));
+        $expiresAt = $generatedAt->add(new DateInterval(sprintf('PT%dS', self::TOKEN_LIFETIME)));
 
         $selector = RandomStringGenerator::create(self::SELECTOR_LENGTH);
         $verifier = RandomStringGenerator::create(self::SELECTOR_LENGTH);
@@ -86,8 +86,8 @@ class TokenService
             throw new TokenException(TokenException::CAUSE_FORMAT_ERROR);
         }
 
-        $selector = \substr($fullToken, 0, self::SELECTOR_LENGTH);
-        $verifier = \substr($fullToken, self::SELECTOR_LENGTH);
+        $selector = substr($fullToken, 0, self::SELECTOR_LENGTH);
+        $verifier = substr($fullToken, self::SELECTOR_LENGTH);
 
         $token = $this->repo->findToken($selector);
         if (null === $token) {
@@ -97,7 +97,7 @@ class TokenService
             throw new TokenException(TokenException::CAUSE_EXPIRED);
         }
         $hash = $this->getHashedToken($verifier, $user, $type, $token->getExpiresAt());
-        $success = \hash_equals($token->getHash(), $hash);
+        $success = hash_equals($token->getHash(), $hash);
         if (!$success) {
             throw new TokenException(TokenException::CAUSE_INVALID);
         }
@@ -110,7 +110,7 @@ class TokenService
         if (!self::isValid($fullToken)) {
             return;
         }
-        $selector = \substr($fullToken, 0, self::SELECTOR_LENGTH);
+        $selector = substr($fullToken, 0, self::SELECTOR_LENGTH);
         $this->repo->removeToken($this->repo->findToken($selector));
     }
 
@@ -123,6 +123,6 @@ class TokenService
     {
         $data = $verifier.$user->toString().$type.$expiresAt->getTimestamp();
 
-        return \base64_encode(\hash_hmac('sha256', $data, $this->appSecret, true));
+        return base64_encode(hash_hmac('sha256', $data, $this->appSecret, true));
     }
 }

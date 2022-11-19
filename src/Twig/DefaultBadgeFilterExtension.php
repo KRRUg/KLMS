@@ -3,6 +3,7 @@
 namespace App\Twig;
 
 use Twig\Extension\AbstractExtension;
+use Twig\Markup;
 use Twig\TwigFilter;
 
 /**
@@ -27,6 +28,6 @@ class DefaultBadgeFilterExtension extends AbstractExtension
 
         $badge = "<span class=\"badge badge-$badgeStyle \">$defaultText</span>";
 
-        return new \Twig\Markup($badge, 'UTF-8');
+        return new Markup($badge, 'UTF-8');
     }
 }

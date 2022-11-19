@@ -8,6 +8,7 @@ use App\Form\TeamsiteType;
 use App\Service\TeamsiteService;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
@@ -27,7 +28,7 @@ class TeamsiteController extends BaseController
     /**
      * @Route("", name="", methods={"GET"})
      */
-    public function index(): \Symfony\Component\HttpFoundation\Response
+    public function index(): Response
     {
         $sites = $this->teamsiteService->getAll();
 
@@ -39,7 +40,7 @@ class TeamsiteController extends BaseController
     /**
      * @Route("/edit/{id}", name="_edit", methods={"GET", "POST"})
      */
-    public function edit(Request $request, Teamsite $teamsite): \Symfony\Component\HttpFoundation\Response
+    public function edit(Request $request, Teamsite $teamsite): Response
     {
         $array = $this->teamsiteService->renderSite($teamsite);
 
@@ -68,7 +69,7 @@ class TeamsiteController extends BaseController
     /**
      * @Route("/new", name="_new", methods={"GET", "POST"})
      */
-    public function new(Request $request): \Symfony\Component\HttpFoundation\Response
+    public function new(Request $request): Response
     {
         $teamsite = new Teamsite();
 
