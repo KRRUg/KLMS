@@ -284,15 +284,15 @@
         "version": "2.4.0"
     },
     "sentry/sentry-symfony": {
-        "version": "3.5",
+        "version": "4.4",
         "recipe": {
             "repo": "github.com/symfony/recipes-contrib",
             "branch": "main",
-            "version": "3.0",
-            "ref": "fc6a6baeee961a34a70eca0f91e868d03ce7bd9b"
+            "version": "4.0",
+            "ref": "9ac202e84b6fb3c276cb3d7846006e0df65272d0"
         },
         "files": [
-            "config/packages/prod/sentry.yaml"
+            "config/packages/sentry.yaml"
         ]
     },
     "symfony/asset": {
