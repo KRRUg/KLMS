@@ -21,9 +21,9 @@ class LoginFormAuthenticator extends AbstractFormLoginAuthenticator
 {
     use TargetPathTrait;
 
-    private UrlGeneratorInterface $urlGenerator;
-    private CsrfTokenManagerInterface $csrfTokenManager;
-    private IdmRepository $repository;
+    private readonly UrlGeneratorInterface $urlGenerator;
+    private readonly CsrfTokenManagerInterface $csrfTokenManager;
+    private readonly IdmRepository $repository;
 
     public function __construct(UrlGeneratorInterface $urlGenerator, CsrfTokenManagerInterface $csrfTokenManager, IdmManager $idm)
     {

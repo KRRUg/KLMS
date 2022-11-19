@@ -11,6 +11,7 @@ use InvalidArgumentException;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
@@ -18,8 +19,8 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class UserController extends AbstractController
 {
-    private IdmRepository $userRepo;
-    private UserService $userService;
+    private readonly IdmRepository $userRepo;
+    private readonly UserService $userService;
 
     public function __construct(IdmManager $manager, UserService $userService)
     {
@@ -30,17 +31,17 @@ class UserController extends AbstractController
     /**
      * @Route("", name="", methods={"GET"})
      */
-    public function search(Request $request): \Symfony\Component\HttpFoundation\Response
+    public function search(Request $request): Response
     {
         $search = $request->query->get('q', '');
         $limit = $request->query->getInt('limit', 10);
         $page = $request->query->getInt('page', 1);
-        $sort = $request->query->get('sort', []);
+        $sort = $request->query->all('sort');
 
         try {
             $lazyLoadingCollection = $this->userRepo->findFuzzy($search, $sort);
-        } catch (InvalidArgumentException $e) {
-            return new JsonResponse(Error::withMessage('Invalid sort parameter'), \Symfony\Component\HttpFoundation\Response::HTTP_BAD_REQUEST);
+        } catch (InvalidArgumentException) {
+            return new JsonResponse(Error::withMessage('Invalid sort parameter'), Response::HTTP_BAD_REQUEST);
         }
 
         $items = $lazyLoadingCollection->getPage($page, $limit);
@@ -48,8 +49,8 @@ class UserController extends AbstractController
         $result = [];
         $result['count'] = count($items);
         $result['total'] = $lazyLoadingCollection->count();
-        $result['items'] = array_map(function (User $user) { return $this->userService->user2Array($user); }, $items);
+        $result['items'] = array_map(fn(User $user) => $this->userService->user2Array($user), $items);
 
-        return new JsonResponse(json_encode($result), \Symfony\Component\HttpFoundation\Response::HTTP_OK, [], true);
+        return new JsonResponse(json_encode($result, JSON_THROW_ON_ERROR), Response::HTTP_OK, [], true);
     }
 }

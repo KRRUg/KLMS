@@ -13,7 +13,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 class TeamsiteType extends AbstractType
 {
-    private AuthorInsertSubscriber $authorInsertSubscriber;
+    private readonly AuthorInsertSubscriber $authorInsertSubscriber;
 
     public function __construct(AuthorInsertSubscriber $authorInsertSubscriber)
     {

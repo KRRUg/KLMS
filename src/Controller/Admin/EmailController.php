@@ -25,10 +25,10 @@ class EmailController extends AbstractController
     private const CSRF_TOKEN_DELETE = 'emailDeleteToken';
     private const CSRF_TOKEN_CANCEL = 'emailCancelToken';
 
-    private LoggerInterface $logger;
-    private EmailService $mailService;
-    private GroupService $groupService;
-    private EmailRepository $templateRepository;
+    private readonly LoggerInterface $logger;
+    private readonly EmailService $mailService;
+    private readonly GroupService $groupService;
+    private readonly EmailRepository $templateRepository;
 
     public function __construct(LoggerInterface $logger, EmailService $mailService, GroupService $groupService, EmailRepository $templateRepository)
     {

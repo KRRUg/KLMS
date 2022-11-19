@@ -19,7 +19,7 @@ class UserAdmin
     /**
      * @ORM\Column(type="array")
      */
-    private $permissions = [];
+    private array $permissions = [];
 
     public function __construct(?UuidInterface $uuid)
     {

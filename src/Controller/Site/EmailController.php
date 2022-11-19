@@ -13,10 +13,10 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class EmailController extends AbstractController
 {
-    private EmailService $mailService;
-    private TokenService $tokenService;
-    private IdmManager $manager;
-    private IdmRepository $userRepo;
+    private readonly EmailService $mailService;
+    private readonly TokenService $tokenService;
+    private readonly IdmManager $manager;
+    private readonly IdmRepository $userRepo;
 
     public function __construct(EmailService $mailService, TokenService $tokenService, IdmManager $manager)
     {

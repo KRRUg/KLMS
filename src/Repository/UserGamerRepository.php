@@ -29,7 +29,7 @@ class UserGamerRepository extends ServiceEntityRepository
                 ->setParameter('uuid', $user->getUuid())
                 ->getQuery()
                 ->getOneOrNullResult();
-        } catch (NonUniqueResultException $e) {
+        } catch (NonUniqueResultException) {
             // unreachable as we are selecting the primary key
             return null;
         }

@@ -24,9 +24,9 @@ class TokenService
     private const TOKEN_LIFETIME = 3600; // 1 hour in seconds
     private const THROTTLE_COUNT = 3;
 
-    private TokenRepository $repo;
-    private EntityManagerInterface $em;
-    private string $appSecret;
+    private readonly TokenRepository $repo;
+    private readonly EntityManagerInterface $em;
+    private readonly string $appSecret;
 
     public function __construct(TokenRepository $repo,
                                 EntityManagerInterface $em,

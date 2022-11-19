@@ -16,15 +16,15 @@ use Psr\Log\LoggerInterface;
 
 class GamerService
 {
-    private LoggerInterface $logger;
-    private EntityManagerInterface $em;
-    private UserGamerRepository $repo;
-    private IdmRepository $userRepo;
-    private IdmRepository $clanRepo;
-    private EmailService $emailService;
-    private SettingService $settingService;
+    private readonly LoggerInterface $logger;
+    private readonly EntityManagerInterface $em;
+    private readonly UserGamerRepository $repo;
+    private readonly IdmRepository $userRepo;
+    private readonly IdmRepository $clanRepo;
+    private readonly EmailService $emailService;
+    private readonly SettingService $settingService;
 
-    public const DATETIME_FORMAT = 'Y.m.d H:i:s';
+    final public const DATETIME_FORMAT = 'Y.m.d H:i:s';
 
     /*
      * Clarification: User is the Symfony User with information from IDM, while Gamer is the local KLMS information,
@@ -219,8 +219,8 @@ class GamerService
     public function getGamers(bool $associative = true): array
     {
         $gamers = $this->repo->findAll();
-        $gamers = array_filter($gamers, function (UserGamer $g) { return $g->hasRegistered(); });
-        $ids = array_map(function (UserGamer $g) { return $g->getUuid()->toString(); }, $gamers);
+        $gamers = array_filter($gamers, fn(UserGamer $g) => $g->hasRegistered());
+        $ids = array_map(fn(UserGamer $g) => $g->getUuid()->toString(), $gamers);
         $gamers = array_combine($ids, $gamers);
         $users = $this->userRepo->findById($ids);
 

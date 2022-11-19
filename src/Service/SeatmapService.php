@@ -13,11 +13,11 @@ use Symfony\Component\Security\Core\Security;
 
 class SeatmapService
 {
-    private EntityManagerInterface $em;
-    private SeatRepository $seatRepository;
-    private GamerService $gamerService;
-    private Security $security;
-    private IdmRepository $userRepo;
+    private readonly EntityManagerInterface $em;
+    private readonly SeatRepository $seatRepository;
+    private readonly GamerService $gamerService;
+    private readonly Security $security;
+    private readonly IdmRepository $userRepo;
 
     public function __construct(
         EntityManagerInterface $entityManager,
@@ -40,11 +40,11 @@ class SeatmapService
 
     public function getSeatedUser(array $seats): array
     {
-        $uuids = array_map(function (Seat $seat) { return $seat->getOwner() ? $seat->getOwner()->getUuid()->toString() : null; }, $seats);
+        $uuids = array_map(fn(Seat $seat) => $seat->getOwner() ? $seat->getOwner()->getUuid()->toString() : null, $seats);
         $uuids = array_filter($uuids); // remove null from uuids
         $users = $this->userRepo->findById($uuids);
 
-        $uuids = array_map(function (User $u) { return $u->getUuid()->toString(); }, $users);
+        $uuids = array_map(fn(User $u) => $u->getUuid()->toString(), $users);
         $users = array_combine($uuids, $users);
 
         $ret = [];
@@ -118,14 +118,11 @@ class SeatmapService
 
     public function isSeatBookable(Seat $seat): bool
     {
-        switch ($seat->getType()) {
-            case 'seat':
-                return empty($seat->getOwner());
-            case 'locked':
-                return $this->security->isGranted('ROLE_ADMIN_SEATMAP');
-            default:
-                return false;
-        }
+        return match ($seat->getType()) {
+            'seat' => empty($seat->getOwner()),
+            'locked' => $this->security->isGranted('ROLE_ADMIN_SEATMAP'),
+            default => false,
+        };
     }
 
     public function getSeatOwner(Seat $seat)

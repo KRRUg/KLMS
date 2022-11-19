@@ -13,7 +13,7 @@ class AgoFilterExtension extends AbstractExtension
     public function getFilters()
     {
         return [
-            new TwigFilter('ago', [$this, 'filterAgo']),
+            new TwigFilter('ago', $this->filterAgo(...)),
         ];
     }
 

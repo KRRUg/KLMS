@@ -10,8 +10,8 @@ use Twig\TwigFunction;
 
 class EncoreEntryCssSourceExtension extends AbstractExtension implements ServiceSubscriberInterface
 {
-    private ContainerInterface $container;
-    private string $publicDir;
+    private readonly ContainerInterface $container;
+    private readonly string $publicDir;
 
     public function __construct(ContainerInterface $container, string $publicDir)
     {
@@ -22,7 +22,7 @@ class EncoreEntryCssSourceExtension extends AbstractExtension implements Service
     public function getFunctions()
     {
         return [
-            new TwigFunction('encore_entry_css_source', [$this, 'getEncoreEntryCssSource']),
+            new TwigFunction('encore_entry_css_source', $this->getEncoreEntryCssSource(...)),
         ];
     }
 

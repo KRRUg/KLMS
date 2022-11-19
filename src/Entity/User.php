@@ -15,7 +15,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  */
 class User
 {
-    private ?int $id;
+    private ?int $id = null;
 
     /**
      * @Assert\Uuid(strict=false)

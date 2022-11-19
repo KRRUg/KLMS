@@ -18,16 +18,17 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\Extension\Core\Type\PasswordType;
 use Symfony\Component\Form\Extension\Core\Type\RepeatedType;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 class UserController extends AbstractController
 {
-    private IdmManager $manager;
-    private IdmRepository $userRepo;
-    private EmailService $emailService;
-    private SettingService $settingService;
-    private GamerService $gamerService;
-    private LoggerInterface $logger;
+    private readonly IdmManager $manager;
+    private readonly IdmRepository $userRepo;
+    private readonly EmailService $emailService;
+    private readonly SettingService $settingService;
+    private readonly GamerService $gamerService;
+    private readonly LoggerInterface $logger;
 
     public function __construct(IdmManager $manager,
                                 EmailService $emailService,
@@ -59,7 +60,7 @@ class UserController extends AbstractController
      * @IsGranted("IS_AUTHENTICATED_REMEMBERED")
      * @Route("/user", name="user")
      */
-    public function index(Request $request): \Symfony\Component\HttpFoundation\Response
+    public function index(Request $request): Response
     {
         if (!$this->settingService->get('community.enabled', false)) {
             throw $this->createNotFoundException();
@@ -75,13 +76,11 @@ class UserController extends AbstractController
             $count = $collection->count();
         } else {
             $gamers = array_values($this->gamerService->getGamers(false));
-            $users = array_map(function (array $in) { return $in['user']; }, $gamers);
+            $users = array_map(fn(array $in) => $in['user'], $gamers);
             if (!empty($search)) {
-                $users = array_filter($users, function (User $u) use ($search) {
-                    return stripos($u->getNickname(), $search) !== false || stripos($u->getFirstname(), $search) !== false;
-                });
+                $users = array_filter($users, fn(User $u) => stripos($u->getNickname(), (string) $search) !== false || stripos($u->getFirstname(), (string) $search) !== false);
             }
-            usort($users, function (User $a, User $b) { return $a->getNickname() <=> $b->getNickname(); });
+            usort($users, fn(User $a, User $b) => $a->getNickname() <=> $b->getNickname());
             $count = count($users);
             $users = array_slice($users, ($page - 1) * self::SHOW_LIMIT, self::SHOW_LIMIT);
         }
@@ -99,7 +98,7 @@ class UserController extends AbstractController
      * @IsGranted("IS_AUTHENTICATED_REMEMBERED")
      * @Route("/user/profile", name="user_profile")
      */
-    public function userProfile(): \Symfony\Component\HttpFoundation\Response
+    public function userProfile(): Response
     {
         $user = $this->getUser();
 
@@ -111,7 +110,7 @@ class UserController extends AbstractController
     /**
      * @Route("/user/{uuid}", name="user_show", requirements= {"uuid"="[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}"})
      */
-    public function userShow(string $uuid): \Symfony\Component\HttpFoundation\Response
+    public function userShow(string $uuid): Response
     {
         $user = $this->userRepo->findOneById($uuid);
 
@@ -129,7 +128,7 @@ class UserController extends AbstractController
      * @IsGranted("IS_AUTHENTICATED_REMEMBERED")
      * @Route("/user/profile/edit/pw", name="user_profile_edit_pw")
      */
-    public function userProfileEditPw(Request $request): \Symfony\Component\HttpFoundation\Response
+    public function userProfileEditPw(Request $request): Response
     {
         $user = $this->getUser();
 
@@ -167,7 +166,7 @@ class UserController extends AbstractController
                 } else {
                     $this->addFlash('error', 'Altes Passwort inkorrekt.');
                 }
-            } catch (PersistException $e) {
+            } catch (PersistException) {
                 $this->addFlash('error', 'Passwort konnte nicht geändert werden');
                 $this->logger->error('PW change failed');
             }
@@ -182,7 +181,7 @@ class UserController extends AbstractController
      * @IsGranted("IS_AUTHENTICATED_FULLY")
      * @Route("/user/profile/edit", name="user_profile_edit")
      */
-    public function userProfileEdit(Request $request): \Symfony\Component\HttpFoundation\Response
+    public function userProfileEdit(Request $request): Response
     {
         $user = $this->getUser();
 
@@ -198,14 +197,10 @@ class UserController extends AbstractController
 
                 return $this->redirectToRoute('user_profile');
             } catch (PersistException $e) {
-                switch ($e->getCode()) {
-                    case PersistException::REASON_NON_UNIQUE:
-                        $this->addFlash('error', 'Nickname und/oder Email gibt es schon.');
-                        break;
-                    default:
-                        $this->addFlash('error', 'Unbekannter Fehler beim Speichern.');
-                        break;
-                }
+                match ($e->getCode()) {
+                    PersistException::REASON_NON_UNIQUE => $this->addFlash('error', 'Nickname und/oder Email gibt es schon.'),
+                    default => $this->addFlash('error', 'Unbekannter Fehler beim Speichern.'),
+                };
             }
         }
 

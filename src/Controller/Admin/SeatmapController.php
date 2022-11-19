@@ -29,12 +29,12 @@ use Symfony\Component\Validator\Constraints\Positive;
  */
 class SeatmapController extends AbstractController
 {
-    private IdmRepository $userRepo;
-    private EntityManagerInterface $em;
-    private GamerService $gamerService;
-    private SeatmapService $seatmapService;
-    private SeatRepository $seatRepository;
-    private SerializerInterface $serializer;
+    private readonly IdmRepository $userRepo;
+    private readonly EntityManagerInterface $em;
+    private readonly GamerService $gamerService;
+    private readonly SeatmapService $seatmapService;
+    private readonly SeatRepository $seatRepository;
+    private readonly SerializerInterface $serializer;
 
     public function __construct(EntityManagerInterface $em, GamerService $gamerService, IdmManager $manager, SeatmapService $seatmapService, SeatRepository $seatRepository, SerializerInterface $serializer)
     {
@@ -97,7 +97,7 @@ class SeatmapController extends AbstractController
      */
     public function changeSeatPosition(Request $request): Response
     {
-        $json = json_decode($request->getContent());
+        $json = json_decode($request->getContent(), null, 512, JSON_THROW_ON_ERROR);
         $seat = $this->seatRepository->findOneBy(['id' => $json->id]);
 
         if ($seat) {
@@ -105,10 +105,10 @@ class SeatmapController extends AbstractController
             $seat->setPosY($json->top);
             $this->em->flush();
 
-            return new JsonResponse(json_encode(true), \Symfony\Component\HttpFoundation\Response::HTTP_OK, [], true);
+            return new JsonResponse(json_encode(true, JSON_THROW_ON_ERROR), Response::HTTP_OK, [], true);
         }
 
-        return new JsonResponse(json_encode(false), \Symfony\Component\HttpFoundation\Response::HTTP_OK, [], true);
+        return new JsonResponse(json_encode(false, JSON_THROW_ON_ERROR), Response::HTTP_OK, [], true);
     }
 
     /**

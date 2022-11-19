@@ -23,7 +23,7 @@ class TeamsiteCategory
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
      */
-    private ?int $id;
+    private ?int $id = null;
 
     /**
      * @ORM\Column(type="string", length=255)
@@ -44,7 +44,7 @@ class TeamsiteCategory
      * @ORM\ManyToOne(targetEntity=Teamsite::class, inversedBy="categories")
      * @ORM\JoinColumn(name="teamsite_id", nullable=false)
      */
-    private ?Teamsite $teamsite;
+    private ?Teamsite $teamsite = null;
 
     /**
      * @ORM\OneToMany(

@@ -8,11 +8,11 @@ use Symfony\Component\Mime\Address;
 
 class EmailRecipient
 {
-    private UuidInterface $id;
-    private string $emailAddress;
-    private string $nickname;
-    private string $firstname;
-    private string $surname;
+    private readonly UuidInterface $id;
+    private readonly string $emailAddress;
+    private readonly string $nickname;
+    private readonly string $firstname;
+    private readonly string $surname;
 
     private function __construct(UuidInterface $id,
                                 string $emailAddress,

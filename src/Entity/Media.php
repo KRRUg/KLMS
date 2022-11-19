@@ -18,8 +18,8 @@ use Vich\UploaderBundle\Mapping\Annotation as Vich;
 class Media implements HistoryAwareEntity
 {
     use Traits\EntityHistoryTrait;
-    public const MAX_FILE_SIZE = '16384k';
-    public const MIME_TYPES = ['image/png', 'image/jpeg', 'image/gif', 'application/pdf', 'application/zip', 'audio/mpeg', 'audio/ogg'];
+    final public const MAX_FILE_SIZE = '16384k';
+    final public const MIME_TYPES = ['image/png', 'image/jpeg', 'image/gif', 'application/pdf', 'application/zip', 'audio/mpeg', 'audio/ogg'];
 
     /**
      * @ORM\Id()
@@ -40,10 +40,8 @@ class Media implements HistoryAwareEntity
      *     mimeType="mimeType",
      *     originalName="displayName"
      * )
-     *
-     * @var File
      */
-    private $mediaFile;
+    private ?\Symfony\Component\HttpFoundation\File\File $mediaFile = null;
 
     /**
      * @ORM\Column(name="file_name", nullable=false)
@@ -129,13 +127,13 @@ class Media implements HistoryAwareEntity
             $mimeType = $this->getMediaFile()->getMimeType();
         }
 
-        return substr($mimeType, 0, strlen($prefix)) === $prefix;
+        return str_starts_with((string) $mimeType, $prefix);
     }
 
     public function getMediaType()
     {
         $mime = $this->getMimeType();
-        if (!preg_match('/^(\w+)\/(\w*)$/', $mime, $output)) {
+        if (!preg_match('/^(\w+)\/(\w*)$/', (string) $mime, $output)) {
             return '';
         }
 

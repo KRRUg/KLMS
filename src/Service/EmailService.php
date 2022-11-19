@@ -26,17 +26,17 @@ use Twig\Environment;
 
 class EmailService
 {
-    public const APP_HOOK_REGISTRATION_CONFIRM = 'REGISTRATION_CONFIRMATION';
-    public const APP_HOOK_RESET_PW = 'PASSWORD_RESET';
-    public const APP_HOOK_CHANGE_NOTIFICATION = 'CHANGE_NOTIFICATION';
-    public const APP_HOOK_LAN_SIGNUP = 'LAN_SIGNUP';
+    final public const APP_HOOK_REGISTRATION_CONFIRM = 'REGISTRATION_CONFIRMATION';
+    final public const APP_HOOK_RESET_PW = 'PASSWORD_RESET';
+    final public const APP_HOOK_CHANGE_NOTIFICATION = 'CHANGE_NOTIFICATION';
+    final public const APP_HOOK_LAN_SIGNUP = 'LAN_SIGNUP';
 
-    public const HOOK_TEMPLATE = 'template';
-    public const HOOK_SUBJECT = 'subject';
-    public const HOOK_SUBJECT_DEFAULT = 'subject_default';
-    public const HOOK_CONTEXT = 'context';
+    final public const HOOK_TEMPLATE = 'template';
+    final public const HOOK_SUBJECT = 'subject';
+    final public const HOOK_SUBJECT_DEFAULT = 'subject_default';
+    final public const HOOK_CONTEXT = 'context';
 
-    public const HOOKS = [
+    final public const HOOKS = [
         self::APP_HOOK_REGISTRATION_CONFIRM => [
             self::HOOK_SUBJECT => 'email.register.subject',
             self::HOOK_SUBJECT_DEFAULT => 'Registrierung',
@@ -63,22 +63,22 @@ class EmailService
         ],
     ];
 
-    public const DESIGN_STANDARD = 'Standard';
-    public const NEWSLETTER_DESIGNS = [
+    final public const DESIGN_STANDARD = 'Standard';
+    final public const NEWSLETTER_DESIGNS = [
         self::DESIGN_STANDARD => '/email/design/standard.html.twig',
     ];
 
-    private LoggerInterface $logger;
-    private MailerInterface $mailer;
-    private EntityManagerInterface $em;
-    private Mime\Address $senderAddress;
-    private EmailRepository $templateRepository;
-    private Environment $twig;
-    private IdmRepository $userRepository;
-    private GroupService $groupService;
-    private SettingService $settingService;
-    private MessageBusInterface $messageBus;
-    private string $appSecret;
+    private readonly LoggerInterface $logger;
+    private readonly MailerInterface $mailer;
+    private readonly EntityManagerInterface $em;
+    private readonly Mime\Address $senderAddress;
+    private readonly EmailRepository $templateRepository;
+    private readonly Environment $twig;
+    private readonly IdmRepository $userRepository;
+    private readonly GroupService $groupService;
+    private readonly SettingService $settingService;
+    private readonly MessageBusInterface $messageBus;
+    private readonly string $appSecret;
 
     public function __construct(MailerInterface $mailer,
                                 LoggerInterface $logger,
@@ -275,7 +275,7 @@ class EmailService
     private function replaceVariables(string $text, array $replacements, bool $escapeSign = true): string
     {
         foreach ($replacements as $key => $value) {
-            $text = preg_replace($escapeSign ? '/{{2}'.$key.'}{2}/' : '/'.$key.'/', trim($value), $text) ?? $text;
+            $text = preg_replace($escapeSign ? '/{{2}'.$key.'}{2}/' : '/'.$key.'/', trim((string) $value), $text) ?? $text;
         }
 
         return $text;

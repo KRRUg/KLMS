@@ -21,8 +21,8 @@ use Symfony\Component\Validator\Constraints as Assert;
  */
 class NavigationController extends BaseController
 {
-    private LoggerInterface $logger;
-    private NavigationService $navService;
+    private readonly LoggerInterface $logger;
+    private readonly NavigationService $navService;
 
     private function getAllForms(): array
     {
@@ -63,14 +63,14 @@ class NavigationController extends BaseController
         $form = $this->createFormBuilder()
             ->add('navigation', HiddenType::class, [
                 'required' => true,
-                'data' => json_encode($array),
+                'data' => json_encode($array, JSON_THROW_ON_ERROR),
                 'constraints' => [new Assert\Json()],
             ])
             ->getForm();
 
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
-            $array = json_decode($form->getData()['navigation'], true);
+            $array = json_decode((string) $form->getData()['navigation'], true, 512, JSON_THROW_ON_ERROR);
             $success = $this->navService->parseNav($navigation, $array);
             if ($success) {
                 $this->addFlash('success', 'Navigation updated');

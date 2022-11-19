@@ -20,10 +20,10 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class UserController extends AbstractController
 {
-    private IdmManager $manager;
-    private IdmRepository $userRepo;
-    private EntityManagerInterface $em;
-    private UserImageRepository $userImgRepo;
+    private readonly IdmManager $manager;
+    private readonly IdmRepository $userRepo;
+    private readonly EntityManagerInterface $em;
+    private readonly UserImageRepository $userImgRepo;
 
     public function __construct(IdmManager $manager, EntityManagerInterface $em, UserImageRepository $userImgRepo)
     {
@@ -106,14 +106,10 @@ class UserController extends AbstractController
 
                 return $this->redirectToRoute('admin_user');
             } catch (PersistException $e) {
-                switch ($e->getCode()) {
-                    case PersistException::REASON_NON_UNIQUE:
-                        $this->addFlash('error', 'Nickname und/oder Email ist schon in Verwendung');
-                        break;
-                    default:
-                        $this->addFlash('error', 'Es ist ein unerwarteter Fehler aufgetreten');
-                        break;
-                }
+                match ($e->getCode()) {
+                    PersistException::REASON_NON_UNIQUE => $this->addFlash('error', 'Nickname und/oder Email ist schon in Verwendung'),
+                    default => $this->addFlash('error', 'Es ist ein unerwarteter Fehler aufgetreten'),
+                };
             }
         }
 

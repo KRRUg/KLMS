@@ -40,17 +40,13 @@ class Sponsor implements HistoryAwareEntity
 
     /**
      * @Vich\UploadableField(mapping="sponsor", fileNameProperty="logo.name", size="logo.size", mimeType="logo.mimeType", originalName="logo.originalName", dimensions="logo.dimensions")
-     *
-     * @var File|null
      */
-    private $logoFile;
+    private ?File $logoFile = null;
 
     /**
      * @ORM\Embedded(class="Vich\UploaderBundle\Entity\File")
-     *
-     * @var EmbeddedFile
      */
-    private $logo;
+    private EmbeddedFile $logo;
 
     /**
      * @ORM\Column(type="text", nullable=true)

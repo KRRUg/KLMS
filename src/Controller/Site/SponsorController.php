@@ -8,7 +8,7 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class SponsorController extends AbstractController
 {
-    private SponsorService $service;
+    private readonly SponsorService $service;
 
     public function __construct(SponsorService $service)
     {

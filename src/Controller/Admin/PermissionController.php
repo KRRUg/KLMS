@@ -10,6 +10,7 @@ use App\Idm\IdmRepository;
 use App\Service\PermissionService;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Component\Form\FormError;
+use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\Routing\Annotation\Route;
@@ -20,11 +21,11 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class PermissionController extends BaseController
 {
-    private PermissionService $permissionService;
-    private IdmRepository $userRepo;
-    private \Symfony\Component\Form\FormFactoryInterface $formFactory;
+    private readonly PermissionService $permissionService;
+    private readonly IdmRepository $userRepo;
+    private readonly FormFactoryInterface $formFactory;
 
-    public function __construct(PermissionService $permissionService, IdmManager $manager, \Symfony\Component\Form\FormFactoryInterface $formFactory)
+    public function __construct(PermissionService $permissionService, IdmManager $manager, FormFactoryInterface $formFactory)
     {
         $this->permissionService = $permissionService;
         $this->userRepo = $manager->getRepository(User::class);
@@ -37,9 +38,7 @@ class PermissionController extends BaseController
     public function index(Request $request): \Symfony\Component\HttpFoundation\Response
     {
         $local_admins = $this->permissionService->getAdmins();
-        uasort($local_admins, function ($a, $b) {
-            return $a[0]->getNickname() < $b[0]->getNickname() ? -1 : 1;
-        });
+        uasort($local_admins, fn($a, $b) => $a[0]->getNickname() < $b[0]->getNickname() ? -1 : 1);
 
         if ($request->getRequestFormat() === 'json') {
             return $this->apiResponse(
@@ -63,7 +62,7 @@ class PermissionController extends BaseController
      */
     public function addPermission(Request $request): \Symfony\Component\HttpFoundation\Response
     {
-        $data = json_decode($request->getContent(), true);
+        $data = json_decode($request->getContent(), true, 512, JSON_THROW_ON_ERROR);
         if ($data === null) {
             throw new BadRequestHttpException('Invalid JSON');
         }
@@ -112,7 +111,7 @@ class PermissionController extends BaseController
             return $this->apiResponse([], false, 404);
         }
 
-        $data = json_decode($request->getContent(), true);
+        $data = json_decode($request->getContent(), true, 512, JSON_THROW_ON_ERROR);
         if ($data === null) {
             throw new BadRequestHttpException('Invalid JSON');
         }

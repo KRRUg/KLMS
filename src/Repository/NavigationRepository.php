@@ -47,7 +47,7 @@ class NavigationRepository extends ServiceEntityRepository
                 ->setParameter('name', $name)
                 ->getQuery()
                 ->getOneOrNullResult();
-        } catch (NonUniqueResultException $e) {
+        } catch (NonUniqueResultException) {
             // name is unique
             return null;
         }

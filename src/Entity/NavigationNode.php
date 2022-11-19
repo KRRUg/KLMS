@@ -23,7 +23,7 @@ use Doctrine\ORM\Mapping as ORM;
  *     "teamsite" = "NavigationNodeTeamsite",
  * })
  */
-abstract class NavigationNode
+abstract class NavigationNode implements \Stringable
 {
     public const NAV_NODE_TYPE_ROOT = 'root';
     public const NAV_NODE_TYPE_EMPTY = 'empty';
@@ -72,9 +72,9 @@ abstract class NavigationNode
         $this->name = '';
     }
 
-    public function __toString()
+    public function __toString(): string
     {
-        return $this->getName();
+        return (string) $this->getName();
     }
 
     public function getPath(): ?string
@@ -153,7 +153,7 @@ abstract class NavigationNode
 /**
  * @ORM\Entity()
  */
-class NavigationNodeRoot extends NavigationNode
+class NavigationNodeRoot extends NavigationNode implements \Stringable
 {
     public function __construct()
     {
@@ -161,7 +161,7 @@ class NavigationNodeRoot extends NavigationNode
         $this->setName('KLMS');
     }
 
-    public function __toString()
+    public function __toString(): string
     {
         return '';
     }
@@ -185,10 +185,8 @@ class NavigationNodeContent extends NavigationNode
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\Content", fetch="LAZY")
      * @ORM\JoinColumn(name="content_id", referencedColumnName="id")
-     *
-     * @var Content
      */
-    private $content;
+    private ?\App\Entity\Content $content;
 
     public function __construct(Content $content = null)
     {
@@ -250,10 +248,8 @@ class NavigationNodeGeneric extends NavigationNode
 {
     /**
      * @ORM\Column(type="string", length=50, nullable=false)
-     *
-     * @var string
      */
-    private $path;
+    private string $path;
 
     public function __construct(string $path = '/')
     {
@@ -292,10 +288,8 @@ class NavigationNodeTeamsite extends NavigationNode
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\Teamsite", fetch="LAZY")
      * @ORM\JoinColumn(name="teamsite_id", referencedColumnName="id")
-     *
-     * @var Teamsite
      */
-    private $teamsite;
+    private ?\App\Entity\Teamsite $teamsite;
 
     public function __construct(Teamsite $teamsite = null)
     {

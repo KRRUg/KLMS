@@ -10,7 +10,7 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class ContentType extends AbstractType
 {
-    private AuthorInsertSubscriber $userInsertSubscriber;
+    private readonly AuthorInsertSubscriber $userInsertSubscriber;
 
     public function __construct(AuthorInsertSubscriber $userInsertSubscriber)
     {

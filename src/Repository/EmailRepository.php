@@ -3,6 +3,7 @@
 namespace App\Repository;
 
 use App\Entity\Email;
+use App\Entity\EmailSendingItem;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -36,7 +37,7 @@ class EmailRepository extends ServiceEntityRepository
     {
         $qb = $this->_em->createQueryBuilder()
             ->select('si.success as val, count(si) as cnt')
-            ->from('App\Entity\EmailSendingItem', 'si')
+            ->from(EmailSendingItem::class, 'si')
             ->innerJoin('si.sending', 's')
             ->where('s.template = :t')
             ->groupBy('si.success')

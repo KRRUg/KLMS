@@ -22,8 +22,8 @@ class PaymentController extends AbstractController
 {
     private const CSRF_TOKEN_PAYMENT = 'paymentToken';
 
-    private GamerService $gamerService;
-    private IdmRepository $userRepo;
+    private readonly GamerService $gamerService;
+    private readonly IdmRepository $userRepo;
 
     public function __construct(GamerService $gamerService,
                                 IdmManager $manager)
@@ -70,7 +70,7 @@ class PaymentController extends AbstractController
                 try {
                     $this->gamerService->gamerRegister($user);
                     $this->addFlash('success', "User {$user->getNickname()} wurde zur Veranstaltung registriert.");
-                } catch (GamerLifecycleException $exception) {
+                } catch (GamerLifecycleException) {
                     $this->addFlash('error', "User {$user->getNickname()}  konnte nicht registriert werden.");
                 }
             }

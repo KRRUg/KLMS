@@ -13,8 +13,8 @@ use Vich\UploaderBundle\Handler\DownloadHandler;
  */
 class MediaController extends AbstractController
 {
-    private MediaRepository $mediaRepository;
-    private DownloadHandler $downloadHandler;
+    private readonly MediaRepository $mediaRepository;
+    private readonly DownloadHandler $downloadHandler;
 
     /**
      * MediaController constructor.

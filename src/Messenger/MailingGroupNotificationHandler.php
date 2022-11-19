@@ -18,12 +18,12 @@ use Symfony\Component\Messenger\MessageBusInterface;
 
 class MailingGroupNotificationHandler implements MessageHandlerInterface
 {
-    private EmailService $mailService;
-    private GroupService $groupService;
-    private ObjectRepository $sendingRepo;
-    private EntityManagerInterface $em;
-    private MessageBusInterface $bus;
-    private LoggerInterface $logger;
+    private readonly EmailService $mailService;
+    private readonly GroupService $groupService;
+    private readonly ObjectRepository $sendingRepo;
+    private readonly EntityManagerInterface $em;
+    private readonly MessageBusInterface $bus;
+    private readonly LoggerInterface $logger;
 
     public function __construct(EmailService $mailService,
                                 GroupService $groupService,

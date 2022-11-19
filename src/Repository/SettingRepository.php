@@ -28,7 +28,7 @@ class SettingRepository extends ServiceEntityRepository
                 ->setParameter('val', $key)
                 ->getQuery()
                 ->getOneOrNullResult();
-        } catch (NonUniqueResultException $e) {
+        } catch (NonUniqueResultException) {
             // this should not happen, as key is a unique index
             return null;
         }

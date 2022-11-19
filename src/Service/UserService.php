@@ -12,9 +12,9 @@ use Vich\UploaderBundle\Templating\Helper\UploaderHelper;
 
 class UserService
 {
-    private IdmRepository $userRepo;
-    private UserImageRepository $imageRepo;
-    private UploaderHelper $uploadHelper;
+    private readonly IdmRepository $userRepo;
+    private readonly UserImageRepository $imageRepo;
+    private readonly UploaderHelper $uploadHelper;
 
     public function __construct(UserImageRepository $imageRepo, UploaderHelper $uploadHelper, IdmManager $manager)
     {
@@ -43,13 +43,11 @@ class UserService
             'firstname' => $user->getFirstname(),
             'surname' => $user->getSurname(),
             'image' => $this->getUserImage($user),
-            'clans' => array_map(function ($clan) {
-                return [
-                    'uuid' => $clan->getUuid(),
-                    'name' => $clan->getName(),
-                    'clantag' => $clan->getClantag(),
-                ];
-            }, $user->getClans()->toArray()),
+            'clans' => array_map(fn($clan) => [
+                'uuid' => $clan->getUuid(),
+                'name' => $clan->getName(),
+                'clantag' => $clan->getClantag(),
+            ], $user->getClans()->toArray()),
         ];
     }
 

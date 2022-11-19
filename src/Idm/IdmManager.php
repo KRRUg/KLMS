@@ -41,11 +41,11 @@ use Symfony\Contracts\HttpClient\HttpClientInterface;
  */
 final class IdmManager
 {
-    private LoggerInterface $logger;
-    private HttpClientInterface $httpClient;
-    private IdmRepositoryFactory $repoFactory;
-    private Reader $annotationReader;
-    private Serializer $serializer;
+    private readonly LoggerInterface $logger;
+    private readonly HttpClientInterface $httpClient;
+    private readonly IdmRepositoryFactory $repoFactory;
+    private readonly Reader $annotationReader;
+    private readonly Serializer $serializer;
 
     /**
      * @var Entity[]
@@ -91,7 +91,7 @@ final class IdmManager
     {
         try {
             $reflectionClass = new ReflectionClass($objectOrClass);
-        } catch (ReflectionException $e) {
+        } catch (ReflectionException) {
             return false;
         }
         if (array_key_exists($reflectionClass->getName(), $this->config)) {
@@ -142,7 +142,7 @@ final class IdmManager
     {
         $this->throwOnNotManaged($objectOrClass);
 
-        $class = is_object($objectOrClass) ? get_class($objectOrClass) : $objectOrClass;
+        $class = is_object($objectOrClass) ? $objectOrClass::class : $objectOrClass;
 
         if (isset(self::$attribute_cache_reference[$class])) {
             return self::$attribute_cache_reference[$class];
@@ -155,7 +155,7 @@ final class IdmManager
     {
         $this->throwOnNotManaged($objectOrClass);
 
-        $class = is_object($objectOrClass) ? get_class($objectOrClass) : $objectOrClass;
+        $class = is_object($objectOrClass) ? $objectOrClass::class : $objectOrClass;
 
         if (isset(self::$attribute_cache_collection[$class])) {
             return self::$attribute_cache_collection[$class];
@@ -199,7 +199,7 @@ final class IdmManager
     private function createUrl($classOrObject, ?string $postfix = null): string
     {
         if (is_object($classOrObject)) {
-            $class = get_class($classOrObject);
+            $class = $classOrObject::class;
         } else {
             $class = $classOrObject;
         }
@@ -334,7 +334,7 @@ final class IdmManager
 
     private function mapAnnotation(object $object, Closure $closureReference, Closure $closureCollection)
     {
-        $class = get_class($object);
+        $class = $object::class;
         $reflection = $this->ref_cache[$class];
 
         foreach ($reflection->getProperties() as $property) {
@@ -360,15 +360,15 @@ final class IdmManager
             return false;
         }
 
-        $a = array_map(function ($i_a) { return $this->object2Id($i_a); }, $a);
-        $b = array_map(function ($i_b) { return $this->object2Id($i_b); }, $b);
+        $a = array_map(fn($i_a) => $this->object2Id($i_a), $a);
+        $b = array_map(fn($i_b) => $this->object2Id($i_b), $b);
 
         return empty(array_diff($a, $b));
     }
 
     public function compareObjects(object $a, object $b): bool
     {
-        if (get_class($a) != get_class($b)) {
+        if ($a::class != $b::class) {
             return false;
         }
 
@@ -428,12 +428,12 @@ final class IdmManager
 
     private function hydrateObject($result, &$objectOrClass)
     {
-        $class = is_object($objectOrClass) ? get_class($objectOrClass) : $objectOrClass;
+        $class = is_object($objectOrClass) ? $objectOrClass::class : $objectOrClass;
         $options = is_object($objectOrClass) ? [AbstractNormalizer::OBJECT_TO_POPULATE => &$objectOrClass] : [];
 
         $collectionFields = $this->getCollectionFields($class);
         $referenceFields = $this->getReferenceFields($class);
-        $options[ObjectNormalizer::IGNORED_ATTRIBUTES] = array_merge(array_keys($collectionFields), array_keys($referenceFields));
+        $options[ObjectNormalizer::IGNORED_ATTRIBUTES] = [...array_keys($collectionFields), ...array_keys($referenceFields)];
         $obj = $this->serializer->denormalize($result, $class, self::REST_FORMAT, $options);
 
         foreach ($referenceFields as $field => $ano) {
@@ -579,7 +579,7 @@ final class IdmManager
         }
 
         $this->mapAnnotation($object,
-            function ($class, $obj) {
+            function ($class, $obj): never {
                 throw new NotImplementedException('@Reference annotation is not implemented in IdmManager yet');
             },
             function ($class, $list) use ($object, $alreadyDone) {

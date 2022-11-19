@@ -11,7 +11,7 @@ use Symfony\Component\Security\Core\Security;
 
 class AuthorInsertSubscriber implements EventSubscriberInterface
 {
-    private Security $security;
+    private readonly Security $security;
 
     public function __construct(Security $security)
     {

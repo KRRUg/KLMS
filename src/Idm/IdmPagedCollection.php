@@ -9,20 +9,20 @@ use Iterator;
 
 class IdmPagedCollection implements ArrayAccess, Iterator, Countable
 {
-    private IdmManager $manager;
+    private readonly IdmManager $manager;
 
     /**
      * @var array|string
      */
     private $filter;
-    private array $sort;
-    private string $class;
+    private readonly array $sort;
+    private readonly string $class;
 
-    private bool $case;
-    private bool $fuzzy;
+    private readonly bool $case;
+    private readonly bool $fuzzy;
 
     private int $total;
-    private int $page_size;
+    private readonly int $page_size;
     private int $position;
 
     private array $items;
@@ -58,7 +58,7 @@ class IdmPagedCollection implements ArrayAccess, Iterator, Countable
         }
     }
 
-    public function getPage(int $page, int $limit)
+    public function getPage(int $page, int $limit): array
     {
         $result = [];
         for ($i = 0; $i < $limit; ++$i) {
@@ -81,7 +81,7 @@ class IdmPagedCollection implements ArrayAccess, Iterator, Countable
             $this->request($offset);
         }
 
-        return isset($this->items[$offset]) ? $this->items[$offset] : null;
+        return $this->items[$offset] ?? null;
     }
 
     public function offsetExists($offset): bool

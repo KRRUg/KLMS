@@ -22,9 +22,9 @@ class ClanController extends AbstractController
     private const CSRF_TOKEN_DELETE = 'clanDeleteToken';
     private const CSRF_TOKEN_MEMBER_EDIT = 'clanMemberAddToken';
 
-    private IdmManager $im;
-    private IdmRepository $clanRepo;
-    private IdmRepository $userRepo;
+    private readonly IdmManager $im;
+    private readonly IdmRepository $clanRepo;
+    private readonly IdmRepository $userRepo;
 
     public function __construct(IdmManager $manager)
     {
@@ -64,14 +64,10 @@ class ClanController extends AbstractController
 
                 return $this->redirectToRoute('admin_clan');
             } catch (PersistException $e) {
-                switch ($e->getCode()) {
-                    case PersistException::REASON_NON_UNIQUE:
-                        $this->addFlash('error', 'Clanname und/oder Tag ist schon in Verwendung');
-                        break;
-                    default:
-                        $this->addFlash('error', 'Es ist ein unerwarteter Fehler aufgetreten');
-                        break;
-                }
+                match ($e->getCode()) {
+                    PersistException::REASON_NON_UNIQUE => $this->addFlash('error', 'Clanname und/oder Tag ist schon in Verwendung'),
+                    default => $this->addFlash('error', 'Es ist ein unerwarteter Fehler aufgetreten'),
+                };
             }
         }
 
@@ -164,22 +160,13 @@ class ClanController extends AbstractController
             return $this->redirectToRoute('admin_clan_member', ['uuid' => $clan->getUuid()]);
         }
 
-        switch ($request->request->get('action')) {
-            case 'add':
-                $this->memberAdd($clan, $user);
-                break;
-            case 'kick':
-                $this->memberRemove($clan, $user);
-                break;
-            case 'promote':
-                $this->setUserAdmin($clan, $user, true);
-                break;
-            case 'demote':
-                $this->setUserAdmin($clan, $user, false);
-                break;
-            default:
-                throw $this->createNotFoundException('User supplied in POST not found or invalid');
-        }
+        match ($request->request->get('action')) {
+            'add' => $this->memberAdd($clan, $user),
+            'kick' => $this->memberRemove($clan, $user),
+            'promote' => $this->setUserAdmin($clan, $user, true),
+            'demote' => $this->setUserAdmin($clan, $user, false),
+            default => throw $this->createNotFoundException('User supplied in POST not found or invalid'),
+        };
 
         return $this->redirectToRoute('admin_clan_member', ['uuid' => $clan->getUuid()]);
     }
@@ -191,7 +178,7 @@ class ClanController extends AbstractController
             $this->im->persist($clan);
             $this->im->flush();
             $this->addFlash('info', "User {$user->getNickname()} erfolgreich zum Clan hinzugefügt!");
-        } catch (PersistException $e) {
+        } catch (PersistException) {
             $this->addFlash('error', 'Es ist ein unerwarteter Fehler aufgetreten');
         }
     }
@@ -203,7 +190,7 @@ class ClanController extends AbstractController
             $this->im->persist($clan);
             $this->im->flush();
             $this->addFlash('info', "User {$user->getNickname()} erfolgreich vom Clan entfernt!");
-        } catch (PersistException $e) {
+        } catch (PersistException) {
             $this->addFlash('error', 'Es ist ein unerwarteter Fehler aufgetreten');
         }
     }
@@ -218,7 +205,7 @@ class ClanController extends AbstractController
             }
             $this->im->flush();
             $this->addFlash('success', 'Userstatus erfolgreich geändert!');
-        } catch (PersistException $e) {
+        } catch (PersistException) {
             $this->addFlash('error', 'Es ist ein unerwarteter Fehler aufgetreten');
         }
     }
@@ -242,7 +229,7 @@ class ClanController extends AbstractController
             $this->im->remove($clan);
             $this->im->flush();
             $this->addFlash('info', 'Clan erfolgreich gelöscht!');
-        } catch (PersistException $e) {
+        } catch (PersistException) {
             $this->addFlash('error', 'Es ist ein unerwarteter Fehler aufgetreten');
         }
 

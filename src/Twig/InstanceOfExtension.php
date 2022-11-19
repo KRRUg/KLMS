@@ -15,7 +15,7 @@ class InstanceOfExtension extends AbstractExtension
     public function getTests()
     {
         return [
-            new TwigTest('instanceof', [$this, 'isInstanceOf']),
+            new TwigTest('instanceof', $this->isInstanceOf(...)),
         ];
     }
 
@@ -28,7 +28,7 @@ class InstanceOfExtension extends AbstractExtension
             $reflectionClass = new ReflectionClass($class);
 
             return $reflectionClass->isInstance($object);
-        } catch (ReflectionException $e) {
+        } catch (ReflectionException) {
             return false;
         }
     }

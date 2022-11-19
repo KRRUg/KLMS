@@ -4,7 +4,7 @@ namespace App\Service;
 
 abstract class OptimalService
 {
-    private SettingService $settings;
+    private readonly SettingService $settings;
 
     public function __construct(SettingService $settings)
     {

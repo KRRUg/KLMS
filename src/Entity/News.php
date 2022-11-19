@@ -51,17 +51,13 @@ class News implements HistoryAwareEntity
 
     /**
      * @Vich\UploadableField(mapping="news", fileNameProperty="image.name", size="image.size", mimeType="image.mimeType", originalName="image.originalName", dimensions="image.dimensions")
-     *
-     * @var File|null
      */
-    private $imageFile;
+    private ?\Symfony\Component\HttpFoundation\File\File $imageFile = null;
 
     /**
      * @ORM\Embedded(class="Vich\UploaderBundle\Entity\File")
-     *
-     * @var EmbeddedFile
      */
-    private $image;
+    private EmbeddedFile $image;
 
     public function __construct()
     {

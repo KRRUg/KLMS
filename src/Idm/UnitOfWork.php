@@ -12,8 +12,8 @@ use ReflectionClass;
 
 class UnitOfWork
 {
-    private IdmManager $manager;
-    private Reader $annotationReader;
+    private readonly IdmManager $manager;
+    private readonly Reader $annotationReader;
 
     /**
      * @var array spl_object_id => object
@@ -61,7 +61,7 @@ class UnitOfWork
             throw new UnsupportedClassException();
         }
 
-        $class = get_class($obj);
+        $class = $obj::class;
         $id = spl_object_id($obj);
 
         if ($existing) {
@@ -148,11 +148,11 @@ class UnitOfWork
         );
     }
 
-    public const STATE_DETACHED = 0;
-    public const STATE_MANAGED = 1;
-    public const STATE_CREATED = 2;
-    public const STATE_MODIFIED = 3;
-    public const STATE_DELETE = 4;
+    final public const STATE_DETACHED = 0;
+    final public const STATE_MANAGED = 1;
+    final public const STATE_CREATED = 2;
+    final public const STATE_MODIFIED = 3;
+    final public const STATE_DELETE = 4;
 
     public function getObjectState(object $object)
     {
@@ -201,7 +201,7 @@ class UnitOfWork
     {
         $clone = clone $obj;
         $this->mapAnnotation($clone,
-            function ($class, $obj) {
+            function ($class, $obj): never {
                 throw new NotImplementedException('@Reference annotation is not implemented in IdmManager yet');
             },
             function ($class, $list) {
@@ -228,7 +228,7 @@ class UnitOfWork
             return [];
         }
 
-        return $this->compareCollections($this->objects[$id], isset($this->orig[$id]) ? $this->orig[$id] : null);
+        return $this->compareCollections($this->objects[$id], $this->orig[$id] ?? null);
     }
 
     /**
@@ -253,8 +253,8 @@ class UnitOfWork
                 $v_b = is_null($reference) ? [] : $property->getValue($reference);
                 $v_a = ($v_a instanceof LazyLoaderCollection) ? $v_a->toArray(false) : $v_a;
                 $v_b = ($v_b instanceof LazyLoaderCollection) ? $v_b->toArray(false) : $v_b;
-                $v_a = array_map(function ($i_a) { return $this->manager->object2Id($i_a); }, $v_a);
-                $v_b = array_map(function ($i_b) { return $this->manager->object2Id($i_b); }, $v_b);
+                $v_a = array_map(fn($i_a) => $this->manager->object2Id($i_a), $v_a);
+                $v_b = array_map(fn($i_b) => $this->manager->object2Id($i_b), $v_b);
                 $result[$property->getName()] = [array_diff($v_a, $v_b), array_diff($v_b, $v_a)];
             }
         }

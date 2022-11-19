@@ -89,7 +89,7 @@ class NewsRepository extends ServiceEntityRepository
                 ->select('count(n.id)')
                 ->getQuery()
                 ->getSingleScalarResult();
-        } catch (NoResultException|NonUniqueResultException $e) {
+        } catch (NoResultException|NonUniqueResultException) {
             // should not happen
             $this->logger->emergency('News Count query returned something odd.');
 

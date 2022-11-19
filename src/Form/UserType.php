@@ -97,7 +97,7 @@ class UserType extends AbstractType
         }
 
         if ($options['disable_on_lock']) {
-            $builder->addEventListener(FormEvents::PRE_SET_DATA, [$this, 'onPreSetData']);
+            $builder->addEventListener(FormEvents::PRE_SET_DATA, $this->onPreSetData(...));
         } else {
             $builder
                 ->add('personalDataConfirmed', CheckboxType::class, [
@@ -105,7 +105,7 @@ class UserType extends AbstractType
                     'label' => 'Daten überprüft',
                     ])
             ;
-            $builder->addEventListener(FormEvents::POST_SUBMIT, [$this, 'onPostSubmit']);
+            $builder->addEventListener(FormEvents::POST_SUBMIT, $this->onPostSubmit(...));
         }
     }
 
@@ -127,7 +127,7 @@ class UserType extends AbstractType
             foreach (self::CONFIRMABLE_FIELDS as $field) {
                 $item = $form->get($field);
                 $options = $item->getConfig()->getOptions();
-                $type = get_class($item->getConfig()->getType()->getInnerType());
+                $type = $item->getConfig()->getType()->getInnerType()::class;
                 $options['disabled'] = true;
                 $form->add($field, $type, $options);
             }

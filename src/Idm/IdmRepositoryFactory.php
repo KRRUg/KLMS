@@ -4,7 +4,7 @@ namespace App\Idm;
 
 class IdmRepositoryFactory
 {
-    private $repositoryList = [];
+    private array $repositoryList = [];
 
     public function getRepository(IdmManager $manager, string $class)
     {

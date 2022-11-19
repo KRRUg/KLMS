@@ -9,7 +9,7 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class ContentSelectorType extends AbstractType
 {
-    private ContentRepository $contentRepository;
+    private readonly ContentRepository $contentRepository;
 
     public function __construct(ContentRepository $contentRepository)
     {

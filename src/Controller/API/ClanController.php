@@ -8,6 +8,7 @@ use App\Idm\IdmRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
@@ -15,7 +16,7 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class ClanController extends AbstractController
 {
-    private IdmRepository $clanRepo;
+    private readonly IdmRepository $clanRepo;
 
     public function __construct(IdmManager $manager)
     {
@@ -27,7 +28,7 @@ class ClanController extends AbstractController
      *
      * @return JsonResponse
      */
-    public function search(Request $request): \Symfony\Component\HttpFoundation\Response
+    public function search(Request $request): Response
     {
         $search = $request->query->get('q', '');
         $limit = $request->query->getInt('limit', 10);
@@ -37,17 +38,15 @@ class ClanController extends AbstractController
         $items = $lazyLoadingCollection->getPage($page, $limit);
 
         $result = [];
-        $result['count'] = count($items);
+        $result['count'] = is_countable($items) ? count($items) : 0;
         $result['total'] = $lazyLoadingCollection->count();
-        $result['items'] = array_map(function (Clan $clan) {
-            // TODO this is hacky, but required for front-end JS a.t.m.?
-            return [
-                'uuid' => $clan->getUuid(),
-                'name' => $clan->getName(),
-                'clantag' => $clan->getClantag(),
-            ];
-        }, $items);
+        // TODO this is hacky, but required for front-end JS a.t.m.?
+        $result['items'] = array_map(fn(Clan $clan) => [
+            'uuid' => $clan->getUuid(),
+            'name' => $clan->getName(),
+            'clantag' => $clan->getClantag(),
+        ], $items);
 
-        return new JsonResponse(json_encode($result), \Symfony\Component\HttpFoundation\Response::HTTP_OK, [], true);
+        return new JsonResponse(json_encode($result, JSON_THROW_ON_ERROR), Response::HTTP_OK, [], true);
     }
 }

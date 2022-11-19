@@ -12,8 +12,8 @@ use Twig\TwigTest;
 
 class GamerExtension extends AbstractExtension
 {
-    private GamerService $gamerService;
-    private SeatmapService $seatmapService;
+    private readonly GamerService $gamerService;
+    private readonly SeatmapService $seatmapService;
 
     public function __construct(GamerService $gamerService, SeatmapService $seatmapService)
     {
@@ -27,9 +27,9 @@ class GamerExtension extends AbstractExtension
     public function getTests()
     {
         return [
-            new TwigTest('registered_gamer', [$this, 'gamerIsRegistered']),
-            new TwigTest('paid_gamer', [$this, 'gamerIsPaid']),
-            new TwigTest('seated_gamer', [$this, 'gamerIsSeated']),
+            new TwigTest('registered_gamer', $this->gamerIsRegistered(...)),
+            new TwigTest('paid_gamer', $this->gamerIsPaid(...)),
+            new TwigTest('seated_gamer', $this->gamerIsSeated(...)),
         ];
     }
 
@@ -39,7 +39,7 @@ class GamerExtension extends AbstractExtension
     public function getFilters()
     {
         return [
-            new TwigFilter('seat', [$this, 'getSeat']),
+            new TwigFilter('seat', $this->getSeat(...)),
         ];
     }
 
@@ -61,7 +61,7 @@ class GamerExtension extends AbstractExtension
     public function getSeat(User $user): ?string
     {
         $seats = $this->seatmapService->getUserSeats($user);
-        $names = array_map(function (Seat $seat) { return $seat->generateSeatName(); }, $seats);
+        $names = array_map(fn(Seat $seat) => $seat->generateSeatName(), $seats);
 
         return implode(',', $names);
     }

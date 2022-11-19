@@ -42,15 +42,11 @@ class MediaController extends BaseController
 
     private function mediaByFilter(string $filter)
     {
-        switch ($filter) {
-            case 'image':
-                return $this->mediaService->getImages();
-            case 'document':
-            case 'doc':
-                return $this->mediaService->getDocuments();
-            default:
-                return $this->mediaService->getAll();
-        }
+        return match ($filter) {
+            'image' => $this->mediaService->getImages(),
+            'document', 'doc' => $this->mediaService->getDocuments(),
+            default => $this->mediaService->getAll(),
+        };
     }
 
     /**
@@ -81,9 +77,7 @@ class MediaController extends BaseController
         }
 
         if ($request->getRequestFormat() === 'json') {
-            $result = array_map(function (Media $m) {
-                return $this->image2json($m);
-            }, $media);
+            $result = array_map(fn(Media $m) => $this->image2json($m), $media);
 
             return $this->apiResponse($result);
         } else {

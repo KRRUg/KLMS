@@ -11,6 +11,7 @@ use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Core\Type\UrlType;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Vich\UploaderBundle\Form\Type\VichFileType;
 
@@ -20,7 +21,7 @@ use Vich\UploaderBundle\Form\Type\VichFileType;
  */
 class SettingController extends AbstractController
 {
-    private SettingService $service;
+    private readonly SettingService $service;
 
     public function __construct(SettingService $service)
     {
@@ -30,12 +31,12 @@ class SettingController extends AbstractController
     /**
      * @Route("/", name="", methods={"GET"})
      */
-    public function index(): \Symfony\Component\HttpFoundation\Response
+    public function index(): Response
     {
         $k = [];
         $k[''] = [];
         foreach (SettingService::getKeys() as $key) {
-            $array = explode('.', $key, 2);
+            $array = explode('.', (string) $key, 2);
             if (sizeof($array) == 1) {
                 $k[''][] = $array[0];
             } else {
@@ -55,7 +56,7 @@ class SettingController extends AbstractController
     /**
      * @Route("/edit", name="_edit", methods={"GET", "POST"})
      */
-    public function edit(Request $request): \Symfony\Component\HttpFoundation\Response
+    public function edit(Request $request): Response
     {
         $key = $request->get('key');
         if (!$this->service->validKey($key)) {

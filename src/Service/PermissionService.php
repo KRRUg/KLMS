@@ -41,10 +41,10 @@ final class PermissionService
         // extend here
     ];
 
-    private UserAdminsRepository $repo;
-    private EntityManagerInterface $em;
-    private IdmRepository $userRepo;
-    private Security $security;
+    private readonly UserAdminsRepository $repo;
+    private readonly EntityManagerInterface $em;
+    private readonly IdmRepository $userRepo;
+    private readonly Security $security;
 
     public function __construct(
         Security $security,
@@ -185,8 +185,8 @@ final class PermissionService
     public function getAdmins(): array
     {
         $admins = $this->repo->findAll();
-        $admins = array_filter($admins, function (UserAdmin $a) { return !empty($a->getPermissions()); });
-        $ids = array_map(function (UserAdmin $a) { return $a->getUuid()->toString(); }, $admins);
+        $admins = array_filter($admins, fn(UserAdmin $a) => !empty($a->getPermissions()));
+        $ids = array_map(fn(UserAdmin $a) => $a->getUuid()->toString(), $admins);
         $admins = array_combine($ids, $admins);
         $users = $this->userRepo->findById($ids);
 

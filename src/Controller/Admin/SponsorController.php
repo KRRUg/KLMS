@@ -9,6 +9,7 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -21,7 +22,7 @@ class SponsorController extends AbstractController
     private const CSRF_TOKEN_DELETE = 'sponsorDeleteToken';
     private const CSRF_TOKEN_ACTIVATE = 'sponsorActivateToken';
 
-    private SponsorService $sponsorService;
+    private readonly SponsorService $sponsorService;
 
     public function __construct(SponsorService $service)
     {
@@ -31,7 +32,7 @@ class SponsorController extends AbstractController
     /**
      * @Route("/", name="", methods={"GET"})
      */
-    public function index(): \Symfony\Component\HttpFoundation\Response
+    public function index(): Response
     {
         $sponsors = $this->sponsorService->getAll();
 
@@ -44,7 +45,7 @@ class SponsorController extends AbstractController
     /**
      * @Route("/new", name="_new")
      */
-    public function new(Request $request): \Symfony\Component\HttpFoundation\Response
+    public function new(Request $request): Response
     {
         if (!$this->sponsorService->active()) {
             throw $this->createNotFoundException();
@@ -73,7 +74,7 @@ class SponsorController extends AbstractController
     /**
      * @Route("/categories", name="_categories")
      */
-    public function category_edit(Request $request): \Symfony\Component\HttpFoundation\Response
+    public function category_edit(Request $request): Response
     {
         if (!$this->sponsorService->active()) {
             throw $this->createNotFoundException();
@@ -83,14 +84,14 @@ class SponsorController extends AbstractController
         $form = $this->createFormBuilder()
             ->add('categories', HiddenType::class, [
                 'required' => true,
-                'data' => json_encode($array),
+                'data' => json_encode($array, JSON_THROW_ON_ERROR),
                 'constraints' => [new Assert\Json()],
             ])
             ->getForm();
 
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
-            $array = json_decode($form->getData()['categories'], true);
+            $array = json_decode((string) $form->getData()['categories'], true, 512, JSON_THROW_ON_ERROR);
             $success = $this->sponsorService->parseCategories($array);
             if ($success) {
                 $this->addFlash('success', 'Sponsor-Kategorien erfolgreich geändert');
@@ -109,7 +110,7 @@ class SponsorController extends AbstractController
     /**
      * @Route("/delete/{id}", name="_delete")
      */
-    public function delete(Request $request, Sponsor $news): \Symfony\Component\HttpFoundation\Response
+    public function delete(Request $request, Sponsor $news): Response
     {
         if (!$this->sponsorService->active()) {
             throw $this->createNotFoundException();
@@ -129,7 +130,7 @@ class SponsorController extends AbstractController
     /**
      * @Route("/edit/{id}", name="_edit")
      */
-    public function edit(Request $request, Sponsor $sponsor): \Symfony\Component\HttpFoundation\Response
+    public function edit(Request $request, Sponsor $sponsor): Response
     {
         if (!$this->sponsorService->active()) {
             throw $this->createNotFoundException();
@@ -153,7 +154,7 @@ class SponsorController extends AbstractController
     /**
      * @Route("/activate", name="_activate")
      */
-    public function activate(Request $request): \Symfony\Component\HttpFoundation\Response
+    public function activate(Request $request): Response
     {
         $token = $request->request->get('_token');
         if (!$this->isCsrfTokenValid(self::CSRF_TOKEN_ACTIVATE, $token)) {

@@ -14,9 +14,9 @@ use Symfony\Component\Security\Core\User\UserProviderInterface;
 
 class UserProvider implements UserProviderInterface
 {
-    private IdmRepository $userRepo;
-    private PermissionService $permissionService;
-    private GamerService $gamerService;
+    private readonly IdmRepository $userRepo;
+    private readonly PermissionService $permissionService;
+    private readonly GamerService $gamerService;
 
     public function __construct(
         IdmManager $manager,
@@ -32,7 +32,7 @@ class UserProvider implements UserProviderInterface
     {
         $perm = $this->permissionService->handleLogin($user->getUser());
         if (!empty($perm)) {
-            $roles = array_map(function (string $p) { return 'ROLE_'.$p; }, $perm);
+            $roles = array_map(fn(string $p) => 'ROLE_'.$p, $perm);
             array_push($roles, 'ROLE_ADMIN');
             $user->addRoles($roles);
         }
@@ -96,7 +96,7 @@ class UserProvider implements UserProviderInterface
     public function refreshUser(UserInterface $user)
     {
         if (!($user instanceof LoginUser || is_null($user))) {
-            throw new UnsupportedUserException(sprintf('Invalid user class "%s".', get_class($user)));
+            throw new UnsupportedUserException(sprintf('Invalid user class "%s".', $user::class));
         }
 
         $lu = new LoginUser($this->userRepo->findOneById($user->getUser()->getUuid()));

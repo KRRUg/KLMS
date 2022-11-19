@@ -17,7 +17,7 @@ use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
  */
 class SecurityController extends AbstractController
 {
-    private UrlGeneratorInterface $urlGenerator;
+    private readonly UrlGeneratorInterface $urlGenerator;
 
     public function __construct(UrlGeneratorInterface $urlGenerator)
     {
@@ -71,8 +71,9 @@ class SecurityController extends AbstractController
 
     /**
      * @Route("/logout", name="app_logout")
+     * @throws Exception
      */
-    public function logout(): Response
+    public function logout(): never
     {
         throw new Exception('This method can be blank - it will be intercepted by the logout key on your firewall');
     }

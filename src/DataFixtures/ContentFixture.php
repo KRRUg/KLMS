@@ -22,6 +22,7 @@ class ContentFixture extends Fixture
 {
     private function createContent(ObjectManager $manager): array
     {
+        $content = [];
         // Generate Content
         $content[0] = new Content();
         $content[0]->setTitle('Lan is');

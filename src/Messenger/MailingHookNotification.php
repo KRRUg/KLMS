@@ -6,9 +6,9 @@ use App\Helper\EmailRecipient;
 
 class MailingHookNotification
 {
-    private string $hook;
-    private EmailRecipient $recipient;
-    private array $context;
+    private readonly string $hook;
+    private readonly EmailRecipient $recipient;
+    private readonly array $context;
 
     public function __construct(string $hook, EmailRecipient $recipient, array $context = [])
     {

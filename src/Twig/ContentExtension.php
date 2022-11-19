@@ -11,8 +11,8 @@ use Twig\TwigTest;
 
 class ContentExtension extends AbstractExtension
 {
-    private ContentRepository $repo;
-    private UrlGeneratorInterface $urlGenerator;
+    private readonly ContentRepository $repo;
+    private readonly UrlGeneratorInterface $urlGenerator;
 
     public function __construct(ContentRepository $repo, UrlGeneratorInterface $urlGenerator)
     {
@@ -23,21 +23,21 @@ class ContentExtension extends AbstractExtension
     public function getTests()
     {
         return [
-            new TwigTest('slug', [$this, 'slugExists']),
+            new TwigTest('slug', $this->slugExists(...)),
         ];
     }
 
     public function getFunctions()
     {
         return [
-            new TwigFunction('slug_url', [$this, 'slugUrl']),
+            new TwigFunction('slug_url', $this->slugUrl(...)),
         ];
     }
 
     public function getFilters()
     {
         return [
-            new TwigFilter('slug_link', [$this, 'slugLink'], ['is_safe' => ['html']]),
+            new TwigFilter('slug_link', $this->slugLink(...), ['is_safe' => ['html']]),
         ];
     }
 
@@ -55,7 +55,7 @@ class ContentExtension extends AbstractExtension
             return $title ?? '';
         }
         $link = $this->urlGenerator->generate('content_slug', ['slug' => $content->getAlias()]);
-        $title = $title ?? $content->getTitle();
+        $title ??= $content->getTitle();
 
         return "<a href=\"{$link}\">{$title}</a>";
     }

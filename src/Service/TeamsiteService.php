@@ -14,11 +14,11 @@ use Doctrine\ORM\EntityManagerInterface;
 
 class TeamsiteService
 {
-    private EntityManagerInterface $em;
-    private TeamsiteRepository $repo;
-    private TeamsiteEntryRepository $entry;
-    private IdmRepository $userRepo;
-    private UserService $userService;
+    private readonly EntityManagerInterface $em;
+    private readonly TeamsiteRepository $repo;
+    private readonly TeamsiteEntryRepository $entry;
+    private readonly IdmRepository $userRepo;
+    private readonly UserService $userService;
 
     public function __construct(
         EntityManagerInterface $em,
@@ -69,7 +69,7 @@ class TeamsiteService
             }
         }
         $users = $this->userRepo->findById($uuids);
-        $ids = array_map(function (User $user) { return $user->getUuid(); }, $users);
+        $ids = array_map(fn(User $user) => $user->getUuid(), $users);
 
         return array_combine($ids, $users);
     }

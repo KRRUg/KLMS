@@ -13,7 +13,7 @@ use Wa72\Url\Url;
 
 class HtmlHandlingSubscriber implements EventSubscriberInterface
 {
-    private Url $serverUrl;
+    private readonly Url $serverUrl;
 
     public function __construct(UrlGeneratorInterface $router)
     {
@@ -47,7 +47,7 @@ class HtmlHandlingSubscriber implements EventSubscriberInterface
                 mb_convert_encoding($html, 'HTML-ENTITIES', 'UTF-8'),
                 LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD
             );
-        } catch (ErrorException $exception) {
+        } catch (ErrorException) {
             // TODO handle if html is not valid
             $doc->loadHTML('<p></p>');
         }

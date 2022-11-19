@@ -15,7 +15,7 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class EmailType extends AbstractType
 {
-    private AuthorInsertSubscriber $userInsertSubscriber;
+    private readonly AuthorInsertSubscriber $userInsertSubscriber;
 
     public function __construct(AuthorInsertSubscriber $userInsertSubscriber)
     {
@@ -32,7 +32,7 @@ class EmailType extends AbstractType
                 'placeholder' => '',
                 'required' => false,
                 'choices' => GroupService::getGroups(),
-                'choice_value' => function (?UuidInterface $uuid) { return is_null($uuid) ? null : $uuid->toString(); },
+                'choice_value' => fn(?UuidInterface $uuid) => is_null($uuid) ? null : $uuid->toString(),
             ])
             ->add('body', HtmlTextareaType::class, [
                 'label' => 'Inhalt',

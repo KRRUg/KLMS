@@ -12,10 +12,10 @@ use Psr\Log\LoggerInterface;
 
 class SponsorService extends OptimalService
 {
-    private SponsorRepository $sponsorRepository;
-    private SponsorCategoryRepository $categoryRepository;
-    private EntityManagerInterface $em;
-    private LoggerInterface $logger;
+    private readonly SponsorRepository $sponsorRepository;
+    private readonly SponsorCategoryRepository $categoryRepository;
+    private readonly EntityManagerInterface $em;
+    private readonly LoggerInterface $logger;
 
     /**
      * SponsorService constructor.
@@ -82,7 +82,7 @@ class SponsorService extends OptimalService
     public function getCategories()
     {
         $categories = $this->categoryRepository->findAll();
-        usort($categories, function ($a, $b) { return $a->getPriority() - $b->getPriority(); });
+        usort($categories, fn($a, $b) => $a->getPriority() - $b->getPriority());
 
         return $categories;
     }
@@ -101,7 +101,7 @@ class SponsorService extends OptimalService
         $this->em->beginTransaction();
         $ids = [];
         $categories = $this->categoryRepository->findAll();
-        $categories = array_combine(array_map(function ($c) {return $c->getId(); }, $categories), $categories);
+        $categories = array_combine(array_map(fn($c) => $c->getId(), $categories), $categories);
 
         // add new categories and update existing
         foreach ($input as $index => $a) {
@@ -127,7 +127,7 @@ class SponsorService extends OptimalService
         try {
             $this->em->flush();
             $this->em->commit();
-        } catch (Exception $exception) {
+        } catch (Exception) {
             $this->em->rollback();
 
             return false;

@@ -16,8 +16,8 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class SeatmapController extends AbstractController
 {
-    private SeatmapService $seatmapService;
-    private SettingService $settingService;
+    private readonly SeatmapService $seatmapService;
+    private readonly SettingService $settingService;
 
     public function __construct(
         SettingService $settingService,
@@ -96,7 +96,7 @@ class SeatmapController extends AbstractController
                                     $this->addFlash('success', "Sitzplatz {$seat->generateSeatName()} erfolgreich freigegeben.");
                                     break;
                             }
-                        } catch (GamerLifecycleException $exception) {
+                        } catch (GamerLifecycleException) {
                             $this->addFlash('error', 'Aktion konnte nicht durchgeführt werden!');
                         }
                     }

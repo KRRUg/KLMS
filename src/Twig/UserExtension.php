@@ -14,8 +14,8 @@ use Twig\TwigTest;
 
 class UserExtension extends AbstractExtension
 {
-    private IdmRepository $userRepo;
-    private UserService $userService;
+    private readonly IdmRepository $userRepo;
+    private readonly UserService $userService;
 
     public function __construct(IdmManager $manager, UserService $userService)
     {
@@ -29,7 +29,7 @@ class UserExtension extends AbstractExtension
     public function getTests()
     {
         return [
-            new TwigTest('valid_user', [$this, 'validUser']),
+            new TwigTest('valid_user', $this->validUser(...)),
         ];
     }
 
@@ -39,10 +39,10 @@ class UserExtension extends AbstractExtension
     public function getFilters()
     {
         return [
-            new TwigFilter('user', [$this, 'getUser']),
-            new TwigFilter('username', [$this, 'getUserName']),
-            new TwigFilter('user_image', [$this, 'getUserImage']),
-            new TwigFilter('groupname', [$this, 'getGroupname']),
+            new TwigFilter('user', $this->getUser(...)),
+            new TwigFilter('username', $this->getUserName(...)),
+            new TwigFilter('user_image', $this->getUserImage(...)),
+            new TwigFilter('groupname', $this->getGroupname(...)),
         ];
     }
 

@@ -15,7 +15,7 @@ class AgeFilterExtension extends AbstractExtension
     public function getFilters()
     {
         return [
-            new TwigFilter('age', [$this, 'filterAge']),
+            new TwigFilter('age', $this->filterAge(...)),
         ];
     }
 

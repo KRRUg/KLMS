@@ -15,8 +15,8 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class TeamsiteController extends BaseController
 {
-    private LoggerInterface $logger;
-    private TeamsiteService $teamsiteService;
+    private readonly LoggerInterface $logger;
+    private readonly TeamsiteService $teamsiteService;
 
     public function __construct(TeamsiteService $teamsiteService, LoggerInterface $logger)
     {
@@ -44,11 +44,11 @@ class TeamsiteController extends BaseController
         $array = $this->teamsiteService->renderSite($teamsite);
 
         $form = $this->createForm(TeamsiteType::class, $teamsite);
-        $form->get('content')->setData(json_encode($array));
+        $form->get('content')->setData(json_encode($array, JSON_THROW_ON_ERROR));
 
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
-            $array = json_decode($form->get('content')->getData(), true);
+            $array = json_decode((string) $form->get('content')->getData(), true, 512, JSON_THROW_ON_ERROR);
             $success = $this->teamsiteService->parseSite($teamsite, $array);
             if ($success) {
                 $this->addFlash('success', 'Teamsite erfolgreich gespeichert.');
@@ -77,7 +77,7 @@ class TeamsiteController extends BaseController
 
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
-            $array = json_decode($form->get('content')->getData(), true);
+            $array = json_decode((string) $form->get('content')->getData(), true, 512, JSON_THROW_ON_ERROR);
             $success = $this->teamsiteService->parseSite($teamsite, $array);
             if ($success) {
                 $this->addFlash('success', 'Teamsite erfolgreich angelegt.');

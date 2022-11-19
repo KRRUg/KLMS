@@ -10,7 +10,7 @@ use Symfony\Component\HttpFoundation\Request;
 
 class ContentParamConverter implements ParamConverterInterface
 {
-    private ContentRepository $contentRepository;
+    private readonly ContentRepository $contentRepository;
 
     public function __construct(ContentRepository $contentRepository)
     {

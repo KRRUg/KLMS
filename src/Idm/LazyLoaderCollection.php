@@ -10,8 +10,8 @@ use Iterator;
 
 class LazyLoaderCollection implements ArrayAccess, Iterator, Countable
 {
-    private IdmManager $manager;
-    private string $class;
+    private readonly IdmManager $manager;
+    private readonly string $class;
 
     private array $items;
     private bool $loaded;
@@ -47,7 +47,7 @@ class LazyLoaderCollection implements ArrayAccess, Iterator, Countable
         $result->loaded = true;
 
         foreach ($objects as $object) {
-            if (get_class($object) === $class) {
+            if ($object::class === $class) {
                 $result->items[] = $object;
             }
         }
@@ -62,9 +62,7 @@ class LazyLoaderCollection implements ArrayAccess, Iterator, Countable
 
     private function load()
     {
-        $this->items = array_map(function (UuidObject $object) {
-            return $this->manager->request($this->class, $object->getUuid());
-        }, $this->items);
+        $this->items = array_map(fn(UuidObject $object) => $this->manager->request($this->class, $object->getUuid()), $this->items);
         $this->loaded = true;
     }
 
@@ -101,9 +99,7 @@ class LazyLoaderCollection implements ArrayAccess, Iterator, Countable
 
     public function toUuidArray(): array
     {
-        return array_map(function ($item) {
-            return $this->loaded ? UuidObject::fromObject($item) : $item;
-        }, $this->items);
+        return array_map(fn($item) => $this->loaded ? UuidObject::fromObject($item) : $item, $this->items);
     }
 
     public function offsetExists($offset): bool

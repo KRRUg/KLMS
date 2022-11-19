@@ -20,7 +20,7 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class NavigationNodeType extends AbstractType
 {
-    private EntityManagerInterface $em;
+    private readonly EntityManagerInterface $em;
 
     public function __construct(EntityManagerInterface $em)
     {
@@ -38,25 +38,17 @@ class NavigationNodeType extends AbstractType
             if ($entry instanceof NavigationNodeContent) {
                 $form->add('content', ChoiceType::class, [
                     'choices' => $this->em->getRepository(Content::class)->findAll(),
-                    'choice_label' => function (?Content $content) {
-                        return $content ? "{$content->getTitle()} ({$content->getId()})" : '';
-                    },
-                    'choice_value' => function (?Content $content) {
-                        return $content ? "/content/{$content->getId()}" : '';
-                    },
+                    'choice_label' => fn(?Content $content) => $content ? "{$content->getTitle()} ({$content->getId()})" : '',
+                    'choice_value' => fn(?Content $content) => $content ? "/content/{$content->getId()}" : '',
                     'multiple' => false,
                     'expanded' => false,
                 ]);
             } elseif ($entry instanceof NavigationNodeTeamsite) {
-                $repo = $this->em->getRepository(get_class($entry));
+                $repo = $this->em->getRepository($entry::class);
                 $form->add('teamsite', ChoiceType::class, [
                     'choices' => $this->em->getRepository(Teamsite::class)->findAll(),
-                    'choice_label' => function (?Teamsite $teamsite) {
-                        return $teamsite ? "{$teamsite->getTitle()} ({$teamsite->getId()})" : '';
-                    },
-                    'choice_value' => function (?Teamsite $teamsite) {
-                        return $teamsite ? "/teamsite/{$teamsite->getId()}" : '';
-                    },
+                    'choice_label' => fn(?Teamsite $teamsite) => $teamsite ? "{$teamsite->getTitle()} ({$teamsite->getId()})" : '',
+                    'choice_value' => fn(?Teamsite $teamsite) => $teamsite ? "/teamsite/{$teamsite->getId()}" : '',
                     'multiple' => false,
                     'expanded' => false,
                 ]);

@@ -17,21 +17,21 @@ use Doctrine\ORM\EntityManagerInterface;
 
 class NavigationService
 {
-    private EntityManagerInterface $em;
-    private NavigationRepository $navRepo;
-    private NavigationNodeRepository $nodeRepo;
+    private readonly EntityManagerInterface $em;
+    private readonly NavigationRepository $navRepo;
+    private readonly NavigationNodeRepository $nodeRepo;
 
-    public const URL_REGEX = '(^(?:http(s)?:\/\/)?[\w.-]+(?:\.[\w\.-]+)+[\w\-\._~:\/?#[\]@!\$&\'\(\)\*\+,;=.]+$|^(\/[\w\-\._~:\/?#[\]@!\$&\'\(\)\*\+,;=.]*)+$)';
+    final public const URL_REGEX = '(^(?:http(s)?:\/\/)?[\w.-]+(?:\.[\w\.-]+)+[\w\-\._~:\/?#[\]@!\$&\'\(\)\*\+,;=.]+$|^(\/[\w\-\._~:\/?#[\]@!\$&\'\(\)\*\+,;=.]*)+$)';
 
-    public const NAV_LOCATION_MAIN = 'main_menu';
-    public const NAV_LOCATION_FOOTER = 'footer';
+    final public const NAV_LOCATION_MAIN = 'main_menu';
+    final public const NAV_LOCATION_FOOTER = 'footer';
 
-    public const NAV_LOCATION_KEYS = [
+    final public const NAV_LOCATION_KEYS = [
         self::NAV_LOCATION_MAIN,
         self::NAV_LOCATION_FOOTER,
     ];
 
-    public const NAV_LOCATION_DEPTHS = [
+    final public const NAV_LOCATION_DEPTHS = [
         self::NAV_LOCATION_MAIN => 2,
         self::NAV_LOCATION_FOOTER => 1,
     ];
@@ -188,7 +188,7 @@ class NavigationService
     public function getAll()
     {
         $navs = $this->navRepo->findByNames(self::NAV_LOCATION_KEYS);
-        $names = array_map(function ($nav) { return $nav->getName(); }, $navs);
+        $names = array_map(fn($nav) => $nav->getName(), $navs);
         foreach (self::NAV_LOCATION_KEYS as $key) {
             if (!in_array($key, $names)) {
                 $navs[] = $this->createNav(
@@ -196,7 +196,7 @@ class NavigationService
                     array_key_exists($key, self::NAV_LOCATION_DEPTHS) ? self::NAV_LOCATION_DEPTHS[$key] : null);
             }
         }
-        usort($navs, function (Navigation $a, Navigation $b) { return strcmp($a->getName(), $b->getName()); });
+        usort($navs, fn(Navigation $a, Navigation $b) => strcmp($a->getName(), $b->getName()));
 
         return $navs;
     }

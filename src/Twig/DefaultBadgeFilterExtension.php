@@ -15,7 +15,7 @@ class DefaultBadgeFilterExtension extends AbstractExtension
     public function getFilters()
     {
         return [
-            new TwigFilter('defaultBadge', [$this, 'filterDefaultBadge']),
+            new TwigFilter('defaultBadge', $this->filterDefaultBadge(...)),
         ];
     }
 

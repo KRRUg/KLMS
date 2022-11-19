@@ -15,8 +15,8 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class NewsController extends AbstractController
 {
-    private NewsService $newsService;
-    private UserService $userService;
+    private readonly NewsService $newsService;
+    private readonly UserService $userService;
 
     private const PRELOAD_NEWS_CNT = 6;
 
@@ -38,7 +38,7 @@ class NewsController extends AbstractController
         $cnt = max($cnt, NewsController::PRELOAD_NEWS_CNT);
         $news = $this->newsService->get(0, $cnt);
         $total = $this->newsService->count();
-        $this->userService->preloadUsers(array_map(function (News $news) { return $news->getAuthorId(); }, $news));
+        $this->userService->preloadUsers(array_map(fn(News $news) => $news->getAuthorId(), $news));
 
         return $this->render('site/news/index.html.twig', [
             'news' => $news,

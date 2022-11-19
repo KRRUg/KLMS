@@ -22,12 +22,12 @@ class TeamsiteEntry
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
      */
-    private ?int $id;
+    private ?int $id = null;
 
     /**
      * @ORM\Column(type="uuid")
      */
-    private ?UuidInterface $userUuid;
+    private ?UuidInterface $userUuid = null;
 
     /**
      * @ORM\Column(type="string", length=255)
@@ -48,7 +48,7 @@ class TeamsiteEntry
      * @ORM\ManyToOne(targetEntity=TeamsiteCategory::class, inversedBy="entries")
      * @ORM\JoinColumn(name="category_id", nullable=false)
      */
-    private ?TeamsiteCategory $category;
+    private ?TeamsiteCategory $category = null;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)

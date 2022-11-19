@@ -31,7 +31,7 @@ class EmailSendingItem
     /**
      * @ORM\Column(type="integer")
      */
-    private $tries = 0;
+    private int $tries = 0;
 
     public function getGuid(): ?UuidInterface
     {

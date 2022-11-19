@@ -9,9 +9,9 @@ use ReflectionClass;
 
 class IdmRepository
 {
-    private IdmManager $manager;
-    private string $class;
-    private ReflectionClass $reflection;
+    private readonly IdmManager $manager;
+    private readonly string $class;
+    private readonly ReflectionClass $reflection;
 
     public function __construct(IdmManager $manager, string $class)
     {
@@ -39,10 +39,8 @@ class IdmRepository
     {
         try {
             return $this->manager->bulk($this->class, $ids);
-        } catch (UnsupportedClassException $exception) {
-            return array_map(function ($id) {
-                return $this->findOneById($id);
-            }, $ids);
+        } catch (UnsupportedClassException) {
+            return array_map(fn($id) => $this->findOneById($id), $ids);
         }
     }
 

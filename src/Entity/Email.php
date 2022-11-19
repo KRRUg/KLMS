@@ -38,7 +38,7 @@ class Email implements HistoryAwareEntity
     /**
      * @ORM\Column(type="text", nullable=false)
      */
-    private $body = '';
+    private string $body = '';
 
     /**
      * @ORM\Column(type="string", length=255)

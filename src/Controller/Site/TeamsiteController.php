@@ -9,7 +9,7 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class TeamsiteController extends AbstractController
 {
-    private TeamsiteService $service;
+    private readonly TeamsiteService $service;
 
     public function __construct(TeamsiteService $service)
     {

@@ -20,10 +20,10 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class LanSignupController extends AbstractController
 {
-    private GamerService $gamerService;
-    private SettingService $settingService;
-    private EmailService $emailService;
-    private LoggerInterface $logger;
+    private readonly GamerService $gamerService;
+    private readonly SettingService $settingService;
+    private readonly EmailService $emailService;
+    private readonly LoggerInterface $logger;
 
     /**
      * LanSignupController constructor.
@@ -82,7 +82,7 @@ class LanSignupController extends AbstractController
                     );
 
                     return $this->redirectToRoute('index');
-                } catch (GamerLifecycleException $gamerLifecycleException) {
+                } catch (GamerLifecycleException) {
                     $this->addFlash('error', 'Anmeldung ist fehlgeschlagen!');
                     $this->logger->error('Gamerregistrierung ist fehlgeschlagen.');
                 }

@@ -24,13 +24,13 @@ use Symfony\Component\Security\Guard\GuardAuthenticatorHandler;
 
 class AccountController extends AbstractController
 {
-    public const TOKEN_PW_RESET_STRING = 'pw_reset';
-    public const TOKEN_MAIL_CONFIRM_STRING = 'confirm_email';
+    final public const TOKEN_PW_RESET_STRING = 'pw_reset';
+    final public const TOKEN_MAIL_CONFIRM_STRING = 'confirm_email';
 
-    private IdmManager $manager;
-    private IdmRepository $userRepo;
-    private EmailService $emailService;
-    private TokenService $tokenService;
+    private readonly IdmManager $manager;
+    private readonly IdmRepository $userRepo;
+    private readonly EmailService $emailService;
+    private readonly TokenService $tokenService;
 
     public function __construct(IdmManager $manager, EmailService $emailService, TokenService $tokenService)
     {
@@ -65,7 +65,7 @@ class AccountController extends AbstractController
                         EmailRecipient::fromUser($user),
                         ['token' => $token, 'user' => $user->getUuid()->toString()]
                     );
-                } catch (TokenException $e) {
+                } catch (TokenException) {
                     // don't show an error here to avoid user enumeration attacks
                     // $this->addFlash('error', 'Zu viele Versuche. Bitte warten.');
                 }
@@ -105,7 +105,7 @@ class AccountController extends AbstractController
             $this->clearToken($request);
             try {
                 $this->manager->flush();
-            } catch (PersistException $e) {
+            } catch (PersistException) {
                 $this->addFlash('error', 'Passwort konnte nicht gesetzt werden.');
             }
 
@@ -135,7 +135,7 @@ class AccountController extends AbstractController
         $uuid = Uuid::fromString($uuid);
         try {
             $this->tokenService->validateToken($uuid, $method, $token);
-        } catch (TokenException $te) {
+        } catch (TokenException) {
             $this->addFlash('error', 'Token ist abgelaufen oder ungültig.');
 
             return null;
@@ -192,7 +192,7 @@ class AccountController extends AbstractController
     {
         try {
             $token = $this->tokenService->generateToken($user->getUuid(), self::TOKEN_MAIL_CONFIRM_STRING);
-        } catch (TokenException $e) {
+        } catch (TokenException) {
             // don't show an error here to avoid user enumeration attacks
             // $this->addFlash('error', 'Zu viele Versuche. Bitte warten.');
             return;
@@ -228,14 +228,10 @@ class AccountController extends AbstractController
 
                 return $this->redirectToRoute('app_login');
             } catch (PersistException $e) {
-                switch ($e->getCode()) {
-                    case PersistException::REASON_NON_UNIQUE:
-                        $this->addFlash('error', 'Nickname und/oder E-Mail Adresse schon vergeben');
-                        break;
-                    default:
-                        $this->addFlash('error', 'Es ist ein unerwarteter Fehler aufgetreten');
-                        break;
-                }
+                match ($e->getCode()) {
+                    PersistException::REASON_NON_UNIQUE => $this->addFlash('error', 'Nickname und/oder E-Mail Adresse schon vergeben'),
+                    default => $this->addFlash('error', 'Es ist ein unerwarteter Fehler aufgetreten'),
+                };
             }
         }
 

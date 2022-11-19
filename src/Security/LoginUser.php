@@ -7,7 +7,7 @@ use Symfony\Component\Security\Core\User\UserInterface;
 
 class LoginUser implements UserInterface
 {
-    private User $user;
+    private readonly User $user;
 
     /**
      * @var string[]

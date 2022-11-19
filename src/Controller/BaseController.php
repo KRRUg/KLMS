@@ -16,20 +16,14 @@ abstract class BaseController extends AbstractController
         return in_array('application/json', $request->getAcceptableContentTypes());
     }
 
-    /**
-     * @param mixed $data       Usually an object you want to serialize
-     * @param int   $statusCode
-     *
-     * @return JsonResponse
-     */
-    protected function apiResponse($data = null, bool $wrap = false, $statusCode = 200)
+    protected function apiResponse(mixed $data = null, bool $wrap = false, int $statusCode = 200): JsonResponse
     {
         if (empty($data)) {
             return new JsonResponse(null, $statusCode);
         }
 
         if ($wrap) {
-            $count = count($data);
+            $count = is_countable($data) ? count($data) : 0;
             $data = [
                 'count' => $count,
                 'total' => $count,
@@ -92,18 +86,13 @@ abstract class BaseController extends AbstractController
 
     protected function flashException(ServiceException $e)
     {
-        switch ($e->getCause()) {
-            case ServiceException::CAUSE_DONT_EXIST: $cause = 'nicht vorhanden';
-            break;
-            case ServiceException::CAUSE_EMPTY: $cause = 'leer';
-            break;
-            case ServiceException::CAUSE_EXIST: $cause = 'bereits vorhanden';
-            break;
-            case ServiceException::CAUSE_IN_USE: $cause = 'in Verwendung';
-            break;
-            default: $cause = '';
-            break;
-        }
+        $cause = match ($e->getCause()) {
+            ServiceException::CAUSE_DONT_EXIST => 'nicht vorhanden',
+            ServiceException::CAUSE_EMPTY => 'leer',
+            ServiceException::CAUSE_EXIST => 'bereits vorhanden',
+            ServiceException::CAUSE_IN_USE => 'in Verwendung',
+            default => '',
+        };
 
         $msg = 'Operation kann nicht durchgeführt werden';
         if (!empty($cause)) {

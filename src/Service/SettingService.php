@@ -13,11 +13,11 @@ class SettingService
 {
     private const TB_TYPE = 'type';
     private const TB_DESCRIPTION = 'description';
-    public const TB_TYPE_STRING = 'string';
-    public const TB_TYPE_HTML = 'html';
-    public const TB_TYPE_URL = 'url';
-    public const TB_TYPE_FILE = 'file';
-    public const TB_TYPE_BOOL = 'bool';
+    final public const TB_TYPE_STRING = 'string';
+    final public const TB_TYPE_HTML = 'html';
+    final public const TB_TYPE_URL = 'url';
+    final public const TB_TYPE_FILE = 'file';
+    final public const TB_TYPE_BOOL = 'bool';
 
     // //////////////////////////////////////////////
     // / Text block names
@@ -75,10 +75,10 @@ class SettingService
         // extend here
     ];
 
-    private LoggerInterface $logger;
-    private EntityManagerInterface $em;
-    private SettingRepository $repo;
-    private UploaderHelper $uploaderHelper;
+    private readonly LoggerInterface $logger;
+    private readonly EntityManagerInterface $em;
+    private readonly SettingRepository $repo;
+    private readonly UploaderHelper $uploaderHelper;
 
     public function __construct(EntityManagerInterface $em, SettingRepository $repo, UploaderHelper $uploaderHelper, LoggerInterface $logger)
     {
@@ -118,7 +118,7 @@ class SettingService
     public function getSettingObject(string $key): ?Setting
     {
         $key = strtolower($key);
-        if (!$this->validKey($key)) {
+        if (!static::validKey($key)) {
             $this->logger->error("Invalid key {$key} was requested by SettingService");
 
             return null;
@@ -132,7 +132,7 @@ class SettingService
         static $cache = null;
 
         $key = strtolower($key);
-        if (!$this->validKey($key)) {
+        if (!static::validKey($key)) {
             $this->logger->error("Invalid key {$key} was requested by SettingService");
 
             return null;
@@ -184,7 +184,7 @@ class SettingService
     public function remove(string $key): bool
     {
         $key = strtolower($key);
-        if (!$this->validKey($key)) {
+        if (!static::validKey($key)) {
             $this->logger->error("Invalid key {$key} was to be deleted by SettingService");
 
             return false;
@@ -204,7 +204,7 @@ class SettingService
     public function lastModification(string $key): ?DateTimeInterface
     {
         $key = strtolower($key);
-        if (!$this->validKey($key)) {
+        if (!static::validKey($key)) {
             $this->logger->error("Invalid key {$key} was to be deleted by SettingService");
 
             return null;
@@ -246,7 +246,7 @@ class SettingService
     public function setSettingsObject(Setting $data)
     {
         $key = $data->getKey();
-        if (!$this->validKey($key)) {
+        if (!static::validKey($key)) {
             $this->logger->error("Invalid key {$key} was to be deleted by SettingService");
 
             return;

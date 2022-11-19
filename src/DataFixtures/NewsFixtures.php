@@ -14,6 +14,7 @@ class NewsFixtures extends Fixture
 {
     public function load(ObjectManager $manager): void
     {
+        $news = [];
         $lipsum = new LoremIpsum();
 
         // news[1] must be shown before news[0]
