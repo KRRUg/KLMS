@@ -30,6 +30,14 @@ class LoginUser implements UserInterface
     /**
      * @see UserInterface
      */
+    public function getUserIdentifier(): string
+    {
+        return (string) $this->user->getEmail();
+    }
+
+    /**
+     * @see UserInterface
+     */
     public function getRoles(): array
     {
         $roles = $this->roles;
@@ -44,14 +52,6 @@ class LoginUser implements UserInterface
         $this->roles = $roles;
 
         return $this;
-    }
-
-    /**
-     * @see UserInterface
-     */
-    public function getUsername()
-    {
-        return (string) $this->user->getEmail();
     }
 
     public function addRoles(array $roles): self
@@ -69,25 +69,35 @@ class LoginUser implements UserInterface
     /**
      * @see UserInterface
      */
-    public function getPassword()
-    {
-        // not needed for apps that do not check user passwords
-    }
-
-    /**
-     * @see UserInterface
-     */
-    public function getSalt()
-    {
-        // not needed for apps that do not check user passwords
-    }
-
-    /**
-     * @see UserInterface
-     */
     public function eraseCredentials()
     {
         // If you store any temporary, sensitive data on the user, clear it here
-        // $this->plainPassword = null;
+    }
+
+    /**
+     * @see UserInterface
+     */
+    public function getPassword(): ?string
+    {
+        // TODO remove me after upgrade to Symfony 6
+        return null;
+    }
+
+    /**
+     * @see UserInterface
+     */
+    public function getSalt(): ?string
+    {
+        // TODO remove me after upgrade to Symfony 6
+        return null;
+    }
+
+    /**
+     * @see UserInterface
+     */
+    public function getUsername(): string
+    {
+        // TODO remove me after upgrade to Symfony 6
+        return $this->getUserIdentifier();
     }
 }

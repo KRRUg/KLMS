@@ -21,7 +21,7 @@ use Symfony\Component\Form\Extension\Core\Type\RepeatedType;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\Security\Guard\GuardAuthenticatorHandler;
+use Symfony\Component\Security\Http\Authentication\UserAuthenticatorInterface;
 
 class AccountController extends AbstractController
 {
@@ -69,7 +69,7 @@ class AccountController extends AbstractController
                     // $this->addFlash('error', 'Zu viele Versuche. Bitte warten.');
                 }
             }
-            $this->addFlash('success', "Falls {$email} registriert ist, wurde eine E-Mail verschickt");
+            $this->addFlash('success', "Falls $email registriert ist, wurde eine E-Mail verschickt");
 
             return $this->redirectToRoute('app_login');
         }
@@ -83,7 +83,7 @@ class AccountController extends AbstractController
     #[Route(path: '/reset_pw', name: 'reset_pw')]
     public function resetPW(Request $request): Response
     {
-        if (!($user = $this->checkTokenAndGetUser($request, self::TOKEN_PW_RESET_STRING, false))) {
+        if (!($user = $this->checkTokenAndGetUser($request, self::TOKEN_PW_RESET_STRING))) {
             return $this->redirectToRoute('app_login');
         }
         $fb = $this->createFormBuilder($user)
@@ -159,14 +159,14 @@ class AccountController extends AbstractController
             if (!empty($user) && !$user->getEmailConfirmed()) {
                 $this->sendRegisterToken($user);
             }
-            $this->addFlash('success', "Falls {$email} registriert ist, wurde eine E-Mail verschickt");
+            $this->addFlash('success', "Falls $email registriert ist, wurde eine E-Mail verschickt");
         }
 
         return $this->redirectToRoute('app_login');
     }
 
     #[Route(path: '/confirm', name: 'app_register_confirm')]
-    public function confirm(Request $request, LoginFormAuthenticator $login, GuardAuthenticatorHandler $guard): Response
+    public function confirm(Request $request, UserAuthenticatorInterface $userAuthenticator, LoginFormAuthenticator $login): Response
     {
         if ($this->isGranted('IS_AUTHENTICATED_REMEMBERED')) {
             return $this->redirectToRoute('user_profile');
@@ -178,7 +178,7 @@ class AccountController extends AbstractController
         $this->manager->flush();
         $this->addFlash('success', 'User wurde freigeschalten. Herzlich Willkommen!');
 
-        return $guard->authenticateUserAndHandleSuccess(new LoginUser($user), $request, $login, 'main');
+        return $userAuthenticator->authenticateUser(new LoginUser($user), $login, $request);
     }
 
     private function sendRegisterToken(User $user)

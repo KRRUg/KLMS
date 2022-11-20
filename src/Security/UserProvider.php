@@ -5,7 +5,6 @@ namespace App\Security;
 use App\Entity\User;
 use App\Idm\IdmManager;
 use App\Idm\IdmRepository;
-use App\Service\GamerService;
 use App\Service\PermissionService;
 use Symfony\Component\Security\Core\Exception\UnsupportedUserException;
 use Symfony\Component\Security\Core\Exception\UserNotFoundException;
@@ -16,59 +15,48 @@ class UserProvider implements UserProviderInterface
 {
     private readonly IdmRepository $userRepo;
     private readonly PermissionService $permissionService;
-    private readonly GamerService $gamerService;
 
     public function __construct(
         IdmManager $manager,
         PermissionService $permissionService,
-        GamerService $gamerService
     ) {
         $this->userRepo = $manager->getRepository(User::class);
         $this->permissionService = $permissionService;
-        $this->gamerService = $gamerService;
     }
 
-    private function loadAdminRoles(LoginUser $user)
+    private function loadAdminRoles(LoginUser $user): void
     {
         $perm = $this->permissionService->handleLogin($user->getUser());
         if (!empty($perm)) {
             $roles = array_map(fn (string $p) => 'ROLE_'.$p, $perm);
-            array_push($roles, 'ROLE_ADMIN');
+            $roles[] = 'ROLE_ADMIN';
             $user->addRoles($roles);
         }
     }
 
-    private function loadUserRoles(LoginUser $user)
+    private function loadUserRoles(LoginUser $user): void
     {
         $roles = [];
-//        $gamer = $this->gr->find($userGuid);
-//        if ($gamer) {
-//            if ($gamer->getPaid()) {
-//                array_push($roles, "ROLE_USER_PAID");
-//            }
-//            // check if user has seat,...
-//        }
+        // add roles for Gamers, not yet used
         $user->addRoles($roles);
     }
 
-    /**
-     * Symfony calls this method if you use features like switch_user
-     * or remember_me.
-     *
-     * If you're not using these features, you do not need to implement
-     * this method.
-     *
-     * @return UserInterface
-     *
-     * @throws UserNotFoundException
-     */
-    public function loadUserByUsername($username)
+    public function loadUserByUsername($username): UserInterface
     {
-        // Load a User object from your data source or throw UsernameNotFoundException.
-        // The $username argument may not actually be a username:
-        // it is whatever value is being returned by the getUsername()
-        // method in your User class.
-        $user = $this->userRepo->findOneCiBy(['email' => $username]);
+        // TODO remove me after upgrade to Symfony 6
+        return $this->loadUserByIdentifier($username);
+    }
+
+    /**
+     * @see UserProviderInterface
+     */
+    public function loadUserByIdentifier(string $identifier): UserInterface
+    {
+        if (!filter_var($identifier, FILTER_VALIDATE_EMAIL)) {
+            throw new UserNotFoundException();
+        }
+
+        $user = $this->userRepo->findOneCiBy(['email' => $identifier]);
         if (empty($user)) {
             throw new UserNotFoundException();
         }
@@ -81,21 +69,11 @@ class UserProvider implements UserProviderInterface
     }
 
     /**
-     * Refreshes the user after being reloaded from the session.
-     *
-     * When a user is logged in, at the beginning of each request, the
-     * User object is loaded from the session and then this method is
-     * called. Your job is to make sure the user's data is still fresh by,
-     * for example, re-querying for fresh User data.
-     *
-     * If your firewall is "stateless: true" (for a pure API), this
-     * method is not called.
-     *
-     * @return UserInterface
+     * @see UserProviderInterface
      */
-    public function refreshUser(UserInterface $user)
+    public function refreshUser(UserInterface $user): UserInterface
     {
-        if (!($user instanceof LoginUser || is_null($user))) {
+        if (!($user instanceof LoginUser)) {
             throw new UnsupportedUserException(sprintf('Invalid user class "%s".', $user::class));
         }
 
@@ -109,9 +87,9 @@ class UserProvider implements UserProviderInterface
     }
 
     /**
-     * Tells Symfony to use this provider for this User class.
+     * @see UserProviderInterface
      */
-    public function supportsClass($class)
+    public function supportsClass($class): bool
     {
         return LoginUser::class === $class;
     }

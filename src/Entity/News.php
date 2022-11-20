@@ -38,7 +38,6 @@ class News implements HistoryAwareEntity
     #[Assert\GreaterThan(propertyPath: 'publishedFrom')]
     private ?DateTimeInterface $publishedTo = null;
 
-
     #[Vich\UploadableField(mapping: 'news', fileNameProperty: 'image.name', size: 'image.size', mimeType: 'image.mimeType', originalName: 'image.originalName', dimensions: 'image.dimensions')]
     private ?File $imageFile = null;
 

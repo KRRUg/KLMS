@@ -1,5 +1,5 @@
 security:
-    enable_authenticator_manager: false
+    enable_authenticator_manager: true
     # https://symfony.com/doc/current/security.html#registering-the-user-hashing-passwords
     password_hashers:
         Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface: 'auto'
@@ -18,11 +18,10 @@ security:
         main:
             lazy: true
             provider: app_user_provider
+            custom_authenticator:
+                - App\Security\LoginFormAuthenticator
             logout:
                 path: '/logout'
-            guard:
-                authenticators:
-                    - App\Security\LoginFormAuthenticator
             remember_me:
                 secret: '%kernel.secret%'
                 lifetime: 29030400 # 1 month in seconds

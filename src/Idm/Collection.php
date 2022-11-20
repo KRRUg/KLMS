@@ -3,8 +3,8 @@
 namespace App\Idm;
 
 use ArrayAccess;
-use Iterator;
 use Countable;
+use Iterator;
 
 // TODO change to IteratorAggregate
 interface Collection extends ArrayAccess, Iterator, Countable

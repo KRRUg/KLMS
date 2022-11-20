@@ -14,7 +14,6 @@ use App\Idm\Transfer\BulkRequest;
 use App\Idm\Transfer\PaginationCollection;
 use App\Idm\Transfer\UuidObject;
 use Closure;
-use Doctrine\Common\Annotations\Reader;
 use InvalidArgumentException;
 use Psr\Log\LoggerInterface;
 use Ramsey\Uuid\Uuid;
@@ -560,8 +559,6 @@ final class IdmManager
 
     /**
      * Removes loaded lazyLoaderObjects and checks if all other collections are actually arrays.
-     *
-     * @param object $object
      */
     private function checkCollections(object $object, $alreadyDone = []): void
     {
