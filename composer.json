@@ -21,7 +21,7 @@
         "phpdocumentor/reflection-docblock": "^5.1",
         "ramsey/uuid": "^4.0",
         "ramsey/uuid-doctrine": "^1.6",
-        "sensio/framework-extra-bundle": "^5.5",
+        "sensio/framework-extra-bundle": "^6.2",
         "sentry/sentry-symfony": "^4.4",
         "symfony/asset": "5.4.*",
         "symfony/console": "5.4.*",
