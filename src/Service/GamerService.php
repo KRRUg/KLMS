@@ -73,7 +73,7 @@ class GamerService
         return $this->repo->findByUser($user);
     }
 
-    public function gamerRegister(User $user)
+    public function gamerRegister(User $user): void
     {
         $gamer = $this->getOrCreateGamer($user);
 
@@ -87,7 +87,7 @@ class GamerService
         $this->em->flush();
     }
 
-    public function gamerUnregister(User $user)
+    public function gamerUnregister(User $user): void
     {
         $gamer = $this->getOrCreateGamer($user);
 
@@ -110,7 +110,7 @@ class GamerService
         return $gamer && $gamer->hasRegistered();
     }
 
-    public function gamerPay(User $user)
+    public function gamerPay(User $user): void
     {
         $gamer = $this->getOrCreateGamer($user);
 
@@ -141,7 +141,7 @@ class GamerService
         );
     }
 
-    public function gamerUnPay(User $user)
+    public function gamerUnPay(User $user): void
     {
         $gamer = $this->getOrCreateGamer($user);
 
@@ -156,7 +156,7 @@ class GamerService
         $this->em->flush();
     }
 
-    public function gamerCheckIn(User $user)
+    public function gamerCheckIn(User $user): void
     {
         $gamer = $this->getOrCreateGamer($user);
 
@@ -179,7 +179,7 @@ class GamerService
         $this->em->flush();
     }
 
-    public function gamerCheckOut(User $user)
+    public function gamerCheckOut(User $user): void
     {
         $gamer = $this->getOrCreateGamer($user);
 

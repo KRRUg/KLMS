@@ -16,7 +16,7 @@ abstract class OptimalService
         return $this->settings->get(static::getSettingKey(), false);
     }
 
-    public function activate()
+    public function activate(): void
     {
         $this->settings->set(static::getSettingKey(), true);
     }

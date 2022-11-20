@@ -53,12 +53,12 @@ class UserSelectType extends AbstractType
         ;
     }
 
-    public function getBlockPrefix()
+    public function getBlockPrefix(): string
     {
         return 'select2';
     }
 
-    public function transform($entity)
+    public function transform($entity): array
     {
         $data = [];
         if (empty($entity)) {
@@ -80,7 +80,7 @@ class UserSelectType extends AbstractType
         return $data;
     }
 
-    public function reverseTransformUser($value)
+    public function reverseTransformUser($value): ?object
     {
         if (empty($value)) {
             return null;
@@ -94,7 +94,7 @@ class UserSelectType extends AbstractType
         }
     }
 
-    public function reverseTransformGamer($value)
+    public function reverseTransformGamer($value): ?UserGamer
     {
         if (empty($value)) {
             return null;

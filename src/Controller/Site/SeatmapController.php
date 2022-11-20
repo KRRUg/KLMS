@@ -8,6 +8,7 @@ use App\Service\SeatmapService;
 use App\Service\SettingService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\Extension\Core\Type\HiddenType;
+use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -47,7 +48,7 @@ class SeatmapController extends AbstractController
         ]);
     }
 
-    private function generateForm(Seat $seat, string $action)
+    private function generateForm(Seat $seat, string $action): FormInterface
     {
         $fb = $this->createFormBuilder()
             ->add('action', HiddenType::class, [

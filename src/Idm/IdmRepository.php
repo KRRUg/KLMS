@@ -57,7 +57,7 @@ class IdmRepository
      *
      * @return mixed|null The first value found or null if no value was found
      */
-    public function findOneBy(array $filter = [], array $sort = [])
+    public function findOneBy(array $filter = [], array $sort = []): mixed
     {
         $result = $this->manager->find($this->class, $filter, false, true, $sort, 0, 1);
 
@@ -72,7 +72,7 @@ class IdmRepository
      *
      * @return mixed|null The first value found or null if no value was found
      */
-    public function findOneCiBy(array $filter = [], array $sort = [])
+    public function findOneCiBy(array $filter = [], array $sort = []): mixed
     {
         $result = $this->manager->find($this->class, $filter, false, false, $sort, 0, 1);
 
@@ -103,7 +103,7 @@ class IdmRepository
         return IdmPagedCollection::create($this->manager, $this->class, $query, true, false, $sort);
     }
 
-    public function findAll()
+    public function findAll(): Collection
     {
         return $this->findBy();
     }

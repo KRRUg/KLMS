@@ -42,7 +42,7 @@ class TokenService
         return 2 * self::SELECTOR_LENGTH === strlen($token);
     }
 
-    private function handleGarbageCollection()
+    private function handleGarbageCollection(): void
     {
         $this->repo->removeExpiredTokens();
     }
@@ -105,7 +105,7 @@ class TokenService
         return true;
     }
 
-    public function clearToken(string $fullToken)
+    public function clearToken(string $fullToken): void
     {
         if (!self::isValid($fullToken)) {
             return;

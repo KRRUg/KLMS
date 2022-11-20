@@ -46,7 +46,7 @@ class ContentService
      *
      * @return bool If content is in use
      */
-    public function inUse(Content $content)
+    public function inUse(Content $content): bool
     {
         return !empty($this->navService->getByContent($content));
     }
@@ -56,7 +56,7 @@ class ContentService
      *
      * @throws ServiceException If deletion fails, bacause Content is still in use
      */
-    public function delete(Content $content)
+    public function delete(Content $content): void
     {
         if ($this->inUse($content)) {
             $this->logger->warning("Can't delete Content {$content->getId()}, still in use ");
@@ -68,7 +68,7 @@ class ContentService
         $this->em->flush();
     }
 
-    public function save(Content $content)
+    public function save(Content $content): void
     {
         $this->logger->info("Create or Update Content {$content->getId()} ({$content->getTitle()})");
         $this->em->persist($content);

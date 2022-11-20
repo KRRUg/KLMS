@@ -28,7 +28,7 @@ class MediaController extends BaseController
         $this->mediaService = $mediaService;
     }
 
-    private function image2json(Media $image)
+    private function image2json(Media $image): array
     {
         return [
             // title and value required by tinyMCE image list
@@ -39,7 +39,7 @@ class MediaController extends BaseController
         ];
     }
 
-    private function mediaByFilter(string $filter)
+    private function mediaByFilter(string $filter): array
     {
         return match ($filter) {
             'image' => $this->mediaService->getImages(),

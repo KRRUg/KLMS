@@ -12,21 +12,20 @@ class InstanceOfExtension extends AbstractExtension
     /**
      * {@inheritdoc}
      */
-    public function getTests()
+    public function getTests(): array
     {
         return [
             new TwigTest('instanceof', $this->isInstanceOf(...)),
         ];
     }
 
-    public function isInstanceOf($object, $class)
+    public function isInstanceOf($object, $class): bool
     {
         if (!is_object($object)) {
             return false;
         }
         try {
             $reflectionClass = new ReflectionClass($class);
-
             return $reflectionClass->isInstance($object);
         } catch (ReflectionException) {
             return false;

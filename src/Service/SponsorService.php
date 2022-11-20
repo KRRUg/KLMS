@@ -79,7 +79,7 @@ class SponsorService extends OptimalService
     /**
      * @return SponsorCategory[] categories in correct order
      */
-    public function getCategories()
+    public function getCategories(): array
     {
         $categories = $this->categoryRepository->findAll();
         usort($categories, fn ($a, $b) => $a->getPriority() - $b->getPriority());

@@ -8,6 +8,7 @@ use App\Idm\IdmRepository;
 use App\Service\GroupService;
 use App\Service\UserService;
 use Ramsey\Uuid\Uuid;
+use Ramsey\Uuid\UuidInterface;
 use Twig\Extension\AbstractExtension;
 use Twig\TwigFilter;
 use Twig\TwigTest;
@@ -26,7 +27,7 @@ class UserExtension extends AbstractExtension
     /**
      * {@inheritdoc}
      */
-    public function getTests()
+    public function getTests(): array
     {
         return [
             new TwigTest('valid_user', $this->validUser(...)),
@@ -36,7 +37,7 @@ class UserExtension extends AbstractExtension
     /**
      * {@inheritdoc}
      */
-    public function getFilters()
+    public function getFilters(): array
     {
         return [
             new TwigFilter('user', $this->getUser(...)),
@@ -66,7 +67,7 @@ class UserExtension extends AbstractExtension
         return $user->getNickname();
     }
 
-    public function getGroupname($groupid)
+    public function getGroupname($groupid): string
     {
         if (empty($groupid) || !Uuid::isValid($groupid)) {
             return '';

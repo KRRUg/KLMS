@@ -156,7 +156,7 @@ class SettingService
         }
     }
 
-    public function set(string $key, string $value)
+    public function set(string $key, string $value): void
     {
         $key = strtolower($key);
         if (!array_key_exists($key, self::TEXT_BLOCK_KEYS)) {
@@ -243,7 +243,7 @@ class SettingService
         return $ret;
     }
 
-    public function setSettingsObject(Setting $data)
+    public function setSettingsObject(Setting $data): void
     {
         $key = $data->getKey();
         if (!static::validKey($key)) {

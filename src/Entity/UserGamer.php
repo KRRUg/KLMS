@@ -34,7 +34,7 @@ class UserGamer
         $this->seats = new ArrayCollection();
     }
 
-    public function getRegistered()
+    public function getRegistered(): ?DateTimeInterface
     {
         return $this->registered;
     }
@@ -56,9 +56,11 @@ class UserGamer
         return $this->uuid;
     }
 
-    public function setUuid(?UuidInterface $uuid)
+    public function setUuid(?UuidInterface $uuid): self
     {
         $this->uuid = $uuid;
+
+        return $this;
     }
 
     public function getPaid(): ?DateTimeInterface

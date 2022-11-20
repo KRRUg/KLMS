@@ -40,7 +40,7 @@ class TeamsiteEntry
         return $this->id;
     }
 
-    public function getUserUuid()
+    public function getUserUuid(): ?UuidInterface
     {
         return $this->userUuid;
     }

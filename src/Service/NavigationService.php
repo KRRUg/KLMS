@@ -185,7 +185,7 @@ class NavigationService
         return $valid;
     }
 
-    public function getAll()
+    public function getAll(): array
     {
         $navs = $this->navRepo->findByNames(self::NAV_LOCATION_KEYS);
         $names = array_map(fn ($nav) => $nav->getName(), $navs);
@@ -265,7 +265,7 @@ class NavigationService
         return true;
     }
 
-    public function delete(Navigation $nav)
+    public function delete(Navigation $nav): void
     {
         $this->em->remove($nav);
         $this->em->flush();

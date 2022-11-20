@@ -59,7 +59,7 @@ class UserService
     /**
      * Preloads multiple users to avoid multiple IDM requests.
      */
-    public function preloadUsers(array $uuids)
+    public function preloadUsers(array $uuids): void
     {
         $this->userRepo->findById($uuids);
     }

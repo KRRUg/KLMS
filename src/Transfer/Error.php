@@ -16,7 +16,7 @@ final class Error
     #[Assert\Type(type: 'string')]
     public $detail;
 
-    public static function withMessage(string $msg)
+    public static function withMessage(string $msg): self
     {
         $ret = new self();
         $ret->message = $msg;
@@ -24,7 +24,7 @@ final class Error
         return $ret;
     }
 
-    public static function withMessageAndDetail(string $msg, string $detail)
+    public static function withMessageAndDetail(string $msg, string $detail): self
     {
         $ret = new self();
         $ret->message = $msg;

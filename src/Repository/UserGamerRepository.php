@@ -6,6 +6,7 @@ use App\Entity\User;
 use App\Entity\UserGamer;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\NonUniqueResultException;
+use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -35,7 +36,7 @@ class UserGamerRepository extends ServiceEntityRepository
         }
     }
 
-    private function createQueryFilterBuilder(?bool $registered, ?bool $paid, ?bool $seat, string $alias = 'u')
+    private function createQueryFilterBuilder(?bool $registered, ?bool $paid, ?bool $seat, string $alias = 'u'): QueryBuilder
     {
         $qb = $this->createQueryBuilder($alias);
         if (!is_null($seat)) {

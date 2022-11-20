@@ -26,12 +26,14 @@ class UserAdmin
         return $this->uuid;
     }
 
-    public function setUuid(?UuidInterface $uuid)
+    public function setUuid(?UuidInterface $uuid): self
     {
         $this->uuid = $uuid;
+
+        return $this;
     }
 
-    public function hasPermisison(string $permission): bool
+    public function hasPermission(string $permission): bool
     {
         return in_array($permission, $this->permissions);
     }
@@ -48,10 +50,12 @@ class UserAdmin
         return $this;
     }
 
-    public function addPermisison(string $permission): self
+    public function addPermission(string $permission): self
     {
-        if (!$this->hasPermisison($permission)) {
-            array_push($this->permissions, $permission);
+        if (!$this->hasPermission($permission)) {
+            $this->permissions[] = $permission;
         }
+
+        return $this;
     }
 }

@@ -20,21 +20,21 @@ class ContentExtension extends AbstractExtension
         $this->urlGenerator = $urlGenerator;
     }
 
-    public function getTests()
+    public function getTests(): array
     {
         return [
             new TwigTest('slug', $this->slugExists(...)),
         ];
     }
 
-    public function getFunctions()
+    public function getFunctions(): array
     {
         return [
             new TwigFunction('slug_url', $this->slugUrl(...)),
         ];
     }
 
-    public function getFilters()
+    public function getFilters(): array
     {
         return [
             new TwigFilter('slug_link', $this->slugLink(...), ['is_safe' => ['html']]),

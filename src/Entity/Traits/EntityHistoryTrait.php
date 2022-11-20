@@ -85,7 +85,7 @@ trait EntityHistoryTrait
 
     #[ORM\PrePersist]
     #[ORM\PreUpdate]
-    public function updateModifiedDatetime()
+    public function updateModifiedDatetime(): void
     {
         // update the modified time and creation time
         $this->setLastModified(new DateTime());

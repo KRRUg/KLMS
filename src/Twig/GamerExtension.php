@@ -24,7 +24,7 @@ class GamerExtension extends AbstractExtension
     /**
      * {@inheritdoc}
      */
-    public function getTests()
+    public function getTests(): array
     {
         return [
             new TwigTest('registered_gamer', $this->gamerIsRegistered(...)),
@@ -36,7 +36,7 @@ class GamerExtension extends AbstractExtension
     /**
      * {@inheritdoc}
      */
-    public function getFilters()
+    public function getFilters(): array
     {
         return [
             new TwigFilter('seat', $this->getSeat(...)),

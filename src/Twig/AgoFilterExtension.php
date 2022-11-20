@@ -10,14 +10,14 @@ use Twig\TwigFilter;
  */
 class AgoFilterExtension extends AbstractExtension
 {
-    public function getFilters()
+    public function getFilters(): array
     {
         return [
             new TwigFilter('ago', $this->filterAgo(...)),
         ];
     }
 
-    public function filterAgo($date)
+    public function filterAgo($date): string
     {
         $periods_s = ['Sek', 'Min', 'Std', 'Tag', 'Woche', 'Monat', 'Jahr'];
         $periods_p = ['Sek', 'Min', 'Std', 'Tagen', 'Wochen', 'Monaten', 'Jahren'];

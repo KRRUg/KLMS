@@ -323,7 +323,7 @@ final class IdmManager
         return $object->getUuid();
     }
 
-    public function isValidId($id)
+    public function isValidId($id): bool
     {
         // TODO change getUuid with id annotation
         return Uuid::isValid(strval($id));

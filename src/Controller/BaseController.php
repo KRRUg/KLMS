@@ -11,7 +11,7 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 abstract class BaseController extends AbstractController
 {
-    protected function acceptsJson(Request $request)
+    protected function acceptsJson(Request $request): bool
     {
         return in_array('application/json', $request->getAcceptableContentTypes());
     }
@@ -38,10 +38,9 @@ abstract class BaseController extends AbstractController
     /**
      * @param $message string The error Message you want ot send
      * @param int $statusCode
-     *
      * @return JsonResponse
      */
-    protected function apiError(string $message, $statusCode = 400)
+    protected function apiError(string $message, int $statusCode = 400): JsonResponse
     {
         return $this->apiResponse(['Error' => ['message' => $message]], $statusCode);
     }
@@ -58,7 +57,7 @@ abstract class BaseController extends AbstractController
      *
      * @return array|string
      */
-    protected function getErrorsFromForm(FormInterface $form)
+    protected function getErrorsFromForm(FormInterface $form): array|string
     {
         foreach ($form->getErrors() as $error) {
             // only supporting 1 error per field
@@ -79,7 +78,7 @@ abstract class BaseController extends AbstractController
         return $errors;
     }
 
-    protected function createBadRequestException($message = 'Invalid JSON')
+    protected function createBadRequestException($message = 'Invalid JSON'): BadRequestHttpException
     {
         return new BadRequestHttpException($message);
     }

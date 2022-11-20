@@ -20,7 +20,7 @@ class ContentParamConverter implements ParamConverterInterface
     /**
      * {@inheritdoc}
      */
-    public function apply(Request $request, ParamConverter $configuration)
+    public function apply(Request $request, ParamConverter $configuration): bool
     {
         $class = $configuration->getClass();
         $id = $request->attributes->get('id');
@@ -45,7 +45,7 @@ class ContentParamConverter implements ParamConverterInterface
     /**
      * {@inheritdoc}
      */
-    public function supports(ParamConverter $configuration)
+    public function supports(ParamConverter $configuration): bool
     {
         return Content::class === $configuration->getClass();
     }

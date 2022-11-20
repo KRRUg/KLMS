@@ -82,7 +82,7 @@ class SeatmapService
         return $owner === $this->gamerService->getGamer($user);
     }
 
-    public function bookSeat(Seat $seat, User $user)
+    public function bookSeat(Seat $seat, User $user): void
     {
         if ($this->canBookSeat($seat, $user)) {
             $seat->setOwner($this->gamerService->getGamer($user));
@@ -92,7 +92,7 @@ class SeatmapService
         }
     }
 
-    public function unBookSeat(Seat $seat, User $user)
+    public function unBookSeat(Seat $seat, User $user): void
     {
         if ($this->isSeatOwner($seat, $user)) {
             $seat->setOwner(null);
@@ -125,7 +125,7 @@ class SeatmapService
         };
     }
 
-    public function getSeatOwner(Seat $seat)
+    public function getSeatOwner(Seat $seat): ?User
     {
         if ($seat->getOwner()) {
             return $this->gamerService->getUserFromGamer($seat->getOwner());

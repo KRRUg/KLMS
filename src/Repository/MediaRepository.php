@@ -21,12 +21,12 @@ class MediaRepository extends ServiceEntityRepository
     /**
      * @return Media|null
      */
-    public function findByName(string $name)
+    public function findByName(string $name): ?Media
     {
         return $this->findOneBy(['fileName' => $name]);
     }
 
-    public function findByDisplayName(string $name)
+    public function findByDisplayName(string $name): ?Media
     {
         return $this->findOneBy(['displayName' => $name]);
     }
@@ -34,7 +34,7 @@ class MediaRepository extends ServiceEntityRepository
     /**
      * @return Media[]
      */
-    public function findAll()
+    public function findAll(): array
     {
         return $this->findBy([], ['displayName' => 'ASC', 'created' => 'ASC']);
     }
@@ -44,7 +44,7 @@ class MediaRepository extends ServiceEntityRepository
      *
      * @return Media[]
      */
-    public function findByMimeClass(string $mime)
+    public function findByMimeClass(string $mime): array
     {
         if (empty($mime)) {
             return $this->findAll();

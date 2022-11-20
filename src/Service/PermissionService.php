@@ -110,7 +110,7 @@ final class PermissionService
      *
      * @throws PermissionException If $user has not $permission
      */
-    public function checkAndThrow(string $permission)
+    public function checkAndThrow(string $permission): void
     {
         if (!$this->hasSessionPermission($permission)) {
             throw new PermissionException($permission);
@@ -129,7 +129,7 @@ final class PermissionService
         if (empty($admin)) {
             $admin = new UserAdmin($user->getUuid());
         }
-        $admin->addPermisison($permission);
+        $admin->addPermission($permission);
         $this->em->persist($admin);
         $this->em->flush();
 

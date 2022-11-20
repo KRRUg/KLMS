@@ -19,7 +19,7 @@ class EncoreEntryCssSourceExtension extends AbstractExtension implements Service
         $this->publicDir = $publicDir;
     }
 
-    public function getFunctions()
+    public function getFunctions(): array
     {
         return [
             new TwigFunction('encore_entry_css_source', $this->getEncoreEntryCssSource(...)),
@@ -41,7 +41,7 @@ class EncoreEntryCssSourceExtension extends AbstractExtension implements Service
         return $source;
     }
 
-    public static function getSubscribedServices()
+    public static function getSubscribedServices(): array
     {
         return [
             EntrypointLookupInterface::class,

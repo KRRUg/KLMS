@@ -27,7 +27,7 @@ class NewsRepository extends ServiceEntityRepository
         $this->logger = $logger;
     }
 
-    private function createQuery()
+    private function createQuery(): QueryBuilder
     {
         return $this->createQueryBuilder('n');
     }
@@ -49,7 +49,7 @@ class NewsRepository extends ServiceEntityRepository
     /**
      * @return News[] Returns an array of News objects
      */
-    public function findAllOrdered()
+    public function findAllOrdered(): array
     {
         $q = $this->createQuery();
         $this->addOrder($q);
@@ -62,7 +62,7 @@ class NewsRepository extends ServiceEntityRepository
     /**
      * @return News[] Returns an array of News objects that are active
      */
-    public function findActiveOrdered($offset = null, $count = null)
+    public function findActiveOrdered($offset = null, $count = null): array
     {
         $q = $this->createQuery();
         $this->addActiveFilter($q);

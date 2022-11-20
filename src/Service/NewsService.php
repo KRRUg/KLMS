@@ -31,7 +31,7 @@ class NewsService
         return $this->repo->findAllOrdered();
     }
 
-    public function get(int $from = 0, int $to = 6)
+    public function get(int $from = 0, int $to = 6): array
     {
         return $this->repo->findActiveOrdered($from, $to);
     }
@@ -41,14 +41,14 @@ class NewsService
         return $this->repo->countActive();
     }
 
-    public function delete(News $news)
+    public function delete(News $news): void
     {
         $this->logger->info("Deleted News {$news->getId()} ({$news->getTitle()})");
         $this->em->remove($news);
         $this->em->flush();
     }
 
-    public function save(News $news)
+    public function save(News $news): void
     {
         $this->logger->info("Create or Update News {$news->getId()} ({$news->getTitle()})");
         $this->em->persist($news);

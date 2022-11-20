@@ -5,6 +5,7 @@ namespace App\Service;
 use App\Entity\User;
 use App\Entity\UserAdmin;
 use App\Entity\UserGamer;
+use App\Idm\Collection;
 use App\Idm\IdmManager;
 use App\Idm\IdmRepository;
 use App\Repository\UserAdminsRepository;
@@ -89,7 +90,7 @@ class GroupService
         return self::GROUP_SETTING[$group->toString()][self::NAME] ?? '';
     }
 
-    public function query(UuidInterface $group)
+    public function query(UuidInterface $group): array
     {
         if (!self::groupExists($group)) {
             return [];
@@ -99,7 +100,7 @@ class GroupService
         return $this->{$config[self::METHOD]}($config[self::FILTER]);
     }
 
-    private function getGamer(array $filter)
+    private function getGamer(array $filter): array
     {
         $registered = $filter['registered'] ?? null;
         $paid = $filter['paid'] ?? null;
@@ -110,7 +111,7 @@ class GroupService
         return $this->userRepo->findById($gamer);
     }
 
-    private function getAdmin(array $filter)
+    private function getAdmin(array $filter): array
     {
         $admins = $this->adminRepo->findAll();
         $admins = array_filter($admins, fn (UserAdmin $a) => !empty($a->getPermissions()));
@@ -119,7 +120,7 @@ class GroupService
         return $this->userRepo->findById($ids);
     }
 
-    private function getIdm(array $filter)
+    private function getIdm(array $filter): Collection
     {
         return $this->userRepo->findBy($filter);
     }
