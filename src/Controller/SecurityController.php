@@ -58,7 +58,7 @@ class SecurityController extends AbstractController
                 return 'E-Mail-Addresse oder Passwort falsch';
             case $error instanceof AccountNotConfirmedException:
                 $user = $error->getUser();
-                $url = $this->urlGenerator->generate('app_register_resend', ['email' => $user->getUsername()]);
+                $url = $this->urlGenerator->generate('app_register_resend', ['email' => $user->getUserIdentifier()]);
 
                 return "E-Mail-Addresse nicht bestätigt. <a href=\"{$url}\">Bestätigung anfordern.</a>";
             case $error instanceof InvalidCsrfTokenException:

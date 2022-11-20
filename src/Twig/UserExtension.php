@@ -8,7 +8,6 @@ use App\Idm\IdmRepository;
 use App\Service\GroupService;
 use App\Service\UserService;
 use Ramsey\Uuid\Uuid;
-use Ramsey\Uuid\UuidInterface;
 use Twig\Extension\AbstractExtension;
 use Twig\TwigFilter;
 use Twig\TwigTest;

@@ -26,6 +26,7 @@ class InstanceOfExtension extends AbstractExtension
         }
         try {
             $reflectionClass = new ReflectionClass($class);
+
             return $reflectionClass->isInstance($object);
         } catch (ReflectionException) {
             return false;

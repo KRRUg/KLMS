@@ -8,9 +8,17 @@ use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
+use Symfony\Component\Serializer\Serializer;
 
 abstract class BaseController extends AbstractController
 {
+    private readonly Serializer $serializer;
+
+    public function __construct(Serializer $serializer)
+    {
+        $this->serializer = $serializer;
+    }
+
     protected function acceptsJson(Request $request): bool
     {
         return in_array('application/json', $request->getAcceptableContentTypes());
@@ -30,15 +38,13 @@ abstract class BaseController extends AbstractController
                 'items' => $data,
             ];
         }
-        $json = $this->get('serializer')->serialize($data, 'json');
+        $json = $this->serializer->serialize($data, 'json');
 
         return new JsonResponse($json, $statusCode, [], true);
     }
 
     /**
      * @param $message string The error Message you want ot send
-     * @param int $statusCode
-     * @return JsonResponse
      */
     protected function apiError(string $message, int $statusCode = 400): JsonResponse
     {
@@ -54,8 +60,6 @@ abstract class BaseController extends AbstractController
      *         'someField': 'Invalid value'
      *     }
      * }
-     *
-     * @return array|string
      */
     protected function getErrorsFromForm(FormInterface $form): array|string
     {

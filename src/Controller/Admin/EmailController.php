@@ -9,6 +9,7 @@ use App\Repository\EmailRepository;
 use App\Security\LoginUser;
 use App\Service\EmailService;
 use App\Service\GroupService;
+use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -27,13 +28,15 @@ class EmailController extends AbstractController
     private readonly EmailService $mailService;
     private readonly GroupService $groupService;
     private readonly EmailRepository $templateRepository;
+    private readonly EntityManagerInterface $em;
 
-    public function __construct(LoggerInterface $logger, EmailService $mailService, GroupService $groupService, EmailRepository $templateRepository)
+    public function __construct(LoggerInterface $logger, EmailService $mailService, GroupService $groupService, EmailRepository $templateRepository, EntityManagerInterface $em)
     {
         $this->logger = $logger;
         $this->mailService = $mailService;
         $this->groupService = $groupService;
         $this->templateRepository = $templateRepository;
+        $this->em = $em;
     }
 
     #[Route(path: '', name: '')]
@@ -64,9 +67,8 @@ class EmailController extends AbstractController
 
         if ($form->isSubmitted() && $form->isValid()) {
             $template = $form->getData();
-            $em = $this->getDoctrine()->getManager();
-            $em->persist($template);
-            $em->flush();
+            $this->em->persist($template);
+            $this->em->flush();
 
             if ($form->get('send')->isClicked()) {
                 $this->mailService->scheduleSending($template);
@@ -120,10 +122,9 @@ class EmailController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $em = $this->getDoctrine()->getManager();
             $template = $form->getData();
-            $em->persist($template);
-            $em->flush();
+            $this->em->persist($template);
+            $this->em->flush();
 
             if ($form->get('send')->isClicked()) {
                 $this->mailService->scheduleSending($template);

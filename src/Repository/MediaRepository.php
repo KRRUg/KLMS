@@ -18,9 +18,6 @@ class MediaRepository extends ServiceEntityRepository
         parent::__construct($registry, Media::class);
     }
 
-    /**
-     * @return Media|null
-     */
     public function findByName(string $name): ?Media
     {
         return $this->findOneBy(['fileName' => $name]);
