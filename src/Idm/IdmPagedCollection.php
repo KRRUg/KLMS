@@ -2,19 +2,13 @@
 
 namespace App\Idm;
 
-use ArrayAccess;
-use Countable;
 use InvalidArgumentException;
-use Iterator;
 
-class IdmPagedCollection implements ArrayAccess, Iterator, Countable
+class IdmPagedCollection implements Collection
 {
     private readonly IdmManager $manager;
 
-    /**
-     * @var array|string
-     */
-    private $filter;
+    private string|array $filter;
     private readonly array $sort;
     private readonly string $class;
 
@@ -71,7 +65,7 @@ class IdmPagedCollection implements ArrayAccess, Iterator, Countable
         return $result;
     }
 
-    public function offsetGet($offset): ?object
+    public function get(mixed $offset): mixed
     {
         if (!$this->offsetExists($offset)) {
             return null;
@@ -84,12 +78,17 @@ class IdmPagedCollection implements ArrayAccess, Iterator, Countable
         return $this->items[$offset] ?? null;
     }
 
+    public function offsetGet($offset): mixed
+    {
+        return $this->get($offset);
+    }
+
     public function offsetExists($offset): bool
     {
         return is_int($offset) && $offset >= 0 && $offset < $this->total;
     }
 
-    public function offsetSet($offset, $value)
+    public function offsetSet($offset, $value): void
     {
         if (!is_a($value, $this->class)) {
             throw new InvalidArgumentException('Incorrect type');
@@ -97,7 +96,7 @@ class IdmPagedCollection implements ArrayAccess, Iterator, Countable
         $this->items[$offset] = $value;
     }
 
-    public function offsetUnset($offset)
+    public function offsetUnset($offset): void
     {
         unset($this->items[$offset]);
     }
@@ -107,17 +106,17 @@ class IdmPagedCollection implements ArrayAccess, Iterator, Countable
         return $this->total;
     }
 
-    public function current()
+    public function current(): mixed
     {
         return $this->offsetGet($this->position);
     }
 
-    public function next()
+    public function next(): void
     {
         ++$this->position;
     }
 
-    public function key()
+    public function key(): int
     {
         return $this->position;
     }
@@ -127,8 +126,13 @@ class IdmPagedCollection implements ArrayAccess, Iterator, Countable
         return $this->offsetExists($this->position);
     }
 
-    public function rewind()
+    public function rewind(): void
     {
         $this->position = 0;
+    }
+
+    public function isEmpty(): bool
+    {
+        return $this->total == 0;
     }
 }

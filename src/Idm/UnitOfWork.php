@@ -7,13 +7,11 @@ use App\Idm\Annotation\Reference;
 use App\Idm\Exception\NotImplementedException;
 use App\Idm\Exception\UnsupportedClassException;
 use Closure;
-use Doctrine\Common\Annotations\Reader;
 use ReflectionClass;
 
 class UnitOfWork
 {
     private readonly IdmManager $manager;
-    private readonly Reader $annotationReader;
 
     /**
      * @var array spl_object_id => object
@@ -38,10 +36,9 @@ class UnitOfWork
     /**
      * UnitOfWork constructor.
      */
-    public function __construct(IdmManager $manager, Reader $annotationReader)
+    public function __construct(IdmManager $manager)
     {
         $this->manager = $manager;
-        $this->annotationReader = $annotationReader;
 
         $this->objects = [];
         $this->id_ref = [];
@@ -55,7 +52,7 @@ class UnitOfWork
      *
      * @param bool $existing If the object represents an existing object from the IDM (e.g. has the id set)
      */
-    public function register(object $obj, bool $existing = false)
+    public function register(object $obj, bool $existing = false): void
     {
         if (!$this->manager->isManaged($obj)) {
             throw new UnsupportedClassException();
@@ -78,7 +75,7 @@ class UnitOfWork
         }
     }
 
-    public function delete(object $obj)
+    public function delete(object $obj): void
     {
         if (!$this->isAttached($obj)) {
             return;
@@ -118,7 +115,7 @@ class UnitOfWork
         return array_key_exists(spl_object_id($object), $this->objects);
     }
 
-    public function persist(object $object, array &$already_done = [])
+    public function persist(object $object, array &$already_done = []): void
     {
         $id = spl_object_id($object);
         if (isset($already_done[$id])) {
@@ -154,7 +151,7 @@ class UnitOfWork
     final public const STATE_MODIFIED = 3;
     final public const STATE_DELETE = 4;
 
-    public function getObjectState(object $object)
+    public function getObjectState(object $object): int
     {
         $id = spl_object_id($object);
         if (!array_key_exists($id, $this->objects)) {
@@ -176,7 +173,7 @@ class UnitOfWork
         return self::STATE_MANAGED;
     }
 
-    public function flush(object $object = null)
+    public function flush(object $object = null): void
     {
         if ($object === null) {
             foreach ($this->objects as $o) {
@@ -197,7 +194,7 @@ class UnitOfWork
         }
     }
 
-    private function backUp(object $obj)
+    private function backUp(object $obj): void
     {
         $clone = clone $obj;
         $this->mapAnnotation($clone,
@@ -243,8 +240,7 @@ class UnitOfWork
         $ref = new ReflectionClass($object);
 
         foreach ($ref->getProperties() as $property) {
-            if ($ano = $this->annotationReader->getPropertyAnnotation($property, Collection::class)) {
-                $property->setAccessible(true);
+            if ($property->getAttributes(Collection::class)) {
                 $v_a = $property->getValue($object);
                 if (is_null($v_a)) {
                     $result[$property->getName()] = [[], []];
@@ -262,32 +258,28 @@ class UnitOfWork
         return $result;
     }
 
-    private function foreachAnnotation(object $object, Closure $closureReference, Closure $closureCollection)
+    private function foreachAnnotation(object $object, Closure $closureReference, Closure $closureCollection): void
     {
         $reflection = new ReflectionClass($object);
 
         foreach ($reflection->getProperties() as $property) {
-            if ($ano = $this->annotationReader->getPropertyAnnotation($property, Collection::class)) {
-                $property->setAccessible(true);
-                $closureCollection($ano->getClass(), $property->getValue($object));
-            } elseif ($ano = $this->annotationReader->getPropertyAnnotation($property, Reference::class)) {
-                $property->setAccessible(true);
-                $closureReference($ano->getClass(), $property->getValue($object));
+            if ($attributes = $property->getAttributes(Collection::class)) {
+                $closureCollection($attributes[0]->newInstance()->getClass(), $property->getValue($object));
+            } elseif ($attributes = $property->getAttributes(Reference::class)) {
+                $closureReference($attributes[0]->newInstance()->getClass(), $property->getValue($object));
             }
         }
     }
 
-    private function mapAnnotation(object $object, Closure $closureReference, Closure $closureCollection)
+    private function mapAnnotation(object $object, Closure $closureReference, Closure $closureCollection): void
     {
         $reflection = new ReflectionClass($object);
 
         foreach ($reflection->getProperties() as $property) {
-            if ($ano = $this->annotationReader->getPropertyAnnotation($property, Collection::class)) {
-                $property->setAccessible(true);
-                $property->setValue($object, $closureCollection($ano->getClass(), $property->getValue($object)));
-            } elseif ($ano = $this->annotationReader->getPropertyAnnotation($property, Reference::class)) {
-                $property->setAccessible(true);
-                $property->setValue($object, $closureReference($ano->getClass(), $property->getValue($object)));
+            if ($attributes = $property->getAttributes(Collection::class)) {
+                $property->setValue($object, $closureCollection($attributes[0]->newInstance()->getClass(), $property->getValue($object)));
+            } elseif ($attributes = $property->getAttributes(Reference::class)) {
+                $property->setValue($object, $closureReference($attributes[0]->newInstance()->getClass(), $property->getValue($object)));
             }
         }
     }

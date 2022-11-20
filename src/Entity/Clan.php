@@ -8,11 +8,7 @@ use Ramsey\Uuid\UuidInterface;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 
-/**
- * Class User.
- *
- * @Idm\Entity(path="/clans", authorize=true, bulk=true)
- */
+#[Idm\Entity(path: '/clans', authorize: true, bulk: true)]
 class Clan
 {
     #[Assert\Uuid(strict: false)]
@@ -34,15 +30,11 @@ class Clan
     #[Groups(['read'])]
     private ?DateTimeInterface $modifiedAt = null;
 
-    /**
-     * @Idm\Collection(class="App\Entity\User")
-     */
+    #[Idm\Collection(class: User::class)]
     #[Groups(['read'])]
     private $users;
 
-    /**
-     * @Idm\Collection(class="App\Entity\User")
-     */
+    #[Idm\Collection(class: User::class)]
     #[Groups(['read'])]
     private $admins;
 

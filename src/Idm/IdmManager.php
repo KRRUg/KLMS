@@ -44,7 +44,6 @@ final class IdmManager
     private readonly LoggerInterface $logger;
     private readonly HttpClientInterface $httpClient;
     private readonly IdmRepositoryFactory $repoFactory;
-    private readonly Reader $annotationReader;
     private readonly Serializer $serializer;
 
     /**
@@ -62,14 +61,13 @@ final class IdmManager
     private const URL_PREFIX = '/api';
 
     // Name of HttpClientInterface $idmClient is important to get idm.client injected by symfony
-    public function __construct(HttpClientInterface $idmClient, LoggerInterface $logger, IdmRepositoryFactory $repoFactory, Reader $annotationReader)
+    public function __construct(HttpClientInterface $idmClient, LoggerInterface $logger, IdmRepositoryFactory $repoFactory)
     {
         $this->httpClient = $idmClient;
         $this->logger = $logger;
         $this->repoFactory = $repoFactory;
-        $this->annotationReader = $annotationReader;
 
-        $on = new ObjectNormalizer(new ClassMetadataFactory(new AnnotationLoader($annotationReader)), null, null, new ReflectionExtractor());
+        $on = new ObjectNormalizer(new ClassMetadataFactory(new AnnotationLoader()), null, null, new ReflectionExtractor());
         $this->serializer = new Serializer([
             new DateTimeNormalizer(),
             new UuidNormalizer(),
@@ -82,9 +80,9 @@ final class IdmManager
         $this->reset();
     }
 
-    public function reset()
+    public function reset(): void
     {
-        $this->unitOfWork = new UnitOfWork($this, $this->annotationReader);
+        $this->unitOfWork = new UnitOfWork($this);
     }
 
     public function isManaged($objectOrClass): bool
@@ -97,9 +95,9 @@ final class IdmManager
         if (array_key_exists($reflectionClass->getName(), $this->config)) {
             return true;
         }
-        $ano = $this->annotationReader->getClassAnnotation($reflectionClass, Entity::class);
-        if ($ano) {
-            $this->config[$reflectionClass->getName()] = $ano;
+        $attributes = $reflectionClass->getAttributes(Entity::class);
+        if ($attributes) {
+            $this->config[$reflectionClass->getName()] = $attributes[0]->newInstance();
             $this->ref_cache[$reflectionClass->getName()] = $reflectionClass;
 
             return true;
@@ -108,7 +106,7 @@ final class IdmManager
         return false;
     }
 
-    private function throwOnNotManaged($objectOrClass)
+    private function throwOnNotManaged($objectOrClass): void
     {
         if (!$this->isManaged($objectOrClass)) {
             throw new UnsupportedClassException();
@@ -127,8 +125,8 @@ final class IdmManager
         $reflection = $this->ref_cache[$class];
         $result = [];
         foreach ($reflection->getProperties() as $property) {
-            if ($ano = $this->annotationReader->getPropertyAnnotation($property, $annotationClass)) {
-                $result[$property->getName()] = $ano;
+            if ($attributes = $property->getAttributes($annotationClass)) {
+                $result[$property->getName()] = $attributes[0]->newInstance();
             }
         }
 
@@ -338,12 +336,10 @@ final class IdmManager
         $reflection = $this->ref_cache[$class];
 
         foreach ($reflection->getProperties() as $property) {
-            if ($ano = $this->annotationReader->getPropertyAnnotation($property, Collection::class)) {
-                $property->setAccessible(true);
-                $property->setValue($object, $closureCollection($ano->getClass(), $property->getValue($object)));
-            } elseif ($ano = $this->annotationReader->getPropertyAnnotation($property, Reference::class)) {
-                $property->setAccessible(true);
-                $property->setValue($object, $closureReference($ano->getClass(), $property->getValue($object)));
+            if ($attributes = $property->getAttributes(Collection::class)) {
+                $property->setValue($object, $closureCollection($attributes[0]->newInstance()->getClass(), $property->getValue($object)));
+            } elseif ($attributes = $property->getAttributes(Reference::class)) {
+                $property->setValue($object, $closureReference($attributes[0]->newInstance()->getClass(), $property->getValue($object)));
             }
         }
     }
@@ -375,15 +371,14 @@ final class IdmManager
         $ref = new ReflectionClass($a);
 
         foreach ($ref->getProperties() as $property) {
-            $property->setAccessible(true);
             $v_a = $property->getValue($a);
             $v_b = $property->getValue($b);
 
-            if ($ano = $this->annotationReader->getPropertyAnnotation($property, Collection::class)) {
+            if ($property->getAttributes(Collection::class)) {
                 if (!$this->compareCollections($v_a, $v_b)) {
                     return false;
                 }
-            } elseif ($ano = $this->annotationReader->getPropertyAnnotation($property, Reference::class)) {
+            } elseif ($property->getAttributes(Reference::class)) {
                 if (!$this->compareObjects($v_a, $v_b)) {
                     return false;
                 }
@@ -397,7 +392,7 @@ final class IdmManager
         return true;
     }
 
-    private static function toUuidObjectArray(array $array, bool $strict = false)
+    private static function toUuidObjectArray(array $array, bool $strict = false): ?array
     {
         $result = [];
         foreach ($array as $item) {
@@ -409,7 +404,7 @@ final class IdmManager
         return $result;
     }
 
-    private static function setPrivateField(object $object, string $field, $value)
+    private static function setPrivateField(object $object, string $field, $value): void
     {
         $set = function () use ($field, $value) {
             $this->$field = $value;
@@ -436,24 +431,25 @@ final class IdmManager
         $options[ObjectNormalizer::IGNORED_ATTRIBUTES] = [...array_keys($collectionFields), ...array_keys($referenceFields)];
         $obj = $this->serializer->denormalize($result, $class, self::REST_FORMAT, $options);
 
-        foreach ($referenceFields as $field => $ano) {
+        foreach ($referenceFields as $field => $attribute) {
             throw new NotImplementedException('@Reference annotation is not implemented in IdmManager yet');
         }
 
-        foreach ($collectionFields as $field => $ano) {
+        foreach ($collectionFields as $field => $attribute) {
             $array = $result[$field];
             if (!is_array($array)) {
                 throw new InvalidArgumentException();
             }
             if ($tmp = self::toUuidObjectArray($array, true)) {
-                $new = LazyLoaderCollection::fromUuidList($this, $ano->getClass(), $tmp);
+                $new = LazyLoaderCollection::fromUuidList($this, $attribute->getClass(), $tmp);
             } else {
-                $tmp = array_map(function ($a) use ($ano) {
-                    $class = $ano->getClass();
+                // TODO return an ArrayCollection here
+                $tmp = array_map(function ($a) use ($attribute) {
+                    $class = $attribute->getClass();
 
                     return $this->hydrateObject($a, $class);
                 }, $array);
-                $new = LazyLoaderCollection::fromObjectList($this, $ano->getClass(), $tmp);
+                $new = LazyLoaderCollection::fromObjectList($this, $attribute->getClass(), $tmp);
             }
             self::setPrivateField($obj, $field, $new);
         }
@@ -567,7 +563,7 @@ final class IdmManager
      *
      * @param object $object
      */
-    private function checkCollections($object, $alreadyDone = [])
+    private function checkCollections(object $object, $alreadyDone = []): void
     {
         $this->throwOnNotManaged($object);
 
@@ -604,7 +600,7 @@ final class IdmManager
         );
     }
 
-    public function persist(object $object)
+    public function persist(object $object): void
     {
         $this->throwOnNotManaged($object);
 
@@ -613,13 +609,13 @@ final class IdmManager
         $this->unitOfWork->persist($object);
     }
 
-    public function remove(object $object)
+    public function remove(object $object): void
     {
         $this->throwOnNotManaged($object);
         $this->unitOfWork->delete($object);
     }
 
-    private function applyCollectionModification(object $object, array $modification)
+    private function applyCollectionModification(object $object, array $modification): bool
     {
         $result = false;
         $base_url = $this->createUrl($object, $this->object2Id($object));
@@ -641,7 +637,7 @@ final class IdmManager
     /**
      * Note: flush does not support creating an object which contains a new object in a collection.
      */
-    public function flush()
+    public function flush(): void
     {
         foreach ($this->unitOfWork->getObjects() as $object) {
             switch ($this->unitOfWork->getObjectState($object)) {

@@ -3,12 +3,9 @@
 namespace App\Idm;
 
 use App\Idm\Transfer\UuidObject;
-use ArrayAccess;
-use Countable;
 use InvalidArgumentException;
-use Iterator;
 
-class LazyLoaderCollection implements ArrayAccess, Iterator, Countable
+class LazyLoaderCollection implements Collection
 {
     private readonly IdmManager $manager;
     private readonly string $class;
@@ -16,9 +13,6 @@ class LazyLoaderCollection implements ArrayAccess, Iterator, Countable
     private array $items;
     private bool $loaded;
 
-    /**
-     * LazyLoaderCollection constructor.
-     */
     public function __construct(IdmManager $manager, string $class)
     {
         $this->manager = $manager;
@@ -27,7 +21,7 @@ class LazyLoaderCollection implements ArrayAccess, Iterator, Countable
         $this->items = [];
     }
 
-    public static function fromUuidList(IdmManager $manager, string $class, array $uuids)
+    public static function fromUuidList(IdmManager $manager, string $class, array $uuids): Collection
     {
         $result = new self($manager, $class);
         $result->loaded = false;
@@ -41,7 +35,7 @@ class LazyLoaderCollection implements ArrayAccess, Iterator, Countable
         return $result;
     }
 
-    public static function fromObjectList(IdmManager $manager, string $class, array $objects)
+    public static function fromObjectList(IdmManager $manager, string $class, array $objects): Collection
     {
         $result = new self($manager, $class);
         $result->loaded = true;
@@ -60,13 +54,13 @@ class LazyLoaderCollection implements ArrayAccess, Iterator, Countable
         return ['class', 'items', 'loaded'];
     }
 
-    private function load()
+    private function load(): void
     {
         $this->items = array_map(fn (UuidObject $object) => $this->manager->request($this->class, $object->getUuid()), $this->items);
         $this->loaded = true;
     }
 
-    public function get($offset)
+    public function get($offset): mixed
     {
         if (!isset($this->items[$offset])) {
             return null;
@@ -76,6 +70,11 @@ class LazyLoaderCollection implements ArrayAccess, Iterator, Countable
         }
 
         return $this->items[$offset];
+    }
+
+    public function isEmpty(): bool
+    {
+        return empty($this->items);
     }
 
     public function toArray(bool $load = true): array
@@ -107,7 +106,7 @@ class LazyLoaderCollection implements ArrayAccess, Iterator, Countable
         return isset($this->items[$offset]);
     }
 
-    public function offsetGet($offset)
+    public function offsetGet($offset): mixed
     {
         return $this->get($offset);
     }
@@ -117,7 +116,7 @@ class LazyLoaderCollection implements ArrayAccess, Iterator, Countable
         return $this->loaded;
     }
 
-    public function offsetSet($offset, $value)
+    public function offsetSet($offset, $value): void
     {
         if (!is_a($value, $this->class)) {
             throw new InvalidArgumentException('Incorrect type');
@@ -125,22 +124,22 @@ class LazyLoaderCollection implements ArrayAccess, Iterator, Countable
         $this->items[$offset] = $value;
     }
 
-    public function offsetUnset($offset)
+    public function offsetUnset($offset): void
     {
         unset($this->items[$offset]);
     }
 
-    public function current()
+    public function current(): mixed
     {
         return $this->get(key($this->items));
     }
 
-    public function next()
+    public function next(): void
     {
         next($this->items);
     }
 
-    public function key()
+    public function key(): mixed
     {
         return key($this->items);
     }
@@ -150,7 +149,7 @@ class LazyLoaderCollection implements ArrayAccess, Iterator, Countable
         return null !== key($this->items);
     }
 
-    public function rewind()
+    public function rewind(): void
     {
         reset($this->items);
     }

@@ -3,16 +3,13 @@
 namespace App\Entity;
 
 use App\Idm\Annotation as Idm;
+use App\Idm\Collection;
 use DateTimeInterface;
 use Ramsey\Uuid\UuidInterface;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 
-/**
- * Class User.
- *
- * @Idm\Entity(path="/users", authorize=true, bulk=true)
- */
+#[Idm\Entity(path: '/users', authorize: true, bulk: true)]
 class User
 {
     private ?int $id = null;
@@ -110,9 +107,7 @@ class User
     #[Groups(['read', 'write'])]
     private ?string $statements = null;
 
-    /**
-     * @Idm\Collection(class="App\Entity\Clan")
-     */
+    #[Idm\Collection(class: Clan::class)]
     #[Groups(['read'])]
     private $clans;
 
