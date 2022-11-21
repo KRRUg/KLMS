@@ -15,6 +15,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Serializer\SerializerInterface;
 
 #[Route(path: '/permission', name: 'permission')]
 #[IsGranted('ROLE_ADMIN_SUPER')]
@@ -24,8 +25,9 @@ class PermissionController extends BaseController
     private readonly IdmRepository $userRepo;
     private readonly FormFactoryInterface $formFactory;
 
-    public function __construct(PermissionService $permissionService, IdmManager $manager, FormFactoryInterface $formFactory)
+    public function __construct(PermissionService $permissionService, IdmManager $manager, FormFactoryInterface $formFactory, SerializerInterface $serializer)
     {
+        parent::__construct($serializer);
         $this->permissionService = $permissionService;
         $this->userRepo = $manager->getRepository(User::class);
         $this->formFactory = $formFactory;

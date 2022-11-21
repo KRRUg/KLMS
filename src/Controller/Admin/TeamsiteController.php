@@ -2,17 +2,17 @@
 
 namespace App\Controller\Admin;
 
-use App\Controller\BaseController;
 use App\Entity\Teamsite;
 use App\Form\TeamsiteType;
 use App\Service\TeamsiteService;
 use Psr\Log\LoggerInterface;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 #[Route(path: '/teamsite', name: 'teamsite')]
-class TeamsiteController extends BaseController
+class TeamsiteController extends AbstractController
 {
     private readonly LoggerInterface $logger;
     private readonly TeamsiteService $teamsiteService;

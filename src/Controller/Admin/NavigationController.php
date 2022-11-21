@@ -11,14 +11,16 @@ use App\Entity\NavigationNodeTeamsite;
 use App\Form\NavigationNodeType;
 use App\Service\NavigationService;
 use Psr\Log\LoggerInterface;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[Route(path: '/navigation', name: 'navigation')]
-class NavigationController extends BaseController
+class NavigationController extends AbstractController
 {
     private readonly LoggerInterface $logger;
     private readonly NavigationService $navService;

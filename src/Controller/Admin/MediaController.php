@@ -10,7 +10,9 @@ use App\Service\MediaService;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Serializer\SerializerInterface;
 
 #[Route(path: '/media', name: 'media')]
 #[IsGranted(['ROLE_ADMIN_CONTENT', 'ROLE_ADMIN_NEWS'])]
@@ -23,8 +25,9 @@ class MediaController extends BaseController
     /**
      * ImageController constructor.
      */
-    public function __construct(MediaService $mediaService)
+    public function __construct(MediaService $mediaService, SerializerInterface $serializer)
     {
+        parent::__construct($serializer);
         $this->mediaService = $mediaService;
     }
 
@@ -106,6 +109,7 @@ class MediaController extends BaseController
             return $this->apiResponse($this->image2json($image));
         } else {
             // TODO implement?
+            throw new NotFoundHttpException();
         }
     }
 }
