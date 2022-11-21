@@ -18,7 +18,7 @@ class ContentController extends AbstractController
 {
     private const CSRF_TOKEN_DELETE = 'contentDeleteToken';
 
-    private ContentService $contentService;
+    private readonly ContentService $contentService;
 
     /**
      * ContentController constructor.

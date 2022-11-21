@@ -17,7 +17,7 @@ class NewsController extends AbstractController
 {
     private const CSRF_TOKEN_DELETE = 'newsDeleteToken';
 
-    private $newsService;
+    private readonly NewsService $newsService;
 
     /**
      * NewsController constructor.

@@ -18,7 +18,7 @@ class MediaController extends BaseController
 {
     private const CSRF_TOKEN_DELETE = 'mediaDeleteToken';
 
-    private $mediaService;
+    private readonly MediaService $mediaService;
 
     /**
      * ImageController constructor.
