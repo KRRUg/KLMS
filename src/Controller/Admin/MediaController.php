@@ -15,7 +15,9 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Serializer\SerializerInterface;
 
 #[Route(path: '/media', name: 'media')]
-#[IsGranted(['ROLE_ADMIN_CONTENT', 'ROLE_ADMIN_NEWS'])]
+// TODO find proper solution and remove quickfix
+// #[IsGranted(['ROLE_ADMIN_CONTENT', 'ROLE_ADMIN_NEWS'])]
+#[IsGranted('ROLE_ADMIN')]
 class MediaController extends BaseController
 {
     private const CSRF_TOKEN_DELETE = 'mediaDeleteToken';
