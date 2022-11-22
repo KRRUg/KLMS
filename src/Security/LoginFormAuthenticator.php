@@ -12,6 +12,7 @@ use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
 use Symfony\Component\Security\Core\Exception\AuthenticationServiceException;
+use Symfony\Component\Security\Core\Security;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Http\Authenticator\AbstractLoginFormAuthenticator;
 use Symfony\Component\Security\Http\Authenticator\Passport\Badge\CsrfTokenBadge;
@@ -41,6 +42,10 @@ class LoginFormAuthenticator extends AbstractLoginFormAuthenticator
         $password = $request->request->get('password');
         $csrf_token = $request->request->get('_csrf_token');
 
+        if ($request->hasSession()) {
+            $request->getSession()->set(Security::LAST_USERNAME, $username);
+        }
+
         return new Passport(
             new UserBadge($username),
             new CustomCredentials($this->checkCredentials(...), $password),
@@ -60,11 +65,8 @@ class LoginFormAuthenticator extends AbstractLoginFormAuthenticator
             throw new AuthenticationServiceException();
         }
         if (!$user->getUser()->getEmailConfirmed()) {
-            $ex = new AccountNotConfirmedException();
-            $ex->setUser($user);
-            throw $ex;
+            throw new AccountNotConfirmedException();
         }
-
         return true;
     }
 
@@ -83,15 +85,14 @@ class LoginFormAuthenticator extends AbstractLoginFormAuthenticator
         return new RedirectResponse('/');
     }
 
-    public function onAuthenticationFailure(Request $request, AuthenticationException $exception): Response
-    {
-        if ($exception instanceof AccountNotConfirmedException) {
-            // TODO implement something here?
-            // e.g. see https://symfonycasts.com/screencast/symfony6-upgrade/authenticator-upgrade
-        }
-
-        return parent::onAuthenticationFailure($request, $exception);
-    }
+//    public function onAuthenticationFailure(Request $request, AuthenticationException $exception): Response
+//    {
+//        if ($exception instanceof AccountNotConfirmedException) {
+//            // implement something here?
+//            // e.g. see https://symfonycasts.com/screencast/symfony6-upgrade/authenticator-upgrade
+//        }
+//        return parent::onAuthenticationFailure($request, $exception);
+//    }
 
     protected function getLoginUrl(Request $request): string
     {

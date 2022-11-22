@@ -38,7 +38,7 @@ class SecurityController extends AbstractController
         $lastUsername = $authenticationUtils->getLastUsername();
 
         if ($error) {
-            $this->addFlash('error-raw', $this->errorMsgToHtml($error));
+            $this->addFlash('error-raw', $this->errorMsgToHtml($error, $lastUsername));
         }
 
         return $this->render('security/login.html.twig', [
@@ -46,7 +46,7 @@ class SecurityController extends AbstractController
         ]);
     }
 
-    private function errorMsgToHtml($error): string
+    private function errorMsgToHtml($error, string $lastUsername): string
     {
         if (empty($error)) {
             return '';
@@ -57,10 +57,9 @@ class SecurityController extends AbstractController
             case $error instanceof UserNotFoundException:
                 return 'E-Mail-Addresse oder Passwort falsch';
             case $error instanceof AccountNotConfirmedException:
-                $user = $error->getUser();
-                $url = $this->urlGenerator->generate('app_register_resend', ['email' => $user->getUserIdentifier()]);
+                $url = $this->urlGenerator->generate('app_register_resend', ['email' => $lastUsername]);
 
-                return "E-Mail-Addresse nicht bestätigt. <a href=\"{$url}\">Bestätigung anfordern.</a>";
+                return "E-Mail-Addresse nicht bestätigt. <a href=\"{$url}\">Bestätigung erneut anfordern.</a>";
             case $error instanceof InvalidCsrfTokenException:
                 return 'Es ist ein Fehler aufgetreten. Bitte Seite neu laden.';
             default:
