@@ -3,7 +3,7 @@
 {% block title %}KLMS - Admin{% endblock %}
 {% block siteheading %}<i class="fas fa-home fa-fw"></i> Dashboard{% endblock %}
 {% block main %}
-    {% if is_granted('ROLE_ADMIN_NEWS') or is_granted('ROLE_ADMIN_CONTENT') %}
+    {% if is_granted('ROLE_ADMIN_NEWS') or is_granted('ROLE_ADMIN_CONTENT') or is_granted('ROLE_ADMIN_MEDIA') %}
         <h5><i class="far fa-file-alt fa-fw"></i> Inhalt</h5>
         <hr>
         <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 row-cols-xl-4">
@@ -26,6 +26,8 @@
                         </div>
                     </a>
                 </div>
+            {% endif %}
+            {% if is_granted('ROLE_ADMIN_MEDIA') %}
                 <div class="col mb-4">
                     <a class="card" href="{{ path('admin_media') }}">
                         <div class="card-body text-center">
@@ -34,6 +36,8 @@
                         </div>
                     </a>
                 </div>
+            {% endif %}
+            {% if is_granted('ROLE_ADMIN_CONTENT') %}
                 <div class="col mb-4">
                     <a class="card" href="{{ path('admin_navigation') }}">
                         <div class="card-body text-center">

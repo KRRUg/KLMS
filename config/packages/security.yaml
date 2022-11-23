@@ -39,6 +39,11 @@ security:
             # https://symfony.com/doc/current/security/impersonating_user.html
             # switch_user: true
 
+    # IsGranted attribute can't perform "or" without an extra bundle anymore, therefore, create a new role for media access
+    role_hierarchy:
+        ROLE_ADMIN_CONTENT: ROLE_ADMIN_MEDIA
+        ROLE_ADMIN_NEWS: ROLE_ADMIN_MEDIA
+
     # Easy way to control access for large sections of your site
     # Note: Only the *first* access control that matches will be used
     access_control:

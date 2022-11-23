@@ -2,7 +2,7 @@
     <li class="nav-item">
         <a class="nav-link {% if app.request.get('_route') starts with 'admin_dashboard' %}active{% endif %}" href="{{ path('admin_dashboard') }}"><i class="fas fa-home fa-fw"></i> Dashboard </a>
     </li>
-    {% if is_granted('ROLE_ADMIN_NEWS') or is_granted('ROLE_ADMIN_CONTENT') %}
+    {% if is_granted('ROLE_ADMIN_NEWS') or is_granted('ROLE_ADMIN_CONTENT') or is_granted('ROLE_ADMIN_MEDIA') %}
         <li class="nav-item">
             <a class="nav-link" href="#contentMenu" data-toggle="collapse"><i class="far fa-file-alt fa-fw"></i> Inhalt</a>
             <ul id="contentMenu" class="collapse show list-group">
@@ -16,7 +16,7 @@
                         <a class="nav-link {% if app.request.get('_route') starts with 'admin_content' %}active{% endif %}" href="{{ path('admin_content') }}"><i class="far fa-file-alt fa-fw"></i> Content </a>
                     </li>
                 {% endif %}
-                {% if is_granted('ROLE_ADMIN_CONTENT') or is_granted('ROLE_ADMIN_NEWS') %}
+                {% if is_granted('ROLE_ADMIN_MEDIA') %}
                     <li class="nav-item">
                         <a class="nav-link {% if app.request.get('_route') starts with 'admin_media' %}active{% endif %}" href="{{ path('admin_media') }}"><i class="far fa-file-image fa-fw"></i> Media </a>
                     </li>
