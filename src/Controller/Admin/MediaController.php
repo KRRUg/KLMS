@@ -10,21 +10,16 @@ use App\Service\MediaService;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Serializer\SerializerInterface;
 
 #[Route(path: '/media', name: 'media')]
-#[IsGranted('ROLE_ADMIN_MEDIA')]
 class MediaController extends BaseController
 {
     private const CSRF_TOKEN_DELETE = 'mediaDeleteToken';
 
     private readonly MediaService $mediaService;
 
-    /**
-     * ImageController constructor.
-     */
     public function __construct(MediaService $mediaService, SerializerInterface $serializer)
     {
         parent::__construct($serializer);
@@ -51,7 +46,8 @@ class MediaController extends BaseController
         };
     }
 
-    #[Route(path: '.{_format}', name: '', defaults: ['_format' => 'html'])]
+    #[Route(path: '', name: '')]
+    #[IsGranted('ROLE_ADMIN_MEDIA')]
     public function index(Request $request): Response
     {
         $filter = $request->get('filter', '');
@@ -75,21 +71,15 @@ class MediaController extends BaseController
 
             return $this->redirectToRoute('admin_media');
         }
-
-        if ($request->getRequestFormat() === 'json') {
-            $result = array_map(fn (Media $m) => $this->image2json($m), $media);
-
-            return $this->apiResponse($result);
-        } else {
-            return $this->render('admin/media/index.html.twig', [
-                'media' => $media,
-                'csrf_token_delete' => self::CSRF_TOKEN_DELETE,
-                'form_upload' => $form_upload->createView(),
-            ]);
-        }
+        return $this->render('admin/media/index.html.twig', [
+            'media' => $media,
+            'csrf_token_delete' => self::CSRF_TOKEN_DELETE,
+            'form_upload' => $form_upload->createView(),
+        ]);
     }
 
     #[Route(path: '/delete/{id}', name: '_delete')]
+    #[IsGranted('ROLE_ADMIN_MEDIA')]
     public function delete(Request $request, Media $image): Response
     {
         $token = $request->request->get('_token');
@@ -102,14 +92,13 @@ class MediaController extends BaseController
         return $this->redirectToRoute('admin_media');
     }
 
-    #[Route(path: '/detail/{id}.{_format}', name: '_detail', defaults: ['_format' => 'html'])]
-    public function detail(Request $request, Media $image): Response
+    #[Route(path: '/list.json', name: '_list')]
+    #[IsGranted('ROLE_ADMIN')]
+    public function listJson(Request $request): Response
     {
-        if ($request->getRequestFormat() === 'json') {
-            return $this->apiResponse($this->image2json($image));
-        } else {
-            // TODO implement?
-            throw new NotFoundHttpException();
-        }
+        $filter = $request->get('filter', '');
+        $media = $this->mediaByFilter($filter);
+        $result = array_map(fn (Media $m) => $this->image2json($m), $media);
+        return $this->apiResponse($result);
     }
 }
