@@ -9,7 +9,6 @@ import 'mark.js/dist/jquery.mark.js';
 
 import './modules/sentry/sentry.js';
 import './modules/adminDataTable/jquery.adminDataTable.js';
-//import './modules/dateTimePicker/datetimepicker.js';
 import './modules/dateTimePicker/jquery.dateTimePicker.js';
 import { German } from "flatpickr/dist/l10n/de.js"
 import 'lightbox2';
