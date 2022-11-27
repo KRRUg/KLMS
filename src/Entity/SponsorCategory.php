@@ -7,33 +7,23 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @ORM\Entity(repositoryClass=SponsorCategoryRepository::class)
- */
+#[ORM\Entity(repositoryClass: SponsorCategoryRepository::class)]
 class SponsorCategory
 {
-    /**
-     * @ORM\Id
-     * @ORM\GeneratedValue
-     * @ORM\Column(type="integer")
-     */
-    private $id;
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column(type: 'integer')]
+    private ?int $id = null;
 
-    /**
-     * @ORM\Column(type="string", length=255)
-     */
-    private $name;
+    #[ORM\Column(type: 'string', length: 255)]
+    private ?string $name = null;
 
-    /**
-     * @ORM\Column(type="integer")
-     */
-    private $priority;
+    #[ORM\Column(type: 'integer')]
+    private ?int $priority = null;
 
-    /**
-     * @ORM\OneToMany(targetEntity=Sponsor::class, mappedBy="category")
-     * @ORM\OrderBy({"name" = "ASC"})
-     */
-    private $sponsors;
+    #[ORM\OneToMany(targetEntity: Sponsor::class, mappedBy: 'category')]
+    #[ORM\OrderBy(['name' => 'ASC'])]
+    private Collection $sponsors;
 
     public function __construct()
     {

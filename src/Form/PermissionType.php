@@ -17,11 +17,11 @@ class PermissionType extends AbstractType
                         'multiple' => false,
                         'required' => true,
                     ]
-                );
+            );
         }
 
         $builder->add('perm', ChoiceType::class, [
-                'choices'  => array_combine(PermissionService::PERMISSIONS, PermissionService::PERMISSIONS),
+                'choices' => array_combine(PermissionService::PERMISSIONS, PermissionService::PERMISSIONS),
                 'expanded' => true,
                 'multiple' => true,
                 'label' => 'Berechtigungen',

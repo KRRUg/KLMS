@@ -5,7 +5,7 @@ namespace App\Repository;
 use App\Entity\Navigation;
 use App\Entity\NavigationNode;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
-use Doctrine\Common\Persistence\ManagerRegistry;
+use Doctrine\Persistence\ManagerRegistry;
 
 /**
  * @method NavigationNode|null find($id, $lockMode = null, $lockVersion = null)

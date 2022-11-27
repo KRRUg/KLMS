@@ -3,35 +3,24 @@
 namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+use Stringable;
 
-/**
- * @ORM\Entity(repositoryClass="App\Repository\NavigationNodeRepository")
- * @ORM\Table(
- *     name="navigation_node",
- *     uniqueConstraints={
- *        @ORM\UniqueConstraint(name="nav_node_lft_unique", columns={"navigation_id", "lft" }),
- *        @ORM\UniqueConstraint(name="nav_node_rgt_unique", columns={"navigation_id", "rgt" }),
- *     },
- * )
- * @ORM\InheritanceType("SINGLE_TABLE")
- * @ORM\DiscriminatorColumn(name="type", type="string", length=25)
- * @ORM\DiscriminatorMap({
- *     "root" = "NavigationNodeRoot",
- *     "empty" = "NavigationNodeEmpty",
- *     "generic" = "NavigationNodeGeneric",
- *     "content" = "NavigationNodeContent",
- *     "teamsite" = "NavigationNodeTeamsite",
- * })
- */
-abstract class NavigationNode
+#[ORM\Table(name: 'navigation_node')]
+#[ORM\UniqueConstraint(name: 'nav_node_lft_unique', columns: ['navigation_id', 'lft'])]
+#[ORM\UniqueConstraint(name: 'nav_node_rgt_unique', columns: ['navigation_id', 'rgt'])]
+#[ORM\Entity(repositoryClass: 'App\Repository\NavigationNodeRepository')]
+#[ORM\InheritanceType('SINGLE_TABLE')]
+#[ORM\DiscriminatorColumn(name: 'type', type: 'string', length: 25)]
+#[ORM\DiscriminatorMap(['root' => 'NavigationNodeRoot', 'empty' => 'NavigationNodeEmpty', 'generic' => 'NavigationNodeGeneric', 'content' => 'NavigationNodeContent', 'teamsite' => 'NavigationNodeTeamsite'])]
+abstract class NavigationNode implements Stringable
 {
-    const NAV_NODE_TYPE_ROOT = "root";
-    const NAV_NODE_TYPE_EMPTY = "empty";
-    const NAV_NODE_TYPE_PATH = "path";
-    const NAV_NODE_TYPE_CONTENT = "content";
-    const NAV_NODE_TYPE_TEAMSITE = "teamsite";
+    public const NAV_NODE_TYPE_ROOT = 'root';
+    public const NAV_NODE_TYPE_EMPTY = 'empty';
+    public const NAV_NODE_TYPE_PATH = 'path';
+    public const NAV_NODE_TYPE_CONTENT = 'content';
+    public const NAV_NODE_TYPE_TEAMSITE = 'teamsite';
 
-    const NAV_NODE_TYPES = [
+    public const NAV_NODE_TYPES = [
         self::NAV_NODE_TYPE_ROOT,
         self::NAV_NODE_TYPE_EMPTY,
         self::NAV_NODE_TYPE_PATH,
@@ -39,47 +28,38 @@ abstract class NavigationNode
         self::NAV_NODE_TYPE_TEAMSITE,
     ];
 
-    /**
-     * @ORM\Id()
-     * @ORM\GeneratedValue()
-     * @ORM\Column(type="integer")
-     */
-    private $id;
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column(type: 'integer')]
+    private ?int $id = null;
 
-    /**
-     * @ORM\Column(type="string", length=255)
-     */
-    private $name;
+    #[ORM\Column(type: 'string', length: 255)]
+    private ?string $name = null;
 
-    /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\Navigation", inversedBy="nodes")
-     * @ORM\JoinColumn(name="navigation_id", nullable=false)
-     */
-    private $navigation;
+    #[ORM\ManyToOne(inversedBy: 'nodes')]
+    #[ORM\JoinColumn(name: 'navigation_id', nullable: false)]
+    private ?Navigation $navigation = null;
 
-    /**
-     * @ORM\Column(type="integer", nullable=false)
-     */
-    private $lft;
+    #[ORM\Column(type: 'integer', nullable: false)]
+    private ?int $lft = null;
 
-    /**
-     * @ORM\Column(type="integer", nullable=false)
-     */
-    private $rgt;
+    #[ORM\Column(type: 'integer', nullable: false)]
+    private ?int $rgt = null;
 
     public function __construct()
     {
-        $this->name = "";
+        $this->name = '';
     }
 
-    public function __toString()
+    public function __toString(): string
     {
-        return $this->getName();
+        return (string) $this->getName();
     }
 
     public function getPath(): ?string
     {
         $id = $this->getTargetId();
+
         return is_null($id) ? null : "/{$this->getType()}/{$id}";
     }
 
@@ -149,20 +129,18 @@ abstract class NavigationNode
     }
 }
 
-/**
- * @ORM\Entity()
- */
-class NavigationNodeRoot extends NavigationNode
+#[ORM\Entity]
+class NavigationNodeRoot extends NavigationNode implements Stringable
 {
     public function __construct()
     {
         parent::__construct();
-        $this->setName("KLMS");
+        $this->setName('KLMS');
     }
 
-    public function __toString()
+    public function __toString(): string
     {
-        return "";
+        return '';
     }
 
     public function getType(): ?string
@@ -176,17 +154,12 @@ class NavigationNodeRoot extends NavigationNode
     }
 }
 
-/**
- * @ORM\Entity()
- */
+#[ORM\Entity]
 class NavigationNodeContent extends NavigationNode
 {
-    /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\Content", fetch="LAZY")
-     * @ORM\JoinColumn(name="content_id", referencedColumnName="id")
-     * @var Content
-     */
-    private $content;
+    #[ORM\ManyToOne(fetch: 'LAZY')]
+    #[ORM\JoinColumn(name: 'content_id', referencedColumnName: 'id')]
+    private ?Content $content = null;
 
     public function __construct(Content $content = null)
     {
@@ -217,14 +190,9 @@ class NavigationNodeContent extends NavigationNode
     }
 }
 
-/**
- * @ORM\Entity()
- */
+#[ORM\Entity]
 class NavigationNodeEmpty extends NavigationNode
 {
-    /**
-     * NavigationNodeEmpty constructor.
-     */
     public function __construct()
     {
         parent::__construct();
@@ -241,16 +209,11 @@ class NavigationNodeEmpty extends NavigationNode
     }
 }
 
-/**
- * @ORM\Entity()
- */
+#[ORM\Entity]
 class NavigationNodeGeneric extends NavigationNode
 {
-    /**
-     * @ORM\Column(type="string", length=50, nullable=false)
-     * @var string
-     */
-    private $path;
+    #[ORM\Column(type: 'string', length: 50, nullable: false)]
+    private ?string $path;
 
     public function __construct(string $path = '/')
     {
@@ -266,6 +229,7 @@ class NavigationNodeGeneric extends NavigationNode
     public function setPath(string $path): self
     {
         $this->path = $path;
+
         return $this;
     }
 
@@ -280,17 +244,12 @@ class NavigationNodeGeneric extends NavigationNode
     }
 }
 
-/**
- * @ORM\Entity()
- */
+#[ORM\Entity]
 class NavigationNodeTeamsite extends NavigationNode
 {
-    /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\Teamsite", fetch="LAZY")
-     * @ORM\JoinColumn(name="teamsite_id", referencedColumnName="id")
-     * @var Teamsite
-     */
-    private $teamsite;
+    #[ORM\ManyToOne(fetch: 'LAZY')]
+    #[ORM\JoinColumn(name: 'teamsite_id', referencedColumnName: 'id')]
+    private ?Teamsite $teamsite;
 
     public function __construct(Teamsite $teamsite = null)
     {

@@ -1,8 +1,6 @@
 <?php
 
-
 namespace App\Service;
-
 
 use App\Entity\News;
 use App\Repository\NewsRepository;
@@ -17,9 +15,6 @@ class NewsService
 
     /**
      * NewsService constructor.
-     * @param $repo
-     * @param $em
-     * @param $logger
      */
     public function __construct(NewsRepository $repo, EntityManagerInterface $em, LoggerInterface $logger)
     {
@@ -31,29 +26,29 @@ class NewsService
     /**
      * @return array All content elements
      */
-    public function getAll() : array
+    public function getAll(): array
     {
         return $this->repo->findAllOrdered();
     }
 
-    public function get(int $from = 0, int $to = 6)
+    public function get(int $from = 0, int $to = 6): array
     {
         return $this->repo->findActiveOrdered($from, $to);
     }
 
-    public function count() : int
+    public function count(): int
     {
         return $this->repo->countActive();
     }
 
-    public function delete(News $news)
+    public function delete(News $news): void
     {
         $this->logger->info("Deleted News {$news->getId()} ({$news->getTitle()})");
         $this->em->remove($news);
         $this->em->flush();
     }
 
-    public function save(News $news)
+    public function save(News $news): void
     {
         $this->logger->info("Create or Update News {$news->getId()} ({$news->getTitle()})");
         $this->em->persist($news);

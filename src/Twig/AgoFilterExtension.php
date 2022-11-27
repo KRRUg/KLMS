@@ -6,36 +6,36 @@ use Twig\Extension\AbstractExtension;
 use Twig\TwigFilter;
 
 /**
- * Description of AgoFilterExtension
- *
- * @author m8sch
+ * Description of AgoFilterExtension.
  */
 class AgoFilterExtension extends AbstractExtension
 {
-    public function getFilters()
+    public function getFilters(): array
     {
         return [
-            new TwigFilter('ago', [$this, 'filterAgo']),
+            new TwigFilter('ago', $this->filterAgo(...)),
         ];
     }
 
-    public function filterAgo($date)
+    public function filterAgo($date): string
     {
-        $periods_s = array("Sek", "Min", "Std", "Tag", "Woche", "Monat", "Jahr");
-        $periods_p = array("Sek", "Min", "Std", "Tagen", "Wochen", "Monaten", "Jahren");
-        $lengths = array("60", "60", "24", "7", "4.33", "12");
+        $periods_s = ['Sek', 'Min', 'Std', 'Tag', 'Woche', 'Monat', 'Jahr'];
+        $periods_p = ['Sek', 'Min', 'Std', 'Tagen', 'Wochen', 'Monaten', 'Jahren'];
+        $lengths = ['60', '60', '24', '7', '4.33', '12'];
 
         $now = time();
         $difference = $now - $date->getTimestamp();
 
-        if ($difference < 90)
-            return "jetzt";
+        if ($difference < 90) {
+            return 'jetzt';
+        }
 
-        for($j = 0; $difference >= $lengths[$j] && $j < count($lengths)-1; $j++) {
+        for ($j = 0; $difference >= $lengths[$j] && $j < count($lengths) - 1; ++$j) {
             $difference /= $lengths[$j];
         }
-        
+
         $difference = round($difference);
-        return "vor " . $difference . " " . ($difference == 1 ? $periods_s[$j] : $periods_p[$j]);
+
+        return 'vor '.$difference.' '.($difference == 1 ? $periods_s[$j] : $periods_p[$j]);
     }
 }

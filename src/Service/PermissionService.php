@@ -1,8 +1,6 @@
 <?php
 
-
 namespace App\Service;
-
 
 use App\Entity\User;
 use App\Entity\UserAdmin;
@@ -16,21 +14,21 @@ use Symfony\Component\Security\Core\Security;
 
 final class PermissionService
 {
-    ////////////////////////////////////////////////
-    /// Admin roles names
-    ///////////////////////////////////////////////
-    const ADMIN_SUPER = "ADMIN_SUPER";         // May grant admin rights to other uses
-    const ADMIN_CONTENT = "ADMIN_CONTENT";     // May edit page content and navigation
-    const ADMIN_ADMISSION = "ADMIN_ADMISSION"; // May edit users registration state
-    const ADMIN_NEWS = "ADMIN_NEWS";           // May edit and publish news
-    const ADMIN_MAIL = "ADMIN_MAIL";           // May edit and send newsletters and emails
-    const ADMIN_USER = "ADMIN_USER";           // May edit users and clans
-    const ADMIN_PAYMENT = "ADMIN_PAYMENT";     // May set Gamers to paid/unpaid
-    const ADMIN_CHECKIN = "ADMIN_CHECKIN";     // May check in Gamers at the LAN
-    const ADMIN_SEATMAP = "ADMIN_SEATMAP";     // May edit Seatmap and assign Gamers Seats
+    // //////////////////////////////////////////////
+    // / Admin roles names
+    // /////////////////////////////////////////////
+    public const ADMIN_SUPER = 'ADMIN_SUPER';         // May grant admin rights to other uses
+    public const ADMIN_CONTENT = 'ADMIN_CONTENT';     // May edit page content and navigation
+    public const ADMIN_ADMISSION = 'ADMIN_ADMISSION'; // May edit users registration state
+    public const ADMIN_NEWS = 'ADMIN_NEWS';           // May edit and publish news
+    public const ADMIN_MAIL = 'ADMIN_MAIL';           // May edit and send newsletters and emails
+    public const ADMIN_USER = 'ADMIN_USER';           // May edit users and clans
+    public const ADMIN_PAYMENT = 'ADMIN_PAYMENT';     // May set Gamers to paid/unpaid
+    public const ADMIN_CHECKIN = 'ADMIN_CHECKIN';     // May check in Gamers at the LAN
+    public const ADMIN_SEATMAP = 'ADMIN_SEATMAP';     // May edit Seatmap and assign Gamers Seats
     // extend here
 
-    const PERMISSIONS = [
+    public const PERMISSIONS = [
         self::ADMIN_SUPER,
         self::ADMIN_CONTENT,
         self::ADMIN_ADMISSION,
@@ -43,10 +41,10 @@ final class PermissionService
         // extend here
     ];
 
-    private UserAdminsRepository $repo;
-    private EntityManagerInterface $em;
-    private IdmRepository $userRepo;
-    private Security $security;
+    private readonly UserAdminsRepository $repo;
+    private readonly EntityManagerInterface $em;
+    private readonly IdmRepository $userRepo;
+    private readonly Security $security;
 
     public function __construct(
         Security $security,
@@ -63,6 +61,7 @@ final class PermissionService
     public function validPermission(string $permission): bool
     {
         $permission = strtoupper($permission);
+
         return in_array($permission, self::PERMISSIONS);
     }
 
@@ -78,14 +77,16 @@ final class PermissionService
         if (empty($admin)) {
             return false;
         }
+
         return in_array($permission, $admin->getPermissions());
     }
 
     private function getCurrentLoginUser(): ?LoginUser
     {
         $user = $this->security->getUser();
-        if (empty($user) || !($user instanceof LoginUser))
+        if (empty($user) || !($user instanceof LoginUser)) {
             return null;
+        }
 
         return $user;
     }
@@ -95,86 +96,97 @@ final class PermissionService
         if (!$this->validPermission($permission)) {
             return false;
         }
-        $role = "ROLE_" . $permission;
+        $role = 'ROLE_'.$permission;
         $user = $this->getCurrentLoginUser();
         if (empty($user)) {
             return false;
         }
+
         return $user->hasRole($role);
     }
 
     /**
-     * Checks if a user has a certain permission
-     * @param string $permission
+     * Checks if a user has a certain permission.
+     *
      * @throws PermissionException If $user has not $permission
      */
-    public function checkAndThrow(string $permission)
+    public function checkAndThrow(string $permission): void
     {
         if (!$this->hasSessionPermission($permission)) {
             throw new PermissionException($permission);
         }
     }
 
-    public function grantPermission(string $permission, User $user) : bool
+    public function grantPermission(string $permission, User $user): bool
     {
         $this->checkAndThrow(self::ADMIN_SUPER);
 
-        if (!$this->validPermission($permission))
+        if (!$this->validPermission($permission)) {
             return false;
+        }
 
         $admin = $this->repo->findByUser($user);
         if (empty($admin)) {
             $admin = new UserAdmin($user->getUuid());
         }
-        $admin->addPermisison($permission);
+        $admin->addPermission($permission);
         $this->em->persist($admin);
         $this->em->flush();
+
         return true;
     }
 
-    public function getPermissions(User $user) : array
+    public function getPermissions(User $user): array
     {
         $adminUser = $this->repo->findByUser($user);
-        if (empty($adminUser))
+        if (empty($adminUser)) {
             return [];
+        }
+
         return $adminUser->getPermissions();
     }
 
-    public function setPermissions(User $user, array $permissions) : bool
+    public function setPermissions(User $user, array $permissions): bool
     {
         $this->checkAndThrow(self::ADMIN_SUPER);
 
-        if (is_null($permissions))
+        if (is_null($permissions)) {
             return false;
+        }
 
-        if (count(array_diff($permissions, self::PERMISSIONS)) > 0)
+        if (count(array_diff($permissions, self::PERMISSIONS)) > 0) {
             return false;
+        }
 
         $admin = $this->repo->findByUser($user);
 
-        if (empty($admin) && empty($permissions))
+        if (empty($admin) && empty($permissions)) {
             return true;
+        }
 
         if (empty($permissions)) {
             $this->em->remove($admin);
             $this->em->flush();
+
             return true;
         }
 
-        if(empty($admin))
+        if (empty($admin)) {
             $admin = new UserAdmin($user->getUuid());
+        }
 
         $admin->setPermissions($permissions);
         $this->em->persist($admin);
         $this->em->flush();
+
         return true;
     }
 
-    public function getAdmins() : array
+    public function getAdmins(): array
     {
         $admins = $this->repo->findAll();
-        $admins = array_filter($admins, function (UserAdmin $a) { return !empty($a->getPermissions()); });
-        $ids = array_map(function (UserAdmin $a) { return $a->getUuid()->toString(); }, $admins);
+        $admins = array_filter($admins, fn (UserAdmin $a) => !empty($a->getPermissions()));
+        $ids = array_map(fn (UserAdmin $a) => $a->getUuid()->toString(), $admins);
         $admins = array_combine($ids, $admins);
         $users = $this->userRepo->findById($ids);
 
@@ -182,16 +194,18 @@ final class PermissionService
         foreach ($users as $user) {
             $uuid = $user->getUuid()->toString();
             $permissions = $admins[$uuid]->getPermissions();
-            $ret[$uuid] = array($user, $permissions);
+            $ret[$uuid] = [$user, $permissions];
         }
+
         return $ret;
     }
 
     /**
      * @param User $user The user to be logged in
+     *
      * @return array The permissions of the User
      */
-    public function handleLogin(User $user) : array
+    public function handleLogin(User $user): array
     {
         $userAdmin = $this->repo->findByUser($user);
         if ($user->getIsSuperadmin()) {
@@ -207,6 +221,7 @@ final class PermissionService
         if (!empty($userAdmin)) {
             return $userAdmin->getPermissions();
         }
+
         return [];
     }
 }

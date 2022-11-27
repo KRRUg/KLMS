@@ -2,42 +2,31 @@
 
 namespace App\Entity;
 
+use App\Repository\UserGamerRepository;
 use DateTimeInterface;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Ramsey\Uuid\UuidInterface;
 
-/**
- * @ORM\Entity(repositoryClass="App\Repository\UserGamerRepository")
- */
+#[ORM\Entity(repositoryClass: UserGamerRepository::class)]
 class UserGamer
 {
-    /**
-     * @ORM\Id()
-     * @ORM\Column(type="uuid", unique=true)
-     */
+    #[ORM\Id]
+    #[ORM\Column(type: 'uuid', unique: true)]
     private ?UuidInterface $uuid;
 
-    /**
-     * @ORM\Column(type="datetime", nullable=true)
-     */
-    private $registered;
+    #[ORM\Column(type: 'datetime', nullable: true)]
+    private ?DateTimeInterface $registered = null;
 
-    /**
-     * @ORM\Column(type="datetime", nullable=true)
-     */
-    private $paid;
+    #[ORM\Column(type: 'datetime', nullable: true)]
+    private ?DateTimeInterface $paid = null;
 
-    /**
-     * @ORM\OneToMany(targetEntity="App\Entity\Seat", mappedBy="owner")
-     */
-    private $seats;
+    #[ORM\OneToMany(targetEntity: Seat::class, mappedBy: 'owner')]
+    private Collection $seats;
 
-    /**
-     * @ORM\Column(type="datetime", nullable=true)
-     */
-    private $checkedIn;
+    #[ORM\Column(type: 'datetime', nullable: true)]
+    private ?DateTimeInterface $checkedIn = null;
 
     public function __construct(?UuidInterface $uuid)
     {
@@ -45,7 +34,7 @@ class UserGamer
         $this->seats = new ArrayCollection();
     }
 
-    public function getRegistered()
+    public function getRegistered(): ?DateTimeInterface
     {
         return $this->registered;
     }
@@ -57,19 +46,21 @@ class UserGamer
         return $this;
     }
 
-    public function hasRegistered() : bool
+    public function hasRegistered(): bool
     {
         return $this->registered !== null;
     }
-    
+
     public function getUuid(): ?UuidInterface
     {
         return $this->uuid;
     }
 
-    public function setUuid(?UuidInterface $uuid)
+    public function setUuid(?UuidInterface $uuid): self
     {
         $this->uuid = $uuid;
+
+        return $this;
     }
 
     public function getPaid(): ?DateTimeInterface
@@ -120,12 +111,12 @@ class UserGamer
         return $this;
     }
 
-    public function getCheckedIn(): ?\DateTimeInterface
+    public function getCheckedIn(): ?DateTimeInterface
     {
         return $this->checkedIn;
     }
 
-    public function setCheckedIn(?\DateTimeInterface $checkedIn): self
+    public function setCheckedIn(?DateTimeInterface $checkedIn): self
     {
         $this->checkedIn = $checkedIn;
 

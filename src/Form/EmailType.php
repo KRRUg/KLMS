@@ -15,34 +15,34 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class EmailType extends AbstractType
 {
-    private AuthorInsertSubscriber $userInsertSubscriber;
+    private readonly AuthorInsertSubscriber $userInsertSubscriber;
 
     public function __construct(AuthorInsertSubscriber $userInsertSubscriber)
     {
         $this->userInsertSubscriber = $userInsertSubscriber;
     }
 
-	public function buildForm(FormBuilderInterface $builder, array $options)
-	{
-		$builder
-			->add('name', TextType::class, ['label' => 'Name'])
-			->add('subject', TextType::class, ['label' => 'Betreff'])
+    public function buildForm(FormBuilderInterface $builder, array $options)
+    {
+        $builder
+            ->add('name', TextType::class, ['label' => 'Name'])
+            ->add('subject', TextType::class, ['label' => 'Betreff'])
             ->add('recipientGroup', ChoiceType::class, [
                 'label' => 'Empfänger (Gruppe)',
                 'placeholder' => '',
                 'required' => false,
                 'choices' => GroupService::getGroups(),
-                'choice_value' => function (?UuidInterface $uuid) { return is_null($uuid) ? null : $uuid->toString(); },
+                'choice_value' => fn (?UuidInterface $uuid) => is_null($uuid) ? null : $uuid->toString(),
             ])
             ->add('body', HtmlTextareaType::class, [
-			    'label' => 'Inhalt',
+                'label' => 'Inhalt',
                 'empty_data' => '',
                 'required' => false,
                 'fix_urls' => 'absolute',
             ])
-			->add('designFile', ChoiceType::class, [
+            ->add('designFile', ChoiceType::class, [
                 'label' => 'Design',
-				'choices' => array_combine(array_keys(EmailService::NEWSLETTER_DESIGNS), array_keys(EmailService::NEWSLETTER_DESIGNS)),
+                'choices' => array_combine(array_keys(EmailService::NEWSLETTER_DESIGNS), array_keys(EmailService::NEWSLETTER_DESIGNS)),
             ]);
         if ($options['generate_buttons']) {
             $builder
@@ -50,13 +50,13 @@ class EmailType extends AbstractType
                 ->add('save', SubmitType::class);
         }
         $builder->addEventSubscriber($this->userInsertSubscriber);
-	}
+    }
 
-	public function configureOptions(OptionsResolver $resolver)
-	{
-		$resolver->setDefaults([
-		    'data_class' => Email::class,
+    public function configureOptions(OptionsResolver $resolver)
+    {
+        $resolver->setDefaults([
+            'data_class' => Email::class,
             'generate_buttons' => false,
         ]);
-	}
+    }
 }

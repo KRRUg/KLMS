@@ -9,41 +9,25 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @ORM\Entity(repositoryClass=TeamsiteRepository::class)
- * @ORM\HasLifecycleCallbacks
- */
+#[ORM\Entity(repositoryClass: TeamsiteRepository::class)]
+#[ORM\HasLifecycleCallbacks]
 class Teamsite implements HistoryAwareEntity
 {
-    /**
-     * @ORM\Id
-     * @ORM\GeneratedValue
-     * @ORM\Column(type="integer")
-     */
-    private ?int $id;
-
-    /**
-     * @ORM\Column(type="string", length=255)
-     */
-    private ?string $title = '';
-
-    /**
-     * @ORM\Column(type="text")
-     */
-    private ?string $description = '';
-
-    /**
-     * @ORM\OneToMany(
-     *     targetEntity=TeamsiteCategory::class,
-     *     mappedBy="teamsite",
-     *     orphanRemoval=true,
-     *     cascade={"all"},
-     * )
-     * @ORM\OrderBy({"ord" = "ASC"})
-     */
-    private $categories;
-
     use EntityHistoryTrait;
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column(type: 'integer')]
+    private ?int $id = null;
+
+    #[ORM\Column(type: 'string', length: 255)]
+    private ?string $title = null;
+
+    #[ORM\Column(type: 'text')]
+    private ?string $description = null;
+
+    #[ORM\OneToMany(targetEntity: TeamsiteCategory::class, mappedBy: 'teamsite', orphanRemoval: true, cascade: ['all'])]
+    #[ORM\OrderBy(['ord' => 'ASC'])]
+    private Collection $categories;
 
     public function __construct()
     {
@@ -67,14 +51,15 @@ class Teamsite implements HistoryAwareEntity
         return $this;
     }
 
-    public function getDescription()
+    public function getDescription(): ?string
     {
         return $this->description;
     }
 
-    public function setDescription($description)
+    public function setDescription($description): self
     {
         $this->description = $description;
+
         return $this;
     }
 
@@ -104,6 +89,7 @@ class Teamsite implements HistoryAwareEntity
             }
         }
         $this->categories->clear();
+
         return $this;
     }
 

@@ -4,8 +4,6 @@ namespace App\Repository;
 
 use App\Entity\Sponsor;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
-use Doctrine\ORM\OptimisticLockException;
-use Doctrine\ORM\ORMException;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -22,7 +20,7 @@ class SponsorRepository extends ServiceEntityRepository
     {
         parent::__construct($registry, Sponsor::class);
     }
-    
+
     public function findOneRandomBy($criteria = [])
     {
         $qb = $this->createQueryBuilder('entity')
@@ -40,10 +38,11 @@ class SponsorRepository extends ServiceEntityRepository
             ->getQuery()
             ->getSingleScalarResult();
 
-        if ($count == 0)
+        if ($count == 0) {
             return null;
+        }
 
-        $offset = rand(0, $count-1);
+        $offset = rand(0, $count - 1);
 
         return $qb
             ->select('entity')
@@ -51,7 +50,7 @@ class SponsorRepository extends ServiceEntityRepository
             ->setFirstResult($offset)
             ->getQuery()
             ->getOneOrNullResult()
-            ;
+        ;
     }
 
 /*

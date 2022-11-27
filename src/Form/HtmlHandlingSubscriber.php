@@ -3,16 +3,17 @@
 namespace App\Form;
 
 use DOMDocument;
+use ErrorException;
+use Symfony\Component\DomCrawler\Crawler;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\Form\Event\PreSubmitEvent;
 use Symfony\Component\Form\FormEvents;
-use Symfony\Component\DomCrawler\Crawler;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Wa72\Url\Url;
 
 class HtmlHandlingSubscriber implements EventSubscriberInterface
 {
-    private Url $serverUrl;
+    private readonly Url $serverUrl;
 
     public function __construct(UrlGeneratorInterface $router)
     {
@@ -25,10 +26,10 @@ class HtmlHandlingSubscriber implements EventSubscriberInterface
         $this->serverUrl->setPath($context->getBaseUrl());
     }
 
-    public static function getSubscribedEvents()
+    public static function getSubscribedEvents(): array
     {
         return [
-            FormEvents::PRE_SUBMIT => 'onPreSubmit'
+            FormEvents::PRE_SUBMIT => 'onPreSubmit',
         ];
     }
 
@@ -38,7 +39,7 @@ class HtmlHandlingSubscriber implements EventSubscriberInterface
         $form = $event->getForm();
         assert($form->getConfig()->getType()->getInnerType() instanceof HtmlTextareaType);
         $doc = new DOMDocument();
-        try{
+        try {
             // add dummy div around content, to have one root node
             // otherwise $crawler->html() does crazy stuff
             $html = "<div>{$data}</div>";
@@ -46,7 +47,7 @@ class HtmlHandlingSubscriber implements EventSubscriberInterface
                 mb_convert_encoding($html, 'HTML-ENTITIES', 'UTF-8'),
                 LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD
             );
-        } catch (\ErrorException $exception) {
+        } catch (ErrorException) {
             // TODO handle if html is not valid
             $doc->loadHTML('<p></p>');
         }
@@ -59,8 +60,9 @@ class HtmlHandlingSubscriber implements EventSubscriberInterface
 
     private function relativeUrls(Crawler $crawler, $mode)
     {
-        if ($mode === false)
+        if ($mode === false) {
             return;
+        }
 
         $target = ['a' => 'href', 'img' => 'src'];
 
@@ -69,11 +71,12 @@ class HtmlHandlingSubscriber implements EventSubscriberInterface
                 $url = $node->getAttribute($attr);
                 $url = new Url($url);
 
-                if (!$url->is_url())
+                if (!$url->is_url()) {
                     continue;
+                }
 
                 $newUrl = $url->write();
-                if ($mode === 'relative'){
+                if ($mode === 'relative') {
                     // Url::host is not set for relative urls
                     if ($url->getHost() == $this->serverUrl->getHost()) {
                         $newUrl = $url->write(Url::WRITE_FLAG_OMIT_SCHEME | Url::WRITE_FLAG_OMIT_HOST);
@@ -90,8 +93,9 @@ class HtmlHandlingSubscriber implements EventSubscriberInterface
 
     private function clearScripts(Crawler $crawler, bool $enabled)
     {
-        if (!$enabled)
+        if (!$enabled) {
             return;
+        }
 
         foreach ($crawler->filter('script') as $node) {
             $node->parentNode->removeChild($node);
@@ -100,16 +104,17 @@ class HtmlHandlingSubscriber implements EventSubscriberInterface
 
     private function emptyHeadlines(Crawler $crawler, bool $enabled)
     {
-        if (!$enabled)
+        if (!$enabled) {
             return;
+        }
 
-        $tags = ['h1','h2','h3','h4','h5','h6'];
+        $tags = ['h1', 'h2', 'h3', 'h4', 'h5', 'h6'];
 
         foreach ($tags as $tag) {
             foreach ($crawler->filter($tag) as $node) {
                 $text = $node->textContent;
                 // replace &nbsp;
-                $text = str_replace("\xC2\xA0", "", $text);
+                $text = str_replace("\xC2\xA0", '', $text);
                 $text = trim($text);
                 if (empty($text)) {
                     $node->parentNode->removeChild($node);

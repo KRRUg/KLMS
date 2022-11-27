@@ -8,20 +8,22 @@ use App\Helper\EmailRecipient;
 use App\Repository\EmailRepository;
 use App\Service\EmailService;
 use App\Service\GroupService;
+use DateTime;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ObjectRepository;
+use Exception;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Messenger\Handler\MessageHandlerInterface;
 use Symfony\Component\Messenger\MessageBusInterface;
 
 class MailingGroupNotificationHandler implements MessageHandlerInterface
 {
-    private EmailService $mailService;
-    private GroupService $groupService;
-    private ObjectRepository $sendingRepo;
-    private EntityManagerInterface $em;
-    private MessageBusInterface $bus;
-    private LoggerInterface $logger;
+    private readonly EmailService $mailService;
+    private readonly GroupService $groupService;
+    private readonly ObjectRepository $sendingRepo;
+    private readonly EntityManagerInterface $em;
+    private readonly MessageBusInterface $bus;
+    private readonly LoggerInterface $logger;
 
     public function __construct(EmailService $mailService,
                                 GroupService $groupService,
@@ -46,6 +48,7 @@ class MailingGroupNotificationHandler implements MessageHandlerInterface
         if (empty($sending)) {
             $this->logger->notice("Sending with id {$id} was not found, canceling sending.");
             $this->em->rollback();
+
             return;
         }
         $template = $sending->getTemplate();
@@ -53,7 +56,7 @@ class MailingGroupNotificationHandler implements MessageHandlerInterface
         $messages = [];
         try {
             $users = $this->groupService->query($template->getRecipientGroup());
-            $sending->setStarted(new \DateTime());
+            $sending->setStarted(new DateTime());
             $sending->setRecipientCount(sizeof($users));
             foreach ($users as $u) {
                 $recipient = EmailRecipient::fromUser($u);
@@ -69,9 +72,9 @@ class MailingGroupNotificationHandler implements MessageHandlerInterface
                 $messages[] = new MailingNotification($sending->getId(), $recipient);
             }
             $this->em->flush();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->em->rollback();
-            $this->logger->error("Failed to start Email sending", ['exception' => $e]);
+            $this->logger->error('Failed to start Email sending', ['exception' => $e]);
             throw $e;
         }
         $this->em->commit();

@@ -1,6 +1,5 @@
 <?php
 
-
 namespace App\Service;
 
 use App\Entity\Media;
@@ -18,8 +17,6 @@ class MediaService
 
     /**
      * ImageService constructor.
-     * @param $em
-     * @param $repo
      */
     public function __construct(LoggerInterface $logger, EntityManagerInterface $em, MediaRepository $repo)
     {
@@ -31,7 +28,7 @@ class MediaService
     /**
      * @return Media[] All content elements
      */
-    public function getAll() : array
+    public function getAll(): array
     {
         return $this->repo->findAll();
     }
@@ -49,7 +46,7 @@ class MediaService
         return $this->repo->findByMimeClass('application');
     }
 
-    public function delete(Media $image)
+    public function delete(Media $image): void
     {
         $this->logger->info("Deleted Image {$image->getId()}");
         $this->em->remove($image);
@@ -66,10 +63,11 @@ class MediaService
                 $name = $file->getClientOriginalName();
             }
         }
+
         return $name;
     }
 
-    public function save(Media $media, bool $overwrite = false)
+    public function save(Media $media, bool $overwrite = false): void
     {
         if (empty($media) || empty($media->getMediaFile())) {
             throw new ServiceException(ServiceException::CAUSE_EMPTY);

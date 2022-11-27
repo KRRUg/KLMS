@@ -4,7 +4,8 @@ namespace App\Repository;
 
 use App\Entity\Seat;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
-use Doctrine\Common\Persistence\ManagerRegistry;
+use Doctrine\ORM\QueryBuilder;
+use Doctrine\Persistence\ManagerRegistry;
 
 /**
  * @method Seat|null find($id, $lockMode = null, $lockVersion = null)
@@ -22,7 +23,7 @@ class SeatRepository extends ServiceEntityRepository
     /**
      * @return Seat[] Returns an array of Seat objects
      */
-    public function findTakenSeats()
+    public function findTakenSeats(): array
     {
         return $this->createQueryBuilder('s')
             ->andWhere('s.owner IS NOT NULL')
@@ -32,21 +33,21 @@ class SeatRepository extends ServiceEntityRepository
             ->getResult();
     }
 
-    private function createCountQueryBuilder(string $alias = "s")
+    private function createCountQueryBuilder(string $alias = 's'): QueryBuilder
     {
         return $this->createQueryBuilder($alias)
             ->select("count({$alias})")
             ->andWhere("{$alias}.type != 'information'");
     }
 
-    public function countSeatsTotal() : int
+    public function countSeatsTotal(): int
     {
         return $this->createCountQueryBuilder('s')
             ->getQuery()
             ->getSingleScalarResult();
     }
 
-    public function countFreeSeats() : int
+    public function countFreeSeats(): int
     {
         return $this->createCountQueryBuilder('s')
             ->andWhere('s.owner IS NULL')
@@ -54,7 +55,7 @@ class SeatRepository extends ServiceEntityRepository
             ->getSingleScalarResult();
     }
 
-    public function countTakenSeats() : int
+    public function countTakenSeats(): int
     {
         return $this->createCountQueryBuilder('s')
             ->andWhere('s.owner IS NOT NULL')

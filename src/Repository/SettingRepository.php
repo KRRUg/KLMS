@@ -4,8 +4,8 @@ namespace App\Repository;
 
 use App\Entity\Setting;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
-use Doctrine\Common\Persistence\ManagerRegistry;
 use Doctrine\ORM\NonUniqueResultException;
+use Doctrine\Persistence\ManagerRegistry;
 
 /**
  * @method Setting|null find($id, $lockMode = null, $lockVersion = null)
@@ -28,7 +28,7 @@ class SettingRepository extends ServiceEntityRepository
                 ->setParameter('val', $key)
                 ->getQuery()
                 ->getOneOrNullResult();
-        } catch (NonUniqueResultException $e) {
+        } catch (NonUniqueResultException) {
             // this should not happen, as key is a unique index
             return null;
         }

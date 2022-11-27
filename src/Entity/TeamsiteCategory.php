@@ -7,65 +7,38 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @ORM\Entity(repositoryClass=TeamsiteCategoryRepository::class)
- * @ORM\Table(
- *     name="teamsite_category",
- *     uniqueConstraints={
- *        @ORM\UniqueConstraint(name="teamsite_category_ord_unique", columns={"teamsite_id", "ord" }),
- *     },
- * )
- */
+#[ORM\Table(name: 'teamsite_category')]
+#[ORM\UniqueConstraint(name: 'teamsite_category_ord_unique', columns: ['teamsite_id', 'ord'])]
+#[ORM\Entity(repositoryClass: TeamsiteCategoryRepository::class)]
 class TeamsiteCategory
 {
-    /**
-     * @ORM\Id
-     * @ORM\GeneratedValue
-     * @ORM\Column(type="integer")
-     */
-    private ?int $id;
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column(type: 'integer')]
+    private ?int $id = null;
 
-    /**
-     * @ORM\Column(type="string", length=255)
-     */
-    private ?string $title = '';
+    #[ORM\Column(type: 'string', length: 255)]
+    private ?string $title = null;
 
-    /**
-     * @ORM\Column(type="text")
-     */
-    private ?string $description = '';
+    #[ORM\Column(type: 'text')]
+    private ?string $description = null;
 
-    /**
-     * @ORM\Column(type="integer")
-     */
-    private ?int $ord = 0;
+    #[ORM\Column(type: 'integer')]
+    private ?int $ord = null;
 
-    /**
-     * @ORM\ManyToOne(targetEntity=Teamsite::class, inversedBy="categories")
-     * @ORM\JoinColumn(name="teamsite_id", nullable=false)
-     */
-    private ?Teamsite $teamsite;
+    #[ORM\ManyToOne(inversedBy: 'categories')]
+    #[ORM\JoinColumn(name: 'teamsite_id', nullable: false)]
+    private ?Teamsite $teamsite = null;
 
-    /**
-     * @ORM\OneToMany(
-     *     targetEntity=TeamsiteEntry::class,
-     *     mappedBy="category",
-     *     orphanRemoval=true,
-     *     cascade={"all"},
-     * )
-     * @ORM\OrderBy({"ord" = "ASC"})
-     */
-    private $entries;
+    #[ORM\OneToMany(targetEntity: TeamsiteEntry::class, mappedBy: 'category', orphanRemoval: true, cascade: ['all'])]
+    #[ORM\OrderBy(['ord' => 'ASC'])]
+    private Collection $entries;
 
-    /**
-     * @ORM\Column(type="boolean")
-     */
-    private $hideEmail;
+    #[ORM\Column(type: 'boolean')]
+    private ?bool $hideEmail = null;
 
-    /**
-     * @ORM\Column(type="boolean")
-     */
-    private $hideName;
+    #[ORM\Column(type: 'boolean')]
+    private ?bool $hideName = null;
 
     public function __construct()
     {
@@ -85,6 +58,7 @@ class TeamsiteCategory
     public function setTitle(string $title): self
     {
         $this->title = $title;
+
         return $this;
     }
 
@@ -96,6 +70,7 @@ class TeamsiteCategory
     public function setDescription(string $description): self
     {
         $this->description = $description;
+
         return $this;
     }
 
@@ -107,6 +82,7 @@ class TeamsiteCategory
     public function setOrd(int $ord): self
     {
         $this->ord = $ord;
+
         return $this;
     }
 
@@ -118,6 +94,7 @@ class TeamsiteCategory
     public function setTeamsite(?Teamsite $teamsite): self
     {
         $this->teamsite = $teamsite;
+
         return $this;
     }
 

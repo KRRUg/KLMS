@@ -39,11 +39,11 @@ export function init() {
         remove_script_host: false,
 
         // image plugin
-        image_list: '/admin/media.json?filter=image',
+        image_list: '/admin/media/list.json?filter=image',
 
         // link plugin
         link_default_protocol: 'https',
-        link_list: '/admin/media.json',
+        link_list: '/admin/media/list.json',
         default_link_target: '_blank',
 
         //table plugin

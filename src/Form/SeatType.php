@@ -20,7 +20,7 @@ class SeatType extends AbstractType
                 'label' => 'Position Y',
             ])
             ->add('name', null, [
-                'label' => 'Sitzplatz Name/Kommentar'
+                'label' => 'Sitzplatz Name/Kommentar',
             ])
             ->add('sector', null, [
                 'label' => 'Sektor',
@@ -29,12 +29,12 @@ class SeatType extends AbstractType
                 'label' => 'Sitzplatz',
             ])
             ->add('type', ChoiceType::class, [
-                'label' => "Sitzplatztyp",
+                'label' => 'Sitzplatztyp',
                 'choices' => [
                     'Sitzplatz' => 'seat',
                     'Gesperrter Sitzplatz' => 'locked',
                     'Information' => 'information',
-                ]
+                ],
             ])
             ->add('chairPosition', ChoiceType::class, [
                 'label' => 'Sitzorientierung',
@@ -43,7 +43,7 @@ class SeatType extends AbstractType
                     'Links' => 'left',
                     'Unten' => 'bottom',
                     'Rechts' => 'right',
-                ]
+                ],
             ])
         ;
     }

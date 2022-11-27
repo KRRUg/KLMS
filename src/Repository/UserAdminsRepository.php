@@ -5,8 +5,8 @@ namespace App\Repository;
 use App\Entity\User;
 use App\Entity\UserAdmin;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
-use Doctrine\Common\Persistence\ManagerRegistry;
 use Doctrine\ORM\NonUniqueResultException;
+use Doctrine\Persistence\ManagerRegistry;
 
 /**
  * @method UserAdmin|null find($id, $lockMode = null, $lockVersion = null)
@@ -21,7 +21,7 @@ class UserAdminsRepository extends ServiceEntityRepository
         parent::__construct($registry, UserAdmin::class);
     }
 
-    public function findByUser(User $user) : ?UserAdmin
+    public function findByUser(User $user): ?UserAdmin
     {
         try {
             return $this->createQueryBuilder('u')
@@ -29,7 +29,7 @@ class UserAdminsRepository extends ServiceEntityRepository
                 ->setParameter('uuid', $user->getUuid())
                 ->getQuery()
                 ->getOneOrNullResult();
-        } catch (NonUniqueResultException $e) {
+        } catch (NonUniqueResultException) {
             // unreachable as we are selecting the primary key
             return null;
         }

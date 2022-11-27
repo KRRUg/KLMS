@@ -2,52 +2,36 @@
 
 namespace App\Entity;
 
+use App\Repository\NavigationRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 
-/**
- * @ORM\Entity(repositoryClass="App\Repository\NavigationRepository")
- * @ORM\HasLifecycleCallbacks
- * @UniqueEntity("name")
- */
+#[ORM\Entity(repositoryClass: NavigationRepository::class)]
+#[ORM\HasLifecycleCallbacks]
+#[UniqueEntity('name')]
 class Navigation
 {
-    /**
-     * @ORM\Id()
-     * @ORM\GeneratedValue()
-     * @ORM\Column(type="integer")
-     */
-    private $id;
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column(type: 'integer')]
+    private ?int $id = null;
 
-    /**
-     * @ORM\Column(type="string", length=255, unique=true, nullable=false)
-     */
-    private $name;
+    #[ORM\Column(type: 'string', length: 255, unique: true, nullable: false)]
+    private ?string $name = null;
 
-    /**
-     * @ORM\Column(type="integer", nullable=true)
-     */
-    private $max_depth;
+    #[ORM\Column(type: 'integer', nullable: true)]
+    private ?int $max_depth = null;
 
-    /**
-     * @ORM\OneToMany(
-     *     targetEntity="App\Entity\NavigationNode",
-     *     mappedBy="navigation",
-     *     orphanRemoval=true,
-     *     cascade={"all"},
-     * )
-     * @ORM\OrderBy({"lft" = "ASC"})
-     */
-    private $nodes;
+    #[ORM\OneToMany(targetEntity: NavigationNode::class, mappedBy: 'navigation', orphanRemoval: true, cascade: ['all'])]
+    #[ORM\OrderBy(['lft' => 'ASC'])]
+    private Collection $nodes;
 
     public function __construct()
     {
         $this->nodes = new ArrayCollection();
     }
-
-    //use Traits\EntityHistoryTrait;
 
     public function getId(): ?int
     {

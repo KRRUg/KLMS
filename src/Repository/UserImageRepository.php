@@ -38,6 +38,6 @@ class UserImageRepository extends ServiceEntityRepository
             ->setParameter('val', $uuid)
             ->getQuery()
             ->getOneOrNullResult()
-            ;
+        ;
     }
 }

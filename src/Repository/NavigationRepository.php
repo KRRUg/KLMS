@@ -4,8 +4,8 @@ namespace App\Repository;
 
 use App\Entity\Navigation;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
-use Doctrine\Common\Persistence\ManagerRegistry;
 use Doctrine\ORM\NonUniqueResultException;
+use Doctrine\Persistence\ManagerRegistry;
 
 /**
  * @method Navigation|null find($id, $lockMode = null, $lockVersion = null)
@@ -22,6 +22,7 @@ class NavigationRepository extends ServiceEntityRepository
 
     /**
      * @param string[] $names Names to look for
+     *
      * @return Navigation[] Found navigations
      */
     public function findByNames(array $names): array
@@ -35,6 +36,7 @@ class NavigationRepository extends ServiceEntityRepository
 
     /**
      * @param string $name Name to look for
+     *
      * @return Navigation|null Navigation if exists, null if not found
      */
     public function findOneByName(string $name): ?Navigation
@@ -45,7 +47,7 @@ class NavigationRepository extends ServiceEntityRepository
                 ->setParameter('name', $name)
                 ->getQuery()
                 ->getOneOrNullResult();
-        } catch (NonUniqueResultException $e) {
+        } catch (NonUniqueResultException) {
             // name is unique
             return null;
         }

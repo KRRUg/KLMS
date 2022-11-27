@@ -24,15 +24,15 @@ class UserRegisterType extends AbstractType
             ])
             ->add('password', RepeatedType::class, [
                 'type' => PasswordType::class,
-                'first_options'  => ['label' => 'Kennwort'],
+                'first_options' => ['label' => 'Kennwort'],
                 'second_options' => ['label' => 'Kennwort bestätigen'],
                 'invalid_message' => 'Die Kennwörter stimmen nicht überein.',
             ])
             ->add('firstname', TextType::class, [
-                'label' => 'Vorname'
+                'label' => 'Vorname',
             ])
             ->add('surname', TextType::class, [
-                'label' => 'Nachname'
+                'label' => 'Nachname',
             ])
             ->add('nickname', TextType::class, [
                 'label' => 'Nickname',
@@ -42,27 +42,27 @@ class UserRegisterType extends AbstractType
                 'label' => 'Newsletter abonnieren',
                 'required' => false,
             ]);
-            $recaptchaSiteKey = !empty($_ENV['EWZ_RECAPTCHA_SITE_KEY']) && $_ENV['EWZ_RECAPTCHA_SITE_KEY'];
-            $recaptchaSecret = !empty($_ENV['EWZ_RECAPTCHA_SECRET']) && $_ENV['EWZ_RECAPTCHA_SECRET'];
-            if($options['captcha'] && $recaptchaSiteKey && $recaptchaSecret) {
-                $builder->add('recaptcha', EWZRecaptchaType::class, array(
-                    'label' => false,
-                    'attr' => array(
-                        'options' => array(
-                            'theme' => 'light',
-                            'type' => 'image',
-                            'size' => 'normal',
-                            'defer' => true,
-                            'async' => true,
-                        )
-                    ),
-                    'mapped' => false,
-                    'required' => true,
-                    'constraints' => array(
-                        new RecaptchaTrue()
-                    )
-                ));
-            }
+        $recaptchaSiteKey = !empty($_ENV['EWZ_RECAPTCHA_SITE_KEY']) && $_ENV['EWZ_RECAPTCHA_SITE_KEY'];
+        $recaptchaSecret = !empty($_ENV['EWZ_RECAPTCHA_SECRET']) && $_ENV['EWZ_RECAPTCHA_SECRET'];
+        if ($options['captcha'] && $recaptchaSiteKey && $recaptchaSecret) {
+            $builder->add('recaptcha', EWZRecaptchaType::class, [
+                'label' => false,
+                'attr' => [
+                    'options' => [
+                        'theme' => 'light',
+                        'type' => 'image',
+                        'size' => 'normal',
+                        'defer' => true,
+                        'async' => true,
+                    ],
+                ],
+                'mapped' => false,
+                'required' => true,
+                'constraints' => [
+                    new RecaptchaTrue(),
+                ],
+            ]);
+        }
     }
 
     public function configureOptions(OptionsResolver $resolver)

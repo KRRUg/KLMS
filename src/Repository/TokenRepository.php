@@ -3,6 +3,7 @@
 namespace App\Repository;
 
 use App\Entity\Token;
+use DateTimeImmutable;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 use Ramsey\Uuid\UuidInterface;
@@ -56,7 +57,7 @@ class TokenRepository extends ServiceEntityRepository
 
     public function removeExpiredTokens(): int
     {
-        $time = new \DateTimeImmutable('-1 week');
+        $time = new DateTimeImmutable('-1 week');
         $query = $this->createQueryBuilder('t')
             ->delete()
             ->where('t.expiresAt <= :time')

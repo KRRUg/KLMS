@@ -13,8 +13,8 @@ use Vich\UploaderBundle\Form\Type\VichImageType;
 
 class SponsorType extends AbstractType
 {
-    private AuthorInsertSubscriber $userInsertSubscriber;
-    private EntityManagerInterface $em;
+    private readonly AuthorInsertSubscriber $userInsertSubscriber;
+    private readonly EntityManagerInterface $em;
 
     public function __construct(AuthorInsertSubscriber $userInsertSubscriber, EntityManagerInterface $em)
     {
@@ -27,16 +27,14 @@ class SponsorType extends AbstractType
         $builder
             ->add('name')
             ->add('url', null, ['label' => 'URL'])
-            ->add('text', HtmlTextareaType::class,[
-                'label' => "Text",
+            ->add('text', HtmlTextareaType::class, [
+                'label' => 'Text',
                 'fix_urls' => 'relative',
             ])
             ->add('category', ChoiceType::class, [
                 'label' => 'Kategorie',
                 'choices' => $this->em->getRepository(SponsorCategory::class)->findAll(),
-                'choice_label' => function (?SponsorCategory $content) {
-                    return $content ? $content->getName() : '';
-                },
+                'choice_label' => fn (?SponsorCategory $content) => $content ? $content->getName() : '',
                 'multiple' => false,
                 'expanded' => false,
             ])

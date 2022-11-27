@@ -6,8 +6,8 @@ use App\Helper\EmailRecipient;
 
 class MailingNotification
 {
-    private int $sendingId;
-    private EmailRecipient $recipient;
+    private readonly int $sendingId;
+    private readonly EmailRecipient $recipient;
 
     public function __construct(int $sending, EmailRecipient $recipient)
     {

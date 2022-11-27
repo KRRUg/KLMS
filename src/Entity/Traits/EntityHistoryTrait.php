@@ -14,36 +14,26 @@ use Symfony\Component\Validator\Constraints as Assert;
  * required to have the HasLifecycleCallbacks ORM annotation.
  *
  * @see App\Entity\Traits\HistoryAwareEntity
- *
- * @ORM\HasLifecycleCallbacks
  */
+#[ORM\HasLifecycleCallbacks]
 trait EntityHistoryTrait
 {
-    /**
-     * @ORM\Column(type="uuid", nullable=false)
-     * @Assert\Uuid(strict=false)
-     */
+    #[ORM\Column(type: 'uuid', nullable: false)]
+    #[Assert\Uuid(strict: false)]
     private ?UuidInterface $authorId = null;
 
-    /**
-     * @ORM\Column(type="uuid", nullable=false)
-     * @Assert\Uuid(strict=false)
-     */
+    #[ORM\Column(type: 'uuid', nullable: false)]
+    #[Assert\Uuid(strict: false)]
     private ?UuidInterface $modifierId = null;
 
-    /**
-     * @ORM\Column(type="datetime", nullable=false)
-     * @Assert\GreaterThanOrEqual(propertyPath="created")
-     * @Assert\Type(type="DateTime")
-     */
+    #[ORM\Column(type: 'datetime', nullable: false)]
+    #[Assert\GreaterThanOrEqual(propertyPath: 'created')]
+    #[Assert\Type(type: 'DateTime')]
     private ?DateTimeInterface $last_modified = null;
 
-    /**
-     * @ORM\Column(type="datetime", nullable=false)
-     * @Assert\Type(type="DateTime")
-     */
+    #[ORM\Column(type: 'datetime', nullable: false)]
+    #[Assert\Type(type: 'DateTime')]
     private ?DateTimeInterface $created = null;
-
 
     public function getAuthorId(): ?UuidInterface
     {
@@ -53,6 +43,7 @@ trait EntityHistoryTrait
     public function setAuthorId(?UuidInterface $authorId): self
     {
         $this->authorId = $authorId;
+
         return $this;
     }
 
@@ -64,6 +55,7 @@ trait EntityHistoryTrait
     public function setModifierId(?UuidInterface $modifierId): self
     {
         $this->modifierId = $modifierId;
+
         return $this;
     }
 
@@ -91,11 +83,10 @@ trait EntityHistoryTrait
         return $this;
     }
 
-    /**
-     * @ORM\PrePersist()
-     * @ORM\PreUpdate()
-     */
-    public function updateModifiedDatetime() {
+    #[ORM\PrePersist]
+    #[ORM\PreUpdate]
+    public function updateModifiedDatetime(): void
+    {
         // update the modified time and creation time
         $this->setLastModified(new DateTime());
         if ($this->getCreated() === null) {

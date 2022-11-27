@@ -1,18 +1,13 @@
 <?php
 
-
 namespace App\Security;
-
 
 use App\Entity\User;
 use Symfony\Component\Security\Core\User\UserInterface;
 
 class LoginUser implements UserInterface
 {
-    /**
-     * @var User
-     */
-    private User $user;
+    private readonly User $user;
 
     /**
      * @var string[]
@@ -21,18 +16,25 @@ class LoginUser implements UserInterface
 
     /**
      * LoginUser constructor.
-     * @param $user
      */
     public function __construct(User $user)
     {
         $this->user = $user;
     }
 
-    public function getUser() : User
+    public function getUser(): User
     {
         return $this->user;
     }
-    
+
+    /**
+     * @see UserInterface
+     */
+    public function getUserIdentifier(): string
+    {
+        return (string) $this->user->getEmail();
+    }
+
     /**
      * @see UserInterface
      */
@@ -52,14 +54,6 @@ class LoginUser implements UserInterface
         return $this;
     }
 
-    /**
-     * @see UserInterface
-     */
-    public function getUsername()
-    {
-        return (string) $this->user->getEmail();
-    }
-
     public function addRoles(array $roles): self
     {
         $this->roles = array_merge($this->roles, $roles);
@@ -75,25 +69,35 @@ class LoginUser implements UserInterface
     /**
      * @see UserInterface
      */
-    public function getPassword()
-    {
-        // not needed for apps that do not check user passwords
-    }
-
-    /**
-     * @see UserInterface
-     */
-    public function getSalt()
-    {
-        // not needed for apps that do not check user passwords
-    }
-
-    /**
-     * @see UserInterface
-     */
-    public function eraseCredentials()
+    public function eraseCredentials(): void
     {
         // If you store any temporary, sensitive data on the user, clear it here
-        // $this->plainPassword = null;
+    }
+
+    /**
+     * @see UserInterface
+     */
+    public function getPassword(): ?string
+    {
+        // TODO remove me after upgrade to Symfony 6
+        return null;
+    }
+
+    /**
+     * @see UserInterface
+     */
+    public function getSalt(): ?string
+    {
+        // TODO remove me after upgrade to Symfony 6
+        return null;
+    }
+
+    /**
+     * @see UserInterface
+     */
+    public function getUsername(): string
+    {
+        // TODO remove me after upgrade to Symfony 6
+        return $this->getUserIdentifier();
     }
 }

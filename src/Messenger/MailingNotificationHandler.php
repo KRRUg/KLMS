@@ -13,11 +13,11 @@ use Symfony\Component\Messenger\Handler\MessageSubscriberInterface;
 
 class MailingNotificationHandler implements MessageSubscriberInterface
 {
-    private LoggerInterface $logger;
-    private EntityManagerInterface $em;
-    private EmailService $mailService;
-    private ObjectRepository $sendingRepo;
-    private ObjectRepository $sendingItemRepo;
+    private readonly LoggerInterface $logger;
+    private readonly EntityManagerInterface $em;
+    private readonly EmailService $mailService;
+    private readonly ObjectRepository $sendingRepo;
+    private readonly ObjectRepository $sendingItemRepo;
 
     public function __construct(EmailService $mailService, EntityManagerInterface $em, LoggerInterface $logger)
     {
@@ -40,17 +40,20 @@ class MailingNotificationHandler implements MessageSubscriberInterface
         if (empty($sending)) {
             $this->logger->notice("Cancel sending email of non-existing sending id {$id}");
             $this->em->rollback();
+
             return;
         }
         $sendingItem = $this->sendingItemRepo->findOneBy(['guid' => $recipient->getUuid(), 'sending' => $sending]);
         if (empty($sendingItem)) {
             $this->logger->notice("Cancel sending email of non-existing sending item (template id {$id})");
             $this->em->rollback();
+
             return;
         }
         if ($sendingItem->getSuccess()) {
             $this->logger->notice("Cancel sending already sent email (template id {$id})");
             $this->em->rollback();
+
             return;
         }
         $template = $sending->getTemplate();
@@ -60,7 +63,7 @@ class MailingNotificationHandler implements MessageSubscriberInterface
             $this->mailService->sendByTemplate($template, $recipient, true);
             $sendingItem->setSuccess(true);
         } catch (TransportExceptionInterface $e) {
-            $this->logger->error("Cannot Send Email", ['exception' => $e]);
+            $this->logger->error('Cannot Send Email', ['exception' => $e]);
             $sendingItem->setSuccess(false);
             throw $e;
         } finally {

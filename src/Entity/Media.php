@@ -1,67 +1,45 @@
 <?php
 
-
 namespace App\Entity;
 
 use App\Entity\Traits\HistoryAwareEntity;
+use App\Repository\MediaRepository;
 use DateTime;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\Validator\Constraints as Assert;
 use Vich\UploaderBundle\Mapping\Annotation as Vich;
-use Symfony\Component\HttpFoundation\File\File;
 
-/**
- * @ORM\Entity(repositoryClass="App\Repository\MediaRepository")
- * @ORM\Table(indexes={ @ORM\Index(name="filename_indes", columns={"file_name"}) })
- * @ORM\HasLifecycleCallbacks
- * @Vich\Uploadable
- */
+#[ORM\Table]
+#[ORM\Index(name: 'filename_indes', columns: ['file_name'])]
+#[ORM\Entity(repositoryClass: MediaRepository::class)]
+#[ORM\HasLifecycleCallbacks]
+#[Vich\Uploadable]
 class Media implements HistoryAwareEntity
 {
-    const MAX_FILE_SIZE = "16384k";
-    const MIME_TYPES = ["image/png", "image/jpeg", "image/gif", "application/pdf", "application/zip", "audio/mpeg", "audio/ogg"];
-
-    /**
-     * @ORM\Id()
-     * @ORM\GeneratedValue()
-     * @ORM\Column(type="integer")
-     */
-    private $id;
-
-    /**
-     * @Assert\File(
-     *     maxSize=Media::MAX_FILE_SIZE,
-     *     mimeTypes=Media::MIME_TYPES,
-     *     mimeTypesMessage = "Please upload a valid file (Image, PDF or ZIP)"
-     * )
-     * @Vich\UploadableField(
-     *     mapping="media",
-     *     fileNameProperty="fileName",
-     *     mimeType="mimeType",
-     *     originalName="displayName"
-     * )
-     * @var File
-     */
-    private $mediaFile;
-
-    /**
-     * @ORM\Column(name="file_name", nullable=false)
-     */
-    private $fileName;
-
-    /**
-     * @ORM\Column(name="display_name", nullable=false, unique=true)
-     */
-    private $displayName;
-
-    /**
-     * @ORM\Column(name="mime_type", nullable=false)
-     */
-    private $mimeType;
-
     use Traits\EntityHistoryTrait;
+    final public const MAX_FILE_SIZE = '16384k';
+    final public const MIME_TYPES = ['image/png', 'image/jpeg', 'image/gif', 'application/pdf', 'application/zip', 'audio/mpeg', 'audio/ogg'];
 
-    public function getId()
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column(type: 'integer')]
+    private ?int $id = null;
+
+    #[Vich\UploadableField(mapping: 'media', fileNameProperty: 'fileName', mimeType: 'mimeType', originalName: 'displayName')]
+    #[Assert\File(maxSize: Media::MAX_FILE_SIZE, mimeTypes: Media::MIME_TYPES, mimeTypesMessage: 'Please upload a valid file (Image, PDF or ZIP)')]
+    private ?File $mediaFile = null;
+
+    #[ORM\Column(name: 'file_name', nullable: false)]
+    private ?string $fileName = null;
+
+    #[ORM\Column(name: 'display_name', nullable: false, unique: true)]
+    private ?string $displayName = null;
+
+    #[ORM\Column(name: 'mime_type', nullable: false)]
+    private ?string $mimeType = null;
+
+    public function getId(): ?int
     {
         return $this->id;
     }
@@ -82,10 +60,7 @@ class Media implements HistoryAwareEntity
         }
     }
 
-    /**
-     * @return mixed
-     */
-    public function getFileName()
+    public function getFileName(): ?string
     {
         return $this->fileName;
     }
@@ -97,7 +72,7 @@ class Media implements HistoryAwareEntity
         return $this;
     }
 
-    public function getDisplayName()
+    public function getDisplayName(): ?string
     {
         return $this->displayName;
     }
@@ -109,7 +84,7 @@ class Media implements HistoryAwareEntity
         return $this;
     }
 
-    public function getMimeType()
+    public function getMimeType(): ?string
     {
         return $this->mimeType;
     }
@@ -126,32 +101,35 @@ class Media implements HistoryAwareEntity
         $mimeType = null;
         if (!empty($this->getMimeType())) {
             $mimeType = $this->getMimeType();
-        } else if (!empty($this->getMediaFile())) {
+        } elseif (!empty($this->getMediaFile())) {
             $mimeType = $this->getMediaFile()->getMimeType();
         }
-        return substr($mimeType, 0, strlen($prefix)) === $prefix;
+
+        return str_starts_with((string) $mimeType, $prefix);
     }
 
     public function getMediaType()
     {
         $mime = $this->getMimeType();
-        if(!preg_match('/^(\w+)\/(\w*)$/', $mime, $output))
-            return "";
+        if (!preg_match('/^(\w+)\/(\w*)$/', (string) $mime, $output)) {
+            return '';
+        }
+
         return $output[1];
     }
 
     public function isImage(): bool
     {
-        return $this->checkMediaType("image/");
+        return $this->checkMediaType('image/');
     }
 
     public function isDocument(): bool
     {
-        return $this->checkMediaType("application/");
+        return $this->checkMediaType('application/');
     }
 
     public function isAudio(): bool
     {
-        return $this->checkMediaType("audio/");
+        return $this->checkMediaType('audio/');
     }
 }

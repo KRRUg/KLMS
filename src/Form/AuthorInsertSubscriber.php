@@ -11,17 +11,17 @@ use Symfony\Component\Security\Core\Security;
 
 class AuthorInsertSubscriber implements EventSubscriberInterface
 {
-    private Security $security;
+    private readonly Security $security;
 
     public function __construct(Security $security)
     {
         $this->security = $security;
     }
 
-    public static function getSubscribedEvents()
+    public static function getSubscribedEvents(): array
     {
         return [
-            FormEvents::POST_SUBMIT => 'onPostSubmit'
+            FormEvents::POST_SUBMIT => 'onPostSubmit',
         ];
     }
 

@@ -11,34 +11,23 @@ use Symfony\Component\HttpFoundation\File\File;
 use Vich\UploaderBundle\Entity\File as EmbeddedFile;
 use Vich\UploaderBundle\Mapping\Annotation as Vich;
 
-/**
- * @ORM\Entity(repositoryClass=UserImageRepository::class)
- * @ORM\HasLifecycleCallbacks
- * @Vich\Uploadable
- */
+#[ORM\Entity(repositoryClass: UserImageRepository::class)]
+#[ORM\HasLifecycleCallbacks]
+#[Vich\Uploadable]
 class UserImage
 {
-    /**
-     * @ORM\Id()
-     * @ORM\Column(type="uuid", unique=true)
-     */
+    #[ORM\Id]
+    #[ORM\Column(type: 'uuid', unique: true)]
     private ?UuidInterface $uuid;
 
-    /**
-     * @ORM\Embedded(class="Vich\UploaderBundle\Entity\File")
-     */
+    #[ORM\Embedded(class: 'Vich\UploaderBundle\Entity\File')]
     private ?EmbeddedFile $image;
 
-    /**
-     * @Vich\UploadableField(mapping="user", fileNameProperty="image.name", size="image.size", mimeType="image.mimeType", originalName="image.originalName", dimensions="image.dimensions")
-     */
+    #[Vich\UploadableField(mapping: 'user', fileNameProperty: 'image.name', size: 'image.size', mimeType: 'image.mimeType', originalName: 'image.originalName', dimensions: 'image.dimensions')]
     private ?File $imageFile = null;
 
-    /**
-     * @ORM\Column(type="datetime", nullable=false)
-     */
+    #[ORM\Column(type: 'datetime', nullable: false)]
     private ?DateTimeInterface $lastModified = null;
-
 
     public function __construct(?UuidInterface $uuid)
     {
@@ -54,6 +43,7 @@ class UserImage
     public function setUuid(?UuidInterface $uuid): self
     {
         $this->uuid = $uuid;
+
         return $this;
     }
 
@@ -65,6 +55,7 @@ class UserImage
     public function setImage(?EmbeddedFile $image): self
     {
         $this->image = $image;
+
         return $this;
     }
 
@@ -76,6 +67,7 @@ class UserImage
     public function setLastModified(?DateTimeInterface $lastModified): self
     {
         $this->lastModified = $lastModified;
+
         return $this;
     }
 
@@ -100,11 +92,10 @@ class UserImage
         return empty($this->imageFile) && empty($this->image->getName()) && empty($this->image->getSize());
     }
 
-    /**
-     * @ORM\PrePersist()
-     * @ORM\PreUpdate()
-     */
-    public function updateModifiedDatetime() {
+    #[ORM\PrePersist]
+    #[ORM\PreUpdate]
+    public function updateModifiedDatetime(): void
+    {
         // update the modified time and creation time
         $this->setLastModified(new DateTime());
     }

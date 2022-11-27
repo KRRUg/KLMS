@@ -9,14 +9,14 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class ContentSelectorType extends AbstractType
 {
-    private ContentRepository $contentRepository;
+    private readonly ContentRepository $contentRepository;
 
     public function __construct(ContentRepository $contentRepository)
     {
         $this->contentRepository = $contentRepository;
     }
 
-    public function configureOptions(OptionsResolver $resolver)
+    public function configureOptions(OptionsResolver $resolver): void
     {
         $choices = [];
         foreach ($this->contentRepository->findAll() as $content) {
@@ -31,7 +31,7 @@ class ContentSelectorType extends AbstractType
         ]);
     }
 
-    public function getParent()
+    public function getParent(): string
     {
         return ChoiceType::class;
     }

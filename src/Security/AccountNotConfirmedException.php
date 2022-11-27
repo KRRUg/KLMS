@@ -2,12 +2,12 @@
 
 namespace App\Security;
 
-use Symfony\Component\Security\Core\Exception\AccountStatusException;
+use Symfony\Component\Security\Core\Exception\AuthenticationException;
 
-class AccountNotConfirmedException extends AccountStatusException
+class AccountNotConfirmedException extends AuthenticationException
 {
-    public function getMessageKey(): string
+    public function __construct()
     {
-        return 'Your email address was not confirmed yet.';
+        parent::__construct('Your email address was not confirmed yet.');
     }
 }

@@ -3,11 +3,9 @@
 namespace App\Repository;
 
 use App\Entity\Email;
+use App\Entity\EmailSendingItem;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
-use Doctrine\Common\Persistence\ManagerRegistry;
-use Doctrine\ORM\NonUniqueResultException;
-use Doctrine\ORM\NoResultException;
-use phpDocumentor\Reflection\Types\Array_;
+use Doctrine\Persistence\ManagerRegistry;
 
 /**
  * @method Email|null find($id, $lockMode = null, $lockVersion = null)
@@ -17,12 +15,12 @@ use phpDocumentor\Reflection\Types\Array_;
  */
 class EmailRepository extends ServiceEntityRepository
 {
-	public function __construct(ManagerRegistry $registry)
-	{
-		parent::__construct($registry, Email::class);
-	}
+    public function __construct(ManagerRegistry $registry)
+    {
+        parent::__construct($registry, Email::class);
+    }
 
-	public function findAllTemplatesWithoutSendings()
+    public function findAllTemplatesWithoutSendings()
     {
         return $this->createQueryBuilder('emailTemplate')
             ->leftJoin('emailTemplate.emailSending', 'emailSending')
@@ -33,13 +31,13 @@ class EmailRepository extends ServiceEntityRepository
     }
 
     /**
-     * @return array with keys 'tbd', 'success', and 'fail' and int values.
+     * @return array with keys 'tbd', 'success', and 'fail' and int values
      */
     public function countMails(Email $template): array
     {
         $qb = $this->_em->createQueryBuilder()
             ->select('si.success as val, count(si) as cnt')
-            ->from('App\Entity\EmailSendingItem', 'si')
+            ->from(EmailSendingItem::class, 'si')
             ->innerJoin('si.sending', 's')
             ->where('s.template = :t')
             ->groupBy('si.success')
@@ -49,7 +47,7 @@ class EmailRepository extends ServiceEntityRepository
         foreach ($qr as $r) {
             $v = $r['val'];
             $c = $r['cnt'];
-            if (is_null($v)){
+            if (is_null($v)) {
                 $result['tbd'] = $c;
             } elseif ($v === false) {
                 $result['fail'] = $c;
@@ -57,16 +55,15 @@ class EmailRepository extends ServiceEntityRepository
                 $result['success'] = $c;
             }
         }
+
         return $result;
     }
 
     public function countMailsSuccess(): int
     {
-
     }
 
     public function countMailsFail(): int
     {
-
     }
 }

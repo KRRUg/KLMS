@@ -1,63 +1,41 @@
 <?php
 
-
 namespace App\Idm\Annotation;
 
-/**
- * @Annotation
- * @Target("CLASS")
- */
+use Attribute;
+use Symfony\Contracts\Service\Attribute\Required;
+
+#[Attribute(Attribute::TARGET_CLASS)]
 class Entity
 {
     /**
-     * @Required
-     *
-     * @var string
+     * @var string $path Path to the endpoint
+     * @var bool $authorize Has an authorize endpoint
+     * @var bool $search Has a search endpoint
+     * @var bool $bulk Has a bulk endpoint
      */
-    public string $path;
+    public function __construct(
+        #[Required] public string $path,
+        public bool $authorize = false,
+        public bool $search = false,
+        public bool $bulk = false
+    ){}
 
-    /**
-     * @var bool Has an authorize endpoint
-     */
-    public bool $authorize = false;
-
-    /**
-     * @var bool Has a search endpoint
-     */
-    public bool $search = false;
-
-    /**
-     * @var bool Has a bulk endpoint
-     */
-    public bool $bulk = false;
-
-    /**
-     * @return string
-     */
     public function getPath(): string
     {
         return $this->path;
     }
 
-    /**
-     * @return bool
-     */
     public function hasAuthorize(): bool
     {
         return $this->authorize;
     }
 
-    /**
-     * @return bool
-     */
     public function hasSearch(): bool
     {
         return $this->search;
     }
 
-    /**
-     * @return bool
-     */
     public function hasBulk(): bool
     {
         return $this->bulk;

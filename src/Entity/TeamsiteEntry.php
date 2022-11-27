@@ -6,66 +6,41 @@ use App\Repository\TeamsiteEntryRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Ramsey\Uuid\UuidInterface;
 
-/**
- * @ORM\Entity(repositoryClass=TeamsiteEntryRepository::class)
- * @ORM\Table(
- *     name="teamsite_entry",
- *     uniqueConstraints={
- *        @ORM\UniqueConstraint(name="teamsite_entry_ord_unique", columns={"category_id", "ord" }),
- *     },
- * )
- */
+#[ORM\Table(name: 'teamsite_entry')]
+#[ORM\UniqueConstraint(name: 'teamsite_entry_ord_unique', columns: ['category_id', 'ord'])]
+#[ORM\Entity(repositoryClass: TeamsiteEntryRepository::class)]
 class TeamsiteEntry
 {
-    /**
-     * @ORM\Id
-     * @ORM\GeneratedValue
-     * @ORM\Column(type="integer")
-     */
-    private ?int $id;
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column(type: 'integer')]
+    private ?int $id = null;
 
-    /**
-     * @ORM\Column(type="uuid")
-     */
-    private ?UuidInterface $userUuid;
+    #[ORM\Column(type: 'uuid')]
+    private ?UuidInterface $userUuid = null;
 
-    /**
-     * @ORM\Column(type="string", length=255)
-     */
-    private ?string $title = '';
+    #[ORM\Column(type: 'string', length: 255)]
+    private ?string $title = null;
 
-    /**
-     * @ORM\Column(type="text")
-     */
-    private ?string $description = '';
+    #[ORM\Column(type: 'text')]
+    private ?string $description = null;
 
-    /**
-     * @ORM\Column(type="integer")
-     */
-    private ?int $ord = 0;
+    #[ORM\Column(type: 'integer')]
+    private ?int $ord = null;
 
-    /**
-     * @ORM\ManyToOne(targetEntity=TeamsiteCategory::class, inversedBy="entries")
-     * @ORM\JoinColumn(name="category_id", nullable=false)
-     */
-    private ?TeamsiteCategory $category;
+    #[ORM\ManyToOne(inversedBy: 'entries')]
+    #[ORM\JoinColumn(name: 'category_id', nullable: false)]
+    private ?TeamsiteCategory $category = null;
 
-    /**
-     * @ORM\Column(type="string", length=255, nullable=true)
-     */
-    private $displayEmail;
-
-
-    public function __construct()
-    {
-    }
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    private ?string $displayEmail = null;
 
     public function getId(): ?int
     {
         return $this->id;
     }
 
-    public function getUserUuid()
+    public function getUserUuid(): ?UuidInterface
     {
         return $this->userUuid;
     }
@@ -73,6 +48,7 @@ class TeamsiteEntry
     public function setUserUuid($userUuid): self
     {
         $this->userUuid = $userUuid;
+
         return $this;
     }
 
@@ -84,6 +60,7 @@ class TeamsiteEntry
     public function setTitle(string $title): self
     {
         $this->title = $title;
+
         return $this;
     }
 
@@ -95,6 +72,7 @@ class TeamsiteEntry
     public function setDescription(string $description): self
     {
         $this->description = $description;
+
         return $this;
     }
 
@@ -106,6 +84,7 @@ class TeamsiteEntry
     public function setOrd(int $ord): self
     {
         $this->ord = $ord;
+
         return $this;
     }
 
@@ -117,6 +96,7 @@ class TeamsiteEntry
     public function setCategory(?TeamsiteCategory $category): self
     {
         $this->category = $category;
+
         return $this;
     }
 

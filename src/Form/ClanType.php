@@ -27,17 +27,17 @@ class ClanType extends AbstractType
             ])
             ->add('clantag', TextType::class, [
                 'label' => 'Clan Tag',
-                'help' => 'Darf bis zu 10 Zeichen lang sein.'
+                'help' => 'Darf bis zu 10 Zeichen lang sein.',
             ])
             ->add('description', TextareaType::class, [
-                'empty_data' => "",
+                'empty_data' => '',
                 'required' => false,
-                'label' => "Beschreibung",
+                'label' => 'Beschreibung',
             ])
             ->add('website', UrlType::class, [
-                'empty_data' => "",
+                'empty_data' => '',
                 'required' => false,
-                'label' => "Website",
+                'label' => 'Website',
             ])
         ;
     }

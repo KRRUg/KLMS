@@ -2,24 +2,19 @@
 
 namespace App\Entity;
 
+use App\Repository\UserAdminsRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Ramsey\Uuid\UuidInterface;
 
-/**
- * @ORM\Entity(repositoryClass="App\Repository\UserAdminsRepository")
- */
+#[ORM\Entity(repositoryClass: UserAdminsRepository::class)]
 class UserAdmin
 {
-    /**
-     * @ORM\Id()
-     * @ORM\Column(type="uuid", unique=true)
-     */
+    #[ORM\Id]
+    #[ORM\Column(type: 'uuid', unique: true)]
     private ?UuidInterface $uuid;
 
-    /**
-     * @ORM\Column(type="array")
-     */
-    private $permissions = [];
+    #[ORM\Column(type: 'array')]
+    private array $permissions = [];
 
     public function __construct(?UuidInterface $uuid)
     {
@@ -31,12 +26,14 @@ class UserAdmin
         return $this->uuid;
     }
 
-    public function setUuid(?UuidInterface $uuid)
+    public function setUuid(?UuidInterface $uuid): self
     {
         $this->uuid = $uuid;
+
+        return $this;
     }
 
-    public function hasPermisison(string $permission): bool
+    public function hasPermission(string $permission): bool
     {
         return in_array($permission, $this->permissions);
     }
@@ -53,9 +50,12 @@ class UserAdmin
         return $this;
     }
 
-    public function addPermisison(string $permission): self
+    public function addPermission(string $permission): self
     {
-        if (!$this->hasPermisison($permission))
-            array_push($this->permissions, $permission);
+        if (!$this->hasPermission($permission)) {
+            $this->permissions[] = $permission;
+        }
+
+        return $this;
     }
 }

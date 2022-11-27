@@ -3,64 +3,46 @@
 namespace App\Entity;
 
 use App\Entity\Traits\HistoryAwareEntity;
+use App\Repository\NewsRepository;
+use DateTime;
+use DateTimeInterface;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\Validator\Constraints as Assert;
 use Vich\UploaderBundle\Entity\File as EmbeddedFile;
 use Vich\UploaderBundle\Mapping\Annotation as Vich;
 
-/**
- * @ORM\Entity(repositoryClass="App\Repository\NewsRepository")
- * @ORM\HasLifecycleCallbacks
- * @Vich\Uploadable
- */
+#[ORM\Entity(repositoryClass: NewsRepository::class)]
+#[ORM\HasLifecycleCallbacks]
+#[Vich\Uploadable]
 class News implements HistoryAwareEntity
 {
-    /**
-     * @ORM\Id()
-     * @ORM\GeneratedValue()
-     * @ORM\Column(type="integer")
-     */
-    private $id;
-
-    /**
-     * @ORM\Column(type="string", length=255)
-     */
-    private $title;
-
-    /**
-     * @ORM\Column(type="text")
-     */
-    private $content;
-
-    /**
-     * @ORM\Column(type="datetime", nullable=true)
-     * @Assert\DateTime()
-     */
-    private $publishedFrom;
-
-    /**
-     * @ORM\Column(type="datetime", nullable=true)
-     * @Assert\DateTime()
-     * @Assert\GreaterThan(propertyPath="publishedFrom")
-     */
-    private $publishedTo;
-
-    /**
-     * @Vich\UploadableField(mapping="news", fileNameProperty="image.name", size="image.size", mimeType="image.mimeType", originalName="image.originalName", dimensions="image.dimensions")
-     *
-     * @var File|null
-     */
-    private $imageFile;
-
-    /**
-     * @ORM\Embedded(class="Vich\UploaderBundle\Entity\File")
-     *
-     * @var EmbeddedFile
-     */
-    private $image;
-
     use Traits\EntityHistoryTrait;
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column(type: 'integer')]
+    private ?int $id = null;
+
+    #[ORM\Column(type: 'string', length: 255)]
+    private ?string $title = null;
+
+    #[ORM\Column(type: 'text')]
+    private ?string $content = null;
+
+    #[ORM\Column(type: 'datetime', nullable: true)]
+    #[Assert\DateTime]
+    private ?DateTimeInterface $publishedFrom = null;
+
+    #[ORM\Column(type: 'datetime', nullable: true)]
+    #[Assert\DateTime]
+    #[Assert\GreaterThan(propertyPath: 'publishedFrom')]
+    private ?DateTimeInterface $publishedTo = null;
+
+    #[Vich\UploadableField(mapping: 'news', fileNameProperty: 'image.name', size: 'image.size', mimeType: 'image.mimeType', originalName: 'image.originalName', dimensions: 'image.dimensions')]
+    private ?File $imageFile = null;
+
+    #[ORM\Embedded(class: 'Vich\UploaderBundle\Entity\File')]
+    private EmbeddedFile $image;
 
     public function __construct()
     {
@@ -103,7 +85,7 @@ class News implements HistoryAwareEntity
         if (null !== $imageFile) {
             // It is required that at least one field changes if you are using doctrine
             // otherwise the event listeners won't be called and the file is lost
-            $this->setLastModified(new \DateTime());
+            $this->setLastModified(new DateTime());
         }
     }
 
@@ -122,24 +104,24 @@ class News implements HistoryAwareEntity
         return $this->image;
     }
 
-    public function getPublishedFrom(): ?\DateTimeInterface
+    public function getPublishedFrom(): ?DateTimeInterface
     {
         return $this->publishedFrom;
     }
 
-    public function setPublishedFrom(?\DateTimeInterface $publishedFrom): self
+    public function setPublishedFrom(?DateTimeInterface $publishedFrom): self
     {
         $this->publishedFrom = $publishedFrom;
 
         return $this;
     }
 
-    public function getPublishedTo(): ?\DateTimeInterface
+    public function getPublishedTo(): ?DateTimeInterface
     {
         return $this->publishedTo;
     }
 
-    public function setPublishedTo(?\DateTimeInterface $publishedTo): self
+    public function setPublishedTo(?DateTimeInterface $publishedTo): self
     {
         $this->publishedTo = $publishedTo;
 
@@ -148,12 +130,13 @@ class News implements HistoryAwareEntity
 
     public function isActive(): bool
     {
-        $now = new \DateTime();
+        $now = new DateTime();
+
         return (empty($this->getPublishedFrom()) || $this->getPublishedFrom() <= $now)
             && (empty($this->getPublishedTo()) || $this->getPublishedTo() >= $now);
     }
 
-    public function activeSince() : \DateTimeInterface
+    public function activeSince(): DateTimeInterface
     {
         if (empty($this->publishedFrom)) {
             return $this->getCreated();

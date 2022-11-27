@@ -5,8 +5,8 @@ namespace App\Twig;
 use App\Entity\User;
 use App\Idm\IdmManager;
 use App\Idm\IdmRepository;
-use App\Service\UserService;
 use App\Service\GroupService;
+use App\Service\UserService;
 use Ramsey\Uuid\Uuid;
 use Twig\Extension\AbstractExtension;
 use Twig\TwigFilter;
@@ -14,8 +14,8 @@ use Twig\TwigTest;
 
 class UserExtension extends AbstractExtension
 {
-    private IdmRepository $userRepo;
-    private UserService $userService;
+    private readonly IdmRepository $userRepo;
+    private readonly UserService $userService;
 
     public function __construct(IdmManager $manager, UserService $userService)
     {
@@ -26,30 +26,31 @@ class UserExtension extends AbstractExtension
     /**
      * {@inheritdoc}
      */
-    public function getTests()
+    public function getTests(): array
     {
         return [
-            new TwigTest('valid_user', [$this, 'validUser'])
+            new TwigTest('valid_user', $this->validUser(...)),
         ];
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getFilters()
+    public function getFilters(): array
     {
         return [
-            new TwigFilter('user', [$this, 'getUser']),
-            new TwigFilter('username', [$this, 'getUserName']),
-            new TwigFilter('user_image', [$this, 'getUserImage']),
-            new TwigFilter('groupname', [$this, 'getGroupname']),
+            new TwigFilter('user', $this->getUser(...)),
+            new TwigFilter('username', $this->getUserName(...)),
+            new TwigFilter('user_image', $this->getUserImage(...)),
+            new TwigFilter('groupname', $this->getGroupname(...)),
         ];
     }
 
     public function getUser($userId): ?User
     {
-        if (empty($userId) || !Uuid::isValid($userId))
+        if (empty($userId) || !Uuid::isValid($userId)) {
             return null;
+        }
 
         return $this->userRepo->findOneById($userId);
     }
@@ -58,16 +59,18 @@ class UserExtension extends AbstractExtension
     {
         $user = $this->getUser($userId);
 
-        if (empty($user))
-            return "";
+        if (empty($user)) {
+            return '';
+        }
 
         return $user->getNickname();
     }
 
-    public function getGroupname($groupid)
+    public function getGroupname($groupid): string
     {
-        if (empty($groupid) || !Uuid::isValid($groupid))
-            return "";
+        if (empty($groupid) || !Uuid::isValid($groupid)) {
+            return '';
+        }
 
         return GroupService::getName(Uuid::fromString($groupid));
     }

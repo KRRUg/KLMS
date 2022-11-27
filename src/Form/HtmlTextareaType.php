@@ -8,7 +8,7 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class HtmlTextareaType extends TextareaType
 {
-    private HtmlHandlingSubscriber $htmlHandlingSubscriber;
+    private readonly HtmlHandlingSubscriber $htmlHandlingSubscriber;
 
     public function __construct(HtmlHandlingSubscriber $htmlHandlingSubscriber)
     {
@@ -21,9 +21,9 @@ class HtmlTextareaType extends TextareaType
         $builder->addEventSubscriber($this->htmlHandlingSubscriber);
     }
 
-    public const FIX_URLS = 'fix_urls';
-    public const CLEAR_SCRIPTS = 'clear_scripts';
-    public const FIX_HEADLINES = 'fix_headlines';
+    final public const FIX_URLS = 'fix_urls';
+    final public const CLEAR_SCRIPTS = 'clear_scripts';
+    final public const FIX_HEADLINES = 'fix_headlines';
 
     public function configureOptions(OptionsResolver $resolver)
     {

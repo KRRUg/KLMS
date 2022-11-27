@@ -12,18 +12,17 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
-/**
- * @IsGranted("ROLE_ADMIN_PAYMENT")
- * @Route("/payment", name="payment")
- */
+#[IsGranted('ROLE_ADMIN_PAYMENT')]
+#[Route(path: '/payment', name: 'payment')]
 class PaymentController extends AbstractController
 {
-    private const CSRF_TOKEN_PAYMENT = "paymentToken";
+    private const CSRF_TOKEN_PAYMENT = 'paymentToken';
 
-    private GamerService $gamerService;
-    private IdmRepository $userRepo;
+    private readonly GamerService $gamerService;
+    private readonly IdmRepository $userRepo;
 
     public function __construct(GamerService $gamerService,
                                 IdmManager $manager)
@@ -36,54 +35,51 @@ class PaymentController extends AbstractController
     {
         $form = $this->createFormBuilder();
         $form->add('user', UserSelectType::class);
+
         return $form->getForm();
     }
 
-    /**
-     * @Route("", name="", methods={"GET"})
-     */
-    public function index(Request $request)
+    #[Route(path: '', name: '', methods: ['GET'])]
+    public function index(): Response
     {
         $gamers = $this->gamerService->getGamers();
+
         return $this->render('admin/payment/index.html.twig', [
             'gamers' => $gamers,
             'form_add' => $this->createUserSelectForm()->createView(),
         ]);
     }
 
-    /**
-     * @Route("", name="_add", methods={"POST"})
-     */
-    public function add(Request $request)
+    #[Route(path: '', name: '_add', methods: ['POST'])]
+    public function add(Request $request): Response
     {
         $form = $this->createUserSelectForm();
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
             $user = $form->getData()['user'];
             if (empty($user)) {
-                $this->addFlash('error', "Ungültigen User ausgewählt.");
+                $this->addFlash('error', 'Ungültigen User ausgewählt.');
             } elseif ($this->gamerService->gamerHasRegistered($user)) {
                 $this->addFlash('warning', "User {$user->getNickname()} ist schon registriert.");
             } else {
                 try {
                     $this->gamerService->gamerRegister($user);
                     $this->addFlash('success', "User {$user->getNickname()} wurde zur Veranstaltung registriert.");
-                } catch (GamerLifecycleException $exception) {
+                } catch (GamerLifecycleException) {
                     $this->addFlash('error', "User {$user->getNickname()}  konnte nicht registriert werden.");
                 }
             }
         }
+
         return $this->redirectToRoute('admin_payment');
     }
 
-    /**
-     * @Route("/{uuid}", name="_update", methods={"POST"})
-     */
-    public function update(Request $request, string $uuid)
+    #[Route(path: '/{uuid}', name: '_update', methods: ['POST'])]
+    public function update(Request $request, string $uuid): Response
     {
         $token = $request->request->get('_token');
-        if(!$this->isCsrfTokenValid(self::CSRF_TOKEN_PAYMENT, $token)) {
-            throw $this->createAccessDeniedException("Invalid CSRF token presented");
+        if (!$this->isCsrfTokenValid(self::CSRF_TOKEN_PAYMENT, $token)) {
+            throw $this->createAccessDeniedException('Invalid CSRF token presented');
         }
 
         $user = $this->userRepo->findOneById($uuid);
@@ -92,42 +88,43 @@ class PaymentController extends AbstractController
         }
 
         $action = $request->request->get('action');
-        try{
+        try {
             switch ($action) {
-                case "register":
+                case 'register':
                     $this->gamerService->gamerRegister($user);
                     break;
-                case "unregister":
+                case 'unregister':
                     $this->gamerService->gamerUnregister($user);
                     break;
-                case "pay":
+                case 'pay':
                     $this->gamerService->gamerPay($user);
                     break;
-                case "unpay":
+                case 'unpay':
                     $this->gamerService->gamerUnPay($user);
                     break;
-                case "checkin":
+                case 'checkin':
                     $this->gamerService->gamerCheckIn($user);
                     break;
-                case "checkout":
+                case 'checkout':
                     $this->gamerService->gamerCheckOut($user);
                     break;
                 default:
                     $this->addFlash('error', 'Invalid action specified.');
+
                     return $this->redirectToRoute('admin_payment');
             }
-        } catch(GamerLifecycleException $exception) {
+        } catch (GamerLifecycleException $exception) {
             $this->addFlash('error', "Aktion konnte nicht durchgeführt werden ({$exception->getMessage()}).");
+
             return $this->redirectToRoute('admin_payment');
         }
         $this->addFlash('success', "Änderung an User {$user->getNickname()} erfolgreich.");
+
         return $this->redirectToRoute('admin_payment');
     }
 
-    /**
-     * @Route("/{uuid}", name="_show", methods={"GET"})
-     */
-    public function show(Request $request, string $uuid)
+    #[Route(path: '/{uuid}', name: '_show', methods: ['GET'])]
+    public function show(string $uuid): Response
     {
         $user = $this->userRepo->findOneById($uuid);
 

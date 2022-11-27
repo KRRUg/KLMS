@@ -4,11 +4,11 @@ namespace App\Idm;
 
 class IdmRepositoryFactory
 {
-    private $repositoryList = [];
+    private array $repositoryList = [];
 
     public function getRepository(IdmManager $manager, string $class)
     {
-        $repositoryHash = $class . spl_object_hash($manager);
+        $repositoryHash = $class.spl_object_hash($manager);
 
         if (isset($this->repositoryList[$repositoryHash])) {
             return $this->repositoryList[$repositoryHash];

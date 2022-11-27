@@ -4,65 +4,44 @@ namespace App\Entity;
 
 use App\Entity\Traits\HistoryAwareEntity;
 use App\Repository\SponsorRepository;
+use DateTime;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\HttpFoundation\File\File;
+use Symfony\Component\Validator\Constraints as Assert;
 use Vich\UploaderBundle\Entity\File as EmbeddedFile;
 use Vich\UploaderBundle\Mapping\Annotation as Vich;
-use Symfony\Component\Validator\Constraints as Assert;
 
-
-/**
- * @ORM\Entity(repositoryClass=SponsorRepository::class)
- * @ORM\HasLifecycleCallbacks
- * @Vich\Uploadable
- */
+#[ORM\Entity(repositoryClass: SponsorRepository::class)]
+#[ORM\HasLifecycleCallbacks]
+#[Vich\Uploadable]
 class Sponsor implements HistoryAwareEntity
 {
-    /**
-     * @ORM\Id
-     * @ORM\GeneratedValue
-     * @ORM\Column(type="integer")
-     */
-    private $id;
-
-    /**
-     * @ORM\Column(type="string", length=255)
-     * @Assert\NotBlank()
-     */
-    private $name;
-
-    /**
-     * @ORM\Column(type="string", length=255, nullable=true)
-     * @Assert\Url()
-     */
-    private $url;
-
-    /**
-     * @Vich\UploadableField(mapping="sponsor", fileNameProperty="logo.name", size="logo.size", mimeType="logo.mimeType", originalName="logo.originalName", dimensions="logo.dimensions")
-     *
-     * @var File|null
-     */
-    private $logoFile;
-
-    /**
-     * @ORM\Embedded(class="Vich\UploaderBundle\Entity\File")
-     *
-     * @var EmbeddedFile
-     */
-    private $logo;
-
-    /**
-     * @ORM\Column(type="text", nullable=true)
-     */
-    private $text;
-
-    /**
-     * @ORM\ManyToOne(targetEntity=SponsorCategory::class, inversedBy="sponsors")
-     * @ORM\JoinColumn(nullable=false)
-     */
-    private $category;
-
     use Traits\EntityHistoryTrait;
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column(type: 'integer')]
+    private ?int $id = null;
+
+    #[ORM\Column(type: 'string', length: 255)]
+    #[Assert\NotBlank]
+    private ?string $name = null;
+
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    #[Assert\Url]
+    private ?string $url = null;
+
+    #[Vich\UploadableField(mapping: 'sponsor', fileNameProperty: 'logo.name', size: 'logo.size', mimeType: 'logo.mimeType', originalName: 'logo.originalName', dimensions: 'logo.dimensions')]
+    private ?File $logoFile = null;
+
+    #[ORM\Embedded(class: 'Vich\UploaderBundle\Entity\File')]
+    private EmbeddedFile $logo;
+
+    #[ORM\Column(type: 'text', nullable: true)]
+    private ?string $text = null;
+
+    #[ORM\ManyToOne(inversedBy: 'sponsors')]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?SponsorCategory $category = null;
 
     public function __construct()
     {
@@ -105,7 +84,7 @@ class Sponsor implements HistoryAwareEntity
         if (null !== $logoFile) {
             // It is required that at least one field changes if you are using doctrine
             // otherwise the event listeners won't be called and the file is lost
-            $this->setLastModified(new \DateTime());
+            $this->setLastModified(new DateTime());
         }
     }
 

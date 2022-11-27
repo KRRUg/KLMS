@@ -13,17 +13,17 @@ use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 final class UuidNormalizer implements NormalizerInterface, DenormalizerInterface
 {
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
-    public function normalize($object, $format = null, array $context = array())
+    public function normalize($object, $format = null, array $context = []): string
     {
         return $object->toString();
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
-    public function denormalize($data, $type, $format = null, array $context = [])
+    public function denormalize($data, $type, $format = null, array $context = []): mixed
     {
         if (!$this->isValid($data)) {
             throw new UnexpectedValueException('Expected a valid Uuid.');
@@ -37,22 +37,22 @@ final class UuidNormalizer implements NormalizerInterface, DenormalizerInterface
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
-    public function supportsNormalization($data, $format = null)
+    public function supportsNormalization($data, $format = null): bool
     {
         return $data instanceof UuidInterface;
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
-    public function supportsDenormalization($data, $type, $format = null)
+    public function supportsDenormalization($data, $type, $format = null): bool
     {
-        return (Uuid::class === $type || UuidInterface::class === $type);
+        return Uuid::class === $type || UuidInterface::class === $type;
     }
 
-    private function isValid($data)
+    private function isValid($data): bool
     {
         return $data === null || (is_string($data) && Uuid::isValid($data));
     }

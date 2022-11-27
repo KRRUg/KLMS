@@ -3,49 +3,36 @@
 namespace App\Entity;
 
 use App\Repository\TokenRepository;
+use DateTimeImmutable;
+use DateTimeInterface;
 use Doctrine\ORM\Mapping as ORM;
 use Ramsey\Uuid\UuidInterface;
 
-/**
- * @ORM\Entity(repositoryClass=TokenRepository::class)
- */
+#[ORM\Entity(repositoryClass: TokenRepository::class)]
 class Token
 {
-    /**
-     * @ORM\Id
-     * @ORM\Column(type="string", length=20)
-     */
-    private $selector;
+    #[ORM\Id]
+    #[ORM\Column(type: 'string', length: 20)]
+    private ?string $selector = null;
 
-    /**
-     * @ORM\Column(type="uuid")
-     */
-    private $userUuid;
+    #[ORM\Column(type: 'uuid')]
+    private ?UuidInterface $userUuid = null;
 
-    /**
-     * @ORM\Column(type="string", length=100)
-     */
-    private $hash;
+    #[ORM\Column(type: 'string', length: 100)]
+    private ?string $hash = null;
 
-    /**
-     * @ORM\Column(type="string", length=255)
-     */
-    private $type;
+    #[ORM\Column(type: 'string', length: 255)]
+    private ?string $type = null;
 
-    /**
-     * @ORM\Column(type="datetime")
-     */
-    private $requestedAt;
+    #[ORM\Column(type: 'datetime')]
+    private ?DateTimeInterface $requestedAt = null;
 
-    /**
-     * @ORM\Column(type="datetime")
-     */
-    private $expiresAt;
-
+    #[ORM\Column(type: 'datetime')]
+    private ?DateTimeInterface $expiresAt = null;
 
     public function __construct()
     {
-        $this->requestedAt = new \DateTimeImmutable('now');
+        $this->requestedAt = new DateTimeImmutable('now');
     }
 
     public function getSelector(): ?string
@@ -72,24 +59,24 @@ class Token
         return $this;
     }
 
-    public function getRequestedAt(): ?\DateTimeInterface
+    public function getRequestedAt(): ?DateTimeInterface
     {
         return $this->requestedAt;
     }
 
-    public function setRequestedAt(\DateTimeInterface $requestedAt): self
+    public function setRequestedAt(DateTimeInterface $requestedAt): self
     {
         $this->requestedAt = $requestedAt;
 
         return $this;
     }
 
-    public function getExpiresAt(): ?\DateTimeInterface
+    public function getExpiresAt(): ?DateTimeInterface
     {
         return $this->expiresAt;
     }
 
-    public function setExpiresAt(\DateTimeInterface $expiresAt): self
+    public function setExpiresAt(DateTimeInterface $expiresAt): self
     {
         $this->expiresAt = $expiresAt;
 

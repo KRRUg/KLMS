@@ -2,47 +2,38 @@
 
 namespace App\Controller\Site;
 
-
 use App\Entity\Seat;
-use App\Entity\User;
 use App\Exception\GamerLifecycleException;
-use App\Idm\IdmManager;
-use App\Idm\IdmRepository;
-use App\Service\GamerService;
 use App\Service\SeatmapService;
 use App\Service\SettingService;
-use Doctrine\ORM\EntityManagerInterface;
-use Psr\Log\LoggerInterface;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\Extension\Core\Type\HiddenType;
+use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
-/**
- * @Route("/seatmap", name="seatmap")
- */
+#[Route(path: '/seatmap', name: 'seatmap')]
 class SeatmapController extends AbstractController
 {
-    private SeatmapService $seatmapService;
-    private SettingService $settingService;
+    private readonly SeatmapService $seatmapService;
+    private readonly SettingService $settingService;
 
     public function __construct(
-        SettingService         $settingService,
-        SeatmapService         $seatmapService)
+        SettingService $settingService,
+        SeatmapService $seatmapService)
     {
         $this->settingService = $settingService;
         $this->seatmapService = $seatmapService;
     }
 
-    /**
-     * @Route("", name="")
-     */
-    public function index()
+    #[Route(path: '', name: '')]
+    public function index(): Response
     {
         if (!$this->settingService->get('lan.seatmap.enabled', false)) {
             if ($this->settingService->get('lan.signup.enabled', false)) {
                 $this->addFlash('warning', 'Sitzplan ist noch nicht verfügbar');
+
                 return $this->redirectToRoute('index');
             } else {
                 throw $this->createNotFoundException();
@@ -50,27 +41,27 @@ class SeatmapController extends AbstractController
         }
 
         $seats = $this->seatmapService->getSeatmap();
+
         return $this->render('site/seatmap/index.html.twig', [
             'seatmap' => $seats,
             'users' => $this->seatmapService->getSeatedUser($seats),
         ]);
     }
 
-    private function generateForm(Seat $seat, string $action) {
+    private function generateForm(Seat $seat, string $action): FormInterface
+    {
         $fb = $this->createFormBuilder()
             ->add('action', HiddenType::class, [
-                'data' => $action
+                'data' => $action,
             ]);
 
         $fb->setAction($this->generateUrl('seatmap_seat_show', ['id' => $seat->getId()]));
+
         return $fb->getForm();
     }
 
-    /**
-     * @Route("/seat/{id}", name="_seat_show", methods={"GET", "POST"})
-     * @ParamConverter()
-     */
-    public function seatShow(Seat $seat, Request $request)
+    #[Route(path: '/seat/{id}', name: '_seat_show', methods: ['GET', 'POST'])]
+    public function seatShow(Seat $seat, Request $request): Response
     {
         $view = null;
         $locked = $this->settingService->get('lan.seatmap.locked') === true;
@@ -87,7 +78,7 @@ class SeatmapController extends AbstractController
                 $form->handleRequest($request);
                 if ($form->isSubmitted() && $form->isValid()) {
                     if ($locked) {
-                        $this->addFlash('error', "Der Sitzplan ist aktuell von den Administratoren gesperrt!");
+                        $this->addFlash('error', 'Der Sitzplan ist aktuell von den Administratoren gesperrt!');
                     } else {
                         $action = $form->get('action')->getData();
                         try {
@@ -101,10 +92,11 @@ class SeatmapController extends AbstractController
                                     $this->addFlash('success', "Sitzplatz {$seat->generateSeatName()} erfolgreich freigegeben.");
                                     break;
                             }
-                        } catch (GamerLifecycleException $exception) {
-                            $this->addFlash('error', "Aktion konnte nicht durchgeführt werden!");
+                        } catch (GamerLifecycleException) {
+                            $this->addFlash('error', 'Aktion konnte nicht durchgeführt werden!');
                         }
                     }
+
                     return $this->redirectToRoute('seatmap');
                 }
                 $view = $form->createView();

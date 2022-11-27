@@ -3,53 +3,37 @@
 namespace App\Entity;
 
 use App\Entity\Traits\HistoryAwareEntity;
+use App\Repository\EmailRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Ramsey\Uuid\UuidInterface;
 
-/**
- * @ORM\Entity(repositoryClass="App\Repository\EmailRepository")
- * @ORM\HasLifecycleCallbacks
- */
+#[ORM\Entity(repositoryClass: EmailRepository::class)]
+#[ORM\HasLifecycleCallbacks]
 class Email implements HistoryAwareEntity
 {
-    /**
-     * @ORM\Id()
-     * @ORM\GeneratedValue()
-     * @ORM\Column(type="integer")
-     */
-    private $id;
-
-    /**
-     * @ORM\Column(type="string", length=255, nullable=false)
-     */
-    private $name;
-
-    /**
-     * @ORM\Column(type="uuid", nullable=true)
-     */
-    private $recipientGroup;
-
-    /**
-     * @ORM\Column(type="string", length=255, nullable=false)
-     */
-    private $subject;
-
-    /**
-     * @ORM\Column(type="text", nullable=false)
-     */
-    private $body = '';
-
-    /**
-     * @ORM\Column(type="string", length=255)
-     */
-    private $designFile;
-
-    /**
-     * @ORM\OneToOne(targetEntity="App\Entity\EmailSending", mappedBy="template", cascade={"persist"}, fetch="EAGER", orphanRemoval=true)
-     */
-    private $emailSending;
-
     use Traits\EntityHistoryTrait;
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column(type: 'integer')]
+    private ?int $id;
+
+    #[ORM\Column(type: 'string', length: 255, nullable: false)]
+    private ?string $name;
+
+    #[ORM\Column(type: 'uuid', nullable: true)]
+    private ?UuidInterface $recipientGroup;
+
+    #[ORM\Column(type: 'string', length: 255, nullable: false)]
+    private ?string $subject;
+
+    #[ORM\Column(type: 'text', nullable: false)]
+    private string $body = '';
+
+    #[ORM\Column(type: 'string', length: 255)]
+    private ?string $designFile;
+
+    #[ORM\OneToOne(mappedBy: 'template', cascade: ['persist'], fetch: 'EAGER', orphanRemoval: true)]
+    private ?EmailSending $emailSending;
 
     public function getId(): ?int
     {
@@ -124,6 +108,7 @@ class Email implements HistoryAwareEntity
     public function setEmailSending(?EmailSending $emailSending): self
     {
         $this->emailSending = $emailSending;
+
         return $this;
     }
 

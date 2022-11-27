@@ -4,7 +4,7 @@ namespace App\Messenger;
 
 class MailingGroupNotification
 {
-    private int $sendingId;
+    private readonly int $sendingId;
 
     public function __construct(int $sendingId)
     {

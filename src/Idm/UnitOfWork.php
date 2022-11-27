@@ -1,6 +1,5 @@
 <?php
 
-
 namespace App\Idm;
 
 use App\Idm\Annotation\Collection;
@@ -8,13 +7,11 @@ use App\Idm\Annotation\Reference;
 use App\Idm\Exception\NotImplementedException;
 use App\Idm\Exception\UnsupportedClassException;
 use Closure;
-use Doctrine\Common\Annotations\Reader;
 use ReflectionClass;
 
 class UnitOfWork
 {
-    private IdmManager $manager;
-    private Reader $annotationReader;
+    private readonly IdmManager $manager;
 
     /**
      * @var array spl_object_id => object
@@ -27,7 +24,7 @@ class UnitOfWork
     private array $orig;
 
     /**
-     * @var array Object ids marked for deletion.
+     * @var array object ids marked for deletion
      */
     private array $delete_ids;
 
@@ -39,10 +36,9 @@ class UnitOfWork
     /**
      * UnitOfWork constructor.
      */
-    public function __construct(IdmManager $manager, Reader $annotationReader)
+    public function __construct(IdmManager $manager)
     {
         $this->manager = $manager;
-        $this->annotationReader = $annotationReader;
 
         $this->objects = [];
         $this->id_ref = [];
@@ -54,20 +50,19 @@ class UnitOfWork
      * Registers a new object to the UoW.
      * Note: If there is already another object with the same id, the newer Object will be returned on get.
      *
-     * @param object $obj
      * @param bool $existing If the object represents an existing object from the IDM (e.g. has the id set)
      */
-    public function register(object $obj, bool $existing = false)
+    public function register(object $obj, bool $existing = false): void
     {
         if (!$this->manager->isManaged($obj)) {
             throw new UnsupportedClassException();
         }
 
-        $class = get_class($obj);
+        $class = $obj::class;
         $id = spl_object_id($obj);
 
         if ($existing) {
-            $this->id_ref[$class . $this->manager->object2Id($obj)] = $id;
+            $this->id_ref[$class.$this->manager->object2Id($obj)] = $id;
         }
         if (array_key_exists($id, $this->objects)) {
             return;
@@ -80,7 +75,7 @@ class UnitOfWork
         }
     }
 
-    public function delete(object $obj)
+    public function delete(object $obj): void
     {
         if (!$this->isAttached($obj)) {
             return;
@@ -91,19 +86,22 @@ class UnitOfWork
 
     public function get(string $class, string $id)
     {
-        $key = $class . $id;
+        $key = $class.$id;
         if (isset($this->id_ref[$key])) {
             return $this->objects[$this->id_ref[$key]];
         }
+
         return null;
     }
 
     public function isDirty($object): bool
     {
-        if ($this->isNew($object))
+        if ($this->isNew($object)) {
             return false;
+        }
 
         $id = spl_object_id($object);
+
         return !$this->manager->compareObjects($this->objects[$id], $this->orig[$id]);
     }
 
@@ -117,13 +115,14 @@ class UnitOfWork
         return array_key_exists(spl_object_id($object), $this->objects);
     }
 
-    public function persist(object $object, array &$already_done = [])
+    public function persist(object $object, array &$already_done = []): void
     {
         $id = spl_object_id($object);
-        if (isset($already_done[$id]))
+        if (isset($already_done[$id])) {
             return;
-        else
+        } else {
             $already_done[$id] = true;
+        }
 
         // make sure new entities are persisted
         $this->register($object, false);
@@ -133,10 +132,12 @@ class UnitOfWork
                 $this->persist($obj, $already_done);
             },
             function ($class, $list) use ($already_done) {
-                if (is_null($list))
+                if (is_null($list)) {
                     return;
-                if ($list instanceof LazyLoaderCollection && !$list->isLoaded())
+                }
+                if ($list instanceof LazyLoaderCollection && !$list->isLoaded()) {
                     return;
+                }
                 foreach ($list as $loadedObj) {
                     $this->persist($loadedObj, $already_done);
                 }
@@ -144,31 +145,35 @@ class UnitOfWork
         );
     }
 
-    public const STATE_DETACHED = 0;
-    public const STATE_MANAGED = 1;
-    public const STATE_CREATED = 2;
-    public const STATE_MODIFIED = 3;
-    public const STATE_DELETE = 4;
+    final public const STATE_DETACHED = 0;
+    final public const STATE_MANAGED = 1;
+    final public const STATE_CREATED = 2;
+    final public const STATE_MODIFIED = 3;
+    final public const STATE_DELETE = 4;
 
-    public function getObjectState(object $object)
+    public function getObjectState(object $object): int
     {
         $id = spl_object_id($object);
-        if (!array_key_exists($id, $this->objects))
+        if (!array_key_exists($id, $this->objects)) {
             return self::STATE_DETACHED;
+        }
 
-        if (array_key_exists($id, $this->delete_ids))
+        if (array_key_exists($id, $this->delete_ids)) {
             return self::STATE_DELETE;
+        }
 
-        if (!array_key_exists($id, $this->orig))
+        if (!array_key_exists($id, $this->orig)) {
             return self::STATE_CREATED;
+        }
 
-        if (!$this->manager->compareObjects($this->objects[$id], $this->orig[$id]))
+        if (!$this->manager->compareObjects($this->objects[$id], $this->orig[$id])) {
             return self::STATE_MODIFIED;
+        }
 
         return self::STATE_MANAGED;
     }
 
-    public function flush(object $object = null)
+    public function flush(object $object = null): void
     {
         if ($object === null) {
             foreach ($this->objects as $o) {
@@ -189,16 +194,18 @@ class UnitOfWork
         }
     }
 
-    private function backUp(object $obj)
+    private function backUp(object $obj): void
     {
         $clone = clone $obj;
         $this->mapAnnotation($clone,
-            function ($class, $obj) {
-                throw new NotImplementedException("@Reference annotation is not implemented in IdmManager yet");
+            function ($class, $obj): never {
+                throw new NotImplementedException('@Reference annotation is not implemented in IdmManager yet');
             },
             function ($class, $list) {
-                if ($list instanceof LazyLoaderCollection)
+                if ($list instanceof LazyLoaderCollection) {
                     return $list->toArray(false);
+                }
+
                 return $list;
             }
         );
@@ -207,21 +214,24 @@ class UnitOfWork
 
     /**
      * @param object $object Object to check for collection modifications
+     *
      * @return array prop_name => [[add], [remove]] where add and remove are sets of ids of the corresponding objects
      */
     public function getCollectionDiff(object $object): array
     {
         $id = spl_object_id($object);
 
-        if (!isset($this->objects[$id]))
+        if (!isset($this->objects[$id])) {
             return [];
+        }
 
-        return $this->compareCollections($this->objects[$id], isset($this->orig[$id]) ? $this->orig[$id] : null);
+        return $this->compareCollections($this->objects[$id], $this->orig[$id] ?? null);
     }
 
     /**
-     * @param object $object Object to compare
+     * @param object      $object    Object to compare
      * @param object|null $reference Object to compare to
+     *
      * @return array prop_name => [[add], [remove]] where add and remove are sets of ids of the corresponding objects
      */
     private function compareCollections(object $object, ?object $reference): array
@@ -230,8 +240,7 @@ class UnitOfWork
         $ref = new ReflectionClass($object);
 
         foreach ($ref->getProperties() as $property) {
-            if($ano = $this->annotationReader->getPropertyAnnotation($property, Collection::class)) {
-                $property->setAccessible(true);
+            if ($property->getAttributes(Collection::class)) {
                 $v_a = $property->getValue($object);
                 if (is_null($v_a)) {
                     $result[$property->getName()] = [[], []];
@@ -240,8 +249,8 @@ class UnitOfWork
                 $v_b = is_null($reference) ? [] : $property->getValue($reference);
                 $v_a = ($v_a instanceof LazyLoaderCollection) ? $v_a->toArray(false) : $v_a;
                 $v_b = ($v_b instanceof LazyLoaderCollection) ? $v_b->toArray(false) : $v_b;
-                $v_a = array_map(function ($i_a) { return $this->manager->object2Id($i_a); }, $v_a);
-                $v_b = array_map(function ($i_b) { return $this->manager->object2Id($i_b); }, $v_b);
+                $v_a = array_map(fn ($i_a) => $this->manager->object2Id($i_a), $v_a);
+                $v_b = array_map(fn ($i_b) => $this->manager->object2Id($i_b), $v_b);
                 $result[$property->getName()] = [array_diff($v_a, $v_b), array_diff($v_b, $v_a)];
             }
         }
@@ -249,32 +258,28 @@ class UnitOfWork
         return $result;
     }
 
-    private function foreachAnnotation(object $object, Closure $closureReference, Closure $closureCollection)
+    private function foreachAnnotation(object $object, Closure $closureReference, Closure $closureCollection): void
     {
         $reflection = new ReflectionClass($object);
 
         foreach ($reflection->getProperties() as $property) {
-            if($ano = $this->annotationReader->getPropertyAnnotation($property, Collection::class)) {
-                $property->setAccessible(true);
-                $closureCollection($ano->getClass(), $property->getValue($object));
-            } elseif ($ano = $this->annotationReader->getPropertyAnnotation($property, Reference::class)) {
-                $property->setAccessible(true);
-                $closureReference($ano->getClass(), $property->getValue($object));
+            if ($attributes = $property->getAttributes(Collection::class)) {
+                $closureCollection($attributes[0]->newInstance()->getClass(), $property->getValue($object));
+            } elseif ($attributes = $property->getAttributes(Reference::class)) {
+                $closureReference($attributes[0]->newInstance()->getClass(), $property->getValue($object));
             }
         }
     }
 
-    private function mapAnnotation(object $object, Closure $closureReference, Closure $closureCollection)
+    private function mapAnnotation(object $object, Closure $closureReference, Closure $closureCollection): void
     {
         $reflection = new ReflectionClass($object);
 
         foreach ($reflection->getProperties() as $property) {
-            if($ano = $this->annotationReader->getPropertyAnnotation($property, Collection::class)) {
-                $property->setAccessible(true);
-                $property->setValue($object, $closureCollection($ano->getClass(), $property->getValue($object)));
-            } elseif ($ano = $this->annotationReader->getPropertyAnnotation($property, Reference::class)) {
-                $property->setAccessible(true);
-                $property->setValue($object, $closureReference($ano->getClass(), $property->getValue($object)));
+            if ($attributes = $property->getAttributes(Collection::class)) {
+                $property->setValue($object, $closureCollection($attributes[0]->newInstance()->getClass(), $property->getValue($object)));
+            } elseif ($attributes = $property->getAttributes(Reference::class)) {
+                $property->setValue($object, $closureReference($attributes[0]->newInstance()->getClass(), $property->getValue($object)));
             }
         }
     }

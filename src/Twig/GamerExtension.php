@@ -2,9 +2,9 @@
 
 namespace App\Twig;
 
+use App\Entity\Seat;
 use App\Entity\User;
 use App\Service\GamerService;
-use App\Entity\Seat;
 use App\Service\SeatmapService;
 use Twig\Extension\AbstractExtension;
 use Twig\TwigFilter;
@@ -12,8 +12,8 @@ use Twig\TwigTest;
 
 class GamerExtension extends AbstractExtension
 {
-    private GamerService $gamerService;
-    private SeatmapService $seatmapService;
+    private readonly GamerService $gamerService;
+    private readonly SeatmapService $seatmapService;
 
     public function __construct(GamerService $gamerService, SeatmapService $seatmapService)
     {
@@ -24,22 +24,22 @@ class GamerExtension extends AbstractExtension
     /**
      * {@inheritdoc}
      */
-    public function getTests()
+    public function getTests(): array
     {
         return [
-            new TwigTest('registered_gamer', [$this, 'gamerIsRegistered']),
-            new TwigTest('paid_gamer', [$this, 'gamerIsPaid']),
-            new TwigTest('seated_gamer', [$this, 'gamerIsSeated']),
+            new TwigTest('registered_gamer', $this->gamerIsRegistered(...)),
+            new TwigTest('paid_gamer', $this->gamerIsPaid(...)),
+            new TwigTest('seated_gamer', $this->gamerIsSeated(...)),
         ];
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getFilters()
+    public function getFilters(): array
     {
         return [
-            new TwigFilter('seat', [$this, 'getSeat']),
+            new TwigFilter('seat', $this->getSeat(...)),
         ];
     }
 
@@ -61,7 +61,8 @@ class GamerExtension extends AbstractExtension
     public function getSeat(User $user): ?string
     {
         $seats = $this->seatmapService->getUserSeats($user);
-        $names = array_map(function (Seat $seat) { return $seat->generateSeatName(); }, $seats);
+        $names = array_map(fn (Seat $seat) => $seat->generateSeatName(), $seats);
+
         return implode(',', $names);
     }
 }

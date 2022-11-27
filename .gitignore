@@ -82,3 +82,8 @@ public/media
 ###> liip/imagine-bundle ###
 /public/media/cache/
 ###< liip/imagine-bundle ###
+
+/tools/
+rector.php
+*.cache
+

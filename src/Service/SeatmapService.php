@@ -1,8 +1,6 @@
 <?php
 
-
 namespace App\Service;
-
 
 use App\Entity\Seat;
 use App\Entity\User;
@@ -12,15 +10,14 @@ use App\Idm\IdmRepository;
 use App\Repository\SeatRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Security\Core\Security;
-use function Clue\StreamFilter\fun;
 
 class SeatmapService
 {
-    private EntityManagerInterface $em;
-    private SeatRepository $seatRepository;
-    private GamerService $gamerService;
-    private Security $security;
-    private IdmRepository $userRepo;
+    private readonly EntityManagerInterface $em;
+    private readonly SeatRepository $seatRepository;
+    private readonly GamerService $gamerService;
+    private readonly Security $security;
+    private readonly IdmRepository $userRepo;
 
     public function __construct(
         EntityManagerInterface $entityManager,
@@ -43,11 +40,11 @@ class SeatmapService
 
     public function getSeatedUser(array $seats): array
     {
-        $uuids = array_map(function (Seat $seat) { return $seat->getOwner() ? $seat->getOwner()->getUuid()->toString() : null; }, $seats);
+        $uuids = array_map(fn (Seat $seat) => $seat->getOwner() ? $seat->getOwner()->getUuid()->toString() : null, $seats);
         $uuids = array_filter($uuids); // remove null from uuids
         $users = $this->userRepo->findById($uuids);
 
-        $uuids = array_map(function (User $u) { return $u->getUuid()->toString(); }, $users);
+        $uuids = array_map(fn (User $u) => $u->getUuid()->toString(), $users);
         $users = array_combine($uuids, $users);
 
         $ret = [];
@@ -56,15 +53,17 @@ class SeatmapService
                 $users[$seat->getOwner()->getUuid()->toString()] :
                 null;
         }
+
         return $ret;
     }
 
     /**
-     * Returns true if the provided User can still book a seat
+     * Returns true if the provided User can still book a seat.
      */
     public function hasSeatEligibility(User $user): bool
     {
         $current_seat = $this->getUserSeatCount($user);
+
         return $current_seat == 0 && $this->gamerService->gamerHasPaid($user);
     }
 
@@ -76,14 +75,16 @@ class SeatmapService
     public function isSeatOwner(Seat $seat, User $user): bool
     {
         $owner = $seat->getOwner();
-        if (empty($owner))
+        if (empty($owner)) {
             return false;
+        }
+
         return $owner === $this->gamerService->getGamer($user);
     }
 
-    public function bookSeat(Seat $seat, User $user)
+    public function bookSeat(Seat $seat, User $user): void
     {
-        if($this->canBookSeat($seat, $user)) {
+        if ($this->canBookSeat($seat, $user)) {
             $seat->setOwner($this->gamerService->getGamer($user));
             $this->em->flush();
         } else {
@@ -91,9 +92,9 @@ class SeatmapService
         }
     }
 
-    public function unBookSeat(Seat $seat, User $user)
+    public function unBookSeat(Seat $seat, User $user): void
     {
-        if($this->isSeatOwner($seat, $user)) {
+        if ($this->isSeatOwner($seat, $user)) {
             $seat->setOwner(null);
             $this->em->flush();
         } else {
@@ -117,17 +118,14 @@ class SeatmapService
 
     public function isSeatBookable(Seat $seat): bool
     {
-        switch ($seat->getType()) {
-            case 'seat':
-                return empty($seat->getOwner());
-            case 'locked':
-                return $this->security->isGranted('ROLE_ADMIN_SEATMAP');
-            default:
-                return false;
-        }
+        return match ($seat->getType()) {
+            'seat' => empty($seat->getOwner()),
+            'locked' => $this->security->isGranted('ROLE_ADMIN_SEATMAP'),
+            default => false,
+        };
     }
 
-    public function getSeatOwner(Seat $seat)
+    public function getSeatOwner(Seat $seat): ?User
     {
         if ($seat->getOwner()) {
             return $this->gamerService->getUserFromGamer($seat->getOwner());

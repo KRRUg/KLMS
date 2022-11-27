@@ -11,8 +11,8 @@ use Twig\TwigTest;
 
 class ContentExtension extends AbstractExtension
 {
-    private ContentRepository $repo;
-    private UrlGeneratorInterface $urlGenerator;
+    private readonly ContentRepository $repo;
+    private readonly UrlGeneratorInterface $urlGenerator;
 
     public function __construct(ContentRepository $repo, UrlGeneratorInterface $urlGenerator)
     {
@@ -20,30 +20,31 @@ class ContentExtension extends AbstractExtension
         $this->urlGenerator = $urlGenerator;
     }
 
-    public function getTests()
+    public function getTests(): array
     {
         return [
-            new TwigTest('slug', [$this, 'slugExists'])
+            new TwigTest('slug', $this->slugExists(...)),
         ];
     }
 
-    public function getFunctions()
+    public function getFunctions(): array
     {
         return [
-            new TwigFunction('slug_url', [$this, 'slugUrl'])
+            new TwigFunction('slug_url', $this->slugUrl(...)),
         ];
     }
 
-    public function getFilters()
+    public function getFilters(): array
     {
         return [
-            new TwigFilter('slug_link', [$this, 'slugLink'], ['is_safe' => ['html']])
+            new TwigFilter('slug_link', $this->slugLink(...), ['is_safe' => ['html']]),
         ];
     }
 
     public function slugExists(string $slug): bool
     {
         $content = $this->repo->findBySlug($slug);
+
         return !empty($content);
     }
 
@@ -51,10 +52,11 @@ class ContentExtension extends AbstractExtension
     {
         $content = $this->repo->findBySlug($slug);
         if (empty($content)) {
-            return $title ?? "";
+            return $title ?? '';
         }
         $link = $this->urlGenerator->generate('content_slug', ['slug' => $content->getAlias()]);
-        $title = $title ?? $content->getTitle();
+        $title ??= $content->getTitle();
+
         return "<a href=\"{$link}\">{$title}</a>";
     }
 
@@ -62,8 +64,9 @@ class ContentExtension extends AbstractExtension
     {
         $content = $this->repo->findBySlug($slug);
         if (empty($content)) {
-            return "#";
+            return '#';
         }
+
         return $this->urlGenerator->generate('content_slug', ['slug' => $content->getAlias()]);
     }
 }

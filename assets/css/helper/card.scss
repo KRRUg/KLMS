@@ -1,8 +1,10 @@
+@import "variables";
+
 .card-avatar {
-    position:relative;
-    left:50%;
-    margin-left:-$card-avatar-size / 2;
-    margin-top: -$card-avatar-size / 2;
+    position: relative;
+    left: 50%;
+    margin-left: calc($card-avatar-size / -2);
+    margin-top:  calc($card-avatar-size / -2);
     width: $card-avatar-size;
     height: $card-avatar-size;
     line-height: $card-avatar-size;

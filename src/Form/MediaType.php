@@ -11,7 +11,7 @@ use Vich\UploaderBundle\Form\Type\VichFileType;
 
 class MediaType extends AbstractType
 {
-    private AuthorInsertSubscriber $userInsertSubscriber;
+    private readonly AuthorInsertSubscriber $userInsertSubscriber;
 
     public function __construct(AuthorInsertSubscriber $userInsertSubscriber)
     {

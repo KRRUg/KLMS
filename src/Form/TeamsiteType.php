@@ -13,25 +13,24 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 class TeamsiteType extends AbstractType
 {
-    private AuthorInsertSubscriber $authorInsertSubscriber;
+    private readonly AuthorInsertSubscriber $authorInsertSubscriber;
 
     public function __construct(AuthorInsertSubscriber $authorInsertSubscriber)
     {
         $this->authorInsertSubscriber = $authorInsertSubscriber;
     }
 
-
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
             ->add('title', TextType::class, [
                 'required' => true,
-                'label' => "Titel",
+                'label' => 'Titel',
             ])
             ->add('description', TextareaType::class, [
                 'required' => true,
                 'empty_data' => '',
-                'label' => "Beschreibung",
+                'label' => 'Beschreibung',
             ])
             ->add('content', HiddenType::class, [
                 'mapped' => false,

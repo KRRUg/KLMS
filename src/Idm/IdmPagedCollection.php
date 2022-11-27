@@ -1,30 +1,22 @@
 <?php
 
-
 namespace App\Idm;
 
-
-use ArrayAccess;
-use Countable;
 use InvalidArgumentException;
-use Iterator;
 
-class IdmPagedCollection implements ArrayAccess, Iterator, Countable
+class IdmPagedCollection implements Collection
 {
-    private IdmManager $manager;
+    private readonly IdmManager $manager;
 
-    /**
-     * @var array|string
-     */
-    private $filter;
-    private array $sort;
-    private string $class;
+    private string|array $filter;
+    private readonly array $sort;
+    private readonly string $class;
 
-    private bool $case;
-    private bool $fuzzy;
+    private readonly bool $case;
+    private readonly bool $fuzzy;
 
     private int $total;
-    private int $page_size;
+    private readonly int $page_size;
     private int $position;
 
     private array $items;
@@ -46,6 +38,7 @@ class IdmPagedCollection implements ArrayAccess, Iterator, Countable
     {
         $result = new self($manager, $class, $filter, $fuzzy, $case, $sort, $page_size);
         $result->request(0);
+
         return $result;
     }
 
@@ -54,31 +47,40 @@ class IdmPagedCollection implements ArrayAccess, Iterator, Countable
         $page = intdiv($offset, $this->page_size);
         $result = $this->manager->find($this->class, $this->filter, $this->fuzzy, $this->case, $this->sort, $page + 1, $this->page_size);
         $this->total = $result->total;
-        for ($i = 0; $i < $result->count; $i++) {
+        for ($i = 0; $i < $result->count; ++$i) {
             $this->items[$page * $this->page_size + $i] = $result->items[$i];
         }
     }
 
-    public function getPage(int $page, int $limit)
+    public function getPage(int $page, int $limit): array
     {
         $result = [];
-        for ($i = 0; $i < $limit; $i++) {
-            $val = $this[($page-1) * $limit + $i];
-            if (!empty($val))
+        for ($i = 0; $i < $limit; ++$i) {
+            $val = $this[($page - 1) * $limit + $i];
+            if (!empty($val)) {
                 $result[$i] = $val;
+            }
         }
+
         return $result;
     }
 
-    public function offsetGet($offset): ?object
+    public function get(mixed $offset): mixed
     {
-        if (!$this->offsetExists($offset))
+        if (!$this->offsetExists($offset)) {
             return null;
+        }
 
-        if (!isset($this->items[$offset]))
+        if (!isset($this->items[$offset])) {
             $this->request($offset);
+        }
 
-        return isset($this->items[$offset]) ? $this->items[$offset] : null;
+        return $this->items[$offset] ?? null;
+    }
+
+    public function offsetGet($offset): mixed
+    {
+        return $this->get($offset);
     }
 
     public function offsetExists($offset): bool
@@ -86,15 +88,15 @@ class IdmPagedCollection implements ArrayAccess, Iterator, Countable
         return is_int($offset) && $offset >= 0 && $offset < $this->total;
     }
 
-    public function offsetSet($offset, $value)
+    public function offsetSet($offset, $value): void
     {
         if (!is_a($value, $this->class)) {
-            throw new InvalidArgumentException("Incorrect type");
+            throw new InvalidArgumentException('Incorrect type');
         }
         $this->items[$offset] = $value;
     }
 
-    public function offsetUnset($offset)
+    public function offsetUnset($offset): void
     {
         unset($this->items[$offset]);
     }
@@ -104,17 +106,17 @@ class IdmPagedCollection implements ArrayAccess, Iterator, Countable
         return $this->total;
     }
 
-    public function current()
+    public function current(): mixed
     {
         return $this->offsetGet($this->position);
     }
 
-    public function next()
+    public function next(): void
     {
-        $this->position++;
+        ++$this->position;
     }
 
-    public function key()
+    public function key(): int
     {
         return $this->position;
     }
@@ -124,8 +126,13 @@ class IdmPagedCollection implements ArrayAccess, Iterator, Countable
         return $this->offsetExists($this->position);
     }
 
-    public function rewind()
+    public function rewind(): void
     {
         $this->position = 0;
+    }
+
+    public function isEmpty(): bool
+    {
+        return $this->total == 0;
     }
 }

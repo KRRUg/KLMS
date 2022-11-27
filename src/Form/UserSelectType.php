@@ -12,15 +12,14 @@ use Ramsey\Uuid\Uuid;
 use Ramsey\Uuid\UuidInterface;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\CallbackTransformer;
-use Symfony\Component\Form\DataTransformerInterface;
 use Symfony\Component\Form\Exception\TransformationFailedException;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class UserSelectType extends AbstractType
 {
-    private IdmRepository $userRepository;
-    private UserGamerRepository $gamerRepository;
+    private readonly IdmRepository $userRepository;
+    private readonly UserGamerRepository $gamerRepository;
 
     public function __construct(IdmManager $manager, UserGamerRepository $gamerRepository)
     {
@@ -32,10 +31,10 @@ class UserSelectType extends AbstractType
     {
         switch ($options['type']) {
             case User::class:
-                $builder->addViewTransformer(new CallbackTransformer([$this,'transform'], [$this,'reverseTransformUser']));
+                $builder->addViewTransformer(new CallbackTransformer($this->transform(...), $this->reverseTransformUser(...)));
                 break;
             case UserGamer::class:
-                $builder->addViewTransformer(new CallbackTransformer([$this,'transform'], [$this,'reverseTransformGamer']));
+                $builder->addViewTransformer(new CallbackTransformer($this->transform(...), $this->reverseTransformGamer(...)));
                 break;
         }
     }
@@ -54,14 +53,14 @@ class UserSelectType extends AbstractType
         ;
     }
 
-    public function getBlockPrefix()
+    public function getBlockPrefix(): string
     {
         return 'select2';
     }
 
-    public function transform($entity)
+    public function transform($entity): array
     {
-        $data = array();
+        $data = [];
         if (empty($entity)) {
             return $data;
         }
@@ -77,31 +76,34 @@ class UserSelectType extends AbstractType
             default:
                 throw new TransformationFailedException('Unknown type to convert');
         }
+
         return $data;
     }
 
-    public function reverseTransformUser($value)
+    public function reverseTransformUser($value): ?object
     {
-        if (empty($value))
+        if (empty($value)) {
             return null;
+        }
 
         $value = $value instanceof UuidInterface ? $value : Uuid::fromString($value);
         try {
             return $this->userRepository->findOneById($value);
-        } catch (PersistException $e) {
+        } catch (PersistException) {
             throw new TransformationFailedException('Unknown type to convert');
         }
     }
 
-    public function reverseTransformGamer($value)
+    public function reverseTransformGamer($value): ?UserGamer
     {
-        if (empty($value))
+        if (empty($value)) {
             return null;
+        }
 
         $value = $value instanceof UuidInterface ? $value : Uuid::fromString($value);
         try {
             return $this->gamerRepository->findOneBy(['uuid' => $value]);
-        } catch (PersistException $e) {
+        } catch (PersistException) {
             throw new TransformationFailedException('Unknown type to convert');
         }
     }

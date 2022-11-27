@@ -4,7 +4,7 @@ namespace App\Repository;
 
 use App\Entity\Media;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
-use Doctrine\Common\Persistence\ManagerRegistry;
+use Doctrine\Persistence\ManagerRegistry;
 
 /**
  * @method Media|null find($id, $lockMode = null, $lockVersion = null)
@@ -18,16 +18,12 @@ class MediaRepository extends ServiceEntityRepository
         parent::__construct($registry, Media::class);
     }
 
-    /**
-     * @param $name
-     * @return Media|null
-     */
-    public function findByName(string $name)
+    public function findByName(string $name): ?Media
     {
         return $this->findOneBy(['fileName' => $name]);
     }
 
-    public function findByDisplayName(string $name)
+    public function findByDisplayName(string $name): ?Media
     {
         return $this->findOneBy(['displayName' => $name]);
     }
@@ -35,23 +31,25 @@ class MediaRepository extends ServiceEntityRepository
     /**
      * @return Media[]
      */
-    public function findAll()
+    public function findAll(): array
     {
         return $this->findBy([], ['displayName' => 'ASC', 'created' => 'ASC']);
     }
 
     /**
      * @param string $mime Mime prefix to search for (e.g. image or document)
+     *
      * @return Media[]
      */
-    public function findByMimeClass(string $mime)
+    public function findByMimeClass(string $mime): array
     {
-        if (empty($mime))
+        if (empty($mime)) {
             return $this->findAll();
+        }
 
         return $this->createQueryBuilder('m')
             ->where('m.mimeType LIKE :mime')
-            ->setParameter('mime', $mime . '/%')
+            ->setParameter('mime', $mime.'/%')
             ->orderBy('m.displayName', 'ASC')
             ->addOrderBy('m.created', 'ASC')
             ->getQuery()

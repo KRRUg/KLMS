@@ -12,9 +12,9 @@ use Vich\UploaderBundle\Templating\Helper\UploaderHelper;
 
 class UserService
 {
-    private IdmRepository $userRepo;
-    private UserImageRepository $imageRepo;
-    private UploaderHelper $uploadHelper;
+    private readonly IdmRepository $userRepo;
+    private readonly UserImageRepository $imageRepo;
+    private readonly UploaderHelper $uploadHelper;
 
     public function __construct(UserImageRepository $imageRepo, UploaderHelper $uploadHelper, IdmManager $manager)
     {
@@ -29,6 +29,7 @@ class UserService
         if (empty($image) || empty($image->getImage())) {
             return '';
         }
+
         return $this->uploadHelper->asset($image, 'imageFile');
     }
 
@@ -42,25 +43,23 @@ class UserService
             'firstname' => $user->getFirstname(),
             'surname' => $user->getSurname(),
             'image' => $this->getUserImage($user),
-            'clans' => array_map(function ($clan) {
-                return [
-                    'uuid' => $clan->getUuid(),
-                    'name' => $clan->getName(),
-                    'clantag' => $clan->getClantag(),
-                ];
-            }, $user->getClans()->toArray()),
+            'clans' => array_map(fn ($clan) => [
+                'uuid' => $clan->getUuid(),
+                'name' => $clan->getName(),
+                'clantag' => $clan->getClantag(),
+            ], $user->getClans()->toArray()),
         ];
     }
 
     public static function array2Uuid(array $a): ?UuidInterface
     {
-        return array_key_exists("uuid", $a) && Uuid::isValid($a["uuid"]) ? Uuid::fromString($a["uuid"]) : null;
+        return array_key_exists('uuid', $a) && Uuid::isValid($a['uuid']) ? Uuid::fromString($a['uuid']) : null;
     }
 
     /**
-     * Preloads multiple users to avoid multiple IDM requests
+     * Preloads multiple users to avoid multiple IDM requests.
      */
-    public function preloadUsers(array $uuids)
+    public function preloadUsers(array $uuids): void
     {
         $this->userRepo->findById($uuids);
     }

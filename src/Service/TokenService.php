@@ -6,11 +6,14 @@ use App\Entity\Token;
 use App\Exception\TokenException;
 use App\Helper\RandomStringGenerator;
 use App\Repository\TokenRepository;
+use DateInterval;
+use DateTimeImmutable;
+use DateTimeInterface;
 use Doctrine\ORM\EntityManagerInterface;
 use Ramsey\Uuid\UuidInterface;
 
 /**
- * Inspired by https://github.com/SymfonyCasts/reset-password-bundle
+ * Inspired by https://github.com/SymfonyCasts/reset-password-bundle.
  *
  * Some of the cryptographic strategies were taken from
  * https://paragonie.com/blog/2017/02/split-tokens-token-based-authentication-protocols-without-side-channels
@@ -21,9 +24,9 @@ class TokenService
     private const TOKEN_LIFETIME = 3600; // 1 hour in seconds
     private const THROTTLE_COUNT = 3;
 
-    private TokenRepository $repo;
-    private EntityManagerInterface $em;
-    private string $appSecret;
+    private readonly TokenRepository $repo;
+    private readonly EntityManagerInterface $em;
+    private readonly string $appSecret;
 
     public function __construct(TokenRepository $repo,
                                 EntityManagerInterface $em,
@@ -36,10 +39,10 @@ class TokenService
 
     public static function isValid(string $token): bool
     {
-        return 2 * self::SELECTOR_LENGTH === \strlen($token);
+        return 2 * self::SELECTOR_LENGTH === strlen($token);
     }
 
-    private function handleGarbageCollection()
+    private function handleGarbageCollection(): void
     {
         $this->repo->removeExpiredTokens();
     }
@@ -55,8 +58,8 @@ class TokenService
 
         $this->handleGarbageCollection();
 
-        $generatedAt = new \DateTimeImmutable();
-        $expiresAt = $generatedAt->add(new \DateInterval(\sprintf('PT%dS', self::TOKEN_LIFETIME)));
+        $generatedAt = new DateTimeImmutable();
+        $expiresAt = $generatedAt->add(new DateInterval(sprintf('PT%dS', self::TOKEN_LIFETIME)));
 
         $selector = RandomStringGenerator::create(self::SELECTOR_LENGTH);
         $verifier = RandomStringGenerator::create(self::SELECTOR_LENGTH);
@@ -70,7 +73,8 @@ class TokenService
             ->setExpiresAt($expiresAt);
         $this->em->persist($token);
         $this->em->flush();
-        return $selector . $verifier;
+
+        return $selector.$verifier;
     }
 
     /**
@@ -82,8 +86,8 @@ class TokenService
             throw new TokenException(TokenException::CAUSE_FORMAT_ERROR);
         }
 
-        $selector = \substr($fullToken, 0, self::SELECTOR_LENGTH);
-        $verifier = \substr($fullToken, self::SELECTOR_LENGTH);
+        $selector = substr($fullToken, 0, self::SELECTOR_LENGTH);
+        $verifier = substr($fullToken, self::SELECTOR_LENGTH);
 
         $token = $this->repo->findToken($selector);
         if (null === $token) {
@@ -93,19 +97,20 @@ class TokenService
             throw new TokenException(TokenException::CAUSE_EXPIRED);
         }
         $hash = $this->getHashedToken($verifier, $user, $type, $token->getExpiresAt());
-        $success = \hash_equals($token->getHash(), $hash);
+        $success = hash_equals($token->getHash(), $hash);
         if (!$success) {
             throw new TokenException(TokenException::CAUSE_INVALID);
         }
+
         return true;
     }
 
-    public function clearToken(string $fullToken)
+    public function clearToken(string $fullToken): void
     {
         if (!self::isValid($fullToken)) {
             return;
         }
-        $selector = \substr($fullToken, 0, self::SELECTOR_LENGTH);
+        $selector = substr($fullToken, 0, self::SELECTOR_LENGTH);
         $this->repo->removeToken($this->repo->findToken($selector));
     }
 
@@ -114,9 +119,10 @@ class TokenService
         return $this->repo->countValidToken($user, $type) >= self::THROTTLE_COUNT;
     }
 
-    private function getHashedToken(string $verifier, UuidInterface $user, string $type, \DateTimeInterface $expiresAt): string
+    private function getHashedToken(string $verifier, UuidInterface $user, string $type, DateTimeInterface $expiresAt): string
     {
-        $data = $verifier . $user->toString() . $type . $expiresAt->getTimestamp();
-        return \base64_encode(\hash_hmac('sha256', $data, $this->appSecret, true));
+        $data = $verifier.$user->toString().$type.$expiresAt->getTimestamp();
+
+        return base64_encode(hash_hmac('sha256', $data, $this->appSecret, true));
     }
 }

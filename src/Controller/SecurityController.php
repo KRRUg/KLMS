@@ -3,13 +3,14 @@
 namespace App\Controller;
 
 use App\Security\AccountNotConfirmedException;
+use Exception;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Security\Core\Exception\BadCredentialsException;
 use Symfony\Component\Security\Core\Exception\InvalidCsrfTokenException;
-use Symfony\Component\Security\Core\Exception\UsernameNotFoundException;
+use Symfony\Component\Security\Core\Exception\UserNotFoundException;
 use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 
 /**
@@ -17,16 +18,14 @@ use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
  */
 class SecurityController extends AbstractController
 {
-    private UrlGeneratorInterface $urlGenerator;
+    private readonly UrlGeneratorInterface $urlGenerator;
 
     public function __construct(UrlGeneratorInterface $urlGenerator)
     {
         $this->urlGenerator = $urlGenerator;
     }
 
-    /**
-     * @Route("/login", name="app_login")
-     */
+    #[Route(path: '/login', name: 'app_login')]
     public function login(AuthenticationUtils $authenticationUtils): Response
     {
         if ($this->getUser()) {
@@ -39,7 +38,7 @@ class SecurityController extends AbstractController
         $lastUsername = $authenticationUtils->getLastUsername();
 
         if ($error) {
-            $this->addFlash('error-raw', $this->errorMsgToHtml($error));
+            $this->addFlash('error-raw', $this->errorMsgToHtml($error, $lastUsername));
         }
 
         return $this->render('security/login.html.twig', [
@@ -47,31 +46,33 @@ class SecurityController extends AbstractController
         ]);
     }
 
-    private function errorMsgToHtml($error): string
+    private function errorMsgToHtml($error, string $lastUsername): string
     {
-        if (empty($error))
+        if (empty($error)) {
             return '';
+        }
 
         switch (true) {
             case $error instanceof BadCredentialsException:
-            case $error instanceof UsernameNotFoundException:
-                return "E-Mail-Addresse oder Passwort falsch";
+            case $error instanceof UserNotFoundException:
+                return 'E-Mail-Addresse oder Passwort falsch';
             case $error instanceof AccountNotConfirmedException:
-                $user = $error->getUser();
-                $url = $this->urlGenerator->generate('app_register_resend', ['email' => $user->getUsername()]);
-                return "E-Mail-Addresse nicht bestätigt. <a href=\"{$url}\">Bestätigung anfordern.</a>";
+                $url = $this->urlGenerator->generate('app_register_resend', ['email' => $lastUsername]);
+
+                return "E-Mail-Addresse nicht bestätigt. <a href=\"{$url}\">Bestätigung erneut anfordern.</a>";
             case $error instanceof InvalidCsrfTokenException:
-                return "Es ist ein Fehler aufgetreten. Bitte Seite neu laden.";
+                return 'Es ist ein Fehler aufgetreten. Bitte Seite neu laden.';
             default:
-                return "Es ist ein unbekannter Fehler aufgetreten.";
+                return 'Es ist ein unbekannter Fehler aufgetreten.';
         }
     }
 
     /**
-     * @Route("/logout", name="app_logout")
+     * @throws Exception
      */
-    public function logout()
+    #[Route(path: '/logout', name: 'app_logout')]
+    public function logout(): never
     {
-        throw new \Exception('This method can be blank - it will be intercepted by the logout key on your firewall');
+        throw new Exception('This method can be blank - it will be intercepted by the logout key on your firewall');
     }
 }

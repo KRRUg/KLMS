@@ -4,7 +4,7 @@ namespace App\Repository;
 
 use App\Entity\Content;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
-use Doctrine\Common\Persistence\ManagerRegistry;
+use Doctrine\Persistence\ManagerRegistry;
 
 /**
  * @method Content|null find($id, $lockMode = null, $lockVersion = null)
@@ -21,9 +21,8 @@ class ContentRepository extends ServiceEntityRepository
 
     /**
      * @param string $alias Alias to search for
-     * @return Content|null
      */
-    public function findByAlias(string $alias)
+    public function findByAlias(string $alias): ?Content
     {
         return $this->findOneBy(['alias' => $alias]);
     }
@@ -38,6 +37,7 @@ class ContentRepository extends ServiceEntityRepository
         if (empty($slug)) {
             return null;
         }
+
         return $this->findOneBy(['alias' => $slug]);
     }
 }

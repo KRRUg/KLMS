@@ -4,30 +4,25 @@ namespace App\Controller\Site;
 
 use App\Exception\GamerLifecycleException;
 use App\Helper\EmailRecipient;
-use App\Repository\UserGamerRepository;
 use App\Service\EmailService;
 use App\Service\GamerService;
 use App\Service\SettingService;
-use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
-use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\Routing\Exception\RouteNotFoundException;
 
-/**
- * @IsGranted("IS_AUTHENTICATED_REMEMBERED")
- * @Route("/lan/signup", name="lan_signup")
- */
+#[IsGranted('IS_AUTHENTICATED_REMEMBERED')]
+#[Route(path: '/lan/signup', name: 'lan_signup')]
 class LanSignupController extends AbstractController
 {
-    private GamerService $gamerService;
-    private SettingService $settingService;
-    private EmailService $emailService;
-    private LoggerInterface $logger;
+    private readonly GamerService $gamerService;
+    private readonly SettingService $settingService;
+    private readonly EmailService $emailService;
+    private readonly LoggerInterface $logger;
 
     /**
      * LanSignupController constructor.
@@ -43,11 +38,8 @@ class LanSignupController extends AbstractController
         $this->logger = $logger;
     }
 
-
-    /**
-     * @Route("", name="")
-     */
-    public function index(Request $request)
+    #[Route(path: '', name: '')]
+    public function index(Request $request): Response
     {
         if (!$this->settingService->isSet('lan.signup.enabled')) {
             return $this->redirectToRoute('index');
@@ -57,12 +49,13 @@ class LanSignupController extends AbstractController
 
         if ($this->gamerService->gamerHasRegistered($user)) {
             $this->addFlash('warning', 'Du bist bereits zur Veranstaltung angemeldet!');
+
             return $this->redirectToRoute('index');
         }
 
         $fb = $this->createFormBuilder()
             ->add('confirm', CheckboxType::class, [
-                'label' => "Ich melde mich zur Veranstaltung an",
+                'label' => 'Ich melde mich zur Veranstaltung an',
                 'required' => true,
             ]);
 
@@ -76,7 +69,7 @@ class LanSignupController extends AbstractController
                     if ($this->settingService->isSet('site.title')) {
                         $message = "Du hast dich zu der Veranstaltung: \"{$this->settingService->get('site.title')}\" erfolgreich angemeldet!";
                     } else {
-                        $message = "Du hast dich zu der Veranstaltung erfolgreich angemeldet!";
+                        $message = 'Du hast dich zu der Veranstaltung erfolgreich angemeldet!';
                     }
                     $this->emailService->scheduleHook(
                         EmailService::APP_HOOK_LAN_SIGNUP,
@@ -86,16 +79,15 @@ class LanSignupController extends AbstractController
                     );
 
                     return $this->redirectToRoute('index');
-
-                } catch (GamerLifecycleException $gamerLifecycleException) {
+                } catch (GamerLifecycleException) {
                     $this->addFlash('error', 'Anmeldung ist fehlgeschlagen!');
-                    $this->logger->error("Gamerregistrierung ist fehlgeschlagen.");
+                    $this->logger->error('Gamerregistrierung ist fehlgeschlagen.');
                 }
             }
         }
 
         return $this->render('site/lan_signup/signup.html.twig', [
-            'form' => $form->createView()
+            'form' => $form->createView(),
         ]);
     }
 }

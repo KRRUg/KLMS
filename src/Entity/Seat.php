@@ -2,66 +2,44 @@
 
 namespace App\Entity;
 
+use App\Repository\SeatRepository;
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @ORM\Entity(repositoryClass="App\Repository\SeatRepository")
- * @ORM\Table(
- *     uniqueConstraints={
- *     @ORM\UniqueConstraint(name="seat_pos", columns={"pos_x", "pos_y"}),
- *     @ORM\UniqueConstraint(name="sector_seat", columns={"sector", "seat_number"})}
- * )
- */
+#[ORM\Table]
+#[ORM\UniqueConstraint(name: 'seat_pos', columns: ['pos_x', 'pos_y'])]
+#[ORM\UniqueConstraint(name: 'sector_seat', columns: ['sector', 'seat_number'])]
+#[ORM\Entity(repositoryClass: SeatRepository::class)]
 class Seat
 {
-    /**
-     * @ORM\Id()
-     * @ORM\GeneratedValue()
-     * @ORM\Column(type="integer")
-     */
-    private $id;
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column(type: 'integer')]
+    private ?int $id = null;
 
-    /**
-     * @ORM\Column(type="integer", name="pos_x")
-     */
-    private $posX;
+    #[ORM\Column(type: 'integer', name: 'pos_x')]
+    private ?int $posX = null;
 
-    /**
-     * @ORM\Column(type="integer", name="pos_y")
-     */
-    private $posY;
+    #[ORM\Column(type: 'integer', name: 'pos_y')]
+    private ?int $posY = null;
 
-    /**
-     * @ORM\Column(type="string", length=10, nullable=true)
-     */
-    private $name;
+    #[ORM\Column(type: 'string', length: 10, nullable: true)]
+    private ?string $name = null;
 
-    /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\UserGamer", inversedBy="seats")
-     * @ORM\JoinColumn(name="owner", referencedColumnName="uuid", nullable=true)
-     */
-    private $owner;
+    #[ORM\ManyToOne(inversedBy: 'seats')]
+    #[ORM\JoinColumn(name: 'owner', referencedColumnName: 'uuid', nullable: true)]
+    private ?UserGamer $owner = null;
 
-    /**
-     * @ORM\Column(type="string", length=1)
-     */
-    private $sector;
+    #[ORM\Column(type: 'string', length: 1)]
+    private ?string $sector = null;
 
-    /**
-     * @ORM\Column(type="integer")
-     */
-    private $seatNumber;
+    #[ORM\Column(type: 'integer')]
+    private ?int $seatNumber = null;
 
-    /**
-     * @ORM\Column(type="string", length=32)
-     */
-    private $type;
+    #[ORM\Column(type: 'string', length: 32)]
+    private ?string $type = null;
 
-    /**
-     * @ORM\Column(type="string", length=10)
-     */
-    private $chairPosition;
-
+    #[ORM\Column(type: 'string', length: 10)]
+    private ?string $chairPosition = null;
 
     public function getId(): ?int
     {
@@ -171,9 +149,10 @@ class Seat
 
     public function generateSeatName(): string
     {
-        if ($this->getName())
+        if ($this->getName()) {
             return $this->getName();
-        else
+        } else {
             return "{$this->getSector()}-{$this->getSeatNumber()}";
+        }
     }
 }

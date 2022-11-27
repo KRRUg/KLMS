@@ -1,6 +1,5 @@
 <?php
 
-
 namespace App\Controller\Admin;
 
 use App\Controller\BaseController;
@@ -9,29 +8,25 @@ use App\Exception\ServiceException;
 use App\Form\MediaType;
 use App\Service\MediaService;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Serializer\SerializerInterface;
 
-/**
- * @Route("/media", name="media")
- * @IsGranted({"ROLE_ADMIN_CONTENT", "ROLE_ADMIN_NEWS"})
- */
+#[Route(path: '/media', name: 'media')]
 class MediaController extends BaseController
 {
-    private const CSRF_TOKEN_DELETE = "mediaDeleteToken";
+    private const CSRF_TOKEN_DELETE = 'mediaDeleteToken';
 
-    private $mediaService;
+    private readonly MediaService $mediaService;
 
-    /**
-     * ImageController constructor.
-     */
-    public function __construct(MediaService $mediaService)
+    public function __construct(MediaService $mediaService, SerializerInterface $serializer)
     {
+        parent::__construct($serializer);
         $this->mediaService = $mediaService;
     }
 
-    private function image2json(Media $image)
+    private function image2json(Media $image): array
     {
         return [
             // title and value required by tinyMCE image list
@@ -42,23 +37,18 @@ class MediaController extends BaseController
         ];
     }
 
-    private function mediaByFilter(string $filter)
+    private function mediaByFilter(string $filter): array
     {
-        switch ($filter) {
-            case "image":
-                return $this->mediaService->getImages();
-            case "document":
-            case "doc":
-                return $this->mediaService->getDocuments();
-            default:
-                return $this->mediaService->getAll();
-        }
+        return match ($filter) {
+            'image' => $this->mediaService->getImages(),
+            'document', 'doc' => $this->mediaService->getDocuments(),
+            default => $this->mediaService->getAll(),
+        };
     }
 
-    /**
-     * @Route(".{_format}", name="", defaults={"_format"="html"})
-     */
-    public function index(Request $request)
+    #[Route(path: '', name: '')]
+    #[IsGranted('ROLE_ADMIN_MEDIA')]
+    public function index(Request $request): Response
     {
         $filter = $request->get('filter', '');
         $media = $this->mediaByFilter($filter);
@@ -78,48 +68,37 @@ class MediaController extends BaseController
             } else {
                 $this->addFlash('danger', 'Invalid file uploaded.');
             }
+
             return $this->redirectToRoute('admin_media');
         }
-
-        if ($request->getRequestFormat() === 'json') {
-            $result = array_map(function (Media $m) {
-                return $this->image2json($m);
-            }, $media);
-            return $this->apiResponse($result);
-        } else {
-            return $this->render("admin/media/index.html.twig", [
-                'media' => $media,
-                'csrf_token_delete' => self::CSRF_TOKEN_DELETE,
-                'form_upload' => $form_upload->createView(),
-            ]);
-        }
+        return $this->render('admin/media/index.html.twig', [
+            'media' => $media,
+            'csrf_token_delete' => self::CSRF_TOKEN_DELETE,
+            'form_upload' => $form_upload->createView(),
+        ]);
     }
 
-    /**
-     * @Route("/delete/{id}", name="_delete")
-     * @ParamConverter()
-     */
-    public function delete(Request $request, Media $image)
+    #[Route(path: '/delete/{id}', name: '_delete')]
+    #[IsGranted('ROLE_ADMIN_MEDIA')]
+    public function delete(Request $request, Media $image): Response
     {
         $token = $request->request->get('_token');
-        if(!$this->isCsrfTokenValid(self::CSRF_TOKEN_DELETE, $token)) {
+        if (!$this->isCsrfTokenValid(self::CSRF_TOKEN_DELETE, $token)) {
             throw $this->createAccessDeniedException('The CSRF token is invalid.');
         }
         $this->mediaService->delete($image);
         $this->addFlash('success', 'Medium gelöscht.');
+
         return $this->redirectToRoute('admin_media');
     }
 
-    /**
-     * @Route("/detail/{id}.{_format}", name="_detail", defaults={"_format"="html"})
-     * @ParamConverter()
-     */
-    public function detail(Request $request, Media $image)
+    #[Route(path: '/list.json', name: '_list')]
+    #[IsGranted('ROLE_ADMIN')]
+    public function listJson(Request $request): Response
     {
-        if ($request->getRequestFormat() === 'json') {
-            return $this->apiResponse($this->image2json($image));
-        } else {
-            // TODO implement?
-        }
+        $filter = $request->get('filter', '');
+        $media = $this->mediaByFilter($filter);
+        $result = array_map(fn (Media $m) => $this->image2json($m), $media);
+        return $this->apiResponse($result);
     }
 }
