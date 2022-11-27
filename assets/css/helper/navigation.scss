@@ -20,7 +20,7 @@
 
             &:after {
                 float:right;
-                margin-top: (1 - $caret-width)/2;
+                margin-top: calc((1em - $caret-width) / 2);
             }
         }
     }
