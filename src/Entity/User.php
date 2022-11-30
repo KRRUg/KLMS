@@ -46,7 +46,6 @@ class User
     #[Groups(['read', 'write'])]
     private ?string $surname = null;
 
-    #[Assert\Date]
     #[Groups(['read', 'write'])]
     private ?DateTimeInterface $birthdate = null;
 
