@@ -18,6 +18,7 @@ use Vich\UploaderBundle\Mapping\Annotation as Vich;
 class News implements HistoryAwareEntity
 {
     use Traits\EntityHistoryTrait;
+
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type: 'integer')]
@@ -30,11 +31,9 @@ class News implements HistoryAwareEntity
     private ?string $content = null;
 
     #[ORM\Column(type: 'datetime', nullable: true)]
-    #[Assert\DateTime]
     private ?DateTimeInterface $publishedFrom = null;
 
     #[ORM\Column(type: 'datetime', nullable: true)]
-    #[Assert\DateTime]
     #[Assert\GreaterThan(propertyPath: 'publishedFrom')]
     private ?DateTimeInterface $publishedTo = null;
 
