@@ -30,6 +30,8 @@ class SponsorType extends AbstractType
             ->add('text', HtmlTextareaType::class, [
                 'label' => 'Text',
                 'fix_urls' => 'relative',
+                'required' => false,
+                'empty_data' => '',
             ])
             ->add('category', ChoiceType::class, [
                 'label' => 'Kategorie',
