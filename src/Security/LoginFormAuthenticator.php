@@ -10,7 +10,6 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
-use Symfony\Component\Security\Core\Exception\AuthenticationException;
 use Symfony\Component\Security\Core\Exception\AuthenticationServiceException;
 use Symfony\Component\Security\Core\Security;
 use Symfony\Component\Security\Core\User\UserInterface;
@@ -37,10 +36,13 @@ class LoginFormAuthenticator extends AbstractLoginFormAuthenticator
 
     public function authenticate(Request $request): Passport
     {
-        // TODO change the form and rename $username to $email
-        $username = $request->request->get('username');
-        $password = $request->request->get('password');
-        $csrf_token = $request->request->get('_csrf_token');
+        // username is actually an email address
+        // there is no LoginType to check if username is an email address or whether the parameter actually exits
+        // invalid usernames fail at UserProvider::loadUserByIdentifier and invalid passwords at checkCredentials
+
+        $username = $request->request->get('username', '');
+        $password = $request->request->get('password', '');
+        $csrf_token = $request->request->get('_csrf_token', '');
 
         if ($request->hasSession()) {
             $request->getSession()->set(Security::LAST_USERNAME, $username);
