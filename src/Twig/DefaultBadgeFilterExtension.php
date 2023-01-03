@@ -18,7 +18,7 @@ class DefaultBadgeFilterExtension extends AbstractExtension
         ];
     }
 
-    public function filterDefaultBadge($value, $defaultText, $badgeStyle = 'light'): Markup
+    public function filterDefaultBadge(?string $value, string $defaultText, string $badgeStyle = 'light'): string | Markup
     {
         if (!empty($value)) {
             return $value;
