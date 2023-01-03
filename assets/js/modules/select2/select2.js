@@ -3,6 +3,8 @@ import $ from 'jquery';
 import 'select2';
 import 'select2/dist/js/i18n/de.js';
 
+import '@ttskch/select2-bootstrap4-theme/dist/select2-bootstrap4.min.css'
+
 import 'mark.js';
 import 'mark.js/dist/jquery.mark.js';
 
@@ -16,12 +18,13 @@ $(document).on('select2:open', (event) => {
 });
 
 (function ($, window, document, undefined) {
-    let Select2Fup = function (element, options) {
+    let Select2Init = function (element, options) {
         this.element = element;
 
         let defaults = {
             remoteTarget: element.dataset.remoteTarget,
             placeholderLabel: element.dataset.label || 'User suchen...',
+            theme: 'bootstrap4'
         };
 
         this.settings = $.extend({}, defaults, options);
@@ -30,7 +33,7 @@ $(document).on('select2:open', (event) => {
         this.init();
     };
 
-    $.extend(Select2Fup.prototype, {
+    $.extend(Select2Init.prototype, {
         init: function () {
             const PAGINIATION_LIMIT = 10;
             let $target = $(this.element);
@@ -113,7 +116,7 @@ $(document).on('select2:open', (event) => {
     $.fn.Select2 = function (options) {
         return this.each(function () {
             if (!$.data(this, "plugin_Select2")) {
-                $.data(this, "plugin_Select2", new Select2Fup(this, options));
+                $.data(this, "plugin_Select2", new Select2Init(this, options));
             }
         });
     };
