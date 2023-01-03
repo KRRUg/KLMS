@@ -2036,7 +2036,7 @@ csso@^4.2.0:
   dependencies:
     css-tree "^1.1.2"
 
-datatables.net-bs4@^1.10.21:
+datatables.net-bs4@^1.13.1:
   version "1.13.1"
   resolved "https://registry.yarnpkg.com/datatables.net-bs4/-/datatables.net-bs4-1.13.1.tgz#b704d9639bbe650c996e614dc37f529e8c09ff47"
   integrity sha512-GBTOzUT8ooEUMPtjVHktvDk0MyakFGh89F8aHj8VwF1OFLbqTGEAPacO8XAgSfej/Ng3dbFJA6sjrk4gFra8kg==
