@@ -14,9 +14,9 @@ In addition to the basic Symfony setup, install:
 * Yarn (see https://yarnpkg.com/getting-started/install/)  
 
 KLMS is tested and running in Production with the following Versions:
-* PHP 7.4
+* PHP 8.1
 * PostgreSQL 9 & 12
-* Node.js 16 LTS
+* Node.js 19
 * Yarn 1
 * Composer 2
 
