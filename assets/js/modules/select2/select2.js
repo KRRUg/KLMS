@@ -24,7 +24,6 @@ $(document).on('select2:open', (event) => {
         let defaults = {
             remoteTarget: element.dataset.remoteTarget,
             placeholderLabel: element.dataset.label || 'User suchen...',
-            theme: 'bootstrap4'
         };
 
         this.settings = $.extend({}, defaults, options);
@@ -50,6 +49,8 @@ $(document).on('select2:open', (event) => {
                 theme: 'bootstrap4',
                 allowClear: true,
                 minimumInputLength: 2,
+                width: '50%',  // hacky fix
+                dropdownAutoWidth : true,
                 dropdownParent: $dropDownModal,
 
                 ajax: {
