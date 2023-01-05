@@ -3,8 +3,7 @@ eko_feed:
     feeds:
         news:
             title:       'News'
-            description: 'Latest news'
+            description: 'KLMS News'
             link:
                 route_name: news
             encoding:    'utf-8'
-            author:      '' # Only required for Atom feeds
