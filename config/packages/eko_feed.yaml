@@ -1,9 +1,10 @@
 # Full configuration: https://github.com/eko/FeedBundle
 eko_feed:
     feeds:
-        article:
-            title:       'My articles/posts'
-            description: 'Latest articles'
-            link:        'http://vincent.composieux.fr'
+        news:
+            title:       'News'
+            description: 'Latest news'
+            link:
+                route_name: news
             encoding:    'utf-8'
-            author:      'Vincent Composieux' # Only required for Atom feeds
+            author:      '' # Only required for Atom feeds
