@@ -4,6 +4,7 @@ namespace App\Controller\Site;
 
 use App\Entity\News;
 use App\Service\NewsService;
+use App\Service\SettingService;
 use App\Service\UserService;
 use DateTime;
 use Eko\FeedBundle\Feed\FeedManager;
@@ -24,19 +25,21 @@ class NewsController extends AbstractController
     private readonly FeedManager $feedManager;
     private readonly RouterInterface $router;
     private readonly UploaderHelper $vich;
+    private readonly SettingService $settings;
 
     private const PRELOAD_NEWS_CNT = 6;
 
     /**
      * NewsController constructor.
      */
-    public function __construct(NewsService $newsService, UserService $userService, FeedManager $feedManager, RouterInterface $router, UploaderHelper $vich)
+    public function __construct(NewsService $newsService, UserService $userService, FeedManager $feedManager, RouterInterface $router, UploaderHelper $vich, SettingService $settings)
     {
         $this->newsService = $newsService;
         $this->userService = $userService;
         $this->feedManager = $feedManager;
         $this->router = $router;
         $this->vich = $vich;
+        $this->settings = $settings;
     }
 
     #[Route(path: '', name: '')]
@@ -87,6 +90,7 @@ class NewsController extends AbstractController
         $feed = $this->feedManager->get('news');
         $feed->addFromArray($news);
         $feed->addItemField(new MediaItemField('getFeedItemImage'));
+        $feed->set('description', "News von {$this->settings->get('site.organisation')}");
         return new Response($feed->render('rss'), 200, ['Content-Type' => 'application/rss+xml']);
     }
 
