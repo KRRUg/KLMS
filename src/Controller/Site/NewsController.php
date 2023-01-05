@@ -6,6 +6,7 @@ use App\Entity\News;
 use App\Service\NewsService;
 use App\Service\UserService;
 use Eko\FeedBundle\Feed\FeedManager;
+use Eko\FeedBundle\Field\Item\MediaItemField;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -74,9 +75,10 @@ class NewsController extends AbstractController
     public function feed(): Response
     {
         $news = $this->newsService->get();
-        $news = array_map(NewsService::toFeedElement(...), $news);
+        $news = array_map($this->newsService->toFeedElement(...), $news);
         $feed = $this->feedManager->get('news');
         $feed->addFromArray($news);
+        $feed->addItemField(new MediaItemField('getFeedItemImage'));
         return new Response($feed->render('rss'), 200, ['Content-Type' => 'application/rss+xml']);
     }
 }
