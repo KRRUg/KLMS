@@ -5,8 +5,8 @@ namespace App\Service;
 use App\Entity\User;
 use App\Entity\UserAdmin;
 use App\Entity\UserGamer;
-use App\Idm\Collection;
 use App\Idm\IdmManager;
+use App\Idm\IdmPagedCollection;
 use App\Idm\IdmRepository;
 use App\Repository\UserAdminsRepository;
 use App\Repository\UserGamerRepository;
@@ -90,7 +90,8 @@ class GroupService
         return self::GROUP_SETTING[$group->toString()][self::NAME] ?? '';
     }
 
-    public function query(UuidInterface $group): array
+    // TODO once Collection Interface is done for IDM service, change this to Collection
+    public function query(UuidInterface $group): array | IdmPagedCollection
     {
         if (!self::groupExists($group)) {
             return [];
@@ -120,7 +121,7 @@ class GroupService
         return $this->userRepo->findById($ids);
     }
 
-    private function getIdm(array $filter): Collection
+    private function getIdm(array $filter): IdmPagedCollection
     {
         return $this->userRepo->findBy($filter);
     }
