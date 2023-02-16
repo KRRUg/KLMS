@@ -8,7 +8,9 @@
         "ext-gd": "*",
         "ext-iconv": "*",
         "ext-json": "*",
+        "ext-pgsql": "*",
         "ext-libxml": "*",
+        "ext-intl": "*",
         "doctrine/annotations": "^1.0",
         "doctrine/common": "^3",
         "doctrine/doctrine-bundle": "^2.7",
@@ -48,7 +50,7 @@
         "twig/intl-extra": "^3.2",
         "twig/string-extra": "^3.0",
         "twig/twig": "^2.12|^3.0",
-        "vich/uploader-bundle": "^1.13",
+        "vich/uploader-bundle": "2.0.*",
         "wa72/url": "^0.7.1"
     },
     "require-dev": {
