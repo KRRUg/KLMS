@@ -62,15 +62,15 @@ class NewsRepository extends ServiceEntityRepository
     /**
      * @return News[] Returns an array of News objects that are active
      */
-    public function findActiveOrdered($offset = null, $count = null): array
+    public function findActiveOrdered(?int $offset = null, ?int $count = null): array
     {
         $q = $this->createQuery();
         $this->addActiveFilter($q);
         $this->addOrder($q);
-        if (is_int($offset)) {
+        if (!is_null($offset)) {
             $q->setFirstResult($offset);
         }
-        if (is_int($count)) {
+        if (!is_null($count)) {
             $q->setMaxResults($count);
         }
 

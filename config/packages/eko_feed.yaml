@@ -1,0 +1,9 @@
+# Full configuration: https://github.com/eko/FeedBundle
+eko_feed:
+    feeds:
+        news:
+            title:       'News'
+            description: 'KLMS News'
+            link:
+                route_name: news
+            encoding:    'utf-8'
