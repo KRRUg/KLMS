@@ -101,6 +101,18 @@
     "egulias/email-validator": {
         "version": "2.1.17"
     },
+    "eko/feedbundle": {
+        "version": "2.1",
+        "recipe": {
+            "repo": "github.com/symfony/recipes-contrib",
+            "branch": "main",
+            "version": "1.2",
+            "ref": "18200f71f86a12023fcd952546dad61850806c22"
+        },
+        "files": [
+            "config/packages/eko_feed.yaml"
+        ]
+    },
     "excelwebzone/recaptcha-bundle": {
         "version": "1.5",
         "recipe": {
@@ -554,6 +566,19 @@
     },
     "symfony/templating": {
         "version": "v4.4.16"
+    },
+    "symfony/translation": {
+        "version": "5.4",
+        "recipe": {
+            "repo": "github.com/symfony/recipes",
+            "branch": "main",
+            "version": "5.3",
+            "ref": "da64f5a2b6d96f5dc24914517c0350a5f91dee43"
+        },
+        "files": [
+            "config/packages/translation.yaml",
+            "translations/.gitignore"
+        ]
     },
     "symfony/translation-contracts": {
         "version": "v2.0.1"
