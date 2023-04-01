@@ -575,7 +575,8 @@ $.extend(TeamSiteAdmin.prototype, {
         let teamMember = {
             title: "",
             description: "",
-            user: user
+            user: user,
+            displayEmail: "",
         };
 
         this.teamSite[index].entries.push(teamMember);
