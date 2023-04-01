@@ -66,8 +66,9 @@ class MailingGroupNotificationHandler implements MessageHandlerInterface
                 }
                 $this->em->persist(
                     (new EmailSendingItem())
-                    ->setGuid($recipient->getUuid())
-                    ->setSending($sending)
+                        ->setGuid($recipient->getUuid())
+                        ->setTries(0)
+                        ->setSending($sending)
                 );
                 $messages[] = new MailingNotification($sending->getId(), $recipient);
             }

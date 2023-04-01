@@ -9,9 +9,9 @@ use Psr\Log\LoggerInterface;
 
 class NewsService
 {
-    private $repo;
-    private $em;
-    private $logger;
+    private readonly NewsRepository $repo;
+    private readonly EntityManagerInterface $em;
+    private readonly LoggerInterface $logger;
 
     /**
      * NewsService constructor.
@@ -24,14 +24,19 @@ class NewsService
     }
 
     /**
-     * @return array All content elements
+     * @return array All news elements (independent of active status)
      */
     public function getAll(): array
     {
         return $this->repo->findAllOrdered();
     }
 
-    public function get(int $from = 0, int $to = 6): array
+    /**
+     * @param int|null $from Start of pagination, or null for first
+     * @param int|null $to Count of pagination, or null for all elements
+     * @return News[]
+     */
+    public function get(?int $from = null, ?int $to = null): array
     {
         return $this->repo->findActiveOrdered($from, $to);
     }
