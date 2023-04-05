@@ -47,10 +47,16 @@ class ContentFixture extends Fixture
         $content[3]->setAuthorId(Uuid::fromInteger(strval(14)));
         $content[3]->setModifierId(Uuid::fromInteger(strval(14)));
         $content[4] = new Content();
-        $content[4]->setTitle('Netzerk und Internet');
+        $content[4]->setTitle('Netzwerk und Internet');
         $content[4]->setContent('Haben wir auch.');
         $content[4]->setAuthorId(Uuid::fromInteger(strval(14)));
         $content[4]->setModifierId(Uuid::fromInteger(strval(14)));
+        $content[5] = new Content();
+        $content[5]->setTitle('Einzahlung');
+        $content[5]->setContent('Geld überweisen!');
+        $content[5]->setAlias('payment');
+        $content[5]->setAuthorId(Uuid::fromInteger(strval(14)));
+        $content[5]->setModifierId(Uuid::fromInteger(strval(14)));
 
         foreach ($content as $c) {
             $manager->persist($c);
@@ -82,17 +88,20 @@ class ContentFixture extends Fixture
             )
             ->addEntry((new TeamsiteEntry())
                 ->setTitle('Senior Developer')
+                ->setDescription('')
                 ->setUserUuid(Uuid::fromInteger(7))
                 ->setOrd(3)
             )
             ->addEntry((new TeamsiteEntry())
                 ->setTitle('Senior Developer')
+                ->setDescription('')
                 ->setUserUuid(Uuid::fromInteger(18))
                 ->setOrd(2)
             );
 
         $cat2 = (new TeamsiteCategory())
             ->setTitle('Frontend')
+            ->setDescription('Die Frontend Developer')
             ->setHideName(false)
             ->setHideEmail(true)
             ->setOrd(2)
@@ -105,6 +114,7 @@ class ContentFixture extends Fixture
 
         $cat3 = (new TeamsiteCategory())
             ->setTitle('Q&A Team')
+            ->setDescription('')
             ->setHideName(true)
             ->setHideEmail(true)
             ->setOrd(3);
@@ -168,7 +178,7 @@ class ContentFixture extends Fixture
         $nav = new Navigation();
         $nav->setName('main_menu');
         $nav->setMaxDepth(2);
-        $nav->addNode((new NavigationNodeRoot())->setPos(1, 22));
+        $nav->addNode((new NavigationNodeRoot())->setPos(1, 24));
         $nav->addNode((new NavigationNodeGeneric())->setName('Home')->setPos(2, 3));
         $nav->addNode((new NavigationNodeEmpty())->setName('Lan Party')->setPos(4, 15));
         $nav->addNode((new NavigationNodeContent($content[0]))->setName('Facts')->setPos(5, 6));
@@ -179,6 +189,7 @@ class ContentFixture extends Fixture
         $nav->addNode((new NavigationNodeTeamsite($ts[0]))->setName('Team')->setPos(16, 17));
         $nav->addNode((new NavigationNodeGeneric('/seatmap'))->setName('Sitzplan')->setPos(18, 19));
         $nav->addNode((new NavigationNodeGeneric('/sponsor'))->setName('Sponsoren')->setPos(20, 21));
+        $nav->addNode((new NavigationNodeContent($content[5]))->setName('Einzahlung')->setPos(22, 23));
         $manager->persist($nav);
 
         $footer = new Navigation();
