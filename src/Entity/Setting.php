@@ -32,7 +32,7 @@ class Setting
     private ?DateTimeInterface $last_modified = null;
 
     #[Vich\UploadableField(mapping: 'setting', fileNameProperty: 'text')]
-    private ?UploadedFile $file = null;
+    private ?File $file = null;
 
     public function setFile(File $file = null): void
     {
