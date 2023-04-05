@@ -18,19 +18,22 @@ class SeatmapService
     private readonly GamerService $gamerService;
     private readonly Security $security;
     private readonly IdmRepository $userRepo;
+    private readonly SettingService $settingService;
 
     public function __construct(
         EntityManagerInterface $entityManager,
         GamerService $gamerService,
         SeatRepository $seatRepository,
         IdmManager $manager,
-        Security $security)
+        Security $security,
+        SettingService $settingService)
     {
         $this->em = $entityManager;
         $this->userRepo = $manager->getRepository(User::class);
         $this->seatRepository = $seatRepository;
         $this->gamerService = $gamerService;
         $this->security = $security;
+        $this->settingService = $settingService;
     }
 
     public function getSeatmap(): array
@@ -64,7 +67,7 @@ class SeatmapService
     {
         $current_seat = $this->getUserSeatCount($user);
 
-        return $current_seat == 0 && $this->gamerService->gamerHasPaid($user);
+        return $current_seat == 0 && ($this->gamerService->gamerHasPaid($user) || $this->settingService->isSet('lan.seatmap.allow_booking_for_non_paid') === true);
     }
 
     public function canBookSeat(Seat $seat, User $user): bool

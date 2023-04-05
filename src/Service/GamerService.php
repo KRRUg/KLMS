@@ -128,10 +128,14 @@ class GamerService
         $this->em->persist($gamer);
         $this->em->flush();
 
-        if ($this->settingService->isSet('site.title')) {
-            $message = "Wir haben dein Geld erhalten! Der Sitzplan für die Veranstaltung \"{$this->settingService->get('site.title')}\" wurde freigeschaltet.";
+        if ($this->settingService->isSet('lan.seatmap.allow_booking_for_non_paid') === true) {
+            $message = 'Wir haben dein Geld erhalten!';
         } else {
-            $message = 'Wir haben dein Geld erhalten! Der Sitzplan wurde freigeschaltet.';
+            if ($this->settingService->isSet('site.title')) {
+                $message = "Wir haben dein Geld erhalten! Der Sitzplan für die Veranstaltung \"{$this->settingService->get('site.title')}\" wurde freigeschaltet.";
+            } else {
+                $message = 'Wir haben dein Geld erhalten! Der Sitzplan wurde freigeschaltet.';
+            }
         }
         $this->emailService->scheduleHook(
             EmailService::APP_HOOK_CHANGE_NOTIFICATION,
