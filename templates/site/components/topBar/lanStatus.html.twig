@@ -16,7 +16,7 @@
                 {% if user is seated_gamer %}
                     <a href="{{ url('seatmap') }}">Sitzplatz {{ user | seat }}</a>
                 {% else %}
-                    {% if user is paid_gamer %}
+                    {% if user is paid_gamer or settings.get('lan.seatmap.allow_booking_for_non_paid') %}
                         <a href="{{ url('seatmap') }}">Kein Sitzplatz</a>
                     {% else %}
                         Kein Sitzplatz
