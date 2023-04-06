@@ -1,0 +1,21 @@
+version: '3.8'
+
+services:
+  database:
+    image: postgres:12
+    environment:
+      POSTGRES_USER: ${DATABASE_USER:-app}
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD:-app}
+      POSTGRES_DB: ${DATABASE_DB:-app}
+    ports: [ "5432:5432" ]
+    volumes:
+      - database:/var/lib/postgresql/data:rw
+  
+  mailcatcher:
+    image: schickling/mailcatcher
+    ports: [ "1025", "1080" ]
+    labels:
+      com.symfony.server.service-prefix: 'MailCatcher'
+
+volumes:
+  database:

@@ -19,7 +19,7 @@ class EmailFixtures extends Fixture
             ->setSubject('KLMS Newsletter')
             ->setBody('<p><h2>KLMS Newsletter</h2><p>Hallo {{nickname}},<br> das ist der ersten KLMS Newsletter.</p></p>')
             ->setDesignFile(EmailService::DESIGN_STANDARD)
-            ->setRecipientGroup(GroupService::GROUP_NEWSLETTER)
+            ->setRecipientGroup(Uuid::fromString(GroupService::GROUP_NEWSLETTER))
             ->setAuthorId(Uuid::fromInteger(1))
             ->setModifierId(Uuid::fromInteger(1))
             ->setCreated(new DateTime())

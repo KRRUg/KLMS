@@ -64,15 +64,19 @@ class SeatmapController extends AbstractController
     public function seatShow(Seat $seat, Request $request): Response
     {
         $view = null;
-        $locked = $this->settingService->get('lan.seatmap.locked') === true;
+        $locked = $this->settingService->isSet('lan.seatmap.locked') === true;
         if ($this->isGranted('IS_AUTHENTICATED_REMEMBERED')) {
-            $user = $this->getUser()->getUser();
-            if ($this->seatmapService->canBookSeat($seat, $user)) {
-                $form = $this->generateForm($seat, 'book');
-            } elseif ($this->seatmapService->isSeatOwner($seat, $user)) {
-                $form = $this->generateForm($seat, 'unbook');
-            } else {
+            if ($locked) {
                 $form = null;
+            } else {
+                $user = $this->getUser()->getUser();
+                if ($this->seatmapService->canBookSeat($seat, $user)) {
+                    $form = $this->generateForm($seat, 'book');
+                } elseif ($this->seatmapService->isSeatOwner($seat, $user)) {
+                    $form = $this->generateForm($seat, 'unbook');
+                } else {
+                    $form = null;
+                }
             }
             if ($form) {
                 $form->handleRequest($request);

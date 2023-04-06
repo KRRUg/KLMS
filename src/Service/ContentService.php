@@ -70,8 +70,8 @@ class ContentService
 
     public function save(Content $content): void
     {
-        $this->logger->info("Create or Update Content {$content->getId()} ({$content->getTitle()})");
         $this->em->persist($content);
         $this->em->flush();
+        $this->logger->info("Create or Update Content {$content->getId()} ({$content->getTitle()})");
     }
 }
