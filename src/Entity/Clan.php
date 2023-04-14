@@ -11,6 +11,8 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[Idm\Entity(path: '/clans', authorize: true, bulk: true)]
 class Clan
 {
+    private ?int $id = null;
+
     #[Assert\Uuid(strict: false)]
     #[Groups(['read'])]
     private ?UuidInterface $uuid = null;
@@ -50,6 +52,18 @@ class Clan
     #[Assert\Length(max: 4096, maxMessage: 'The clan description cannot be longer than {{ limit }} characters')]
     #[Groups(['read', 'write'])]
     private ?string $description = null;
+
+    public function getId(): ?int
+    {
+        return $this->id;
+    }
+
+    public function setId(?int $id): Clan
+    {
+        $this->id = $id;
+
+        return $this;
+    }
 
     /**
      * @return UuidInterface
