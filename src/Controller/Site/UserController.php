@@ -66,7 +66,7 @@ class UserController extends AbstractController
 
         $search = $request->query->get('q', '');
         $page = $request->query->getInt('page', 1);
-        $page = $page < 1 ? 1 : $page;
+        $page = max($page, 1);
 
         if ($this->settingService->get('community.all', false)) {
             $collection = $this->userRepo->findFuzzy($search);

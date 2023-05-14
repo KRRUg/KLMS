@@ -51,60 +51,48 @@ class Clan
     #[Groups(['read', 'write'])]
     private ?string $description = null;
 
-    /**
-     * @return UuidInterface
-     */
     public function getUuid(): ?UuidInterface
     {
         return $this->uuid;
     }
 
-    public function setUuid(UuidInterface $uuid): Clan
+    public function setUuid(?UuidInterface $uuid): Clan
     {
         $this->uuid = $uuid;
 
         return $this;
     }
 
-    /**
-     * @return string
-     */
     public function getName(): ?string
     {
         return $this->name;
     }
 
-    public function setName(string $name): Clan
+    public function setName(?string $name): Clan
     {
         $this->name = $name;
 
         return $this;
     }
 
-    /**
-     * @return string
-     */
     public function getJoinPassword(): ?string
     {
         return $this->joinPassword;
     }
 
-    public function setJoinPassword(string $joinPassword): Clan
+    public function setJoinPassword(?string $joinPassword): Clan
     {
         $this->joinPassword = $joinPassword;
 
         return $this;
     }
 
-    /**
-     * @return DateTimeInterface
-     */
     public function getCreatedAt(): ?DateTimeInterface
     {
         return $this->createdAt;
     }
 
-    public function setCreatedAt(DateTimeInterface $createdAt): Clan
+    public function setCreatedAt(?DateTimeInterface $createdAt): Clan
     {
         $this->createdAt = $createdAt;
 
@@ -116,7 +104,7 @@ class Clan
         return $this->modifiedAt;
     }
 
-    public function setModifiedAt(DateTimeInterface $modifiedAt): Clan
+    public function setModifiedAt(?DateTimeInterface $modifiedAt): Clan
     {
         $this->modifiedAt = $modifiedAt;
 
@@ -196,45 +184,36 @@ class Clan
         return false;
     }
 
-    /**
-     * @return string
-     */
     public function getClantag(): ?string
     {
         return $this->clantag;
     }
 
-    public function setClantag(string $clantag): Clan
+    public function setClantag(?string $clantag): Clan
     {
         $this->clantag = $clantag;
 
         return $this;
     }
 
-    /**
-     * @return string
-     */
     public function getWebsite(): ?string
     {
         return $this->website;
     }
 
-    public function setWebsite(string $website): Clan
+    public function setWebsite(?string $website): Clan
     {
         $this->website = $website;
 
         return $this;
     }
 
-    /**
-     * @return string
-     */
     public function getDescription(): ?string
     {
         return $this->description;
     }
 
-    public function setDescription(string $description): Clan
+    public function setDescription(?string $description): Clan
     {
         $this->description = $description;
 
