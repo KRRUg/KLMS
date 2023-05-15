@@ -352,7 +352,7 @@ final class IdmManager
         }
     }
 
-    private function compareCollections($a, $b): bool
+    private static function compareCollections($a, $b): bool
     {
         $a = ($a instanceof LazyLoaderCollection) ? $a->toArray(false) : $a;
         $b = ($b instanceof LazyLoaderCollection) ? $b->toArray(false) : $b;
@@ -371,7 +371,7 @@ final class IdmManager
     }
 
     // TODO move in extra class
-    public function diffObjects(object $a, object $b): ?array
+    public static function diffObjects(object $a, object $b): ?array
     {
         $rslt = [];
 
@@ -394,8 +394,8 @@ final class IdmManager
         return $rslt;
     }
 
-    // TODO move in extra class, make static
-    public function compareObjects(object $a, object $b): bool
+    // TODO move in extra class
+    public static function compareObjects(object $a, object $b): bool
     {
         if ($a::class != $b::class) {
             return false;
@@ -408,11 +408,11 @@ final class IdmManager
             $v_b = $property->getValue($b);
 
             if ($property->getAttributes(Collection::class)) {
-                if (!$this->compareCollections($v_a, $v_b)) {
+                if (!self::compareCollections($v_a, $v_b)) {
                     return false;
                 }
             } elseif ($property->getAttributes(Reference::class)) {
-                if (!$this->compareObjects($v_a, $v_b)) {
+                if (!self::compareObjects($v_a, $v_b)) {
                     return false;
                 }
             } else {
