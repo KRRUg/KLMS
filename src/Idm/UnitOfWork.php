@@ -288,4 +288,13 @@ class UnitOfWork
     {
         return array_values($this->objects);
     }
+
+    public function getDirtyProperties(object $object): ?array
+    {
+        $id = spl_object_id($object);
+        if (array_key_exists($id, $this->orig)) {
+            return $this->manager->diffObjects($object, $this->orig[$id]);
+        }
+        return null;
+    }
 }

@@ -292,10 +292,19 @@ final class IdmManager
         return $response;
     }
 
-    private function patch(string $url, object $object): array
+    private function patch(string $url, object $object, array $fields = []): array
     {
         $response = [];
         $data = $this->object2Array($object);
+
+        if (!empty($fields)) {
+            foreach ($data as $key => &$ignored) {
+                if (!in_array($key, $fields)){
+                    unset($data[$key]);
+                }
+            }
+        }
+
         $code = $this->send('PATCH', $url, $response, [Response::HTTP_NOT_FOUND, Response::HTTP_CONFLICT], [], $data);
         $this->throwOnCode($code, $object);
 
@@ -313,7 +322,7 @@ final class IdmManager
     {
         return $this->serializer->normalize($object, self::REST_FORMAT, [
             ObjectNormalizer::GROUPS => ['write'],
-            ObjectNormalizer::SKIP_NULL_VALUES => true,
+            ObjectNormalizer::SKIP_NULL_VALUES => false,
         ]);
     }
 
@@ -361,6 +370,31 @@ final class IdmManager
         return empty(array_diff($a, $b));
     }
 
+    // TODO move in extra class
+    public function diffObjects(object $a, object $b): ?array
+    {
+        $rslt = [];
+
+        if ($a::class != $b::class) {
+            return null;
+        }
+
+        $ref = new ReflectionClass($a);
+
+        foreach ($ref->getProperties() as $property) {
+            if ($property->getAttributes(Collection::class) || $property->getAttributes(Reference::class)) {
+                continue;
+            }
+            $v_a = $property->getValue($a);
+            $v_b = $property->getValue($b);
+            if ($v_a !== $v_b) {
+                $rslt[] = $property->getName();
+            }
+        }
+        return $rslt;
+    }
+
+    // TODO move in extra class, make static
     public function compareObjects(object $a, object $b): bool
     {
         if ($a::class != $b::class) {
@@ -643,6 +677,7 @@ final class IdmManager
                 default:
                     // nothing to do
                     continue 2;
+
                 case UnitOfWork::STATE_CREATED:
                     $modifications = $this->unitOfWork->getCollectionDiff($object);
                     $this->hydrateObject($this->post($this->createUrl($object), $object), $object);
@@ -653,7 +688,13 @@ final class IdmManager
 
                 case UnitOfWork::STATE_MODIFIED:
                     $this->applyCollectionModification($object, $this->unitOfWork->getCollectionDiff($object));
-                    $this->hydrateObject($this->patch($this->createUrl($object, $this->object2Id($object)), $object), $object);
+                    $diff = $this->unitOfWork->getDirtyProperties($object);
+                    if (empty($diff)) {
+                        // get to reflect collection change
+                        $this->hydrateObject($this->get($this->createUrl($object, $this->object2Id($object))), $object);
+                    } else {
+                        $this->hydrateObject($this->patch($this->createUrl($object, $this->object2Id($object)), $object, $diff), $object);
+                    }
                     break;
 
                 case UnitOfWork::STATE_DELETE:
