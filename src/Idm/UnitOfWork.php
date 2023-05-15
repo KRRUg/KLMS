@@ -5,14 +5,11 @@ namespace App\Idm;
 use App\Idm\Annotation\Collection;
 use App\Idm\Annotation\Reference;
 use App\Idm\Exception\NotImplementedException;
-use App\Idm\Exception\UnsupportedClassException;
 use Closure;
 use ReflectionClass;
 
 class UnitOfWork
 {
-    private readonly IdmManager $manager;
-
     /**
      * @var array spl_object_id => object
      */
@@ -36,10 +33,8 @@ class UnitOfWork
     /**
      * UnitOfWork constructor.
      */
-    public function __construct(IdmManager $manager)
+    public function __construct()
     {
-        $this->manager = $manager;
-
         $this->objects = [];
         $this->id_ref = [];
         $this->delete_ids = [];
@@ -54,15 +49,11 @@ class UnitOfWork
      */
     public function register(object $obj, bool $existing = false): void
     {
-        if (!$this->manager->isManaged($obj)) {
-            throw new UnsupportedClassException();
-        }
-
         $class = $obj::class;
         $id = spl_object_id($obj);
 
         if ($existing) {
-            $this->id_ref[$class.$this->manager->object2Id($obj)] = $id;
+            $this->id_ref[$class.ObjectInspector::object2Id($obj)] = $id;
         }
         if (array_key_exists($id, $this->objects)) {
             return;
@@ -102,7 +93,7 @@ class UnitOfWork
 
         $id = spl_object_id($object);
 
-        return !$this->manager->compareObjects($this->objects[$id], $this->orig[$id]);
+        return !ObjectInspector::compareObjects($this->objects[$id], $this->orig[$id]);
     }
 
     public function isNew($object): bool
@@ -166,7 +157,7 @@ class UnitOfWork
             return self::STATE_CREATED;
         }
 
-        if (!$this->manager->compareObjects($this->objects[$id], $this->orig[$id])) {
+        if (!ObjectInspector::compareObjects($this->objects[$id], $this->orig[$id])) {
             return self::STATE_MODIFIED;
         }
 
@@ -249,8 +240,8 @@ class UnitOfWork
                 $v_b = is_null($reference) ? [] : $property->getValue($reference);
                 $v_a = ($v_a instanceof LazyLoaderCollection) ? $v_a->toArray(false) : $v_a;
                 $v_b = ($v_b instanceof LazyLoaderCollection) ? $v_b->toArray(false) : $v_b;
-                $v_a = array_map(fn ($i_a) => $this->manager->object2Id($i_a), $v_a);
-                $v_b = array_map(fn ($i_b) => $this->manager->object2Id($i_b), $v_b);
+                $v_a = array_map(fn ($i_a) => ObjectInspector::object2Id($i_a), $v_a);
+                $v_b = array_map(fn ($i_b) => ObjectInspector::object2Id($i_b), $v_b);
                 $result[$property->getName()] = [array_diff($v_a, $v_b), array_diff($v_b, $v_a)];
             }
         }
@@ -293,7 +284,7 @@ class UnitOfWork
     {
         $id = spl_object_id($object);
         if (array_key_exists($id, $this->orig)) {
-            return $this->manager->diffObjects($object, $this->orig[$id]);
+            return ObjectInspector::diffObjects($object, $this->orig[$id]);
         }
         return null;
     }

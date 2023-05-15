@@ -22,7 +22,7 @@ class IdmRepository
 
     public function findOneById($id): ?object
     {
-        if (!$this->manager->isValidId($id)) {
+        if (!ObjectInspector::isValidId($id, $this->class)) {
             return null;
         }
         try {

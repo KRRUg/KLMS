@@ -4,10 +4,23 @@ namespace App\Idm;
 
 use App\Idm\Annotation\Collection;
 use App\Idm\Annotation\Reference;
+use Ramsey\Uuid\Uuid;
+use ReflectionClass;
 
-final class DeepCompare
+final class ObjectInspector
 {
-    // TODO move in extra class
+    public static function object2Id(object $object)
+    {
+        // TODO change getUuid with id annotation
+        return $object->getUuid();
+    }
+
+    public static function isValidId($id, string $class): bool
+    {
+        // TODO change getUuid with id annotation
+        return Uuid::isValid(strval($id));
+    }
+
     public static function diffObjects(object $a, object $b): ?array
     {
         $rslt = [];
@@ -31,7 +44,6 @@ final class DeepCompare
         return $rslt;
     }
 
-    // TODO move in extra class
     public static function compareObjects(object $a, object $b): bool
     {
         if ($a::class != $b::class) {
@@ -60,5 +72,23 @@ final class DeepCompare
         }
 
         return true;
+    }
+
+    private static function compareCollections($a, $b): bool
+    {
+        $a = ($a instanceof LazyLoaderCollection) ? $a->toArray(false) : $a;
+        $b = ($b instanceof LazyLoaderCollection) ? $b->toArray(false) : $b;
+
+        if (!is_array($a) || !is_array($b)) {
+            return false;
+        }
+        if (sizeof($a) != sizeof($b)) {
+            return false;
+        }
+
+        $a = array_map(fn ($i_a) => self::object2Id($i_a), $a);
+        $b = array_map(fn ($i_b) => self::object2Id($i_b), $b);
+
+        return empty(array_diff($a, $b));
     }
 }
