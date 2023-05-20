@@ -62,7 +62,7 @@ class User
     #[Groups(['read'])]
     private ?bool $isSuperadmin = null;
 
-    #[Assert\Length(min: 1, max: 10, minMessage: 'The postcode must be at least {{ limit }} characters long', maxMessage: 'The postcode cannot be longer than {{ limit }} characters')]
+    #[Assert\Length(max: 10, maxMessage: 'The postcode cannot be longer than {{ limit }} characters')]
     #[Groups(['read', 'write'])]
     private ?string $postcode = null;
 

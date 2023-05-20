@@ -3,6 +3,7 @@
 namespace App\Form;
 
 use App\Entity\User;
+use App\Form\DataTransformer\NullToStringTransformer;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\BirthdayType;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
@@ -20,6 +21,14 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class UserType extends AbstractType
 {
+
+    private NullToStringTransformer $nullToStringTransformer;
+
+    public function __construct(NullToStringTransformer $nullToStringTransformer)
+    {
+        $this->nullToStringTransformer = $nullToStringTransformer;
+    }
+
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
@@ -90,6 +99,16 @@ class UserType extends AbstractType
             ])
         ;
 
+        $builder->get('postcode')->addModelTransformer($this->nullToStringTransformer);
+        $builder->get('city')->addModelTransformer($this->nullToStringTransformer);
+        $builder->get('street')->addModelTransformer($this->nullToStringTransformer);
+        $builder->get('country')->addModelTransformer($this->nullToStringTransformer);
+        $builder->get('phone')->addModelTransformer($this->nullToStringTransformer);
+        $builder->get('website')->addModelTransformer($this->nullToStringTransformer);
+        $builder->get('steamAccount')->addModelTransformer($this->nullToStringTransformer);
+        $builder->get('hardware')->addModelTransformer($this->nullToStringTransformer);
+        $builder->get('statements')->addModelTransformer($this->nullToStringTransformer);
+
         if ($options['with_image']) {
             $builder->add('image', UserImageType::class, [
                 'mapped' => false,
@@ -103,7 +122,7 @@ class UserType extends AbstractType
                 ->add('personalDataConfirmed', CheckboxType::class, [
                     'required' => false,
                     'label' => 'Daten überprüft',
-                    ])
+                ])
             ;
             $builder->addEventListener(FormEvents::POST_SUBMIT, $this->onPostSubmit(...));
         }
