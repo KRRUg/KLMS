@@ -9,6 +9,7 @@ class SettingServiceIntegrationTest extends DatabaseTestCase
 {
     public function testWriteAndReadSetting()
     {
+        $this->databaseTool->loadFixtures([]);
         $settingService = self::getContainer()->get(SettingService::class);
         $key = 'site.title';
         $this->assertTrue(SettingService::validKey($key));
@@ -23,6 +24,7 @@ class SettingServiceIntegrationTest extends DatabaseTestCase
 
     public function testIsSetAndDefault()
     {
+        $this->databaseTool->loadFixtures([]);
         $settingService = self::getContainer()->get(SettingService::class);
         $key = 'site.title';
         $this->assertTrue(SettingService::validKey($key));
@@ -34,6 +36,7 @@ class SettingServiceIntegrationTest extends DatabaseTestCase
 
     public function testInvalidKey()
     {
+        $this->databaseTool->loadFixtures([]);
         $settingService = self::getContainer()->get(SettingService::class);
         $key = 'invalid_key_that_for_sure_does_not_exists';
         $this->assertFalse(SettingService::validKey($key));

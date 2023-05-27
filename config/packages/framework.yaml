@@ -27,7 +27,7 @@ framework:
             idm_client:
                 base_uri: '%env(KLMS_IDM_URL)%'
                 auth_basic: '%env(KLMS_IDM_AUTH)%'
-                max_redirects: 3
+                max_redirects: 0
                 headers:
                     Accept: 'application/json'
                     X-API-KEY: '%env(KLMS_IDM_APIKEY)%'
@@ -37,3 +37,5 @@ when@test:
         test: true
         session:
             storage_factory_id: session.storage.factory.mock_file
+        http_client:
+            mock_response_factory: App\Tests\IdmServerMock

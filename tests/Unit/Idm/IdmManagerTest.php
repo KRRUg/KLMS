@@ -5,11 +5,11 @@ namespace App\Tests\Unit\Idm;
 use App\Entity\Clan;
 use App\Entity\User;
 use App\Idm\IdmManager;
+use App\Tests\IdmServerMock;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Ramsey\Uuid\Uuid;
 use Symfony\Component\HttpClient\MockHttpClient;
-use Symfony\Component\HttpClient\Response\MockResponse;
 
 class IdmManagerTest extends TestCase
 {

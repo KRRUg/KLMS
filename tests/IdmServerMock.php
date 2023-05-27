@@ -1,12 +1,13 @@
 <?php
 
-namespace App\Tests\Unit\Idm;
+namespace App\Tests;
 
 use Symfony\Component\HttpClient\Response\MockResponse;
 use Symfony\Contracts\HttpClient\ResponseInterface;
 
 class IdmServerMock
 {
+    // TODO make php array of userdata
     private const USERS = [
         '52e25be3-cb48-4178-97a8-cb8376b0e120' => ['"email":"admin@localhost.local","emailConfirmed":true,"infoMails":false,"nickname":"Admin","firstname":"Ali","surname":"Admin","personalDataConfirmed":false,"personalDataLocked":false,"isSuperadmin":true,"registeredAt":"2023-04-10T19:39:35+02:00","modifiedAt":"2023-04-10T19:39:35+02:00","id":1,"uuid":"52e25be3-cb48-4178-97a8-cb8376b0e120"', '"clans":[]', '"clans":[]'],
         '00000000-0000-0000-0000-000000000000' => ['"email":"user0@localhost.local","emailConfirmed":true,"infoMails":true,"nickname":"User 0","firstname":"User","surname":"Null","gender":"m","personalDataConfirmed":true,"personalDataLocked":true,"isSuperadmin":false,"registeredAt":"2023-04-10T19:39:31+02:00","modifiedAt":"2023-04-10T19:39:31+02:00","id":675,"uuid":"00000000-0000-0000-0000-000000000000"', '"clans":[]', '"clans":[]'],
@@ -69,9 +70,13 @@ class IdmServerMock
         $class = $matches[1];
         $uuid = $matches[3] ?? '';
         $params = $matches[5] ?? '';
-        $params = explode('&', $params);
-        $params = array_map(fn($v) => explode('=', $v, 2), $params);
-        $params = array_combine(array_column($params, 0), array_column($params, 1));
+        if ($params) {
+            $params = explode('&', $params);
+            $params = array_map(fn($v) => explode('=', $v, 2), $params);
+            $params = array_combine(array_column($params, 0), array_column($params, 1));
+        } else {
+            $params = [];
+        }
 
         switch ($class) {
             case "users":
@@ -90,7 +95,23 @@ class IdmServerMock
                 return $this->invalidCall();
         }
     }
-    
+
+    private function checkParam(array $param): bool
+    {
+        foreach ($param as $key => $value) {
+            $ok = match ($key) {
+                'filter' => is_array($value) || is_string($value),
+                'exact', 'case' => is_bool($value),
+                'page', 'limit' => is_int($value),
+                default => false
+            };
+            if (!$ok) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     private function getUser(string $uuid): ResponseInterface
     {
         if (isset(self::USERS[$uuid])) {
@@ -103,8 +124,17 @@ class IdmServerMock
 
     private function getUsers(array $param): ResponseInterface
     {
-        // todo check $param and pass it to createPaged
-        return new MockResponse($this->createPaged(array_values(self::USERS), fn($line) => '{' . $line[0] . ',' . ($this->answerWithDetails ? $line[1] : $line[2]) . '}'));
+        if ($this->checkParam($param)) {
+            return $this->invalidCall();
+        }
+        return new MockResponse(
+            $this->createPaged(
+                array_values(self::USERS),
+                fn($line) => '{' . $line[0] . ',' . ($this->answerWithDetails ? $line[1] : $line[2]) . '}',
+                intval($param['limit'] ?? '10'),
+                intval($param['page'] ?? '1')
+            )
+        );
     }
 
     private function getClan(string $uuid): ResponseInterface
@@ -120,13 +150,14 @@ class IdmServerMock
         return $this->invalidCall();
     }
 
-    private function createPaged(array $data, callable $format, int $limit = 10, int $offset = 0): string
+    private function createPaged(array $data, callable $format, int $limit = 10, int $page = 0): string
     {
         $total = count($data);
+        $offset = ($page - 1) * $limit;
         $limit = min($limit, $total - $offset);
         $result = '{"count":' . $limit . ', "items":[';
         for ($i = 0; $i < $limit; $i++) {
-            $result .= $format($data[$offset + $i]) . ',';
+            $result .= $format($data[$offset + $i]) . ($i < $limit - 1 ? ',' : '');
         }
         $result .= '],';
         $result .= '"total":' . $total . '}';

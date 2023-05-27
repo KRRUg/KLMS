@@ -6,11 +6,17 @@ use App\Tests\Functional\DatabaseWebTestCase;
 
 class UserControllerTest extends DatabaseWebTestCase
 {
-    public function testUserProfileShow()
+    public function testHomepageLoad()
     {
-        $client = self::createClient();
-        $crawler = $client->request('GET', '/');
+        $this->databaseTool->loadAllFixtures();
+        $crawler = $this->client->request('GET', '/');
         $this->assertResponseStatusCodeSame(200);
     }
 
+    public function testNewsLoad()
+    {
+        $this->databaseTool->loadAllFixtures();
+        $crawler = $this->client->request('GET', '/');
+        $this->assertResponseStatusCodeSame(200);
+    }
 }

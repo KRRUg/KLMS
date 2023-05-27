@@ -2,35 +2,27 @@
 
 namespace App\Tests\Functional;
 
-use Doctrine\ORM\EntityManagerInterface;
-use Doctrine\ORM\Tools\SchemaTool;
+use Liip\TestFixturesBundle\Services\DatabaseToolCollection;
+use Liip\TestFixturesBundle\Services\DatabaseTools\AbstractDatabaseTool;
+use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
 abstract class DatabaseWebTestCase extends WebTestCase
 {
-    protected EntityManagerInterface $entityManager;
+    protected AbstractDatabaseTool $databaseTool;
+
+    protected KernelBrowser $client;
 
     protected function setUp(): void
     {
-        self::bootKernel();
-
-        $em = self::getContainer()->get('doctrine')->getManager();
-        $this->entityManager = $em;
-
-        $schemaTool = new SchemaTool($em);
-        $metaData = $em->getMetadataFactory()->getAllMetadata();
-        $schemaTool->updateSchema($metaData);
-
         parent::setUp();
-
-        self::ensureKernelShutdown();
+        $this->client = self::createClient();
+        $this->databaseTool = static::getContainer()->get(DatabaseToolCollection::class)->get();
     }
 
     protected function tearDown(): void
     {
-        $schemaTool = new SchemaTool($this->entityManager);
-        $schemaTool->dropDatabase();
-
         parent::tearDown();
+        unset($this->databaseTool);
     }
 }

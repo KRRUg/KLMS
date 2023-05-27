@@ -184,6 +184,9 @@
             "config/routes/liip_imagine.yaml"
         ]
     },
+    "liip/test-fixtures-bundle": {
+        "version": "2.6.0"
+    },
     "monolog/monolog": {
         "version": "1.25.3"
     },

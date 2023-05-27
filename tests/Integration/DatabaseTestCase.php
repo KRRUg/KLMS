@@ -2,33 +2,23 @@
 
 namespace App\Tests\Integration;
 
-use Doctrine\ORM\EntityManagerInterface;
-use Doctrine\ORM\Tools\SchemaTool;
+use Liip\TestFixturesBundle\Services\DatabaseToolCollection;
+use Liip\TestFixturesBundle\Services\DatabaseTools\AbstractDatabaseTool;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
 abstract class DatabaseTestCase extends KernelTestCase
 {
-    protected EntityManagerInterface $entityManager;
+    protected AbstractDatabaseTool $databaseTool;
 
     protected function setUp(): void
     {
-        self::bootKernel();
-
-        $em = self::getContainer()->get('doctrine')->getManager();
-        $this->entityManager = $em;
-
-        $schemaTool = new SchemaTool($em);
-        $metaData = $em->getMetadataFactory()->getAllMetadata();
-        $schemaTool->updateSchema($metaData);
-
         parent::setUp();
+        $this->databaseTool = static::getContainer()->get(DatabaseToolCollection::class)->get();
     }
 
     protected function tearDown(): void
     {
-        $schemaTool = new SchemaTool($this->entityManager);
-        $schemaTool->dropDatabase();
-
         parent::tearDown();
+        unset($this->databaseTool);
     }
 }
