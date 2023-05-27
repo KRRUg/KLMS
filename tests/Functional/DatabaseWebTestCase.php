@@ -17,6 +17,9 @@ abstract class DatabaseWebTestCase extends WebTestCase
     {
         parent::setUp();
         $this->client = self::createClient();
+
+        // don't reboot the kernel after one request to avoid trashing of in-memory db
+        $this->client->disableReboot();
         $this->databaseTool = static::getContainer()->get(DatabaseToolCollection::class)->get();
     }
 
