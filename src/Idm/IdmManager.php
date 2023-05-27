@@ -528,10 +528,9 @@ final class IdmManager
         $query = [];
         if (!empty($filter)) {
             $query['filter'] = $filter;
-            $query['exact'] = is_array($filter) ? 'true' : 'false';
+            $query['exact'] = $fuzzy ? 'false' : 'true';
+            $query['case'] = $case ? 'true' : 'false';
         }
-        $query['exact'] = $fuzzy ? 'false' : 'true';
-        $query['case'] = $case ? 'true' : 'false';
         if (!empty($sort)) {
             $query['sort'] = $sort;
         }
