@@ -21,6 +21,7 @@ class GroupService
     final public const GROUP_PAID_NO_SEAT = '5ec12941-0448-4a6f-a194-fd9ce2874925';
     final public const GROUP_REGISTERED_NOT_PAID = '225db67c-54ae-4f30-a3a9-6589d8336c8a';
     final public const GROUP_ADMINS = 'c74aaa27-c501-454d-a8cd-0026ff671f53';
+    final public const GROUP_INSECURE_HASHES = '29953265-e06f-43cd-b46d-142e3c332598';
 
     private const NAME = 'name';
     private const METHOD = 'method';
@@ -56,6 +57,11 @@ class GroupService
             self::NAME => 'KLMS Admins',
             self::METHOD => 'getAdmin',
             self::FILTER => [],
+        ],
+        self::GROUP_INSECURE_HASHES => [
+            self::NAME => 'User mit unsicheren Hashes',
+            self::METHOD => 'getIdm',
+            self::FILTER => ['insecurePasswordHashes' => true],
         ],
     ];
 
