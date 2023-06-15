@@ -43,7 +43,9 @@ class IdmServerMock
     ){}
 
     /* Request statistics */
+
     private int $invalidCalls = 0;
+    private IdmServerMockRequest $lastRequest;
     private array $requests = [
         'GET' => [],
         'POST' => [],
@@ -62,20 +64,34 @@ class IdmServerMock
         if (!array_key_exists($method, $this->requests)) {
             return $this->invalidCall();
         }
-        $this->requests[$method][] = $url;
-        if (preg_match('/\/api\/(\w+)(\/([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}))?(\?((\w+=\w+)(&\w+=\w+)*))?$/', $url, $matches) !== 1) {
+        if (preg_match('/\/api\/(\w+)(\/([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}))?(\?((\w+(\[\w+])?=\w+)(&\w+(\[\w+])?=\w+)*))?$/', $url, $matches) !== 1) {
             return $this->invalidCall();
         }
         $class = $matches[1];
         $uuid = $matches[3] ?? '';
         $params = $matches[5] ?? '';
         if ($params) {
-            $params = explode('&', $params);
-            $params = array_map(fn($v) => explode('=', $v, 2), $params);
-            $params = array_combine(array_column($params, 0), array_column($params, 1));
+            $split = explode('&', $params);
+            $split = array_map(fn($v) => explode('=', $v, 2), $split);
+            $split = array_combine(array_column($split, 0), array_column($split, 1));
+            $params = [];
+            foreach ($split as $key => $value) {
+                if (preg_match('/^(\w+)\[(\w+)]$/', $key, $matches) === 1) {
+                    $name = $matches[1];
+                    $param = $matches[2];
+                    if (!array_key_exists($name, $params))
+                        $params[$name] = array();
+                    $params[$name][$param] = $value;
+                } else {
+                    $params[$key] = $value;
+                }
+            }
         } else {
             $params = [];
         }
+        $request = new IdmServerMockRequest($class, $uuid, $params);
+        $this->lastRequest = $request;
+        $this->requests[$method][] = $request;
 
         switch ($class) {
             case "users":
@@ -159,8 +175,7 @@ class IdmServerMock
 
         $exact = boolval($param['exact'] ?? true);
         $case = boolval($param['case'] ?? true);
-        // TODO handle $filter array
-        $filter = strval($param['filter'] ?? '');
+        $filter = $param['filter'] ?? '';
 
         $compare = fn(string $a, string $b) => $exact ?
             ($case ? strcmp($a, $b) == 0 : strcasecmp($a, $b) == 0) :
@@ -171,11 +186,17 @@ class IdmServerMock
         } else {
             $data = [];
             foreach ($this->users as $uuid => $user) {
-                // if filter is array
-                //     do stuff
-                // else
-                if (array_filter($user, fn($val) => $compare($val, $filter))) {
-                    $data[] = $uuid;
+                if (is_array($filter)) {
+                    foreach ($filter as $key => $value) {
+                        if (array_key_exists($key, $user) && $compare($value, $user[$key])) {
+                            $data[] = $uuid;
+                        }
+                    }
+                } else {
+                    // skip clan array
+                    if (array_filter($user, fn($val) => !is_array($val) && $compare($val, $filter))) {
+                        $data[] = $uuid;
+                    }
                 }
             }
         }
@@ -232,6 +253,11 @@ class IdmServerMock
         } else {
             return array_key_exists($method, $this->requests) ? count($this->requests[$method]) : 0;
         }
+    }
+
+    public function getLastRequest(): IdmServerMockRequest
+    {
+        return $this->lastRequest;
     }
 
     public function getInvalidCalls(): int
