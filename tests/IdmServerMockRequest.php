@@ -6,8 +6,9 @@ class IdmServerMockRequest
 {
     public function __construct(
         public readonly string $class,
-        public readonly string $uuid,
-        public readonly array $params = [],
+        public readonly string $id,
+        public readonly array  $params,
+        public readonly array $body,
     )
     {}
 

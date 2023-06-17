@@ -64,11 +64,11 @@ class IdmServerMock
         if (!array_key_exists($method, $this->requests)) {
             return $this->invalidCall();
         }
-        if (preg_match('/\/api\/(\w+)(\/([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}))?(\?((\w+(\[\w+])?=\w+)(&\w+(\[\w+])?=\w+)*))?$/', $url, $matches) !== 1) {
+        if (preg_match('/\/api\/(\w+)(\/([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|bulk|auth))?(\?((\w+(\[\w+])?=\w+)(&\w+(\[\w+])?=\w+)*))?$/', $url, $matches) !== 1) {
             return $this->invalidCall();
         }
         $class = $matches[1];
-        $uuid = $matches[3] ?? '';
+        $id = $matches[3] ?? '';
         $params = $matches[5] ?? '';
         if ($params) {
             $split = explode('&', $params);
@@ -89,26 +89,29 @@ class IdmServerMock
         } else {
             $params = [];
         }
-        $request = new IdmServerMockRequest($class, $uuid, $params);
+        $body = isset($options['body']) ? json_decode($options['body'], true) : [];
+        if (is_null($body)){
+            return $this->invalidCall();
+        }
+
+        $request = new IdmServerMockRequest($class, $id, $params, $body);
         $this->lastRequest = $request;
         $this->requests[$method][] = $request;
 
-        switch ($class) {
-            case "users":
-                if (empty($uuid)) {
-                    return $this->getUsers($params);
-                } else {
-                    return $this->getUser($uuid);
-                }
-            case "clans":
-                if (empty($uuid)) {
-                    return $this->getClans($params);
-                } else {
-                    return $this->getClan($uuid);
-                }
-            default:
-                return $this->invalidCall();
-        }
+        return match ($class) {
+            "users" => match ($id) {
+                '' => $this->getUsers($params),
+                'auth' => $this->invalidCall(),
+                'bulk' => $this->getUsersBulk($body),
+                default => $this->getUser($id),
+            },
+            "clans" => match ($id) {
+                '' => $this->getClans($params),
+                'auth', 'bulk' => $this->invalidCall(),
+                default => $this->getClan($id),
+            },
+            default => $this->invalidCall(),
+        };
     }
 
     private function checkParam(array $param): bool
@@ -188,10 +191,11 @@ class IdmServerMock
             foreach ($this->users as $uuid => $user) {
                 if (is_array($filter)) {
                     foreach ($filter as $key => $value) {
-                        if (array_key_exists($key, $user) && $compare($value, $user[$key])) {
-                            $data[] = $uuid;
+                        if (!array_key_exists($key, $user) || !$compare($value, $user[$key])) {
+                            continue 2;
                         }
                     }
+                    $data[] = $uuid;
                 } else {
                     // skip clan array
                     if (array_filter($user, fn($val) => !is_array($val) && $compare($val, $filter))) {
@@ -211,6 +215,17 @@ class IdmServerMock
         );
     }
 
+    private function getUsersBulk(array $body): ResponseInterface
+    {
+        if (count($body) != 1 || !isset($body["uuid"]) || !is_array($body["uuid"])) {
+            return $this->invalidCall();
+        }
+        $input = $body["uuid"];
+        return new MockResponse(
+            $this->createNonePaged($input, fn ($u) => $this->formatUser($u))
+        );
+    }
+
     private function getClan(string $uuid): ResponseInterface
     {
         $clan = $this->formatClan($uuid);
@@ -222,10 +237,20 @@ class IdmServerMock
 
     private function getClans(array $param): ResponseInterface
     {
+        // TODO generalize getUsers
         if ($this->checkParam($param)) {
             return $this->invalidCall();
         }
         return $this->invalidCall();
+    }
+
+    private function createNonePaged(array $data, callable $format): string
+    {
+        $result = '[';
+        foreach ($data as $uuid) {
+            $result .= $format($uuid) . ',';
+        }
+        return substr_replace($result, ']', -1);
     }
 
     private function createPaged(array $data, callable $format, int $limit = 10, int $page = 0): string
