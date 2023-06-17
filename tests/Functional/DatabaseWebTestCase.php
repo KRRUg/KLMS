@@ -2,6 +2,7 @@
 
 namespace App\Tests\Functional;
 
+use App\Tests\IdmServerMock;
 use Liip\TestFixturesBundle\Services\DatabaseToolCollection;
 use Liip\TestFixturesBundle\Services\DatabaseTools\AbstractDatabaseTool;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
@@ -9,9 +10,11 @@ use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
 abstract class DatabaseWebTestCase extends WebTestCase
 {
-    protected AbstractDatabaseTool $databaseTool;
+    protected readonly AbstractDatabaseTool $databaseTool;
 
-    protected KernelBrowser $client;
+    protected readonly KernelBrowser $client;
+
+    protected readonly IdmServerMock $mock;
 
     protected function setUp(): void
     {
@@ -21,11 +24,8 @@ abstract class DatabaseWebTestCase extends WebTestCase
         // don't reboot the kernel after one request to avoid trashing of in-memory db
         $this->client->disableReboot();
         $this->databaseTool = static::getContainer()->get(DatabaseToolCollection::class)->get();
-    }
-
-    protected function tearDown(): void
-    {
-        parent::tearDown();
-        unset($this->databaseTool);
+        $mock = static::getContainer()->get(IdmServerMock::class);
+        $this->assertInstanceOf(IdmServerMock::class, $mock);
+        $this->mock = $mock;
     }
 }

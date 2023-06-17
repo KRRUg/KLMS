@@ -13,6 +13,7 @@ class SiteTest extends DatabaseWebTestCase
         $this->databaseTool->loadFixtures([]);
         $this->client->request('GET', '/');
         $this->assertResponseStatusCodeSame(200);
+        $this->assertEquals(0, $this->mock->getInvalidCalls());
     }
 
     public function testHomepageTitle()
@@ -22,6 +23,7 @@ class SiteTest extends DatabaseWebTestCase
         $this->assertResponseStatusCodeSame(200);
         $meta_description = $crawler->filter('title')->eq(0)->text();
         $this->assertEquals('KRRU Lan Management System - News', $meta_description);
+        $this->assertEquals(0, $this->mock->getInvalidCalls());
     }
 
     public function testNavigation()
@@ -29,6 +31,8 @@ class SiteTest extends DatabaseWebTestCase
         $this->databaseTool->loadFixtures([NavigationFixture::class]);
         $crawler = $this->client->request('GET', '/');
         $this->assertResponseStatusCodeSame(200);
+        $this->assertEquals(0, $this->mock->getInvalidCalls());
+
         $nav = $crawler->filter('nav');
         $this->assertEquals(1, $nav->count());
         $nav_items = $nav->eq(0)->filter('ul > li > a');
@@ -51,6 +55,8 @@ class SiteTest extends DatabaseWebTestCase
     public function testSocialMediaLinks() {
         $this->databaseTool->loadFixtures([SettingsFixture::class]);
         $crawler = $this->client->request('GET', '/');
+        $this->assertEquals(0, $this->mock->getInvalidCalls());
+
         $this->assertResponseStatusCodeSame(200);
         $button_group = $crawler->filter('.social-btn-group');
         $this->assertEquals(1, $button_group->count());

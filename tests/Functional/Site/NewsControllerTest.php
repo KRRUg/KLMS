@@ -13,6 +13,9 @@ class NewsControllerTest extends DatabaseWebTestCase
 
         $crawler = $this->client->request('GET', '/');
         $this->assertResponseStatusCodeSame(200);
+        $this->assertEquals(1, $this->mock->countRequests());
+        $this->assertEquals(0, $this->mock->getInvalidCalls());
+
         $div_news = $crawler->filter('#news');
         $this->assertEquals(6, $div_news->children()->count());
 
@@ -27,6 +30,9 @@ class NewsControllerTest extends DatabaseWebTestCase
         $this->databaseTool->loadFixtures([NewsFixtures::class]);
 
         $crawler = $this->client->request('GET', '/?cnt=1');
+        $this->assertEquals(1, $this->mock->countRequests());
+        $this->assertEquals(0, $this->mock->getInvalidCalls());
+
         $this->assertResponseStatusCodeSame(200);
         $div_news = $crawler->filter('#news')->eq(0);
         $this->assertEquals('lorem ipsum', $div_news->filter('h2 a')->text());
