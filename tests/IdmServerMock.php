@@ -64,7 +64,7 @@ class IdmServerMock
         if (!array_key_exists($method, $this->requests)) {
             return $this->invalidCall();
         }
-        if (preg_match('/\/api\/(\w+)(\/([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|bulk|auth))?(\?((\w+(\[\w+])?=\w+)(&\w+(\[\w+])?=\w+)*))?$/', $url, $matches) !== 1) {
+        if (preg_match('/\/api\/(\w+)(\/([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|bulk|authorize))?(\?((\w+(\[\w+])?=\w+)(&\w+(\[\w+])?=\w+)*))?$/', $url, $matches) !== 1) {
             return $this->invalidCall();
         }
         $class = $matches[1];
@@ -101,13 +101,13 @@ class IdmServerMock
         return match ($class) {
             "users" => match ($id) {
                 '' => $this->getUsers($params),
-                'auth' => $this->invalidCall(),
+                'authorize' => $this->getUserAuth($body),
                 'bulk' => $this->getUsersBulk($body),
                 default => $this->getUser($id),
             },
             "clans" => match ($id) {
                 '' => $this->getClans($params),
-                'auth', 'bulk' => $this->invalidCall(),
+                'authorize', 'bulk' => $this->invalidCall(),
                 default => $this->getClan($id),
             },
             default => $this->invalidCall(),
@@ -223,6 +223,27 @@ class IdmServerMock
         $input = $body["uuid"];
         return new MockResponse(
             $this->createNonePaged($input, fn ($u) => $this->formatUser($u))
+        );
+    }
+
+    private function getUserAuth(array $body): ResponseInterface
+    {
+        if (!isset($body["name"]) || !is_string($body["name"]) || !isset($body["secret"]) || !is_string($body["secret"])) {
+            return $this->invalidCall();
+        }
+        $name = $body["name"];
+        $user = null;
+        foreach ($this->users as $key => $val) {
+            if ($val['email'] == $name) {
+                $user = $key;
+                break;
+            }
+        }
+        if (is_null($user)) {
+            return $this->invalidCall();
+        }
+        return new MockResponse(
+            $this->formatUser($user)
         );
     }
 

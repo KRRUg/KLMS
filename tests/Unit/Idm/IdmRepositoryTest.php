@@ -181,6 +181,7 @@ class IdmRepositoryTest extends TestCase
         $repo = $manager->getRepository(User::class);
         $uuids = [Uuid::fromInteger(4), Uuid::fromInteger(5), Uuid::fromInteger(4), Uuid::fromInteger(9)];
         $users = $repo->findById($uuids);
+
         $this->assertEquals(0, $mock->getInvalidCalls());
         $this->assertEquals(1, $mock->countRequests());
         $this->assertCount(4, $users);
@@ -193,5 +194,19 @@ class IdmRepositoryTest extends TestCase
         $this->assertEquals('user4@localhost.local', $users[2]->getEmail());
         $this->assertEquals('user9@localhost.local', $users[3]->getEmail());
         $this->assertTrue($users[0] === $users[2]);
+    }
+
+    public function testAuthRequest()
+    {
+        $mock = new IdmServerMock();
+        $mockClient = new MockHttpClient($mock);
+        $mockLogger = $this->createMock(LoggerInterface::class);
+        $manager = new IdmManager($mockClient, $mockLogger);
+        $repo = $manager->getRepository(User::class);
+        $auth_success = $repo->authenticate('user1@localhost.local', 'user1');
+
+        $this->assertEquals(0, $mock->getInvalidCalls());
+        $this->assertEquals(1, $mock->countRequests());
+        $this->assertTrue($auth_success);
     }
 }
