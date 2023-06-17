@@ -5,6 +5,7 @@ namespace App\Tests\Unit\Idm;
 use App\Entity\Clan;
 use App\Entity\User;
 use App\Idm\IdmManager;
+use App\Idm\IdmRepository;
 use App\Tests\IdmServerMock;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
@@ -149,6 +150,19 @@ class IdmRepositoryTest extends TestCase
         $this->assertEmpty($request->id);
         $this->assertTrue($request->paramHasValue('exact', 'false'));
         $this->assertTrue($request->paramHasValue('case', 'false'));
+    }
+
+    public function testRepositoryFindOneCi()
+    {
+        /**
+         * @var IdmRepository $repo
+         * @var IdmServerMock $mock
+         */
+        list($mock, $repo) = $this->createRepo(User::class);
+        $user = $repo->findOneCiBy(['email' => 'UsEr2@LoCalHost.loCal']);
+        $this->assertEquals(0, $mock->getInvalidCalls());
+        $this->assertInstanceOf(User::class, $user);
+        $this->assertEquals('user2@localhost.local', $user->getEmail());
     }
 
     public function testBulkRequest()

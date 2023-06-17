@@ -64,7 +64,7 @@ class IdmServerMock
         if (!array_key_exists($method, $this->requests)) {
             return $this->invalidCall();
         }
-        if (preg_match('/\/api\/(\w+)(\/([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|bulk|authorize))?(\?((\w+(\[\w+])?=\w+)(&\w+(\[\w+])?=\w+)*))?$/', $url, $matches) !== 1) {
+        if (preg_match('/\/api\/(\w+)(\/([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|bulk|authorize))?(\?((\w+(\[\w+])?=[^?&#]+)(&\w+(\[\w+])?=[^?&#]+)*))?$/', $url, $matches) !== 1) {
             return $this->invalidCall();
         }
         $class = $matches[1];
@@ -120,8 +120,8 @@ class IdmServerMock
         foreach ($param as $key => $value) {
             $ok = match ($key) {
                 'filter' => is_array($value) || is_string($value),
-                'exact', 'case' => is_bool($value),
-                'page', 'limit' => is_int($value),
+                'exact', 'case' => $value === 'true' || $value === 'false',
+                'page', 'limit' => is_numeric($value),
                 default => false
             };
             if (!$ok) {
@@ -192,12 +192,12 @@ class IdmServerMock
 
     private function handleGet(array $param, array $dataset, callable $format): ResponseInterface
     {
-        if ($this->checkParam($param)) {
+        if (!$this->checkParam($param)) {
             return $this->invalidCall();
         }
 
-        $exact = boolval($param['exact'] ?? true);
-        $case = boolval($param['case'] ?? true);
+        $exact = ($param['exact'] ?? "true") === "true";
+        $case = ($param['case'] ?? "true") === "true";
         $filter = $param['filter'] ?? '';
 
         $compare = fn(string $a, string $b) => $exact ?
