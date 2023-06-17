@@ -28,4 +28,18 @@ abstract class DatabaseWebTestCase extends WebTestCase
         $this->assertInstanceOf(IdmServerMock::class, $mock);
         $this->mock = $mock;
     }
+
+    protected function login(string $user)
+    {
+        $csrfToken = $this->client->getContainer()->get('security.csrf.token_manager')->getToken('authenticate');
+        $this->client->request('POST', '/login', [
+            '_csrf_token' => $csrfToken,
+            'username' => $user,
+            'password' => 'password',
+        ]);
+        $this->assertResponseRedirects();
+        $this->client->followRedirect();
+        $this->assertResponseStatusCodeSame(200);
+        $this->assertSelectorTextNotContains('#dropdownMenuUser', "Anmelden");
+    }
 }

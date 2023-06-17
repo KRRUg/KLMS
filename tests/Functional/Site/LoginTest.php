@@ -48,4 +48,23 @@ class LoginTest extends DatabaseWebTestCase
         $this->assertSelectorTextContains('#dropdownMenuUser', "Anmelden");
         $this->assertSelectorExists('.alert-error');
     }
+
+    public function testLoginNotConfirmedUser()
+    {
+        $this->databaseTool->loadFixtures([]);
+
+        $crawler = $this->client->request('GET', '/');
+        $this->assertResponseStatusCodeSame(200);
+
+        $form = $crawler->selectButton('Login')->form();
+        $form['username']->setValue('user1@localhost.local');
+        $form['password']->setValue('pa$$word');
+        $this->client->submit($form);
+
+        $this->assertResponseStatusCodeSame(302);
+        $this->assertResponseRedirects('/login');
+        $this->client->followRedirect();
+        $this->assertSelectorTextContains('#dropdownMenuUser', "Anmelden");
+        $this->assertSelectorExists('.alert-error');
+    }
 }
