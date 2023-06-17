@@ -13,12 +13,18 @@ use Symfony\Component\HttpClient\MockHttpClient;
 
 class IdmManagerTest extends TestCase
 {
-    public function testOneRequestPerUserUuid()
+    private function createManager(bool $answerWithDetails = true): array
     {
-        $mock = new IdmServerMock();
+        $mock = new IdmServerMock($answerWithDetails);
         $mockClient = new MockHttpClient($mock);
         $mockLogger = $this->createMock(LoggerInterface::class);
         $manager = new IdmManager($mockClient, $mockLogger);
+        return array($mock, $manager);
+    }
+
+    public function testOneRequestPerUserUuid()
+    {
+        list($mock, $manager) = $this->createManager();
         $user1 = $manager->request(User::class, Uuid::fromInteger(strval(1)));
         $user2 = $manager->request(User::class, Uuid::fromInteger(strval(1)));
 
@@ -33,10 +39,7 @@ class IdmManagerTest extends TestCase
 
     public function testTwoRequestsForTwoUsers()
     {
-        $mock = new IdmServerMock();
-        $mockClient = new MockHttpClient($mock);
-        $mockLogger = $this->createMock(LoggerInterface::class);
-        $manager = new IdmManager($mockClient, $mockLogger);
+        list($mock, $manager) = $this->createManager();
         $user1 = $manager->request(User::class, Uuid::fromInteger(strval(1)));
         $user2 = $manager->request(User::class, Uuid::fromInteger(strval(2)));
 
@@ -51,10 +54,7 @@ class IdmManagerTest extends TestCase
 
     public function testSingleUserRequest()
     {
-        $mock = new IdmServerMock();
-        $mockClient = new MockHttpClient($mock);
-        $mockLogger = $this->createMock(LoggerInterface::class);
-        $manager = new IdmManager($mockClient, $mockLogger);
+        list($mock, $manager) = $this->createManager();
         $user = $manager->request(User::class, Uuid::fromInteger(strval(1)));
 
         $this->assertEquals(0, $mock->getInvalidCalls());
@@ -93,10 +93,7 @@ class IdmManagerTest extends TestCase
 
     public function testSingleClanRequest()
     {
-        $mock = new IdmServerMock();
-        $mockClient = new MockHttpClient($mock);
-        $mockLogger = $this->createMock(LoggerInterface::class);
-        $manager = new IdmManager($mockClient, $mockLogger);
+        list($mock, $manager) = $this->createManager();
         $clan = $manager->request(Clan::class, Uuid::fromInteger(strval(9)));
 
         $this->assertInstanceOf(Clan::class, $clan);
@@ -110,10 +107,7 @@ class IdmManagerTest extends TestCase
 
     public function testAllUserRequest()
     {
-        $mock = new IdmServerMock();
-        $mockClient = new MockHttpClient($mock);
-        $mockLogger = $this->createMock(LoggerInterface::class);
-        $manager = new IdmManager($mockClient, $mockLogger);
+        list($mock, $manager) = $this->createManager();
         $repo = $manager->getRepository(User::class);
         $users = $repo->findAll();
 
@@ -125,10 +119,7 @@ class IdmManagerTest extends TestCase
 
     public function testLazyAssociationLoadUser()
     {
-        $mock = new IdmServerMock(false);
-        $mockClient = new MockHttpClient($mock);
-        $mockLogger = $this->createMock(LoggerInterface::class);
-        $manager = new IdmManager($mockClient, $mockLogger);
+        list($mock, $manager) = $this->createManager(false);
         $user = $manager->request(User::class, Uuid::fromInteger(strval(1)));
 
         // load user without clan objects

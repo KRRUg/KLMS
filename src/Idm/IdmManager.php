@@ -499,10 +499,14 @@ final class IdmManager
         return $code === Response::HTTP_OK;
     }
 
-    public function bulk(string $class, array $ids)
+    public function bulk(string $class, array $ids): array
     {
         if (!$this->hasBulkByClass($class)) {
             throw new UnsupportedClassException("Class {$class} does not support bulk access.");
+        }
+
+        if (empty($ids)) {
+            return array();
         }
 
         $collection = $this->post($this->createUrl($class, 'bulk'), new BulkRequest($ids));

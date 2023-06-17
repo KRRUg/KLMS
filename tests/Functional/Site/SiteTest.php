@@ -11,7 +11,7 @@ class SiteTest extends DatabaseWebTestCase
     public function testHomepageLoad()
     {
         $this->databaseTool->loadFixtures([]);
-        $crawler = $this->client->request('GET', '/');
+        $this->client->request('GET', '/');
         $this->assertResponseStatusCodeSame(200);
     }
 

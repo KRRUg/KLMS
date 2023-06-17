@@ -13,13 +13,19 @@ use Symfony\Component\HttpClient\MockHttpClient;
 
 class IdmRepositoryTest extends TestCase
 {
-    public function testRepositoryNoFilter()
+    private function createRepo(string $class): array
     {
         $mock = new IdmServerMock();
         $mockClient = new MockHttpClient($mock);
         $mockLogger = $this->createMock(LoggerInterface::class);
         $manager = new IdmManager($mockClient, $mockLogger);
-        $repo = $manager->getRepository(User::class);
+        $repo = $manager->getRepository($class);
+        return array($mock, $repo);
+    }
+
+    public function testRepositoryNoFilter()
+    {
+        list($mock, $repo) = $this->createRepo(User::class);
         $users = $repo->findAll();
 
         $this->assertEquals(0, $mock->getInvalidCalls());
@@ -35,11 +41,7 @@ class IdmRepositoryTest extends TestCase
 
     public function testFindById()
     {
-        $mock = new IdmServerMock();
-        $mockClient = new MockHttpClient($mock);
-        $mockLogger = $this->createMock(LoggerInterface::class);
-        $manager = new IdmManager($mockClient, $mockLogger);
-        $repo = $manager->getRepository(User::class);
+        list($mock, $repo) = $this->createRepo(User::class);
 
         $uuid = Uuid::fromInteger(1);
         $user = $repo->findOneById($uuid);
@@ -52,11 +54,7 @@ class IdmRepositoryTest extends TestCase
 
     public function testRepositoryFindBy()
     {
-        $mock = new IdmServerMock();
-        $mockClient = new MockHttpClient($mock);
-        $mockLogger = $this->createMock(LoggerInterface::class);
-        $manager = new IdmManager($mockClient, $mockLogger);
-        $repo = $manager->getRepository(User::class);
+        list($mock, $repo) = $this->createRepo(User::class);
         $users = $repo->findBy(['surname' => 'Drei']);
 
         $this->assertEquals(0, $mock->getInvalidCalls());
@@ -75,11 +73,7 @@ class IdmRepositoryTest extends TestCase
 
     public function testRepositoryFindByMultipleParameter()
     {
-        $mock = new IdmServerMock();
-        $mockClient = new MockHttpClient($mock);
-        $mockLogger = $this->createMock(LoggerInterface::class);
-        $manager = new IdmManager($mockClient, $mockLogger);
-        $repo = $manager->getRepository(User::class);
+        list($mock, $repo) = $this->createRepo(User::class);
         $users = $repo->findBy(['firstname' => 'User', 'surname' => 'Drei']);
 
         $this->assertEquals(0, $mock->getInvalidCalls());
@@ -98,11 +92,7 @@ class IdmRepositoryTest extends TestCase
 
     public function testRepositoryFindByMultipleResults()
     {
-        $mock = new IdmServerMock();
-        $mockClient = new MockHttpClient($mock);
-        $mockLogger = $this->createMock(LoggerInterface::class);
-        $manager = new IdmManager($mockClient, $mockLogger);
-        $repo = $manager->getRepository(User::class);
+        list($mock, $repo) = $this->createRepo(User::class);
         $users = $repo->findBy(['firstname' => 'User']);
 
         $this->assertEquals(0, $mock->getInvalidCalls());
@@ -117,11 +107,7 @@ class IdmRepositoryTest extends TestCase
 
     public function testRepositoryFindOneByWrongCase()
     {
-        $mock = new IdmServerMock();
-        $mockClient = new MockHttpClient($mock);
-        $mockLogger = $this->createMock(LoggerInterface::class);
-        $manager = new IdmManager($mockClient, $mockLogger);
-        $repo = $manager->getRepository(User::class);
+        list($mock, $repo) = $this->createRepo(User::class);
         $users = $repo->findBy(['surname' => 'drei']);
 
         $this->assertEquals(0, $mock->getInvalidCalls());
@@ -137,11 +123,7 @@ class IdmRepositoryTest extends TestCase
 
     public function testRepositoryFindFuzzy()
     {
-        $mock = new IdmServerMock();
-        $mockClient = new MockHttpClient($mock);
-        $mockLogger = $this->createMock(LoggerInterface::class);
-        $manager = new IdmManager($mockClient, $mockLogger);
-        $repo = $manager->getRepository(User::class);
+        list($mock, $repo) = $this->createRepo(User::class);
         $users = $repo->findFuzzy('Drei');
 
         $this->assertCount(1, $users);
@@ -156,11 +138,7 @@ class IdmRepositoryTest extends TestCase
 
     public function testRepositoryFindFuzzyMultiple()
     {
-        $mock = new IdmServerMock();
-        $mockClient = new MockHttpClient($mock);
-        $mockLogger = $this->createMock(LoggerInterface::class);
-        $manager = new IdmManager($mockClient, $mockLogger);
-        $repo = $manager->getRepository(User::class);
+        list($mock, $repo) = $this->createRepo(User::class);
         $users = $repo->findFuzzy("User");
 
         $this->assertCount(20, $users);
@@ -175,11 +153,7 @@ class IdmRepositoryTest extends TestCase
 
     public function testBulkRequest()
     {
-        $mock = new IdmServerMock();
-        $mockClient = new MockHttpClient($mock);
-        $mockLogger = $this->createMock(LoggerInterface::class);
-        $manager = new IdmManager($mockClient, $mockLogger);
-        $repo = $manager->getRepository(User::class);
+        list($mock, $repo) = $this->createRepo(User::class);
         $uuids = [Uuid::fromInteger(4), Uuid::fromInteger(5), Uuid::fromInteger(4), Uuid::fromInteger(9)];
         $users = $repo->findById($uuids);
 
@@ -199,11 +173,7 @@ class IdmRepositoryTest extends TestCase
 
     public function testAuthRequest()
     {
-        $mock = new IdmServerMock();
-        $mockClient = new MockHttpClient($mock);
-        $mockLogger = $this->createMock(LoggerInterface::class);
-        $manager = new IdmManager($mockClient, $mockLogger);
-        $repo = $manager->getRepository(User::class);
+        list($mock, $repo) = $this->createRepo(User::class);
         $auth_success = $repo->authenticate('user1@localhost.local', 'user1');
 
         $this->assertEquals(0, $mock->getInvalidCalls());
@@ -213,11 +183,7 @@ class IdmRepositoryTest extends TestCase
 
     public function testAuthRequestClan()
     {
-        $mock = new IdmServerMock();
-        $mockClient = new MockHttpClient($mock);
-        $mockLogger = $this->createMock(LoggerInterface::class);
-        $manager = new IdmManager($mockClient, $mockLogger);
-        $repo = $manager->getRepository(Clan::class);
+        list($mock, $repo) = $this->createRepo(Clan::class);
         $auth_success = $repo->authenticate('Clan 1', 'clan1');
 
         $this->assertEquals(0, $mock->getInvalidCalls());
@@ -227,11 +193,7 @@ class IdmRepositoryTest extends TestCase
 
     public function testBulkRequestClan()
     {
-        $mock = new IdmServerMock();
-        $mockClient = new MockHttpClient($mock);
-        $mockLogger = $this->createMock(LoggerInterface::class);
-        $manager = new IdmManager($mockClient, $mockLogger);
-        $repo = $manager->getRepository(Clan::class);
+        list($mock, $repo) = $this->createRepo(Clan::class);
         $uuids = [Uuid::fromInteger(9), Uuid::fromInteger(9)];
         $clans = $repo->findById($uuids);
 

@@ -305,7 +305,7 @@ class IdmServerMock
 
     private function createNonePaged(array $data, callable $format): string
     {
-        $result = '[';
+        $result = '[ ';
         foreach ($data as $uuid) {
             $result .= $format($uuid) . ',';
         }
