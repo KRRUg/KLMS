@@ -89,6 +89,12 @@ class IdmRepository
         return IdmPagedCollection::create($this->manager, $this->class, $filter, false, true, $sort);
     }
 
+    /* Temporarily needed for insecureHashes E-Mail */
+    public function findByNoCheck(array $filter = [], array $sort = []): IdmPagedCollection
+    {
+        return IdmPagedCollection::create($this->manager, $this->class, $filter, false, true, $sort);
+    }
+
     public function findCiBy(array $filter = [], array $sort = []): IdmPagedCollection
     {
         $this->checkProperties($filter, $sort);

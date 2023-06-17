@@ -64,8 +64,10 @@ class EmailService
     ];
 
     final public const DESIGN_STANDARD = 'Standard';
+    final public const DESIGN_NONEWSLETTER = 'Kein Unsubscribe/Newsletter';
     final public const NEWSLETTER_DESIGNS = [
         self::DESIGN_STANDARD => '/email/design/standard.html.twig',
+        self::DESIGN_NONEWSLETTER => '/email/design/standard.html.twig',
     ];
 
     private readonly LoggerInterface $logger;
@@ -252,21 +254,33 @@ class EmailService
 
     public function renderTemplate(Email $template, EmailRecipient $recipient): array
     {
+        $unsubscribe = $template->getDesignFile() !== self::DESIGN_NONEWSLETTER;
+
         $key = hash('sha256', serialize($template));
         $body = $template->getBody();
         $subject = $template->getSubject();
-        $html = $this->template_cache[$key]
-            ?? ($this->template_cache[$key] = $this->twig->render($this->getDesignFile($template), [
-                'subject' => $subject,
-                'body' => $body,
-                'unsubscribe' => 'UNSUBSCRIBE_URL_TOKEN_PLACEHOLDER',
-            ]));
+        if($unsubscribe) {
+            $html = $this->template_cache[$key]
+                ?? ($this->template_cache[$key] = $this->twig->render($this->getDesignFile($template), [
+                    'subject' => $subject,
+                    'body' => $body,
+                    'unsubscribe' => 'UNSUBSCRIBE_URL_TOKEN_PLACEHOLDER',
+                ]));
+        } else {
+            $html = $this->template_cache[$key]
+                ?? ($this->template_cache[$key] = $this->twig->render($this->getDesignFile($template), [
+                    'subject' => $subject,
+                    'body' => $body,
+                ]));
+        }
 
         $subject = $this->replaceVariables($subject, $recipient->getDataArray());
         $html = $this->replaceVariables($html, $recipient->getDataArray());
-        $html = $this->replaceVariables($html, [
-            'UNSUBSCRIBE_URL_TOKEN_PLACEHOLDER' => $this->generateUnsubscribeToken($recipient->getUuid()),
-        ], false);
+        if($unsubscribe) {
+            $html = $this->replaceVariables($html, [
+                'UNSUBSCRIBE_URL_TOKEN_PLACEHOLDER' => $this->generateUnsubscribeToken($recipient->getUuid()),
+            ], false);
+        }
         $text = strip_tags($html);
 
         return ['subject' => $subject, 'html' => $html, 'text' => $text];

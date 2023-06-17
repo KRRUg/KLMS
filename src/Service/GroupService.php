@@ -60,7 +60,7 @@ class GroupService
         ],
         self::GROUP_INSECURE_HASHES => [
             self::NAME => 'User mit unsicheren Hashes',
-            self::METHOD => 'getIdm',
+            self::METHOD => 'getIdmNoCheck',
             self::FILTER => ['insecurePasswordHashes' => true],
         ],
     ];
@@ -130,5 +130,10 @@ class GroupService
     private function getIdm(array $filter): IdmPagedCollection
     {
         return $this->userRepo->findBy($filter);
+    }
+
+    private function getIdmNoCheck(array $filter): IdmPagedCollection
+    {
+        return $this->userRepo->findByNoCheck($filter);
     }
 }
