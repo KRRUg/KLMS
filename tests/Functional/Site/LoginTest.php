@@ -12,9 +12,9 @@ class LoginTest extends DatabaseWebTestCase
 
         $this->client->followRedirects();
 
-        $crawler = $this->client->request('GET', '/login');
+        $crawler = $this->client->request('GET', '/');
         $this->assertResponseStatusCodeSame(200);
-        $this->assertSelectorTextContains('#dropdownMenu1', "Anmelden");
+        $this->assertSelectorTextContains('#dropdownMenuUser', "Anmelden");
 
         $form = $crawler->selectButton('Login')->form();
         $form['username']->setValue('user2@localhost.local');
@@ -22,10 +22,10 @@ class LoginTest extends DatabaseWebTestCase
         $this->client->submit($form);
 
         $this->assertResponseStatusCodeSame(200);
-        $this->assertSelectorTextContains('#dropdownMenu1', "User 2");
+        $this->assertSelectorTextContains('#dropdownMenuUser', "User 2");
 
         $this->client->request('GET', '/logout');
         $this->assertResponseStatusCodeSame(200);
-        $this->assertSelectorTextContains('#dropdownMenu1', "Anmelden");
+        $this->assertSelectorTextContains('#dropdownMenuUser', "Anmelden");
     }
 }
