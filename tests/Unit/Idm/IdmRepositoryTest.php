@@ -2,6 +2,7 @@
 
 namespace App\Tests\Unit\Idm;
 
+use App\Entity\Clan;
 use App\Entity\User;
 use App\Idm\IdmManager;
 use App\Tests\IdmServerMock;
@@ -208,5 +209,39 @@ class IdmRepositoryTest extends TestCase
         $this->assertEquals(0, $mock->getInvalidCalls());
         $this->assertEquals(1, $mock->countRequests());
         $this->assertTrue($auth_success);
+    }
+
+    public function testAuthRequestClan()
+    {
+        $mock = new IdmServerMock();
+        $mockClient = new MockHttpClient($mock);
+        $mockLogger = $this->createMock(LoggerInterface::class);
+        $manager = new IdmManager($mockClient, $mockLogger);
+        $repo = $manager->getRepository(Clan::class);
+        $auth_success = $repo->authenticate('Clan 1', 'clan1');
+
+        $this->assertEquals(0, $mock->getInvalidCalls());
+        $this->assertEquals(1, $mock->countRequests());
+        $this->assertTrue($auth_success);
+    }
+
+    public function testBulkRequestClan()
+    {
+        $mock = new IdmServerMock();
+        $mockClient = new MockHttpClient($mock);
+        $mockLogger = $this->createMock(LoggerInterface::class);
+        $manager = new IdmManager($mockClient, $mockLogger);
+        $repo = $manager->getRepository(Clan::class);
+        $uuids = [Uuid::fromInteger(9), Uuid::fromInteger(9)];
+        $clans = $repo->findById($uuids);
+
+        $this->assertEquals(0, $mock->getInvalidCalls());
+        $this->assertEquals(1, $mock->countRequests());
+        $this->assertCount(2, $clans);
+        $this->assertInstanceOf(Clan::class, $clans[0]);
+        $this->assertInstanceOf(Clan::class, $clans[1]);
+        $this->assertEquals('Clan 1', $clans[0]->getName());
+        $this->assertEquals('Clan 1', $clans[1]->getName());
+        $this->assertTrue($clans[0] === $clans[1]);
     }
 }

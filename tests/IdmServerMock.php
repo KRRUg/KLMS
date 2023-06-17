@@ -101,13 +101,14 @@ class IdmServerMock
         return match ($class) {
             "users" => match ($id) {
                 '' => $this->getUsers($params),
-                'authorize' => $this->getUserAuth($body),
                 'bulk' => $this->getUsersBulk($body),
+                'authorize' => $this->getUserAuth($body),
                 default => $this->getUser($id),
             },
             "clans" => match ($id) {
                 '' => $this->getClans($params),
-                'authorize', 'bulk' => $this->invalidCall(),
+                'bulk' => $this->getClansBulk($body),
+                'authorize' => $this->getClanAuth($body),
                 default => $this->getClan($id),
             },
             default => $this->invalidCall(),
@@ -170,7 +171,26 @@ class IdmServerMock
         return new MockResponse($user);
     }
 
+    private function getClan(string $uuid): ResponseInterface
+    {
+        $clan = $this->formatClan($uuid);
+        if (empty($clan)) {
+            return $this->invalidCall();
+        }
+        return new MockResponse($clan);
+    }
+
     private function getUsers(array $param): ResponseInterface
+    {
+        return $this->handleGet($param, $this->users, fn ($u) => $this->formatUser($u));
+    }
+
+    private function getClans(array $param): ResponseInterface
+    {
+        return $this->handleGet($param, $this->clans, fn ($c) => $this->formatClan($c));
+    }
+
+    private function handleGet(array $param, array $dataset, callable $format): ResponseInterface
     {
         if ($this->checkParam($param)) {
             return $this->invalidCall();
@@ -185,10 +205,10 @@ class IdmServerMock
             ($case ? strpos($a, $b) !== false : stripos($a, $b) !== false);
 
         if (empty($filter)) {
-            $data = array_keys($this->users);
+            $data = array_keys($dataset);
         } else {
             $data = [];
-            foreach ($this->users as $uuid => $user) {
+            foreach ($dataset as $uuid => $user) {
                 if (is_array($filter)) {
                     foreach ($filter as $key => $value) {
                         if (!array_key_exists($key, $user) || !$compare($value, $user[$key])) {
@@ -208,7 +228,7 @@ class IdmServerMock
         return new MockResponse(
             $this->createPaged(
                 $data,
-                fn ($u) => $this->formatUser($u),
+                $format,
                 intval($param['limit'] ?? '10'),
                 intval($param['page'] ?? '1')
             )
@@ -217,12 +237,27 @@ class IdmServerMock
 
     private function getUsersBulk(array $body): ResponseInterface
     {
+        return $this->handleBulk($body, $this->users, fn ($u) => $this->formatUser($u));
+    }
+
+    private function getClansBulk(array $body): ResponseInterface
+    {
+        return $this->handleBulk($body, $this->clans, fn ($c) => $this->formatClan($c));
+    }
+
+    private function handleBulk(array $body, array $dataset, callable $format): ResponseInterface
+    {
         if (count($body) != 1 || !isset($body["uuid"]) || !is_array($body["uuid"])) {
             return $this->invalidCall();
         }
         $input = $body["uuid"];
+        foreach ($input as $uuid) {
+            if (!array_key_exists($uuid, $dataset)) {
+                return $this->invalidCall();
+            }
+        }
         return new MockResponse(
-            $this->createNonePaged($input, fn ($u) => $this->formatUser($u))
+            $this->createNonePaged($input, $format)
         );
     }
 
@@ -247,22 +282,25 @@ class IdmServerMock
         );
     }
 
-    private function getClan(string $uuid): ResponseInterface
+    private function getClanAuth(array $body): ResponseInterface
     {
-        $clan = $this->formatClan($uuid);
-        if (empty($clan)) {
+        if (!isset($body["name"]) || !is_string($body["name"]) || !isset($body["secret"]) || !is_string($body["secret"])) {
             return $this->invalidCall();
         }
-        return new MockResponse($clan);
-    }
-
-    private function getClans(array $param): ResponseInterface
-    {
-        // TODO generalize getUsers
-        if ($this->checkParam($param)) {
+        $name = $body["name"];
+        $clan = null;
+        foreach ($this->clans as $key => $val) {
+            if ($val['name'] == $name) {
+                $clan = $key;
+                break;
+            }
+        }
+        if (is_null($clan)) {
             return $this->invalidCall();
         }
-        return $this->invalidCall();
+        return new MockResponse(
+            $this->formatClan($clan)
+        );
     }
 
     private function createNonePaged(array $data, callable $format): string
