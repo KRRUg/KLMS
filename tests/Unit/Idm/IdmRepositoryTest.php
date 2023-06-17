@@ -127,7 +127,7 @@ class IdmRepositoryTest extends TestCase
         list($mock, $repo) = $this->createRepo(User::class);
         $users = $repo->findFuzzy('Drei');
 
-        $this->assertCount(1, $users);
+        $this->assertCount(2, $users);
         $this->assertEquals(1, $mock->countRequests());
 
         $request = $mock->getLastRequest();
