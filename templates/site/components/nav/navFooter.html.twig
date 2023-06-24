@@ -8,7 +8,7 @@ Configuration options:
 
 {% set root = nav.renderNavByName(navigation | default('footer')) %}
 
-<div>
+<div id="bottom-nav">
     {% if root is not empty %}
         {% for node in root['children'] %}
             {% set name = node['name'] %}

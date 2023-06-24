@@ -81,6 +81,9 @@ class SettingService
     private readonly SettingRepository $repo;
     private readonly UploaderHelper $uploaderHelper;
 
+    /** @var array|null local cache to avoid single key database queries and load all settings at once */
+    private ?array $cache = null;
+
     public function __construct(EntityManagerInterface $em, SettingRepository $repo, UploaderHelper $uploaderHelper, LoggerInterface $logger)
     {
         $this->em = $em;
@@ -130,40 +133,37 @@ class SettingService
 
     public function get(string $key, $default = '')
     {
-        static $cache = null;
-
         $key = strtolower($key);
         if (!static::validKey($key)) {
             $this->logger->error("Invalid key {$key} was requested by SettingService");
-
             return null;
         }
 
-        if (is_null($cache)) {
-            $cache = [];
+        // load cache if empty
+        if (is_null($this->cache)) {
+            $this->cache = array();
             foreach ($this->repo->findAll() as $item) {
-                $cache[$item->getKey()] = $item;
+                $this->cache[$item->getKey()] = $item;
             }
         }
 
-        if (!isset($cache[$key])) {
+        if (!isset($this->cache[$key])) {
             // valid key, but not yet crated
             return $default;
         }
         if (self::getType($key) == self::TB_TYPE_FILE) {
-            return $this->uploaderHelper->asset($cache[$key], 'file', Setting::class);
+            return $this->uploaderHelper->asset($this->cache[$key], 'file', Setting::class);
         } else {
-            return $cache[$key]->getText() ?? '';
+            return $this->cache[$key]->getText() ?? '';
         }
     }
 
-    public function set(string $key, string $value): void
+    public function set(string $key, string $value): bool
     {
         $key = strtolower($key);
         if (!array_key_exists($key, self::TEXT_BLOCK_KEYS)) {
             $this->logger->error("Invalid key {$key} was to be set at SettingService");
-
-            return;
+            return false;
         }
         $block = $this->repo->findByKey($key);
         if (empty($block)) {
@@ -171,15 +171,16 @@ class SettingService
             $tb = new Setting($key);
             $tb->setText($value);
             $this->em->persist($tb);
-            $this->em->flush();
         } else {
             // update it if necessary
             if ($block->getText() !== $value) {
                 $block->setText($value);
                 $this->em->persist($block);
-                $this->em->flush();
             }
         }
+        $this->em->flush();
+        $this->cache = null;
+        return true;
     }
 
     public function remove(string $key): bool
@@ -187,17 +188,16 @@ class SettingService
         $key = strtolower($key);
         if (!static::validKey($key)) {
             $this->logger->error("Invalid key {$key} was to be deleted by SettingService");
-
             return false;
         }
         $block = $this->repo->findByKey($key);
         if (empty($block)) {
             $this->logger->warning("Tried to delete non-existing key {$key}");
-
             return false;
         }
         $this->em->remove($block);
         $this->em->flush();
+        $this->cache = null;
 
         return true;
     }
@@ -206,8 +206,7 @@ class SettingService
     {
         $key = strtolower($key);
         if (!static::validKey($key)) {
-            $this->logger->error("Invalid key {$key} was to be deleted by SettingService");
-
+            $this->logger->error("Invalid key {$key} was to be queried by SettingService");
             return null;
         }
         $block = $this->repo->findByKey($key);
@@ -249,10 +248,10 @@ class SettingService
         $key = $data->getKey();
         if (!static::validKey($key)) {
             $this->logger->error("Invalid key {$key} was to be deleted by SettingService");
-
             return;
         }
         $this->em->persist($data);
         $this->em->flush();
+        $this->cache = null;
     }
 }
