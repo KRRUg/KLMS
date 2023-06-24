@@ -76,6 +76,9 @@ final class ObjectInspector
 
     private static function compareCollections($a, $b): bool
     {
+        if (is_null($a) && is_null($b))
+            return true;
+
         $a = ($a instanceof LazyLoaderCollection) ? $a->toArray(false) : $a;
         $b = ($b instanceof LazyLoaderCollection) ? $b->toArray(false) : $b;
 

@@ -2,6 +2,7 @@
 
 namespace App\Tests;
 
+use Ramsey\Uuid\Nonstandard\Uuid;
 use Symfony\Component\HttpClient\Response\MockResponse;
 use Symfony\Contracts\HttpClient\ResponseInterface;
 
@@ -49,7 +50,7 @@ class IdmServerMock
     private array $requests = [
         'GET' => [],
         'POST' => [],
-        'PUT' => [],
+        'PATCH' => [],
         'DELETE' => [],
     ];
 
@@ -94,9 +95,19 @@ class IdmServerMock
             return $this->invalidCall();
         }
 
+        if (!in_array($class, ['users', 'clans'])) {
+            return $this->invalidCall();
+        }
+
         $request = new IdmServerMockRequest($class, $id, $params, $body);
         $this->lastRequest = $request;
         $this->requests[$method][] = $request;
+
+        if ($method == 'POST' && empty($id)) {
+            $body['uuid'] = Uuid::fromInteger($this->countRequests())->toString();
+            $body['clans'] = [];
+            return new MockResponse(json_encode($body));
+        }
 
         return match ($class) {
             "users" => match ($id) {

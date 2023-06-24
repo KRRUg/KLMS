@@ -45,9 +45,9 @@ class UnitOfWork
      * Registers a new object to the UoW.
      * Note: If there is already another object with the same id, the newer Object will be returned on get.
      *
-     * @param bool $existing If the object represents an existing object from the IDM (e.g. has the id set)
+     * @param bool $existing If the object represents an existing object from the IDM (i.e. has the id set)
      */
-    public function register(object $obj, bool $existing = false): void
+    private function register(object $obj, bool $existing): void
     {
         $class = $obj::class;
         $id = spl_object_id($obj);
@@ -70,6 +70,9 @@ class UnitOfWork
     {
         if (!$this->isAttached($obj)) {
             return;
+        }
+        if ($this->isNew($obj)) {
+            unset($this->objects[spl_object_id($obj)]);
         }
         $id = spl_object_id($obj);
         $this->delete_ids[$id] = $id;
@@ -104,6 +107,17 @@ class UnitOfWork
     public function isAttached($object): bool
     {
         return array_key_exists(spl_object_id($object), $this->objects);
+    }
+
+    /**
+     * Attach an existing object (hydrated from the IDM)
+     */
+    public function attach(object $object): void
+    {
+        if (empty(ObjectInspector::object2Id($object))) {
+            return;
+        }
+        $this->register($object, true);
     }
 
     public function persist(object $object, array &$already_done = []): void

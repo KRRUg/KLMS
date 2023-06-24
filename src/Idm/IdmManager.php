@@ -404,7 +404,7 @@ final class IdmManager
         if ($tmp = $this->unitOfWork->get($class, ObjectInspector::object2Id($obj))) {
             $obj = $tmp;
         } else {
-            $this->unitOfWork->register($obj, true);
+            $this->unitOfWork->attach($obj);
         }
 
         return $obj;
