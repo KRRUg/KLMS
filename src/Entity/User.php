@@ -411,6 +411,9 @@ class User
         return $this;
     }
 
+    /**
+     * @return Clan[]
+     */
     public function getClans()
     {
         return $this->clans;

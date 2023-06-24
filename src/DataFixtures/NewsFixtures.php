@@ -60,8 +60,10 @@ class NewsFixtures extends Fixture
             $dt->sub($interval);
         }
 
-        foreach ($news as $n) {
+        for ($i = 0; $i < count($news); $i++) {
+            $n = $news[$i];
             $manager->persist($n);
+            $this->setReference('news-'.$i, $n);
         }
         $manager->flush();
     }

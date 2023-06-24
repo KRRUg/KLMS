@@ -59,11 +59,11 @@ final class IdmManager
     private const URL_PREFIX = '/api';
 
     // Name of HttpClientInterface $idmClient is important to get idm.client injected by symfony
-    public function __construct(HttpClientInterface $idmClient, LoggerInterface $logger, IdmRepositoryFactory $repoFactory)
+    public function __construct(HttpClientInterface $idmClient, LoggerInterface $logger)
     {
         $this->httpClient = $idmClient;
         $this->logger = $logger;
-        $this->repoFactory = $repoFactory;
+        $this->repoFactory = new IdmRepositoryFactory();
 
         $on = new ObjectNormalizer(new ClassMetadataFactory(new AnnotationLoader()), null, null, new ReflectionExtractor());
         $this->serializer = new Serializer([
@@ -447,10 +447,14 @@ final class IdmManager
         return $code === Response::HTTP_OK;
     }
 
-    public function bulk(string $class, array $ids)
+    public function bulk(string $class, array $ids): array
     {
         if (!$this->hasBulkByClass($class)) {
             throw new UnsupportedClassException("Class {$class} does not support bulk access.");
+        }
+
+        if (empty($ids)) {
+            return array();
         }
 
         $collection = $this->post($this->createUrl($class, 'bulk'), new BulkRequest($ids));
@@ -476,10 +480,9 @@ final class IdmManager
         $query = [];
         if (!empty($filter)) {
             $query['filter'] = $filter;
-            $query['exact'] = is_array($filter) ? 'true' : 'false';
+            $query['exact'] = $fuzzy ? 'false' : 'true';
+            $query['case'] = $case ? 'true' : 'false';
         }
-        $query['exact'] = $fuzzy ? 'false' : 'true';
-        $query['case'] = $case ? 'true' : 'false';
         if (!empty($sort)) {
             $query['sort'] = $sort;
         }
