@@ -23,7 +23,7 @@ final class ObjectInspector
 
     public static function diffObjects(object $a, object $b): ?array
     {
-        $rslt = [];
+        $result = [];
 
         if ($a::class != $b::class) {
             return null;
@@ -38,10 +38,10 @@ final class ObjectInspector
             $v_a = $property->getValue($a);
             $v_b = $property->getValue($b);
             if ($v_a !== $v_b) {
-                $rslt[] = $property->getName();
+                $result[] = $property->getName();
             }
         }
-        return $rslt;
+        return $result;
     }
 
     public static function compareObjects(object $a, object $b): bool

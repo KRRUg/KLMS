@@ -6,6 +6,7 @@ use App\Idm\Exception\PersistException;
 use App\Idm\Exception\UnsupportedClassException;
 use InvalidArgumentException;
 use ReflectionClass;
+use ReflectionException;
 
 class IdmRepository
 {
@@ -17,7 +18,11 @@ class IdmRepository
     {
         $this->manager = $manager;
         $this->class = $class;
-        $this->reflection = new ReflectionClass($class);
+        try {
+            $this->reflection = new ReflectionClass($class);
+        } catch (ReflectionException) {
+            throw new UnsupportedClassException();
+        }
     }
 
     public function findOneById($id): ?object
@@ -112,15 +117,15 @@ class IdmRepository
     {
         foreach ($filter as $prop => $value) {
             if (!$this->reflection->hasProperty($prop)) {
-                throw new InvalidArgumentException("Property {$prop} is not in class {$this->class}");
+                throw new InvalidArgumentException("Property $prop is not in class $this->class");
             }
         }
         foreach ($sort as $prop => $dir) {
             if (!$this->reflection->hasProperty($prop)) {
-                throw new InvalidArgumentException("Property {$prop} is not in class {$this->class}");
+                throw new InvalidArgumentException("Property $prop is not in class $this->class");
             }
             if (!($dir === 'asc' || $dir === 'desc')) {
-                throw new InvalidArgumentException("Invalid sort direction {$dir} for Property {$prop}");
+                throw new InvalidArgumentException("Invalid sort direction $dir for Property $prop");
             }
         }
     }

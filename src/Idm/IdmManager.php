@@ -214,9 +214,9 @@ final class IdmManager
      * @param array      $expectedErrorCodes if an expected error code occurs, no error log is performed and $response is not set
      * @param array|null $json_payload       The payload to send (for POST, PATCH)
      *
-     * @return int The status code of the request
+     * @return bool|int The status code of the request
      */
-    private function send(string $method, string $url, array &$response, array $expectedErrorCodes = [], array $query = [], array $json_payload = [])
+    private function send(string $method, string $url, array &$response, array $expectedErrorCodes = [], array $query = [], array $json_payload = []): bool|int
     {
         try {
             $options = [];
@@ -248,7 +248,7 @@ final class IdmManager
         return false;
     }
 
-    private function throwOnCode($code, object $object = null)
+    private function throwOnCode(bool|int $code, object $object = null): void
     {
         if ($code === false) {
             throw new PersistException($object, PersistException::REASON_IDM_ISSUE);
@@ -260,16 +260,12 @@ final class IdmManager
             return;
         }
 
-        switch ($code) {
-            case Response::HTTP_BAD_REQUEST:
-                throw new PersistException($object, PersistException::REASON_INVALID);
-            case Response::HTTP_CONFLICT:
-                throw new PersistException($object, PersistException::REASON_NON_UNIQUE);
-            case Response::HTTP_NOT_FOUND:
-                throw new PersistException($object, PersistException::REASON_NOT_FOUND);
-            default:
-                throw new PersistException($object, PersistException::REASON_UNKNOWN);
-        }
+        throw match ($code) {
+            Response::HTTP_BAD_REQUEST => new PersistException($object, PersistException::REASON_INVALID),
+            Response::HTTP_CONFLICT => new PersistException($object, PersistException::REASON_NON_UNIQUE),
+            Response::HTTP_NOT_FOUND => new PersistException($object, PersistException::REASON_NOT_FOUND),
+            default => new PersistException($object, PersistException::REASON_UNKNOWN),
+        };
     }
 
     private function get(string $url, array $query = []): array
@@ -310,7 +306,7 @@ final class IdmManager
         return $response;
     }
 
-    private function delete(string $url)
+    private function delete(string $url): void
     {
         $response = [];
         $code = $this->send('DELETE', $url, $response, [Response::HTTP_NOT_FOUND]);
@@ -325,7 +321,7 @@ final class IdmManager
         ]);
     }
 
-    private function mapAnnotation(object $object, Closure $closureReference, Closure $closureCollection)
+    private function mapAnnotation(object $object, Closure $closureReference, Closure $closureCollection): void
     {
         $class = $object::class;
         $reflection = $this->ref_cache[$class];
@@ -368,6 +364,7 @@ final class IdmManager
         return $set->call($object);
     }
 
+    // TODO set return value once ArrayCollection is created
     private function hydrateObject($result, &$objectOrClass)
     {
         $class = is_object($objectOrClass) ? $objectOrClass::class : $objectOrClass;
