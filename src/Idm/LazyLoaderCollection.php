@@ -5,6 +5,7 @@ namespace App\Idm;
 use App\Idm\Transfer\UuidObject;
 use InvalidArgumentException;
 
+// TODO maybe consider removing Collection from here, as IdmManager cannot handled this when used as object property
 class LazyLoaderCollection implements Collection
 {
     private readonly IdmManager $manager;

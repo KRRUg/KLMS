@@ -16,7 +16,6 @@ use App\Idm\Transfer\UuidObject;
 use Closure;
 use InvalidArgumentException;
 use Psr\Log\LoggerInterface;
-use Ramsey\Uuid\Uuid;
 use ReflectionClass;
 use ReflectionException;
 use Symfony\Component\HttpFoundation\Response;
@@ -81,7 +80,7 @@ final class IdmManager
 
     public function reset(): void
     {
-        $this->unitOfWork = new UnitOfWork($this);
+        $this->unitOfWork = new UnitOfWork();
     }
 
     public function isManaged($objectOrClass): bool
@@ -215,9 +214,9 @@ final class IdmManager
      * @param array      $expectedErrorCodes if an expected error code occurs, no error log is performed and $response is not set
      * @param array|null $json_payload       The payload to send (for POST, PATCH)
      *
-     * @return int The status code of the request
+     * @return bool|int The status code of the request
      */
-    private function send(string $method, string $url, array &$response, array $expectedErrorCodes = [], array $query = [], array $json_payload = [])
+    private function send(string $method, string $url, array &$response, array $expectedErrorCodes = [], array $query = [], array $json_payload = []): bool|int
     {
         try {
             $options = [];
@@ -249,7 +248,7 @@ final class IdmManager
         return false;
     }
 
-    private function throwOnCode($code, object $object = null)
+    private function throwOnCode(bool|int $code, object $object = null): void
     {
         if ($code === false) {
             throw new PersistException($object, PersistException::REASON_IDM_ISSUE);
@@ -261,16 +260,12 @@ final class IdmManager
             return;
         }
 
-        switch ($code) {
-            case Response::HTTP_BAD_REQUEST:
-                throw new PersistException($object, PersistException::REASON_INVALID);
-            case Response::HTTP_CONFLICT:
-                throw new PersistException($object, PersistException::REASON_NON_UNIQUE);
-            case Response::HTTP_NOT_FOUND:
-                throw new PersistException($object, PersistException::REASON_NOT_FOUND);
-            default:
-                throw new PersistException($object, PersistException::REASON_UNKNOWN);
-        }
+        throw match ($code) {
+            Response::HTTP_BAD_REQUEST => new PersistException($object, PersistException::REASON_INVALID),
+            Response::HTTP_CONFLICT => new PersistException($object, PersistException::REASON_NON_UNIQUE),
+            Response::HTTP_NOT_FOUND => new PersistException($object, PersistException::REASON_NOT_FOUND),
+            default => new PersistException($object, PersistException::REASON_UNKNOWN),
+        };
     }
 
     private function get(string $url, array $query = []): array
@@ -282,27 +277,45 @@ final class IdmManager
         return $response;
     }
 
-    private function post(string $url, object $object): array
+    private function post(string $url, object $object, bool $skipNull = true): array
     {
         $response = [];
         $data = $this->object2Array($object);
+
+        if ($skipNull) {
+            foreach ($data as $key => &$value) {
+                if (is_null($value)){
+                    unset($data[$key]);
+                }
+            }
+        }
+
         $code = $this->send('POST', $url, $response, [Response::HTTP_CONFLICT], [], $data);
         $this->throwOnCode($code, $object);
 
         return $response;
     }
 
-    private function patch(string $url, object $object): array
+    private function patch(string $url, object $object, array $fields = []): array
     {
         $response = [];
         $data = $this->object2Array($object);
+
+        if (!empty($fields)) {
+            foreach ($data as $key => &$ignored) {
+                if (!in_array($key, $fields)){
+                    unset($data[$key]);
+                }
+            }
+        }
+
         $code = $this->send('PATCH', $url, $response, [Response::HTTP_NOT_FOUND, Response::HTTP_CONFLICT], [], $data);
         $this->throwOnCode($code, $object);
 
         return $response;
     }
 
-    private function delete(string $url)
+    private function delete(string $url): void
     {
         $response = [];
         $code = $this->send('DELETE', $url, $response, [Response::HTTP_NOT_FOUND]);
@@ -313,23 +326,11 @@ final class IdmManager
     {
         return $this->serializer->normalize($object, self::REST_FORMAT, [
             ObjectNormalizer::GROUPS => ['write'],
-            ObjectNormalizer::SKIP_NULL_VALUES => true,
+            ObjectNormalizer::SKIP_NULL_VALUES => false,
         ]);
     }
 
-    public function object2Id(object $object)
-    {
-        // TODO change getUuid with id annotation
-        return $object->getUuid();
-    }
-
-    public function isValidId($id): bool
-    {
-        // TODO change getUuid with id annotation
-        return Uuid::isValid(strval($id));
-    }
-
-    private function mapAnnotation(object $object, Closure $closureReference, Closure $closureCollection)
+    private function mapAnnotation(object $object, Closure $closureReference, Closure $closureCollection): void
     {
         $class = $object::class;
         $reflection = $this->ref_cache[$class];
@@ -341,54 +342,6 @@ final class IdmManager
                 $property->setValue($object, $closureReference($attributes[0]->newInstance()->getClass(), $property->getValue($object)));
             }
         }
-    }
-
-    private function compareCollections($a, $b): bool
-    {
-        $a = ($a instanceof LazyLoaderCollection) ? $a->toArray(false) : $a;
-        $b = ($b instanceof LazyLoaderCollection) ? $b->toArray(false) : $b;
-
-        if (!is_array($a) || !is_array($b)) {
-            return false;
-        }
-        if (sizeof($a) != sizeof($b)) {
-            return false;
-        }
-
-        $a = array_map(fn ($i_a) => $this->object2Id($i_a), $a);
-        $b = array_map(fn ($i_b) => $this->object2Id($i_b), $b);
-
-        return empty(array_diff($a, $b));
-    }
-
-    public function compareObjects(object $a, object $b): bool
-    {
-        if ($a::class != $b::class) {
-            return false;
-        }
-
-        $ref = new ReflectionClass($a);
-
-        foreach ($ref->getProperties() as $property) {
-            $v_a = $property->getValue($a);
-            $v_b = $property->getValue($b);
-
-            if ($property->getAttributes(Collection::class)) {
-                if (!$this->compareCollections($v_a, $v_b)) {
-                    return false;
-                }
-            } elseif ($property->getAttributes(Reference::class)) {
-                if (!$this->compareObjects($v_a, $v_b)) {
-                    return false;
-                }
-            } else {
-                if ($v_a != $v_b) {
-                    return false;
-                }
-            }
-        }
-
-        return true;
     }
 
     private static function toUuidObjectArray(array $array, bool $strict = false): ?array
@@ -420,6 +373,7 @@ final class IdmManager
         return $set->call($object);
     }
 
+    // TODO set return value once ArrayCollection is created
     private function hydrateObject($result, &$objectOrClass)
     {
         $class = is_object($objectOrClass) ? $objectOrClass::class : $objectOrClass;
@@ -453,10 +407,10 @@ final class IdmManager
             self::setPrivateField($obj, $field, $new);
         }
 
-        if ($tmp = $this->unitOfWork->get($class, $this->object2Id($obj))) {
+        if ($tmp = $this->unitOfWork->get($class, ObjectInspector::object2Id($obj))) {
             $obj = $tmp;
         } else {
-            $this->unitOfWork->register($obj, true);
+            $this->unitOfWork->attach($obj);
         }
 
         return $obj;
@@ -618,7 +572,7 @@ final class IdmManager
     private function applyCollectionModification(object $object, array $modification): bool
     {
         $result = false;
-        $base_url = $this->createUrl($object, $this->object2Id($object));
+        $base_url = $this->createUrl($object, ObjectInspector::object2Id($object));
         foreach ($modification as $name => $mod) {
             $url = $base_url.'/'.$name;
             foreach ($mod[0] as $added) {
@@ -646,21 +600,28 @@ final class IdmManager
                 default:
                     // nothing to do
                     continue 2;
+
                 case UnitOfWork::STATE_CREATED:
                     $modifications = $this->unitOfWork->getCollectionDiff($object);
                     $this->hydrateObject($this->post($this->createUrl($object), $object), $object);
                     if ($this->applyCollectionModification($object, $modifications)) {
-                        $this->hydrateObject($this->get($this->createUrl($object, $this->object2Id($object))), $object);
+                        $this->hydrateObject($this->get($this->createUrl($object, ObjectInspector::object2Id($object))), $object);
                     }
                     break;
 
                 case UnitOfWork::STATE_MODIFIED:
                     $this->applyCollectionModification($object, $this->unitOfWork->getCollectionDiff($object));
-                    $this->hydrateObject($this->patch($this->createUrl($object, $this->object2Id($object)), $object), $object);
+                    $diff = $this->unitOfWork->getDirtyProperties($object);
+                    if (empty($diff)) {
+                        // get to reflect collection change
+                        $this->hydrateObject($this->get($this->createUrl($object, ObjectInspector::object2Id($object))), $object);
+                    } else {
+                        $this->hydrateObject($this->patch($this->createUrl($object, ObjectInspector::object2Id($object)), $object, $diff), $object);
+                    }
                     break;
 
                 case UnitOfWork::STATE_DELETE:
-                    $this->delete($this->createUrl($object, $this->object2Id($object)));
+                    $this->delete($this->createUrl($object, ObjectInspector::object2Id($object)));
                     break;
             }
             $this->unitOfWork->flush($object);

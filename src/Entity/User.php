@@ -35,6 +35,7 @@ class User
     private ?string $password = null;
 
     #[Assert\Length(min: 1, max: 64, minMessage: 'The nickname must be at least {{ limit }} characters long', maxMessage: 'The nickname cannot be longer than {{ limit }} characters')]
+    #[Assert\NotBlank]
     #[Groups(['read', 'write'])]
     private ?string $nickname = null;
 
@@ -108,7 +109,7 @@ class User
 
     #[Idm\Collection(class: Clan::class)]
     #[Groups(['read'])]
-    private $clans;
+    private Collection|array $clans = [];
 
     public function getId(): ?int
     {
@@ -139,7 +140,7 @@ class User
         return $this->email;
     }
 
-    public function setEmail(string $email): self
+    public function setEmail(?string $email): self
     {
         $this->email = $email;
 
@@ -151,7 +152,7 @@ class User
         return $this->firstname;
     }
 
-    public function setFirstname(string $firstname): self
+    public function setFirstname(?string $firstname): self
     {
         $this->firstname = $firstname;
 
@@ -163,7 +164,7 @@ class User
         return $this->surname;
     }
 
-    public function setSurname(string $surname): self
+    public function setSurname(?string $surname): self
     {
         $this->surname = $surname;
 
@@ -199,7 +200,7 @@ class User
         return $this->postcode;
     }
 
-    public function setPostcode(string $postcode): self
+    public function setPostcode(?string $postcode): self
     {
         $this->postcode = $postcode;
 
@@ -211,7 +212,7 @@ class User
         return $this->city;
     }
 
-    public function setCity(string $city): self
+    public function setCity(?string $city): self
     {
         $this->city = $city;
 
@@ -223,7 +224,7 @@ class User
         return $this->street;
     }
 
-    public function setStreet(string $street): self
+    public function setStreet(?string $street): self
     {
         $this->street = $street;
 
@@ -235,7 +236,7 @@ class User
         return $this->country;
     }
 
-    public function setCountry(string $country): self
+    public function setCountry(?string $country): self
     {
         $this->country = $country;
 
@@ -247,7 +248,7 @@ class User
         return $this->phone;
     }
 
-    public function setPhone(string $phone): self
+    public function setPhone(?string $phone): self
     {
         $this->phone = $phone;
 
@@ -283,7 +284,7 @@ class User
         return $this->nickname;
     }
 
-    public function setNickname(string $nickname): self
+    public function setNickname(?string $nickname): self
     {
         $this->nickname = $nickname;
 
@@ -355,7 +356,7 @@ class User
         return $this->registeredAt;
     }
 
-    public function setRegisteredAt(DateTimeInterface $registeredAt): self
+    public function setRegisteredAt(?DateTimeInterface $registeredAt): self
     {
         $this->registeredAt = $registeredAt;
 
@@ -367,7 +368,7 @@ class User
         return $this->modifiedAt;
     }
 
-    public function setModifiedAt(DateTimeInterface $modifiedAt): self
+    public function setModifiedAt(?DateTimeInterface $modifiedAt): self
     {
         $this->modifiedAt = $modifiedAt;
 
@@ -410,15 +411,12 @@ class User
         return $this;
     }
 
-    /**
-     * @return Clan[]
-     */
-    public function getClans()
+    public function getClans(): Collection|array
     {
         return $this->clans;
     }
 
-    public function setClans($clans): self
+    public function setClans(Collection|array $clans): self
     {
         $this->clans = $clans;
 
