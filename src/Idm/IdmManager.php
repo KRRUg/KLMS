@@ -277,10 +277,19 @@ final class IdmManager
         return $response;
     }
 
-    private function post(string $url, object $object): array
+    private function post(string $url, object $object, bool $skipNull = true): array
     {
         $response = [];
         $data = $this->object2Array($object);
+
+        if ($skipNull) {
+            foreach ($data as $key => &$value) {
+                if (is_null($value)){
+                    unset($data[$key]);
+                }
+            }
+        }
+
         $code = $this->send('POST', $url, $response, [Response::HTTP_CONFLICT], [], $data);
         $this->throwOnCode($code, $object);
 

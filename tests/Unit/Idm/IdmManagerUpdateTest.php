@@ -58,6 +58,14 @@ class IdmManagerUpdateTest extends TestCase
         $manager->flush();
         $this->assertEquals(1, $mock->countRequests('POST'));
         $this->assertEquals(1, $mock->countRequests());
+        $request = $mock->getLastRequest();
+        $this->assertCount(3, $request->body);
+        $this->assertArrayHasKey('firstname', $request->body);
+        $this->assertArrayHasKey('surname', $request->body);
+        $this->assertArrayHasKey('email', $request->body);
+        $this->assertNotNull($request->body['firstname']);
+        $this->assertNotNull($request->body['surname']);
+        $this->assertNotNull($request->body['email']);
         $this->assertNotEmpty($u1->getUuid());
     }
 
