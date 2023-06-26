@@ -109,7 +109,7 @@ class User
 
     #[Idm\Collection(class: Clan::class)]
     #[Groups(['read'])]
-    private $clans;
+    private Collection|array $clans = [];
 
     public function getId(): ?int
     {
@@ -411,15 +411,12 @@ class User
         return $this;
     }
 
-    /**
-     * @return Clan[]
-     */
-    public function getClans()
+    public function getClans(): Collection|array
     {
         return $this->clans;
     }
 
-    public function setClans($clans): self
+    public function setClans(Collection|array $clans): self
     {
         $this->clans = $clans;
 

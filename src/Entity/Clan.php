@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use App\Idm\Annotation as Idm;
+use App\Idm\Collection;
 use DateTimeInterface;
 use Ramsey\Uuid\UuidInterface;
 use Symfony\Component\Serializer\Annotation\Groups;
@@ -34,11 +35,11 @@ class Clan
 
     #[Idm\Collection(class: User::class)]
     #[Groups(['read'])]
-    private $users;
+    private Collection|array $users = [];
 
     #[Idm\Collection(class: User::class)]
     #[Groups(['read'])]
-    private $admins;
+    private Collection|array $admins = [];
 
     #[Assert\Length(min: 1, max: 10, minMessage: 'The clantag must be at least {{ limit }} characters long', maxMessage: 'The clantag cannot be longer than {{ limit }} characters')]
     #[Assert\NotBlank]
@@ -125,12 +126,12 @@ class Clan
         return $this;
     }
 
-    public function getUsers()
+    public function getUsers(): Collection|array
     {
         return $this->users;
     }
 
-    public function setUsers($users): Clan
+    public function setUsers(Collection|array $users): Clan
     {
         $this->users = $users;
 
@@ -156,12 +157,12 @@ class Clan
         return $this;
     }
 
-    public function getAdmins()
+    public function getAdmins(): Collection|array
     {
         return $this->admins;
     }
 
-    public function setAdmins($admins): Clan
+    public function setAdmins(Collection|array $admins): Clan
     {
         $this->admins = $admins;
 
@@ -189,7 +190,7 @@ class Clan
 
     public function isAdmin(User $user): bool
     {
-        foreach ($this->admins as $k => $u) {
+        foreach ($this->admins as $u) {
             if ($u == $user) {
                 return true;
             }
