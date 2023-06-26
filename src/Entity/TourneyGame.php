@@ -18,10 +18,10 @@ class TourneyGame
     private ?Tourney $tourney = null;
 
     #[ORM\ManyToOne]
-    private ?TourneyEntry $teamA = null;
+    private ?TourneyEntry $entryA = null;
 
     #[ORM\ManyToOne]
-    private ?TourneyEntry $teamB = null;
+    private ?TourneyEntry $entryB = null;
 
     #[ORM\Column(nullable: true)]
     private ?int $scoreA = null;
@@ -46,26 +46,26 @@ class TourneyGame
         return $this;
     }
 
-    public function getTeamA(): ?TourneyEntry
+    public function getEntryA(): ?TourneyEntry
     {
-        return $this->teamA;
+        return $this->entryA;
     }
 
-    public function setTeamA(?TourneyEntry $teamA): self
+    public function setEntryA(?TourneyEntry $entryA): self
     {
-        $this->teamA = $teamA;
+        $this->entryA = $entryA;
 
         return $this;
     }
 
-    public function getTeamB(): ?TourneyEntry
+    public function getEntryB(): ?TourneyEntry
     {
-        return $this->teamB;
+        return $this->entryB;
     }
 
-    public function setTeamB(?TourneyEntry $teamB): self
+    public function setEntryB(?TourneyEntry $entryB): self
     {
-        $this->teamB = $teamB;
+        $this->entryB = $entryB;
 
         return $this;
     }

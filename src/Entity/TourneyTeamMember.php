@@ -18,9 +18,6 @@ class TourneyTeamMember
     private ?UuidInterface $gamer = null;
 
     #[ORM\Column]
-    private ?bool $captain = null;
-
-    #[ORM\Column]
     private ?bool $accepted = null;
 
     #[ORM\ManyToOne(inversedBy: 'members')]
@@ -40,18 +37,6 @@ class TourneyTeamMember
     public function setGamer(UuidInterface $gamer): self
     {
         $this->gamer = $gamer;
-
-        return $this;
-    }
-
-    public function isCaptain(): ?bool
-    {
-        return $this->captain;
-    }
-
-    public function setCaptain(bool $captain): self
-    {
-        $this->captain = $captain;
 
         return $this;
     }
