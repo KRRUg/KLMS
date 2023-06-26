@@ -2,47 +2,62 @@
 
 namespace App\Entity;
 
+use App\Entity\Traits\EntityHistoryTrait;
+use App\Entity\Traits\HistoryAwareEntity;
 use App\Repository\TourneyRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
-use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: TourneyRepository::class)]
-class Tourney
+#[ORM\HasLifecycleCallbacks]
+class Tourney implements HistoryAwareEntity
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\Column(length: 255)]
+    #[ORM\Column(type: 'string', length: 255)]
+    #[Assert\NotBlank]
     private ?string $name = null;
 
-    #[ORM\Column(type: Types::TEXT)]
+    #[ORM\Column(type: 'text')]
     private ?string $description = null;
 
     #[ORM\Column]
+    #[Assert\GreaterThanOrEqual(value: 1, message: 'A team must have at least one member.')]
     private ?int $teamsize = null;
 
     #[ORM\Column]
     private ?bool $hidden = null;
 
-    #[ORM\OneToMany(mappedBy: 'tourney', targetEntity: TourneyTeam::class, orphanRemoval: true)]
-    private Collection $teams;
+    #[ORM\OneToMany(mappedBy: 'tourney', targetEntity: TourneyEntry::class, orphanRemoval: true)]
+    private Collection $entries;
 
-    #[ORM\Column(length: 25)]
+    public const MODE_SINGLE_ELIMINATION = 'se';
+    public const MODE_DOUBLE_ELIMINATION = 'de';
+
+    #[ORM\Column(type: 'string', length: 2)]
+    #[Assert\Choice(choices: [self::MODE_SINGLE_ELIMINATION, self::MODE_DOUBLE_ELIMINATION], message: 'Invalid tourney mode: {{ value }}')]
     private ?string $mode = null;
+
+    public const RESULT_TYPE_POINTS = 'pt';
+    public const RESULT_TYPE_WON_LOST = 'wl';
+
+    #[ORM\Column(type: 'string', length: 2)]
+    #[Assert\Choice(choices: [self::RESULT_TYPE_POINTS, self::RESULT_TYPE_WON_LOST], message: 'Invalid result type: {{ value }}')]
+    private ?string $result_type = null;
 
     #[ORM\OneToMany(mappedBy: 'tourney', targetEntity: TourneyGame::class, orphanRemoval: true)]
     private Collection $games;
 
-    #[ORM\Column(length: 1)]
-    private ?string $result_type = null;
+    use EntityHistoryTrait;
 
     public function __construct()
     {
-        $this->teams = new ArrayCollection();
+        $this->entries = new ArrayCollection();
         $this->games = new ArrayCollection();
     }
 
@@ -100,26 +115,26 @@ class Tourney
     }
 
     /**
-     * @return Collection<int, TourneyTeam>
+     * @return Collection<int, TourneyEntry>
      */
-    public function getTeams(): Collection
+    public function getEntries(): Collection
     {
-        return $this->teams;
+        return $this->entries;
     }
 
-    public function addTeam(TourneyTeam $team): self
+    public function addEntry(TourneyEntry $team): self
     {
-        if (!$this->teams->contains($team)) {
-            $this->teams->add($team);
+        if (!$this->entries->contains($team)) {
+            $this->entries->add($team);
             $team->setTourney($this);
         }
 
         return $this;
     }
 
-    public function removeTeam(TourneyTeam $team): self
+    public function removeEntry(TourneyEntry $team): self
     {
-        if ($this->teams->removeElement($team)) {
+        if ($this->entries->removeElement($team)) {
             // set the owning side to null (unless already changed)
             if ($team->getTourney() === $this) {
                 $team->setTourney(null);
@@ -137,6 +152,18 @@ class Tourney
     public function setMode(string $mode): self
     {
         $this->mode = $mode;
+
+        return $this;
+    }
+
+    public function getResultType(): ?string
+    {
+        return $this->result_type;
+    }
+
+    public function setResultType(string $result_type): self
+    {
+        $this->result_type = $result_type;
 
         return $this;
     }
@@ -167,18 +194,6 @@ class Tourney
                 $game->setTourney(null);
             }
         }
-
-        return $this;
-    }
-
-    public function getResultType(): ?string
-    {
-        return $this->result_type;
-    }
-
-    public function setResultType(string $result_type): self
-    {
-        $this->result_type = $result_type;
 
         return $this;
     }

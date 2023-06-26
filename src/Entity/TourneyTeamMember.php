@@ -4,7 +4,7 @@ namespace App\Entity;
 
 use App\Repository\TourneyTeamMemberRepository;
 use Doctrine\ORM\Mapping as ORM;
-use Symfony\Component\Uid\Uuid;
+use Ramsey\Uuid\UuidInterface;
 
 #[ORM\Entity(repositoryClass: TourneyTeamMemberRepository::class)]
 class TourneyTeamMember
@@ -15,7 +15,7 @@ class TourneyTeamMember
     private ?int $id = null;
 
     #[ORM\Column(type: 'uuid')]
-    private ?Uuid $gamer = null;
+    private ?UuidInterface $gamer = null;
 
     #[ORM\Column]
     private ?bool $captain = null;
@@ -25,19 +25,19 @@ class TourneyTeamMember
 
     #[ORM\ManyToOne(inversedBy: 'members')]
     #[ORM\JoinColumn(nullable: false)]
-    private ?TourneyTeam $team = null;
+    private ?TourneyEntryTeam $team = null;
 
     public function getId(): ?int
     {
         return $this->id;
     }
 
-    public function getGamer(): ?Uuid
+    public function getGamer(): ?UuidInterface
     {
         return $this->gamer;
     }
 
-    public function setGamer(Uuid $gamer): self
+    public function setGamer(UuidInterface $gamer): self
     {
         $this->gamer = $gamer;
 
@@ -68,12 +68,12 @@ class TourneyTeamMember
         return $this;
     }
 
-    public function getTeam(): ?TourneyTeam
+    public function getTeam(): ?TourneyEntry
     {
         return $this->team;
     }
 
-    public function setTeam(?TourneyTeam $team): self
+    public function setTeam(?TourneyEntry $team): self
     {
         $this->team = $team;
 
