@@ -33,7 +33,7 @@ class Tourney implements HistoryAwareEntity
     #[ORM\Column]
     private ?bool $hidden = null;
 
-    #[ORM\OneToMany(mappedBy: 'tourney', targetEntity: TourneyEntry::class, orphanRemoval: true)]
+    #[ORM\OneToMany(mappedBy: 'tourney', targetEntity: TourneyEntry::class, orphanRemoval: true, cascade: ['persist'])]
     private Collection $entries;
 
     public const MODE_SINGLE_ELIMINATION = 'se';
@@ -50,7 +50,7 @@ class Tourney implements HistoryAwareEntity
     #[Assert\Choice(choices: [self::RESULT_TYPE_POINTS, self::RESULT_TYPE_WON_LOST], message: 'Invalid result type: {{ value }}')]
     private ?string $result_type = null;
 
-    #[ORM\OneToMany(mappedBy: 'tourney', targetEntity: TourneyGame::class, orphanRemoval: true)]
+    #[ORM\OneToMany(mappedBy: 'tourney', targetEntity: TourneyGame::class, orphanRemoval: true, cascade: ['persist'])]
     private Collection $games;
 
     use EntityHistoryTrait;

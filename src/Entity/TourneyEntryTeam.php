@@ -12,7 +12,7 @@ class TourneyEntryTeam extends TourneyEntry
     #[ORM\Column(length: 255)]
     private ?string $name = null;
 
-    #[ORM\OneToMany(mappedBy: 'team', targetEntity: TourneyTeamMember::class, orphanRemoval: true)]
+    #[ORM\OneToMany(mappedBy: 'team', targetEntity: TourneyTeamMember::class, orphanRemoval: true, cascade: ['persist'])]
     private Collection $members;
 
     public function __construct()
