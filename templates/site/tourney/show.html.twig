@@ -6,11 +6,41 @@
     <div class="container mb-5">
         <div class="card">
             <div class="card-body">
-                <h1 class="card-title">{{ tourney.name }}</h1>
-                <div class="card-text">
+                <div class="card-title">
+                    <h1>{{ tourney.name }}</h1>
                     <p>{{ tourney.description }}</p>
+                </div>
+                <div class="card-text">
+                    <div class="tournament">
+                        {% for round in tree %}
+                        <div class="round">
+                            {% for game in round %}
+                                {% if game is not empty %}
+                                    <div class="match">
+                                        <div class="teams">
+                                            <div class="team {{ game.hasWon(true) ? 'winner' : '' }}">
+                                                <span class="team-name">{{ game.entryA() | entryName }}</span>
+                                                <span class="team-score">{{ tourney.showPoints() ? (game.scoreA() ?? '') : '' }}</span>
+                                            </div>
+                                            <div class="team {{ game.hasWon(false) ? 'winner' : '' }}">
+                                                <span class="team-name">{{ game.entryB() | entryName }}</span>
+                                                <span class="team-score">{{ tourney.showPoints() ? (game.scoreB() ?? '') : '' }}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                {% else %}
+                                    <div class="match empty"></div>
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+                        {% endfor %}
                 </div>
             </div>
         </div>
     </div>
+{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    {{ encore_entry_link_tags('tourney') }}
 {% endblock %}

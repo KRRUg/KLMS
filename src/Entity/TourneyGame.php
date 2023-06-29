@@ -6,6 +6,7 @@ use App\Repository\TourneyGameRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: TourneyGameRepository::class)]
 // ensures that every node can have at most two children, tourney_id is required to have multiple root nodes
@@ -28,9 +29,11 @@ class TourneyGame
     private ?TourneyEntry $entryB = null;
 
     #[ORM\Column(nullable: true)]
+//    #[Assert\NotEqualTo(propertyPath: 'scoreB')]
     private ?int $scoreA = null;
 
     #[ORM\Column(nullable: true)]
+//    #[Assert\NotEqualTo(propertyPath: 'scoreA')]
     private ?int $scoreB = null;
 
     #[ORM\ManyToOne(targetEntity: self::class, inversedBy: 'children')]
@@ -42,7 +45,7 @@ class TourneyGame
 
     // root node ignores this property
     #[ORM\Column(name: 'left_child', nullable: false)]
-    private ?bool $isChildA = true;
+    private bool $isChildA = true;
 
     public function __construct()
     {
@@ -153,15 +156,32 @@ class TourneyGame
         return $this;
     }
 
-    public function getIsChildA(): ?bool
+    public function isChildA(): bool
     {
         return $this->isChildA;
     }
 
-    public function setIsChildA(?bool $isChildA): TourneyGame
+    public function setIsChildA(bool $isChildA): TourneyGame
     {
         $this->isChildA = $isChildA;
 
         return $this;
+    }
+
+    public function getChild(bool $childA): ?self
+    {
+        foreach ($this->children as $child) {
+            /** @var self $child */
+            if ($child->isChildA() == $childA)
+                return $child;
+        }
+        return null;
+    }
+
+    public function hasWon(bool $teamA): bool
+    {
+        if (is_null($this->getScoreA()) || is_null($this->getScoreB()))
+            return false;
+        return ($this->getScoreA() > $this->getScoreB()) == $teamA;
     }
 }

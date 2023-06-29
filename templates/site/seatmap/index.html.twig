@@ -61,10 +61,10 @@
 
 {% block javascripts %}
     {{ parent() }}
-    {{ encore_entry_script_tags('site_seatmap') }}
+    {{ encore_entry_script_tags('seatmap') }}
 {% endblock %}
 
 {% block stylesheets %}
     {{ parent() }}
-    {{ encore_entry_css_source('site_seatmap') }}
+    {{ encore_entry_link_tags('seatmap') }}
 {% endblock %}

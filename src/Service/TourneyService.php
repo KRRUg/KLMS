@@ -2,6 +2,8 @@
 
 namespace App\Service;
 
+use App\Entity\Tourney;
+use App\Entity\TourneyGame;
 use App\Repository\TourneyRepository;
 use Doctrine\ORM\EntityManagerInterface;
 
@@ -29,5 +31,26 @@ class TourneyService extends OptimalService
     public function getVisibleTourneys(): array
     {
         return $this->repository->findBy(['hidden' => false], ['order' => 'asc']);
+    }
+
+    public static function getFinal(Tourney $tourney): ?TourneyGame
+    {
+        foreach ($tourney->getGames() as $game) {
+            if (is_null($game->getParent()))
+                return $game;
+        }
+        return null;
+    }
+
+    public static function calculateRounds(Tourney $tourney): int
+    {
+        $depth = function(TourneyGame $g) use (&$depth) {
+            if ($g->getChildren()->isEmpty()) return 1;
+            return max(array_map(fn($c) => $depth($c) + 1, $g->getChildren()->toArray()));
+        };
+        $final = self::getFinal($tourney);
+        if (is_null($final))
+            return 0;
+        return $depth($final);
     }
 }

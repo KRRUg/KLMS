@@ -212,4 +212,9 @@ class Tourney implements HistoryAwareEntity
 
         return $this;
     }
+
+    public function showPoints(): bool
+    {
+        return $this->getResultType() == self::RESULT_TYPE_POINTS;
+    }
 }

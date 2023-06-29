@@ -1,0 +1,156 @@
+@import '../helper/variables.scss';
+
+$color-white:   $body-bg;
+$color-black:   $shadow-color;
+$color-primary: $main-color;
+
+$color-heading:     #363636;
+$color-content:	    #858585;
+$color-background:	#f0f2f2;
+$color-border:      #c0c0c8;
+
+$match-width: 12rem;
+$match-height: 3rem;
+$match-gap: 1rem;
+$match-horizontal-gap: 2rem;
+$group-gap: 1rem;
+$match-connection-border: 1px solid $color-content;
+$border-radius: .5rem;
+$max-power-of-two: 8; // max x where 2**x is max teams, 8 means max number of teams is 256
+
+@function pow($number, $exponent) {
+  $value: 1;
+  @if $exponent > 0 {
+    @for $i from 1 through $exponent {
+      $value: $value * $number;
+    }
+  }
+  @return $value;
+}
+
+.tournament {
+  display: flex;
+  flex-flow: row nowrap;
+  justify-content: center;
+  align-items: center;
+  align-content: center;
+
+  .round {
+    display: flex;
+    flex-flow: column nowrap;
+    justify-content: center;
+    align-items: center;
+    align-content: center;
+
+    .match {
+      width:  $match-width;
+      height: $match-height;
+      margin: ($match-gap / 2) ($match-horizontal-gap / 2);
+      box-sizing: border-box;
+      box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.12);
+
+      display: flex;
+      flex-flow: column nowrap;
+      justify-content: space-around;
+
+      &.empty {
+        visibility: hidden;
+      }
+
+      position: relative;
+      &:after {
+        content: "";
+        display: block;
+        position: absolute;
+        left: 100%;
+        width: ($match-width / 2 + $match-horizontal-gap);
+        border-right: $match-connection-border;
+      }
+
+      &:nth-child(2n-1):after {
+        top: 50%;
+        border-top: $match-connection-border;
+      }
+
+      &:nth-child(2n):after {
+        bottom: 50%;
+        border-bottom: $match-connection-border;
+      }
+
+      .teams {
+        overflow: hidden;
+        display: flex;
+        flex-flow: column nowrap;
+        align-items: stretch;
+        width: 100%;
+        height: 100%;
+        .team {
+          color: $color-content;
+          border-left: 0.25rem solid $color-content;
+          background: white;
+          height: 100%;
+          display: flex;
+          flex-flow: row nowrap;
+          justify-content: space-between;
+
+          .team-name {
+            flex-basis: 100%;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            padding: 0 .5rem;
+            pointer-events: none;
+          }
+          .team-score {
+            flex: none;
+            width: 2rem;
+            text-align: center;
+            font-weight: 700;
+            pointer-events: none;
+          }
+          &.winner {
+            color: $color-primary;
+            border-color: $color-primary;
+          }
+          &.loser {
+            color: $color-content;
+            border-color: $color-content;
+          }
+
+          &:hover {
+            background: $color-primary;
+            color: $color-white;
+            cursor: pointer;
+          }
+
+          &:not(:last-child) {
+            border-bottom: thin solid $color-background;
+          }
+        }
+      }
+    }
+
+    @for $round from 0 through $max-power-of-two {
+      &:nth-child(#{$round + 1}) > .match {
+        $gap: if($round == 0, $match-gap, (2 * pow(2, $round - 1) * ($match-height + $match-gap + $group-gap / 2) - $match-height));
+        margin-top:    ($gap / 2);
+        margin-bottom: ($gap / 2);
+        &:after {
+          height: ($gap / 2);
+        }
+      }
+    }
+
+    &:last-child > .match:after {
+      display: none;
+    }
+
+    &:first-child > .match:nth-child(2n) {
+      margin-bottom: (($match-gap + $group-gap) / 2);
+    }
+
+    &:first-child > .match:nth-child(2n-1) {
+      margin-top: (($match-gap + $group-gap) / 2);
+    }
+  }
+}
