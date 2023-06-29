@@ -1,0 +1,24 @@
+{% extends 'site/siteBase.html.twig' %}
+
+{% block title %}{{ settings.get('site.title') }} - Turniere{% endblock %}
+
+{% block main %}
+    <div class="container mb-5">
+        <div class="card">
+            <div class="card-body">
+                <h1 class="card-title">Turniere</h1>
+                <div class="card-text">
+                    <ul>
+                    {% for tourney in tourneys %}
+                        <li>
+                            <a href="{{ path('tourney_show', {'id' : tourney.id}) }}">
+                                {{ tourney.name }}
+                            </a>
+                        </li>
+                    {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

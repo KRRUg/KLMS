@@ -23,8 +23,11 @@ class TourneyService extends OptimalService
 
     protected static function getSettingKey(): string
     {
-        return 'tourney.enabled';
+        return 'lan.tourney.enabled';
     }
 
-
+    public function getVisibleTourneys(): array
+    {
+        return $this->repository->findBy(['hidden' => false], ['order' => 'asc']);
+    }
 }

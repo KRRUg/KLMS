@@ -1,0 +1,16 @@
+{% extends 'site/siteBase.html.twig' %}
+
+{% block title %}{{ settings.get('site.title') }} - {{ tourney.name }}{% endblock %}
+
+{% block main %}
+    <div class="container mb-5">
+        <div class="card">
+            <div class="card-body">
+                <h1 class="card-title">{{ tourney.name }}</h1>
+                <div class="card-text">
+                    <p>{{ tourney.description }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

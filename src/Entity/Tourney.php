@@ -33,6 +33,9 @@ class Tourney implements HistoryAwareEntity
     #[ORM\Column]
     private ?bool $hidden = null;
 
+    #[ORM\Column(name: 'sort_order', nullable: true)]
+    private ?int $order = null;
+
     #[ORM\OneToMany(mappedBy: 'tourney', targetEntity: TourneyEntry::class, orphanRemoval: true, cascade: ['persist'])]
     private Collection $entries;
 
@@ -194,6 +197,18 @@ class Tourney implements HistoryAwareEntity
                 $game->setTourney(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getOrder(): ?int
+    {
+        return $this->order;
+    }
+
+    public function setOrder(?int $order): Tourney
+    {
+        $this->order = $order;
 
         return $this;
     }
