@@ -73,6 +73,7 @@ class SettingService
         'link.teamspeak' => [self::TB_DESCRIPTION => 'Teamspeak Invite Link', self::TB_TYPE => self::TB_TYPE_URL],
         'link.twitch' => [self::TB_DESCRIPTION => 'Link zum Twitchkanal', self::TB_TYPE => self::TB_TYPE_URL],
 
+        'tourney.enabled' => [self::TB_DESCRIPTION => 'Tourney einschalten', self::TB_TYPE => self::TB_TYPE_BOOL],
         // extend here
     ];
 
