@@ -3,7 +3,7 @@
 {% block title %}{{ settings.get('site.title') }} - News{% endblock %}
 
 {% block header %}
-    {% embed 'site/components/header.html.twig' with {'css_prefix': 'startpage'}%}
+    {% embed 'site/components/header.html.twig' with {'startpage': 'true'} %}
         {% block headerContent %}
             {{ parent() }}
             {% if settings.get('site.title.show', false) %}
