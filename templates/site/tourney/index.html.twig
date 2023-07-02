@@ -7,35 +7,26 @@
         <div class="row">
             <div class="col">
                 <h1>Turniere</h1>
-                <div>{{ settings.get('lan.tourney.text') }}</div>
+                <div>{{ settings.get('lan.tourney.text') | raw }}</div>
             </div>
         </div>
-        <hr>
+        <hr />
         <div>
-            {% if my_tourneys is not empty %}
-            <h2>Meine Turniere</h2>
-            <ul>
-            {% for tourney in my_tourneys %}
-                <li>
-                    <a class="tourney registered" href="{{ path('tourney_show', {'id' : tourney.id}) }}">
-                        {{ tourney.name }}
-                    </a>
-                </li>
-            {% endfor %}
-            </ul>
-            <h2>Andere Turniere</h2>
+            {% if can_register %}
+                <div class="mb-3 text-right">
+                    Token <span class="badge badge-pill badge-primary p-2"><i class="fa-solid fa-coins"></i> 20/20</span>
+                </div>
             {% endif %}
-            {% for tourney in tourneys %}
-            <ul>
-                {% if tourney not in my_tourneys %}
-                    <li>
-                    <a class="tourney" href="{{ path('tourney_show', {'id' : tourney.id}) }}">
-                        {{ tourney.name }}
-                    </a>
-                    </li>
-                {% endif %}
-            </ul>
+            <div class="accordion mb-3" id="tourney-list">
+            {% for tourney in my_tourneys %}
+                {% include 'site/tourney/_card.html.twig' with {'tourney' : tourney, 'registered' : true, 'pending' : false} %}
             {% endfor %}
+            {% for tourney in tourneys %}
+                {% if tourney not in my_tourneys %}
+                    {% include 'site/tourney/_card.html.twig' with {'tourney' : tourney, 'registered' : false, 'pending' : false} %}
+                {% endif %}
+            {% endfor %}
+            </div>
         </div>
     </div>
 {% endblock %}

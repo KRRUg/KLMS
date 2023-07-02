@@ -33,6 +33,8 @@ class SettingsFixture extends Fixture
         $this->addSetting($manager, 'lan.seatmap.enabled', true);
 
         $this->addSetting($manager, 'lan.tourney.enabled', true);
+        $this->addSetting($manager, 'lan.tourney.text', 'Unsere großartigen Turniere. Es gibt auch ganz <i>tolle</i> Preise, versprochen!');
+        $this->addSetting($manager, 'lan.tourney.registration_open', true);
 
         $manager->flush();
     }

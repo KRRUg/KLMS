@@ -57,6 +57,7 @@ class SettingService
 
         'lan.tourney.enabled' => [self::TB_DESCRIPTION => 'Tourney einschalten', self::TB_TYPE => self::TB_TYPE_BOOL],
         'lan.tourney.text' => [self::TB_DESCRIPTION => 'Tourney Einleitungstext', self::TB_TYPE => self::TB_TYPE_HTML],
+        'lan.tourney.registration_open' => [self::TB_DESCRIPTION => 'Registrierung freigeschalten', self::TB_TYPE => self::TB_TYPE_BOOL],
 
         'style.logo' => [self::TB_DESCRIPTION => 'Logo', self::TB_TYPE => self::TB_TYPE_FILE],
         'style.bg_image' => [self::TB_DESCRIPTION => 'Hintergrundbild', self::TB_TYPE => self::TB_TYPE_FILE],

@@ -1,0 +1,26 @@
+<div class="card mb-3 {% if registered %}registered{% endif %}">
+    <div class="card-header">
+        <h4 class="mb-0">
+        <button class="btn btn-block d-flex justify-content-between align-items-center" type="button" data-toggle="collapse" data-target="#collapse{{ tourney.id }}">
+            {{ tourney.name }}
+            {% if registered %}
+            <i class="fa-solid fa-gamepad {% if pending %}text-primary fa-beat-fade{% endif %} fa-2xl"></i>
+            {% endif %}
+        </button>
+        </h4>
+    </div>
+    <div class="collapse" id="collapse{{ tourney.id }}">
+        <div class="card-body">
+{#            {% if tourney.rules is not empty %}#}
+{#                <b>Regeln:</b> #}
+{#            {% endif %}#}
+{#            {% if tourney.maxseats is not null %}#}
+{#                <b>Plätze vergeben:</b> #}
+{#            {% endif %}#}
+            <p><b>Modus:</b> {{ tourney.mode == 'de' ? "double elimination" : "single elemination" }}</p>
+            {% if tourney.description is not empty %}
+                <p><b>Beschreibung:</b> {{ tourney.description | raw }}</p>
+            {% endif %}
+        </div>
+    </div>
+</div>

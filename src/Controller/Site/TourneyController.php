@@ -4,6 +4,8 @@ namespace App\Controller\Site;
 
 use App\Entity\Tourney;
 use App\Entity\TourneyGame;
+use App\Service\GamerService;
+use App\Service\SettingService;
 use App\Service\TourneyService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
@@ -12,10 +14,14 @@ use Symfony\Component\Routing\Annotation\Route;
 class TourneyController extends AbstractController
 {
     private readonly TourneyService $service;
+    private readonly GamerService $gamerService;
+    private readonly SettingService $settingService;
 
-    public function __construct(TourneyService $service)
+    public function __construct(TourneyService $service, GamerService $gamerService, SettingService $settingService)
     {
         $this->service = $service;
+        $this->gamerService = $gamerService;
+        $this->settingService = $settingService;
     }
 
     #[Route(path: '/tourney', name: 'tourney')]
@@ -23,14 +29,18 @@ class TourneyController extends AbstractController
     {
         $tourneys = $this->service->getVisibleTourneys();
         $myTourneys = [];
-        if ($this->getUser()){
-            $user = $this->getUser()->getUser();
+        $canRegister = false;
+
+        if (($user = $this->getUser())) {
+            $user = $user->getUser();
             $myTourneys = $this->service->getRegisteredTourneys($user);
+            $canRegister = $this->gamerService->gamerIsOnLan($user) && $this->settingService->get('lan.tourney.registration_open');
         }
 
         return $this->render('site/tourney/index.html.twig', [
             'tourneys' => $tourneys,
             'my_tourneys' => $myTourneys,
+            'can_register' => $canRegister,
         ]);
     }
 

@@ -206,6 +206,12 @@ class GamerService
         $this->em->flush();
     }
 
+    public function gamerIsOnLan(User $user): bool
+    {
+        $gamer = $this->getOrCreateGamer($user);
+        return !is_null($gamer->getCheckedIn());
+    }
+
     public function gamerGetStatus(User $user): UserGamer
     {
         $gamer = $this->repo->findByUser($user);

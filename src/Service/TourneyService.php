@@ -55,7 +55,7 @@ class TourneyService extends OptimalService
         return $depth($final);
     }
 
-    public function getRegisteredTourneys(User $user)
+    public function getRegisteredTourneys(User $user): array
     {
         return $this->repository->getTourneysByUser($user->getUuid());
     }

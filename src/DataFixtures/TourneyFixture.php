@@ -8,10 +8,11 @@ use App\Entity\TourneyEntryTeam;
 use App\Entity\TourneyGame;
 use App\Entity\TourneyTeamMember;
 use Doctrine\Bundle\FixturesBundle\Fixture;
+use Doctrine\Common\DataFixtures\DependentFixtureInterface;
 use Doctrine\Persistence\ObjectManager;
 use Ramsey\Uuid\Uuid;
 
-class TourneyFixture extends Fixture
+class TourneyFixture extends Fixture implements DependentFixtureInterface
 {
     public function load(ObjectManager $manager): void
     {
@@ -52,7 +53,7 @@ class TourneyFixture extends Fixture
             ->setName('Chess 2v2')
             ->setDescription('The team variant.')
             ->setHidden(false)
-            ->setOrder(2)
+            ->setOrder(3)
             ->setTeamsize(2)
             ->setMode(Tourney::MODE_SINGLE_ELIMINATION)
             ->setResultType(Tourney::RESULT_TYPE_WON_LOST)
@@ -116,11 +117,32 @@ class TourneyFixture extends Fixture
             ->addGame($n6)
         ;
 
+        $tourney2 = (new Tourney())
+            ->setName('Poker')
+            ->setDescription('Some card game.')
+            ->setHidden(true)
+            ->setOrder(2)
+            ->setTeamsize(1)
+            ->setMode(Tourney::MODE_SINGLE_ELIMINATION)
+            ->setResultType(Tourney::RESULT_TYPE_POINTS)
+            ->setAuthorId(Uuid::fromInteger(13))
+            ->setModifierId(Uuid::fromInteger(13))
+        ;
+
         $this->setReference('tourney-0', $tourney0);
         $this->setReference('tourney-1', $tourney1);
+        $this->setReference('tourney-2', $tourney2);
         $manager->persist($tourney0);
         $manager->persist($tourney1);
+        $manager->persist($tourney2);
 
         $manager->flush();
+    }
+
+    public function getDependencies(): array
+    {
+        return [
+            SettingsFixture::class,
+        ];
     }
 }
