@@ -27,14 +27,14 @@ class TourneyFixture extends Fixture
             ->setModifierId(Uuid::fromInteger(12))
         ;
 
-        $p1 = (new TourneyEntrySinglePlayer())->setPlayer(UUid::fromInteger(1));
-        $p2 = (new TourneyEntrySinglePlayer())->setPlayer(UUid::fromInteger(2));
-        $p3 = (new TourneyEntrySinglePlayer())->setPlayer(UUid::fromInteger(3));
-        $p4 = (new TourneyEntrySinglePlayer())->setPlayer(UUid::fromInteger(4));
-        $p5 = (new TourneyEntrySinglePlayer())->setPlayer(UUid::fromInteger(5));
-        $p6 = (new TourneyEntrySinglePlayer())->setPlayer(UUid::fromInteger(6));
-        $p7 = (new TourneyEntrySinglePlayer())->setPlayer(UUid::fromInteger(7));
-        $p8 = (new TourneyEntrySinglePlayer())->setPlayer(UUid::fromInteger(8));
+        $p1 = (new TourneyEntrySinglePlayer())->setGamer(UUid::fromInteger(1));
+        $p2 = (new TourneyEntrySinglePlayer())->setGamer(UUid::fromInteger(2));
+        $p3 = (new TourneyEntrySinglePlayer())->setGamer(UUid::fromInteger(3));
+        $p4 = (new TourneyEntrySinglePlayer())->setGamer(UUid::fromInteger(4));
+        $p5 = (new TourneyEntrySinglePlayer())->setGamer(UUid::fromInteger(5));
+        $p6 = (new TourneyEntrySinglePlayer())->setGamer(UUid::fromInteger(6));
+        $p7 = (new TourneyEntrySinglePlayer())->setGamer(UUid::fromInteger(7));
+        $p8 = (new TourneyEntrySinglePlayer())->setGamer(UUid::fromInteger(8));
 
         $tourney0
             ->addEntry($p1)

@@ -38,9 +38,9 @@ class TourneyEntryExtension extends AbstractExtension
         if ($entry instanceof TourneyEntryTeam) {
             return $entry->getName() ?? "";
         } elseif($entry instanceof TourneyEntrySinglePlayer) {
-            if (empty($entry->getPlayer()))
+            if (empty($entry->getGamer()))
                 return "";
-            return $this->userRepo->findOneById($entry->getPlayer())->getNickname();
+            return $this->userRepo->findOneById($entry->getGamer())->getNickname();
         }
         return "";
     }

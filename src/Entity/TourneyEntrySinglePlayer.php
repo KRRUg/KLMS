@@ -10,16 +10,16 @@ use Ramsey\Uuid\UuidInterface;
 class TourneyEntrySinglePlayer extends TourneyEntry
 {
     #[ORM\Column(type: 'uuid')]
-    private ?UuidInterface $player = null;
+    private ?UuidInterface $gamer = null;
 
-    public function getPlayer(): ?UuidInterface
+    public function getGamer(): ?UuidInterface
     {
-        return $this->player;
+        return $this->gamer;
     }
 
-    public function setPlayer(?UuidInterface $player): self
+    public function setGamer(?UuidInterface $gamer): self
     {
-        $this->player = $player;
+        $this->gamer = $gamer;
 
         return $this;
     }
