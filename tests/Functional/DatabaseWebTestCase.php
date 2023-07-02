@@ -29,7 +29,7 @@ abstract class DatabaseWebTestCase extends WebTestCase
         $this->mock = $mock;
     }
 
-    protected function login(string $user)
+    protected function login(string $user): void
     {
         $csrfToken = $this->client->getContainer()->get('security.csrf.token_manager')->getToken('authenticate');
         $this->client->request('POST', '/login', [
@@ -41,5 +41,14 @@ abstract class DatabaseWebTestCase extends WebTestCase
         $this->client->followRedirect();
         $this->assertResponseStatusCodeSame(200);
         $this->assertSelectorTextNotContains('#dropdownMenuUser', "Anmelden");
+    }
+
+    protected function logout(): void
+    {
+        $this->client->request('GET', '/logout');
+        $this->assertResponseRedirects();
+        $this->client->followRedirect();
+        $this->assertResponseStatusCodeSame(200);
+        $this->assertSelectorTextContains('#dropdownMenuUser', "Anmelden");
     }
 }
