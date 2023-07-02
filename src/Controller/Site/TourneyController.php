@@ -22,9 +22,15 @@ class TourneyController extends AbstractController
     public function index(): Response
     {
         $tourneys = $this->service->getVisibleTourneys();
+        $myTourneys = [];
+        if ($this->getUser()){
+            $user = $this->getUser()->getUser();
+            $myTourneys = $this->service->getRegisteredTourneys($user);
+        }
 
         return $this->render('site/tourney/index.html.twig', [
             'tourneys' => $tourneys,
+            'my_tourneys' => $myTourneys,
         ]);
     }
 

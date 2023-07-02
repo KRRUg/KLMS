@@ -4,6 +4,7 @@ namespace App\Service;
 
 use App\Entity\Tourney;
 use App\Entity\TourneyGame;
+use App\Entity\User;
 use App\Repository\TourneyRepository;
 use Doctrine\ORM\EntityManagerInterface;
 
@@ -52,5 +53,10 @@ class TourneyService extends OptimalService
         if (is_null($final))
             return 0;
         return $depth($final);
+    }
+
+    public function getRegisteredTourneys(User $user)
+    {
+        return $this->repository->getTourneysByUser($user->getUuid());
     }
 }

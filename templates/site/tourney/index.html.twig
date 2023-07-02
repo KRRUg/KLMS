@@ -3,22 +3,39 @@
 {% block title %}{{ settings.get('site.title') }} - Turniere{% endblock %}
 
 {% block main %}
-    <div class="container mb-5">
-        <div class="card">
-            <div class="card-body">
-                <h1 class="card-title">Turniere</h1>
-                <div class="card-text">
-                    <ul>
-                    {% for tourney in tourneys %}
-                        <li>
-                            <a href="{{ path('tourney_show', {'id' : tourney.id}) }}">
-                                {{ tourney.name }}
-                            </a>
-                        </li>
-                    {% endfor %}
-                    </ul>
-                </div>
+    <div class="container">
+        <div class="row">
+            <div class="col">
+                <h1>Turniere</h1>
+                <div>{{ settings.get('lan.tourney.text') }}</div>
             </div>
+        </div>
+        <hr>
+        <div>
+            {% if my_tourneys is not empty %}
+            <h2>Meine Turniere</h2>
+            <ul>
+            {% for tourney in my_tourneys %}
+                <li>
+                    <a class="tourney registered" href="{{ path('tourney_show', {'id' : tourney.id}) }}">
+                        {{ tourney.name }}
+                    </a>
+                </li>
+            {% endfor %}
+            </ul>
+            <h2>Andere Turniere</h2>
+            {% endif %}
+            {% for tourney in tourneys %}
+            <ul>
+                {% if tourney not in my_tourneys %}
+                    <li>
+                    <a class="tourney" href="{{ path('tourney_show', {'id' : tourney.id}) }}">
+                        {{ tourney.name }}
+                    </a>
+                    </li>
+                {% endif %}
+            </ul>
+            {% endfor %}
         </div>
     </div>
 {% endblock %}

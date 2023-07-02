@@ -56,6 +56,7 @@ class SettingService
         'lan.stats.show' => [self::TB_DESCRIPTION => 'Statistiken zur Anmeldung anzeigen', self::TB_TYPE => self::TB_TYPE_BOOL],
 
         'lan.tourney.enabled' => [self::TB_DESCRIPTION => 'Tourney einschalten', self::TB_TYPE => self::TB_TYPE_BOOL],
+        'lan.tourney.text' => [self::TB_DESCRIPTION => 'Tourney Einleitungstext', self::TB_TYPE => self::TB_TYPE_HTML],
 
         'style.logo' => [self::TB_DESCRIPTION => 'Logo', self::TB_TYPE => self::TB_TYPE_FILE],
         'style.bg_image' => [self::TB_DESCRIPTION => 'Hintergrundbild', self::TB_TYPE => self::TB_TYPE_FILE],

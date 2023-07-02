@@ -3,8 +3,11 @@
 namespace App\Repository;
 
 use App\Entity\Tourney;
+use App\Entity\TourneyEntrySinglePlayer;
+use App\Entity\TourneyEntryTeam;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
+use Ramsey\Uuid\UuidInterface;
 
 /**
  * @extends ServiceEntityRepository<Tourney>
@@ -37,5 +40,30 @@ class TourneyRepository extends ServiceEntityRepository
         if ($flush) {
             $this->getEntityManager()->flush();
         }
+    }
+
+    public function getTourneysByUser(UuidInterface $user): array
+    {
+        $sq1 = $this->_em->createQueryBuilder()
+            ->from(TourneyEntrySinglePlayer::class, 'esp')
+            ->select('IDENTITY(esp.tourney)')
+            ->where('esp.gamer = :uuid')
+            ->getDQL();
+
+        $sq2 = $this->_em->createQueryBuilder()
+            ->from(TourneyEntryTeam::class, 'tet')
+            ->select('IDENTITY(tet.tourney)')
+            ->join('tet.members', 'ttm')
+            ->where('ttm.gamer = :uuid')
+            ->getDQL();
+
+        $qb = $this->createQueryBuilder('t');
+        return $qb
+            ->orWhere($qb->expr()->in('t', $sq1))
+            ->orWhere($qb->expr()->in('t', $sq2))
+            ->setParameter('uuid', $user)
+            ->orderBy('t.order', 'ASC')
+            ->getQuery()
+            ->getResult();
     }
 }
