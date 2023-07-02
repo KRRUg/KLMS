@@ -33,6 +33,9 @@ class Tourney implements HistoryAwareEntity
     #[ORM\Column]
     private ?bool $hidden = null;
 
+    #[ORM\Column]
+    private ?int $token = null;
+
     #[ORM\Column(name: 'sort_order', nullable: true)]
     private ?int $order = null;
 
@@ -113,6 +116,18 @@ class Tourney implements HistoryAwareEntity
     public function setHidden(bool $hidden): self
     {
         $this->hidden = $hidden;
+
+        return $this;
+    }
+
+    public function getToken(): ?int
+    {
+        return $this->token;
+    }
+
+    public function setToken(?int $token): Tourney
+    {
+        $this->token = $token;
 
         return $this;
     }

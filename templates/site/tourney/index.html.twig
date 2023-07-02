@@ -14,7 +14,7 @@
         <div>
             {% if can_register %}
                 <div class="mb-3 text-right">
-                    Token <span class="badge badge-pill badge-primary p-2"><i class="fa-solid fa-coins"></i> 20/20</span>
+                    Token <span class="badge badge-pill badge-primary p-2"><i class="fa-solid fa-coins"></i> {{ token }}/{{ constant('App\\Service\\TourneyService::TOKEN_COUNT') }}</span>
                 </div>
             {% endif %}
             <div class="accordion mb-3" id="tourney-list">

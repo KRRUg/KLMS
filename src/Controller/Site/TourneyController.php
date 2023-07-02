@@ -28,16 +28,20 @@ class TourneyController extends AbstractController
     public function index(): Response
     {
         $tourneys = $this->service->getVisibleTourneys();
+
+        $token = 0;
         $myTourneys = [];
         $canRegister = false;
 
         if (($user = $this->getUser())) {
             $user = $user->getUser();
+            $token = $this->service->calculateUserToken($user);
             $myTourneys = $this->service->getRegisteredTourneys($user);
             $canRegister = $this->gamerService->gamerIsOnLan($user) && $this->settingService->get('lan.tourney.registration_open');
         }
 
         return $this->render('site/tourney/index.html.twig', [
+            'token' => $token,
             'tourneys' => $tourneys,
             'my_tourneys' => $myTourneys,
             'can_register' => $canRegister,
