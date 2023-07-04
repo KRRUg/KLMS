@@ -3,9 +3,8 @@
 namespace App\Service;
 
 use App\Entity\Tourney;
-use App\Entity\TourneyEntry;
-use App\Entity\TourneyEntrySinglePlayer;
-use App\Entity\TourneyEntryTeam;
+use App\Entity\TourneyStatus;
+use App\Entity\TourneyTeam;
 use App\Entity\TourneyGame;
 use App\Entity\User;
 use App\Exception\ServiceException;
@@ -54,6 +53,12 @@ class TourneyService extends OptimalService
         return $this->repository->getTourneysByUser($user->getUuid());
     }
 
+    public function filterTourneyByUser(User $user, array $tourneys, array &$registered, array &$can_register, array &$pending): void
+    {
+        $registered = array_intersect($this->getRegisteredTourneys($user), $tourneys);
+
+    }
+
     /**
      * @param Tourney[] $tourneys
      * @return int
@@ -78,7 +83,7 @@ class TourneyService extends OptimalService
 
     private function tryRegister(Tourney $tourney, User $user): void
     {
-        if ($tourney->isStarted()) {
+        if ($tourney->getStatus() != TourneyStatus::registration) {
             throw new ServiceException(ServiceException::CAUSE_IN_USE, 'Tourney has already started');
         }
         $tourneys = $this->getRegisteredTourneys($user);
@@ -105,21 +110,12 @@ class TourneyService extends OptimalService
         if ($tourney->isSinglePlayer()) {
             throw new ServiceException(ServiceException::CAUSE_INVALID, 'Singleplayer tourney does not have teams');
         }
-        $teams = $tourney->getEntries()->toArray();
+        $teams = $tourney->getTeams()->toArray();
         foreach ($teams as $team) {
             if (!($team instanceof TourneyEntryTeam))
                 throw new ServiceException(ServiceException::CAUSE_INCONSISTENT, 'Incorrect TourneyEntry type found');
         }
         return $teams;
-    }
-
-    public function registerForTourney(Tourney $tourney, User $user): bool
-    {
-        $this->tryRegister($tourney, $user);
-        // TODO implement me
-//        $entry = $tourney->getTeamsize() == 1
-//            ? (new TourneyEntrySinglePlayer())->setGamer($user->getUuid())
-//            : (n)
     }
 
     /* Tourney tree */

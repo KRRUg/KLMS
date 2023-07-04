@@ -42,8 +42,8 @@ class Tourney implements HistoryAwareEntity
     #[ORM\Column(name: 'sort_order', nullable: true)]
     private ?int $order = null;
 
-    #[ORM\OneToMany(mappedBy: 'tourney', targetEntity: TourneyEntry::class, orphanRemoval: true, cascade: ['persist'])]
-    private Collection $entries;
+    #[ORM\OneToMany(mappedBy: 'tourney', targetEntity: TourneyTeam::class, orphanRemoval: true, cascade: ['persist'])]
+    private Collection $teams;
 
     #[ORM\Column(type: 'string', length: 2, enumType: TourneyType::class)]
     private ?TourneyType $mode = null;
@@ -58,7 +58,7 @@ class Tourney implements HistoryAwareEntity
 
     public function __construct()
     {
-        $this->entries = new ArrayCollection();
+        $this->teams = new ArrayCollection();
         $this->games = new ArrayCollection();
     }
 
@@ -147,26 +147,26 @@ class Tourney implements HistoryAwareEntity
     }
 
     /**
-     * @return Collection<int, TourneyEntry>
+     * @return Collection<int, TourneyTeam>
      */
-    public function getEntries(): Collection
+    public function getTeams(): Collection
     {
-        return $this->entries;
+        return $this->teams;
     }
 
-    public function addEntry(TourneyEntry $team): self
+    public function addTeam(TourneyTeam $team): self
     {
-        if (!$this->entries->contains($team)) {
-            $this->entries->add($team);
+        if (!$this->teams->contains($team)) {
+            $this->teams->add($team);
             $team->setTourney($this);
         }
 
         return $this;
     }
 
-    public function removeEntry(TourneyEntry $team): self
+    public function removeTeam(TourneyTeam $team): self
     {
-        if ($this->entries->removeElement($team)) {
+        if ($this->teams->removeElement($team)) {
             // set the owning side to null (unless already changed)
             if ($team->getTourney() === $this) {
                 $team->setTourney(null);

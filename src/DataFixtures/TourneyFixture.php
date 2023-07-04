@@ -3,8 +3,8 @@
 namespace App\DataFixtures;
 
 use App\Entity\Tourney;
-use App\Entity\TourneyEntrySinglePlayer;
-use App\Entity\TourneyEntryTeam;
+use App\Entity\TourneyStatus;
+use App\Entity\TourneyTeam;
 use App\Entity\TourneyGame;
 use App\Entity\TourneyTeamMember;
 use App\Entity\TourneyType;
@@ -21,6 +21,7 @@ class TourneyFixture extends Fixture implements DependentFixtureInterface
             ->setName('Chess 1v1')
             ->setDescription('The classic.')
             ->setHidden(false)
+            ->setStatus(TourneyStatus::running)
             ->setOrder(1)
             ->setToken(10)
             ->setTeamsize(1)
@@ -30,24 +31,24 @@ class TourneyFixture extends Fixture implements DependentFixtureInterface
             ->setModifierId(Uuid::fromInteger(12))
         ;
 
-        $p1 = (new TourneyEntrySinglePlayer())->setGamer(UUid::fromInteger(1));
-        $p2 = (new TourneyEntrySinglePlayer())->setGamer(UUid::fromInteger(2));
-        $p3 = (new TourneyEntrySinglePlayer())->setGamer(UUid::fromInteger(3));
-        $p4 = (new TourneyEntrySinglePlayer())->setGamer(UUid::fromInteger(4));
-        $p5 = (new TourneyEntrySinglePlayer())->setGamer(UUid::fromInteger(5));
-        $p6 = (new TourneyEntrySinglePlayer())->setGamer(UUid::fromInteger(6));
-        $p7 = (new TourneyEntrySinglePlayer())->setGamer(UUid::fromInteger(7));
-        $p8 = (new TourneyEntrySinglePlayer())->setGamer(UUid::fromInteger(8));
+        $p1 = TourneyTeam::createTeamWithUser(UUid::fromInteger(1));
+        $p2 = TourneyTeam::createTeamWithUser(UUid::fromInteger(2));
+        $p3 = TourneyTeam::createTeamWithUser(UUid::fromInteger(3));
+        $p4 = TourneyTeam::createTeamWithUser(UUid::fromInteger(4));
+        $p5 = TourneyTeam::createTeamWithUser(UUid::fromInteger(5));
+        $p6 = TourneyTeam::createTeamWithUser(UUid::fromInteger(6));
+        $p7 = TourneyTeam::createTeamWithUser(UUid::fromInteger(7));
+        $p8 = TourneyTeam::createTeamWithUser(UUid::fromInteger(8));
 
         $tourney0
-            ->addEntry($p1)
-            ->addEntry($p2)
-            ->addEntry($p3)
-            ->addEntry($p4)
-            ->addEntry($p5)
-            ->addEntry($p6)
-            ->addEntry($p7)
-            ->addEntry($p8)
+            ->addTeam($p1)
+            ->addTeam($p2)
+            ->addTeam($p3)
+            ->addTeam($p4)
+            ->addTeam($p5)
+            ->addTeam($p6)
+            ->addTeam($p7)
+            ->addTeam($p8)
         ;
 
 
@@ -55,6 +56,7 @@ class TourneyFixture extends Fixture implements DependentFixtureInterface
             ->setName('Chess 2v2')
             ->setDescription('The team variant.')
             ->setHidden(false)
+            ->setStatus(TourneyStatus::registration)
             ->setToken(5)
             ->setOrder(3)
             ->setTeamsize(2)
@@ -64,28 +66,28 @@ class TourneyFixture extends Fixture implements DependentFixtureInterface
             ->setModifierId(Uuid::fromInteger(12))
         ;
 
-        $t1 = (new TourneyEntryTeam())
+        $t1 = (new TourneyTeam())->setName('Pro Team 1')
             ->addMember((new TourneyTeamMember())->setGamer(Uuid::fromInteger(1))->setAccepted(true))
             ->addMember((new TourneyTeamMember())->setGamer(Uuid::fromInteger(11))->setAccepted(true))
         ;
-        $t2 = (new TourneyEntryTeam())
+        $t2 = (new TourneyTeam())->setName('Pro Team 2')
             ->addMember((new TourneyTeamMember())->setGamer(Uuid::fromInteger(2))->setAccepted(true))
             ->addMember((new TourneyTeamMember())->setGamer(Uuid::fromInteger(12))->setAccepted(false))
         ;
-        $t3 = (new TourneyEntryTeam())
+        $t3 = (new TourneyTeam())->setName('Pro Team 3')
             ->addMember((new TourneyTeamMember())->setGamer(Uuid::fromInteger(3))->setAccepted(true))
             ->addMember((new TourneyTeamMember())->setGamer(Uuid::fromInteger(13))->setAccepted(false))
         ;
-        $t4 = (new TourneyEntryTeam())
+        $t4 = (new TourneyTeam())->setName('Not so Pro Team')
             ->addMember((new TourneyTeamMember())->setGamer(Uuid::fromInteger(4))->setAccepted(true))
             ->addMember((new TourneyTeamMember())->setGamer(Uuid::fromInteger(14))->setAccepted(true))
         ;
 
         $tourney1
-            ->addEntry($t1)
-            ->addEntry($t2)
-            ->addEntry($t3)
-            ->addEntry($t4)
+            ->addTeam($t1)
+            ->addTeam($t2)
+            ->addTeam($t3)
+            ->addTeam($t4)
         ;
 
         // game tree
@@ -97,18 +99,18 @@ class TourneyFixture extends Fixture implements DependentFixtureInterface
         $n5 = (new TourneyGame())->setParent($n2)->setIsChildA(true);
         $n6 = (new TourneyGame())->setParent($n2)->setIsChildA(false);
 
-        $n3->setEntryA($p1);
-        $n3->setEntryB($p2);
-        $n4->setEntryA($p3)->setScoreA(5);
-        $n4->setEntryB($p4)->setScoreB(4);
-        $n4->getParent()->setEntryB($n4->getEntryA());
+        $n3->setTeamA($p1);
+        $n3->setTeamB($p2);
+        $n4->setTeamA($p3)->setScoreA(5);
+        $n4->setTeamB($p4)->setScoreB(4);
+        $n4->getParent()->setTeamB($n4->getTeamA());
 
-        $n5->setEntryA($p5)->setScoreA(2);
-        $n5->setEntryB($p6)->setScoreB(3);
-        $n5->getParent()->setEntryA($n5->getEntryB());
+        $n5->setTeamA($p5)->setScoreA(2);
+        $n5->setTeamB($p6)->setScoreB(3);
+        $n5->getParent()->setTeamA($n5->getTeamB());
 
-        $n6->setEntryA($p7);
-        $n6->setEntryB($p8);
+        $n6->setTeamA($p7);
+        $n6->setTeamB($p8);
 
         $tourney0
             ->addGame($n0)
@@ -124,6 +126,7 @@ class TourneyFixture extends Fixture implements DependentFixtureInterface
             ->setName('Poker')
             ->setDescription('Some card game.')
             ->setHidden(true)
+            ->setStatus(TourneyStatus::created)
             ->setToken(5)
             ->setOrder(2)
             ->setTeamsize(1)

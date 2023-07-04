@@ -2,7 +2,7 @@
 
 namespace App\Twig;
 
-use App\Entity\TourneyEntry;
+use App\Entity\TourneyTeam;
 use App\Entity\TourneyEntrySinglePlayer;
 use App\Entity\TourneyEntryTeam;
 use App\Entity\User;
@@ -30,7 +30,7 @@ class TourneyEntryExtension extends AbstractExtension
         ];
     }
 
-    public function entryName(?TourneyEntry $entry): string
+    public function entryName(?TourneyTeam $entry): string
     {
         if (is_null($entry))
             return "";
