@@ -37,4 +37,8 @@ abstract class TourneyEntry
 
         return $this;
     }
+
+    abstract public function getUserUuids(): array;
+
+    abstract public function countUsers(): int;
 }

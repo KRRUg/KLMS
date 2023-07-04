@@ -33,6 +33,9 @@ class Tourney implements HistoryAwareEntity
     #[ORM\Column]
     private ?bool $hidden = null;
 
+    #[ORM\Column(enumType: TourneyStatus::class)]
+    private ?TourneyStatus $status;
+
     #[ORM\Column]
     private ?int $token = null;
 
@@ -42,19 +45,11 @@ class Tourney implements HistoryAwareEntity
     #[ORM\OneToMany(mappedBy: 'tourney', targetEntity: TourneyEntry::class, orphanRemoval: true, cascade: ['persist'])]
     private Collection $entries;
 
-    public const MODE_SINGLE_ELIMINATION = 'se';
-    public const MODE_DOUBLE_ELIMINATION = 'de';
+    #[ORM\Column(type: 'string', length: 2, enumType: TourneyType::class)]
+    private ?TourneyType $mode = null;
 
-    #[ORM\Column(type: 'string', length: 2)]
-    #[Assert\Choice(choices: [self::MODE_SINGLE_ELIMINATION, self::MODE_DOUBLE_ELIMINATION], message: 'Invalid tourney mode: {{ value }}')]
-    private ?string $mode = null;
-
-    public const RESULT_TYPE_POINTS = 'pt';
-    public const RESULT_TYPE_WON_LOST = 'wl';
-
-    #[ORM\Column(type: 'string', length: 2)]
-    #[Assert\Choice(choices: [self::RESULT_TYPE_POINTS, self::RESULT_TYPE_WON_LOST], message: 'Invalid result type: {{ value }}')]
-    private ?string $result_type = null;
+    #[ORM\Column]
+    private ?bool $show_points = null;
 
     #[ORM\OneToMany(mappedBy: 'tourney', targetEntity: TourneyGame::class, orphanRemoval: true, cascade: ['persist'])]
     private Collection $games;
@@ -108,6 +103,13 @@ class Tourney implements HistoryAwareEntity
         return $this;
     }
 
+    public function isSinglePlayer(): ?bool
+    {
+        if ($this->getTeamsize() === null)
+            return null;
+        return $this->getTeamsize() == 1;
+    }
+
     public function isHidden(): ?bool
     {
         return $this->hidden;
@@ -116,6 +118,18 @@ class Tourney implements HistoryAwareEntity
     public function setHidden(bool $hidden): self
     {
         $this->hidden = $hidden;
+
+        return $this;
+    }
+
+    public function getStatus(): ?TourneyStatus
+    {
+        return $this->status;
+    }
+
+    public function setStatus(?TourneyStatus $status): Tourney
+    {
+        $this->status = $status;
 
         return $this;
     }
@@ -162,26 +176,26 @@ class Tourney implements HistoryAwareEntity
         return $this;
     }
 
-    public function getMode(): ?string
+    public function getMode(): ?TourneyType
     {
         return $this->mode;
     }
 
-    public function setMode(string $mode): self
+    public function setMode(?TourneyType $mode): Tourney
     {
         $this->mode = $mode;
 
         return $this;
     }
 
-    public function getResultType(): ?string
+    public function getShowPoints(): ?string
     {
-        return $this->result_type;
+        return $this->show_points;
     }
 
-    public function setResultType(string $result_type): self
+    public function setShowPoints(string $show_points): self
     {
-        $this->result_type = $result_type;
+        $this->show_points = $show_points;
 
         return $this;
     }
@@ -230,6 +244,6 @@ class Tourney implements HistoryAwareEntity
 
     public function showPoints(): bool
     {
-        return $this->getResultType() == self::RESULT_TYPE_POINTS;
+        return $this->getShowPoints() == self::RESULT_TYPE_POINTS;
     }
 }

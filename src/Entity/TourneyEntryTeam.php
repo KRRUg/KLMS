@@ -12,7 +12,7 @@ class TourneyEntryTeam extends TourneyEntry
     #[ORM\Column(length: 255)]
     private ?string $name = null;
 
-    #[ORM\OneToMany(mappedBy: 'team', targetEntity: TourneyTeamMember::class, orphanRemoval: true, cascade: ['persist'])]
+    #[ORM\OneToMany(mappedBy: 'team', targetEntity: TourneyTeamMember::class, orphanRemoval: true, cascade: ['persist'], fetch: 'EAGER')]
     private Collection $members;
 
     public function __construct()
@@ -60,5 +60,15 @@ class TourneyEntryTeam extends TourneyEntry
         }
 
         return $this;
+    }
+
+    public function getUserUuids(): array
+    {
+        return array_map(fn ($m) => $m->getGamer(), $this->members->toArray());
+    }
+
+    public function countUsers(): int
+    {
+        return count($this->getMembers());
     }
 }

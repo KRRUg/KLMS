@@ -7,6 +7,7 @@ use App\Entity\TourneyEntrySinglePlayer;
 use App\Entity\TourneyEntryTeam;
 use App\Entity\TourneyGame;
 use App\Entity\TourneyTeamMember;
+use App\Entity\TourneyType;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Common\DataFixtures\DependentFixtureInterface;
 use Doctrine\Persistence\ObjectManager;
@@ -23,8 +24,8 @@ class TourneyFixture extends Fixture implements DependentFixtureInterface
             ->setOrder(1)
             ->setToken(10)
             ->setTeamsize(1)
-            ->setMode(Tourney::MODE_SINGLE_ELIMINATION)
-            ->setResultType(Tourney::RESULT_TYPE_POINTS)
+            ->setMode(TourneyType::single_elimination)
+            ->setShowPoints(true)
             ->setAuthorId(Uuid::fromInteger(12))
             ->setModifierId(Uuid::fromInteger(12))
         ;
@@ -57,8 +58,8 @@ class TourneyFixture extends Fixture implements DependentFixtureInterface
             ->setToken(5)
             ->setOrder(3)
             ->setTeamsize(2)
-            ->setMode(Tourney::MODE_SINGLE_ELIMINATION)
-            ->setResultType(Tourney::RESULT_TYPE_WON_LOST)
+            ->setMode(TourneyType::single_elimination)
+            ->setShowPoints(false)
             ->setAuthorId(Uuid::fromInteger(12))
             ->setModifierId(Uuid::fromInteger(12))
         ;
@@ -126,8 +127,8 @@ class TourneyFixture extends Fixture implements DependentFixtureInterface
             ->setToken(5)
             ->setOrder(2)
             ->setTeamsize(1)
-            ->setMode(Tourney::MODE_SINGLE_ELIMINATION)
-            ->setResultType(Tourney::RESULT_TYPE_POINTS)
+            ->setMode(TourneyType::registration_only)
+            ->setShowPoints(false)
             ->setAuthorId(Uuid::fromInteger(13))
             ->setModifierId(Uuid::fromInteger(13))
         ;

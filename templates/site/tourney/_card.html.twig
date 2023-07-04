@@ -11,9 +11,11 @@
     </div>
     <div class="collapse" id="collapse{{ tourney.id }}">
         <div class="card-body">
+            {% if can_register %}
             <div class="text-right">
                 <button class="btn btn-primary">Anmelden <span style="font-size:smaller;">(<i class="fa-solid fa-coins"></i> {{ tourney.token }})</span></button>
             </div>
+            {% endif %}
 
 {#            {% if tourney.rules is not empty %}#}
 {#                <b>Regeln:</b> #}

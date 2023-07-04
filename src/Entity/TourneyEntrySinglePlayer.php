@@ -23,4 +23,14 @@ class TourneyEntrySinglePlayer extends TourneyEntry
 
         return $this;
     }
+
+    public function getUserUuids(): array
+    {
+        return [ $this->gamer ];
+    }
+
+    public function countUsers(): int
+    {
+        return 1;
+    }
 }

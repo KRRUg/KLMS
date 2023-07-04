@@ -44,7 +44,7 @@ class TourneyRepository extends ServiceEntityRepository
 
     public function getTourneysByUser(UuidInterface $user): array
     {
-        $sq1 = $this->_em->createQueryBuilder()
+        $sq1 = $this->getEntityManager()->createQueryBuilder()
             ->from(TourneyEntrySinglePlayer::class, 'esp')
             ->select('IDENTITY(esp.tourney)')
             ->where('esp.gamer = :uuid')
