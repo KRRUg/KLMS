@@ -57,6 +57,8 @@ class TourneyController extends AbstractController
     #[Route(path: '/tourney/{id}', name: 'tourney_show')]
     public function byId(Tourney $tourney): Response
     {
+        // TODO fully fetch game (using addSelect)
+        // TODO preload all idm user of a tourney
         $final = TourneyService::getFinal($tourney);
         $array = [[$final]];
         $level = 0;

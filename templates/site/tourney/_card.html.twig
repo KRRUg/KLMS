@@ -28,6 +28,7 @@
             {% if tourney.description is not empty %}
                 <p><b>Beschreibung:</b> {{ tourney.description | raw }}</p>
             {% endif %}
+            <p><b>Tree: </b><a href="{{ path('tourney_show', {'id': tourney.id }) }}">Tree</a></p>
         </div>
     </div>
 </div>

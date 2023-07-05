@@ -19,12 +19,22 @@
                                     <div class="match">
                                         <div class="teams">
                                             <div class="team {{ game.hasWon(true) ? 'winner' : '' }}">
-                                                <span class="team-name">{{ game.entryA() | entryName }}</span>
-                                                <span class="team-score">{{ tourney.showPoints() ? (game.scoreA() ?? '') : '' }}</span>
+                                                {% if game.teamA is not null %}
+                                                    <span class="team-name">{{ game.teamA.name | default(game.teamA.members[0].gamer | username)  }}</span>
+                                                    <span class="team-score">{{ tourney.showPoints ? (game.scoreA() ?? '') : '' }}</span>
+                                                {% else %}
+                                                    <span class="team-name"></span>
+                                                    <span class="team-score"></span>
+                                                {% endif %}
                                             </div>
                                             <div class="team {{ game.hasWon(false) ? 'winner' : '' }}">
-                                                <span class="team-name">{{ game.entryB() | entryName }}</span>
-                                                <span class="team-score">{{ tourney.showPoints() ? (game.scoreB() ?? '') : '' }}</span>
+                                                {% if game.teamB is not null %}
+                                                    <span class="team-name">{{ game.teamB.name | default(game.teamB.members[0].gamer | username)  }}</span>
+                                                    <span class="team-score">{{ tourney.showPoints ? (game.scoreB() ?? '') : '' }}</span>
+                                                {% else %}
+                                                    <span class="team-name"></span>
+                                                    <span class="team-score"></span>
+                                                {% endif %}
                                             </div>
                                         </div>
                                     </div>
