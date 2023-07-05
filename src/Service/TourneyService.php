@@ -4,13 +4,14 @@ namespace App\Service;
 
 use App\Entity\Tourney;
 use App\Entity\TourneyStatus;
-use App\Entity\TourneyTeam;
 use App\Entity\TourneyGame;
 use App\Entity\User;
 use App\Exception\ServiceException;
 use App\Repository\TourneyGameRepository;
 use App\Repository\TourneyRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\ORM\NonUniqueResultException;
+use Doctrine\ORM\NoResultException;
 
 class TourneyService extends OptimalService
 {
@@ -49,6 +50,15 @@ class TourneyService extends OptimalService
     public function getVisibleTourneys(): array
     {
         return $this->repository->findBy(['hidden' => false], ['order' => 'asc']);
+    }
+
+    public function getTourneyWithTeams(int $id): ?Tourney
+    {
+        try {
+            return $this->repository->getTourneyWithTeams($id);
+        } catch (NoResultException|NonUniqueResultException){
+            return null;
+        }
     }
 
     /**
@@ -156,5 +166,16 @@ class TourneyService extends OptimalService
         if (is_null($final))
             return 0;
         return $depth($final);
+    }
+
+    public function getAllUsersOfTourney(Tourney $tourney): array
+    {
+        $result = array();
+        foreach ($tourney->getTeams() as $team) {
+            foreach ($team->getMembers() as $member) {
+                $result[] = $member->getGamer();
+            }
+        }
+        return array_filter($result, fn($u) => !is_null($u));
     }
 }

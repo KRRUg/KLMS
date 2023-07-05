@@ -5,6 +5,8 @@ namespace App\Repository;
 use App\Entity\Tourney;
 use App\Entity\TourneyTeam;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\NonUniqueResultException;
+use Doctrine\ORM\NoResultException;
 use Doctrine\Persistence\ManagerRegistry;
 use Ramsey\Uuid\UuidInterface;
 
@@ -39,6 +41,23 @@ class TourneyRepository extends ServiceEntityRepository
         if ($flush) {
             $this->getEntityManager()->flush();
         }
+    }
+
+    /**
+     * @throws NonUniqueResultException
+     * @throws NoResultException
+     */
+    public function getTourneyWithTeams(int $id): Tourney
+    {
+        return $this->createQueryBuilder('t')
+            ->where('t.id = :id')
+            ->leftJoin('t.teams', 'tt')
+            ->leftJoin('tt.members', 'ttm')
+            ->addSelect('tt')
+            ->addSelect('ttm')
+            ->setParameter('id', $id)
+            ->getQuery()
+            ->getSingleResult();
     }
 
     public function getTourneysByUser(UuidInterface $user): array

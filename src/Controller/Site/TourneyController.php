@@ -2,25 +2,23 @@
 
 namespace App\Controller\Site;
 
-use App\Entity\Tourney;
 use App\Entity\TourneyGame;
-use App\Service\GamerService;
-use App\Service\SettingService;
 use App\Service\TourneyService;
+use App\Service\UserService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Annotation\Route;
 
 class TourneyController extends AbstractController
 {
     private readonly TourneyService $service;
-    private readonly GamerService $gamerService;
-    private readonly SettingService $settingService;
+    private readonly UserService $userService;
 
-    public function __construct(TourneyService $service, GamerService $gamerService, SettingService $settingService)
+    public function __construct(TourneyService $service, UserService $userService)
     {
         $this->service = $service;
-        $this->settingService = $settingService;
+        $this->userService = $userService;
     }
 
     #[Route(path: '/tourney', name: 'tourney')]
@@ -55,10 +53,16 @@ class TourneyController extends AbstractController
     }
 
     #[Route(path: '/tourney/{id}', name: 'tourney_show')]
-    public function byId(Tourney $tourney): Response
+    public function byId(int $id): Response
     {
-        // TODO fully fetch game (using addSelect)
-        // TODO preload all idm user of a tourney
+        $tourney = $this->service->getTourneyWithTeams($id);
+        if (is_null($tourney)) {
+            throw new NotFoundHttpException();
+        }
+
+        $gamers = $this->service->getAllUsersOfTourney($tourney);
+        $this->userService->preloadUsers($gamers);
+
         $final = TourneyService::getFinal($tourney);
         $array = [[$final]];
         $level = 0;
