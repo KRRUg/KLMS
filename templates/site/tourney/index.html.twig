@@ -12,18 +12,23 @@
         </div>
         <hr />
         <div>
-            {% if can_register %}
+            {% set is_registered = is_registered | default([]) %}
+            {% set can_register = can_register | default([]) %}
+            {% set is_pending = is_pending | default([]) %}
+            {% if token | default(null) is not empty %}
                 <div class="mb-3 text-right">
                     Token <span class="badge badge-pill badge-primary p-2"><i class="fa-solid fa-coins"></i> {{ token }}/{{ constant('App\\Service\\TourneyService::TOKEN_COUNT') }}</span>
                 </div>
             {% endif %}
             <div class="accordion mb-3" id="tourney-list">
-            {% for tourney in my_tourneys %}
-                {% include 'site/tourney/_card.html.twig' with {'tourney' : tourney, 'registered' : true, 'pending' : false} %}
+            {% for tourney in is_registered %}
+                {% set pending = tourney in is_pending %}
+                {% include 'site/tourney/_card.html.twig' with {'tourney' : tourney, 'registered' : true, 'pending' : pending, 'registerable': false } %}
             {% endfor %}
             {% for tourney in tourneys %}
-                {% if tourney not in my_tourneys %}
-                    {% include 'site/tourney/_card.html.twig' with {'tourney' : tourney, 'registered' : false, 'pending' : false} %}
+                {% if tourney not in is_registered %}
+                    {% set registerable = tourney in can_register %}
+                    {% include 'site/tourney/_card.html.twig' with {'tourney' : tourney, 'registered' : false, 'pending' : false, 'registerable': registerable } %}
                 {% endif %}
             {% endfor %}
             </div>

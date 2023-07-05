@@ -4,11 +4,9 @@ namespace App\Repository;
 
 use App\Entity\TourneyGame;
 use App\Entity\TourneyTeam;
-use App\Entity\TourneyTeamMember;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 use Ramsey\Uuid\UuidInterface;
-use function Doctrine\ORM\QueryBuilder;
 
 /**
  * @extends ServiceEntityRepository<TourneyGame>
@@ -43,14 +41,22 @@ class TourneyGameRepository extends ServiceEntityRepository
         }
     }
 
-    public function getPendingGamesByUser(UuidInterface $user): array
+    public function findPendingGamesByUser(UuidInterface $user): array
     {
+        // TODO join the two fields with custom join with or
+
         // all teams of user
-        $sq = $this->getEntityManager()->createQueryBuilder()
-            ->select('IDENTITY(tt)')
-            ->from(TourneyTeam::class, 'tt')
-            ->join('tt.members', 'ttm')
-            ->where('ttm.gamer = :uuid')
+        $sq1 = $this->_em->createQueryBuilder()
+            ->from(TourneyTeam::class, 'tt1')
+            ->select('tt1')
+            ->join('tt1.members', 'ttm1')
+            ->where('ttm1.gamer = :uuid')
+            ->getDQL();
+        $sq2 = $this->_em->createQueryBuilder()
+            ->from(TourneyTeam::class, 'tt2')
+            ->select('tt2')
+            ->join('tt2.members', 'ttm2')
+            ->where('ttm2.gamer = :uuid')
             ->getDQL();
 
         $qb = $this->createQueryBuilder('g');
@@ -58,9 +64,10 @@ class TourneyGameRepository extends ServiceEntityRepository
             // score is not (fully) set
             ->andWhere($qb->expr()->orX($qb->expr()->isNull('g.scoreA'), $qb->expr()->isNull('g.scoreB')))
             // and both teams are set
-            ->andWhere($qb->expr()->andX($qb->expr()->isNotNull('g.entryA'), $qb->expr()->isNotNull('g.entryB')))
+            ->andWhere($qb->expr()->andX($qb->expr()->isNotNull('g.teamA'), $qb->expr()->isNotNull('g.teamB')))
             // and one team is user's team
-            ->andWhere($qb->expr()->orX($qb->expr()->in('g.teamA', $sq), $qb->expr()->in('g.teamB', $sq)))
+            ->andWhere($qb->expr()->orX($qb->expr()->in('g.teamA', $sq1), $qb->expr()->in('g.teamB', $sq2)))
+            //->andWhere($qb->expr()->in('g.teamA', $sq))
             ->setParameter('uuid', $user)
             ->getQuery()
             ->getArrayResult()

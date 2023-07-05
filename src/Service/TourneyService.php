@@ -8,6 +8,7 @@ use App\Entity\TourneyTeam;
 use App\Entity\TourneyGame;
 use App\Entity\User;
 use App\Exception\ServiceException;
+use App\Repository\TourneyGameRepository;
 use App\Repository\TourneyRepository;
 use Doctrine\ORM\EntityManagerInterface;
 
@@ -15,17 +16,23 @@ class TourneyService extends OptimalService
 {
     private readonly EntityManagerInterface $em;
     private readonly TourneyRepository $repository;
+    private readonly TourneyGameRepository $gameRepository;
     private readonly SettingService $settings;
+    private readonly GamerService $gamerService;
 
     // TODO remove unnecessary Tourney repositories
     public function __construct(
         TourneyRepository $repository,
+        TourneyGameRepository $gameRepository,
         SettingService $settings,
+        GamerService $gamerService,
         EntityManagerInterface $em,
     ) {
         parent::__construct($settings);
         $this->repository = $repository;
+        $this->gameRepository = $gameRepository;
         $this->settings = $settings;
+        $this->gamerService = $gamerService;
         $this->em = $em;
     }
 
@@ -53,12 +60,6 @@ class TourneyService extends OptimalService
         return $this->repository->getTourneysByUser($user->getUuid());
     }
 
-    public function filterTourneyByUser(User $user, array $tourneys, array &$registered, array &$can_register, array &$pending): void
-    {
-        $registered = array_intersect($this->getRegisteredTourneys($user), $tourneys);
-
-    }
-
     /**
      * @param Tourney[] $tourneys
      * @return int
@@ -79,43 +80,59 @@ class TourneyService extends OptimalService
         return max(0, $this->calcRemainingToken($this->getRegisteredTourneys($user)));
     }
 
+    public function getPendingGames(User $user): array
+    {
+        return $this->gameRepository->findPendingGamesByUser($user->getUuid());
+    }
+
     /* Tourney registration */
 
-    private function tryRegister(Tourney $tourney, User $user): void
+    public function userMayRegister(User $user): bool
     {
-        if ($tourney->getStatus() != TourneyStatus::registration) {
-            throw new ServiceException(ServiceException::CAUSE_IN_USE, 'Tourney has already started');
-        }
-        $tourneys = $this->getRegisteredTourneys($user);
-        if (in_array($tourney, $tourneys)) {
-            throw new ServiceException(ServiceException::CAUSE_EXIST, 'User is already registered.');
-        }
-        if ($tourney->getToken() > $this->calcRemainingToken($tourneys)) {
-            throw new ServiceException(ServiceException::CAUSE_EMPTY, 'User has not enough tokens left.');
-        }
+        return $this->gamerService->gamerIsOnLan($user) && $this->settings->get(self::SETTING_PREFIX.'registration_open');
+    }
+
+    public function getRegistrableTourneys($user): array
+    {
+        if (!$this->userMayRegister($user))
+            return [];
+
+        $registeredTourneys = $this->getRegisteredTourneys($user);
+        $token = $this->calcRemainingToken($registeredTourneys);
+        $filter = function (Tourney $tourney) use ($registeredTourneys, $token) {
+            try {
+                $this->tryRegister($tourney, $registeredTourneys, $token);
+                return true;
+            } catch (ServiceException) {
+                return false;
+            }
+        };
+        return array_filter($this->getVisibleTourneys(), $filter);
     }
 
     public function userCanRegisterForTourney(Tourney $tourney, User $user): bool
     {
+        $registered = $this->getRegisteredTourneys($user);
         try {
-            $this->tryRegister($tourney, $user);
+            $this->tryRegister($tourney, $registered);
             return true;
         } catch (ServiceException) {
             return false;
         }
     }
 
-    public function getTourneyTeams(Tourney $tourney): array
+    private function tryRegister(Tourney $tourney, array $registeredTourneys, ?int $availToken = null): void
     {
-        if ($tourney->isSinglePlayer()) {
-            throw new ServiceException(ServiceException::CAUSE_INVALID, 'Singleplayer tourney does not have teams');
+        $availToken ??= $this->calcRemainingToken($registeredTourneys);
+        if ($tourney->getStatus() != TourneyStatus::registration) {
+            throw new ServiceException(ServiceException::CAUSE_IN_USE, 'Tourney registration is not open');
         }
-        $teams = $tourney->getTeams()->toArray();
-        foreach ($teams as $team) {
-            if (!($team instanceof TourneyEntryTeam))
-                throw new ServiceException(ServiceException::CAUSE_INCONSISTENT, 'Incorrect TourneyEntry type found');
+        if (in_array($tourney, $registeredTourneys)) {
+            throw new ServiceException(ServiceException::CAUSE_EXIST, 'User is already registered.');
         }
-        return $teams;
+        if ($tourney->getToken() > $availToken) {
+            throw new ServiceException(ServiceException::CAUSE_EMPTY, 'User has not enough tokens left.');
+        }
     }
 
     /* Tourney tree */

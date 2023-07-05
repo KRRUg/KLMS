@@ -20,7 +20,6 @@ class TourneyController extends AbstractController
     public function __construct(TourneyService $service, GamerService $gamerService, SettingService $settingService)
     {
         $this->service = $service;
-        $this->gamerService = $gamerService;
         $this->settingService = $settingService;
     }
 
@@ -29,23 +28,30 @@ class TourneyController extends AbstractController
     {
         $tourneys = $this->service->getVisibleTourneys();
 
-        $token = 0;
-        $myTourneys = [];
-        $canRegister = false;
-
         if (($user = $this->getUser())) {
             $user = $user->getUser();
-            $token = $this->service->calculateUserToken($user);
-            $myTourneys = $this->service->getRegisteredTourneys($user);
-            $canRegister = $this->gamerService->gamerIsOnLan($user) && $this->settingService->get('lan.tourney.registration_open');
-        }
 
-        return $this->render('site/tourney/index.html.twig', [
-            'token' => $token,
-            'tourneys' => $tourneys,
-            'my_tourneys' => $myTourneys,
-            'can_register' => $canRegister,
-        ]);
+            $isRegistered = $this->service->getRegisteredTourneys($user);
+            if ($this->service->userMayRegister($user)) {
+                $token = $this->service->calculateUserToken($user);
+                $canRegister = $this->service->getRegistrableTourneys($user);
+            } else {
+                $token = $canRegister = null;
+            }
+            $pendingTourneys = array_map(fn ($g) => $g->getTourney(), $this->service->getPendingGames($user));
+
+            return $this->render('site/tourney/index.html.twig', [
+                'tourneys' => $tourneys,
+                'token' => $token,
+                'is_registered' => $isRegistered,
+                'can_register' => $canRegister,
+                'is_pending' => $pendingTourneys,
+            ]);
+        } else {
+            return $this->render('site/tourney/index.html.twig', [
+                'tourneys' => $tourneys,
+            ]);
+        }
     }
 
     #[Route(path: '/tourney/{id}', name: 'tourney_show')]
