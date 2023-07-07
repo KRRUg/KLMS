@@ -11,6 +11,7 @@ use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
 use Symfony\Component\Form\FormInterface;
@@ -30,11 +31,14 @@ class TourneyController extends AbstractController
         $this->userService = $userService;
     }
 
+    private function createNamedFormBuilder(string $name): FormBuilderInterface
+    {
+        return $this->container->get('form.factory')->createNamedBuilder($name);
+    }
+
     private function generateFormRegistrationCreate(): FormInterface
     {
-        $formFactory = $this->get('form.factory');
-        $fb = $formFactory->createNamedBuilder('form_create');
-        return $fb
+        return $this->createNamedFormBuilder('form_create')
             ->add('id', HiddenType::class, ['required' => true])
             ->add('create', HiddenType::class, ['required' => true, 'mapped' => false])
             ->add('name', TextType::class, ['label' => 'Name', 'required' => true])
@@ -44,16 +48,14 @@ class TourneyController extends AbstractController
 
     private function generateFormRegistrationJoin(): FormInterface
     {
-        $formFactory = $this->get('form.factory');
-        $fb = $formFactory->createNamedBuilder('form_join');
-
-        $fun = function (FormInterface $form, mixed $data): void {
+        $fun = function (FormEvent $event): void {
+            $data = $event->getForm()->getData() ?? $event->getData();
             if (is_null($data) || !isset($data['id']) || !is_numeric($data['id']))
                 return;
             $tourney = $this->service->getTourneyWithTeams(intval($data['id']));
             if (is_null($tourney))
                 return;
-            $form
+            $event->getForm()
                 ->remove('team')
                 ->add('team', ChoiceType::class, [
                     'label' => 'Team', 'required' => true, 'multiple' => false,
@@ -64,21 +66,19 @@ class TourneyController extends AbstractController
                 ]);
         };
 
-        return $fb
+        return $this->createNamedFormBuilder('form_join')
             ->add('id', HiddenType::class, ['required' => true])
             ->add('join', HiddenType::class, ['required' => true, 'mapped' => false])
             ->add('submit', SubmitType::class, ['label' => 'Beitreten'])
             ->add('team', ChoiceType::class)
-            ->addEventListener(FormEvents::POST_SET_DATA, fn(FormEvent $event) => $fun($event->getForm(), $event->getForm()->getData()))
-            ->addEventListener(FormEvents::PRE_SUBMIT, fn(FormEvent $event) => $fun($event->getForm(), $event->getData()))
+            ->addEventListener(FormEvents::POST_SET_DATA, $fun)
+            ->addEventListener(FormEvents::PRE_SUBMIT, $fun)
             ->getForm();
     }
 
     private function generateFormRegistrationSinglePlayer(): FormInterface
     {
-        $formFactory = $this->get('form.factory');
-        $fb = $formFactory->createNamedBuilder('form_sp');
-        return $fb
+        return $this->createNamedFormBuilder('form_sp')
             ->add('id', HiddenType::class, ['required' => true])
             ->add('sp', HiddenType::class, ['required' => true, 'mapped' => false])
             ->add('submit', SubmitType::class, ['label' => 'Teilnehmen'])
@@ -91,7 +91,7 @@ class TourneyController extends AbstractController
         foreach (array($this->generateFormRegistrationSinglePlayer(),
                        $this->generateFormRegistrationCreate(),
                        $this->generateFormRegistrationJoin(),
-                 ) as $k => $form) {
+                 ) as $form) {
             if (!$request->request->has($form->getName()))
                 continue;
             $form->handleRequest($request);
