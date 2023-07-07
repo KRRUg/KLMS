@@ -64,4 +64,9 @@ class TourneyTeamMember
 
         return $this;
     }
+
+    public static function create(?UuidInterface $uuid): self
+    {
+        return (new self())->setAccepted(false)->setGamer($uuid);
+    }
 }

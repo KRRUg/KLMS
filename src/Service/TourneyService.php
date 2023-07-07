@@ -5,6 +5,8 @@ namespace App\Service;
 use App\Entity\Tourney;
 use App\Entity\TourneyStatus;
 use App\Entity\TourneyGame;
+use App\Entity\TourneyTeam;
+use App\Entity\TourneyTeamMember;
 use App\Entity\User;
 use App\Exception\ServiceException;
 use App\Repository\TourneyGameRepository;
@@ -129,6 +131,23 @@ class TourneyService extends OptimalService
         } catch (ServiceException) {
             return false;
         }
+    }
+
+    public function userRegister(Tourney $tourney, User $user, TourneyTeam|string|null $team): void
+    {
+        $registered = $this->getRegisteredTourneys($user);
+        $this->tryRegister($tourney, $registered);
+
+        if ($tourney->isSinglePlayer()) {
+            $tourney->addTeam(TourneyTeam::createTeamWithUser($user->getUuid()));
+        } else {
+            if ($team instanceof TourneyTeam)
+                $team->addMember(TourneyTeamMember::create($user->getUuid()));
+            else
+                $tourney->addTeam(TourneyTeam::createTeamWithUser($user->getUuid(), $team));
+        }
+        $this->em->persist($tourney);
+        $this->em->flush();
     }
 
     private function tryRegister(Tourney $tourney, array $registeredTourneys, ?int $availToken = null): void
