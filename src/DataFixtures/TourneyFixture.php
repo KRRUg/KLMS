@@ -72,7 +72,6 @@ class TourneyFixture extends Fixture implements DependentFixtureInterface
         ;
         $t2 = (new TourneyTeam())->setName('Pro Team 2')
             ->addMember((new TourneyTeamMember())->setGamer(Uuid::fromInteger(2))->setAccepted(true))
-            ->addMember((new TourneyTeamMember())->setGamer(Uuid::fromInteger(12))->setAccepted(false))
         ;
         $t3 = (new TourneyTeam())->setName('Pro Team 3')
             ->addMember((new TourneyTeamMember())->setGamer(Uuid::fromInteger(3))->setAccepted(true))
@@ -80,7 +79,6 @@ class TourneyFixture extends Fixture implements DependentFixtureInterface
         ;
         $t4 = (new TourneyTeam())->setName('Not so Pro Team')
             ->addMember((new TourneyTeamMember())->setGamer(Uuid::fromInteger(4))->setAccepted(true))
-            ->addMember((new TourneyTeamMember())->setGamer(Uuid::fromInteger(14))->setAccepted(true))
         ;
 
         $tourney1

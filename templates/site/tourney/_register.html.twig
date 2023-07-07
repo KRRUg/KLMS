@@ -1,0 +1,34 @@
+<div class="text-right collapse show registration-{{ tourney.id }}" style="transition: none">
+    <button class="btn btn-primary" type="button" data-toggle="collapse" data-target=".registration-{{ tourney.id }}">Anmelden <span style="font-size:smaller;">(<i class="fa-solid fa-coins"></i> {{ tourney.token }})</span></button>
+</div>
+<div class="collapse registration-{{ tourney.id }} box box-body container-fluid" style="transition: none">
+    {% if tourney.singlePlayer %}
+        {{ form_start(fc) }}
+        <span>Wirklich teilnehmen?</span><br>
+        {{ form_widget(fc.submit, { 'attr': {'class': 'btn btn-primary btn-sm'}}) }}
+        <a class="btn btn-secondary btn-sm" data-toggle="collapse" href=".registration-{{ tourney.id }}">Abbrechen</a>
+        {{ form_end(fc) }}
+    {% else %}
+        <div class="row">
+            {# FIXME form inline is breaking on smaller display sizes #}
+            {# FIXME remove boarder on smaller than md #}
+            <div class="col-md-5 border-right">
+                Existierendem Team beitreten
+                {{ form_start(fj, { 'attr': {'class': 'form-inline'}}) }}
+                {{ form_widget(fj.team, { 'attr': {'class': 'form-control-sm flex-fill'}}) }}
+                {{ form_widget(fj.submit, { 'attr': {'class': 'btn btn-primary btn-sm'}}) }}
+                {{ form_end(fj) }}
+            </div>
+            <div class="col-md-5 border-right">
+                Neues Team ertellen
+                {{ form_start(fc, { 'attr': {'class': 'form-inline'}}) }}
+                {{ form_widget(fc.name, { 'attr': {'class': 'form-control-sm flex-fill'}}) }}
+                {{ form_widget(fc.submit, { 'attr': {'class': 'btn btn-primary btn-sm'}}) }}
+                {{ form_end(fc) }}
+            </div>
+            <div class="col-md-2 d-flex justify-content-around align-items-end">
+                <a class="btn btn-secondary btn-sm" data-toggle="collapse" href=".registration-{{ tourney.id }}">Abbrechen</a>
+            </div>
+        </div>
+    {% endif %}
+</div>

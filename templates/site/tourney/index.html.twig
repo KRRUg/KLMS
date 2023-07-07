@@ -17,7 +17,7 @@
             {% set is_pending = is_pending | default([]) %}
             {% if token | default(null) is not empty %}
                 <div class="mb-3 text-right">
-                    Token <span class="badge badge-pill badge-primary p-2"><i class="fa-solid fa-coins"></i> {{ token }}/{{ constant('App\\Service\\TourneyService::TOKEN_COUNT') }}</span>
+                    Token <span class="badge badge-pill {{ token > 0 ? 'badge-primary' : 'badge-secondary' }} p-2"><i class="fa-solid fa-coins"></i> {{ token }}/{{ constant('App\\Service\\TourneyService::TOKEN_COUNT') }}</span>
                 </div>
             {% endif %}
             <div class="accordion mb-3" id="tourney-list">
@@ -34,4 +34,9 @@
             </div>
         </div>
     </div>
+    <script>
+        if (location.hash !== null && location.hash !== "") {
+            document.querySelector(location.hash).querySelector('.collapse').classList.add('show');
+        }
+    </script>
 {% endblock %}

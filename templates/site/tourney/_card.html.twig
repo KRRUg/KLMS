@@ -1,7 +1,7 @@
-<div class="card mb-3 {% if registered %}registered{% endif %}">
+<div class="card mb-3 {% if registered %}registered{% endif %}" id="tourney-{{ tourney.id }}">
     <div class="card-header">
         <h4 class="mb-0">
-        <button class="btn btn-block d-flex justify-content-between align-items-center" type="button" data-toggle="collapse" data-target="#collapse{{ tourney.id }}">
+        <button class="btn btn-block d-flex justify-content-between align-items-center" type="button" data-toggle="collapse" data-target="#collapse-{{ tourney.id }}">
             {{ tourney.name }}
             {% if registered %}
             <i class="fa-solid fa-gamepad {% if pending %}text-primary fa-beat-fade{% endif %} fa-2xl"></i>
@@ -9,15 +9,12 @@
         </button>
         </h4>
     </div>
-    <div class="collapse" id="collapse{{ tourney.id }}">
+    <div class="collapse" id="collapse-{{ tourney.id }}">
         <div class="card-body">
-            {% if registerable %}
-            <div class="text-right">
-                <button class="btn btn-primary">Anmelden <span style="font-size:smaller;">(<i class="fa-solid fa-coins"></i> {{ tourney.token }})</span></button>
-            </div>
-            {% endif %}
-            <p><b>Status:</b> {{ tourney.status.message }}</p>
+            {% if registerable %}{% include 'site/tourney/_register.html.twig' with {fc : form_create[tourney.id], fj : form_join[tourney.id] } %}{% endif %}
+            {% if registered %}{% include 'site/tourney/_registered.html.twig' %}{% endif %}
 
+            <p><b>Status:</b> {{ tourney.status.message }}</p>
 {#            {% if tourney.rules is not empty %}#}
 {#                <b>Regeln:</b> #}
 {#            {% endif %}#}
