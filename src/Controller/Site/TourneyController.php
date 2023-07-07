@@ -21,6 +21,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Validator\Constraints as Assert;
 
 class TourneyController extends AbstractController
 {
@@ -55,7 +56,7 @@ class TourneyController extends AbstractController
     {
         return $this->createNamedFormBuilder('form_create')
             ->add('id', HiddenType::class, ['required' => true])
-            ->add('name', TextType::class, ['label' => 'Name', 'required' => true])
+            ->add('name', TextType::class, ['label' => 'Name', 'required' => true, 'constraints' => [new Assert\NotBlank()]])
             ->add('submit', SubmitType::class, ['label' => 'Erstellen'])
             ->getForm();
     }
@@ -126,6 +127,7 @@ class TourneyController extends AbstractController
                     ServiceException::CAUSE_IN_USE => 'Turnier registrierung ist nicht (mehr) offen.',
                     ServiceException::CAUSE_EXIST => 'User ist bereits registriert.',
                     ServiceException::CAUSE_EMPTY => 'User hat nicht genug Token',
+                    ServiceException::CAUSE_INVALID => 'Teamname existiert schon.',
                     default => 'unbekannter Fehler.'
                 }
             );

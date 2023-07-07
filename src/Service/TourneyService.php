@@ -11,6 +11,7 @@ use App\Entity\User;
 use App\Exception\ServiceException;
 use App\Repository\TourneyGameRepository;
 use App\Repository\TourneyRepository;
+use App\Repository\TourneyTeamRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\ORM\NoResultException;
@@ -22,11 +23,12 @@ class TourneyService extends OptimalService
     private readonly TourneyGameRepository $gameRepository;
     private readonly SettingService $settings;
     private readonly GamerService $gamerService;
+    private readonly TourneyTeamRepository $teamRepository;
 
-    // TODO remove unnecessary Tourney repositories
     public function __construct(
         TourneyRepository $repository,
         TourneyGameRepository $gameRepository,
+        TourneyTeamRepository $teamRepository,
         SettingService $settings,
         GamerService $gamerService,
         EntityManagerInterface $em,
@@ -34,6 +36,7 @@ class TourneyService extends OptimalService
         parent::__construct($settings);
         $this->repository = $repository;
         $this->gameRepository = $gameRepository;
+        $this->teamRepository = $teamRepository;
         $this->settings = $settings;
         $this->gamerService = $gamerService;
         $this->em = $em;
@@ -133,6 +136,11 @@ class TourneyService extends OptimalService
         }
     }
 
+    private function teamnameTaken(string $name): bool
+    {
+        return $this->teamRepository->count(['name' => $name]) > 0;
+    }
+
     public function userRegister(Tourney $tourney, User $user, TourneyTeam|string|null $team): void
     {
         $registered = $this->getRegisteredTourneys($user);
@@ -141,10 +149,17 @@ class TourneyService extends OptimalService
         if ($tourney->isSinglePlayer()) {
             $tourney->addTeam(TourneyTeam::createTeamWithUser($user->getUuid()));
         } else {
-            if ($team instanceof TourneyTeam)
+            if ($team instanceof TourneyTeam) {
+                if ($team->countUsers() >= $tourney->getTeamsize()) {
+                    throw new ServiceException(ServiceException::CAUSE_FULL, 'Team is already full');
+                }
                 $team->addMember(TourneyTeamMember::create($user->getUuid()));
-            else
+            } else {
+                if ($this->teamnameTaken($team)) {
+                    throw new ServiceException(ServiceException::CAUSE_INVALID, 'Teamname already exists');
+                }
                 $tourney->addTeam(TourneyTeam::createTeamWithUser($user->getUuid(), $team));
+            }
         }
         $this->em->persist($tourney);
         $this->em->flush();

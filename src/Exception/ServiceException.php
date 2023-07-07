@@ -13,6 +13,7 @@ class ServiceException extends RuntimeException
     final public const CAUSE_EXIST = 'already_exists';
     final public const CAUSE_INVALID = 'invalid';
     final public const CAUSE_INCONSISTENT = 'inconsistent';
+    final public const CAUSE_FULL = 'full';
 
     private readonly string $cause;
 
