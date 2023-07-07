@@ -127,7 +127,8 @@ class TourneyController extends AbstractController
                     ServiceException::CAUSE_IN_USE => 'Turnier registrierung ist nicht (mehr) offen.',
                     ServiceException::CAUSE_EXIST => 'User ist bereits registriert.',
                     ServiceException::CAUSE_EMPTY => 'User hat nicht genug Token',
-                    ServiceException::CAUSE_INVALID => 'Teamname existiert schon.',
+                    ServiceException::CAUSE_INCONSISTENT => 'Teamname existiert schon.',
+                    ServiceException::CAUSE_FULL => 'Team ist schon voll',
                     default => 'unbekannter Fehler.'
                 }
             );

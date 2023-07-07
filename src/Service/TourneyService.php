@@ -154,11 +154,13 @@ class TourneyService extends OptimalService
                     throw new ServiceException(ServiceException::CAUSE_FULL, 'Team is already full');
                 }
                 $team->addMember(TourneyTeamMember::create($user->getUuid()));
-            } else {
+            } elseif (is_string($team)) {
                 if ($this->teamnameTaken($team)) {
-                    throw new ServiceException(ServiceException::CAUSE_INVALID, 'Teamname already exists');
+                    throw new ServiceException(ServiceException::CAUSE_INCONSISTENT, 'Teamname already exists');
                 }
                 $tourney->addTeam(TourneyTeam::createTeamWithUser($user->getUuid(), $team));
+            } else {
+                throw new ServiceException(ServiceException::CAUSE_INVALID, 'Invalid team specified');
             }
         }
         $this->em->persist($tourney);
