@@ -14,27 +14,23 @@
         <div>
             {% set teams = teams_registered | default([]) %}
             {% set games = games_pending | default([]) %}
-            {% set can_register = can_register | default([]) %}
             {% if token is defined %}
                 <div class="mb-3 text-right">
                     Token <span class="badge badge-pill {{ token > 0 ? 'badge-primary' : 'badge-secondary' }} p-2"><i class="fa-solid fa-coins"></i> {{ token }}/{{ constant('App\\Service\\TourneyService::TOKEN_COUNT') }}</span>
                 </div>
             {% endif %}
-            {% set registered_tourneys = teams | map(t => t.team.tourney) %}
-            {% set pending_tourneys = games | map(g => g.tourney) %}
             <div class="accordion mb-3" id="tourney-list">
                 {% for tourney in tourneys %}
-                    {% if tourney in registered_tourneys %}
-                        {% set tm = teams | filter(t => t.team.tourney == tourney) | first %}
+                    {% if tourney.id in teams | keys %}
                         {% include 'site/tourney/_card.html.twig' with {
-                            'tourney' : tourney, 'tm': tm, 'registered' : true, 'pending' : (tourney in pending_tourneys), 'registerable': false
+                            'tourney' : tourney, 'tm': teams[tourney.id], 'registered' : true, 'pending' : (tourney.id in games | keys)
                         } %}
                     {% endif %}
                 {% endfor %}
                 {% for tourney in tourneys %}
-                    {% if tourney not in registered_tourneys %}
+                    {% if tourney.id not in teams | keys %}
                         {% include 'site/tourney/_card.html.twig' with {
-                            'tourney' : tourney, 'registered' : false, 'pending' : false, 'registerable': (tourney in can_register)
+                            'tourney' : tourney, 'registered' : false, 'pending' : false, 'forms': register_forms[tourney.id] ?? null
                         } %}
                     {% endif %}
                 {% endfor %}

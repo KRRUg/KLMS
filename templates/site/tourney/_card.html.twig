@@ -11,8 +11,9 @@
     </div>
     <div class="collapse" id="collapse-{{ tourney.id }}">
         <div class="card-body">
+            {% set registerable = forms | default(null) is not null %}
             <div>
-                {% if registerable %}{% include 'site/tourney/_register.html.twig' with {fc : form_create[tourney.id], fj : form_join[tourney.id] } %}{% endif %}
+                {% if registerable %}{% include 'site/tourney/_register.html.twig' with {fc : forms[0], fj : forms[1] } %}{% endif %}
             </div>
             <div {{ stimulus_controller('tourney_registration_team') }}>
                 {% if registered %}{% include 'site/tourney/_registered.html.twig' with {tm : tm} %}{% endif %}

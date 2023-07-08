@@ -151,37 +151,34 @@ class TourneyController extends AbstractController
         $this->handleRegistrationForm($request, $this->generateFormRegistrationCreate(), fn ($form) => $form->get('name')->getData());
         $this->handleRegistrationForm($request, $this->generateFormRegistrationJoin(), fn ($form) => $form->get('team')->getData());
 
-        $form_create = array();
-        $form_join = array();
-        $token = $canRegister = null;
-
+        $forms = array();
+        $token = null;
         if ($this->service->userMayRegister($user)) {
             $token = $this->service->calculateUserToken($user);
-            $canRegister = $this->service->getRegistrableTourneys($user);
-
-            foreach ($canRegister as $t) {
+            foreach ($this->service->getRegistrableTourneys($user) as $t) {
                 if ($t->isSinglePlayer()) {
-                    $form_create[$t->getId()] = $this->generateFormRegistrationSinglePlayer()->setData(['id' => $t->getId()])->createView();
-                    $form_join[$t->getId()] = null;
+                    $forms[$t->getId()] = [
+                        $this->generateFormRegistrationSinglePlayer()->setData(['id' => $t->getId()])->createView(),
+                        null,
+                    ];
                 } else {
-                    $form_create[$t->getId()] = $this->generateFormRegistrationCreate()->setData(['id' => $t->getId()])->createView();
-                    $form_join[$t->getId()] = $this->generateFormRegistrationJoin()->setData(['id' => $t->getId()])->createView();
+                    $forms[$t->getId()] = [
+                        $this->generateFormRegistrationCreate()->setData(['id' => $t->getId()])->createView(),
+                        $this->generateFormRegistrationJoin()->setData(['id' => $t->getId()])->createView(),
+                    ];
                 }
             }
         }
-        $userTeams = $this->service->getRegisteredTeams($user);
-        $userPendingGames = $this->service->getPendingGames($user);
+        $combine = fn (callable $f, array $a) => array_combine(array_map($f, $a), $a);
+        $userTeams = $combine(fn ($t) => $t->getTeam()->getTourney()->getId(), $this->service->getRegisteredTeams($user));
+        $userPendingGames = $combine(fn ($g) => $g->getTourney()->getId(), $this->service->getPendingGames($user));
 
         return $this->render('site/tourney/index.html.twig', [
             'tourneys' => $tourneys,
-            'token' => $token,
             'teams_registered' => $userTeams,
             'games_pending' => $userPendingGames,
-
-            // TODO make this three callbacks to be called from twig
-            'can_register' => $canRegister,
-            'form_create' => $form_create,
-            'form_join' => $form_join,
+            'token' => $token,
+            'register_forms' => $forms,
         ]);
     }
 
