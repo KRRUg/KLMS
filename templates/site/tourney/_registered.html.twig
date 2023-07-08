@@ -1,15 +1,19 @@
 <div class="box box-body container-fluid">
     {% set team = tm.team %}
     {% if not tourney.isSinglePlayer() %}
-    <h6>Teammember ({{ team.countUsers }}/{{ tourney.teamsize }})</h6>
-    <ul class="list-unstyled">
-        {% for member in team.members %}
-            <li>{{ member.gamer | username }}
-            {% if not member.accepted %}
+        {% if not tm.accepted %}
+            <i class="fa-solid fa-hourglass"></i> <span>Warten auf Bestätigung von <b>{{ team.name }}</b>.</span>
+        {% else %}
+            <h6><b>{{ team.name }}</b> ({{ team.countUsers }}/{{ tourney.teamsize }})</h6>
+            <ul class="list-unstyled">
+                {% for member in team.members %}
+                    <li>{{ member.gamer | username }}
+                    {% if not member.accepted %}
 
-            {% endif %}
-            </li>
-        {% endfor %}
-    </ul>
+                    {% endif %}
+                    </li>
+                {% endfor %}
+            </ul>
+        {% endif %}
     {% endif %}
 </div>
