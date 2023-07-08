@@ -3,6 +3,7 @@
 namespace App\Repository;
 
 use App\Entity\TourneyTeam;
+use App\Entity\TourneyTeamMember;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 use Ramsey\Uuid\UuidInterface;
@@ -40,14 +41,19 @@ class TourneyTeamRepository extends ServiceEntityRepository
         }
     }
 
+    /**
+     * @param UuidInterface $uuid
+     * @return TourneyTeamMember[]
+     */
     public function getTeamsByUser(UuidInterface $uuid): array
     {
-        return $this->createQueryBuilder('tt')
-            ->join('tt.tourney', 't')
-            ->addSelect('t')
-            ->join('tt.members', 'ttm', 'WITH', 'ttm.gamer = :uuid')
+        return $this->getEntityManager()->createQueryBuilder()
+            ->select('ttm')
+            ->addSelect('tt')
+            ->from(TourneyTeamMember::class, 'ttm')
+            ->join('ttm.team', 'tt')
+            ->where('ttm.gamer = :uuid')
             ->setParameter('uuid', $uuid)
-            ->orderBy('t.order')
             ->getQuery()
             ->getResult();
     }

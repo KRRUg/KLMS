@@ -15,7 +15,7 @@
                 {% if registerable %}{% include 'site/tourney/_register.html.twig' with {fc : form_create[tourney.id], fj : form_join[tourney.id] } %}{% endif %}
             </div>
             <div {{ stimulus_controller('tourney_registration_team') }}>
-                {% if registered %}{% include 'site/tourney/_registered.html.twig' with {team : team} %}{% endif %}
+                {% if registered %}{% include 'site/tourney/_registered.html.twig' with {tm : tm} %}{% endif %}
             </div>
 
             <p><b>Status:</b> {{ tourney.status.message }}</p>

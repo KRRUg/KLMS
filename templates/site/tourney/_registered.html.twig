@@ -1,9 +1,14 @@
 <div class="box box-body container-fluid">
+    {% set team = tm.team %}
     {% if not tourney.isSinglePlayer() %}
     <h6>Teammember ({{ team.countUsers }}/{{ tourney.teamsize }})</h6>
-    <ul>
+    <ul class="list-unstyled">
         {% for member in team.members %}
-            <li>{{ member.gamer | username }}</li>
+            <li>{{ member.gamer | username }}
+            {% if not member.accepted %}
+
+            {% endif %}
+            </li>
         {% endfor %}
     </ul>
     {% endif %}

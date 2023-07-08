@@ -169,15 +169,17 @@ class TourneyController extends AbstractController
                 }
             }
         }
-        $teams = $this->service->getRegisteredTeams($user);
-        $pendingTourneys = array_map(fn ($g) => $g->getTourney(), $this->service->getPendingGames($user));
+        $userTeams = $this->service->getRegisteredTeams($user);
+        $userPendingGames = $this->service->getPendingGames($user);
 
         return $this->render('site/tourney/index.html.twig', [
             'tourneys' => $tourneys,
             'token' => $token,
-            'teams' => $teams,
+            'teams_registered' => $userTeams,
+            'games_pending' => $userPendingGames,
+
+            // TODO make this three callbacks to be called from twig
             'can_register' => $canRegister,
-            'is_pending' => $pendingTourneys,
             'form_create' => $form_create,
             'form_join' => $form_join,
         ]);

@@ -77,7 +77,7 @@ class TourneyService extends OptimalService
 
     /**
      * @param User $user
-     * @return TourneyTeam[]
+     * @return TourneyTeamMember[]
      */
     public function getRegisteredTeams(User $user): array
     {

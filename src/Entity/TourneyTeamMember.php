@@ -2,11 +2,10 @@
 
 namespace App\Entity;
 
-use App\Repository\TourneyTeamMemberRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Ramsey\Uuid\UuidInterface;
 
-#[ORM\Entity(repositoryClass: TourneyTeamMemberRepository::class)]
+#[ORM\Entity]
 class TourneyTeamMember
 {
     #[ORM\Id]
