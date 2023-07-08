@@ -1,6 +1,14 @@
+{% set fc = forms[0] | default(null) %}
+{% set fj = forms[1] | default(null) %}
+{% set can_register = fc is not null %}
 <div class="text-right collapse show registration-{{ tourney.id }}" style="transition: none">
-    <button class="btn btn-primary" type="button" data-toggle="collapse" data-target=".registration-{{ tourney.id }}">Anmelden <span style="font-size:smaller;">(<i class="fa-solid fa-coins"></i> {{ tourney.token }})</span></button>
+    {% if can_register %}
+        <button class="btn btn-primary" type="button" data-toggle="collapse" data-target=".registration-{{ tourney.id }}">Anmelden <span style="font-size:smaller;">(<i class="fa-solid fa-coins"></i> {{ tourney.token }})</span></button>
+    {% else %}
+        <button class="btn btn-primary" type="button" disabled>Anmelden <span style="font-size:smaller;">(<i class="fa-solid fa-coins"></i> {{ tourney.token }})</span></button>
+    {% endif %}
 </div>
+{% if can_register %}
 <div class="collapse registration-{{ tourney.id }} box box-body container-fluid" style="transition: none">
     {% if tourney.singlePlayer %}
         {{ form_start(fc) }}
@@ -32,3 +40,4 @@
         </div>
     {% endif %}
 </div>
+{% endif %}

@@ -2,7 +2,10 @@
     {% set team = tm.team %}
     {% if not tourney.isSinglePlayer() %}
         {% if not tm.accepted %}
-            <i class="fa-solid fa-hourglass"></i> <span>Warten auf Bestätigung von <b>{{ team.name }}</b>.</span>
+            <i class="fa-solid fa-hourglass"></i>
+            <span>Warten auf Bestätigung von <b>{{ team.name }}</b>.</span>
+{#            TODO implement me#}
+            <a href="#">Abmelden</a>
         {% else %}
             <h6><b>{{ team.name }}</b> ({{ team.countUsers }}/{{ tourney.teamsize }})</h6>
             <ul class="list-unstyled">

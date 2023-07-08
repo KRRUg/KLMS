@@ -23,14 +23,14 @@
                 {% for tourney in tourneys %}
                     {% if tourney.id in teams | keys %}
                         {% include 'site/tourney/_card.html.twig' with {
-                            'tourney' : tourney, 'tm': teams[tourney.id], 'registered' : true, 'pending' : (tourney.id in games | keys)
+                            'tourney' : tourney, 'registered' : true, 'tm': teams[tourney.id], 'pending' : (tourney.id in games | keys)
                         } %}
                     {% endif %}
                 {% endfor %}
                 {% for tourney in tourneys %}
                     {% if tourney.id not in teams | keys %}
                         {% include 'site/tourney/_card.html.twig' with {
-                            'tourney' : tourney, 'registered' : false, 'pending' : false, 'forms': register_forms[tourney.id] ?? null
+                            'tourney' : tourney, 'registered' : false, 'forms': register_forms[tourney.id] ?? null
                         } %}
                     {% endif %}
                 {% endfor %}

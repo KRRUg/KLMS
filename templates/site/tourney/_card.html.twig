@@ -1,23 +1,28 @@
+{% set registered = registered | default(false) %}
+{% set may_register = may_register | default(false) %}
+{% set pending = pending | default(false) %}
 <div class="card mb-3 tourney {% if registered %}registered{% endif %}" id="tourney-{{ tourney.id }}">
     <div class="card-header">
         <h4 class="mb-0">
         <button class="btn btn-block d-flex justify-content-between align-items-center" type="button" data-toggle="collapse" data-target="#collapse-{{ tourney.id }}">
             {{ tourney.name }}
             {% if registered %}
-            <i class="fa-solid fa-gamepad {% if pending %}text-primary fa-beat-fade{% endif %} fa-2xl"></i>
+                <i class="fa-solid fa-gamepad {% if pending %}text-primary fa-beat-fade{% endif %} fa-2xl"></i>
             {% endif %}
         </button>
         </h4>
     </div>
     <div class="collapse" id="collapse-{{ tourney.id }}">
         <div class="card-body">
-            {% set registerable = forms | default(null) is not null %}
-            <div>
-                {% if registerable %}{% include 'site/tourney/_register.html.twig' with {fc : forms[0], fj : forms[1] } %}{% endif %}
-            </div>
-            <div {{ stimulus_controller('tourney_registration_team') }}>
-                {% if registered %}{% include 'site/tourney/_registered.html.twig' with {tm : tm} %}{% endif %}
-            </div>
+            {% if registered %}
+                <div {{ stimulus_controller('tourney_registration_team') }}>
+                    {% include 'site/tourney/_registered.html.twig' with {tm : tm} %}
+                </div>
+            {% elseif may_register %}
+                <div>
+                   {% include 'site/tourney/_register.html.twig' with {forms: forms } %}
+                </div>
+            {% endif %}
 
             <p><b>Status:</b> {{ tourney.status.message }}</p>
 {#            {% if tourney.rules is not empty %}#}

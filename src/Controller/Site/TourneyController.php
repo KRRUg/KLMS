@@ -147,13 +147,15 @@ class TourneyController extends AbstractController
             ]);
         }
 
+        $mayRegister = $this->service->userMayRegister($user);
+
         $this->handleRegistrationForm($request, $this->generateFormRegistrationSinglePlayer(), fn ($form) => null);
         $this->handleRegistrationForm($request, $this->generateFormRegistrationCreate(), fn ($form) => $form->get('name')->getData());
         $this->handleRegistrationForm($request, $this->generateFormRegistrationJoin(), fn ($form) => $form->get('team')->getData());
 
         $forms = array();
         $token = null;
-        if ($this->service->userMayRegister($user)) {
+        if ($mayRegister) {
             $token = $this->service->calculateUserToken($user);
             foreach ($this->service->getRegistrableTourneys($user) as $t) {
                 if ($t->isSinglePlayer()) {
@@ -175,6 +177,7 @@ class TourneyController extends AbstractController
 
         return $this->render('site/tourney/index.html.twig', [
             'tourneys' => $tourneys,
+            'may_register' => $mayRegister,
             'teams_registered' => $userTeams,
             'games_pending' => $userPendingGames,
             'token' => $token,
