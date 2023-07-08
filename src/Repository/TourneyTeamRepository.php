@@ -3,7 +3,6 @@
 namespace App\Repository;
 
 use App\Entity\TourneyTeam;
-use App\Entity\TourneyTeamMember;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 use Ramsey\Uuid\UuidInterface;
@@ -41,20 +40,22 @@ class TourneyTeamRepository extends ServiceEntityRepository
         }
     }
 
-    /**
-     * @param UuidInterface $uuid
-     * @return TourneyTeamMember[]
-     */
-    public function getTeamsByUser(UuidInterface $uuid): array
+    public function userInTeam(TourneyTeam $team, UuidInterface $uuid, ?bool $accepted = null): bool
     {
-        return $this->getEntityManager()->createQueryBuilder()
-            ->select('ttm')
-            ->addSelect('tt')
-            ->from(TourneyTeamMember::class, 'ttm')
-            ->join('ttm.team', 'tt')
-            ->where('ttm.gamer = :uuid')
-            ->setParameter('uuid', $uuid)
-            ->getQuery()
-            ->getResult();
+        $qb = $this->createQueryBuilder('tt')
+            ->select('count(ttm)')
+            ->where('tt = :team')
+            ->join('tt.members', 'ttm')
+            ->andWhere('ttm.gamer = :uuid')
+            ->setParameter('team', $team)
+            ->setParameter('uuid', $uuid);
+
+        if (!is_null($accepted)){
+            $qb
+                ->andWhere('ttm.accepted = :acc')
+                ->setParameter('acc', $accepted);
+        }
+
+        return $qb->getQuery()->getScalarResult() > 0;
     }
 }

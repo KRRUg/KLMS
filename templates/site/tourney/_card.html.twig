@@ -28,9 +28,6 @@
 {#            {% if tourney.rules is not empty %}#}
 {#                <b>Regeln:</b> #}
 {#            {% endif %}#}
-{#            {% if tourney.maxseats is not null %}#}
-{#                <b>Plätze vergeben:</b> #}
-{#            {% endif %}#}
             <p><b>Modus:</b> {{ tourney.mode == 'de' ? "double elimination" : "single elemination" }}</p>
             {% if tourney.description is not empty %}
                 <p><b>Beschreibung:</b> {{ tourney.description | raw }}</p>

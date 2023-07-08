@@ -1,10 +1,13 @@
+{# TODO implement abmelden #}
+{# TODO aber nur wenn turnier noch nicht läuft #}
 <div class="box box-body container-fluid">
     {% set team = tm.team %}
-    {% if not tourney.isSinglePlayer() %}
+    {% if tourney.isSinglePlayer() %}
+        Du bist zu diesem Turnier angemeldet. <a href="#">Abmelden</a>
+    {% else %}
         {% if not tm.accepted %}
             <i class="fa-solid fa-hourglass"></i>
             <span>Warten auf Bestätigung von <b>{{ team.name }}</b>.</span>
-{#            TODO implement me#}
             <a href="#">Abmelden</a>
         {% else %}
             <h6><b>{{ team.name }}</b> ({{ team.countUsers }}/{{ tourney.teamsize }})</h6>

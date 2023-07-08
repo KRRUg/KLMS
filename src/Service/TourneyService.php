@@ -11,24 +11,28 @@ use App\Entity\User;
 use App\Exception\ServiceException;
 use App\Repository\TourneyGameRepository;
 use App\Repository\TourneyRepository;
+use App\Repository\TourneyTeamMemberRepository;
 use App\Repository\TourneyTeamRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\ORM\NoResultException;
+use LogicException;
 
 class TourneyService extends OptimalService
 {
     private readonly EntityManagerInterface $em;
     private readonly TourneyRepository $repository;
     private readonly TourneyGameRepository $gameRepository;
+    private readonly TourneyTeamRepository $teamRepository;
+    private readonly TourneyTeamMemberRepository $teamMemberRepository;
     private readonly SettingService $settings;
     private readonly GamerService $gamerService;
-    private readonly TourneyTeamRepository $teamRepository;
 
     public function __construct(
         TourneyRepository $repository,
         TourneyGameRepository $gameRepository,
         TourneyTeamRepository $teamRepository,
+        TourneyTeamMemberRepository $teamMemberRepository,
         SettingService $settings,
         GamerService $gamerService,
         EntityManagerInterface $em,
@@ -37,6 +41,7 @@ class TourneyService extends OptimalService
         $this->repository = $repository;
         $this->gameRepository = $gameRepository;
         $this->teamRepository = $teamRepository;
+        $this->teamMemberRepository = $teamMemberRepository;
         $this->settings = $settings;
         $this->gamerService = $gamerService;
         $this->em = $em;
@@ -81,7 +86,7 @@ class TourneyService extends OptimalService
      */
     public function getRegisteredTeams(User $user): array
     {
-        return $this->teamRepository->getTeamsByUser($user->getUuid());
+        return $this->teamMemberRepository->getTeamMemberByUser($user->getUuid());
     }
 
     /**
@@ -176,12 +181,75 @@ class TourneyService extends OptimalService
         $this->em->flush();
     }
 
-    private function tryRegister(Tourney $tourney, array $registeredTourneys, ?int $availToken = null): void
+    public function userConfirm(Tourney $tourney, User $user, User $admin, bool $accept): void
     {
-        $availToken ??= $this->calcRemainingToken($registeredTourneys);
+        $this->tryModifyRegistration($tourney);
+        $this->em->beginTransaction();
+        $tm = $this->getTeamMemberByTourneyAndUser($tourney, $user);
+        $team = $tm->getTeam();
+        if ($tm->isAccepted()) {
+            throw new ServiceException(ServiceException::CAUSE_INVALID, 'User is already accepted.');
+        }
+        if (!$this->teamRepository->userInTeam($team, $admin->getUuid(), true)) {
+            throw new ServiceException(ServiceException::CAUSE_FORBIDDEN, 'User not authorized to confirm other user.');
+        }
+        if ($tourney->isSinglePlayer()) {
+            throw new LogicException('Cannot confirm in single player tournament.');
+        } else {
+            if ($accept) {
+                $tm->setAccepted(true);
+            } else {
+                $team->removeMember($tm);
+            }
+        }
+        $this->em->flush();
+        $this->em->commit();
+    }
+
+    public function userUnregister(Tourney $tourney, User $user): void
+    {
+        $this->tryModifyRegistration($tourney);
+        $this->em->beginTransaction();
+        $tm = $this->getTeamMemberByTourneyAndUser($tourney, $user);
+        $team = $tm->getTeam();
+
+        // orphan removal removes $tm when removing $team
+        if ($tourney->isSinglePlayer()) {
+            $this->teamRepository->remove($team);
+        } else {
+            $team->removeMember($tm);
+            if ($team->countUsers() == 0) {
+                $this->teamRepository->remove($team);
+            } else {
+                $this->teamMemberRepository->remove($tm);
+            }
+        }
+        $this->em->flush();
+        $this->em->commit();
+    }
+
+    private function getTeamMemberByTourneyAndUser(Tourney $tourney, User $user): TourneyTeamMember
+    {
+        $tm = $this->teamMemberRepository->getTeamMemberByUser($user->getUuid(), $tourney);
+        if (empty($tm)) {
+            throw new ServiceException(ServiceException::CAUSE_EXIST, 'User is not registered.');
+        } elseif (count($tm) > 1) {
+            throw new LogicException('More than one team per user and tourney.');
+        }
+        return $tm[0];
+    }
+
+    private function tryModifyRegistration(Tourney $tourney): void
+    {
         if ($tourney->getStatus() != TourneyStatus::registration) {
             throw new ServiceException(ServiceException::CAUSE_IN_USE, 'Tourney registration is not open');
         }
+    }
+
+    private function tryRegister(Tourney $tourney, array $registeredTourneys, ?int $availToken = null): void
+    {
+        $this->tryModifyRegistration($tourney);
+        $availToken ??= $this->calcRemainingToken($registeredTourneys);
         if (in_array($tourney, $registeredTourneys)) {
             throw new ServiceException(ServiceException::CAUSE_EXIST, 'User is already registered.');
         }

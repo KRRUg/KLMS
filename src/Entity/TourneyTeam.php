@@ -26,7 +26,7 @@ class TourneyTeam
     #[Assert\Length(max: 255, maxMessage: '{{ field }} is too long.')]
     private ?string $name = null;
 
-    #[ORM\OneToMany(mappedBy: 'team', targetEntity: TourneyTeamMember::class, orphanRemoval: true, cascade: ['persist'], fetch: 'EAGER')]
+    #[ORM\OneToMany(mappedBy: 'team', targetEntity: TourneyTeamMember::class, orphanRemoval: true, cascade: ['persist'])]
     private Collection $members;
 
     public function __construct()
