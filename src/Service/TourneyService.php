@@ -71,6 +71,15 @@ class TourneyService extends OptimalService
         }
     }
 
+    public function getTourneyTeamMember(int $id): ?TourneyTeamMember
+    {
+        try {
+            return $this->teamMemberRepository->find($id);
+        } catch (NoResultException|NonUniqueResultException) {
+            return null;
+        }
+    }
+
     /**
      * @param User $user
      * @return Tourney[]
@@ -196,11 +205,18 @@ class TourneyService extends OptimalService
 
     public function userConfirm(Tourney $tourney, User $user, User $admin, bool $accept): void
     {
+        $ttm = $this->getTeamMemberByTourneyAndUser($tourney, $user);
+        $this->userConfirmTeamMember($ttm, $admin, $accept);
+    }
+
+    public function userConfirmTeamMember(TourneyTeamMember $ttm, User $admin, bool $accept): void
+    {
+        $tourney = $ttm->getTeam()->getTourney();
         $this->tryModifyRegistration($tourney);
+
         $this->em->beginTransaction();
-        $tm = $this->getTeamMemberByTourneyAndUser($tourney, $user);
-        $team = $tm->getTeam();
-        if ($tm->isAccepted()) {
+        $team = $ttm->getTeam();
+        if ($ttm->isAccepted()) {
             throw new ServiceException(ServiceException::CAUSE_INVALID, 'User is already accepted.');
         }
         if (!$this->teamRepository->userInTeam($team, $admin->getUuid(), true)) {
@@ -210,9 +226,9 @@ class TourneyService extends OptimalService
             throw new LogicException('Cannot confirm in single player tournament.');
         } else {
             if ($accept) {
-                $tm->setAccepted(true);
+                $ttm->setAccepted(true);
             } else {
-                $team->removeMember($tm);
+                $team->removeMember($ttm);
             }
         }
         $this->em->flush();

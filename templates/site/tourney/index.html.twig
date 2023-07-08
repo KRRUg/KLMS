@@ -14,7 +14,7 @@
         <div>
             {% set teams = teams_registered | default([]) %}
             {% set games = games_pending | default([]) %}
-            {% if token is defined %}
+            {% if token | default(null) is not null %}
                 <div class="mb-3 text-right">
                     Token <span class="badge badge-pill {{ token > 0 ? 'badge-primary' : 'badge-secondary' }} p-2"><i class="fa-solid fa-coins"></i> {{ token }}/{{ constant('App\\Service\\TourneyService::TOKEN_COUNT') }}</span>
                 </div>

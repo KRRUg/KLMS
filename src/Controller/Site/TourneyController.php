@@ -53,10 +53,18 @@ class TourneyController extends AbstractController
         return null;
     }
 
+    private function getTourneyTeamMemberOfId($id): ?TourneyTeamMember
+    {
+        if (is_numeric($id))
+            return $this->service->getTourneyTeamMember(intval($id));
+        return null;
+    }
+
     public const FORM_NAME_SP = 'form_sp';
     public const FORM_NAME_JOIN = 'form_join';
     public const FORM_NAME_CREATE = 'form_create';
     public const FORM_NAME_UNREGISTER = 'form_unregister';
+    public const FORM_NAME_CONFIRM = 'form_confirm';
 
     private function generateFormRegistrationCreate(): FormInterface
     {
@@ -112,7 +120,16 @@ class TourneyController extends AbstractController
             ->getForm();
     }
 
-    private function isFormSubmitted(Request $request, FormInterface $form): ?Tourney
+    private function generateFormConfirm(): FormInterface
+    {
+        return $this->createNamedFormBuilder(self::FORM_NAME_CONFIRM)
+            ->add('id', HiddenType::class, ['required' => true])
+            ->add('accept', SubmitType::class, ['label' => 'Aufnehmen'])
+            ->add('decline', SubmitType::class, ['label' => 'Ablehnen'])
+            ->getForm();
+    }
+
+    private function isFormSubmitted(Request $request, FormInterface $form, callable $getObject): mixed
     {
         if (!$request->request->has($form->getName())) {
             return null;
@@ -121,7 +138,7 @@ class TourneyController extends AbstractController
         if (!$form->isSubmitted() || !$form->isValid()) {
             return null;
         }
-        $tourney = $this->getTourneyOfId($form->get('id')->getData());
+        $tourney = $getObject($form->get('id')->getData());
         if (is_null($tourney)) {
             throw $this->createBadRequestHttpException();
         }
@@ -131,7 +148,7 @@ class TourneyController extends AbstractController
     private function handleRegistrationForm(Request $request, FormInterface $form, callable $getTeam): void
     {
         $user = ($u = $this->getUser()) ? $u->getUser() : null;
-        $tourney = $this->isFormSubmitted($request, $form);
+        $tourney = $this->isFormSubmitted($request, $form, fn ($id) => $this->getTourneyOfId($id));
         if (is_null($user) || is_null($tourney)) {
             return;
         }
@@ -154,10 +171,11 @@ class TourneyController extends AbstractController
         }
     }
 
-    private function handleUnregisterForm(Request $request, FormInterface $form): void
+    private function handleUnregisterForm(Request $request): void
     {
+        $form = $this->generateFormUnregister();
         $user = ($u = $this->getUser()) ? $u->getUser() : null;
-        $tourney = $this->isFormSubmitted($request, $form);
+        $tourney = $this->isFormSubmitted($request, $form, fn ($id) => $this->getTourneyOfId($id));
         if (is_null($user) || is_null($tourney)) {
             return;
         }
@@ -170,6 +188,34 @@ class TourneyController extends AbstractController
                 match ($e->getCode()) {
                     ServiceException::CAUSE_IN_USE => 'Turnier registrierung ist nicht (mehr) offen.',
                     ServiceException::CAUSE_DONT_EXIST => 'User ist nicht registriert.',
+                    default => 'unbekannter Fehler.'
+                }
+            );
+        }
+    }
+
+    private function handleConfirmForm(Request $request): void
+    {
+        $form = $this->generateFormConfirm();
+        $user = ($u = $this->getUser()) ? $u->getUser() : null;
+        // TODO don't 400 if this id is not here. This can be the case if other use deregisteres while this form is out.
+        $ttm = $this->isFormSubmitted($request, $form, fn ($id) => $this->getTourneyTeamMemberOfId($id));
+        if (is_null($user) || is_null($ttm)) {
+            return;
+        }
+
+        $accept = $form->get('accept')->isClicked();
+
+        try {
+            $this->service->userConfirmTeamMember($ttm, $user, $accept);
+        } catch (ServiceException $e) {
+            $this->addFlash('error',
+                'Fehler beim Abmelden: ' .
+                match ($e->getCode()) {
+                    ServiceException::CAUSE_IN_USE => 'Turnier registrierung ist nicht (mehr) offen.',
+                    ServiceException::CAUSE_DONT_EXIST => 'User ist nicht registriert.',
+                    ServiceException::CAUSE_INVALID => 'User ist bereits akzeptiert.',
+                    ServiceException::CAUSE_FORBIDDEN => 'User darf nicht akzeptieren.',
                     default => 'unbekannter Fehler.'
                 }
             );
@@ -193,7 +239,8 @@ class TourneyController extends AbstractController
         $this->handleRegistrationForm($request, $this->generateFormRegistrationSinglePlayer(), fn ($form) => null);
         $this->handleRegistrationForm($request, $this->generateFormRegistrationCreate(), fn ($form) => $form->get('name')->getData());
         $this->handleRegistrationForm($request, $this->generateFormRegistrationJoin(), fn ($form) => $form->get('team')->getData());
-        $this->handleUnregisterForm($request, $this->generateFormUnregister());
+        $this->handleUnregisterForm($request);
+        $this->handleConfirmForm($request);
 
         $forms = array();
         $userTeams = array();
@@ -217,7 +264,18 @@ class TourneyController extends AbstractController
             $t = $team->getTourney();
             $userTeams[$t->getId()] = $ttm;
             if ($this->service->userCanModifyRegistration($team->getTourney())) {
-                $forms[$t->getId()] = [self::FORM_NAME_UNREGISTER => $this->generateFormUnregister()->setData(['id' => $t->getId()])->createView()];
+                $forms[$t->getId()] = [
+                    self::FORM_NAME_UNREGISTER => $this->generateFormUnregister()->setData(['id' => $t->getId()])->createView(),
+                    self::FORM_NAME_CONFIRM => [],
+                ];
+                if ($ttm->isAccepted()) {
+                    foreach ($team->getMembers() as $member) {
+                        if ($member->isAccepted()){
+                            continue;
+                        }
+                        $forms[$t->getId()][self::FORM_NAME_CONFIRM][$member->getId()] = $this->generateFormConfirm()->setData(['id' => $member->getId()])->createView();
+                    }
+                }
             }
         }
         $combine = fn (callable $f, array $a) => array_combine(array_map($f, $a), $a);
