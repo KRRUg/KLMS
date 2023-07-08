@@ -36,7 +36,7 @@ class SiteTest extends DatabaseWebTestCase
         $nav = $crawler->filter('nav');
         $this->assertEquals(1, $nav->count());
         $nav_items = $nav->eq(0)->filter('ul > li > a');
-        $this->assertEquals(11, $nav_items->count());
+        $this->assertEquals(12, $nav_items->count());
         $this->assertEquals('Home', $nav_items->eq(0)->text());
         $this->assertEquals('Lan Party', $nav_items->eq(1)->text());
         $this->assertEquals('Facts', $nav_items->eq(2)->text());

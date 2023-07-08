@@ -21,7 +21,7 @@ class ServiceException extends RuntimeException
         parent::__construct($message, $cause);
     }
 
-    public function getCause(): string
+    public function getCause(): int
     {
         return $this->getCode();
     }

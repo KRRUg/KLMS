@@ -100,6 +100,19 @@ class TourneyServiceIntegrationTest extends DatabaseTestCase
         $this->assertContains($tourney, $service->getRegisteredTourneys($user8));
     }
 
+    public function testUserRegisterInsufficientToken()
+    {
+        $this->databaseTool->loadFixtures([TourneyFixture::class, UserFixtures::class]);
+        $service = self::getContainer()->get(TourneyService::class);
+        $user7 = $this->getUser(7);
+
+        $tourneys = $service->getVisibleTourneys();
+        $service->userRegister($tourneys[1], $user7, null);
+        $this->expectException(ServiceException::class);
+        $this->expectExceptionCode(ServiceException::CAUSE_FORBIDDEN);
+        $service->userRegister($tourneys[2], $user7, 'New Team');
+    }
+
     public function testUserRegistrationConfirmMemberAccept()
     {
         $this->databaseTool->loadFixtures([TourneyFixture::class, UserFixtures::class]);
