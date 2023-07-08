@@ -150,7 +150,7 @@ class TourneyService extends OptimalService
         }
     }
 
-    private function teamnameTaken(string $name): bool
+    private function teamNameTaken(string $name): bool
     {
         return $this->teamRepository->count(['name' => $name]) > 0;
     }
@@ -164,12 +164,15 @@ class TourneyService extends OptimalService
             $tourney->addTeam(TourneyTeam::createTeamWithUser($user->getUuid()));
         } else {
             if ($team instanceof TourneyTeam) {
+                if ($team->getTourney() !== $tourney) {
+                    throw new LogicException('Invalid TourneyTeam specified.');
+                }
                 if ($team->countUsers() >= $tourney->getTeamsize()) {
                     throw new ServiceException(ServiceException::CAUSE_FULL, 'Team is already full');
                 }
                 $team->addMember(TourneyTeamMember::create($user->getUuid()));
             } elseif (is_string($team)) {
-                if ($this->teamnameTaken($team)) {
+                if ($this->teamNameTaken($team)) {
                     throw new ServiceException(ServiceException::CAUSE_INCONSISTENT, 'Teamname already exists');
                 }
                 $tourney->addTeam(TourneyTeam::createTeamWithUser($user->getUuid(), $team));
@@ -228,7 +231,7 @@ class TourneyService extends OptimalService
         $this->em->commit();
     }
 
-    private function getTeamMemberByTourneyAndUser(Tourney $tourney, User $user): TourneyTeamMember
+    public function getTeamMemberByTourneyAndUser(Tourney $tourney, User $user): TourneyTeamMember
     {
         $tm = $this->teamMemberRepository->getTeamMemberByUser($user->getUuid(), $tourney);
         if (empty($tm)) {
