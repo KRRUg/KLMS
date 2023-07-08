@@ -134,6 +134,9 @@ class TourneyFixture extends Fixture implements DependentFixtureInterface
             ->setModifierId(Uuid::fromInteger(13))
         ;
 
+        $tourney2
+            ->addTeam(TourneyTeam::createTeamWithUser(UUid::fromInteger(9)));
+
         $this->setReference('tourney-0', $tourney0);
         $this->setReference('tourney-1', $tourney1);
         $this->setReference('tourney-2', $tourney2);

@@ -1,14 +1,18 @@
-{# TODO implement abmelden #}
-{# TODO aber nur wenn turnier noch nicht läuft #}
+{% set fur = forms[constant('App\\Controller\\Site\\TourneyController::FORM_NAME_UNREGISTER')] | default(null) %}
+
+{% macro unregister_form(form) %}
+{% if form is not null %}{{ form_start(form, { 'attr': {'class': 'form-inline'}}) }}{{ form_widget(form.submit, { 'attr': {'class': 'btn btn-secondary btn-sm'}}) }}{{ form_end(form) }}{% endif %}
+{% endmacro %}
+
 <div class="box box-body container-fluid">
     {% set team = tm.team %}
     {% if tourney.isSinglePlayer() %}
-        Du bist zu diesem Turnier angemeldet. <a href="#">Abmelden</a>
+        Du bist zu diesem Turnier angemeldet. {{ _self.unregister_form(fur) }}
     {% else %}
         {% if not tm.accepted %}
             <i class="fa-solid fa-hourglass"></i>
             <span>Warten auf Bestätigung von <b>{{ team.name }}</b>.</span>
-            <a href="#">Abmelden</a>
+            {{ _self.unregister_form(fur) }}
         {% else %}
             <h6><b>{{ team.name }}</b> ({{ team.countUsers }}/{{ tourney.teamsize }})</h6>
             <ul class="list-unstyled">
@@ -19,6 +23,7 @@
                     {% endif %}
                     </li>
                 {% endfor %}
+                {{ _self.unregister_form(fur) }}
             </ul>
         {% endif %}
     {% endif %}

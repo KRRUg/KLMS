@@ -150,6 +150,16 @@ class TourneyService extends OptimalService
         }
     }
 
+    public function userCanModifyRegistration(Tourney $tourney): bool
+    {
+        try {
+            $this->tryModifyRegistration($tourney);
+            return true;
+        } catch (ServiceException) {
+            return false;
+        }
+    }
+
     private function teamNameTaken(string $name): bool
     {
         return $this->teamRepository->count(['name' => $name]) > 0;
@@ -235,7 +245,7 @@ class TourneyService extends OptimalService
     {
         $tm = $this->teamMemberRepository->getTeamMemberByUser($user->getUuid(), $tourney);
         if (empty($tm)) {
-            throw new ServiceException(ServiceException::CAUSE_EXIST, 'User is not registered.');
+            throw new ServiceException(ServiceException::CAUSE_DONT_EXIST, 'User is not registered.');
         } elseif (count($tm) > 1) {
             throw new LogicException('More than one team per user and tourney.');
         }
@@ -257,7 +267,7 @@ class TourneyService extends OptimalService
             throw new ServiceException(ServiceException::CAUSE_EXIST, 'User is already registered.');
         }
         if ($tourney->getToken() > $availToken) {
-            throw new ServiceException(ServiceException::CAUSE_EMPTY, 'User has not enough tokens left.');
+            throw new ServiceException(ServiceException::CAUSE_FORBIDDEN, 'User has not enough tokens left.');
         }
     }
 

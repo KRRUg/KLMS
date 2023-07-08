@@ -307,6 +307,40 @@ class TourneyTest extends DatabaseWebTestCase
         $this->assertSelectorTextContains('.alert', 'Token');
     }
 
+    public function testTourneyUnregister()
+    {
+        $this->databaseTool->loadFixtures([TourneyFixture::class, UserFixtures::class]);
+
+        $this->login('user9@localhost.local');
+
+        $crawler = $this->client->request('GET', '/tourney');
+        $this->assertSelectorExists('#tourney-3.registered');
+
+        $button = $crawler->selectButton('Abmelden');
+        $this->assertNotEmpty($button);
+        $form = $button->form();
+
+        $this->client->submit($form);
+
+        $this->assertSelectorNotExists('#tourney-3.registered');
+    }
+
+    public function testTourneyUnregisterTeam()
+    {
+        $this->databaseTool->loadFixtures([TourneyFixture::class, UserFixtures::class]);
+
+        $this->login('user2@localhost.local');
+
+        $crawler = $this->client->request('GET', '/tourney');
+        $this->assertSelectorExists('#tourney-2.registered');
+
+        $button = $crawler->selectButton('Abmelden');
+        $this->assertNotEmpty($button);
+        $form = $button->form();
+        $this->client->submit($form);
+        $this->assertSelectorNotExists('#tourney-2.registered');
+    }
+
     public function testTourneyTree()
     {
         $this->databaseTool->loadFixtures([TourneyFixture::class, UserFixtures::class]);

@@ -4,6 +4,7 @@ namespace App\Controller\Site;
 
 use App\Entity\Tourney;
 use App\Entity\TourneyGame;
+use App\Entity\TourneyTeamMember;
 use App\Exception\ServiceException;
 use App\Service\TourneyService;
 use App\Service\UserService;
@@ -52,9 +53,14 @@ class TourneyController extends AbstractController
         return null;
     }
 
+    public const FORM_NAME_SP = 'form_sp';
+    public const FORM_NAME_JOIN = 'form_join';
+    public const FORM_NAME_CREATE = 'form_create';
+    public const FORM_NAME_UNREGISTER = 'form_unregister';
+
     private function generateFormRegistrationCreate(): FormInterface
     {
-        return $this->createNamedFormBuilder('form_create')
+        return $this->createNamedFormBuilder(self::FORM_NAME_CREATE)
             ->add('id', HiddenType::class, ['required' => true])
             ->add('name', TextType::class, ['label' => 'Name', 'required' => true, 'constraints' => [new Assert\NotBlank()]])
             ->add('submit', SubmitType::class, ['label' => 'Erstellen'])
@@ -81,7 +87,7 @@ class TourneyController extends AbstractController
                 ]);
         };
 
-        return $this->createNamedFormBuilder('form_join')
+        return $this->createNamedFormBuilder(self::FORM_NAME_JOIN)
             ->add('id', HiddenType::class, ['required' => true])
             ->add('submit', SubmitType::class, ['label' => 'Beitreten'])
             ->add('team', ChoiceType::class)
@@ -92,43 +98,78 @@ class TourneyController extends AbstractController
 
     private function generateFormRegistrationSinglePlayer(): FormInterface
     {
-        return $this->createNamedFormBuilder('form_sp')
+        return $this->createNamedFormBuilder(self::FORM_NAME_SP)
             ->add('id', HiddenType::class, ['required' => true])
             ->add('submit', SubmitType::class, ['label' => 'Teilnehmen'])
             ->getForm();
     }
 
-    private function handleRegistrationForm(Request $request, FormInterface $form, callable $getTeam): void
+    private function generateFormUnregister(): FormInterface
     {
-        $user = ($u = $this->getUser()) ? $u->getUser() : null;
-        if (is_null($user)) {
-            return;
-        }
+        return $this->createNamedFormBuilder(self::FORM_NAME_UNREGISTER)
+            ->add('id', HiddenType::class, ['required' => true])
+            ->add('submit', SubmitType::class, ['label' => 'Abmelden'])
+            ->getForm();
+    }
+
+    private function isFormSubmitted(Request $request, FormInterface $form): ?Tourney
+    {
         if (!$request->request->has($form->getName())) {
-            return;
+            return null;
         }
         $form->handleRequest($request);
         if (!$form->isSubmitted() || !$form->isValid()) {
-            return;
+            return null;
         }
-
         $tourney = $this->getTourneyOfId($form->get('id')->getData());
-        $team = $getTeam($form);
         if (is_null($tourney)) {
             throw $this->createBadRequestHttpException();
         }
+        return $tourney;
+    }
 
+    private function handleRegistrationForm(Request $request, FormInterface $form, callable $getTeam): void
+    {
+        $user = ($u = $this->getUser()) ? $u->getUser() : null;
+        $tourney = $this->isFormSubmitted($request, $form);
+        if (is_null($user) || is_null($tourney)) {
+            return;
+        }
+
+        $team = $getTeam($form);
         try {
             $this->service->userRegister($tourney, $user, $team);
         } catch (ServiceException $e) {
             $this->addFlash('error',
                 'Fehler beim Anmelden: ' .
-                match ($e->getCause()) {
+                match ($e->getCode()) {
                     ServiceException::CAUSE_IN_USE => 'Turnier registrierung ist nicht (mehr) offen.',
                     ServiceException::CAUSE_EXIST => 'User ist bereits registriert.',
-                    ServiceException::CAUSE_EMPTY => 'User hat nicht genug Token',
+                    ServiceException::CAUSE_FORBIDDEN => 'User hat nicht genug Token',
                     ServiceException::CAUSE_INCONSISTENT => 'Teamname existiert schon.',
                     ServiceException::CAUSE_FULL => 'Team ist schon voll',
+                    default => 'unbekannter Fehler.'
+                }
+            );
+        }
+    }
+
+    private function handleUnregisterForm(Request $request, FormInterface $form): void
+    {
+        $user = ($u = $this->getUser()) ? $u->getUser() : null;
+        $tourney = $this->isFormSubmitted($request, $form);
+        if (is_null($user) || is_null($tourney)) {
+            return;
+        }
+
+        try {
+            $this->service->userUnregister($tourney, $user);
+        } catch (ServiceException $e) {
+            $this->addFlash('error',
+                'Fehler beim Abmelden: ' .
+                match ($e->getCode()) {
+                    ServiceException::CAUSE_IN_USE => 'Turnier registrierung ist nicht (mehr) offen.',
+                    ServiceException::CAUSE_DONT_EXIST => 'User ist nicht registriert.',
                     default => 'unbekannter Fehler.'
                 }
             );
@@ -152,27 +193,34 @@ class TourneyController extends AbstractController
         $this->handleRegistrationForm($request, $this->generateFormRegistrationSinglePlayer(), fn ($form) => null);
         $this->handleRegistrationForm($request, $this->generateFormRegistrationCreate(), fn ($form) => $form->get('name')->getData());
         $this->handleRegistrationForm($request, $this->generateFormRegistrationJoin(), fn ($form) => $form->get('team')->getData());
+        $this->handleUnregisterForm($request, $this->generateFormUnregister());
 
         $forms = array();
+        $userTeams = array();
         $token = null;
+
         if ($mayRegister) {
             $token = $this->service->calculateUserToken($user);
             foreach ($this->service->getRegistrableTourneys($user) as $t) {
                 if ($t->isSinglePlayer()) {
-                    $forms[$t->getId()] = [
-                        $this->generateFormRegistrationSinglePlayer()->setData(['id' => $t->getId()])->createView(),
-                        null,
-                    ];
+                    $forms[$t->getId()] = [self::FORM_NAME_SP => $this->generateFormRegistrationSinglePlayer()->setData(['id' => $t->getId()])->createView()];
                 } else {
                     $forms[$t->getId()] = [
-                        $this->generateFormRegistrationCreate()->setData(['id' => $t->getId()])->createView(),
-                        $this->generateFormRegistrationJoin()->setData(['id' => $t->getId()])->createView(),
+                        self::FORM_NAME_JOIN => $this->generateFormRegistrationJoin()->setData(['id' => $t->getId()])->createView(),
+                        self::FORM_NAME_CREATE => $this->generateFormRegistrationCreate()->setData(['id' => $t->getId()])->createView(),
                     ];
                 }
             }
         }
+        foreach ($this->service->getRegisteredTeams($user) as $ttm) {
+            $team = $ttm->getTeam();
+            $t = $team->getTourney();
+            $userTeams[$t->getId()] = $ttm;
+            if ($this->service->userCanModifyRegistration($team->getTourney())) {
+                $forms[$t->getId()] = [self::FORM_NAME_UNREGISTER => $this->generateFormUnregister()->setData(['id' => $t->getId()])->createView()];
+            }
+        }
         $combine = fn (callable $f, array $a) => array_combine(array_map($f, $a), $a);
-        $userTeams = $combine(fn ($t) => $t->getTeam()->getTourney()->getId(), $this->service->getRegisteredTeams($user));
         $userPendingGames = $combine(fn ($g) => $g->getTourney()->getId(), $this->service->getPendingGames($user));
 
         return $this->render('site/tourney/index.html.twig', [
@@ -181,7 +229,7 @@ class TourneyController extends AbstractController
             'teams_registered' => $userTeams,
             'games_pending' => $userPendingGames,
             'token' => $token,
-            'register_forms' => $forms,
+            'forms' => $forms,
         ]);
     }
 
