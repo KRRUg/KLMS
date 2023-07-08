@@ -12,7 +12,7 @@
     <div class="collapse" id="collapse-{{ tourney.id }}">
         <div class="card-body">
             {% if registerable %}{% include 'site/tourney/_register.html.twig' with {fc : form_create[tourney.id], fj : form_join[tourney.id] } %}{% endif %}
-            {% if registered %}{% include 'site/tourney/_registered.html.twig' %}{% endif %}
+            {% if registered %}{% include 'site/tourney/_registered.html.twig' with {team : team} %}{% endif %}
 
             <p><b>Status:</b> {{ tourney.status.message }}</p>
 {#            {% if tourney.rules is not empty %}#}

@@ -76,6 +76,15 @@ class TourneyService extends OptimalService
     }
 
     /**
+     * @param User $user
+     * @return TourneyTeam[]
+     */
+    public function getRegisteredTeams(User $user): array
+    {
+        return $this->teamRepository->getTeamsByUser($user->getUuid());
+    }
+
+    /**
      * @param Tourney[] $tourneys
      * @return int
      */

@@ -12,7 +12,7 @@
         </div>
         <hr />
         <div>
-            {% set is_registered = is_registered | default([]) %}
+            {% set teams = teams | default([]) %}
             {% set can_register = can_register | default([]) %}
             {% set is_pending = is_pending | default([]) %}
             {% if token | default(null) is not empty %}
@@ -21,10 +21,12 @@
                 </div>
             {% endif %}
             <div class="accordion mb-3" id="tourney-list">
-            {% for tourney in is_registered %}
+            {% for team in teams %}
+                {% set tourney = team.tourney %}
                 {% set pending = tourney in is_pending %}
-                {% include 'site/tourney/_card.html.twig' with {'tourney' : tourney, 'registered' : true, 'pending' : pending, 'registerable': false } %}
+                {% include 'site/tourney/_card.html.twig' with {'tourney' : tourney, 'team': team, 'registered' : true, 'pending' : pending, 'registerable': false } %}
             {% endfor %}
+            {% set is_registered = teams | map(t => t.getTourney()) %}
             {% for tourney in tourneys %}
                 {% if tourney not in is_registered %}
                     {% set registerable = tourney in can_register %}

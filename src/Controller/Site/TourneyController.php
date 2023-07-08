@@ -155,7 +155,6 @@ class TourneyController extends AbstractController
         $form_join = array();
         $token = $canRegister = null;
 
-        $isRegistered = $this->service->getRegisteredTourneys($user);
         if ($this->service->userMayRegister($user)) {
             $token = $this->service->calculateUserToken($user);
             $canRegister = $this->service->getRegistrableTourneys($user);
@@ -170,12 +169,13 @@ class TourneyController extends AbstractController
                 }
             }
         }
+        $teams = $this->service->getRegisteredTeams($user);
         $pendingTourneys = array_map(fn ($g) => $g->getTourney(), $this->service->getPendingGames($user));
 
         return $this->render('site/tourney/index.html.twig', [
             'tourneys' => $tourneys,
             'token' => $token,
-            'is_registered' => $isRegistered,
+            'teams' => $teams,
             'can_register' => $canRegister,
             'is_pending' => $pendingTourneys,
             'form_create' => $form_create,
