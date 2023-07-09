@@ -270,7 +270,7 @@ class TourneyService extends OptimalService
 
     private function tryModifyRegistration(Tourney $tourney): void
     {
-        if ($tourney->getStatus() != TourneyStatus::registration) {
+        if ($tourney->getStatus() != TourneyStatus::Registration) {
             throw new ServiceException(ServiceException::CAUSE_IN_USE, 'Tourney registration is not open');
         }
     }

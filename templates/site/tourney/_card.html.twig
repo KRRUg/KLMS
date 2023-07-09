@@ -14,17 +14,22 @@
         </h4>
     </div>
     <div class="collapse{% if expand %} show{% endif %}" id="collapse-{{ tourney.id }}">
+        {% set TourneyStatus = enum('\\App\\Entity\\TourneyStatus') %}
         <div class="card-body">
-            {% if registered %}
-                <div {{ stimulus_controller('tourney_registration_team') }}>
+            {% if tourney.status == TourneyStatus.Created %}
+                {% include 'site/tourney/_created.html.twig' %}
+            {% elseif tourney.status == TourneyStatus.Registration %}
+                {% if registered %}
                     {% include 'site/tourney/_registered.html.twig' with {tm : tm} %}
-                </div>
-            {% elseif may_register %}
-                <div>
-                   {% include 'site/tourney/_register.html.twig' with {forms: forms } %}
-                </div>
+                {% elseif may_register %}
+                    {% include 'site/tourney/_register.html.twig' %}
+                {% endif %}
+            {% elseif tourney.status == TourneyStatus.Running %}
+                {% include 'site/tourney/_running.html.twig' %}
+            {% elseif tourney.status == TourneyStatus.Finished %}
+                {% include 'site/tourney/_result.html.twig' %}
             {% endif %}
-
+            <hr/>
             <p><b>Status:</b> {{ tourney.status.message }}</p>
 {#            {% if tourney.rules is not empty %}#}
 {#                <b>Regeln:</b> #}

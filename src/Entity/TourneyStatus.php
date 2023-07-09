@@ -4,18 +4,18 @@ namespace App\Entity;
 
 enum TourneyStatus : int
 {
-    case created = 0;
-    case registration = 1;
-    case running = 2;
-    case finished = 3;
+    case Created = 0;
+    case Registration = 1;
+    case Running = 2;
+    case Finished = 3;
 
     public function getMessage(): string
     {
         return match ($this) {
-            self::created => '',
-            self::registration => 'Anmeldung offen',
-            self::running => 'läuft',
-            self::finished => 'beendet'
+            self::Created => '',
+            self::Registration => 'Anmeldung offen',
+            self::Running => 'läuft',
+            self::Finished => 'beendet'
         };
     }
 }
