@@ -53,13 +53,6 @@ class TourneyController extends AbstractController
         return null;
     }
 
-    private function getTourneyTeamMemberOfId($id): ?TourneyTeamMember
-    {
-        if (is_numeric($id))
-            return $this->service->getTourneyTeamMember(intval($id));
-        return null;
-    }
-
     public const FORM_NAME_SP = 'form_sp';
     public const FORM_NAME_JOIN = 'form_join';
     public const FORM_NAME_CREATE = 'form_create';
@@ -129,7 +122,7 @@ class TourneyController extends AbstractController
             ->getForm();
     }
 
-    private function isFormSubmitted(Request $request, FormInterface $form, callable $getObject): mixed
+    private function isFormSubmitted(Request $request, FormInterface $form): ?int
     {
         if (!$request->request->has($form->getName())) {
             return null;
@@ -138,18 +131,26 @@ class TourneyController extends AbstractController
         if (!$form->isSubmitted() || !$form->isValid()) {
             return null;
         }
-        $tourney = $getObject($form->get('id')->getData());
-        if (is_null($tourney)) {
+
+        $id = $form->get('id')->getData();
+        if (!is_numeric($id)) {
             throw $this->createBadRequestHttpException();
         }
-        return $tourney;
+        return intval($id);
     }
 
     private function handleRegistrationForm(Request $request, FormInterface $form, callable $getTeam): void
     {
         $user = ($u = $this->getUser()) ? $u->getUser() : null;
-        $tourney = $this->isFormSubmitted($request, $form, fn ($id) => $this->getTourneyOfId($id));
-        if (is_null($user) || is_null($tourney)) {
+        $id = $this->isFormSubmitted($request, $form);
+
+        if (is_null($user) || is_null($id)) {
+            return;
+        }
+
+        $tourney = $this->service->getTourneyWithTeams($id);
+        if (is_null($tourney)) {
+            $this->addFlash('error', 'Fehler beim Anmelden: Turnier nicht gefunden.');
             return;
         }
 
@@ -175,8 +176,14 @@ class TourneyController extends AbstractController
     {
         $form = $this->generateFormUnregister();
         $user = ($u = $this->getUser()) ? $u->getUser() : null;
-        $tourney = $this->isFormSubmitted($request, $form, fn ($id) => $this->getTourneyOfId($id));
-        if (is_null($user) || is_null($tourney)) {
+        $id = $this->isFormSubmitted($request, $form);
+        if (is_null($user) || is_null($id)) {
+            return;
+        }
+
+        $tourney = $this->service->getTourneyWithTeams($id);
+        if (is_null($tourney)) {
+            $this->addFlash('error', 'Fehler beim Anmelden: Turnier nicht gefunden.');
             return;
         }
 
@@ -198,19 +205,24 @@ class TourneyController extends AbstractController
     {
         $form = $this->generateFormConfirm();
         $user = ($u = $this->getUser()) ? $u->getUser() : null;
-        // TODO don't 400 if this id is not here. This can be the case if other use deregisteres while this form is out.
-        $ttm = $this->isFormSubmitted($request, $form, fn ($id) => $this->getTourneyTeamMemberOfId($id));
-        if (is_null($user) || is_null($ttm)) {
+        $id = $this->isFormSubmitted($request, $form);
+        if (is_null($user) || is_null($id)) {
             return;
         }
 
         $accept = $form->get('accept')->isClicked();
+        $ttm = $this->service->getTourneyTeamMember($id);
+
+        if (is_null($ttm)) {
+            $this->addFlash('warning', 'User war nicht mehr angemeldet.');
+            return;
+        }
 
         try {
             $this->service->userConfirmTeamMember($ttm, $user, $accept);
         } catch (ServiceException $e) {
             $this->addFlash('error',
-                'Fehler beim Abmelden: ' .
+                'Fehler: ' .
                 match ($e->getCode()) {
                     ServiceException::CAUSE_IN_USE => 'Turnier registrierung ist nicht (mehr) offen.',
                     ServiceException::CAUSE_DONT_EXIST => 'User ist nicht registriert.',
