@@ -34,6 +34,8 @@
                             'tourney' : tourney, 'registered' : false, 'expand' : tourney == show ?? null, 'forms': forms[tourney.id] ?? []
                         } %}
                     {% endif %}
+                {% else %}
+                    <span class="text-muted">Es sind keine Turniere vorhanden.</span>
                 {% endfor %}
             </div>
         </div>

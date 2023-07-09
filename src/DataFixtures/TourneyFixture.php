@@ -11,15 +11,18 @@ use App\Entity\TourneyType;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Common\DataFixtures\DependentFixtureInterface;
 use Doctrine\Persistence\ObjectManager;
+use joshtronic\LoremIpsum;
 use Ramsey\Uuid\Uuid;
 
 class TourneyFixture extends Fixture implements DependentFixtureInterface
 {
     public function load(ObjectManager $manager): void
     {
+        $lipsum = new LoremIpsum();
+
         $tourney0 = (new Tourney())
             ->setName('Chess 1v1')
-            ->setDescription('The classic.')
+            ->setDescription($lipsum->words(30))
             ->setHidden(false)
             ->setStatus(TourneyStatus::Running)
             ->setOrder(1)
@@ -54,7 +57,7 @@ class TourneyFixture extends Fixture implements DependentFixtureInterface
 
         $tourney1 = (new Tourney())
             ->setName('Chess 2v2')
-            ->setDescription('The team variant.')
+            ->setDescription($lipsum->words(18))
             ->setHidden(false)
             ->setStatus(TourneyStatus::Registration)
             ->setToken(15)
@@ -122,7 +125,7 @@ class TourneyFixture extends Fixture implements DependentFixtureInterface
 
         $tourney2 = (new Tourney())
             ->setName('Poker')
-            ->setDescription('Some card game.')
+            ->setDescription($lipsum->words(22))
             ->setHidden(false)
             ->setStatus(TourneyStatus::Registration)
             ->setToken(15)
