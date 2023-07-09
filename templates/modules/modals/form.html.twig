@@ -11,8 +11,10 @@
     {% endblock %}
 
     {% block modalFooter %}
-        <button type="reset" class="btn-secondary btn" data-dismiss="modal">{{ button_cancel | default('Abbrechen') }}</button>
-        <button type="submit" class="btn-primary btn">{{ button_save | default('Speichern') }}</button>
+        {% block formFooter %}
+            <button type="reset" class="btn-secondary btn btn-sm" data-dismiss="modal">{{ button_cancel | default('Abbrechen') }}</button>
+            <button type="submit" class="btn-primary btn btn-sm">{{ button_save | default('Speichern') }}</button>
+        {% endblock %}
     {% endblock %}
 
     {% block modalContentAppend %}

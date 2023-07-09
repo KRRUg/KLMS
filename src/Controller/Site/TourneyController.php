@@ -128,8 +128,8 @@ class TourneyController extends AbstractController
     {
         return $this->createNamedFormBuilder(self::FORM_NAME_RESULT)
             ->add('id', HiddenType::class, ['required' => true])
-            ->add('scoreA', NumberType::class, ['required' => true, 'constraints' => [new Assert\PositiveOrZero()]])
-            ->add('scoreB', NumberType::class, ['required' => true, 'constraints' => [new Assert\PositiveOrZero()]])
+            ->add('scoreA', NumberType::class, ['required' => true, 'attr' => ['pattern' => '[0-9]{2}', 'size' =>'2'], 'constraints' => [new Assert\PositiveOrZero()]])
+            ->add('scoreB', NumberType::class, ['required' => true, 'attr' => ['pattern' => '[0-9]{2}', 'size' =>'2'], 'constraints' => [new Assert\PositiveOrZero()]])
             ->add('submit', SubmitType::class, ['label' => 'Speichern'])
             ->getForm();
     }

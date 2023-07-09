@@ -2,9 +2,12 @@
     <a class="btn btn-primary btn-sm" href="{{ path('tourney_show', {'id': tourney.id }) }}"><i class="fa-solid fa-sitemap"></i> Turnierbaum</a>
 {% endmacro %}
 
-{% macro enter_result_button(game = null) %}
+{% macro enter_result_button(game = null, form = null) %}
     {% if game is not null %}
-        <button class="btn btn-primary btn-sm" type="button" {% if game is not null %}{# data-toggle="collapse" data-target=".registration-{{ game.id }}" #}{% else %}disabled="disabled"{% endif %}><i class="fa-solid fa-square-poll-horizontal"></i> Ergebnis eintragen</button>
+        <button class="btn btn-primary btn-sm" type="button" {% if game is not null %} data-toggle="modal" data-target="#result-modal-{{ game.id }}" {% else %} disabled="disabled"{% endif %}><i class="fa-solid fa-square-poll-horizontal"></i> Ergebnis eintragen</button>
+        {% if form is not null %}
+            {% include 'site/tourney/_result.modal.html.twig' with { id : 'result-modal-' ~ game.id, form: form, game: game } %}
+        {% endif %}
     {% endif %}
 {% endmacro %}
 
@@ -24,7 +27,8 @@
 {% endmacro %}
 
 <div class="text-right">
-    {{ _self.enter_result_button(current_game) }}
+    {% set f = forms[constant('App\\Controller\\Site\\TourneyController::FORM_NAME_RESULT')] | default(null) %}
+    {{ _self.enter_result_button(current_game, f) }}
     {{ _self.tree_button(tourney) }}
 </div>
 
