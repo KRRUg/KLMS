@@ -14,7 +14,7 @@ class TourneyTest extends DatabaseWebTestCase
         $crawler = $this->client->request('GET', '/tourney');
         $this->assertSelectorNotExists('.tourney.registered');
         $tourneys = $crawler->filter('.tourney');
-        $this->assertEquals(3, $tourneys->count());
+        $this->assertEquals(4, $tourneys->count());
         $this->assertStringContainsString('Chess 1v1', $tourneys->getNode(0)->textContent);
         $this->assertStringContainsString('Poker', $tourneys->getNode(1)->textContent);
         $this->assertStringContainsString('Chess 2v2', $tourneys->getNode(2)->textContent);
@@ -26,7 +26,7 @@ class TourneyTest extends DatabaseWebTestCase
 
         $this->login('user7@localhost.local');
         $crawler = $this->client->request('GET', '/tourney');
-        $this->assertEquals(3, $crawler->filter('.tourney')->count());
+        $this->assertEquals(4, $crawler->filter('.tourney')->count());
         $this->assertEquals(1, $crawler->filter('.tourney.registered')->count());
         $this->logout();
         $this->login('user2@localhost.local');

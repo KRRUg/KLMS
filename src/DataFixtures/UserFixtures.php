@@ -17,10 +17,6 @@ class UserFixtures extends Fixture
         $admin->setPermissions(['ADMIN_NEWS']);
         $manager->persist($admin);
 
-        $gamer = new UserGamer(Uuid::fromInteger(strval(4)));
-        $gamer->setRegistered(new DateTime());
-        $manager->persist($gamer);
-
         $gamer = new UserGamer(Uuid::fromInteger(strval(10)));
         $gamer->setRegistered(new DateTime());
         $manager->persist($gamer);
@@ -30,23 +26,20 @@ class UserFixtures extends Fixture
         $gamer->setPaid(new DateTime());
         $manager->persist($gamer);
 
-        $gamer = new UserGamer(Uuid::fromInteger(strval(2)));
-        $gamer->setRegistered(new DateTime());
-        $gamer->setPaid(new DateTime());
-        $gamer->setCheckedIn(new DateTime());
-        $manager->persist($gamer);
-
-        $gamer = new UserGamer(Uuid::fromInteger(strval(7)));
-        $gamer->setRegistered(new DateTime());
-        $gamer->setPaid(new DateTime());
-        $gamer->setCheckedIn(new DateTime());
-        $manager->persist($gamer);
-
         $gamer = new UserGamer(Uuid::fromInteger(strval(14)));
         $gamer->setRegistered(new DateTime());
         $gamer->setPaid(new DateTime());
         $gamer->setCheckedIn(new DateTime());
         $manager->persist($gamer);
+
+        for ($i = 1; $i <= 9; $i++) {
+            $gamer = new UserGamer(Uuid::fromInteger(strval($i)));
+            $gamer->setRegistered(new DateTime());
+            $gamer->setPaid(new DateTime());
+            $gamer->setCheckedIn(new DateTime());
+            $this->setReference('gamer-'.$i, $gamer);
+            $manager->persist($gamer);
+        }
 
         $manager->flush();
     }

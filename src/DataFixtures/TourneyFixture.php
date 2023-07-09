@@ -129,7 +129,6 @@ class TourneyFixture extends Fixture implements DependentFixtureInterface
             ->setOrder(2)
             ->setTeamsize(1)
             ->setMode(TourneyType::registration_only)
-            ->setShowPoints(false)
             ->setAuthorId(Uuid::fromInteger(13))
             ->setModifierId(Uuid::fromInteger(13))
         ;
@@ -137,12 +136,36 @@ class TourneyFixture extends Fixture implements DependentFixtureInterface
         $tourney2
             ->addTeam(TourneyTeam::createTeamWithUser(UUid::fromInteger(9)));
 
+        $tourney3 = (new Tourney())
+            ->setName('Rollerball')
+            ->setDescription('')
+            ->setHidden(false)
+            ->setStatus(TourneyStatus::registration)
+            ->setToken(15)
+            ->setOrder(4)
+            ->setTeamsize(5)
+            ->setMode(TourneyType::registration_only)
+            ->setAuthorId(Uuid::fromInteger(13))
+            ->setModifierId(Uuid::fromInteger(13))
+        ;
+
+        // NB: User 1 spent more tokens than allowed (e.g. registered by admins).
+        $team = (new TourneyTeam())->setName('Houston');
+        $team->addMember(TourneyTeamMember::create(Uuid::fromInteger(1))->setAccepted(true));
+        $team->addMember(TourneyTeamMember::create(Uuid::fromInteger(5)));
+        $team->addMember(TourneyTeamMember::create(Uuid::fromInteger(6)));
+        $team->addMember(TourneyTeamMember::create(Uuid::fromInteger(8))->setAccepted(true));
+        $team->addMember(TourneyTeamMember::create(Uuid::fromInteger(9)));
+        $tourney3->addTeam($team);
+
         $this->setReference('tourney-0', $tourney0);
         $this->setReference('tourney-1', $tourney1);
         $this->setReference('tourney-2', $tourney2);
+        $this->setReference('tourney-3', $tourney3);
         $manager->persist($tourney0);
         $manager->persist($tourney1);
         $manager->persist($tourney2);
+        $manager->persist($tourney3);
 
         $manager->flush();
     }

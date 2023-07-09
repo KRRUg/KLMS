@@ -49,7 +49,7 @@ class Tourney implements HistoryAwareEntity
     private ?TourneyType $mode = null;
 
     #[ORM\Column]
-    private ?bool $show_points = null;
+    private ?bool $show_points = false;
 
     #[ORM\OneToMany(mappedBy: 'tourney', targetEntity: TourneyGame::class, orphanRemoval: true, cascade: ['persist'])]
     private Collection $games;

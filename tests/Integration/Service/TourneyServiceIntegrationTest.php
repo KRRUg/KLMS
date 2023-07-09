@@ -31,7 +31,7 @@ class TourneyServiceIntegrationTest extends DatabaseTestCase
 
         /** @var Tourney[] $tourneys */
         $tourneys = $service->getVisibleTourneys();
-        $this->assertCount(3, $tourneys);
+        $this->assertCount(4, $tourneys);
         $this->assertEquals('Chess 1v1', $tourneys[0]->getName());
         $this->assertEquals('Poker', $tourneys[1]->getName());
         $this->assertEquals('Chess 2v2', $tourneys[2]->getName());
@@ -80,7 +80,7 @@ class TourneyServiceIntegrationTest extends DatabaseTestCase
         $this->databaseTool->loadFixtures([TourneyFixture::class, UserFixtures::class]);
         $service = self::getContainer()->get(TourneyService::class);
         $user7 = $this->getUser(7);
-        $user8 = $this->getUser(8);
+        $user8 = $this->getUser(14);
 
         $tourney = $service->getVisibleTourneys()[2];
         $this->assertEquals(TourneyStatus::registration, $tourney->getStatus());
@@ -118,7 +118,7 @@ class TourneyServiceIntegrationTest extends DatabaseTestCase
         $this->databaseTool->loadFixtures([TourneyFixture::class, UserFixtures::class]);
         $service = self::getContainer()->get(TourneyService::class);
         $user2 = $this->getUser(2);
-        $user8 = $this->getUser(8);
+        $user8 = $this->getUser(14);
 
         $tourney = $service->getVisibleTourneys()[2];
 
@@ -136,7 +136,7 @@ class TourneyServiceIntegrationTest extends DatabaseTestCase
         $this->databaseTool->loadFixtures([TourneyFixture::class, UserFixtures::class]);
         $service = self::getContainer()->get(TourneyService::class);
         $user2 = $this->getUser(2);
-        $user8 = $this->getUser(8);
+        $user8 = $this->getUser(14);
 
         $tourney = $service->getVisibleTourneys()[2];
 
