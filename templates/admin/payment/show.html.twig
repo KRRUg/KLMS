@@ -1,4 +1,4 @@
-{% embed "admin/components/modals/skeleton.html.twig"
+{% embed "modules/modals/skeleton.html.twig"
     with {
     'id': 'showPaymentModal',
     'title' : 'Anmeldung ' ~ user.nickname,
@@ -31,7 +31,6 @@
                         <span title="Vorname: {{ user.firstname }}">{{ user.firstname|defaultBadge('Vorname n.v.') }}</span>
                         <span title="Nachname: {{ user.surname }}">{{ user.surname|defaultBadge('Nachname n.v.') }}</span>
                     </h2>
-                    </p>
                     <p>
                         <i class="far fa-envelope fa-fw mr-2"
                            title="E-Mail Adresse"></i>{{ user.email|defaultBadge('E-Mailadresse n.v.') }}
