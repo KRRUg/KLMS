@@ -1,5 +1,5 @@
 import '../css/app.scss';
-import './stimulus';
+//import './stimulus';
 
 //Shared JS
 import $ from 'jquery';
