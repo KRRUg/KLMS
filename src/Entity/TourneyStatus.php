@@ -12,10 +12,15 @@ enum TourneyStatus : int
     public function getMessage(): string
     {
         return match ($this) {
-            self::Created => '',
+            self::Created => 'Anmeldung (noch) nicht freigeschalten',
             self::Registration => 'Anmeldung offen',
             self::Running => 'läuft',
             self::Finished => 'beendet'
         };
+    }
+
+    public function hasTree(): bool
+    {
+        return $this == self::Running || $this == self::Finished;
     }
 }

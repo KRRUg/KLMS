@@ -241,4 +241,11 @@ class Tourney implements HistoryAwareEntity
 
         return $this;
     }
+
+    public function showTree(): bool
+    {
+        if (is_null($this->status) || is_null($this->mode))
+            return false;
+        return $this->status->hasTree() && $this->mode->hasTree();
+    }
 }

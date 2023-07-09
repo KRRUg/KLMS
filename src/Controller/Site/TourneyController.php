@@ -314,7 +314,7 @@ class TourneyController extends AbstractController
     public function byId(int $id): Response
     {
         $tourney = $this->service->getTourneyWithTeams($id);
-        if (is_null($tourney)) {
+        if (is_null($tourney) || !$tourney->showTree()) {
             throw new NotFoundHttpException();
         }
 

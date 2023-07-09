@@ -4,7 +4,12 @@ namespace App\Entity;
 
 enum TourneyType : string
 {
-    case single_elimination = 'se';
-    case double_elimination = 'de';
-    case registration_only = 'ro';
+    case SingleElimination = 'se';
+    case DoubleElimination = 'de';
+    case RegistrationOnly = 'ro';
+
+    public function hasTree(): bool
+    {
+        return $this != self::RegistrationOnly;
+    }
 }
