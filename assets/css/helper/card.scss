@@ -30,10 +30,14 @@
 .box {
     border: 1px solid $primary;
     background-color: rgba($primary,.35);
+}
 
-    div {
-        border-color: $primary !important;
-    }
+.box-header {
+    @extend .card-header;
+    background-color: rgba($primary,.5);
+    font-weight: bold;
+    padding: 0.5rem;
+    border-bottom: 1px solid $primary;
 }
 
 .box-body {
