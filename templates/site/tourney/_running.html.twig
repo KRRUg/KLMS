@@ -26,35 +26,42 @@
     {% endif %}
 {% endmacro %}
 
-<div class="text-right">
-    {% set f = forms[constant('App\\Controller\\Site\\TourneyController::FORM_NAME_RESULT')] | default(null) %}
-    {{ _self.enter_result_button(current_game, f) }}
-    {{ _self.tree_button(tourney) }}
-</div>
-
-<div class="container-fluid row">
-    {% if current_game is null %}
-        <span>Ausgeschieden.</span>
-    {% else %}
-        <div class="col-md-6">
-            {{ _self.pending_game_box(current_game) }}
-        </div>
-    {% endif %}
-    <div class="col-md-6">
-    {% if not tourney.singlePlayer %}
-    {% set team = tm.team %}
-        <div class="box">
-            <div class="box-header">
-                {{ team.name }}
-            </div>
-            <div class="box-body">
-                <ul class="list-unstyled">
-                {% for member in team.members %}
-                    <li>{{ member.gamer | username }}</li>
-                {% endfor %}
-                </ul>
-            </div>
-        </div>
-    {% endif %}
+{% if not participates %}
+    <div class="text-right">
+        {{ _self.tree_button(tourney) }}
     </div>
-</div>
+{% else %}
+    <div class="text-right">
+        {% set f = forms[constant('App\\Controller\\Site\\TourneyController::FORM_NAME_RESULT')] | default(null) %}
+        {{ _self.enter_result_button(current_game, f) }}
+        {{ _self.tree_button(tourney) }}
+    </div>
+
+    <div class="container-fluid row">
+        {% if current_game is null %}
+            <span>Du bist nicht mehr im Rennen.</span>
+        {% else %}
+            <div class="col-md-6">
+                {{ _self.pending_game_box(current_game) }}
+            </div>
+        {% endif %}
+        <div class="col-md-6">
+        {% if not tourney.singlePlayer %}
+        {% set team = tm.team %}
+            <div class="box">
+                <div class="box-header">
+                    {{ team.name }}
+                </div>
+                <div class="box-body">
+                    <ul class="list-unstyled">
+                    {% for member in team.members %}
+                        <li>{{ member.gamer | username }}</li>
+                    {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        {% endif %}
+        </div>
+    </div>
+    <hr/>
+{% endif %}
