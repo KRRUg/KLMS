@@ -1,7 +1,7 @@
 {% set fur = forms[constant('App\\Controller\\Site\\TourneyController::FORM_NAME_UNREGISTER')] | default(null) %}
 
 {% macro unregister_form(form) %}
-    {% if form is not null %}{{ form_start(form, { 'attr': {'class': 'form-inline'}}) }}{{ form_widget(form.submit, { 'attr': {'class': 'btn btn-secondary btn-sm'}}) }}{{ form_end(form) }}{% endif %}
+    {% if form is not null %}{{ form_start(form, { 'attr': {'class': ''}}) }}<div class="text-right">{{ form_widget(form.submit, { 'attr': {'class': 'btn btn-secondary btn-sm'}}) }}</div>{{ form_end(form) }}{% endif %}
 {% endmacro %}
 
 {% macro accept_decline_form(form) %}

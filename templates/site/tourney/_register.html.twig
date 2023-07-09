@@ -15,12 +15,11 @@
         {{ form_start(fsp) }}
         <span>Wirklich teilnehmen?</span><br>
         {{ form_widget(fsp.submit, { 'attr': {'class': 'btn btn-primary btn-sm'}}) }}
-        <a class="btn btn-secondary btn-sm" data-toggle="collapse" href=".registration-{{ tourney.id }}">Abbrechen</a>
+        <button class="btn btn-secondary btn-sm" type="button" data-toggle="collapse" data-target=".registration-{{ tourney.id }}">Abbrechen</button>
         {{ form_end(fsp) }}
     {% else %}
         <div class="row">
-            {# FIXME form inline is breaking on smaller display sizes #}
-            {# FIXME remove boarder on smaller than md #}
+            {# FIXME make modal #}
             <div class="col-md-5 border-right">
                 Existierendem Team beitreten
                 {{ form_start(fj, { 'attr': {'class': 'form-inline'}}) }}
@@ -36,7 +35,7 @@
                 {{ form_end(fc) }}
             </div>
             <div class="col-md-2 d-flex justify-content-around align-items-end">
-                <a class="btn btn-secondary btn-sm" data-toggle="collapse" href=".registration-{{ tourney.id }}">Abbrechen</a>
+                <button class="btn btn-secondary btn-sm" type="button" data-toggle="collapse" data-target=".registration-{{ tourney.id }}">Abbrechen</button>
             </div>
         </div>
     {% endif %}
