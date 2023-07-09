@@ -1,6 +1,6 @@
 {% set registered = registered | default(false) %}
 {% set may_register = may_register | default(false) %}
-{% set pending = pending | default(false) %}
+{% set pending = pending | default(null) %}
 {% set expand = expand | default(false) %}
 <div class="card mb-3 tourney {% if registered %}registered{% endif %}" id="tourney-{{ tourney.id }}">
     <div class="card-header">
@@ -8,7 +8,7 @@
         <button class="btn btn-block d-flex justify-content-between align-items-center" type="button" data-toggle="collapse" data-target="#collapse-{{ tourney.id }}">
             {{ tourney.name }}
             {% if registered %}
-                <i class="fa-solid fa-gamepad {% if pending %}text-primary fa-beat-fade{% endif %} fa-2xl"></i>
+                <i class="fa-solid fa-gamepad {% if pending is not null %}text-primary fa-beat-fade{% endif %} fa-2xl"></i>
             {% endif %}
         </button>
         </h4>
@@ -25,7 +25,7 @@
                     {% include 'site/tourney/_register.html.twig' %}
                 {% endif %}
             {% elseif tourney.status == TourneyStatus.Running %}
-                {% include 'site/tourney/_running.html.twig' %}
+                {% include 'site/tourney/_running.html.twig' with { pending_game : pending} %}
             {% elseif tourney.status == TourneyStatus.Finished %}
                 {% include 'site/tourney/_result.html.twig' %}
             {% endif %}
@@ -38,7 +38,6 @@
             {% if tourney.description is not empty %}
                 <p><b>Beschreibung:</b> {{ tourney.description | raw }}</p>
             {% endif %}
-            <p><b>Tree: </b><a href="{{ path('tourney_show', {'id': tourney.id }) }}">Tree</a></p>
         </div>
     </div>
 </div>
