@@ -80,6 +80,15 @@ class TourneyService extends OptimalService
         }
     }
 
+    public function getGame(int $id): ?TourneyGame
+    {
+        try {
+            return $this->gameRepository->find($id);
+        } catch (NoResultException|NonUniqueResultException) {
+            return null;
+        }
+    }
+
     /**
      * @param User $user
      * @return Tourney[]
@@ -339,6 +348,27 @@ class TourneyService extends OptimalService
         return $depth($final);
     }
 
+    /* Result logging */
+
+    public function getGameByTourneyAndUser(Tourney $tourney, User $user): ?TourneyGame
+    {
+        $game = $this->gameRepository->findActiveGamesByUser($user->getUuid(), false, $tourney);
+        if (empty($game)) {
+            return null;
+        } elseif (count($game) > 1) {
+            throw new LogicException('More than one team per user and tourney.');
+        }
+        return $game[0];
+    }
+
+    private function tryLogResult(TourneyGame $game)
+    {
+        $tourney = $game->getTourney();
+        if (is_null($tourney) || $tourney->getStatus() != TourneyStatus::Running) {
+            throw new ServiceException(ServiceException::CAUSE_IN_USE, 'Tourney is not running.');
+        }
+    }
+
     public function getAllUsersOfTourney(Tourney $tourney): array
     {
         $result = array();
@@ -348,5 +378,59 @@ class TourneyService extends OptimalService
             }
         }
         return array_filter($result, fn($u) => !is_null($u));
+    }
+
+    public function logResultUser(TourneyGame $game, User $user, int $scoreA, int $scoreB)
+    {
+        $userInTeamA = $this->teamRepository->userInTeam($game->getTeamA(), $user->getUuid());
+        $userInTeamB = $this->teamRepository->userInTeam($game->getTeamB(), $user->getUuid());
+
+        if (!$userInTeamA && !$userInTeamB) {
+            throw new ServiceException(ServiceException::CAUSE_INCONSISTENT, 'Only members of the teams are allowed to enter results');
+        }
+        if (($scoreA >= $scoreB && $userInTeamA) || ($scoreB >= $scoreA && $userInTeamB)) {
+            throw new ServiceException(ServiceException::CAUSE_FORBIDDEN, 'Loser must enter the result');
+        }
+        $this->logResult($game, $scoreA, $scoreB);
+    }
+
+    public function logResult(TourneyGame $game, int $scoreA, int $scoreB)
+    {
+        $this->tryLogResult($game);
+        if ($scoreA == $scoreB) {
+            throw new ServiceException(ServiceException::CAUSE_INVALID, 'Tie not allowed.');
+        }
+        $game->setScoreA($scoreA);
+        $game->setScoreB($scoreB);
+        $parent = $game->getParent();
+        if (!is_null($parent)) {
+            if ($game->isChildA()) {
+                $parent->setTeamA($game->getWinner());
+            } else {
+                $parent->setTeamB($game->getWinner());
+            }
+        }
+        $this->em->flush();
+    }
+
+    /* Tourney management */
+
+    public function tourneyAdvance(Tourney $tourney)
+    {
+        switch ($tourney->getStatus()) {
+            case TourneyStatus::Created:
+                $tourney->setStatus(TourneyStatus::Registration);
+                break;
+            case TourneyStatus::Registration:
+                $tourney->setStatus(TourneyStatus::Running);
+                break;
+            case TourneyStatus::Running:
+                $tourney->setStatus(TourneyStatus::Finished);
+                break;
+            default:
+            case TourneyStatus::Finished:
+                return;
+        }
+        $this->em->flush();
     }
 }

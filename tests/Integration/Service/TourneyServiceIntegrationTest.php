@@ -243,4 +243,70 @@ class TourneyServiceIntegrationTest extends DatabaseTestCase
         $this->expectException(ServiceException::class);
         $service->userRegister($tourney, $user0, null);
     }
+
+    private function provideLogResultInvalidUser(): array
+    {
+        return [
+            [$this->getUser(7), null],
+            [$this->getUser(8), '/loser/i'], // user must enter the result
+            [$this->getUser(2), '//'], // user is not part of the game
+        ];
+    }
+
+    /**
+     * @dataProvider provideLogResultInvalidUser
+     */
+    public function testLogResultInvalidUser(User $user, ?string $exception)
+    {
+        $this->databaseTool->loadFixtures([TourneyFixture::class, UserFixtures::class]);
+        $service = self::getContainer()->get(TourneyService::class);
+        /** @var Tourney $tourney */
+        $tourney = $service->getVisibleTourneys()[0];
+        $this->assertTrue($tourney->getStatus() == TourneyStatus::Running);
+
+        $game = $service->getGameByTourneyAndUser($tourney, $user);
+        $this->assertNotEmpty($game);
+
+        if (!is_null($exception)) {
+            $this->expectException(ServiceException::class);
+            $this->expectExceptionMessageMatches($exception);
+        }
+        $service->logResultUser($game, $user, 1, 2);
+    }
+
+    public function testRegisterWinAndAdvance()
+    {
+        $this->databaseTool->loadFixtures([TourneyFixture::class, UserFixtures::class]);
+        $service = self::getContainer()->get(TourneyService::class);
+        /** @var Tourney $tourney */
+        $tourney = $service->getVisibleTourneys()[0];
+        $user8 = $this->getUser(8);
+
+        $game = $service->getGameByTourneyAndUser($tourney, $user8);
+        $this->assertNotEmpty($game);
+
+        $service->logResult($game, 1, 2);
+
+        $nextGame = $service->getGameByTourneyAndUser($tourney, $user8);
+        $this->assertNotEquals($game, $nextGame);
+        $this->assertEquals($game->getParent(), $nextGame);
+        $this->assertEquals($game->getTeamB(), $nextGame->getTeamB());
+    }
+
+    public function testLogResultNotRunningTourney()
+    {
+        $this->databaseTool->loadFixtures([TourneyFixture::class, UserFixtures::class]);
+        $service = self::getContainer()->get(TourneyService::class);
+        $tourney = $service->getVisibleTourneys()[0];
+        $service->tourneyAdvance($tourney);
+
+        $user7 = $this->getUser(7);
+
+        $game = $service->getGameByTourneyAndUser($tourney, $user7);
+        $this->assertNotEmpty($game);
+
+        $this->expectException(ServiceException::class);
+        $this->expectExceptionMessageMatches('/not running/i');
+        $service->logResultUser($game, $user7, 1, 2);
+    }
 }

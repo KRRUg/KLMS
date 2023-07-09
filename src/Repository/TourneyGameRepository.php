@@ -2,6 +2,7 @@
 
 namespace App\Repository;
 
+use App\Entity\Tourney;
 use App\Entity\TourneyGame;
 use App\Entity\TourneyTeam;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
@@ -41,7 +42,7 @@ class TourneyGameRepository extends ServiceEntityRepository
         }
     }
 
-    public function findActiveGamesByUser(UuidInterface $user, bool $pendingOnly = false): array
+    public function findActiveGamesByUser(UuidInterface $user, bool $pendingOnly = false, ?Tourney $tourney = null): array
     {
         $qb = $this->createQueryBuilder('g');
         $qb
@@ -55,6 +56,11 @@ class TourneyGameRepository extends ServiceEntityRepository
         if ($pendingOnly) {
             // and both teams are set
             $qb->andWhere($qb->expr()->andX($qb->expr()->isNotNull('g.teamA'), $qb->expr()->isNotNull('g.teamB')));
+        }
+
+        if (!is_null($tourney)) {
+            $qb->andWhere('g.tourney = :tourney')
+                ->setParameter('tourney', $tourney);
         }
 
         return $qb->setParameter('uuid', $user)

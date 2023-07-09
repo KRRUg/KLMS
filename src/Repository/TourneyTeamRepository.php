@@ -4,6 +4,8 @@ namespace App\Repository;
 
 use App\Entity\TourneyTeam;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\NonUniqueResultException;
+use Doctrine\ORM\NoResultException;
 use Doctrine\Persistence\ManagerRegistry;
 use Ramsey\Uuid\UuidInterface;
 
@@ -55,7 +57,6 @@ class TourneyTeamRepository extends ServiceEntityRepository
                 ->andWhere('ttm.accepted = :acc')
                 ->setParameter('acc', $accepted);
         }
-
-        return $qb->getQuery()->getScalarResult() > 0;
+        return $qb->getQuery()->getSingleScalarResult() > 0;
     }
 }

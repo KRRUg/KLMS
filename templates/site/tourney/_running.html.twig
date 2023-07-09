@@ -14,10 +14,10 @@
     {% if game is not null and game.pending %}
         <div class="box">
             <div class="box-header">
-                Aktuelles Spiel
+                Ausstehendes Spiel
             </div>
-            <div class="box-body">
-                {{ teamnameA(game) }} <span class="text-primary">vs</span> {{ teamnameB(game) }}
+            <div class="box-body text-center">
+                {{ teamnameA(game) }} <span class="text-primary font-weight-bold">vs</span> {{ teamnameB(game) }}
             </div>
         </div>
     {% endif %}

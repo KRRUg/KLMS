@@ -10,6 +10,7 @@ use App\Service\TourneyService;
 use App\Service\UserService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\Extension\Core\Type\HiddenType;
+use Symfony\Component\Form\Extension\Core\Type\NumberType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
@@ -58,6 +59,7 @@ class TourneyController extends AbstractController
     public const FORM_NAME_CREATE = 'form_create';
     public const FORM_NAME_UNREGISTER = 'form_unregister';
     public const FORM_NAME_CONFIRM = 'form_confirm';
+    public const FORM_NAME_RESULT = 'form_result';
 
     private function generateFormRegistrationCreate(): FormInterface
     {
@@ -119,6 +121,16 @@ class TourneyController extends AbstractController
             ->add('id', HiddenType::class, ['required' => true])
             ->add('accept', SubmitType::class, ['label' => 'Aufnehmen'])
             ->add('decline', SubmitType::class, ['label' => 'Ablehnen'])
+            ->getForm();
+    }
+
+    private function generateFormResult(): FormInterface
+    {
+        return $this->createNamedFormBuilder(self::FORM_NAME_RESULT)
+            ->add('id', HiddenType::class, ['required' => true])
+            ->add('scoreA', NumberType::class, ['required' => true, 'constraints' => [new Assert\PositiveOrZero()]])
+            ->add('scoreB', NumberType::class, ['required' => true, 'constraints' => [new Assert\PositiveOrZero()]])
+            ->add('submit', SubmitType::class, ['label' => 'Speichern'])
             ->getForm();
     }
 
@@ -239,6 +251,41 @@ class TourneyController extends AbstractController
         return $tourney;
     }
 
+    private function handleResultForm(Request $request): ?Tourney
+    {
+        $form = $this->generateFormResult();
+        $user = ($u = $this->getUser()) ? $u->getUser() : null;
+        $id = $this->isFormSubmitted($request, $form);
+        if (is_null($user) || is_null($id)) {
+            return null;
+        }
+
+        $game = $this->service->getGame($id);
+        if (is_null($game)){
+            return null;
+        }
+
+        $tourney = $game->getTourney();
+        $scoreA = $form->get('scoreA')->getData();
+        $scoreB = $form->get('scoreB')->getData();
+
+        try {
+            $this->service->logResultUser($game, $user, $scoreA, $scoreB);
+        } catch (ServiceException $e) {
+            $this->addFlash('error',
+                'Fehler: ' .
+                match ($e->getCode()) {
+                    ServiceException::CAUSE_INCONSISTENT => 'Nur Spieler dieses Spiels dürfen das Ergebnis eintragen.',
+                    ServiceException::CAUSE_FORBIDDEN => 'Der Verlierer muss das Ergebnis eintragen.',
+                    ServiceException::CAUSE_INVALID => 'Gleichstand ist nicht erlaubt',
+                    ServiceException::CAUSE_IN_USE => 'Turnier läuft nicht.',
+                    default => 'unbekannter Fehler.'
+                }
+            );
+        }
+        return $tourney;
+    }
+
     #[Route(path: '/tourney', name: 'tourney')]
     public function index(Request $request): Response
     {
@@ -258,9 +305,11 @@ class TourneyController extends AbstractController
         $show ??= $this->handleRegistrationForm($request, $this->generateFormRegistrationJoin(), fn ($form) => $form->get('team')->getData());
         $show ??= $this->handleUnregisterForm($request);
         $show ??= $this->handleConfirmForm($request);
+        $show ??= $this->handleResultForm($request);
 
         $forms = array();
         $userTeams = array();
+        $userActiveGames = array();
         $token = null;
 
         $mayRegister = $this->service->registrationOpen();
@@ -296,8 +345,14 @@ class TourneyController extends AbstractController
                 }
             }
         }
-        $combine = fn (callable $f, array $a) => array_combine(array_map($f, $a), $a);
-        $userActiveGames = $combine(fn ($g) => $g->getTourney()->getId(), $this->service->getActiveGames($user));
+        foreach ($this->service->getActiveGames($user) as $game) {
+            $t = $game->getTourney();
+            $userActiveGames[$t->getId()] = $game;
+            if (!$game->isPending()) {
+                continue;
+            }
+            $forms[$t->getId()] = [self::FORM_NAME_RESULT => $this->generateFormResult()->setData(['id' => $game->getId()])->createView()];
+        }
 
         return $this->render('site/tourney/index.html.twig', [
             'tourneys' => $tourneys,

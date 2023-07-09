@@ -190,4 +190,15 @@ class TourneyGame
         return (is_null($this->getScoreA()) || is_null($this->getScoreB()))
             && (!is_null($this->getTeamA()) && !is_null($this->getTeamB()));
     }
+
+    public function getWinner(): ?TourneyTeam
+    {
+        if ($this->hasWon(true)) {
+            return $this->getTeamA();
+        } elseif ($this->hasWon(false)) {
+            return $this->getTeamB();
+        } else {
+            return null;
+        }
+    }
 }
