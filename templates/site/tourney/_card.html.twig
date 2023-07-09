@@ -1,6 +1,7 @@
 {% set registered = registered | default(false) %}
 {% set may_register = may_register | default(false) %}
 {% set pending = pending | default(false) %}
+{% set expand = expand | default(false) %}
 <div class="card mb-3 tourney {% if registered %}registered{% endif %}" id="tourney-{{ tourney.id }}">
     <div class="card-header">
         <h4 class="mb-0">
@@ -12,7 +13,7 @@
         </button>
         </h4>
     </div>
-    <div class="collapse" id="collapse-{{ tourney.id }}">
+    <div class="collapse{% if expand %} show{% endif %}" id="collapse-{{ tourney.id }}">
         <div class="card-body">
             {% if registered %}
                 <div {{ stimulus_controller('tourney_registration_team') }}>

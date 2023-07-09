@@ -139,19 +139,19 @@ class TourneyController extends AbstractController
         return intval($id);
     }
 
-    private function handleRegistrationForm(Request $request, FormInterface $form, callable $getTeam): void
+    private function handleRegistrationForm(Request $request, FormInterface $form, callable $getTeam): ?Tourney
     {
         $user = ($u = $this->getUser()) ? $u->getUser() : null;
         $id = $this->isFormSubmitted($request, $form);
 
         if (is_null($user) || is_null($id)) {
-            return;
+            return null;
         }
 
         $tourney = $this->service->getTourneyWithTeams($id);
         if (is_null($tourney)) {
             $this->addFlash('error', 'Fehler beim Anmelden: Turnier nicht gefunden.');
-            return;
+            return null;
         }
 
         $team = $getTeam($form);
@@ -170,21 +170,22 @@ class TourneyController extends AbstractController
                 }
             );
         }
+        return $tourney;
     }
 
-    private function handleUnregisterForm(Request $request): void
+    private function handleUnregisterForm(Request $request): ?Tourney
     {
         $form = $this->generateFormUnregister();
         $user = ($u = $this->getUser()) ? $u->getUser() : null;
         $id = $this->isFormSubmitted($request, $form);
         if (is_null($user) || is_null($id)) {
-            return;
+            return null;
         }
 
         $tourney = $this->service->getTourneyWithTeams($id);
         if (is_null($tourney)) {
             $this->addFlash('error', 'Fehler beim Anmelden: Turnier nicht gefunden.');
-            return;
+            return null;
         }
 
         try {
@@ -199,15 +200,16 @@ class TourneyController extends AbstractController
                 }
             );
         }
+        return $tourney;
     }
 
-    private function handleConfirmForm(Request $request): void
+    private function handleConfirmForm(Request $request): ?Tourney
     {
         $form = $this->generateFormConfirm();
         $user = ($u = $this->getUser()) ? $u->getUser() : null;
         $id = $this->isFormSubmitted($request, $form);
         if (is_null($user) || is_null($id)) {
-            return;
+            return null;
         }
 
         $accept = $form->get('accept')->isClicked();
@@ -215,7 +217,7 @@ class TourneyController extends AbstractController
 
         if (is_null($ttm)) {
             $this->addFlash('warning', 'User war nicht mehr angemeldet.');
-            return;
+            return null;
         }
 
         try {
@@ -232,6 +234,7 @@ class TourneyController extends AbstractController
                 }
             );
         }
+        return $ttm->getTeam()->getTourney();
     }
 
     #[Route(path: '/tourney', name: 'tourney')]
@@ -248,11 +251,12 @@ class TourneyController extends AbstractController
 
         $mayRegister = $this->service->userMayRegister($user);
 
-        $this->handleRegistrationForm($request, $this->generateFormRegistrationSinglePlayer(), fn ($form) => null);
-        $this->handleRegistrationForm($request, $this->generateFormRegistrationCreate(), fn ($form) => $form->get('name')->getData());
-        $this->handleRegistrationForm($request, $this->generateFormRegistrationJoin(), fn ($form) => $form->get('team')->getData());
-        $this->handleUnregisterForm($request);
-        $this->handleConfirmForm($request);
+        $show = null;
+        $show ??= $this->handleRegistrationForm($request, $this->generateFormRegistrationSinglePlayer(), fn ($form) => null);
+        $show ??= $this->handleRegistrationForm($request, $this->generateFormRegistrationCreate(), fn ($form) => $form->get('name')->getData());
+        $show ??= $this->handleRegistrationForm($request, $this->generateFormRegistrationJoin(), fn ($form) => $form->get('team')->getData());
+        $show ??= $this->handleUnregisterForm($request);
+        $show ??= $this->handleConfirmForm($request);
 
         $forms = array();
         $userTeams = array();
@@ -300,6 +304,7 @@ class TourneyController extends AbstractController
             'games_pending' => $userPendingGames,
             'token' => $token,
             'forms' => $forms,
+            'show' => $show,
         ]);
     }
 
