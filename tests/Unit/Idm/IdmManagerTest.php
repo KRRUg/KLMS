@@ -69,7 +69,7 @@ class IdmManagerTest extends TestCase
         $this->assertEquals('User', $user->getFirstname());
         $this->assertEquals('Eins', $user->getSurname());
         $this->assertEquals('f', $user->getGender());
-        $this->assertFalse($user->getEmailConfirmed());
+        $this->assertTrue($user->getEmailConfirmed());
         $this->assertFalse($user->getInfoMails());
         $this->assertFalse($user->getPersonalDataLocked());
         $this->assertFalse($user->getIsSuperadmin());

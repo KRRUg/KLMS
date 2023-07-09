@@ -341,6 +341,68 @@ class TourneyTest extends DatabaseWebTestCase
         $this->assertSelectorNotExists('#tourney-2.registered');
     }
 
+    public function testTourneyAcceptUser()
+    {
+        $this->databaseTool->loadFixtures([TourneyFixture::class, UserFixtures::class]);
+
+        $this->login('user1@localhost.local');
+
+        $crawler = $this->client->request('GET', '/tourney');
+        $this->assertSelectorExists('#tourney-4.registered');
+
+        $form_nodes = $crawler->filter('form[name=form_confirm]');
+        $this->assertCount(3, $form_nodes);
+        $form_node = $form_nodes->first();
+        $accept = $form_node->filter('#form_confirm_accept');
+        $this->assertNotEmpty($accept);
+        $this->assertStringContainsString('User 5', $accept->attr('title'));
+        $form = $accept->form();
+        $this->client->submit($form);
+        $this->assertSelectorTextContains('#tourney-4 .box', 'User 5');
+
+        $this->logout();
+        $this->login('user5@localhost.local');
+        $this->client->request('GET', '/tourney');
+        $this->assertSelectorExists('#tourney-4.registered');
+        $this->assertSelectorTextNotContains('#tourney-4.registered', 'Warten');
+    }
+
+    public function testTourneyDeclineUser()
+    {
+        $this->databaseTool->loadFixtures([TourneyFixture::class, UserFixtures::class]);
+
+        $this->login('user1@localhost.local');
+
+        $crawler = $this->client->request('GET', '/tourney');
+        $this->assertSelectorExists('#tourney-4.registered');
+
+        $form_nodes = $crawler->filter('form[name=form_confirm]');
+        $this->assertCount(3, $form_nodes);
+        $form_node = $form_nodes->first();
+        $decline = $form_node->filter('#form_confirm_decline');
+        $this->assertNotEmpty($decline);
+        $this->assertStringContainsString('User 5', $decline->attr('title'));
+        $form = $decline->form();
+        $this->client->submit($form);
+        $this->assertSelectorTextNotContains('#tourney-4 .box', 'User 5');
+
+        $this->logout();
+        $this->login('user5@localhost.local');
+        $this->client->request('GET', '/tourney');
+        $this->assertSelectorNotExists('#tourney-4.registered');
+    }
+
+    public function testTourneyUserWaiting()
+    {
+        $this->databaseTool->loadFixtures([TourneyFixture::class, UserFixtures::class]);
+
+        $this->login('user5@localhost.local');
+
+        $this->client->request('GET', '/tourney');
+        $this->assertSelectorExists('#tourney-4.registered');
+        $this->assertSelectorTextContains('#tourney-4.registered', 'Warten');
+    }
+
     public function testTourneyTree()
     {
         $this->databaseTool->loadFixtures([TourneyFixture::class, UserFixtures::class]);

@@ -57,7 +57,7 @@ class LoginTest extends DatabaseWebTestCase
         $this->assertResponseStatusCodeSame(200);
 
         $form = $crawler->selectButton('Login')->form();
-        $form['username']->setValue('user1@localhost.local');
+        $form['username']->setValue('user16@localhost.local');
         $form['password']->setValue('pa$$word');
         $this->client->submit($form);
 

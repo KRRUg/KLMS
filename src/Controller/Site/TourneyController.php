@@ -220,6 +220,8 @@ class TourneyController extends AbstractController
             return null;
         }
 
+        $tourney = $ttm->getTeam()->getTourney();
+
         try {
             $this->service->userConfirmTeamMember($ttm, $user, $accept);
         } catch (ServiceException $e) {
@@ -234,7 +236,7 @@ class TourneyController extends AbstractController
                 }
             );
         }
-        return $ttm->getTeam()->getTourney();
+        return $tourney;
     }
 
     #[Route(path: '/tourney', name: 'tourney')]

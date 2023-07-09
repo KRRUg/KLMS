@@ -4,12 +4,15 @@
     {% if form is not null %}{{ form_start(form, { 'attr': {'class': ''}}) }}<div class="text-right">{{ form_widget(form.submit, { 'attr': {'class': 'btn btn-secondary btn-sm'}}) }}</div>{{ form_end(form) }}{% endif %}
 {% endmacro %}
 
-{% macro accept_decline_form(form) %}
+{% macro accept_decline_form(text, form) %}
     {% if form is not null %}
         {{ form_start(form, { 'attr': {'class': 'form-inline'}}) }}
-        {{ form_widget(form.accept, { 'attr': {'class': 'btn btn-link'}}) }}
-        {{ form_widget(form.decline, { 'attr': {'class': 'btn btn-link'}}) }}
+        <span class="p-1 mr-1 text-muted">{{ text }}</span>
+        {{ form_widget(form.accept, { 'attr': {'class': 'btn btn-link p-0', 'title': text ~ ' akzeptieren'}, 'label': '✔'}) }}
+        {{ form_widget(form.decline, { 'attr': {'class': 'btn btn-link p-0', 'title': text ~ ' ablehnen'}, 'label': '✗'}) }}
         {{ form_end(form) }}
+    {% else %}
+        <div class="d-flex"><span class="p-1">{{ text }}</span></div>
     {% endif %}
 {% endmacro %}
 
@@ -27,11 +30,8 @@
             <ul class="list-unstyled">
                 {% set facs = forms[constant('App\\Controller\\Site\\TourneyController::FORM_NAME_CONFIRM')] | default([]) %}
                 {% for member in team.members %}
-                    <li>{{ member.gamer | username }}
-                    {% if not member.accepted %}
-                        ?
-                        {{ _self.accept_decline_form(facs[member.id] | default(null)) }}
-                    {% endif %}
+                    <li>
+                        {{ _self.accept_decline_form(member.gamer | username, facs[member.id] | default(null)) }}
                     </li>
                 {% endfor %}
                 {{ _self.unregister_form(fur) }}
