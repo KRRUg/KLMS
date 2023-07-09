@@ -28,15 +28,6 @@ footer, #footer {
     box-shadow:  $box-shadow-sm;
 }
 
-.card {
-    box-shadow: $box-shadow-sm;
-    border:none;
-}
-
-.btn.disabled:hover {
-    cursor: not-allowed;
-}
-
 .list-group-hover .list-group-item:hover {
     z-index: 1;
     color: $list-group-action-hover-color;

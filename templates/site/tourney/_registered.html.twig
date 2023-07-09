@@ -16,6 +16,7 @@
     {% endif %}
 {% endmacro %}
 
+{{ _self.unregister_form(fur) }}
 <div class="box">
     <div class="box-header">
         Team
@@ -42,4 +43,3 @@
         {% endif %}
     </div>
 </div>
-{{ _self.unregister_form(fur) }}

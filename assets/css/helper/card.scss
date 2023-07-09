@@ -1,6 +1,11 @@
 @import "variables";
 @import '~bootstrap';
 
+.card {
+    box-shadow: $box-shadow-sm;
+    border:none;
+}
+
 .card-avatar {
     position: relative;
     left: 50%;
@@ -37,11 +42,11 @@
     @extend .card-header;
     background-color: rgba($primary,.5);
     font-weight: bold;
-    padding: 0.5rem;
+    padding: 0.3rem;
     border-bottom: 1px solid $primary;
 }
 
 .box-body {
     @extend .card-body;
-    padding: 0.5rem;
+    padding: 0.3rem;
 }
