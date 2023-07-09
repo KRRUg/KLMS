@@ -28,7 +28,6 @@
             {% if not tm.accepted %}
                 <i class="fa-solid fa-hourglass"></i>
                 <span>Warten auf Bestätigung von <b>{{ team.name }}</b>.</span>
-                {{ _self.unregister_form(fur) }}
             {% else %}
                 <h6><b>{{ team.name }}</b> ({{ team.countUsers }}/{{ tourney.teamsize }})</h6>
                 <ul class="list-unstyled">
@@ -38,9 +37,9 @@
                             {{ _self.accept_decline_form(member.gamer | username, facs[member.id] | default(null)) }}
                         </li>
                     {% endfor %}
-                    {{ _self.unregister_form(fur) }}
                 </ul>
             {% endif %}
         {% endif %}
     </div>
 </div>
+{{ _self.unregister_form(fur) }}
