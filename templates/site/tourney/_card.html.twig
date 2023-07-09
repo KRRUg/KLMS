@@ -26,13 +26,13 @@
             {% elseif tourney.status == TourneyStatus.Registration %}
                 {% if participates %}
                     {% if registered %}
-                        {% include 'site/tourney/_registered.html.twig' with {tm : tm} %}
+                        {% include 'site/tourney/_registered.html.twig' %}
                     {% else %}
                         {% include 'site/tourney/_register.html.twig' %}
                     {% endif %}
                 {% endif %}
             {% elseif tourney.status == TourneyStatus.Running %}
-                {% include 'site/tourney/_running.html.twig' with { current_game : current_game} %}
+                {% include 'site/tourney/_running.html.twig' %}
             {% elseif tourney.status == TourneyStatus.Finished %}
                 {% include 'site/tourney/_result.html.twig' %}
             {% endif %}
