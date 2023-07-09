@@ -3,6 +3,7 @@
 {% block title %}{{ settings.get('site.title') }} - {{ tourney.name }}{% endblock %}
 
 {% block main %}
+    {% set team = team | default(null) is null ? false : team %}
     <div class="container mb-5">
         <div class="card">
             <div class="card-body">
@@ -18,22 +19,16 @@
                                 {% if game is not empty %}
                                     <div class="match">
                                         <div class="teams">
-                                            <div class="team {{ game.hasWon(true) ? 'winner' : '' }}">
+                                            <div class="team {{ game.teamA is null ? 'team-empty' : '' }} {{ game.hasWon(true) ? 'winner' : '' }} {{ game.teamA is same as team ? 'team-own' : '' }} ">
                                                 {% if game.teamA is not null %}
                                                     <span class="team-name">{{ game.teamA.name | default(game.teamA.members[0].gamer | username)  }}</span>
                                                     <span class="team-score">{{ tourney.showPoints ? (game.scoreA() ?? '') : '' }}</span>
-                                                {% else %}
-                                                    <span class="team-name"></span>
-                                                    <span class="team-score"></span>
                                                 {% endif %}
                                             </div>
-                                            <div class="team {{ game.hasWon(false) ? 'winner' : '' }}">
+                                            <div class="team {{ game.teamB is null ? 'team-empty' : '' }} {{ game.hasWon(false) ? 'winner' : '' }} {{ game.teamB is same as team ? 'team-own' : '' }}">
                                                 {% if game.teamB is not null %}
                                                     <span class="team-name">{{ game.teamB.name | default(game.teamB.members[0].gamer | username)  }}</span>
                                                     <span class="team-score">{{ tourney.showPoints ? (game.scoreB() ?? '') : '' }}</span>
-                                                {% else %}
-                                                    <span class="team-name"></span>
-                                                    <span class="team-score"></span>
                                                 {% endif %}
                                             </div>
                                         </div>

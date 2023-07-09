@@ -321,6 +321,12 @@ class TourneyController extends AbstractController
         $gamers = $this->service->getAllUsersOfTourney($tourney);
         $this->userService->preloadUsers($gamers);
 
+        $user = ($u = $this->getUser()) ? $u->getUser() : null;
+        $ownTeam = null;
+        if (!is_null($user) && !is_null($ttm = $this->service->getTeamMemberByTourneyAndUser($tourney, $user))) {
+            $ownTeam = $ttm->getTeam();
+        }
+
         $final = TourneyService::getFinal($tourney);
         $array = [[$final]];
         $level = 0;
@@ -342,6 +348,7 @@ class TourneyController extends AbstractController
         return $this->render('site/tourney/show.html.twig', [
             'tourney' => $tourney,
             'tree' => $array,
+            'team' => $ownTeam,
         ]);
     }
 }

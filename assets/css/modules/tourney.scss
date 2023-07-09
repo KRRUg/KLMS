@@ -108,21 +108,31 @@ $max-power-of-two: 8; // max x where 2**x is max teams, 8 means max number of te
             font-weight: 700;
             pointer-events: none;
           }
+          &.team-own {
+            background: rgba($color-content, .25);
+          }
           &.winner {
             color: $color-primary;
             border-color: $color-primary;
+            &.team-own {
+              background: rgba($color-primary, .25);
+            }
           }
           &.loser {
             color: $color-content;
             border-color: $color-content;
+            &.team-own {
+              background: rgba($color-content, .25);
+            }
           }
-
-          &:hover {
-            background: $color-primary;
+          &:hover:not(&.team-empty) {
+            background: $color-content !important;
             color: $color-white;
             cursor: pointer;
+            &.winner {
+              background: $color-primary !important;
+            }
           }
-
           &:not(:last-child) {
             border-bottom: thin solid $color-background;
           }
