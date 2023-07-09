@@ -3,7 +3,9 @@
 {% endmacro %}
 
 {% macro enter_result_button(game = null) %}
-    <button class="btn btn-primary btn-sm" type="button" {% if game is not null %}{# data-toggle="collapse" data-target=".registration-{{ game.id }}" #}{% else %}disabled="disabled"{% endif %}><i class="fa-solid fa-square-poll-horizontal"></i> Ergebnis eintragen</button>
+    {% if game is not null %}
+        <button class="btn btn-primary btn-sm" type="button" {% if game is not null %}{# data-toggle="collapse" data-target=".registration-{{ game.id }}" #}{% else %}disabled="disabled"{% endif %}><i class="fa-solid fa-square-poll-horizontal"></i> Ergebnis eintragen</button>
+    {% endif %}
 {% endmacro %}
 
 <div class="text-right">

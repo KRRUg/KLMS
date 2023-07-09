@@ -1,5 +1,4 @@
 {% set registered = registered | default(false) %}
-{% set may_register = may_register | default(false) %}
 {% set current_game = current_game | default(null) %}
 {% set expand = expand | default(false) %}
 
@@ -25,17 +24,18 @@
             {% if tourney.status == TourneyStatus.Created %}
                 {% include 'site/tourney/_created.html.twig' %}
             {% elseif tourney.status == TourneyStatus.Registration %}
-                {% if registered %}
-                    {% include 'site/tourney/_registered.html.twig' with {tm : tm} %}
-                {% elseif may_register %}
-                    {% include 'site/tourney/_register.html.twig' %}
+                {% if participates %}
+                    {% if registered %}
+                        {% include 'site/tourney/_registered.html.twig' with {tm : tm} %}
+                    {% else %}
+                        {% include 'site/tourney/_register.html.twig' %}
+                    {% endif %}
                 {% endif %}
             {% elseif tourney.status == TourneyStatus.Running %}
                 {% include 'site/tourney/_running.html.twig' with { current_game : current_game} %}
             {% elseif tourney.status == TourneyStatus.Finished %}
                 {% include 'site/tourney/_result.html.twig' %}
             {% endif %}
-            <hr/>
             <p><b>Status:</b> {{ tourney.status.message }}</p>
 {#            {% if tourney.rules is not empty %}#}
 {#                <b>Regeln:</b> #}

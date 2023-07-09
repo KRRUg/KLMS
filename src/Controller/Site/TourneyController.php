@@ -163,7 +163,7 @@ class TourneyController extends AbstractController
                 match ($e->getCode()) {
                     ServiceException::CAUSE_IN_USE => 'Turnier registrierung ist nicht (mehr) offen.',
                     ServiceException::CAUSE_EXIST => 'User ist bereits registriert.',
-                    ServiceException::CAUSE_FORBIDDEN => 'User hat nicht genug Token',
+                    ServiceException::CAUSE_FORBIDDEN => 'User darf sich nicht registrieren.',
                     ServiceException::CAUSE_INCONSISTENT => 'Teamname existiert schon.',
                     ServiceException::CAUSE_FULL => 'Team ist schon voll',
                     default => 'unbekannter Fehler.'
@@ -245,13 +245,12 @@ class TourneyController extends AbstractController
         $user = ($u = $this->getUser()) ? $u->getUser() : null;
         $tourneys = $this->service->getVisibleTourneys();
 
-        if (is_null($user)) {
+        if (is_null($user) || !$this->service->userMayParticipate($user)) {
             return $this->render('site/tourney/index.html.twig', [
                 'tourneys' => $tourneys,
+                'participates' => false,
             ]);
         }
-
-        $mayRegister = $this->service->userMayRegister($user);
 
         $show = null;
         $show ??= $this->handleRegistrationForm($request, $this->generateFormRegistrationSinglePlayer(), fn ($form) => null);
@@ -264,6 +263,7 @@ class TourneyController extends AbstractController
         $userTeams = array();
         $token = null;
 
+        $mayRegister = $this->service->registrationOpen();
         if ($mayRegister) {
             $token = $this->service->calculateUserToken($user);
             foreach ($this->service->getRegistrableTourneys($user) as $t) {
@@ -281,7 +281,7 @@ class TourneyController extends AbstractController
             $team = $ttm->getTeam();
             $t = $team->getTourney();
             $userTeams[$t->getId()] = $ttm;
-            if ($this->service->userCanModifyRegistration($team->getTourney())) {
+            if ($this->service->userCanModifyRegistration($team->getTourney(), $user)) {
                 $forms[$t->getId()] = [
                     self::FORM_NAME_UNREGISTER => $this->generateFormUnregister()->setData(['id' => $t->getId()])->createView(),
                     self::FORM_NAME_CONFIRM => [],
@@ -301,7 +301,7 @@ class TourneyController extends AbstractController
 
         return $this->render('site/tourney/index.html.twig', [
             'tourneys' => $tourneys,
-            'may_register' => $mayRegister,
+            'participates' => true,
             'teams_registered' => $userTeams,
             'games_active' => $userActiveGames,
             'token' => $token,

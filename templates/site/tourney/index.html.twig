@@ -12,6 +12,7 @@
         </div>
         <hr />
         <div>
+            {% set participates = participates | default(false) %}
             {% set teams = teams_registered | default([]) %}
             {% set games = games_active | default([]) %}
             {% if token | default(null) is not null %}

@@ -138,21 +138,23 @@ class TourneyService extends OptimalService
 
     /* Tourney registration */
 
-    public function userMayRegister(User $user): bool
+    public function registrationOpen(): bool
     {
-        return $this->gamerService->gamerIsOnLan($user) && $this->settings->get(self::SETTING_PREFIX.'registration_open');
+        return $this->settings->get(self::SETTING_PREFIX.'registration_open', false);
+    }
+
+    public function userMayParticipate(User $user): bool
+    {
+        return $this->gamerService->gamerIsOnLan($user);
     }
 
     public function getRegistrableTourneys($user): array
     {
-        if (!$this->userMayRegister($user))
-            return [];
-
         $registeredTourneys = $this->getRegisteredTourneys($user);
         $token = $this->calcRemainingToken($registeredTourneys);
-        $filter = function (Tourney $tourney) use ($registeredTourneys, $token) {
+        $filter = function (Tourney $tourney) use ($user, $registeredTourneys, $token) {
             try {
-                $this->tryRegister($tourney, $registeredTourneys, $token);
+                $this->tryRegister($tourney, $user, $registeredTourneys, $token);
                 return true;
             } catch (ServiceException) {
                 return false;
@@ -165,17 +167,17 @@ class TourneyService extends OptimalService
     {
         $registered = $this->getRegisteredTourneys($user);
         try {
-            $this->tryRegister($tourney, $registered);
+            $this->tryRegister($tourney, $user, $registered);
             return true;
         } catch (ServiceException) {
             return false;
         }
     }
 
-    public function userCanModifyRegistration(Tourney $tourney): bool
+    public function userCanModifyRegistration(Tourney $tourney, User $user): bool
     {
         try {
-            $this->tryModifyRegistration($tourney);
+            $this->tryModifyRegistration($tourney, $user);
             return true;
         } catch (ServiceException) {
             return false;
@@ -190,7 +192,7 @@ class TourneyService extends OptimalService
     public function userRegister(Tourney $tourney, User $user, TourneyTeam|string|null $team): void
     {
         $registered = $this->getRegisteredTourneys($user);
-        $this->tryRegister($tourney, $registered);
+        $this->tryRegister($tourney, $user, $registered);
 
         if ($tourney->isSinglePlayer()) {
             $tourney->addTeam(TourneyTeam::createTeamWithUser($user->getUuid()));
@@ -219,13 +221,16 @@ class TourneyService extends OptimalService
     public function userConfirm(Tourney $tourney, User $user, User $admin, bool $accept): void
     {
         $ttm = $this->getTeamMemberByTourneyAndUser($tourney, $user);
+        if (is_null($ttm)) {
+            throw new ServiceException(ServiceException::CAUSE_DONT_EXIST, 'User is not registered.');
+        }
         $this->userConfirmTeamMember($ttm, $admin, $accept);
     }
 
     public function userConfirmTeamMember(TourneyTeamMember $ttm, User $admin, bool $accept): void
     {
         $tourney = $ttm->getTeam()->getTourney();
-        $this->tryModifyRegistration($tourney);
+        $this->tryModifyRegistration($tourney, $admin);
 
         $this->em->beginTransaction();
         $team = $ttm->getTeam();
@@ -250,9 +255,13 @@ class TourneyService extends OptimalService
 
     public function userUnregister(Tourney $tourney, User $user): void
     {
-        $this->tryModifyRegistration($tourney);
+        $this->tryModifyRegistration($tourney, $user);
         $this->em->beginTransaction();
         $tm = $this->getTeamMemberByTourneyAndUser($tourney, $user);
+        if (is_null($tm)) {
+            $this->em->rollback();
+            throw new ServiceException(ServiceException::CAUSE_DONT_EXIST, 'User is not registered.');
+        }
         $team = $tm->getTeam();
 
         // orphan removal removes $tm when removing $team
@@ -270,27 +279,34 @@ class TourneyService extends OptimalService
         $this->em->commit();
     }
 
-    public function getTeamMemberByTourneyAndUser(Tourney $tourney, User $user): TourneyTeamMember
+    public function getTeamMemberByTourneyAndUser(Tourney $tourney, User $user): ?TourneyTeamMember
     {
         $tm = $this->teamMemberRepository->getTeamMemberByUser($user->getUuid(), $tourney);
         if (empty($tm)) {
-            throw new ServiceException(ServiceException::CAUSE_DONT_EXIST, 'User is not registered.');
+            return null;
         } elseif (count($tm) > 1) {
             throw new LogicException('More than one team per user and tourney.');
         }
         return $tm[0];
     }
 
-    private function tryModifyRegistration(Tourney $tourney): void
+    private function tryModifyRegistration(Tourney $tourney, User $user): void
     {
         if ($tourney->getStatus() != TourneyStatus::Registration) {
             throw new ServiceException(ServiceException::CAUSE_IN_USE, 'Tourney registration is not open');
         }
+        if (!$this->userMayParticipate($user)) {
+            throw new ServiceException(ServiceException::CAUSE_FORBIDDEN, 'User is not on lan.');
+        }
     }
 
-    private function tryRegister(Tourney $tourney, array $registeredTourneys, ?int $availToken = null): void
+    private function tryRegister(Tourney $tourney, User $user, ?array $registeredTourneys = null, ?int $availToken = null): void
     {
-        $this->tryModifyRegistration($tourney);
+        $this->tryModifyRegistration($tourney, $user);
+        if (!$this->registrationOpen()) {
+            throw new ServiceException(ServiceException::CAUSE_FORBIDDEN, 'Registration is closed.');
+        }
+        $registeredTourneys ??= $this->getRegisteredTourneys($user);
         $availToken ??= $this->calcRemainingToken($registeredTourneys);
         if (in_array($tourney, $registeredTourneys)) {
             throw new ServiceException(ServiceException::CAUSE_EXIST, 'User is already registered.');

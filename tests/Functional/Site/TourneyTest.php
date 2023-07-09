@@ -304,7 +304,6 @@ class TourneyTest extends DatabaseWebTestCase
         $this->assertResponseStatusCodeSame(200);
         $this->assertSelectorNotExists('#tourney-2.registered');
         $this->assertSelectorExists('.alert');
-        $this->assertSelectorTextContains('.alert', 'Token');
     }
 
     public function testTourneyUnregister()
@@ -413,7 +412,34 @@ class TourneyTest extends DatabaseWebTestCase
         $this->assertSelectorExists('#tourney-1.registered');
         $this->assertSelectorTextContains('#tourney-1.registered', 'Ausgeschieden');
     }
-    
+
+    public function testTourneyNoOptionsForNonLogin()
+    {
+        $this->databaseTool->loadFixtures([TourneyFixture::class, UserFixtures::class]);
+        $crawler = $this->client->request('GET', '/tourney');
+        $this->assertSelectorNotExists('.registered');
+        $buttons = $crawler->filter('#tourney-list button');
+        foreach ($buttons as $button) {
+            $this->assertStringNotContainsStringIgnoringCase('Anmelden', $button->textContent);
+            $this->assertStringNotContainsStringIgnoringCase('Ergebnis eintragen', $button->textContent);
+        }
+        $this->assertStringNotContainsStringIgnoringCase('ausgeschieden', $crawler->filter('#tourney-list')->innerText());
+    }
+
+    public function testUserNotOnLanMayNotParticipate()
+    {
+        $this->databaseTool->loadFixtures([TourneyFixture::class, UserFixtures::class]);
+        $this->login('user0@localhost.local');
+        $crawler = $this->client->request('GET', '/tourney');
+        $this->assertSelectorNotExists('.registered');
+        $buttons = $crawler->filter('#tourney-list button');
+        foreach ($buttons as $button) {
+            $this->assertStringNotContainsStringIgnoringCase('Anmelden', $button->textContent);
+            $this->assertStringNotContainsStringIgnoringCase('Ergebnis eintragen', $button->textContent);
+        }
+        $this->assertStringNotContainsStringIgnoringCase('ausgeschieden', $crawler->filter('#tourney-list')->innerText());
+    }
+
     public function testTourneyTree()
     {
         $this->databaseTool->loadFixtures([TourneyFixture::class, UserFixtures::class]);
