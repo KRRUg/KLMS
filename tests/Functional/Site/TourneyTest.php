@@ -403,6 +403,17 @@ class TourneyTest extends DatabaseWebTestCase
         $this->assertSelectorTextContains('#tourney-4.registered', 'Warten');
     }
 
+    public function testTourneyUserEliminated()
+    {
+        $this->databaseTool->loadFixtures([TourneyFixture::class, UserFixtures::class]);
+
+        $this->login('user5@localhost.local');
+
+        $this->client->request('GET', '/tourney');
+        $this->assertSelectorExists('#tourney-1.registered');
+        $this->assertSelectorTextContains('#tourney-1.registered', 'Ausgeschieden');
+    }
+    
     public function testTourneyTree()
     {
         $this->databaseTool->loadFixtures([TourneyFixture::class, UserFixtures::class]);

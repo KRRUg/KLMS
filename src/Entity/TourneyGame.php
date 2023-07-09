@@ -184,4 +184,10 @@ class TourneyGame
             return false;
         return ($this->getScoreA() > $this->getScoreB()) == $teamA;
     }
+
+    public function isPending(): bool
+    {
+        return (is_null($this->getScoreA()) || is_null($this->getScoreB()))
+            && (!is_null($this->getTeamA()) && !is_null($this->getTeamB()));
+    }
 }

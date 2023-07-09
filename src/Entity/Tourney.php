@@ -230,6 +230,11 @@ class Tourney implements HistoryAwareEntity
         return $this;
     }
 
+    public function isRunning(): bool
+    {
+        return $this->status == TourneyStatus::Running;
+    }
+
     public function getOrder(): ?int
     {
         return $this->order;

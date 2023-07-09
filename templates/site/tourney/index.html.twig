@@ -13,7 +13,7 @@
         <hr />
         <div>
             {% set teams = teams_registered | default([]) %}
-            {% set games = games_pending | default([]) %}
+            {% set games = games_active | default([]) %}
             {% if token | default(null) is not null %}
                 <div class="mb-3 text-right">
                     Token <span class="badge badge-pill {{ token > 0 ? 'badge-primary' : 'badge-secondary' }} p-2"><i class="fa-solid fa-coins"></i> {{ token }}/{{ constant('App\\Service\\TourneyService::TOKEN_COUNT') }}</span>
@@ -23,7 +23,7 @@
                 {% for tourney in tourneys %}
                     {% if tourney.id in teams | keys %}
                         {% include 'site/tourney/_card.html.twig' with {
-                            'tourney' : tourney, 'registered' : true, 'expand' : tourney == show ?? null, 'tm': teams[tourney.id], 'forms': forms[tourney.id] ?? [], 'pending' : (games[tourney.id] ?? null)
+                            'tourney' : tourney, 'registered' : true, 'expand' : tourney == show ?? null, 'tm': teams[tourney.id], 'current_game' : (games[tourney.id] ?? null), 'forms': forms[tourney.id] ?? []
                         } %}
                     {% endif %}
                 {% endfor %}

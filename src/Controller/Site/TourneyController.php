@@ -297,13 +297,13 @@ class TourneyController extends AbstractController
             }
         }
         $combine = fn (callable $f, array $a) => array_combine(array_map($f, $a), $a);
-        $userPendingGames = $combine(fn ($g) => $g->getTourney()->getId(), $this->service->getPendingGames($user));
+        $userActiveGames = $combine(fn ($g) => $g->getTourney()->getId(), $this->service->getActiveGames($user));
 
         return $this->render('site/tourney/index.html.twig', [
             'tourneys' => $tourneys,
             'may_register' => $mayRegister,
             'teams_registered' => $userTeams,
-            'games_pending' => $userPendingGames,
+            'games_active' => $userActiveGames,
             'token' => $token,
             'forms' => $forms,
             'show' => $show,

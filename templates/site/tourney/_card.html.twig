@@ -1,15 +1,21 @@
 {% set registered = registered | default(false) %}
 {% set may_register = may_register | default(false) %}
-{% set pending = pending | default(null) %}
+{% set current_game = current_game | default(null) %}
 {% set expand = expand | default(false) %}
+
+{% macro game_icon(tourney, game = null) %}
+    <i class="fa-solid fa-gamepad fa-2xl
+    {% if tourney.isRunning %}
+        {% if game is null %} text-muted {% elseif game.isPending() %} text-primary fa-beat-fade{% endif %}
+    {% endif %}"></i>
+{% endmacro %}
+
 <div class="card mb-3 tourney {% if registered %}registered{% endif %}" id="tourney-{{ tourney.id }}">
     <div class="card-header">
         <h4 class="mb-0">
         <button class="btn btn-block d-flex justify-content-between align-items-center" type="button" data-toggle="collapse" data-target="#collapse-{{ tourney.id }}">
             {{ tourney.name }}
-            {% if registered %}
-                <i class="fa-solid fa-gamepad {% if pending is not null %}text-primary fa-beat-fade{% endif %} fa-2xl"></i>
-            {% endif %}
+            {% if registered %}{{ _self.game_icon(tourney, current_game) }}{% endif %}
         </button>
         </h4>
     </div>
@@ -25,7 +31,7 @@
                     {% include 'site/tourney/_register.html.twig' %}
                 {% endif %}
             {% elseif tourney.status == TourneyStatus.Running %}
-                {% include 'site/tourney/_running.html.twig' with { pending_game : pending} %}
+                {% include 'site/tourney/_running.html.twig' with { current_game : current_game} %}
             {% elseif tourney.status == TourneyStatus.Finished %}
                 {% include 'site/tourney/_result.html.twig' %}
             {% endif %}

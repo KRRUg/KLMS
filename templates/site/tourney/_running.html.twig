@@ -7,30 +7,35 @@
 {% endmacro %}
 
 <div class="text-right">
-    {{ _self.enter_result_button(pending_game) }}
+    {{ _self.enter_result_button(current_game) }}
     {{ _self.tree_button(tourney) }}
 </div>
 
 <div class="container-fluid row">
-{% if not tourney.singlePlayer %}
-    <div class="col-md-6">
-        <div class="box">
-            <div class="box-header">
-                Mein Team
-            </div>
-            <div class="box-body">
+    {% if not tourney.singlePlayer %}
+        <div class="col-md-6">
+            <div class="box">
+                <div class="box-header">
+                    Mein Team
+                </div>
+                <div class="box-body">
+                {# TODO add team here #}
+                </div>
             </div>
         </div>
-    </div>
-{% endif %}
-    <div class="col-md-6">
-        <div class="box">
-            <div class="box-header">
-                Nächstes Spiel
-            </div>
-            <div class="box-body">
+    {% endif %}
+    {% if current_game is null %}
+        <span>Ausgeschieden.</span>
+    {% else %}
+        <div class="col-md-6">
+            <div class="box">
+                <div class="box-header">
+                    Nächstes Spiel
+                </div>
+                <div class="box-body">
 
+                </div>
             </div>
         </div>
-    </div>
+    {% endif %}
 </div>

@@ -118,9 +118,22 @@ class TourneyService extends OptimalService
         return max(0, $this->calcRemainingToken($this->getRegisteredTourneys($user)));
     }
 
+    /**
+     * @param User $user
+     * @return TourneyGame[]
+     */
     public function getPendingGames(User $user): array
     {
-        return $this->gameRepository->findPendingGamesByUser($user->getUuid());
+        return $this->gameRepository->findActiveGamesByUser($user->getUuid(), true);
+    }
+
+    /**
+     * @param User $user
+     * @return TourneyGame[]
+     */
+    public function getActiveGames(User $user): array
+    {
+        return $this->gameRepository->findActiveGamesByUser($user->getUuid());
     }
 
     /* Tourney registration */
