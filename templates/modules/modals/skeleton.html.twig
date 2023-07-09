@@ -8,9 +8,8 @@
         {% endfor %}
     {% endif %}
     tabindex="-1" 
-    role="dialog" 
-    aria-labelledby="{{ id }}Label" 
-    aria-hidden="true" 
+    role="dialog"
+    {{ stimulus_controller('form_modal') }}
     >
     <div class="modal-dialog {{ dialogClass | default() }}" role="document">
         <div class="modal-content">
