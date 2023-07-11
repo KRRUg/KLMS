@@ -100,6 +100,14 @@ class TourneyFixture extends Fixture implements DependentFixtureInterface
         $n5 = (new TourneyGame())->setParent($n2)->setIsChildA(true);
         $n6 = (new TourneyGame())->setParent($n2)->setIsChildA(false);
 
+        $this->setReference('tourney0-game0', $n0);
+        $this->setReference('tourney0-game1', $n1);
+        $this->setReference('tourney0-game2', $n2);
+        $this->setReference('tourney0-game3', $n3);
+        $this->setReference('tourney0-game4', $n4);
+        $this->setReference('tourney0-game5', $n5);
+        $this->setReference('tourney0-game6', $n6);
+
         $n3->setTeamA($p1);
         $n3->setTeamB($p2);
         $n4->setTeamA($p3)->setScoreA(5);

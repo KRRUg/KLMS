@@ -178,9 +178,14 @@ class TourneyGame
         return null;
     }
 
+    public function isDone(): bool
+    {
+        return !is_null($this->getScoreA()) && !is_null($this->getScoreB());
+    }
+
     public function hasWon(bool $teamA): bool
     {
-        if (is_null($this->getScoreA()) || is_null($this->getScoreB()))
+        if (!$this->isDone())
             return false;
         return ($this->getScoreA() > $this->getScoreB()) == $teamA;
     }
@@ -197,6 +202,17 @@ class TourneyGame
             return $this->getTeamA();
         } elseif ($this->hasWon(false)) {
             return $this->getTeamB();
+        } else {
+            return null;
+        }
+    }
+
+    public function getLoser(): ?TourneyTeam
+    {
+        if ($this->hasWon(true)) {
+            return $this->getTeamB();
+        } elseif ($this->hasWon(false)) {
+            return $this->getTeamA();
         } else {
             return null;
         }

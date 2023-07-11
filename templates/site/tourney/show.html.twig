@@ -2,11 +2,14 @@
 
 {% block title %}{{ settings.get('site.title') }} - {{ tourney.name }}{% endblock %}
 
+{% macro teamname(team) %}
+    {{ team.name | default(team.members[0].gamer | username) }}
+{% endmacro %}
 {% macro teamnameA(game) %}
-    {{ game.teamA.name | default(game.teamA.members[0].gamer | username) }}
+    {{ _self.teamname(game.teamA) }}
 {% endmacro %}
 {% macro teamnameB(game) %}
-    {{ game.teamB.name | default(game.teamB.members[0].gamer | username) }}
+    {{ _self.teamname(game.teamB) }}
 {% endmacro %}
 
 {% block main %}

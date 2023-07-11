@@ -1,8 +1,5 @@
-{% macro tree_button(tourney) %}
-    {% if tourney.hasTree %}
-        <a class="btn btn-primary btn-sm" href="{{ path('tourney_show', {'id': tourney.id }) }}"><i class="fa-solid fa-sitemap"></i> Turnierbaum</a>
-    {% endif %}
-{% endmacro %}
+{% from 'site/tourney/show.html.twig' import teamnameA, teamnameB %}
+{% from 'site/tourney/_card.html.twig' import tree_button %}
 
 {% macro enter_result_button(game = null, form = null) %}
     {% if game is not null %}
@@ -12,8 +9,6 @@
         {% endif %}
     {% endif %}
 {% endmacro %}
-
-{% from 'site/tourney/show.html.twig' import teamnameA, teamnameB %}
 
 {% macro pending_game_box(game = null) %}
     {% if game is not null and game.pending %}
@@ -30,13 +25,13 @@
 
 {% if not participates %}
     <div class="text-right">
-        {{ _self.tree_button(tourney) }}
+        {{ tree_button(tourney) }}
     </div>
 {% else %}
     <div class="text-right">
         {% set f = forms[constant('App\\Controller\\Site\\TourneyController::FORM_NAME_RESULT')] | default(null) %}
         {{ _self.enter_result_button(current_game, f) }}
-        {{ _self.tree_button(tourney) }}
+        {{ tree_button(tourney) }}
     </div>
 
     <div class="container-fluid row">

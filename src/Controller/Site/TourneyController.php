@@ -310,6 +310,7 @@ class TourneyController extends AbstractController
         $forms = array();
         $userTeams = array();
         $userActiveGames = array();
+        $podium = array();
         $token = null;
 
         $mayRegister = $this->service->registrationOpen();
@@ -353,12 +354,18 @@ class TourneyController extends AbstractController
             }
             $forms[$t->getId()] = [self::FORM_NAME_RESULT => $this->generateFormResult()->setData(['id' => $game->getId()])->createView()];
         }
+        foreach ($tourneys as $tourney) {
+            $p = TourneyService::getPodium($tourney);
+            if (!empty($p))
+                $podium[$tourney->getId()] = $p;
+        }
 
         return $this->render('site/tourney/index.html.twig', [
             'tourneys' => $tourneys,
             'participates' => true,
             'teams_registered' => $userTeams,
             'games_active' => $userActiveGames,
+            'podium' => $podium,
             'token' => $token,
             'forms' => $forms,
             'show' => $show,

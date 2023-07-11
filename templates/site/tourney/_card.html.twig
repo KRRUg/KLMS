@@ -2,11 +2,24 @@
 {% set current_game = current_game | default(null) %}
 {% set expand = expand | default(false) %}
 
+{% macro tree_button(tourney) %}
+    {% if tourney.hasTree %}
+        <a class="btn btn-primary btn-sm" href="{{ path('tourney_show', {'id': tourney.id }) }}"><i class="fa-solid fa-sitemap"></i> Turnierbaum</a>
+    {% endif %}
+{% endmacro %}
+
 {% macro game_icon(tourney, game = null) %}
-    <i class="fa-solid fa-gamepad fa-2xl
-    {% if tourney.isRunning %}
-        {% if game is null %} text-muted {% elseif game.isPending() %} text-primary fa-beat-fade{% endif %}
-    {% endif %}"></i>
+    {% set TourneyStatus = enum('\\App\\Entity\\TourneyStatus') %}
+    {% if tourney.status == TourneyStatus.Registration %}
+        <i class="fa-solid fa-table-list fa-2xl"></i>
+    {% elseif tourney.status == TourneyStatus.Running %}
+        <i class="fa-solid fa-gamepad fa-2xl
+        {% if tourney.isRunning %}
+            {% if game is null %} text-muted {% elseif game.isPending() %} text-primary fa-beat-fade{% endif %}
+        {% endif %}"></i>
+    {% elseif tourney.status == TourneyStatus.Finished %}
+        <i class="fa-solid fa-trophy fa-2xl"></i>
+    {% endif %}
 {% endmacro %}
 
 <div class="card mb-3 tourney {% if registered %}registered{% endif %}" id="tourney-{{ tourney.id }}">
@@ -34,7 +47,7 @@
             {% elseif tourney.status == TourneyStatus.Running %}
                 {% include 'site/tourney/_running.html.twig' %}
             {% elseif tourney.status == TourneyStatus.Finished %}
-                {% include 'site/tourney/_result.html.twig' %}
+                {% include 'site/tourney/_result.html.twig' with {podium: podium[tourney.id] ?? null} %}
             {% endif %}
             <p><b>Status:</b> {{ tourney.status.message }}</p>
 {#            {% if tourney.rules is not empty %}#}

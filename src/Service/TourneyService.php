@@ -7,6 +7,7 @@ use App\Entity\TourneyStatus;
 use App\Entity\TourneyGame;
 use App\Entity\TourneyTeam;
 use App\Entity\TourneyTeamMember;
+use App\Entity\TourneyType;
 use App\Entity\User;
 use App\Exception\ServiceException;
 use App\Repository\TourneyGameRepository;
@@ -17,6 +18,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\ORM\NoResultException;
 use LogicException;
+use function PHPUnit\Framework\isNull;
 
 class TourneyService extends OptimalService
 {
@@ -348,6 +350,37 @@ class TourneyService extends OptimalService
         return $depth($final);
     }
 
+    public static function getPodium(Tourney $tourney): array
+    {
+        $root = self::getFinal($tourney);
+        if (is_null($root) || !$root->isDone()) {
+            return [];
+        }
+        return match ($tourney->getMode()) {
+            TourneyType::SingleElimination, TourneyType::RegistrationOnly => TourneyService::getPodiumSingleElim($root),
+            TourneyType::DoubleElimination => TourneyService::getPodiumGetPodiumDoubleElim($root),
+            default => [],
+        };
+    }
+
+    private static function getPodiumSingleElim(TourneyGame $root): array
+    {
+        $result = array();
+        $result[1] = [$root->getWinner()];
+        $result[2] = [$root->getLoser()];
+        $result[3] = array();
+        foreach ($root->getChildren() as $child) {
+            $result[3][] = $child->getLoser();
+        }
+        return $result;
+    }
+
+    private static function getPodiumGetPodiumDoubleElim(TourneyGame $root): array
+    {
+        // TODO implement me
+        return [];
+    }
+    
     /* Result logging */
 
     public function getGameByTourneyAndUser(Tourney $tourney, User $user): ?TourneyGame
