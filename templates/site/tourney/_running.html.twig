@@ -6,7 +6,7 @@
 
 {% macro enter_result_button(game = null, form = null) %}
     {% if game is not null %}
-        <button class="btn btn-primary btn-sm" type="button" {% if game is not null %} data-toggle="modal" data-target="#result-modal-{{ game.id }}" {% else %} disabled="disabled"{% endif %}><i class="fa-solid fa-square-poll-horizontal"></i> Ergebnis eintragen</button>
+        <button class="btn btn-primary btn-sm" type="button" {% if game.pending %} data-toggle="modal" data-target="#result-modal-{{ game.id }}" {% else %} disabled="disabled"{% endif %}><i class="fa-solid fa-square-poll-horizontal"></i> Ergebnis eintragen</button>
         {% if form is not null %}
             {% include 'site/tourney/_result.modal.html.twig' with { id : 'result-modal-' ~ game.id, form: form, game: game } %}
         {% endif %}

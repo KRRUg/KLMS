@@ -1,0 +1,33 @@
+{% embed "modules/modals/skeleton.html.twig"
+    with {id: id, title: 'Anmelden - ' ~ tourney.name}
+%}
+    {% block modalBody %}
+        {% if tourney.singlePlayer %}
+            <span>Wirklich teilnehmen?</span>
+        {% else %}
+            <span>Neues Team ertellen</span>
+            <div class="m-1">
+                {{ form_start(fc, { 'attr': {'class': 'form-inline'}}) }}
+                {{ form_widget(fc.name, { 'attr': {'class': 'form-control-sm flex-fill m-1'}}) }}
+                {{ form_widget(fc.submit, { 'attr': {'class': 'btn btn-primary btn-sm m-1'}}) }}
+                {{ form_end(fc) }}
+            </div>
+            <div class="hr-text mt-2 mb-2">oder</div>
+            <span>Existierendem Team beitreten</span>
+            <div class="m-1">
+                {{ form_start(fj, { 'attr': {'class': 'form-inline'}}) }}
+                {{ form_widget(fj.team, { 'attr': {'class': 'form-control-sm flex-fill m-1'}}) }}
+                {{ form_widget(fj.submit, { 'attr': {'class': 'btn btn-primary btn-sm m-1'}}) }}
+                {{ form_end(fj) }}
+                <span class="text-muted ml-1" style="font-size: small;">Nicht auswählbare Teams sind bereits voll.</span>
+            </div>
+        {% endif %}
+    {% endblock %}
+
+    {% block modalFooter %}
+        {% if tourney.singlePlayer %}
+        {{ form_start(fsp) }}{{ form_widget(fsp.submit, { 'attr': {'class': 'btn btn-primary btn-sm'}}) }}{{ form_end(fsp) }}
+        {% endif %}
+        <button type="button" class="btn-secondary btn btn-sm" data-dismiss="modal">{{ button_cancel | default('Abbrechen') }}</button>
+    {% endblock %}
+{% endembed %}

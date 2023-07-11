@@ -410,7 +410,7 @@ class TourneyTest extends DatabaseWebTestCase
 
         $this->client->request('GET', '/tourney');
         $this->assertSelectorExists('#tourney-1.registered');
-        $this->assertSelectorTextContains('#tourney-1.registered', 'Ausgeschieden');
+        $this->assertSelectorTextContains('#tourney-1.registered', 'Du bist nicht mehr im Rennen');
     }
 
     public function testTourneyNoOptionsForNonLogin()

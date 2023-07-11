@@ -4,42 +4,13 @@
 {% set can_register = (tourney.singlePlayer and (fsp is not null)) or ((not tourney.singlePlayer) and (fc is not null) and (fj is not null)) %}
 
 {% macro register_button(tourney, enabled = false) %}
-    <button class="btn btn-primary btn-sm" type="button" {% if enabled %}data-toggle="collapse" data-target=".registration-{{ tourney.id }}" {% else %}disabled="disabled"{% endif %}>Anmelden <span style="font-size:smaller;">(<i class="fa-solid fa-coins"></i> {{ tourney.token }})</span></button>
+    <button class="btn btn-primary btn-sm" type="button" {% if enabled %}data-toggle="modal" data-target="#registration-{{ tourney.id }}" {% else %}disabled="disabled"{% endif %}>Anmelden <span style="font-size:smaller;">(<i class="fa-solid fa-coins"></i> {{ tourney.token }})</span></button>
 {% endmacro %}
 
-<div class="text-right collapse show registration-{{ tourney.id }}" style="transition: none">
+<div class="text-right registration-{{ tourney.id }}">
     {{ _self.register_button(tourney, can_register) }}
 </div>
 {% if can_register %}
-<div class="collapse registration-{{ tourney.id }} box box-body container-fluid" style="transition: none">
-    {% if tourney.singlePlayer %}
-        {{ form_start(fsp) }}
-        <span>Wirklich teilnehmen?</span><br>
-        {{ form_widget(fsp.submit, { 'attr': {'class': 'btn btn-primary btn-sm'}}) }}
-        <button class="btn btn-secondary btn-sm" type="button" data-toggle="collapse" data-target=".registration-{{ tourney.id }}">Abbrechen</button>
-        {{ form_end(fsp) }}
-    {% else %}
-        <div class="row">
-            {# FIXME make modal #}
-            <div class="col-md-5 border-right">
-                Existierendem Team beitreten
-                {{ form_start(fj, { 'attr': {'class': 'form-inline'}}) }}
-                {{ form_widget(fj.team, { 'attr': {'class': 'form-control-sm flex-fill'}}) }}
-                {{ form_widget(fj.submit, { 'attr': {'class': 'btn btn-primary btn-sm'}}) }}
-                {{ form_end(fj) }}
-            </div>
-            <div class="col-md-5 border-right">
-                Neues Team ertellen
-                {{ form_start(fc, { 'attr': {'class': 'form-inline'}}) }}
-                {{ form_widget(fc.name, { 'attr': {'class': 'form-control-sm flex-fill'}}) }}
-                {{ form_widget(fc.submit, { 'attr': {'class': 'btn btn-primary btn-sm'}}) }}
-                {{ form_end(fc) }}
-            </div>
-            <div class="col-md-2 d-flex justify-content-around align-items-end">
-                <button class="btn btn-secondary btn-sm" type="button" data-toggle="collapse" data-target=".registration-{{ tourney.id }}">Abbrechen</button>
-            </div>
-        </div>
-    {% endif %}
-</div>
+    {% include 'site/tourney/_register.modal.html.twig' with {id: 'registration-' ~ tourney.id } %}
 {% endif %}
 <hr/>
