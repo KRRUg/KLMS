@@ -185,6 +185,7 @@ class TourneyFixture extends Fixture implements DependentFixtureInterface
     {
         return [
             SettingsFixture::class,
+            UserFixtures::class,
         ];
     }
 }

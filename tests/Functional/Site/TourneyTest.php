@@ -3,8 +3,10 @@
 namespace App\Tests\Functional\Site;
 
 use App\DataFixtures\TourneyFixture;
+use App\DataFixtures\TourneyFixtureGames;
 use App\DataFixtures\UserFixtures;
 use App\Tests\Functional\DatabaseWebTestCase;
+use Generator;
 
 class TourneyTest extends DatabaseWebTestCase
 {
@@ -440,10 +442,72 @@ class TourneyTest extends DatabaseWebTestCase
         $this->assertStringNotContainsStringIgnoringCase('ausgeschieden', $crawler->filter('#tourney-list')->innerText());
     }
 
-    public function testTourneyTree()
+    private static function provideUsers(): Generator
     {
-        $this->databaseTool->loadFixtures([TourneyFixture::class, UserFixtures::class]);
+        $fixtures = [TourneyFixture::class, TourneyFixtureGames::class];
+        $users = ['', 'user6@localhost.local'];
+        foreach ($fixtures as $fix) {
+            foreach ($users as $user) {
+                yield [$fix, $user];
+            }
+        }
+    }
+
+    /**
+     * @dataProvider provideUsers
+     */
+    public function testTourneyResult(string $fixture, string $user)
+    {
+        $this->databaseTool->loadFixtures([$fixture]);
+
+        if (!empty($user))
+            $this->login($user);
+
+        $crawler = $this->client->request('GET', '/tourney');
+        if ($fixture === TourneyFixtureGames::class) {
+            $results = $crawler->filter('#tourney-1 ul.results');
+            $this->assertNotEmpty($results);
+            $resultItems = $results->filter('li');
+            $this->assertCount(4, $resultItems);
+            $this->assertStringContainsString('User 6', $resultItems->getNode(0)->textContent);
+            $this->assertStringContainsString('User 1', $resultItems->getNode(1)->textContent);
+            $this->assertStringContainsString('User 3', $resultItems->getNode(2)->textContent);
+            $this->assertStringContainsString('User 8', $resultItems->getNode(3)->textContent);
+        } else {
+            $this->assertSelectorNotExists('#tourney-1 .results');
+        }
+    }
+
+    /**
+     * @dataProvider provideUsers
+     */
+    public function testTourneyTree(string $fixture, string $user)
+    {
+        $this->databaseTool->loadFixtures([$fixture]);
+
+        if (!empty($user))
+            $this->login($user);
 
         $crawler = $this->client->request('GET', '/tourney/1');
+        $tourney = $crawler->filter('.tournament');
+        $this->assertNotEmpty($tourney);
+        $games = $tourney->filter('.match');
+        $this->assertCount(7, $games);
+
+        if (empty($user)) {
+            $this->assertSelectorNotExists('.tournament .team-own');
+        } else {
+            $this->assertSelectorExists('.tournament .team-own');
+        }
+
+        $teams = $tourney->filter('.team');
+        $this->assertCount(14, $teams);
+        if ($fixture === TourneyFixtureGames::class) {
+            foreach ($teams as $item) {
+                $this->assertStringContainsString('User', $item->textContent);
+            }
+        } else {
+            $this->assertSelectorExists('.team:not(.team-name)');
+        }
     }
 }

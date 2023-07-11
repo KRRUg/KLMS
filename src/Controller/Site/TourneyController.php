@@ -291,10 +291,18 @@ class TourneyController extends AbstractController
     {
         $user = ($u = $this->getUser()) ? $u->getUser() : null;
         $tourneys = $this->service->getVisibleTourneys();
+        $podiums = array();
+
+        foreach ($tourneys as $tourney) {
+            $p = TourneyService::getPodium($tourney);
+            if (!empty($p))
+                $podiums[$tourney->getId()] = $p;
+        }
 
         if (is_null($user) || !$this->service->userMayParticipate($user)) {
             return $this->render('site/tourney/index.html.twig', [
                 'tourneys' => $tourneys,
+                'podiums' => $podiums,
                 'participates' => false,
             ]);
         }
@@ -310,7 +318,6 @@ class TourneyController extends AbstractController
         $forms = array();
         $userTeams = array();
         $userActiveGames = array();
-        $podium = array();
         $token = null;
 
         $mayRegister = $this->service->registrationOpen();
@@ -354,18 +361,13 @@ class TourneyController extends AbstractController
             }
             $forms[$t->getId()] = [self::FORM_NAME_RESULT => $this->generateFormResult()->setData(['id' => $game->getId()])->createView()];
         }
-        foreach ($tourneys as $tourney) {
-            $p = TourneyService::getPodium($tourney);
-            if (!empty($p))
-                $podium[$tourney->getId()] = $p;
-        }
 
         return $this->render('site/tourney/index.html.twig', [
             'tourneys' => $tourneys,
             'participates' => true,
             'teams_registered' => $userTeams,
             'games_active' => $userActiveGames,
-            'podium' => $podium,
+            'podiums' => $podiums,
             'token' => $token,
             'forms' => $forms,
             'show' => $show,

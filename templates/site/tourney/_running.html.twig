@@ -5,7 +5,7 @@
     {% if game is not null %}
         <button class="btn btn-primary btn-sm" type="button" {% if game.pending %} data-toggle="modal" data-target="#result-modal-{{ game.id }}" {% else %} disabled="disabled"{% endif %}><i class="fa-solid fa-square-poll-horizontal"></i> Ergebnis eintragen</button>
         {% if form is not null %}
-            {% include 'site/tourney/_result.modal.html.twig' with { id : 'result-modal-' ~ game.id, form: form, game: game } %}
+            {% include 'site/tourney/_running.modal.html.twig' with { id : 'result-modal-' ~ game.id, form: form, game: game } %}
         {% endif %}
     {% endif %}
 {% endmacro %}
