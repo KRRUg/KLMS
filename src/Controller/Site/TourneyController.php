@@ -316,6 +316,10 @@ class TourneyController extends AbstractController
         $show ??= $this->handleConfirmForm($request);
         $show ??= $this->handleResultForm($request);
 
+        if ($show) {
+            return $this->redirectToRoute('tourney', ['_fragment' => 'tourney-'.$show->getId()]);
+        }
+
         $forms = array();
         $userTeams = array();
         $userActiveGames = array();
