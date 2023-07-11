@@ -65,6 +65,11 @@
                         <a class="nav-link {% if app.request.get('_route') starts with 'admin_seatmap' %}active{% endif %}" href="{{ path('admin_seatmap') }}"><i class="fas fa-chair fa-fw"></i> Seatmap </a>
                     </li>
                 {% endif %}
+                {% if is_granted('ROLE_ADMIN_TOURNEY') %}
+                    <li class="nav-item">
+                        <a class="nav-link {% if app.request.get('_route') starts with 'admin_tourney' %}active{% endif %}" href="{{ path('admin_tourney') }}"><i class="fas fa-trophy fa-fw"></i> Turniere </a>
+                    </li>
+                {% endif %}
             </ul>
         </li>
     {% endif %}

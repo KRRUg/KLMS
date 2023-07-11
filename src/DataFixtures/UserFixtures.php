@@ -17,6 +17,11 @@ class UserFixtures extends Fixture
         $admin->setPermissions(['ADMIN_NEWS']);
         $manager->persist($admin);
 
+        $admin = new UserAdmin(Uuid::fromInteger(strval(7)));
+        $admin->setPermissions(['ADMIN_TOURNEY']);
+        $manager->persist($admin);
+
+
         $gamer = new UserGamer(Uuid::fromInteger(strval(10)));
         $gamer->setRegistered(new DateTime());
         $manager->persist($gamer);

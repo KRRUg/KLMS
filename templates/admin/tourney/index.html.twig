@@ -1,0 +1,59 @@
+{% extends 'admin/adminBase.html.twig' %}
+
+{% block title %}KLMS - Admin{% endblock %}
+{% block siteheading %}<i class="fas fa-trophy"></i> Turniere{% endblock %}
+
+{% block main %}
+    <div class="row mb-4">
+        <div class="col-12">
+            <a class="btn btn-success" id="new" href="{{ path('admin_tourney_new') }}"><i class="fas fa-plus"></i> Anlegen</a>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <table class="table table-striped admin-data-table" id="userTable">
+                    <thead>
+                    <tr>
+                        <th scope="col" style="width: 7%" class="text-center">#</th>
+                        <th scope="col" style="width: 10%">Status</th>
+                        <th scope="col" style="width: auto">Name</th>
+                        <th scope="col" style="width: 10%">Order</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% set TourneyStatus = enum('\\App\\Entity\\TourneyStatus') %}
+                    {% for tourney in tourneys %}
+                        <tr>
+                            <td class="text-center">{{ tourney.getId() }}</td>
+                            <td>
+                                {% if tourney.status == TourneyStatus.Created %}
+                                    <i class="fa-solid fa-circle-plus fa-l" title="{{ TourneyStatus.Created.message }}"></i>
+                                {% elseif tourney.status == TourneyStatus.Registration %}
+                                    <i class="fa-solid fa-table-list fa-l" title="{{ TourneyStatus.Registration.message }}"></i>
+                                {% elseif tourney.status == TourneyStatus.Running %}
+                                    <i class="fa-solid fa-gamepad fa-l" title="{{ TourneyStatus.Running.message }}"></i>
+                                {% elseif tourney.status == TourneyStatus.Finished %}
+                                    <i class="fa-solid fa-trophy fa-l" title="{{ TourneyStatus.Finished.message }}"></i>
+                                {% endif %}
+                                {% if tourney.hidden %}
+                                    <i class="fa-sharp fa-solid fa-eye-slash fa-l"></i>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <a href="{{ path('admin_tourney_edit', {'id' : tourney.id}) }}">
+                                    {{ tourney.getName() }}
+                                </a>
+                                <br><small class="text-muted"></small>
+                            </td>
+                            <td>
+                                {{ tourney.order }}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+{% endblock %}

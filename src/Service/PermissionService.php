@@ -25,7 +25,8 @@ final class PermissionService
     public const ADMIN_USER = 'ADMIN_USER';           // May edit users and clans
     public const ADMIN_PAYMENT = 'ADMIN_PAYMENT';     // May set Gamers to paid/unpaid
     public const ADMIN_CHECKIN = 'ADMIN_CHECKIN';     // May check in Gamers at the LAN
-    public const ADMIN_SEATMAP = 'ADMIN_SEATMAP';     // May edit Seatmap and assign Gamers Seats
+    public const ADMIN_SEATMAP = 'ADMIN_SEATMAP';     // May edit seatmap and assign gamers seats
+    public const ADMIN_TOURNEY = 'ADMIN_TOURNEY';     // May edit tourneys
     // extend here
 
     public const PERMISSIONS = [
@@ -38,6 +39,7 @@ final class PermissionService
         self::ADMIN_PAYMENT,
         self::ADMIN_CHECKIN,
         self::ADMIN_SEATMAP,
+        self::ADMIN_TOURNEY
         // extend here
     ];
 

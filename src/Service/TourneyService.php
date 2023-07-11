@@ -18,7 +18,6 @@ use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\ORM\NoResultException;
 use LogicException;
-use function PHPUnit\Framework\isNull;
 
 class TourneyService extends OptimalService
 {
@@ -59,6 +58,11 @@ class TourneyService extends OptimalService
     }
 
     /* Find/Manage Tourney */
+
+    public function getAll(): array
+    {
+        return $this->repository->findBy([], ['status' => 'asc', 'order' => 'asc']);
+    }
 
     public function getVisibleTourneys(): array
     {
