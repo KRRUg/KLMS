@@ -7,7 +7,7 @@ use App\Entity\TourneyStatus;
 use App\Entity\TourneyGame;
 use App\Entity\TourneyTeam;
 use App\Entity\TourneyTeamMember;
-use App\Entity\TourneyType;
+use App\Entity\TourneyRules;
 use App\Entity\User;
 use App\Exception\ServiceException;
 use App\Repository\TourneyGameRepository;
@@ -18,10 +18,12 @@ use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\ORM\NoResultException;
 use LogicException;
+use Psr\Log\LoggerInterface;
 
 class TourneyService extends OptimalService
 {
     private readonly EntityManagerInterface $em;
+    private readonly LoggerInterface $logger;
     private readonly TourneyRepository $repository;
     private readonly TourneyGameRepository $gameRepository;
     private readonly TourneyTeamRepository $teamRepository;
@@ -37,6 +39,7 @@ class TourneyService extends OptimalService
         SettingService $settings,
         GamerService $gamerService,
         EntityManagerInterface $em,
+        LoggerInterface $logger,
     ) {
         parent::__construct($settings);
         $this->repository = $repository;
@@ -46,7 +49,10 @@ class TourneyService extends OptimalService
         $this->settings = $settings;
         $this->gamerService = $gamerService;
         $this->em = $em;
+        $this->logger = $logger;
     }
+
+    // TODO log everything
 
     public const TOKEN_COUNT = 40;
     public const TEAM_NAME_MAX_LENGTH = 25;
@@ -366,8 +372,8 @@ class TourneyService extends OptimalService
             return [];
         }
         return match ($tourney->getMode()) {
-            TourneyType::SingleElimination, TourneyType::RegistrationOnly => TourneyService::getPodiumSingleElim($root),
-            TourneyType::DoubleElimination => TourneyService::getPodiumGetPodiumDoubleElim($root),
+            TourneyRules::SingleElimination, TourneyRules::RegistrationOnly => TourneyService::getPodiumSingleElim($root),
+            TourneyRules::DoubleElimination => TourneyService::getPodiumGetPodiumDoubleElim($root),
             default => [],
         };
     }
@@ -473,6 +479,18 @@ class TourneyService extends OptimalService
             case TourneyStatus::Finished:
                 return;
         }
+        $this->em->flush();
+    }
+
+    public function delete(Tourney $tourney)
+    {
+        $this->repository->remove($tourney);
+        $this->em->flush();
+    }
+
+    public function save(Tourney $tourney)
+    {
+        $this->repository->save($tourney);
         $this->em->flush();
     }
 }

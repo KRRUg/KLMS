@@ -51,7 +51,7 @@
             </ul>
         </li>
     {% endif %}
-    {% if is_granted('ROLE_ADMIN_PAYMENT') %}
+    {% if is_granted('ROLE_ADMIN_PAYMENT') or is_granted('ROLE_ADMIN_SEATMAP') or is_granted('ROLE_ADMIN_TOURNEY') %}
         <li class="nav-item">
             <a class="nav-link" href="#lanMenu" data-toggle="collapse"><i class="fas fa-laptop-house fa-fw"></i> LAN</a>
             <ul id="lanMenu" class="collapse show list-group">

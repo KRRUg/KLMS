@@ -4,15 +4,9 @@ namespace App\DataFixtures;
 
 use App\Entity\Tourney;
 use App\Entity\TourneyStatus;
-use App\Entity\TourneyTeam;
-use App\Entity\TourneyGame;
-use App\Entity\TourneyTeamMember;
-use App\Entity\TourneyType;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Common\DataFixtures\DependentFixtureInterface;
 use Doctrine\Persistence\ObjectManager;
-use joshtronic\LoremIpsum;
-use Ramsey\Uuid\Uuid;
 
 /**
  * Fills up the tourneys to have a completed tournament

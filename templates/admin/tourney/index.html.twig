@@ -28,16 +28,16 @@
                             <td class="text-center">{{ tourney.getId() }}</td>
                             <td>
                                 {% if tourney.status == TourneyStatus.Created %}
-                                    <i class="fa-solid fa-circle-plus fa-l" title="{{ TourneyStatus.Created.message }}"></i>
+                                    <i class="fa-solid fa-circle-plus" title="{{ TourneyStatus.Created.message }}"></i>
                                 {% elseif tourney.status == TourneyStatus.Registration %}
-                                    <i class="fa-solid fa-table-list fa-l" title="{{ TourneyStatus.Registration.message }}"></i>
+                                    <i class="fa-solid fa-table-list" title="{{ TourneyStatus.Registration.message }}"></i>
                                 {% elseif tourney.status == TourneyStatus.Running %}
-                                    <i class="fa-solid fa-gamepad fa-l" title="{{ TourneyStatus.Running.message }}"></i>
+                                    <i class="fa-solid fa-gamepad" title="{{ TourneyStatus.Running.message }}"></i>
                                 {% elseif tourney.status == TourneyStatus.Finished %}
-                                    <i class="fa-solid fa-trophy fa-l" title="{{ TourneyStatus.Finished.message }}"></i>
+                                    <i class="fa-solid fa-trophy" title="{{ TourneyStatus.Finished.message }}"></i>
                                 {% endif %}
                                 {% if tourney.hidden %}
-                                    <i class="fa-sharp fa-solid fa-eye-slash fa-l"></i>
+                                    <i class="fa-solid fa-eye-slash"></i>
                                 {% endif %}
                             </td>
                             <td>

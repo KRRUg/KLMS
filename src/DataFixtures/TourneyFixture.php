@@ -7,7 +7,7 @@ use App\Entity\TourneyStatus;
 use App\Entity\TourneyTeam;
 use App\Entity\TourneyGame;
 use App\Entity\TourneyTeamMember;
-use App\Entity\TourneyType;
+use App\Entity\TourneyRules;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Common\DataFixtures\DependentFixtureInterface;
 use Doctrine\Persistence\ObjectManager;
@@ -28,7 +28,7 @@ class TourneyFixture extends Fixture implements DependentFixtureInterface
             ->setOrder(1)
             ->setToken(20)
             ->setTeamsize(1)
-            ->setMode(TourneyType::SingleElimination)
+            ->setMode(TourneyRules::SingleElimination)
             ->setShowPoints(true)
             ->setAuthorId(Uuid::fromInteger(12))
             ->setModifierId(Uuid::fromInteger(12))
@@ -63,7 +63,7 @@ class TourneyFixture extends Fixture implements DependentFixtureInterface
             ->setToken(15)
             ->setOrder(3)
             ->setTeamsize(2)
-            ->setMode(TourneyType::SingleElimination)
+            ->setMode(TourneyRules::SingleElimination)
             ->setShowPoints(false)
             ->setAuthorId(Uuid::fromInteger(12))
             ->setModifierId(Uuid::fromInteger(12))
@@ -139,7 +139,7 @@ class TourneyFixture extends Fixture implements DependentFixtureInterface
             ->setToken(15)
             ->setOrder(2)
             ->setTeamsize(1)
-            ->setMode(TourneyType::RegistrationOnly)
+            ->setMode(TourneyRules::RegistrationOnly)
             ->setAuthorId(Uuid::fromInteger(13))
             ->setModifierId(Uuid::fromInteger(13))
         ;
@@ -155,7 +155,7 @@ class TourneyFixture extends Fixture implements DependentFixtureInterface
             ->setToken(15)
             ->setOrder(4)
             ->setTeamsize(5)
-            ->setMode(TourneyType::RegistrationOnly)
+            ->setMode(TourneyRules::RegistrationOnly)
             ->setAuthorId(Uuid::fromInteger(13))
             ->setModifierId(Uuid::fromInteger(13))
         ;

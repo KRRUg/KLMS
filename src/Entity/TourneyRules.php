@@ -2,7 +2,7 @@
 
 namespace App\Entity;
 
-enum TourneyType : string
+enum TourneyRules : string
 {
     case SingleElimination = 'se';
     case DoubleElimination = 'de';
