@@ -253,4 +253,18 @@ class Tourney implements HistoryAwareEntity
             return false;
         return $this->status->hasTree() && $this->mode->hasTree();
     }
+
+    public function canHaveTeams(): bool
+    {
+        if (is_null($this->status) || is_null($this->mode))
+            return false;
+        return $this->status->canHaveTeams() && $this->mode->canHaveTeams();
+    }
+
+    public function canHaveGames(): bool
+    {
+        if (is_null($this->status) || is_null($this->mode))
+            return false;
+        return $this->status->canHaveGames() && $this->mode->canHaveGames();
+    }
 }

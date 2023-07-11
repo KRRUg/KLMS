@@ -2,7 +2,9 @@
 
 namespace App\Controller\Admin;
 
+use App\Controller\HttpExceptionTrait;
 use App\Entity\Tourney;
+use App\Entity\TourneyStatus;
 use App\Form\TourneyType;
 use App\Service\TourneyService;
 use Psr\Log\LoggerInterface;
@@ -16,7 +18,10 @@ class TourneyController extends AbstractController
 {
     private TourneyService $service;
 
+    private const CSRF_TOKEN_ADVANCE = 'tourneyAdvanceToken';
     private const CSRF_TOKEN_DELETE = 'tourneyDeleteToken';
+
+    use HttpExceptionTrait;
 
     public function __construct(TourneyService $service, LoggerInterface $logger)
     {
@@ -78,5 +83,77 @@ class TourneyController extends AbstractController
         $this->addFlash('success', 'Erfolgreich gelöscht!');
 
         return $this->redirectToRoute('admin_tourney');
+    }
+
+    private function advanceSeed(Request $request, Tourney $tourney): Response
+    {
+        // TODO implement me here
+
+        // ignore CSRF token, as we generate another form
+        return $this->redirectToRoute('admin_tourney');
+    }
+
+    private function advanceEnterResult(Request $request, Tourney $tourney): Response
+    {
+        // TODO implement me here
+
+        // ignore CSRF token, as we generate another form
+        return $this->redirectToRoute('admin_tourney');
+    }
+
+    private function advanceNoop(Request $request, Tourney $tourney): Response
+    {
+        if ($request->getMethod() !== Request::METHOD_POST) {
+            throw $this->createMethodNotAllowedException([Request::METHOD_POST]);
+        }
+        $token = $request->request->get('_token');
+        if (!$this->isCsrfTokenValid(self::CSRF_TOKEN_ADVANCE, $token)) {
+            throw $this->createAccessDeniedException('The CSRF token is invalid.');
+        }
+        $this->service->tourneyAdvance($tourney);
+        $this->addFlash('success', "Tourney {$tourney->getName()} ist nun in {$tourney->getStatus()}.");
+        return $this->redirectToRoute('admin_tourney');
+    }
+
+    #[Route(path: '/advance/{id}', name: '_advance')]
+    public function advance(Request $request, Tourney $tourney): Response
+    {
+        switch ($tourney->getStatus()) {
+            case TourneyStatus::Created:
+                return $this->advanceNoop($request, $tourney);
+            case TourneyStatus::Registration:
+                if ($tourney->hasTree()) {
+                    return $this->advanceSeed($request, $tourney);
+                } else {
+                    return $this->advanceNoop($request, $tourney);
+                }
+            case TourneyStatus::Running:
+                if ($tourney->hasTree()) {
+                    return $this->advanceNoop($request, $tourney);
+                } else {
+                    return $this->advanceEnterResult($request, $tourney);
+                }
+            case TourneyStatus::Finished:
+            default:
+                throw $this->createNotFoundException();
+        }
+    }
+
+    #[Route(path: '/teams/{id}', name: '_teams')]
+    public function teams(Request $request, Tourney $tourney): Response
+    {
+        // TODO implement me here
+        return $this->render('admin/tourney/teams.html.twig', [
+            'tourney' => $tourney,
+        ]);
+    }
+
+    #[Route(path: '/games/{id}', name: '_games')]
+    public function games(Request $request, Tourney $tourney): Response
+    {
+        // TODO implement me here
+        return $this->render('admin/tourney/games.html.twig', [
+            'tourney' => $tourney,
+        ]);
     }
 }

@@ -23,4 +23,14 @@ enum TourneyStatus : int
     {
         return $this == self::Running || $this == self::Finished;
     }
+
+    public function canHaveTeams(): bool
+    {
+        return $this != self::Created;
+    }
+
+    public function canHaveGames(): bool
+    {
+        return $this != self::Registration && $this != self::Created;
+    }
 }

@@ -12,4 +12,14 @@ enum TourneyRules : string
     {
         return $this != self::RegistrationOnly;
     }
+
+    public function canHaveGames(): bool
+    {
+        return $this != self::RegistrationOnly;
+    }
+
+    public function canHaveTeams(): bool
+    {
+        return true;
+    }
 }

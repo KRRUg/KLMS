@@ -2,9 +2,9 @@
 
 namespace App\Controller\Site;
 
+use App\Controller\HttpExceptionTrait;
 use App\Entity\Tourney;
 use App\Entity\TourneyGame;
-use App\Entity\TourneyTeamMember;
 use App\Exception\ServiceException;
 use App\Service\TourneyService;
 use App\Service\UserService;
@@ -20,7 +20,6 @@ use Symfony\Component\Form\FormEvents;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -36,15 +35,11 @@ class TourneyController extends AbstractController
         $this->userService = $userService;
     }
 
+    use HttpExceptionTrait;
+
     private function createNamedFormBuilder(string $name): FormBuilderInterface
     {
         return $this->container->get('form.factory')->createNamedBuilder($name);
-    }
-
-    // TODO move this somewhere global
-    private function createBadRequestHttpException(string $message = 'Bad request', \Throwable $previous = null): BadRequestHttpException
-    {
-        return new BadRequestHttpException($message, $previous);
     }
 
     private function getTourneyOfId($id): ?Tourney
