@@ -8,17 +8,21 @@
     {% endif %}
 {% endmacro %}
 
-{% macro game_icon(tourney, game = null) %}
+{% macro game_icon(tourney, game = null, tm = null) %}
     {% set TourneyStatus = enum('\\App\\Entity\\TourneyStatus') %}
     {% if tourney.status == TourneyStatus.Registration %}
-        <i class="fa-solid fa-table-list fa-2xl"></i>
+        <i title="Angemeldet{% if tm is not null and not tm.accepted %} (Bestätigung ausstehend){% endif %}"
+           class="fa-solid fa-table-list fa-2xl
+        {% if tm is not null and not tm.accepted %} text-muted {% endif %}
+        "></i>
     {% elseif tourney.status == TourneyStatus.Running %}
-        <i class="fa-solid fa-gamepad fa-2xl
+        <i title="{% if game is null %}Ausgeschieden{% else %}Teilnehmer{% endif %}"
+           class="fa-solid fa-gamepad fa-2xl
         {% if tourney.isRunning %}
             {% if game is null %} text-muted {% elseif game.isPending() %} text-primary fa-beat-fade{% endif %}
         {% endif %}"></i>
     {% elseif tourney.status == TourneyStatus.Finished %}
-        <i class="fa-solid fa-trophy fa-2xl"></i>
+        <i title="Tournier beendet" class="fa-solid fa-trophy fa-2xl"></i>
     {% endif %}
 {% endmacro %}
 
@@ -27,7 +31,7 @@
         <h4 class="mb-0">
         <button class="btn btn-block d-flex justify-content-between align-items-center" type="button" data-toggle="collapse" data-target="#collapse-{{ tourney.id }}">
             {{ tourney.name }}
-            {% if registered %}{{ _self.game_icon(tourney, current_game) }}{% endif %}
+            {% if registered %}{{ _self.game_icon(tourney, current_game, tm) }}{% endif %}
         </button>
         </h4>
     </div>
