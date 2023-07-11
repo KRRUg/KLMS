@@ -65,7 +65,7 @@ class TourneyController extends AbstractController
     {
         return $this->createNamedFormBuilder(self::FORM_NAME_CREATE)
             ->add('id', HiddenType::class, ['required' => true])
-            ->add('name', TextType::class, ['label' => 'Name', 'required' => true, 'constraints' => [new Assert\NotBlank()]])
+            ->add('name', TextType::class, ['label' => 'Name', 'required' => true, 'attr' => ['maxlength' => TourneyService::TEAM_NAME_MAX_LENGTH], 'constraints' => [new Assert\NotBlank()]])
             ->add('submit', SubmitType::class, ['label' => 'Erstellen'])
             ->getForm();
     }
@@ -178,6 +178,7 @@ class TourneyController extends AbstractController
                     ServiceException::CAUSE_FORBIDDEN => 'User darf sich nicht registrieren.',
                     ServiceException::CAUSE_INCONSISTENT => 'Teamname existiert schon.',
                     ServiceException::CAUSE_FULL => 'Team ist schon voll',
+                    ServiceException::CAUSE_TOO_LONG => "Teamname darf nicht länger als " . TourneyService::TEAM_NAME_MAX_LENGTH . ' Zeichen lang sein.',
                     default => 'unbekannter Fehler.'
                 }
             );

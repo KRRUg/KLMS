@@ -50,6 +50,7 @@ class TourneyService extends OptimalService
     }
 
     public const TOKEN_COUNT = 40;
+    public const TEAM_NAME_MAX_LENGTH = 25;
     private const SETTING_PREFIX = 'lan.tourney.';
 
     protected static function getSettingKey(): string
@@ -217,6 +218,10 @@ class TourneyService extends OptimalService
                 }
                 $team->addMember(TourneyTeamMember::create($user->getUuid()));
             } elseif (is_string($team)) {
+                if (strlen($team) > self::TEAM_NAME_MAX_LENGTH) {
+                    throw new ServiceException(ServiceException::CAUSE_TOO_LONG, 'Teamname must be shorter than 25 chars');
+                }
+                $team = substr($team, 0, min(25, strlen($team)));
                 if ($this->teamNameTaken($team)) {
                     throw new ServiceException(ServiceException::CAUSE_INCONSISTENT, 'Teamname already exists');
                 }

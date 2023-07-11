@@ -22,8 +22,8 @@ class TourneyTeam
     #[ORM\JoinColumn(nullable: false, name: 'tourney_id')]
     private ?Tourney $tourney = null;
 
-    #[ORM\Column(length: 255, name: 'name', nullable: true)]
-    #[Assert\Length(max: 255, maxMessage: '{{ field }} is too long.')]
+    #[ORM\Column(length: 30, name: 'name', nullable: true)]
+    #[Assert\Length(max: 30, maxMessage: '{{ field }} is too long.')]
     private ?string $name = null;
 
     #[ORM\OneToMany(mappedBy: 'team', targetEntity: TourneyTeamMember::class, orphanRemoval: true, cascade: ['persist'])]
