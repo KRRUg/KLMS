@@ -4,40 +4,62 @@
 
 {% macro tree_button(tourney) %}
     {% if tourney.hasTree %}
-        <a class="btn btn-primary btn-sm" href="{{ path('tourney_show', {'id': tourney.id }) }}"><i class="fa-solid fa-sitemap"></i> Turnierbaum</a>
+        <a class="btn btn-primary btn-sm btn-block" href="{{ path('tourney_show', {'id': tourney.id }) }}"><i class="fa-solid fa-sitemap"></i> Turnierbaum</a>
     {% endif %}
 {% endmacro %}
 
 {% macro game_icon(tourney, game = null, tm = null) %}
     {% set TourneyStatus = enum('\\App\\Entity\\TourneyStatus') %}
     {% if tourney.status == TourneyStatus.Registration %}
-        <i title="Angemeldet{% if tm is not null and not tm.accepted %} (Bestätigung ausstehend){% endif %}"
-           class="fa-solid fa-table-list fa-2xl
-        {% if tm is not null and not tm.accepted %} text-muted {% endif %}
-        "></i>
+        <span class="badge badge-pill badge-secondary"> <i class="fa-solid fa-table-list"></i> Angemeldet</span>
+        {% if tm is not null and not tm.accepted %}
+            <span class="badge badge-pill badge-warning" title="Achtung: Jemand aus deinem Team muss deine Teilnahme noch bestätigen!"> <i class="fa-solid fa-triangle-exclamation"></i> Bestätigung ausstehend!</span>
+        {% endif %}
     {% elseif tourney.status == TourneyStatus.Running %}
-        <i title="{% if game is null %}Ausgeschieden{% else %}Teilnehmer{% endif %}"
-           class="fa-solid fa-gamepad fa-2xl
-        {% if tourney.isRunning %}
-            {% if game is null %} text-muted {% elseif game.isPending() %} text-primary fa-beat-fade{% endif %}
-        {% endif %}"></i>
+        <span class="badge badge-pill badge-primary"> <i class="fa-solid fa-gamepad"></i> Turnier läuft</span>
+        {% if game is null %}
+            <span class="badge badge-pill badge-secondary"> Ausgeschieden</span>
+        {% elseif game.isPending() %}
+            <span class="badge badge-pill badge-secondary"> Du bist dran!</span>
+            <i title="Du bist dran zum Zocken!" class="fa-solid fa-gamepad fa-2xl text-primary fa-beat-fade"></i>
+        {% endif %}
     {% elseif tourney.status == TourneyStatus.Finished %}
-        <i title="Tournier beendet" class="fa-solid fa-trophy fa-2xl"></i>
+        <span class="badge badge-pill badge-success"><i class="fa-solid fa-trophy"></i> Turnier beendet</span>
     {% endif %}
 {% endmacro %}
 
 <div class="card mb-3 tourney {% if registered %}registered{% endif %}" id="tourney-{{ tourney.id }}">
+    {% set TourneyStatus = enum('\\App\\Entity\\TourneyStatus') %}
     <div class="card-header">
         <h4 class="mb-0">
         <button class="btn btn-block d-flex justify-content-between align-items-center" type="button" data-toggle="collapse" data-target="#collapse-{{ tourney.id }}">
             {{ tourney.name }}
-            {% if registered %}{{ _self.game_icon(tourney, current_game, tm) }}{% endif %}
+            <span class="statusbar">
+            {% if registered %}
+                {{ _self.game_icon(tourney, current_game, tm) }}
+            {% else %}
+                {% if tourney.status == TourneyStatus.Registration %}
+                    {% if availableToken is defined and tourney.token is defined %}
+                        {% if (availableToken - tourney.token) >= 0  %}
+                            {% set badgeColor = 'badge-primary' %}
+                            {% set badgeTitle = 'Du kannst dich für dieses Turnier anmelden (Kosten: '~tourney.token~' Token!' %}
+                        {% else %}
+                            {% set badgeColor = 'badge-secondary' %}
+                            {% set badgeTitle = 'Nicht genug Token für dieses Turnier :-(' %}
+                        {% endif %}
+                        <span class="badge badge-pill {{ badgeColor }}" title="{{ badgeTitle }}">{{ tourney.status.message }} <i class="fa-solid fa-coins"></i>  {{ tourney.token }}</span>
+                    {% else %}
+                        <span class="badge badge-pill badge-primary">{{ tourney.status.message }}</span>
+                    {% endif %}
+                {% else %}
+                    <span class="badge badge-pill badge-secondary">{{ tourney.status.message }}</span>
+                {% endif %}
+            {% endif %}
+            </span>
         </button>
         </h4>
     </div>
     <div class="collapse{% if expand %} show{% endif %}" id="collapse-{{ tourney.id }}">
-        {% set TourneyStatus = enum('\\App\\Entity\\TourneyStatus') %}
-        <div class="card-body">
             {% if tourney.status == TourneyStatus.Created %}
                 {% include 'site/tourney/_created.html.twig' %}
             {% elseif tourney.status == TourneyStatus.Registration %}
@@ -53,14 +75,5 @@
             {% elseif tourney.status == TourneyStatus.Finished %}
                 {% include 'site/tourney/_result.html.twig' with {podium: podiums[tourney.id] ?? null} %}
             {% endif %}
-            <p><b>Status:</b> {{ tourney.status.message }}</p>
-{#            {% if tourney.rules is not empty %}#}
-{#                <b>Regeln:</b> #}
-{#            {% endif %}#}
-            <p><b>Modus:</b> {{ tourney.mode == 'de' ? "double elimination" : "single elemination" }}</p>
-            {% if tourney.description is not empty %}
-                <p><b>Beschreibung:</b> {{ tourney.description | raw }}</p>
-            {% endif %}
-        </div>
     </div>
 </div>

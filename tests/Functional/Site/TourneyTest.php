@@ -359,7 +359,7 @@ class TourneyTest extends DatabaseWebTestCase
         $this->assertStringContainsString('User 5', $accept->attr('title'));
         $form = $accept->form();
         $this->client->submit($form);
-        $this->assertSelectorTextContains('#tourney-4 .box', 'User 5');
+        $this->assertSelectorTextContains('#tourney-4 .card', 'User 5');
 
         $this->logout();
         $this->login('user5@localhost.local');
@@ -385,7 +385,7 @@ class TourneyTest extends DatabaseWebTestCase
         $this->assertStringContainsString('User 5', $decline->attr('title'));
         $form = $decline->form();
         $this->client->submit($form);
-        $this->assertSelectorTextNotContains('#tourney-4 .box', 'User 5');
+        $this->assertSelectorTextNotContains('#tourney-4 .card', 'User 5');
 
         $this->logout();
         $this->login('user5@localhost.local');

@@ -3,62 +3,56 @@
 
 {% macro enter_result_button(game = null, form = null) %}
     {% if game is not null %}
-        <button class="btn btn-primary btn-sm" type="button" {% if game.pending %} data-toggle="modal" data-target="#result-modal-{{ game.id }}" {% else %} disabled="disabled"{% endif %}><i class="fa-solid fa-square-poll-horizontal"></i> Ergebnis eintragen</button>
+        <button class="btn btn-primary btn-sm btn-block" type="button" {% if game.pending %} data-toggle="modal" data-target="#result-modal-{{ game.id }}" {% else %} disabled="disabled"{% endif %}><i class="fa-solid fa-square-poll-horizontal"></i> Ergebnis eintragen</button>
         {% if form is not null %}
             {% include 'site/tourney/_running.modal.html.twig' with { id : 'result-modal-' ~ game.id, form: form, game: game } %}
         {% endif %}
     {% endif %}
 {% endmacro %}
 
-{% macro pending_game_box(game = null) %}
-    {% if game is not null and game.pending %}
-        <div class="box">
-            <div class="box-header">
-                Ausstehendes Spiel
-            </div>
-            <div class="box-body text-center">
-                {{ teamnameA(game) }} <span class="text-primary font-weight-bold">vs</span> {{ teamnameB(game) }}
-            </div>
+{% extends 'site/tourney/_card.body.html.twig' %}
+
+{% block blockButtonBarRight %}
+    {% if tourney.hasTree %}
+        <div class="text-right mb-3">
+            {{ tree_button(tourney) }}
         </div>
     {% endif %}
-{% endmacro %}
+{% endblock %}
 
-{% if not participates %}
-    <div class="text-right">
-        {{ tree_button(tourney) }}
-    </div>
-{% else %}
-    <div class="text-right">
-        {% set f = forms[constant('App\\Controller\\Site\\TourneyController::FORM_NAME_RESULT')] | default(null) %}
-        {{ _self.enter_result_button(current_game, f) }}
-        {{ tree_button(tourney) }}
-    </div>
-
-    <div class="container-fluid row">
-        {% if current_game is null %}
-            <span>Du bist nicht mehr im Rennen.</span>
-        {% else %}
-            <div class="col-md-6">
-                {{ _self.pending_game_box(current_game) }}
-            </div>
-        {% endif %}
-        <div class="col-md-6">
-        {% if not tourney.singlePlayer %}
-        {% set team = tm.team %}
-            <div class="box">
-                <div class="box-header">
-                    {{ team.name }}
-                </div>
-                <div class="box-body">
-                    <ul class="list-unstyled">
-                    {% for member in team.members %}
-                        <li>{{ member.gamer | username }}</li>
-                    {% endfor %}
-                    </ul>
-                </div>
-            </div>
-        {% endif %}
+{% block blockButtonBarMain %}
+    {% if participates and current_game is not null %}
+        <div class="text-right mb-3">
+            {% set f = forms[constant('App\\Controller\\Site\\TourneyController::FORM_NAME_RESULT')] | default(null) %}
+            {{ _self.enter_result_button(current_game, f) }}
         </div>
-    </div>
-    <hr/>
-{% endif %}
+    {% endif %}
+{% endblock %}
+
+{% block mainColTop %}
+    {% if participates %}
+        <div class="col-12 mb-3">
+            {% if current_game is null %}
+                <div class="alert alert-danger mb-0">Du bist nicht mehr im Rennen!</div>
+            {% elseif current_game is not null and current_game.pending %}
+                <div class="text-center h4 mb-3 mt-3"><strong>Ausstehendes Spiel</strong></div>
+                <div class="row align-items-center mb-3">
+                    <div class="col">
+                        {% include 'site/tourney/_team.card.html.twig' with {team: current_game.teamA} %}
+                    </div>
+                    <div class="col-auto">
+                        <span class="h4">VS</span>
+                    </div>
+                    <div class="col">
+                        {% include 'site/tourney/_team.card.html.twig' with {team: current_game.teamB} %}
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+        <div class="col-12">
+            {% if not tourney.singlePlayer %}
+                {% include 'site/tourney/_team.card.html.twig' with {team: tm.team} %}
+            {% endif %}
+        </div>
+    {% endif %}
+{% endblock %}

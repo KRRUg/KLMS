@@ -4,12 +4,19 @@
 {% set can_register = (tourney.singlePlayer and (fsp is not null)) or ((not tourney.singlePlayer) and (fc is not null) and (fj is not null)) %}
 
 {% macro register_button(tourney, enabled = false) %}
-    <button class="btn btn-primary btn-sm" type="button" {% if enabled %}data-toggle="modal" data-target="#registration-{{ tourney.id }}" {% else %}disabled="disabled"{% endif %}>Anmelden <span style="font-size:smaller;">(<i class="fa-solid fa-coins"></i> {{ tourney.token }})</span></button>
+    <button class="btn btn-primary btn-sm btn-block" type="button" {% if enabled %}data-toggle="modal" data-target="#registration-{{ tourney.id }}" {% else %}disabled="disabled"{% endif %}>Anmelden <span style="font-size:smaller;">(<i class="fa-solid fa-coins"></i> {{ tourney.token }})</span></button>
 {% endmacro %}
 
-<div class="text-right registration-{{ tourney.id }}">
-    {{ _self.register_button(tourney, can_register) }}
-</div>
-{% if can_register %}
-    {% include 'site/tourney/_register.modal.html.twig' with {id: 'registration-' ~ tourney.id } %}
-{% endif %}
+{% extends 'site/tourney/_card.body.html.twig' %}
+
+{% block blockButtonBarRight %}
+    <div class="text-right registration-{{ tourney.id }} mb-3">
+        {{ _self.register_button(tourney, can_register) }}
+    </div>
+{% endblock %}
+
+{% block containerBottom %}
+    {% if can_register %}
+        {% include 'site/tourney/_register.modal.html.twig' with {id: 'registration-' ~ tourney.id } %}
+    {% endif %}
+{% endblock %}
