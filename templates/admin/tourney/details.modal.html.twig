@@ -8,10 +8,10 @@
     {% from 'site/tourney/show.html.twig' import teamname, teamnameA, teamnameB %}
     {% block modalBody %}
         <div class="container-fluid row">
-            <div class="col-md-6">
+            <div class="col-lg-6">
                 <h5><i class="fa-solid fa-people-group"></i> Teams</h5>
                 <hr>
-                <ul class="list-group">
+                <ul class="list-group mb-2">
                     {% for team in tourney.teams %}
                         <li class="list-group-item">
                             <b>{{ teamname(team) }}</b><br>
@@ -22,7 +22,7 @@
                     {% endfor %}
                 </ul>
             </div>
-            <div class="col-md-6">
+            <div class="col-lg-6">
                 <h5><i class="fa-solid fa-gamepad"></i> Games</h5>
                 <hr>
                 <h6>Ausstehende Spiele</h6>
@@ -36,7 +36,7 @@
                     {% endfor %}
                 </ul>
                 <h6 class="mt-2">Abgeschlossene Spiele</h6>
-                <ul class="list-group">
+                <ul class="list-group mb-2">
                     {% for game in tourney.games | filter(game => game.done)%}
                         <li class="list-group-item">
                             <span>

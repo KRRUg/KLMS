@@ -15,11 +15,11 @@
                 <table class="table table-striped admin-data-table" id="userTable">
                     <thead>
                     <tr>
-                        <th scope="col" style="width: 7%" class="text-center">#</th>
-                        <th scope="col" style="width: 2em">Status</th>
+                        <th scope="col" data-width="50" style="width: 7%" class="text-center">#</th>
+                        <th scope="col" data-width="50" style="width: 2em">Status</th>
                         <th scope="col" style="width: auto">Name</th>
-                        <th scope="col" style="width: 10%">Order</th>
-                        <th scope="col" data-orderable="false" style="width: 6em">Aktionen</th>
+                        <th scope="col" data-width="50" style="width: 10%">Order</th>
+                        <th scope="col" data-width="100" data-orderable="false">Aktionen</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -71,7 +71,7 @@
                                 <button type="button" class="btn btn-outline-dark text-nowrap"
                                         {% if not tourney.canHaveTeams %} disabled="disabled" {% endif %}
                                         data-toggle="ajaxModal" href="{{ path('admin_tourney_details', {'id' : tourney.id}) }}">
-                                    <i class="fa-solid fa-circle-info"></i> Details
+                                    <i class="fa-solid fa-circle-info"></i> Status
                                 </button>
                             </td>
                         </tr>

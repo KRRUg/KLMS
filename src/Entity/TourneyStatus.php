@@ -12,10 +12,20 @@ enum TourneyStatus : int
     public function getMessage(): string
     {
         return match ($this) {
-            self::Created => 'Anmeldung (noch) nicht freigeschalten',
-            self::Registration => 'Anmeldung offen',
+            self::Created => 'Erstellt',
+            self::Registration => 'Anmeldung',
+            self::Running => 'Spielen',
+            self::Finished => 'Resultat',
+        };
+    }
+
+    public function getAdjective(): string
+    {
+        return match ($this) {
+            self::Created => 'erstellt',
+            self::Registration => 'in Registrierung',
             self::Running => 'läuft',
-            self::Finished => 'beendet'
+            self::Finished => 'beendet',
         };
     }
 
