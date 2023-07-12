@@ -16,7 +16,7 @@
                     <thead>
                     <tr>
                         <th scope="col" style="width: 7%" class="text-center">#</th>
-                        <th scope="col" style="width: 10%">Status</th>
+                        <th scope="col" style="width: 2em">Status</th>
                         <th scope="col" style="width: auto">Name</th>
                         <th scope="col" style="width: 10%">Order</th>
                         <th scope="col" style="width: 15%">Aktionen</th>
@@ -24,10 +24,11 @@
                     </thead>
                     <tbody>
                     {% set TourneyStatus = enum('\\App\\Entity\\TourneyStatus') %}
+                    {% set TourneyRules = enum('\\App\\Entity\\TourneyRules') %}
                     {% for tourney in tourneys %}
                         <tr>
                             <td class="text-center">{{ tourney.getId() }}</td>
-                            <td>
+                            <td data-sort="{{ tourney.status.value }}" data-filter="">
                                 {% if tourney.status == TourneyStatus.Created %}
                                     <i class="fa-solid fa-circle-plus" title="{{ TourneyStatus.Created.message }}"></i>
                                 {% elseif tourney.status == TourneyStatus.Registration %}
@@ -41,16 +42,32 @@
                                     <i class="fa-solid fa-eye-slash"></i>
                                 {% endif %}
                             </td>
-                            <td>
+                            <td data-sort="{{ tourney.getName() }}" data-filter="{{ tourney.getName() }}">
                                 <a href="{{ path('admin_tourney_edit', {'id' : tourney.id}) }}">
                                     {{ tourney.getName() }}
-                                </a>
-                                <br><small class="text-muted"></small>
+                                </a><br>
+                                <div class="d-flex flex-wrap text-muted">
+                                    <small class="mr-3">
+                                        <i class="fa-solid fa-coins fa-xs"></i> {{ tourney.token }}
+                                    </small>
+                                    <small class="mr-3">
+                                        {{ tourney.teamsize ~ 'v' ~ tourney.teamsize }}
+                                    </small>
+                                    <small class="mr-3">
+                                    {% if tourney.mode == TourneyRules.SingleElimination %}
+                                        Single Elemination
+                                    {% elseif tourney.mode == TourneyRules.DoubleElimination %}
+                                        Double Elimination
+                                    {% elseif tourney.mode == TourneyRules.RegistrationOnly %}
+                                        Nur Anmeldung
+                                    {% endif %}
+                                    </small>
+                                </div>
                             </td>
                             <td>
                                 {{ tourney.order }}
                             </td>
-                            <td>
+                            <td data-sort="" data-filter="">
                                 <button type="button" class="btn btn-outline-dark text-nowrap"
                                         {% if not tourney.canHaveTeams %} disabled="disabled" {% endif %}
                                         data-toggle="ajaxModal" href="{{ path('admin_tourney_teams', {'id' : tourney.id}) }}">
@@ -61,6 +78,11 @@
                                         data-toggle="ajaxModal"  href="{{ path('admin_tourney_games', {'id' : tourney.id}) }}">
                                     <i class="fa-solid fa-gamepad"></i> Spiele
                                 </button>
+{#                                <button type="button" class="btn btn-outline-dark text-nowrap"#}
+{#                                        {% if tourney.status == TourneyStatus.Finished %} disabled="disabled" {% endif %}#}
+{#                                        href="{{ path('admin_tourney_advance', {'id' : tourney.id}) }}">#}
+{#                                    <i class="fa-solid fa-circle-arrow-right"></i> Advance#}
+{#                                </button>#}
                             </td>
                         </tr>
                     {% endfor %}
