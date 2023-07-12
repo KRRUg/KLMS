@@ -16,6 +16,7 @@ class ServiceException extends RuntimeException
     final public const CAUSE_FULL = 7;
     final public const CAUSE_FORBIDDEN = 8;
     final public const CAUSE_TOO_LONG = 9;
+    final public const CAUSE_INCORRECT_STATE = 10;
 
     public function __construct(int $cause, string $message = '')
     {

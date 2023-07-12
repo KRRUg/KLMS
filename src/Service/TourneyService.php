@@ -444,6 +444,8 @@ class TourneyService extends OptimalService
 
     public function logResult(TourneyGame $game, int $scoreA, int $scoreB)
     {
+        // TODO reset all later games (when $reset is set)
+
         $this->tryLogResult($game);
         if ($scoreA == $scoreB) {
             throw new ServiceException(ServiceException::CAUSE_INVALID, 'Tie not allowed.');
@@ -461,26 +463,75 @@ class TourneyService extends OptimalService
         $this->em->flush();
     }
 
-    /* Tourney management */
+    /* Tourney state management */
 
-    public function tourneyAdvance(Tourney $tourney)
+    private static function tryAdvance(Tourney $tourney, TourneyStatus $expected)
     {
-        switch ($tourney->getStatus()) {
-            case TourneyStatus::Created:
-                $tourney->setStatus(TourneyStatus::Registration);
-                break;
-            case TourneyStatus::Registration:
-                $tourney->setStatus(TourneyStatus::Running);
-                break;
-            case TourneyStatus::Running:
-                $tourney->setStatus(TourneyStatus::Finished);
-                break;
-            default:
-            case TourneyStatus::Finished:
-                return;
+        if ($tourney->getStatus() != $expected) {
+            throw new ServiceException(ServiceException::CAUSE_INCORRECT_STATE, "Tourney {$tourney->getName()} is not in state {$expected->getMessage()}");
         }
+    }
+
+    public function start(Tourney $tourney)
+    {
+        self::tryAdvance($tourney, TourneyStatus::Created);
+        $tourney->setStatus(TourneyStatus::Registration);
         $this->em->flush();
     }
+
+    /**
+     * @param Tourney $tourney
+     * @param TourneyTeam|null[] $seed
+     */
+    public function seed(Tourney $tourney, array $seed)
+    {
+        self::tryAdvance($tourney, TourneyStatus::Registration);
+        // TODO implement me
+
+        $this->em->flush();
+    }
+
+    /**
+     * @param Tourney $tourney
+     * @param ?TourneyTeam[] $result
+     */
+    public function finish(Tourney $tourney, ?array $result = null)
+    {
+        self::tryAdvance($tourney, TourneyStatus::Running);
+        // TODO implement me
+
+        $this->em->flush();
+    }
+
+    /**
+     * Advance to the next state if no options are required.
+     * @param Tourney $tourney
+     * @throws ServiceException when no auto-advance is possible
+     */
+    public function advance(Tourney $tourney): void
+    {
+        // TODO advance without seed to playing and perform a seed option in playing state (to avoid missing teams in seed).
+
+        switch ($tourney->getStatus()) {
+            case TourneyStatus::Finished:
+                return;
+            case TourneyStatus::Created:
+                $this->start($tourney);
+                return;
+            case TourneyStatus::Running:
+                if ($tourney->getMode() != TourneyRules::RegistrationOnly) {
+                    $this->finish($tourney);
+                    return;
+                }
+                break;
+            default:
+            case TourneyStatus::Registration:
+                break;
+        }
+        throw new ServiceException(ServiceException::CAUSE_INCORRECT_STATE, 'cannot auto-advance');
+    }
+
+    /* Tourney object management */
 
     public function delete(Tourney $tourney)
     {

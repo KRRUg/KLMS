@@ -110,8 +110,8 @@ class TourneyController extends AbstractController
         if (!$this->isCsrfTokenValid(self::CSRF_TOKEN_ADVANCE, $token)) {
             throw $this->createAccessDeniedException('The CSRF token is invalid.');
         }
-        $this->service->tourneyAdvance($tourney);
-        $this->addFlash('success', "Tourney {$tourney->getName()} ist nun in {$tourney->getStatus()}.");
+        $this->service->advance($tourney);
+        $this->addFlash('success', "Tourney {$tourney->getName()} ist nun {$tourney->getStatus()->getAdjective()}.");
         return $this->redirectToRoute('admin_tourney');
     }
 
@@ -147,6 +147,7 @@ class TourneyController extends AbstractController
         // TODO implement me
         return $this->render('admin/tourney/details.modal.html.twig', [
             'tourney' => $tourney,
+            'csrf_token_advance' => self::CSRF_TOKEN_ADVANCE,
         ]);
     }
 }

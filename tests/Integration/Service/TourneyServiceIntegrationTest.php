@@ -298,7 +298,7 @@ class TourneyServiceIntegrationTest extends DatabaseTestCase
         $this->databaseTool->loadFixtures([TourneyFixture::class, UserFixtures::class]);
         $service = self::getContainer()->get(TourneyService::class);
         $tourney = $service->getVisibleTourneys()[0];
-        $service->tourneyAdvance($tourney);
+        $service->advance($tourney);
 
         $user7 = $this->getUser(7);
 
