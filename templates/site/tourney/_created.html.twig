@@ -1,6 +1,7 @@
-<div>
-    {% from 'site/tourney/_register.html.twig' import register_button %}
-    <div class="text-right">
+{% extends 'site/tourney/_card.body.html.twig' %}
+
+{% block blockButtonBarRight %}
+    <div class="text-right mb-3">
         {{ register_button(tourney, false) }}
     </div>
-</div>
+{% endblock %}
