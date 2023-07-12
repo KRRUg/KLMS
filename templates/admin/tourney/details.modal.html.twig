@@ -1,0 +1,60 @@
+{% embed "modules/modals/skeleton.html.twig"
+    with {
+    'id': 'showTeamsModal',
+    'title' : tourney.name,
+    'dialogClass' : 'modal-xl modal-dialog-scrollable'
+} %}
+{# maybe use https://stackoverflow.com/questions/19528173/bootstrap-open-another-modal-in-modal #}
+    {% from 'site/tourney/show.html.twig' import teamname, teamnameA, teamnameB %}
+    {% block modalBody %}
+        <div class="container-fluid row">
+            <div class="col-lg-6">
+                <h5><i class="fa-solid fa-people-group"></i> Teams</h5>
+                <hr>
+                <ul class="list-group mb-2">
+                    {% for team in tourney.teams %}
+                        <li class="list-group-item">
+                            <b>{{ teamname(team) }}</b><br>
+                            {% if not tourney.singlePlayer %}
+                                <span>{% for tm in team.members %}{% if not tm.accepted %}<i class="text-muted">{% endif %}{{ tm.gamer | username }}{% if not tm.accepted %}</i>{% endif %}{% if not loop.last %},  {% endif %}{% endfor %}</span>
+                            {% endif %}
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+            <div class="col-lg-6">
+                <h5><i class="fa-solid fa-gamepad"></i> Games</h5>
+                <hr>
+                <h6>Ausstehende Spiele</h6>
+                <ul class="list-group">
+                    {% for game in tourney.games | filter(game => game.pending) %}
+                        <li class="list-group-item">
+                            {{ teamnameA(game) }} <span>vs</span> {{ teamnameB(game) }}
+                        </li>
+                    {% else %}
+                        <span class="text-muted">Keine vorhanden.</span>
+                    {% endfor %}
+                </ul>
+                <h6 class="mt-2">Abgeschlossene Spiele</h6>
+                <ul class="list-group mb-2">
+                    {% for game in tourney.games | filter(game => game.done)%}
+                        <li class="list-group-item">
+                            <span>
+                                {% if game.hasWon(true) %}<b>{% endif %}{{ teamnameA(game) }} {% if game.hasWon(true) %}</b>{% endif %}
+                                vs
+                                {% if game.hasWon(false) %}<b>{% endif %}{{ teamnameB(game) }} {% if game.hasWon(false) %}</b>{% endif %}
+                                ({{ game.scoreA }} : {{ game.scoreB }})
+                            </span>
+                        </li>
+                    {% else %}
+                        <span class="text-muted">Keine vorhanden.</span>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    {% endblock %}
+
+    {% block modalFooter %}
+{#        <button type="button" class="btn btn-secondary" data-dismiss="modal">Schließen</button>#}
+    {% endblock %}
+{% endembed %}

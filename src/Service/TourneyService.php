@@ -7,7 +7,7 @@ use App\Entity\TourneyStatus;
 use App\Entity\TourneyGame;
 use App\Entity\TourneyTeam;
 use App\Entity\TourneyTeamMember;
-use App\Entity\TourneyType;
+use App\Entity\TourneyRules;
 use App\Entity\User;
 use App\Exception\ServiceException;
 use App\Repository\TourneyGameRepository;
@@ -18,11 +18,12 @@ use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\ORM\NoResultException;
 use LogicException;
-use function PHPUnit\Framework\isNull;
+use Psr\Log\LoggerInterface;
 
 class TourneyService extends OptimalService
 {
     private readonly EntityManagerInterface $em;
+    private readonly LoggerInterface $logger;
     private readonly TourneyRepository $repository;
     private readonly TourneyGameRepository $gameRepository;
     private readonly TourneyTeamRepository $teamRepository;
@@ -38,6 +39,7 @@ class TourneyService extends OptimalService
         SettingService $settings,
         GamerService $gamerService,
         EntityManagerInterface $em,
+        LoggerInterface $logger,
     ) {
         parent::__construct($settings);
         $this->repository = $repository;
@@ -47,9 +49,13 @@ class TourneyService extends OptimalService
         $this->settings = $settings;
         $this->gamerService = $gamerService;
         $this->em = $em;
+        $this->logger = $logger;
     }
 
+    // TODO log everything
+
     public const TOKEN_COUNT = 40;
+    public const TEAM_NAME_MAX_LENGTH = 25;
     private const SETTING_PREFIX = 'lan.tourney.';
 
     protected static function getSettingKey(): string
@@ -58,6 +64,11 @@ class TourneyService extends OptimalService
     }
 
     /* Find/Manage Tourney */
+
+    public function getAll(): array
+    {
+        return $this->repository->findBy([], ['status' => 'asc', 'order' => 'asc']);
+    }
 
     public function getVisibleTourneys(): array
     {
@@ -217,6 +228,10 @@ class TourneyService extends OptimalService
                 }
                 $team->addMember(TourneyTeamMember::create($user->getUuid()));
             } elseif (is_string($team)) {
+                if (strlen($team) > self::TEAM_NAME_MAX_LENGTH) {
+                    throw new ServiceException(ServiceException::CAUSE_TOO_LONG, 'Teamname must be shorter than 25 chars');
+                }
+                $team = substr($team, 0, min(25, strlen($team)));
                 if ($this->teamNameTaken($team)) {
                     throw new ServiceException(ServiceException::CAUSE_INCONSISTENT, 'Teamname already exists');
                 }
@@ -357,8 +372,8 @@ class TourneyService extends OptimalService
             return [];
         }
         return match ($tourney->getMode()) {
-            TourneyType::SingleElimination, TourneyType::RegistrationOnly => TourneyService::getPodiumSingleElim($root),
-            TourneyType::DoubleElimination => TourneyService::getPodiumGetPodiumDoubleElim($root),
+            TourneyRules::SingleElimination, TourneyRules::RegistrationOnly => TourneyService::getPodiumSingleElim($root),
+            TourneyRules::DoubleElimination => TourneyService::getPodiumGetPodiumDoubleElim($root),
             default => [],
         };
     }
@@ -464,6 +479,18 @@ class TourneyService extends OptimalService
             case TourneyStatus::Finished:
                 return;
         }
+        $this->em->flush();
+    }
+
+    public function delete(Tourney $tourney)
+    {
+        $this->repository->remove($tourney);
+        $this->em->flush();
+    }
+
+    public function save(Tourney $tourney)
+    {
+        $this->repository->save($tourney);
         $this->em->flush();
     }
 }

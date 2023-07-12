@@ -2,9 +2,9 @@
 
 namespace App\Controller\Site;
 
+use App\Controller\HttpExceptionTrait;
 use App\Entity\Tourney;
 use App\Entity\TourneyGame;
-use App\Entity\TourneyTeamMember;
 use App\Exception\ServiceException;
 use App\Service\TourneyService;
 use App\Service\UserService;
@@ -20,7 +20,6 @@ use Symfony\Component\Form\FormEvents;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -36,15 +35,11 @@ class TourneyController extends AbstractController
         $this->userService = $userService;
     }
 
+    use HttpExceptionTrait;
+
     private function createNamedFormBuilder(string $name): FormBuilderInterface
     {
         return $this->container->get('form.factory')->createNamedBuilder($name);
-    }
-
-    // TODO move this somewhere global
-    private function createBadRequestHttpException(string $message = 'Bad request', \Throwable $previous = null): BadRequestHttpException
-    {
-        return new BadRequestHttpException($message, $previous);
     }
 
     private function getTourneyOfId($id): ?Tourney
@@ -65,7 +60,7 @@ class TourneyController extends AbstractController
     {
         return $this->createNamedFormBuilder(self::FORM_NAME_CREATE)
             ->add('id', HiddenType::class, ['required' => true])
-            ->add('name', TextType::class, ['label' => 'Name', 'required' => true, 'constraints' => [new Assert\NotBlank()]])
+            ->add('name', TextType::class, ['label' => 'Name', 'required' => true, 'attr' => ['maxlength' => TourneyService::TEAM_NAME_MAX_LENGTH], 'constraints' => [new Assert\NotBlank()]])
             ->add('submit', SubmitType::class, ['label' => 'Erstellen'])
             ->getForm();
     }
@@ -178,6 +173,7 @@ class TourneyController extends AbstractController
                     ServiceException::CAUSE_FORBIDDEN => 'User darf sich nicht registrieren.',
                     ServiceException::CAUSE_INCONSISTENT => 'Teamname existiert schon.',
                     ServiceException::CAUSE_FULL => 'Team ist schon voll',
+                    ServiceException::CAUSE_TOO_LONG => "Teamname darf nicht länger als " . TourneyService::TEAM_NAME_MAX_LENGTH . ' Zeichen lang sein.',
                     default => 'unbekannter Fehler.'
                 }
             );
@@ -314,6 +310,10 @@ class TourneyController extends AbstractController
         $show ??= $this->handleUnregisterForm($request);
         $show ??= $this->handleConfirmForm($request);
         $show ??= $this->handleResultForm($request);
+
+        if ($show) {
+            return $this->redirectToRoute('tourney', ['_fragment' => 'tourney-'.$show->getId()]);
+        }
 
         $forms = array();
         $userTeams = array();

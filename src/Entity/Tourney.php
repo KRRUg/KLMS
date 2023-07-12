@@ -45,8 +45,8 @@ class Tourney implements HistoryAwareEntity
     #[ORM\OneToMany(mappedBy: 'tourney', targetEntity: TourneyTeam::class, orphanRemoval: true, cascade: ['persist'])]
     private Collection $teams;
 
-    #[ORM\Column(type: 'string', length: 2, enumType: TourneyType::class)]
-    private ?TourneyType $mode = null;
+    #[ORM\Column(type: 'string', length: 2, enumType: TourneyRules::class)]
+    private ?TourneyRules $mode = null;
 
     #[ORM\Column]
     private ?bool $show_points = false;
@@ -176,12 +176,12 @@ class Tourney implements HistoryAwareEntity
         return $this;
     }
 
-    public function getMode(): ?TourneyType
+    public function getMode(): ?TourneyRules
     {
         return $this->mode;
     }
 
-    public function setMode(?TourneyType $mode): Tourney
+    public function setMode(?TourneyRules $mode): Tourney
     {
         $this->mode = $mode;
 
@@ -252,5 +252,19 @@ class Tourney implements HistoryAwareEntity
         if (is_null($this->status) || is_null($this->mode))
             return false;
         return $this->status->hasTree() && $this->mode->hasTree();
+    }
+
+    public function canHaveTeams(): bool
+    {
+        if (is_null($this->status) || is_null($this->mode))
+            return false;
+        return $this->status->canHaveTeams() && $this->mode->canHaveTeams();
+    }
+
+    public function canHaveGames(): bool
+    {
+        if (is_null($this->status) || is_null($this->mode))
+            return false;
+        return $this->status->canHaveGames() && $this->mode->canHaveGames();
     }
 }

@@ -2,7 +2,7 @@
 
 namespace App\Entity;
 
-enum TourneyType : string
+enum TourneyRules : string
 {
     case SingleElimination = 'se';
     case DoubleElimination = 'de';
@@ -11,5 +11,15 @@ enum TourneyType : string
     public function hasTree(): bool
     {
         return $this != self::RegistrationOnly;
+    }
+
+    public function canHaveGames(): bool
+    {
+        return $this != self::RegistrationOnly;
+    }
+
+    public function canHaveTeams(): bool
+    {
+        return true;
     }
 }
