@@ -19,7 +19,7 @@
                         <th scope="col" style="width: 2em">Status</th>
                         <th scope="col" style="width: auto">Name</th>
                         <th scope="col" style="width: 10%">Order</th>
-                        <th scope="col" style="width: 15%">Aktionen</th>
+                        <th scope="col" data-orderable="false" style="width: 6em">Aktionen</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -70,19 +70,9 @@
                             <td data-sort="" data-filter="">
                                 <button type="button" class="btn btn-outline-dark text-nowrap"
                                         {% if not tourney.canHaveTeams %} disabled="disabled" {% endif %}
-                                        data-toggle="ajaxModal" href="{{ path('admin_tourney_teams', {'id' : tourney.id}) }}">
-                                    <i class="fa-solid fa-people-group"></i> Teams
+                                        data-toggle="ajaxModal" href="{{ path('admin_tourney_details', {'id' : tourney.id}) }}">
+                                    <i class="fa-solid fa-circle-info"></i> Details
                                 </button>
-                                <button type="button" class="btn btn-outline-dark text-nowrap"
-                                        {% if not tourney.canHaveGames %} disabled="disabled" {% endif%}
-                                        data-toggle="ajaxModal"  href="{{ path('admin_tourney_games', {'id' : tourney.id}) }}">
-                                    <i class="fa-solid fa-gamepad"></i> Spiele
-                                </button>
-{#                                <button type="button" class="btn btn-outline-dark text-nowrap"#}
-{#                                        {% if tourney.status == TourneyStatus.Finished %} disabled="disabled" {% endif %}#}
-{#                                        href="{{ path('admin_tourney_advance', {'id' : tourney.id}) }}">#}
-{#                                    <i class="fa-solid fa-circle-arrow-right"></i> Advance#}
-{#                                </button>#}
                             </td>
                         </tr>
                     {% endfor %}

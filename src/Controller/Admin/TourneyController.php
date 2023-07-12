@@ -139,20 +139,13 @@ class TourneyController extends AbstractController
         }
     }
 
-    #[Route(path: '/teams/{id}', name: '_teams')]
-    public function teams(Request $request, Tourney $tourney): Response
+    #[Route(path: '/details/{id}', name: '_details')]
+    public function details(Request $request, Tourney $tourney): Response
     {
-        // TODO implement me here
-        return $this->render('admin/tourney/teams.html.twig', [
-            'tourney' => $tourney,
-        ]);
-    }
+        // TODO render either full site or partial content, depending on xhr request (here and everywhere)
 
-    #[Route(path: '/games/{id}', name: '_games')]
-    public function games(Request $request, Tourney $tourney): Response
-    {
-        // TODO implement me here
-        return $this->render('admin/tourney/games.html.twig', [
+        // TODO implement me
+        return $this->render('admin/tourney/details.modal.html.twig', [
             'tourney' => $tourney,
         ]);
     }
