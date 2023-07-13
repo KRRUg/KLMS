@@ -38,14 +38,7 @@
                         <dd>{{ tourney.status.message }}</dd>
                         <dt>Modus:</dt>
                         <dd>
-                            {% set TourneyType = enum('\\App\\Entity\\TourneyRules') %}
-                            {% if tourney.mode ==  TourneyType.SingleElimination %}
-                                Single Elimination
-                            {% elseif tourney.mode ==  TourneyType.DoubleElimination %}
-                                Double Elimination
-                            {% elseif tourney.mode ==  TourneyType.RegistrationOnly %}
-                                Registration
-                            {% endif %}
+                            {{ tourney.mode.message }}
                         </dd>
                         {#            {% if tourney.rules is not empty %}#}
                         {#                <dt>Regeln:</dt> #}

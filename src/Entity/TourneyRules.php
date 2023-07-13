@@ -8,6 +8,15 @@ enum TourneyRules : string
     case DoubleElimination = 'de';
     case RegistrationOnly = 'ro';
 
+    public function getMessage(): string
+    {
+        return match ($this) {
+            self::SingleElimination => 'Single Elimination',
+            self::DoubleElimination => 'Double Elimination',
+            self::RegistrationOnly => 'externes Turnier',
+        };
+    }
+
     public function hasTree(): bool
     {
         return $this != self::RegistrationOnly;
