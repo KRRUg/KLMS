@@ -62,17 +62,13 @@
         </h4>
     </div>
     <div class="collapse{% if expand %} show{% endif %}" id="collapse-{{ tourney.id }}">
-            {% if tourney.status == TourneyStage.Created %}
-                {% include 'site/tourney/_card.body.html.twig' %}
-            {% elseif tourney.status == TourneyStage.Registration and participates %}
+            {% if tourney.status == TourneyStage.Registration and participates %}
                 {% if registered %}
                     {% include 'site/tourney/_registered.html.twig' %}
                 {% else %}
                     {% include 'site/tourney/_register.html.twig' %}
                 {% endif %}
-            {% elseif tourney.status == TourneyStage.Seeding %}
-                {% include 'site/tourney/_card.body.html.twig' %}
-            {% elseif tourney.status == TourneyStage.Running %}
+            {% elseif tourney.status == TourneyStage.Running and participates %}
                 {% include 'site/tourney/_running.html.twig' %}
             {% elseif tourney.status == TourneyStage.Finished %}
                 {% include 'site/tourney/_result.html.twig' with {podium: podiums[tourney.id] ?? null} %}

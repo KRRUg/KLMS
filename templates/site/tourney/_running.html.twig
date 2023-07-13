@@ -30,7 +30,7 @@
 {% endblock %}
 
 {% block mainColTop %}
-    {% if participates %}
+    {% if tm | default(null) is not null %}
         <div class="col-12 mb-3">
             {% if current_game is null %}
                 <div class="alert alert-danger mb-0">Du bist nicht mehr im Rennen!</div>
