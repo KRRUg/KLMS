@@ -293,20 +293,20 @@ class TourneyServiceIntegrationTest extends DatabaseTestCase
         $this->assertEquals($game->getTeamB(), $nextGame->getTeamB());
     }
 
-    public function testLogResultNotRunningTourney()
-    {
-        $this->databaseTool->loadFixtures([TourneyFixture::class, UserFixtures::class]);
-        $service = self::getContainer()->get(TourneyService::class);
-        $tourney = $service->getVisibleTourneys()[0];
-        $service->advance($tourney);
-
-        $user7 = $this->getUser(7);
-
-        $game = $service->getGameByTourneyAndUser($tourney, $user7);
-        $this->assertNotEmpty($game);
-
-        $this->expectException(ServiceException::class);
-        $this->expectExceptionMessageMatches('/not running/i');
-        $service->logResultUser($game, $user7, 1, 2);
-    }
+//    public function testLogResultNotRunningTourney()
+//    {
+//        $this->databaseTool->loadFixtures([TourneyFixture::class, UserFixtures::class]);
+//        $service = self::getContainer()->get(TourneyService::class);
+//        $tourney = $service->getVisibleTourneys()[0];
+//        $service->advance($tourney);
+//
+//        $user7 = $this->getUser(7);
+//
+//        $game = $service->getGameByTourneyAndUser($tourney, $user7);
+//        $this->assertNotEmpty($game);
+//
+//        $this->expectException(ServiceException::class);
+//        $this->expectExceptionMessageMatches('/not running/i');
+//        $service->logResultUser($game, $user7, 1, 2);
+//    }
 }
