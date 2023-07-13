@@ -8,13 +8,23 @@
         list-group-item-secondary
     {% endif %}
 {% endmacro %}
-<div class="text-right">
-    {{ tree_button(tourney) }}
-</div>
+
+{% extends 'site/tourney/_card.body.html.twig' %}
+
+{% block blockButtonBarRight %}
+    <div class="text-right mb-3">
+        {{ tree_button(tourney) }}
+    </div>
+{% endblock %}
+
+{% block mainColTop %}
 {% if podium | default() is not null %}
-    <h5 class="m-2"> Ergebnis</h5>
-    <div>
-        <ul class="list-group results">
+    <div class="col">
+    <div class="card mb-3">
+        <div class="card-header">
+            <strong>Ergebnis</strong>
+        </div>
+        <ul class="list-group list-group-flush">
             {% for place in range(1, 3) %}
                 {% if podium[place] is defined %}
                     {% for team in podium[place] %}
@@ -22,12 +32,12 @@
                             <span class="font-weight-bold mr-2" style="font-size: large;">{{ place }}.</span>
                             <b>{{ teamname(team) }}</b>
                             {% if team.countUsers > 1 %} ({% for m in team.members %}{{ m.gamer | username }}{% if not loop.last %}, {% endif %}{% endfor %}){% endif %}
-                            {% if not loop.last %}<br/>{% endif %}
                         </li>
                     {% endfor %}
                 {% endif %}
             {% endfor %}
         </ul>
     </div>
-    <hr/>
+    </div>
 {% endif %}
+{% endblock %}
