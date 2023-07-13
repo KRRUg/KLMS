@@ -6,6 +6,7 @@ use App\DataFixtures\TourneyFixture;
 use App\DataFixtures\TourneyFixtureGames;
 use App\DataFixtures\UserFixtures;
 use App\Entity\Tourney;
+use App\Entity\TourneyGame;
 use App\Entity\TourneyRules;
 use App\Entity\TourneyStage;
 use App\Entity\TourneyTeam;
@@ -335,7 +336,6 @@ class TourneyServiceIntegrationTest extends DatabaseTestCase
 
         $service = self::getContainer()->get(TourneyService::class);
         $tourney = $service->getVisibleTourneys()[2];
-        $this->assertEquals(TourneyRules::SingleElimination, $tourney->getMode());
 
         $this->assertEquals(TourneyStage::Registration, $tourney->getStatus());
         $this->assertEmpty(TourneyService::getPodium($tourney));
@@ -347,13 +347,13 @@ class TourneyServiceIntegrationTest extends DatabaseTestCase
 
         $service = self::getContainer()->get(TourneyService::class);
         $tourney = $service->getVisibleTourneys()[2];
-        $this->assertEquals(TourneyRules::SingleElimination, $tourney->getMode());
+        $tourney->setMode(TourneyRules::SingleElimination);
         $service->advance($tourney);
 
         $teams = $tourney->getTeams()->toArray();
         $this->assertCount(5, $teams);
-        $teams = [$teams[2], $teams[1], $teams[3], $teams[0], $teams[4]];
-        $service->seed($tourney, $teams);
+        $seed = [$teams[2], $teams[1], $teams[3], $teams[0], $teams[4]];
+        $service->seed($tourney, $seed);
         $this->assertCount(4, $tourney->getGames());
         $finale = TourneyService::getFinal($tourney);
         $this->assertNotEmpty($finale);
@@ -365,13 +365,57 @@ class TourneyServiceIntegrationTest extends DatabaseTestCase
         $this->assertEmpty($g0->getChildren());
         $this->assertEmpty($g2->getChildren());
         $this->assertTrue($g1->isChildA());
-        $this->assertTrue($g0->isChildA());
+        $this->assertFalse($g0->isChildA());
         $this->assertFalse($g2->isChildA());
         $this->assertEquals($teams[0], $g0->getTeamA());
-        $this->assertEquals($teams[1], $g0->getTeamB());
-        $this->assertEmpty($g1->getTeamA());
-        $this->assertEquals($teams[2], $g1->getTeamB());
+        $this->assertEquals($teams[4], $g0->getTeamB());
+        $this->assertEquals($teams[2], $g1->getTeamA());
+        $this->assertEmpty($g1->getTeamB());
         $this->assertEquals($teams[3], $g2->getTeamA());
-        $this->assertEquals($teams[4], $g2->getTeamB());
+        $this->assertEquals($teams[1], $g2->getTeamB());
+    }
+
+    public function testTourneySeedingDoubleElimination()
+    {
+        $this->databaseTool->loadFixtures([TourneyFixtureGames::class, TourneyFixture::class, UserFixtures::class]);
+
+        $service = self::getContainer()->get(TourneyService::class);
+        $tourney = $service->getVisibleTourneys()[2];
+        $tourney->setMode(TourneyRules::DoubleElimination);
+        $service->advance($tourney);
+
+        $teams = $tourney->getTeams()->toArray();
+        $this->assertCount(5, $teams);
+        $seed = [$teams[2], $teams[1], $teams[3], $teams[0], $teams[4]];
+        $service->seed($tourney, $seed);
+        $this->assertCount(8, $tourney->getGames());
+        $g8 = TourneyService::getFinal($tourney);
+        $this->assertNotEmpty($g8);
+        list($g5, $g7) = $g8->getChildren();
+        $this->assertCount(2, $g5->getChildren());
+        list($g3, $g2) = $g5->getChildren();
+        $this->assertCount(0, $g2->getChildren());
+        $this->assertCount(1, $g3->getChildren());
+        list($g1) = $g3->getChildren();
+        $this->assertCount(0, $g1->getChildren());
+        $this->assertCount(1, $g7->getChildren());
+        list($g6) = $g7->getChildren();
+        $this->assertCount(1, $g6->getChildren());
+        list($g4) = $g6->getChildren();
+        $this->assertCount(0, $g4->getChildren());
+
+        $this->assertEquals($g4, $g1->getLoserNext());
+        $this->assertEquals($g4, $g2->getLoserNext());
+        $this->assertTrue($g1->isIsLoserNextA());
+        $this->assertFalse($g2->isIsLoserNextA());
+        $this->assertEquals($g6, $g3->getLoserNext());
+        $this->assertTrue($g3->isIsLoserNextA());
+        $this->assertEquals($g7, $g5->getLoserNext());
+        $this->assertFalse($g5->isIsLoserNextA());
+
+        $this->assertEmpty($g4->getLoserNext());
+        $this->assertEmpty($g6->getLoserNext());
+        $this->assertEmpty($g7->getLoserNext());
+        $this->assertEmpty($g8->getLoserNext());
     }
 }

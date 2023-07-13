@@ -540,7 +540,7 @@ class TourneyService extends OptimalService
 
     public static function getFinal(Tourney $tourney): ?TourneyGame
     {
-        return TourneyRule::construct($tourney)->getFinale();
+        return TourneyRule::construct($tourney)->getFinal();
     }
 
     /* Tourney object management */

@@ -63,7 +63,7 @@ class TourneyFixture extends Fixture implements DependentFixtureInterface
             ->setToken(15)
             ->setOrder(3)
             ->setTeamsize(2)
-            ->setMode(TourneyRules::SingleElimination)
+            ->setMode(TourneyRules::DoubleElimination)
             ->setShowPoints(false)
             ->setAuthorId(Uuid::fromInteger(12))
             ->setModifierId(Uuid::fromInteger(12))

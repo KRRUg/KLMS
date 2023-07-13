@@ -28,16 +28,4 @@ class TourneyRuleNone extends TourneyRule
         return [];
         // TODO: Implement podium() method.
     }
-
-    public function completed(): bool
-    {
-        return false;
-        // TODO: Implement completed() method.
-    }
-
-    public function getFinale(): ?TourneyGame
-    {
-        return null;
-        // TODO: Implement getFinale() method.
-    }
 }

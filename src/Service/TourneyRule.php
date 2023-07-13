@@ -30,14 +30,25 @@ abstract class TourneyRule
     public abstract function podium(): array;
 
     /**
-     * @return bool Returns true if all games are played.
-     */
-    public abstract function completed(): bool;
-
-    /**
      * @return TourneyGame The finale of the tourney.
      */
-    public abstract function getFinale(): ?TourneyGame;
+    public function getFinal(): ?TourneyGame
+    {
+        foreach ($this->tourney->getGames() as $game) {
+            if (is_null($game->getParent()))
+                return $game;
+        }
+        return null;
+    }
+
+    /**
+     * @return bool Returns true if all games are played.
+     */
+    public function completed(): bool
+    {
+        $finale = $this->getFinal();
+        return !is_null($finale) && $finale->isDone();
+    }
 
     public static function construct(Tourney $tourney): self
     {
@@ -48,26 +59,61 @@ abstract class TourneyRule
         };
     }
 
-    protected static function nextPow(int $n): int
+    private static function ld(int $n): int
     {
         if ($n < 2)
-            return 1;
+            return 0;
         $n--;
         for ($i = 0; $n > 1; $i++)
             $n >>= 1;
-        return 1 << ($i + 1);
+        return $i + 1;
     }
 
-    protected static function expandList(array $a): array
+    protected static function seedList(array $a): array
     {
-        $n = count($a);
-        $n = self::nextPow($n) - $n;
+        $limit = self::ld(count($a)) + 1;
         $r = array();
-        foreach (array_reverse($a) as $t) {
-            if ($n-- > 0)
-                $r[] = null;
-            $r[] = $t;
+        $fun = function (int $seed, int $level) use (&$fun, $limit, $a, &$r) {
+            $sum = (2 ** $level) + 1;
+            if ($limit == $level + 1) {
+                $r[] = $a[$seed - 1] ?? null;
+                $r[] = $a[$sum - $seed - 1] ?? null;
+            } elseif ($seed % 2) {
+                $fun($seed, $level + 1);
+                $fun($sum - $seed, $level + 1);
+            } else {
+                $fun($sum - $seed, $level + 1);
+                $fun($seed, $level + 1);
+            }
+        };
+        $fun(1, 1);
+        return $r;
+    }
+
+    /**
+     * @param Array<TourneyTeam|null> $chunk of size 2
+     */
+    protected function makeNode(array $chunk): TourneyGame|TourneyTeam
+    {
+        list($a, $b) = $chunk;
+
+        if (is_null($a))
+            return $b;
+        if (is_null($b))
+            return $a;
+
+        $r = new TourneyGame();
+        if ($a instanceof TourneyTeam) {
+            $r->setTeamA($a);
+        } elseif ($a instanceof TourneyGame) {
+            $r->addChild($a->setIsChildA(true));
         }
-        return array_reverse($r);
+        if ($b instanceof TourneyTeam) {
+            $r->setTeamB($b);
+        } elseif ($b instanceof TourneyGame) {
+            $r->addChild($b->setIsChildA(false));
+        }
+        $this->tourney->addGame($r);
+        return $r;
     }
 }

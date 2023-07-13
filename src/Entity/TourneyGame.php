@@ -6,7 +6,6 @@ use App\Repository\TourneyGameRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
-use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: TourneyGameRepository::class)]
 // ensures that every node can have at most two children, tourney_id is required to have multiple root nodes
@@ -29,11 +28,9 @@ class TourneyGame
     private ?TourneyTeam $teamB = null;
 
     #[ORM\Column(nullable: true)]
-//    #[Assert\NotEqualTo(propertyPath: 'scoreB')]
     private ?int $scoreA = null;
 
     #[ORM\Column(nullable: true)]
-//    #[Assert\NotEqualTo(propertyPath: 'scoreA')]
     private ?int $scoreB = null;
 
     #[ORM\ManyToOne(targetEntity: self::class, inversedBy: 'children')]
@@ -46,6 +43,13 @@ class TourneyGame
     // root node ignores this property
     #[ORM\Column(name: 'left_child', nullable: false)]
     private bool $isChildA = true;
+
+    #[ORM\ManyToOne(targetEntity: self::class)]
+    #[ORM\JoinColumn(name: 'loser_next', nullable: true, onDelete: 'SET NULL')]
+    private ?self $loserNext = null;
+
+    #[ORM\Column(nullable: true)]
+    private ?bool $isLoserNextA = null;
 
     public function __construct()
     {
@@ -219,5 +223,29 @@ class TourneyGame
         } else {
             return null;
         }
+    }
+
+    public function getLoserNext(): ?self
+    {
+        return $this->loserNext;
+    }
+
+    public function setLoserNext(?self $loserNext): static
+    {
+        $this->loserNext = $loserNext;
+
+        return $this;
+    }
+
+    public function isIsLoserNextA(): ?bool
+    {
+        return $this->isLoserNextA;
+    }
+
+    public function setIsLoserNextA(?bool $isLoserNextA): static
+    {
+        $this->isLoserNextA = $isLoserNextA;
+
+        return $this;
     }
 }
