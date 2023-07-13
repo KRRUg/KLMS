@@ -33,8 +33,8 @@ class Tourney implements HistoryAwareEntity
     #[ORM\Column]
     private ?bool $hidden = null;
 
-    #[ORM\Column(enumType: TourneyStatus::class)]
-    private ?TourneyStatus $status;
+    #[ORM\Column(enumType: TourneyStage::class)]
+    private ?TourneyStage $status;
 
     #[ORM\Column]
     private ?int $token = null;
@@ -42,7 +42,7 @@ class Tourney implements HistoryAwareEntity
     #[ORM\Column(name: 'sort_order', nullable: true)]
     private ?int $order = null;
 
-    #[ORM\OneToMany(mappedBy: 'tourney', targetEntity: TourneyTeam::class, orphanRemoval: true, cascade: ['persist'])]
+    #[ORM\OneToMany(mappedBy: 'tourney', targetEntity: TourneyTeam::class, orphanRemoval: true, cascade: ['persist', 'remove'])]
     private Collection $teams;
 
     #[ORM\Column(type: 'string', length: 2, enumType: TourneyRules::class)]
@@ -51,7 +51,7 @@ class Tourney implements HistoryAwareEntity
     #[ORM\Column]
     private ?bool $show_points = false;
 
-    #[ORM\OneToMany(mappedBy: 'tourney', targetEntity: TourneyGame::class, orphanRemoval: true, cascade: ['persist'])]
+    #[ORM\OneToMany(mappedBy: 'tourney', targetEntity: TourneyGame::class, orphanRemoval: true, cascade: ['persist', 'remove'])]
     private Collection $games;
 
     use EntityHistoryTrait;
@@ -122,12 +122,12 @@ class Tourney implements HistoryAwareEntity
         return $this;
     }
 
-    public function getStatus(): ?TourneyStatus
+    public function getStatus(): ?TourneyStage
     {
         return $this->status;
     }
 
-    public function setStatus(?TourneyStatus $status): Tourney
+    public function setStatus(?TourneyStage $status): Tourney
     {
         $this->status = $status;
 
@@ -232,7 +232,7 @@ class Tourney implements HistoryAwareEntity
 
     public function isRunning(): bool
     {
-        return $this->status == TourneyStatus::Running;
+        return $this->status == TourneyStage::Running;
     }
 
     public function getOrder(): ?int

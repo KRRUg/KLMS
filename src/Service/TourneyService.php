@@ -3,7 +3,7 @@
 namespace App\Service;
 
 use App\Entity\Tourney;
-use App\Entity\TourneyStatus;
+use App\Entity\TourneyStage;
 use App\Entity\TourneyGame;
 use App\Entity\TourneyTeam;
 use App\Entity\TourneyTeamMember;
@@ -323,7 +323,7 @@ class TourneyService extends OptimalService
 
     private function tryModifyRegistration(Tourney $tourney, User $user): void
     {
-        if ($tourney->getStatus() != TourneyStatus::Registration) {
+        if ($tourney->getStatus() != TourneyStage::Registration) {
             throw new ServiceException(ServiceException::CAUSE_IN_USE, 'Tourney registration is not open');
         }
         if (!$this->userMayParticipate($user)) {
@@ -370,7 +370,7 @@ class TourneyService extends OptimalService
     private function tryLogResult(TourneyGame $game)
     {
         $tourney = $game->getTourney();
-        if (is_null($tourney) || $tourney->getStatus() != TourneyStatus::Running) {
+        if (is_null($tourney) || $tourney->getStatus() != TourneyStage::Running) {
             throw new ServiceException(ServiceException::CAUSE_IN_USE, 'Tourney is not running.');
         }
     }
@@ -414,7 +414,7 @@ class TourneyService extends OptimalService
 
     /* Tourney state management */
 
-    private static function tryAdvance(Tourney $tourney, TourneyStatus $expected)
+    private static function tryAdvance(Tourney $tourney, TourneyStage $expected)
     {
         if ($tourney->getStatus() != $expected) {
             throw new ServiceException(ServiceException::CAUSE_INCORRECT_STATE, "Tourney {$tourney->getName()} is not in state {$expected->getMessage()}");
@@ -423,8 +423,8 @@ class TourneyService extends OptimalService
 
     public function start(Tourney $tourney)
     {
-        self::tryAdvance($tourney, TourneyStatus::Created);
-        $tourney->setStatus(TourneyStatus::Registration);
+        self::tryAdvance($tourney, TourneyStage::Created);
+        $tourney->setStatus(TourneyStage::Registration);
         $this->em->flush();
     }
 
@@ -434,9 +434,10 @@ class TourneyService extends OptimalService
      */
     public function seed(Tourney $tourney, ?array $seed = null)
     {
-        self::tryAdvance($tourney, TourneyStatus::Running); // TODO change this to new state
+        self::tryAdvance($tourney, TourneyStage::Seeding);
         if (is_null($seed)) {
-            $seed = $tourney->getTeams();
+            $seed = $tourney->getTeams()->toArray();
+            shuffle($seed);
         }
         if (count($seed) != count($tourney->getTeams())) {
             throw new ServiceException(ServiceException::CAUSE_INCONSISTENT, 'seed does not contain all teams');
@@ -444,8 +445,12 @@ class TourneyService extends OptimalService
         if (count($seed) < self::TOURNEY_MIN_SIZE){
             throw new ServiceException(ServiceException::CAUSE_INVALID, "A tourney must contain at least " . self::TOURNEY_MIN_SIZE . " teams");
         }
+        $this->em->beginTransaction();
+        $tourney->getGames()->forAll(function($key, $game) {$this->em->remove($game); return true;});
+        $this->em->flush();
         TourneyRule::construct($tourney)->seed($seed);
         $this->em->flush();
+        $this->em->commit();
     }
 
     /**
@@ -454,7 +459,7 @@ class TourneyService extends OptimalService
      */
     public function finish(Tourney $tourney, ?array $result = null)
     {
-        self::tryAdvance($tourney, TourneyStatus::Running);
+        self::tryAdvance($tourney, TourneyStage::Running);
         // TODO implement me
 
         $this->em->flush();
@@ -467,38 +472,40 @@ class TourneyService extends OptimalService
      */
     public function advance(Tourney $tourney): void
     {
-        // TODO advance without seed to playing and perform a seed option in playing state (to avoid missing teams in seed).
-
         switch ($tourney->getStatus()) {
-            case TourneyStatus::Created:
-                $tourney->setStatus(TourneyStatus::Registration);
+            case TourneyStage::Created:
+                $tourney->setStatus(TourneyStage::Registration);
                 break;
-            case TourneyStatus::Registration:
-                $tourney->setStatus(TourneyStatus::Running);
+            case TourneyStage::Registration:
+                $tourney->setStatus(TourneyStage::Seeding);
+                $this->seed($tourney);
                 break;
-            case TourneyStatus::Running:
-                $tourney->setStatus(TourneyStatus::Finished);
+            case TourneyStage::Seeding:
+                $tourney->setStatus(TourneyStage::Running);
                 break;
-            case TourneyStatus::Finished:
+            case TourneyStage::Running:
+                $tourney->setStatus(TourneyStage::Finished);
+                break;
+            case TourneyStage::Finished:
             default:
                 return;
         }
         $this->em->flush();;
 
 //        switch ($tourney->getStatus()) {
-//            case TourneyStatus::Finished:
+//            case TourneyStage::Finished:
 //                return;
-//            case TourneyStatus::Created:
+//            case TourneyStage::Created:
 //                $this->start($tourney);
 //                return;
-//            case TourneyStatus::Running:
+//            case TourneyStage::Running:
 //                if ($tourney->getMode() != TourneyRules::RegistrationOnly) {
 //                    $this->finish($tourney);
 //                    return;
 //                }
 //                break;
 //            default:
-//            case TourneyStatus::Registration:
+//            case TourneyStage::Registration:
 //                break;
 //        }
         //throw new ServiceException(ServiceException::CAUSE_INCORRECT_STATE, 'cannot auto-advance');

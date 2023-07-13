@@ -6,6 +6,7 @@ use App\Controller\HttpExceptionTrait;
 use App\Entity\Tourney;
 use App\Entity\TourneyGame;
 use App\Exception\ServiceException;
+use App\Service\PermissionService;
 use App\Service\TourneyService;
 use App\Service\UserService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -378,12 +379,17 @@ class TourneyController extends AbstractController
     public function byId(int $id): Response
     {
         $tourney = $this->service->getTourneyWithTeams($id);
-        if (is_null($tourney) || !$tourney->hasTree()) {
+
+        if (is_null($tourney) || !$tourney->getMode()->hasTree()) {
+            throw $this->createNotFoundException();
+        }
+        $admin = $this->isGranted('ROLE_' . PermissionService::ADMIN_TOURNEY);
+        if (!$tourney->getStatus()->hasTree($admin)) {
             throw $this->createNotFoundException();
         }
 
         $final = TourneyService::getFinal($tourney);
-        if (is_null($final)){
+        if (is_null($final)) {
             throw $this->createNotFoundException();
         }
 

@@ -23,20 +23,22 @@
                     </tr>
                     </thead>
                     <tbody>
-                    {% set TourneyStatus = enum('\\App\\Entity\\TourneyStatus') %}
+                    {% set TourneyStage = enum('\\App\\Entity\\TourneyStage') %}
                     {% set TourneyRules = enum('\\App\\Entity\\TourneyRules') %}
                     {% for tourney in tourneys %}
                         <tr>
                             <td class="text-center">{{ tourney.getId() }}</td>
                             <td data-sort="{{ tourney.status.value }}" data-filter="">
-                                {% if tourney.status == TourneyStatus.Created %}
-                                    <i class="fa-solid fa-circle-plus" title="{{ TourneyStatus.Created.message }}"></i>
-                                {% elseif tourney.status == TourneyStatus.Registration %}
-                                    <i class="fa-solid fa-table-list" title="{{ TourneyStatus.Registration.message }}"></i>
-                                {% elseif tourney.status == TourneyStatus.Running %}
-                                    <i class="fa-solid fa-gamepad" title="{{ TourneyStatus.Running.message }}"></i>
-                                {% elseif tourney.status == TourneyStatus.Finished %}
-                                    <i class="fa-solid fa-trophy" title="{{ TourneyStatus.Finished.message }}"></i>
+                                {% if tourney.status == TourneyStage.Created %}
+                                    <i class="fa-solid fa-circle-plus" title="{{ TourneyStage.Created.message }}"></i>
+                                {% elseif tourney.status == TourneyStage.Registration %}
+                                    <i class="fa-solid fa-table-list" title="{{ TourneyStage.Registration.message }}"></i>
+                                {% elseif tourney.status == TourneyStage.Seeding %}
+                                    <i class="fa-solid fa-tree" title="{{ TourneyStage.Registration.message }}"></i>
+                                {% elseif tourney.status == TourneyStage.Running %}
+                                    <i class="fa-solid fa-gamepad" title="{{ TourneyStage.Running.message }}"></i>
+                                {% elseif tourney.status == TourneyStage.Finished %}
+                                    <i class="fa-solid fa-trophy" title="{{ TourneyStage.Finished.message }}"></i>
                                 {% endif %}
                                 {% if tourney.hidden %}
                                     <i class="fa-solid fa-eye-slash"></i>

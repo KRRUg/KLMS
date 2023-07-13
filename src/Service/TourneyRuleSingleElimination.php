@@ -17,7 +17,6 @@ class TourneyRuleSingleElimination extends TourneyRule
 
     public function seed(array $list): void
     {
-        $this->tourney->getGames()->clear();
         $count = count($list);
         if ($count < 3)
             throw new ServiceException(ServiceException::CAUSE_INCONSISTENT, 'at least two teams are required');

@@ -9,13 +9,15 @@
 {% endmacro %}
 
 {% macro game_icon(tourney, game = null, tm = null) %}
-    {% set TourneyStatus = enum('\\App\\Entity\\TourneyStatus') %}
-    {% if tourney.status == TourneyStatus.Registration %}
+    {% set TourneyStage = enum('\\App\\Entity\\TourneyStage') %}
+    {% if tourney.status == TourneyStage.Registration %}
         <span class="badge badge-pill badge-secondary"> <i class="fa-solid fa-table-list"></i> Angemeldet</span>
         {% if tm is not null and not tm.accepted %}
             <span class="badge badge-pill badge-warning" title="Achtung: Jemand aus deinem Team muss deine Teilnahme noch bestätigen!"> <i class="fa-solid fa-triangle-exclamation"></i> Bestätigung ausstehend!</span>
         {% endif %}
-    {% elseif tourney.status == TourneyStatus.Running %}
+    {% elseif tourney.status == TourneyStage.Seeding %}
+        <span class="badge badge-pill badge-primary"> <i class="fa-solid fa-tree"></i> Turnierbaum wird vorbereitet</span>
+    {% elseif tourney.status == TourneyStage.Running %}
         <span class="badge badge-pill badge-primary"> <i class="fa-solid fa-gamepad"></i> Turnier läuft</span>
         {% if game is null %}
             <span class="badge badge-pill badge-secondary"> Ausgeschieden</span>
@@ -23,13 +25,13 @@
             <span class="badge badge-pill badge-secondary"> Du bist dran!</span>
             <i title="Du bist dran zum Zocken!" class="fa-solid fa-gamepad fa-2xl text-primary fa-beat-fade"></i>
         {% endif %}
-    {% elseif tourney.status == TourneyStatus.Finished %}
+    {% elseif tourney.status == TourneyStage.Finished %}
         <span class="badge badge-pill badge-success"><i class="fa-solid fa-trophy"></i> Turnier beendet</span>
     {% endif %}
 {% endmacro %}
 
 <div class="card mb-3 tourney {% if registered %}registered{% endif %}" id="tourney-{{ tourney.id }}">
-    {% set TourneyStatus = enum('\\App\\Entity\\TourneyStatus') %}
+    {% set TourneyStage = enum('\\App\\Entity\\TourneyStage') %}
     <div class="card-header">
         <h4 class="mb-0">
         <button class="btn btn-block d-flex justify-content-between align-items-center" type="button" data-toggle="collapse" data-target="#collapse-{{ tourney.id }}">
@@ -38,7 +40,7 @@
             {% if registered %}
                 {{ _self.game_icon(tourney, current_game, tm) }}
             {% else %}
-                {% if tourney.status == TourneyStatus.Registration %}
+                {% if tourney.status == TourneyStage.Registration %}
                     {% if availableToken is defined and tourney.token is defined %}
                         {% if (availableToken - tourney.token) >= 0  %}
                             {% set badgeColor = 'badge-primary' %}
@@ -60,17 +62,19 @@
         </h4>
     </div>
     <div class="collapse{% if expand %} show{% endif %}" id="collapse-{{ tourney.id }}">
-            {% if tourney.status == TourneyStatus.Created %}
+            {% if tourney.status == TourneyStage.Created %}
                 {% include 'site/tourney/_created.html.twig' %}
-            {% elseif tourney.status == TourneyStatus.Registration and participates %}
+            {% elseif tourney.status == TourneyStage.Registration and participates %}
                 {% if registered %}
                     {% include 'site/tourney/_registered.html.twig' %}
                 {% else %}
                     {% include 'site/tourney/_register.html.twig' %}
                 {% endif %}
-            {% elseif tourney.status == TourneyStatus.Running %}
+            {% elseif tourney.status == TourneyStage.Seeding %}
+                {% include 'site/tourney/_card.body.html.twig' %}
+            {% elseif tourney.status == TourneyStage.Running %}
                 {% include 'site/tourney/_running.html.twig' %}
-            {% elseif tourney.status == TourneyStatus.Finished %}
+            {% elseif tourney.status == TourneyStage.Finished %}
                 {% include 'site/tourney/_result.html.twig' with {podium: podiums[tourney.id] ?? null} %}
             {% else %}
                 {% include 'site/tourney/_card.body.html.twig' %}

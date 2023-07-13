@@ -3,7 +3,7 @@
 namespace App\DataFixtures;
 
 use App\Entity\Tourney;
-use App\Entity\TourneyStatus;
+use App\Entity\TourneyStage;
 use App\Entity\TourneyTeam;
 use App\Entity\TourneyTeamMember;
 use Doctrine\Bundle\FixturesBundle\Fixture;
@@ -33,7 +33,7 @@ class TourneyFixtureGames extends Fixture implements DependentFixtureInterface
         $n2->setScoreA(6)->setScoreB(3)->getParent()->setTeamB($n2->getTeamA());
         $n0->setScoreA(2)->setScoreB(3);
 
-        $tourney0->setStatus(TourneyStatus::Finished);
+        $tourney0->setStatus(TourneyStage::Finished);
 
         $tourney1 = $this->getReference('tourney-1');
         $t1 = $this->getReference('tourney1-team1');

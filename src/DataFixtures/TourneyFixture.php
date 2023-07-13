@@ -3,7 +3,7 @@
 namespace App\DataFixtures;
 
 use App\Entity\Tourney;
-use App\Entity\TourneyStatus;
+use App\Entity\TourneyStage;
 use App\Entity\TourneyTeam;
 use App\Entity\TourneyGame;
 use App\Entity\TourneyTeamMember;
@@ -24,7 +24,7 @@ class TourneyFixture extends Fixture implements DependentFixtureInterface
             ->setName('Chess 1v1')
             ->setDescription($lipsum->words(30))
             ->setHidden(false)
-            ->setStatus(TourneyStatus::Running)
+            ->setStatus(TourneyStage::Running)
             ->setOrder(1)
             ->setToken(20)
             ->setTeamsize(1)
@@ -59,7 +59,7 @@ class TourneyFixture extends Fixture implements DependentFixtureInterface
             ->setName('Chess 2v2')
             ->setDescription($lipsum->words(18))
             ->setHidden(false)
-            ->setStatus(TourneyStatus::Registration)
+            ->setStatus(TourneyStage::Registration)
             ->setToken(15)
             ->setOrder(3)
             ->setTeamsize(2)
@@ -140,7 +140,7 @@ class TourneyFixture extends Fixture implements DependentFixtureInterface
             ->setName('Poker')
             ->setDescription($lipsum->words(22))
             ->setHidden(false)
-            ->setStatus(TourneyStatus::Registration)
+            ->setStatus(TourneyStage::Registration)
             ->setToken(15)
             ->setOrder(2)
             ->setTeamsize(1)
@@ -156,7 +156,7 @@ class TourneyFixture extends Fixture implements DependentFixtureInterface
             ->setName('Rollerball')
             ->setDescription('')
             ->setHidden(false)
-            ->setStatus(TourneyStatus::Registration)
+            ->setStatus(TourneyStage::Registration)
             ->setToken(15)
             ->setOrder(4)
             ->setTeamsize(5)

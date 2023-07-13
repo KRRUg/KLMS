@@ -4,7 +4,7 @@ namespace App\Controller\Admin;
 
 use App\Controller\HttpExceptionTrait;
 use App\Entity\Tourney;
-use App\Entity\TourneyStatus;
+use App\Entity\TourneyStage;
 use App\Form\TourneyType;
 use App\Service\TourneyService;
 use Psr\Log\LoggerInterface;
@@ -85,60 +85,6 @@ class TourneyController extends AbstractController
         return $this->redirectToRoute('admin_tourney');
     }
 
-    private function advanceSeed(Request $request, Tourney $tourney): Response
-    {
-        // TODO implement me here
-
-        // ignore CSRF token, as we generate another form
-        return $this->redirectToRoute('admin_tourney');
-    }
-
-    private function advanceEnterResult(Request $request, Tourney $tourney): Response
-    {
-        // TODO implement me here
-
-        // ignore CSRF token, as we generate another form
-        return $this->redirectToRoute('admin_tourney');
-    }
-
-    private function advanceNoop(Request $request, Tourney $tourney): Response
-    {
-        if ($request->getMethod() !== Request::METHOD_POST) {
-            throw $this->createMethodNotAllowedException([Request::METHOD_POST]);
-        }
-        $token = $request->request->get('_token');
-        if (!$this->isCsrfTokenValid(self::CSRF_TOKEN_ADVANCE, $token)) {
-            throw $this->createAccessDeniedException('The CSRF token is invalid.');
-        }
-        $this->service->advance($tourney);
-        $this->addFlash('success', "Tourney {$tourney->getName()} ist nun {$tourney->getStatus()->getAdjective()}.");
-        return $this->redirectToRoute('admin_tourney');
-    }
-
-    #[Route(path: '/advance/{id}', name: '_advance')]
-    public function advance(Request $request, Tourney $tourney): Response
-    {
-        switch ($tourney->getStatus()) {
-            case TourneyStatus::Created:
-                return $this->advanceNoop($request, $tourney);
-            case TourneyStatus::Registration:
-                if ($tourney->hasTree()) {
-                    return $this->advanceSeed($request, $tourney);
-                } else {
-                    return $this->advanceNoop($request, $tourney);
-                }
-            case TourneyStatus::Running:
-                if ($tourney->hasTree()) {
-                    return $this->advanceNoop($request, $tourney);
-                } else {
-                    return $this->advanceEnterResult($request, $tourney);
-                }
-            case TourneyStatus::Finished:
-            default:
-                throw $this->createNotFoundException();
-        }
-    }
-
     #[Route(path: '/details/{id}', name: '_details')]
     public function details(Request $request, Tourney $tourney): Response
     {
@@ -149,5 +95,38 @@ class TourneyController extends AbstractController
             'tourney' => $tourney,
             'csrf_token_advance' => self::CSRF_TOKEN_ADVANCE,
         ]);
+    }
+
+    #[Route(path: '/seed/{id}', name: '_seed')]
+    public function seed(Request $request, Tourney $tourney): Response
+    {
+        // TODO generate form and make the seed accordingly
+
+        $this->service->seed($tourney);
+        return $this->redirectToRoute('admin_tourney');
+    }
+
+    #[Route(path: '/result/{id}', name: '_result')]
+    public function enterResult(Request $request, Tourney $tourney): Response
+    {
+        // TODO implement me here
+
+        // ignore CSRF token, as we generate another form
+        return $this->redirectToRoute('admin_tourney');
+    }
+
+    #[Route(path: '/advance/{id}', name: '_advance', methods: ['POST'])]
+    public function advance(Request $request, Tourney $tourney): Response
+    {
+        if ($tourney->getStatus() == TourneyStage::Finished) {
+            throw $this->createNotFoundException();
+        }
+        $token = $request->request->get('_token');
+        if (!$this->isCsrfTokenValid(self::CSRF_TOKEN_ADVANCE, $token)) {
+            throw $this->createAccessDeniedException('The CSRF token is invalid.');
+        }
+        $this->service->advance($tourney);
+        $this->addFlash('success', "Tourney {$tourney->getName()} {$tourney->getStatus()->getAdjective()}.");
+        return $this->redirectToRoute('admin_tourney');
     }
 }

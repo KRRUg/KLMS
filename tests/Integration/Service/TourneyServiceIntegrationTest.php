@@ -7,7 +7,7 @@ use App\DataFixtures\TourneyFixtureGames;
 use App\DataFixtures\UserFixtures;
 use App\Entity\Tourney;
 use App\Entity\TourneyRules;
-use App\Entity\TourneyStatus;
+use App\Entity\TourneyStage;
 use App\Entity\TourneyTeam;
 use App\Entity\User;
 use App\Exception\ServiceException;
@@ -46,7 +46,7 @@ class TourneyServiceIntegrationTest extends DatabaseTestCase
         $user7 = $this->getUser(7);
 
         $tourney = $service->getVisibleTourneys()[1];
-        $this->assertEquals(TourneyStatus::Registration, $tourney->getStatus());
+        $this->assertEquals(TourneyStage::Registration, $tourney->getStatus());
         $this->assertTrue($tourney->isSinglePlayer());
 
         $this->assertTrue($service->userCanRegisterForTourney($tourney, $user7));
@@ -67,7 +67,7 @@ class TourneyServiceIntegrationTest extends DatabaseTestCase
         $user7 = $this->getUser(7);
 
         $tourney = $service->getVisibleTourneys()[2];
-        $this->assertEquals(TourneyStatus::Registration, $tourney->getStatus());
+        $this->assertEquals(TourneyStage::Registration, $tourney->getStatus());
         $service->userRegister($tourney, $user7, 'Pro Team');
         $this->assertContains($tourney, $service->getRegisteredTourneys($user7));
         $tm = $service->getTeamMemberByTourneyAndUser($tourney, $user7);
@@ -85,7 +85,7 @@ class TourneyServiceIntegrationTest extends DatabaseTestCase
         $user8 = $this->getUser(14);
 
         $tourney = $service->getVisibleTourneys()[2];
-        $this->assertEquals(TourneyStatus::Registration, $tourney->getStatus());
+        $this->assertEquals(TourneyStage::Registration, $tourney->getStatus());
         $this->assertEquals(2, $tourney->getTeamsize());
 
         $service->userRegister($tourney, $user7, 'New Team');
@@ -157,7 +157,7 @@ class TourneyServiceIntegrationTest extends DatabaseTestCase
         $user7 = $this->getUser(7);
 
         $tourney = $service->getVisibleTourneys()[2];
-        $this->assertEquals(TourneyStatus::Registration, $tourney->getStatus());
+        $this->assertEquals(TourneyStage::Registration, $tourney->getStatus());
         $team = TourneyTeam::createTeamWithUser($user7->getUuid());
         $this->expectException(LogicException::class);
         $service->userRegister($tourney, $user7, $team);
@@ -170,7 +170,7 @@ class TourneyServiceIntegrationTest extends DatabaseTestCase
         $user7 = $this->getUser(7);
 
         $tourney = $service->getVisibleTourneys()[0];
-        $this->assertEquals(TourneyStatus::Running, $tourney->getStatus());
+        $this->assertEquals(TourneyStage::Running, $tourney->getStatus());
 
         $this->expectException(ServiceException::class);
         $service->userRegister($tourney, $user7, null);
@@ -183,7 +183,7 @@ class TourneyServiceIntegrationTest extends DatabaseTestCase
         $user7 = $this->getUser(7);
 
         $tourney = $service->getVisibleTourneys()[1];
-        $this->assertEquals(TourneyStatus::Registration, $tourney->getStatus());
+        $this->assertEquals(TourneyStage::Registration, $tourney->getStatus());
 
         $service->userRegister($tourney, $user7, null);
         $this->expectException(ServiceException::class);
@@ -197,7 +197,7 @@ class TourneyServiceIntegrationTest extends DatabaseTestCase
         $user7 = $this->getUser(7);
 
         $tourney = $service->getVisibleTourneys()[2];
-        $this->assertEquals(TourneyStatus::Registration, $tourney->getStatus());
+        $this->assertEquals(TourneyStage::Registration, $tourney->getStatus());
 
         $this->assertTrue($service->userCanRegisterForTourney($tourney, $user7));
         $this->expectException(ServiceException::class);
@@ -213,7 +213,7 @@ class TourneyServiceIntegrationTest extends DatabaseTestCase
         $tourneys = $service->getRegisteredTourneys($user2);
         $this->assertCount(2, $tourneys);
         $tourney = $tourneys[1];
-        $this->assertEquals(TourneyStatus::Registration, $tourney->getStatus());
+        $this->assertEquals(TourneyStage::Registration, $tourney->getStatus());
         $team = $service->getTeamMemberByTourneyAndUser($tourney, $user2)->getTeam();
 
         $service->userUnregister($tourney, $user2);
@@ -229,7 +229,7 @@ class TourneyServiceIntegrationTest extends DatabaseTestCase
 
         $user18 = $this->getUser(18);
         $tourney = $service->getVisibleTourneys()[1];
-        $this->assertEquals(TourneyStatus::Registration, $tourney->getStatus());
+        $this->assertEquals(TourneyStage::Registration, $tourney->getStatus());
         $this->expectException(ServiceException::class);
         $service->userUnregister($tourney, $user18);
     }
@@ -241,7 +241,7 @@ class TourneyServiceIntegrationTest extends DatabaseTestCase
 
         $user0 = $this->getUser(0);
         $tourney = $service->getVisibleTourneys()[1];
-        $this->assertEquals(TourneyStatus::Registration, $tourney->getStatus());
+        $this->assertEquals(TourneyStage::Registration, $tourney->getStatus());
         $this->expectException(ServiceException::class);
         $service->userRegister($tourney, $user0, null);
     }
@@ -264,7 +264,7 @@ class TourneyServiceIntegrationTest extends DatabaseTestCase
         $service = self::getContainer()->get(TourneyService::class);
         /** @var Tourney $tourney */
         $tourney = $service->getVisibleTourneys()[0];
-        $this->assertTrue($tourney->getStatus() == TourneyStatus::Running);
+        $this->assertTrue($tourney->getStatus() == TourneyStage::Running);
 
         $game = $service->getGameByTourneyAndUser($tourney, $user);
         $this->assertNotEmpty($game);
@@ -320,7 +320,7 @@ class TourneyServiceIntegrationTest extends DatabaseTestCase
         $tourney = $service->getVisibleTourneys()[0];
         $this->assertEquals(TourneyRules::SingleElimination, $tourney->getMode());
 
-        $this->assertEquals(TourneyStatus::Finished, $tourney->getStatus());
+        $this->assertEquals(TourneyStage::Finished, $tourney->getStatus());
         $podium = TourneyService::getPodium($tourney);
         $this->assertCount(3, $podium);
         $final = TourneyService::getFinal($tourney);
@@ -337,7 +337,7 @@ class TourneyServiceIntegrationTest extends DatabaseTestCase
         $tourney = $service->getVisibleTourneys()[2];
         $this->assertEquals(TourneyRules::SingleElimination, $tourney->getMode());
 
-        $this->assertEquals(TourneyStatus::Registration, $tourney->getStatus());
+        $this->assertEquals(TourneyStage::Registration, $tourney->getStatus());
         $this->assertEmpty(TourneyService::getPodium($tourney));
     }
 

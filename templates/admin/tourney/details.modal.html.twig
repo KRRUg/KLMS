@@ -61,12 +61,19 @@
                 <button type="submit" class="btn btn-sm btn-danger"><i class="fa-solid fa-arrow-circle-right"></i> {{ text }}</button>
             </form>
         {% endmacro %}
-        {% set TourneyStatus = enum('\\App\\Entity\\TourneyStatus') %}
-        {% if tourney.status == TourneyStatus.Created %}
+        {% set TourneyStage = enum('\\App\\Entity\\TourneyStage') %}
+        {% if tourney.status == TourneyStage.Created %}
             {{ _self.advance_button('Registrierung starten', tourney, csrf_token_advance) }}
-        {% elseif tourney.status == TourneyStatus.Registration %}
-            {{ _self.advance_button('Seed', tourney, csrf_token_advance) }}
-        {% elseif tourney.status == TourneyStatus.Running %}
+        {% elseif tourney.status == TourneyStage.Registration %}
+            {{ _self.advance_button('Seeding beginnen', tourney, csrf_token_advance) }}
+        {% elseif tourney.status == TourneyStage.Seeding %}
+            {{ _self.advance_button('Turnier starten', tourney, csrf_token_advance) }}
+            <button type="button" class="btn btn-outline-dark text-nowrap btn-sm"
+                    data-toggle="ajaxModal" href="{{ path('admin_tourney_seed', {'id' : tourney.id}) }}">
+                <i class="fa-solid fa-circle-info"></i> Seed bearbeiten
+            </button>
+            <a class="btn btn-outline-dark btn-sm" href="{{ path('tourney_show', {'id' : tourney.id}) }}" target="_blank"><i class="fa-solid fa-tree"></i> Baum anzeigen</a>
+        {% elseif tourney.status == TourneyStage.Running %}
             {{ _self.advance_button('Tournier beenden', tourney, csrf_token_advance) }}
         {% endif %}
         <button type="button" class="btn btn-sm btn-secondary ml-auto" data-dismiss="modal">Schließen</button>

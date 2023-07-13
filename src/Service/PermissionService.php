@@ -152,10 +152,6 @@ final class PermissionService
     {
         $this->checkAndThrow(self::ADMIN_SUPER);
 
-        if (is_null($permissions)) {
-            return false;
-        }
-
         if (count(array_diff($permissions, self::PERMISSIONS)) > 0) {
             return false;
         }

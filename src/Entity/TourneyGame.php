@@ -37,7 +37,7 @@ class TourneyGame
     private ?int $scoreB = null;
 
     #[ORM\ManyToOne(targetEntity: self::class, inversedBy: 'children')]
-    #[ORM\JoinColumn(name: 'parent', nullable: true)]
+    #[ORM\JoinColumn(name: 'parent', nullable: true, onDelete: 'SET NULL')]
     private ?self $parent = null;
 
     #[ORM\OneToMany(mappedBy: 'parent', targetEntity: self::class)]
