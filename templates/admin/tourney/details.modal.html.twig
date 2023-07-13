@@ -55,6 +55,20 @@
     {% endblock %}
 
     {% block modalFooter %}
-{#        <button type="button" class="btn btn-secondary" data-dismiss="modal">Schließen</button>#}
+        {% macro advance_button(text, tourney, token) %}
+            <form data-toggle="confirmModal" data-modal-title="Bestätigen" data-modal-text="Turnier wirklich in die nächste Phase bringen?" method="post" action="{{ path('admin_tourney_advance', {'id' : tourney.id}) }}" class="d-inline-block">
+                <input type="hidden" name="_token" value="{{ csrf_token(token) }}">
+                <button type="submit" class="btn btn-sm btn-danger"><i class="fa-solid fa-arrow-circle-right"></i> {{ text }}</button>
+            </form>
+        {% endmacro %}
+        {% set TourneyStatus = enum('\\App\\Entity\\TourneyStatus') %}
+        {% if tourney.status == TourneyStatus.Created %}
+            {{ _self.advance_button('Registrierung starten', tourney, csrf_token_advance) }}
+        {% elseif tourney.status == TourneyStatus.Registration %}
+            {{ _self.advance_button('Seed', tourney, csrf_token_advance) }}
+        {% elseif tourney.status == TourneyStatus.Running %}
+            {{ _self.advance_button('Tournier beenden', tourney, csrf_token_advance) }}
+        {% endif %}
+        <button type="button" class="btn btn-sm btn-secondary ml-auto" data-dismiss="modal">Schließen</button>
     {% endblock %}
 {% endembed %}

@@ -20,6 +20,7 @@ abstract class DatabaseWebTestCase extends WebTestCase
     {
         parent::setUp();
         $this->client = self::createClient();
+        $this->client->followRedirects();
 
         // don't reboot the kernel after one request to avoid trashing of in-memory db
         $this->client->disableReboot();
@@ -37,8 +38,6 @@ abstract class DatabaseWebTestCase extends WebTestCase
             'username' => $user,
             'password' => 'password',
         ]);
-        $this->assertResponseRedirects();
-        $this->client->followRedirect();
         $this->assertResponseStatusCodeSame(200);
         $this->assertSelectorTextNotContains('#dropdownMenuUser', "Anmelden");
     }
@@ -46,8 +45,6 @@ abstract class DatabaseWebTestCase extends WebTestCase
     protected function logout(): void
     {
         $this->client->request('GET', '/logout');
-        $this->assertResponseRedirects();
-        $this->client->followRedirect();
         $this->assertResponseStatusCodeSame(200);
         $this->assertSelectorTextContains('#dropdownMenuUser', "Anmelden");
     }
