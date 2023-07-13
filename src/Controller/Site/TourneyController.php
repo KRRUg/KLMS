@@ -75,11 +75,18 @@ class TourneyController extends AbstractController
             $tourney = $this->getTourneyOfId($data['id']);
             if (is_null($tourney))
                 return;
+            $teams = $tourney->getTeams();
+            if ($teams->isEmpty()) {
+                $event->getForm()
+                    ->remove('submit')
+                    ->add('submit', SubmitType::class, ['label' => 'Beitreten', 'disabled' => true]);
+            }
             $event->getForm()
                 ->remove('team')
                 ->add('team', ChoiceType::class, [
                     'label' => 'Team', 'required' => true, 'multiple' => false,
-                    'choices' => $tourney->getTeams(),
+                    'choices' => $teams,
+                    'disabled' => $teams->isEmpty(),
                     'choice_label' => 'name',
                     'choice_value' => 'id',
                     'choice_attr' => (fn ($team) => $team->countUsers() >= $tourney->getTeamsize() ? ['disabled' => 'disabled'] : []),
@@ -175,6 +182,7 @@ class TourneyController extends AbstractController
                     ServiceException::CAUSE_INCONSISTENT => 'Teamname existiert schon.',
                     ServiceException::CAUSE_FULL => 'Team ist schon voll',
                     ServiceException::CAUSE_TOO_LONG => "Teamname darf nicht länger als " . TourneyService::TEAM_NAME_MAX_LENGTH . ' Zeichen lang sein.',
+                    ServiceException::CAUSE_INVALID => "Ausgewähltem Team kann nicht beigetreten werden.",
                     default => 'unbekannter Fehler.'
                 }
             );
