@@ -32,9 +32,7 @@
 {% block mainColTop %}
     {% if tm | default(null) is not null %}
         <div class="col-12 mb-3">
-            {% if current_game is null %}
-                <div class="alert alert-danger mb-0">Du bist nicht mehr im Rennen!</div>
-            {% elseif current_game is not null and current_game.pending %}
+            {% if current_game is not null and current_game.pending %}
                 <div class="text-center h4 mb-3 mt-3"><strong>Ausstehendes Spiel</strong></div>
                 <div class="row align-items-center mb-3">
                     <div class="col">
@@ -47,11 +45,13 @@
                         {% include 'site/tourney/_team.card.html.twig' with {team: current_game.teamB} %}
                     </div>
                 </div>
-            {% endif %}
-        </div>
-        <div class="col-12">
-            {% if not tourney.singlePlayer %}
-                {% include 'site/tourney/_team.card.html.twig' with {team: tm.team} %}
+            {% else %}
+                {% if current_game is null %}
+                    <div class="alert alert-danger mb-3">Du bist nicht mehr im Rennen!</div>
+                {% endif %}
+                {% if not tourney.singlePlayer %}
+                    {% include 'site/tourney/_team.card.html.twig' with {team: tm.team} %}
+                {% endif %}
             {% endif %}
         </div>
     {% endif %}
