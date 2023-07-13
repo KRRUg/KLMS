@@ -18,8 +18,12 @@ class TourneyTest extends DatabaseWebTestCase
         $tourneys = $crawler->filter('.tourney');
         $this->assertEquals(4, $tourneys->count());
         $this->assertStringContainsString('Chess 1v1', $tourneys->getNode(0)->textContent);
+        $this->assertStringContainsString('Beschreibung', $tourneys->getNode(0)->textContent);
+        $this->assertStringContainsString('Single Elimination', $tourneys->getNode(0)->textContent);
         $this->assertStringContainsString('Poker', $tourneys->getNode(1)->textContent);
+        $this->assertStringContainsString('Beschreibung', $tourneys->getNode(1)->textContent);
         $this->assertStringContainsString('Chess 2v2', $tourneys->getNode(2)->textContent);
+        $this->assertStringContainsString('Beschreibung', $tourneys->getNode(2)->textContent);
     }
 
     public function testTourneyListWithLogin()
