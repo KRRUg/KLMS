@@ -10,9 +10,25 @@ use Generator;
 
 class TourneyTest extends DatabaseWebTestCase
 {
-    public function testTourneyWithoutLogin()
+    private function provideUsersNotOnLan(): array
+    {
+        return [
+            [''],
+            ['user18@localhost.local'], // paid only
+            ['user19@localhost.local'], // not even registered
+        ];
+    }
+
+    /**
+     * @dataProvider provideUsersNotOnLan
+     */
+    public function testTourneyWithoutLogin(string $user)
     {
         $this->databaseTool->loadFixtures([TourneyFixture::class, UserFixtures::class]);
+
+        if (!empty($user))
+            $this->login($user);
+
         $crawler = $this->client->request('GET', '/tourney');
         $this->assertSelectorNotExists('.tourney.registered');
         $tourneys = $crawler->filter('.tourney');
@@ -20,10 +36,13 @@ class TourneyTest extends DatabaseWebTestCase
         $this->assertStringContainsString('Chess 1v1', $tourneys->getNode(0)->textContent);
         $this->assertStringContainsString('Beschreibung', $tourneys->getNode(0)->textContent);
         $this->assertStringContainsString('Single Elimination', $tourneys->getNode(0)->textContent);
+        $this->assertStringNotContainsString('Anmelden', $tourneys->getNode(0)->textContent);
         $this->assertStringContainsString('Poker', $tourneys->getNode(1)->textContent);
         $this->assertStringContainsString('Beschreibung', $tourneys->getNode(1)->textContent);
+        $this->assertStringNotContainsString('Anmelden', $tourneys->getNode(1)->textContent);
         $this->assertStringContainsString('Chess 2v2', $tourneys->getNode(2)->textContent);
         $this->assertStringContainsString('Beschreibung', $tourneys->getNode(2)->textContent);
+        $this->assertStringNotContainsString('Anmelden', $tourneys->getNode(2)->textContent);
     }
 
     public function testTourneyListWithLogin()
