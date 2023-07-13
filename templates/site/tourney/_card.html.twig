@@ -62,18 +62,18 @@
     <div class="collapse{% if expand %} show{% endif %}" id="collapse-{{ tourney.id }}">
             {% if tourney.status == TourneyStatus.Created %}
                 {% include 'site/tourney/_created.html.twig' %}
-            {% elseif tourney.status == TourneyStatus.Registration %}
-                {% if participates %}
-                    {% if registered %}
-                        {% include 'site/tourney/_registered.html.twig' %}
-                    {% else %}
-                        {% include 'site/tourney/_register.html.twig' %}
-                    {% endif %}
+            {% elseif tourney.status == TourneyStatus.Registration and participates %}
+                {% if registered %}
+                    {% include 'site/tourney/_registered.html.twig' %}
+                {% else %}
+                    {% include 'site/tourney/_register.html.twig' %}
                 {% endif %}
             {% elseif tourney.status == TourneyStatus.Running %}
                 {% include 'site/tourney/_running.html.twig' %}
             {% elseif tourney.status == TourneyStatus.Finished %}
                 {% include 'site/tourney/_result.html.twig' with {podium: podiums[tourney.id] ?? null} %}
+            {% else %}
+                {% include 'site/tourney/_card.body.html.twig' %}
             {% endif %}
     </div>
 </div>
