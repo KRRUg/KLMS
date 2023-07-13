@@ -379,7 +379,12 @@ class TourneyController extends AbstractController
     {
         $tourney = $this->service->getTourneyWithTeams($id);
         if (is_null($tourney) || !$tourney->hasTree()) {
-            throw new NotFoundHttpException();
+            throw $this->createNotFoundException();
+        }
+
+        $final = TourneyService::getFinal($tourney);
+        if (is_null($final)){
+            throw $this->createNotFoundException();
         }
 
         $gamers = $this->service->getAllUsersOfTourney($tourney);
@@ -391,7 +396,6 @@ class TourneyController extends AbstractController
             $ownTeam = $ttm->getTeam();
         }
 
-        $final = TourneyService::getFinal($tourney);
         $array = [[$final]];
         $level = 0;
         $next = true;

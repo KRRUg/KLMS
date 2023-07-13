@@ -4,9 +4,12 @@ namespace App\DataFixtures;
 
 use App\Entity\Tourney;
 use App\Entity\TourneyStatus;
+use App\Entity\TourneyTeam;
+use App\Entity\TourneyTeamMember;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Common\DataFixtures\DependentFixtureInterface;
 use Doctrine\Persistence\ObjectManager;
+use Ramsey\Uuid\Uuid;
 
 /**
  * Fills up the tourneys to have a completed tournament
@@ -31,6 +34,21 @@ class TourneyFixtureGames extends Fixture implements DependentFixtureInterface
         $n0->setScoreA(2)->setScoreB(3);
 
         $tourney0->setStatus(TourneyStatus::Finished);
+
+        $tourney1 = $this->getReference('tourney-1');
+        $t1 = $this->getReference('tourney1-team1');
+        $t2 = $this->getReference('tourney1-team2');
+        $t3 = $this->getReference('tourney1-team3');
+        $t4 = $this->getReference('tourney1-team4');
+
+        $t2->addMember((new TourneyTeamMember())->setGamer(Uuid::fromInteger(12))->setAccepted(true));
+        $t3->getMembers()[1]->setAccepted(true);
+        $t4->addMember((new TourneyTeamMember())->setGamer(Uuid::fromInteger(14))->setAccepted(true));
+        $t5 = (new TourneyTeam())->setName('Somewhat good team')
+            ->addMember((new TourneyTeamMember())->setGamer(Uuid::fromInteger(5))->setAccepted(true))
+            ->addMember((new TourneyTeamMember())->setGamer(Uuid::fromInteger(15))->setAccepted(true));
+        $tourney1->addTeam($t5);
+        $manager->persist($t5);
         $manager->flush();
     }
 

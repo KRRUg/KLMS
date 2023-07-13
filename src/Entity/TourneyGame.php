@@ -129,6 +129,9 @@ class TourneyGame
         return $this;
     }
 
+    /**
+     * @return Collection<int, TourneyGame>
+     */
     public function getChildren(): Collection
     {
         return $this->children;

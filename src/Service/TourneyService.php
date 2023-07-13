@@ -56,6 +56,8 @@ class TourneyService extends OptimalService
 
     public const TOKEN_COUNT = 40;
     public const TEAM_NAME_MAX_LENGTH = 25;
+    public const TOURNEY_MIN_SIZE = 3;
+
     private const SETTING_PREFIX = 'lan.tourney.';
 
     protected static function getSettingKey(): string
@@ -70,6 +72,9 @@ class TourneyService extends OptimalService
         return $this->repository->findBy([], ['status' => 'asc', 'order' => 'asc']);
     }
 
+    /**
+     * @return Tourney[]
+     */
     public function getVisibleTourneys(): array
     {
         return $this->repository->findBy(['hidden' => false], ['order' => 'asc']);
@@ -344,56 +349,9 @@ class TourneyService extends OptimalService
 
     /* Tourney tree */
 
-    public static function getFinal(Tourney $tourney): ?TourneyGame
-    {
-        foreach ($tourney->getGames() as $game) {
-            if (is_null($game->getParent()))
-                return $game;
-        }
-        return null;
-    }
-
-    public static function calculateRounds(Tourney $tourney): int
-    {
-        $depth = function(TourneyGame $g) use (&$depth) {
-            if ($g->getChildren()->isEmpty()) return 1;
-            return max(array_map(fn($c) => $depth($c) + 1, $g->getChildren()->toArray()));
-        };
-        $final = self::getFinal($tourney);
-        if (is_null($final))
-            return 0;
-        return $depth($final);
-    }
-
     public static function getPodium(Tourney $tourney): array
     {
-        $root = self::getFinal($tourney);
-        if (is_null($root) || !$root->isDone()) {
-            return [];
-        }
-        return match ($tourney->getMode()) {
-            TourneyRules::SingleElimination, TourneyRules::RegistrationOnly => TourneyService::getPodiumSingleElim($root),
-            TourneyRules::DoubleElimination => TourneyService::getPodiumGetPodiumDoubleElim($root),
-            default => [],
-        };
-    }
-
-    private static function getPodiumSingleElim(TourneyGame $root): array
-    {
-        $result = array();
-        $result[1] = [$root->getWinner()];
-        $result[2] = [$root->getLoser()];
-        $result[3] = array();
-        foreach ($root->getChildren() as $child) {
-            $result[3][] = $child->getLoser();
-        }
-        return $result;
-    }
-
-    private static function getPodiumGetPodiumDoubleElim(TourneyGame $root): array
-    {
-        // TODO implement me
-        return [];
+        return TourneyRule::construct($tourney)->podium();
     }
     
     /* Result logging */
@@ -444,22 +402,13 @@ class TourneyService extends OptimalService
 
     public function logResult(TourneyGame $game, int $scoreA, int $scoreB)
     {
-        // TODO reset all later games (when $reset is set)
-
         $this->tryLogResult($game);
         if ($scoreA == $scoreB) {
             throw new ServiceException(ServiceException::CAUSE_INVALID, 'Tie not allowed.');
         }
         $game->setScoreA($scoreA);
         $game->setScoreB($scoreB);
-        $parent = $game->getParent();
-        if (!is_null($parent)) {
-            if ($game->isChildA()) {
-                $parent->setTeamA($game->getWinner());
-            } else {
-                $parent->setTeamB($game->getWinner());
-            }
-        }
+        TourneyRule::construct($game->getTourney())->processGame($game, false);
         $this->em->flush();
     }
 
@@ -481,13 +430,21 @@ class TourneyService extends OptimalService
 
     /**
      * @param Tourney $tourney
-     * @param TourneyTeam|null[] $seed
+     * @param TourneyTeam[]|null $seed
      */
-    public function seed(Tourney $tourney, array $seed)
+    public function seed(Tourney $tourney, ?array $seed = null)
     {
-        self::tryAdvance($tourney, TourneyStatus::Registration);
-        // TODO implement me
-
+        self::tryAdvance($tourney, TourneyStatus::Running); // TODO change this to new state
+        if (is_null($seed)) {
+            $seed = $tourney->getTeams();
+        }
+        if (count($seed) != count($tourney->getTeams())) {
+            throw new ServiceException(ServiceException::CAUSE_INCONSISTENT, 'seed does not contain all teams');
+        }
+        if (count($seed) < self::TOURNEY_MIN_SIZE){
+            throw new ServiceException(ServiceException::CAUSE_INVALID, "A tourney must contain at least " . self::TOURNEY_MIN_SIZE . " teams");
+        }
+        TourneyRule::construct($tourney)->seed($seed);
         $this->em->flush();
     }
 
@@ -513,22 +470,43 @@ class TourneyService extends OptimalService
         // TODO advance without seed to playing and perform a seed option in playing state (to avoid missing teams in seed).
 
         switch ($tourney->getStatus()) {
-            case TourneyStatus::Finished:
-                return;
             case TourneyStatus::Created:
-                $this->start($tourney);
-                return;
-            case TourneyStatus::Running:
-                if ($tourney->getMode() != TourneyRules::RegistrationOnly) {
-                    $this->finish($tourney);
-                    return;
-                }
+                $tourney->setStatus(TourneyStatus::Registration);
                 break;
-            default:
             case TourneyStatus::Registration:
+                $tourney->setStatus(TourneyStatus::Running);
                 break;
+            case TourneyStatus::Running:
+                $tourney->setStatus(TourneyStatus::Finished);
+                break;
+            case TourneyStatus::Finished:
+            default:
+                return;
         }
-        throw new ServiceException(ServiceException::CAUSE_INCORRECT_STATE, 'cannot auto-advance');
+        $this->em->flush();;
+
+//        switch ($tourney->getStatus()) {
+//            case TourneyStatus::Finished:
+//                return;
+//            case TourneyStatus::Created:
+//                $this->start($tourney);
+//                return;
+//            case TourneyStatus::Running:
+//                if ($tourney->getMode() != TourneyRules::RegistrationOnly) {
+//                    $this->finish($tourney);
+//                    return;
+//                }
+//                break;
+//            default:
+//            case TourneyStatus::Registration:
+//                break;
+//        }
+        //throw new ServiceException(ServiceException::CAUSE_INCORRECT_STATE, 'cannot auto-advance');
+    }
+
+    public static function getFinal(Tourney $tourney): ?TourneyGame
+    {
+        return TourneyRule::construct($tourney)->getFinale();
     }
 
     /* Tourney object management */

@@ -4,14 +4,14 @@
     'title' : tourney.name,
     'dialogClass' : 'modal-xl modal-dialog-scrollable'
 } %}
-{# maybe use https://stackoverflow.com/questions/19528173/bootstrap-open-another-modal-in-modal #}
+{# TODO check https://stackoverflow.com/questions/19528173/bootstrap-open-another-modal-in-modal #}
     {% from 'site/tourney/show.html.twig' import teamname, teamnameA, teamnameB %}
     {% block modalBody %}
         <div class="container-fluid row">
             <div class="col-lg-6">
-                <h5><i class="fa-solid fa-people-group"></i> Teams</h5>
+                <h5><i class="fa-solid fa-people-group"></i> Teams ({{ tourney.teams | length }})</h5>
                 <hr>
-                <ul class="list-group mb-2">
+                <ul class="list-group mb-3">
                     {% for team in tourney.teams %}
                         <li class="list-group-item">
                             <b>{{ teamname(team) }}</b><br>
