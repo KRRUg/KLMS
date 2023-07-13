@@ -71,7 +71,6 @@
                             </td>
                             <td data-sort="" data-filter="">
                                 <button type="button" class="btn btn-outline-dark text-nowrap"
-                                        {% if not tourney.canHaveTeams %} disabled="disabled" {% endif %}
                                         data-toggle="ajaxModal" href="{{ path('admin_tourney_details', {'id' : tourney.id}) }}">
                                     <i class="fa-solid fa-circle-info"></i> Status
                                 </button>

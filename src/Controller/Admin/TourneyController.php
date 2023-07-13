@@ -5,6 +5,7 @@ namespace App\Controller\Admin;
 use App\Controller\HttpExceptionTrait;
 use App\Entity\Tourney;
 use App\Entity\TourneyStage;
+use App\Exception\ServiceException;
 use App\Form\TourneyType;
 use App\Service\TourneyService;
 use Psr\Log\LoggerInterface;
@@ -101,8 +102,8 @@ class TourneyController extends AbstractController
     public function seed(Request $request, Tourney $tourney): Response
     {
         // TODO generate form and make the seed accordingly
-
         $this->service->seed($tourney);
+        $this->addFlash('success', 'Seed wurde neu berechnet');
         return $this->redirectToRoute('admin_tourney');
     }
 
@@ -125,8 +126,31 @@ class TourneyController extends AbstractController
         if (!$this->isCsrfTokenValid(self::CSRF_TOKEN_ADVANCE, $token)) {
             throw $this->createAccessDeniedException('The CSRF token is invalid.');
         }
-        $this->service->advance($tourney);
-        $this->addFlash('success', "Tourney {$tourney->getName()} {$tourney->getStatus()->getAdjective()}.");
+        try{
+            $this->service->advance($tourney);
+            $this->addFlash('success', "Tourney {$tourney->getName()} {$tourney->getStatus()->getAdjective()}.");
+        } catch (ServiceException $e) {
+            $this->addFlash('error', $e->getMessage());
+        }
+        return $this->redirectToRoute('admin_tourney');
+    }
+
+    #[Route(path: '/back/{id}', name: '_back', methods: ['POST'])]
+    public function back(Request $request, Tourney $tourney): Response
+    {
+        if ($tourney->getStatus() == TourneyStage::Created) {
+            throw $this->createNotFoundException();
+        }
+        $token = $request->request->get('_token');
+        if (!$this->isCsrfTokenValid(self::CSRF_TOKEN_ADVANCE, $token)) {
+            throw $this->createAccessDeniedException('The CSRF token is invalid.');
+        }
+        try{
+            $this->service->back($tourney);
+            $this->addFlash('success', "Tourney {$tourney->getName()} {$tourney->getStatus()->getAdjective()}.");
+        } catch (ServiceException $e) {
+            $this->addFlash('error', $e->getMessage());
+        }
         return $this->redirectToRoute('admin_tourney');
     }
 }

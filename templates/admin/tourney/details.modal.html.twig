@@ -7,51 +7,57 @@
 {# TODO check https://stackoverflow.com/questions/19528173/bootstrap-open-another-modal-in-modal #}
     {% from 'site/tourney/show.html.twig' import teamname, teamnameA, teamnameB %}
     {% block modalBody %}
-        <div class="container-fluid row">
-            <div class="col-lg-6">
-                <h5><i class="fa-solid fa-people-group"></i> Teams ({{ tourney.teams | length }})</h5>
-                <hr>
-                <ul class="list-group mb-3">
-                    {% for team in tourney.teams %}
-                        <li class="list-group-item">
-                            <b>{{ teamname(team) }}</b><br>
-                            {% if not tourney.singlePlayer %}
-                                <span>{% for tm in team.members %}{% if not tm.accepted %}<i class="text-muted">{% endif %}{{ tm.gamer | username }}{% if not tm.accepted %}</i>{% endif %}{% if not loop.last %},  {% endif %}{% endfor %}</span>
-                            {% endif %}
-                        </li>
-                    {% endfor %}
-                </ul>
+        {% if not tourney.canHaveTeams %}
+            <span class="text-muted text-center">Dieses Turnier hat noch keine Details.</span>
+        {% else %}
+            <div class="container-fluid row">
+                <div class="{% if tourney.canHaveGames %} col-lg-6 {% else %} col-lg-12 {% endif %}">
+                    <h5><i class="fa-solid fa-people-group"></i> Teams ({{ tourney.teams | length }})</h5>
+                    <hr>
+                    <ul class="list-group mb-3">
+                        {% for team in tourney.teams %}
+                            <li class="list-group-item">
+                                <b>{{ teamname(team) }}</b><br>
+                                {% if not tourney.singlePlayer %}
+                                    <span>{% for tm in team.members %}{% if not tm.accepted %}<i class="text-muted">{% endif %}{{ tm.gamer | username }}{% if not tm.accepted %}</i>{% endif %}{% if not loop.last %},  {% endif %}{% endfor %}</span>
+                                {% endif %}
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                {% if tourney.canHaveGames %}
+                <div class="col-lg-6">
+                    <h5><i class="fa-solid fa-gamepad"></i> Games</h5>
+                    <hr>
+                    <h6>Ausstehende Spiele</h6>
+                    <ul class="list-group">
+                        {% for game in tourney.games | filter(game => game.pending) %}
+                            <li class="list-group-item">
+                                {{ teamnameA(game) }} <span>vs</span> {{ teamnameB(game) }}
+                            </li>
+                        {% else %}
+                            <span class="text-muted">Keine vorhanden.</span>
+                        {% endfor %}
+                    </ul>
+                    <h6 class="mt-2">Abgeschlossene Spiele</h6>
+                    <ul class="list-group mb-2">
+                        {% for game in tourney.games | filter(game => game.done)%}
+                            <li class="list-group-item">
+                                <span>
+                                    {% if game.hasWon(true) %}<b>{% endif %}{{ teamnameA(game) }} {% if game.hasWon(true) %}</b>{% endif %}
+                                    vs
+                                    {% if game.hasWon(false) %}<b>{% endif %}{{ teamnameB(game) }} {% if game.hasWon(false) %}</b>{% endif %}
+                                    ({{ game.scoreA }} : {{ game.scoreB }})
+                                </span>
+                            </li>
+                        {% else %}
+                            <span class="text-muted">Keine vorhanden.</span>
+                        {% endfor %}
+                    </ul>
+                </div>
+                {% endif %}
             </div>
-            <div class="col-lg-6">
-                <h5><i class="fa-solid fa-gamepad"></i> Games</h5>
-                <hr>
-                <h6>Ausstehende Spiele</h6>
-                <ul class="list-group">
-                    {% for game in tourney.games | filter(game => game.pending) %}
-                        <li class="list-group-item">
-                            {{ teamnameA(game) }} <span>vs</span> {{ teamnameB(game) }}
-                        </li>
-                    {% else %}
-                        <span class="text-muted">Keine vorhanden.</span>
-                    {% endfor %}
-                </ul>
-                <h6 class="mt-2">Abgeschlossene Spiele</h6>
-                <ul class="list-group mb-2">
-                    {% for game in tourney.games | filter(game => game.done)%}
-                        <li class="list-group-item">
-                            <span>
-                                {% if game.hasWon(true) %}<b>{% endif %}{{ teamnameA(game) }} {% if game.hasWon(true) %}</b>{% endif %}
-                                vs
-                                {% if game.hasWon(false) %}<b>{% endif %}{{ teamnameB(game) }} {% if game.hasWon(false) %}</b>{% endif %}
-                                ({{ game.scoreA }} : {{ game.scoreB }})
-                            </span>
-                        </li>
-                    {% else %}
-                        <span class="text-muted">Keine vorhanden.</span>
-                    {% endfor %}
-                </ul>
-            </div>
-        </div>
+        {% endif %}
     {% endblock %}
 
     {% block modalFooter %}
@@ -61,12 +67,20 @@
                 <button type="submit" class="btn btn-sm btn-danger"><i class="fa-solid fa-arrow-circle-right"></i> {{ text }}</button>
             </form>
         {% endmacro %}
+        {% macro back_button(text, tourney, token) %}
+            <form data-toggle="confirmModal" data-modal-title="Bestätigen" data-modal-text="Turnier wirklich in die letzte Phase zurückbringen? Änderungen der aktuellen Phase werden gelöscht!" method="post" action="{{ path('admin_tourney_back', {'id' : tourney.id}) }}" class="d-inline-block">
+                <input type="hidden" name="_token" value="{{ csrf_token(token) }}">
+                <button type="submit" class="btn btn-sm btn-danger"><i class="fa-solid fa-arrow-circle-left"></i> {{ text }}</button>
+            </form>
+        {% endmacro %}
         {% set TourneyStage = enum('\\App\\Entity\\TourneyStage') %}
         {% if tourney.status == TourneyStage.Created %}
             {{ _self.advance_button('Registrierung starten', tourney, csrf_token_advance) }}
         {% elseif tourney.status == TourneyStage.Registration %}
-            {{ _self.advance_button('Seeding beginnen', tourney, csrf_token_advance) }}
+            {{ _self.back_button('Registrierung zurücksetzen', tourney, csrf_token_advance) }}
+            {{ _self.advance_button('Registrierung schließen', tourney, csrf_token_advance) }}
         {% elseif tourney.status == TourneyStage.Seeding %}
+            {{ _self.back_button('Registrierung wiederöffnen', tourney, csrf_token_advance) }}
             {{ _self.advance_button('Turnier starten', tourney, csrf_token_advance) }}
             <button type="button" class="btn btn-outline-dark text-nowrap btn-sm"
                     data-toggle="ajaxModal" href="{{ path('admin_tourney_seed', {'id' : tourney.id}) }}">
@@ -74,7 +88,10 @@
             </button>
             <a class="btn btn-outline-dark btn-sm" href="{{ path('tourney_show', {'id' : tourney.id}) }}" target="_blank"><i class="fa-solid fa-tree"></i> Baum anzeigen</a>
         {% elseif tourney.status == TourneyStage.Running %}
-            {{ _self.advance_button('Tournier beenden', tourney, csrf_token_advance) }}
+            {{ _self.back_button('Turnier neustarten', tourney, csrf_token_advance) }}
+            {{ _self.advance_button('Turnier beenden', tourney, csrf_token_advance) }}
+        {% elseif tourney.status == TourneyStage.Finished %}
+            {{ _self.back_button('Tournier wiedereröffnen', tourney, csrf_token_advance) }}
         {% endif %}
         <button type="button" class="btn btn-sm btn-secondary ml-auto" data-dismiss="modal">Schließen</button>
     {% endblock %}

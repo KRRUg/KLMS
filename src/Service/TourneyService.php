@@ -446,11 +446,23 @@ class TourneyService extends OptimalService
             throw new ServiceException(ServiceException::CAUSE_INVALID, "A tourney must contain at least " . self::TOURNEY_MIN_SIZE . " teams");
         }
         $this->em->beginTransaction();
-        $tourney->getGames()->forAll(function($key, $game) {$this->em->remove($game); return true;});
-        $this->em->flush();
+        $this->clearGames($tourney);
         TourneyRule::construct($tourney)->seed($seed);
         $this->em->flush();
         $this->em->commit();
+    }
+
+    private function clearTeams(Tourney $tourney): void
+    {
+        $this->clearGames($tourney);
+        $tourney->getTeams()->forAll(function($key, $team) {$this->em->remove($team); return true;});
+        $this->em->flush();
+    }
+
+    private function clearGames(Tourney $tourney): void
+    {
+        $tourney->getGames()->forAll(function($key, $game) {$this->em->remove($game); return true;});
+        $this->em->flush();
     }
 
     /**
@@ -477,8 +489,12 @@ class TourneyService extends OptimalService
                 $tourney->setStatus(TourneyStage::Registration);
                 break;
             case TourneyStage::Registration:
-                $tourney->setStatus(TourneyStage::Seeding);
-                $this->seed($tourney);
+                if ($tourney->getMode()->canHaveGames()){
+                    $tourney->setStatus(TourneyStage::Seeding);
+                    $this->seed($tourney);
+                } else {
+                    $tourney->setStatus(TourneyStage::Running);
+                }
                 break;
             case TourneyStage::Seeding:
                 $tourney->setStatus(TourneyStage::Running);
@@ -490,25 +506,36 @@ class TourneyService extends OptimalService
             default:
                 return;
         }
-        $this->em->flush();;
+        $this->em->flush();
+    }
 
-//        switch ($tourney->getStatus()) {
-//            case TourneyStage::Finished:
-//                return;
-//            case TourneyStage::Created:
-//                $this->start($tourney);
-//                return;
-//            case TourneyStage::Running:
-//                if ($tourney->getMode() != TourneyRules::RegistrationOnly) {
-//                    $this->finish($tourney);
-//                    return;
-//                }
-//                break;
-//            default:
-//            case TourneyStage::Registration:
-//                break;
-//        }
-        //throw new ServiceException(ServiceException::CAUSE_INCORRECT_STATE, 'cannot auto-advance');
+    public function back(Tourney $tourney): void
+    {
+        switch ($tourney->getStatus()) {
+            case TourneyStage::Created:
+            default:
+                return;
+            case TourneyStage::Registration:
+                $this->clearTeams($tourney);
+                $tourney->setStatus(TourneyStage::Created);
+                break;
+            case TourneyStage::Seeding:
+                $this->clearGames($tourney);
+                $tourney->setStatus(TourneyStage::Registration);
+                break;
+            case TourneyStage::Running:
+                if ($tourney->getMode()->canHaveGames()) {
+                    $tourney->setStatus(TourneyStage::Seeding);
+                    $this->seed($tourney);
+                } else {
+                    $tourney->setStatus(TourneyStage::Registration);
+                }
+                break;
+            case TourneyStage::Finished:
+                $tourney->setStatus(TourneyStage::Running);
+                break;
+        }
+        $this->em->flush();
     }
 
     public static function getFinal(Tourney $tourney): ?TourneyGame

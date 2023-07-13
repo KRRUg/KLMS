@@ -53,7 +53,7 @@
                     {% else %}
                         <span class="badge badge-pill badge-primary">{{ tourney.status.message }}</span>
                     {% endif %}
-                {% else %}
+                {% elseif tourney.status != TourneyStage.Created %}
                     <span class="badge badge-pill badge-secondary">{{ tourney.status.message }}</span>
                 {% endif %}
             {% endif %}
@@ -63,7 +63,7 @@
     </div>
     <div class="collapse{% if expand %} show{% endif %}" id="collapse-{{ tourney.id }}">
             {% if tourney.status == TourneyStage.Created %}
-                {% include 'site/tourney/_created.html.twig' %}
+                {% include 'site/tourney/_card.body.html.twig' %}
             {% elseif tourney.status == TourneyStage.Registration and participates %}
                 {% if registered %}
                     {% include 'site/tourney/_registered.html.twig' %}
