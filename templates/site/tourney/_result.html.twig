@@ -18,7 +18,7 @@
 {% endblock %}
 
 {% block mainColTop %}
-{% if podium | default() is not null %}
+{% if podium | default([]) is not empty %}
     <div class="col-6 offset-3">
     <div class="card mb-3">
         <div class="card-header">
