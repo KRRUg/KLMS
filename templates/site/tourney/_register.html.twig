@@ -1,0 +1,22 @@
+{% set fsp = forms[constant('App\\Controller\\Site\\TourneyController::FORM_NAME_SP')] | default(null) %}
+{% set fc = forms[constant('App\\Controller\\Site\\TourneyController::FORM_NAME_CREATE')] | default(null) %}
+{% set fj = forms[constant('App\\Controller\\Site\\TourneyController::FORM_NAME_JOIN')] | default(null) %}
+{% set can_register = (tourney.singlePlayer and (fsp is not null)) or ((not tourney.singlePlayer) and (fc is not null) and (fj is not null)) %}
+
+{% macro register_button(tourney, enabled = false) %}
+    <button class="btn btn-primary btn-sm btn-block" type="button" {% if enabled %}data-toggle="modal" data-target="#registration-{{ tourney.id }}" {% else %}disabled="disabled"{% endif %}>Anmelden <span style="font-size:smaller;">(<i class="fa-solid fa-coins"></i> {{ tourney.token }})</span></button>
+{% endmacro %}
+
+{% extends 'site/tourney/_card.body.html.twig' %}
+
+{% block blockButtonBarRight %}
+    <div class="text-right registration-{{ tourney.id }} mb-3">
+        {{ _self.register_button(tourney, can_register) }}
+    </div>
+{% endblock %}
+
+{% block containerBottom %}
+    {% if can_register %}
+        {% include 'site/tourney/_register.modal.html.twig' with {id: 'registration-' ~ tourney.id } %}
+    {% endif %}
+{% endblock %}

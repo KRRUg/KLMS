@@ -1,4 +1,10 @@
 @import "variables";
+@import '~bootstrap';
+
+.card {
+    box-shadow: $box-shadow-sm;
+    border:none;
+}
 
 .card-avatar {
     position: relative;
@@ -24,4 +30,23 @@
     .btn:not(:hover) {
         background: rgba(248,249,250,0.75);
     }
+}
+
+.box {
+    border: 1px solid $primary;
+    background-color: rgba($primary,.35);
+    margin: 0.5rem;
+}
+
+.box-header {
+    @extend .card-header;
+    background-color: rgba($primary,.5);
+    font-weight: bold;
+    padding: 0.3rem;
+    border-bottom: 1px solid $primary;
+}
+
+.box-body {
+    @extend .card-body;
+    padding: 0.3rem;
 }

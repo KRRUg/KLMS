@@ -1,0 +1,85 @@
+{% extends 'admin/adminBase.html.twig' %}
+
+{% block title %}KLMS - Admin{% endblock %}
+{% block siteheading %}<i class="fas fa-trophy"></i> Turniere{% endblock %}
+
+{% block main %}
+    <div class="row mb-4">
+        <div class="col-12">
+            <a class="btn btn-success" id="new" href="{{ path('admin_tourney_new') }}"><i class="fas fa-plus"></i> Anlegen</a>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <table class="table table-striped admin-data-table" id="userTable">
+                    <thead>
+                    <tr>
+                        <th scope="col" data-width="50" style="width: 7%" class="text-center">#</th>
+                        <th scope="col" data-width="50" style="width: 2em">Status</th>
+                        <th scope="col" style="width: auto">Name</th>
+                        <th scope="col" data-width="50" style="width: 10%">Order</th>
+                        <th scope="col" data-width="100" data-orderable="false">Aktionen</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% set TourneyStage = enum('\\App\\Entity\\TourneyStage') %}
+                    {% set TourneyRules = enum('\\App\\Entity\\TourneyRules') %}
+                    {% for tourney in tourneys %}
+                        <tr>
+                            <td class="text-center">{{ tourney.getId() }}</td>
+                            <td data-sort="{{ tourney.status.value }}" data-filter="">
+                                {% if tourney.status == TourneyStage.Created %}
+                                    <i class="fa-solid fa-circle-plus" title="{{ TourneyStage.Created.message }}"></i>
+                                {% elseif tourney.status == TourneyStage.Registration %}
+                                    <i class="fa-solid fa-table-list" title="{{ TourneyStage.Registration.message }}"></i>
+                                {% elseif tourney.status == TourneyStage.Seeding %}
+                                    <i class="fa-solid fa-tree" title="{{ TourneyStage.Registration.message }}"></i>
+                                {% elseif tourney.status == TourneyStage.Running %}
+                                    <i class="fa-solid fa-gamepad" title="{{ TourneyStage.Running.message }}"></i>
+                                {% elseif tourney.status == TourneyStage.Finished %}
+                                    <i class="fa-solid fa-trophy" title="{{ TourneyStage.Finished.message }}"></i>
+                                {% endif %}
+                                {% if tourney.hidden %}
+                                    <i class="fa-solid fa-eye-slash"></i>
+                                {% endif %}
+                            </td>
+                            <td data-sort="{{ tourney.getName() }}" data-filter="{{ tourney.getName() }}">
+                                <a href="{{ path('admin_tourney_edit', {'id' : tourney.id}) }}">
+                                    {{ tourney.getName() }}
+                                </a><br>
+                                <div class="d-flex flex-wrap text-muted">
+                                    <small class="mr-3">
+                                        <i class="fa-solid fa-coins fa-xs"></i> {{ tourney.token }}
+                                    </small>
+                                    <small class="mr-3">
+                                        {{ tourney.teamsize ~ 'v' ~ tourney.teamsize }}
+                                    </small>
+                                    <small class="mr-3">
+                                    {% if tourney.mode == TourneyRules.SingleElimination %}
+                                        Single Elemination
+                                    {% elseif tourney.mode == TourneyRules.DoubleElimination %}
+                                        Double Elimination
+                                    {% elseif tourney.mode == TourneyRules.RegistrationOnly %}
+                                        Nur Anmeldung
+                                    {% endif %}
+                                    </small>
+                                </div>
+                            </td>
+                            <td>
+                                {{ tourney.order }}
+                            </td>
+                            <td data-sort="" data-filter="">
+                                <button type="button" class="btn btn-outline-dark text-nowrap"
+                                        data-toggle="ajaxModal" href="{{ path('admin_tourney_details', {'id' : tourney.id}) }}">
+                                    <i class="fa-solid fa-circle-info"></i> Status
+                                </button>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+{% endblock %}

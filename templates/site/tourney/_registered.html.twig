@@ -1,0 +1,56 @@
+{% set fur = forms[constant('App\\Controller\\Site\\TourneyController::FORM_NAME_UNREGISTER')] | default(null) %}
+
+{% macro unregister_form(form) %}
+    {% if form is not null %}{{ form_start(form, { 'attr': {'class': ''}}) }}<div class="text-right mb-3">{{ form_widget(form.submit, { 'attr': {'class': 'btn btn-secondary btn-sm btn-block'}}) }}</div>{{ form_end(form) }}{% endif %}
+{% endmacro %}
+
+{% macro accept_decline_form(text, form) %}
+    {% if form is not null %}
+        {{ form_start(form, { 'attr': {'class': 'form-inline'}}) }}
+        <span class="p-1 mr-1 text-muted">{{ text }}</span>
+        {{ form_widget(form.accept, { 'attr': {'class': 'btn btn-outline-success btn-sm ml-3', 'title': text ~ ' akzeptieren'}, 'label': '<i class="fa fa-check"></i> akzeptieren', 'label_html': true}) }}
+        {{ form_widget(form.decline, { 'attr': {'class': 'btn btn-outline-danger btn-sm ml-3', 'title': text ~ ' ablehnen'}, 'label': '<i class="fa-solid fa-circle-xmark"></i> ablehnen', 'label_html': true}) }}
+        {{ form_end(form) }}
+    {% else %}
+        <div class="d-flex"><span class="p-1">{{ text }}</span></div>
+    {% endif %}
+{% endmacro %}
+
+{% extends 'site/tourney/_card.body.html.twig' %}
+
+{% block blockButtonBarRight %}
+    {{ _self.unregister_form(fur) }}
+{% endblock %}
+
+{% block mainColTop %}
+    {% set team = tm.team %}
+    <div class="col mb-3">
+    {% if tourney.isSinglePlayer() %}
+        <div class="alert alert-primary mb-0">
+            Du bist zu diesem Turnier angemeldet.
+        </div>
+    {% else %}
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <strong>Team:</strong> {{ team.name }} {% if tm.accepted %}<div class="float-right">({{ team.countUsers }}/{{ tourney.teamsize }})</div>{% endif %}
+            </div>
+            {% if not tm.accepted %}
+                <div class="card-body">
+                    <div class="alert alert-warning mb-0">
+                        <i class="fa-solid fa-hourglass"></i> Warten auf Bestätigung von <strong>{{ team.name }}</strong>.
+                    </div>
+                </div>
+            {% else %}
+                <ul class="list-group list-group-flush">
+                    {% set facs = forms[constant('App\\Controller\\Site\\TourneyController::FORM_NAME_CONFIRM')] | default([]) %}
+                    {% for member in team.members %}
+                        <li class="list-group-item">
+                            {{ _self.accept_decline_form(member.gamer | username, facs[member.id] | default(null)) }}
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+        </div>
+    {% endif %}
+    </div>
+{% endblock %}

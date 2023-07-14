@@ -20,6 +20,7 @@ Encore
      *
      * Each entry will result in one JavaScript file (e.g. app.js)
      * and one CSS file (e.g. app.css) if your JavaScript imports CSS.
+     * TODO rename all admin with admin_
      */
     .addEntry('app', './assets/js/app.js')
     .addEntry('admin', './assets/js/admin.js')
@@ -29,12 +30,14 @@ Encore
     .addEntry('teamsite', './assets/js/admin/teamsite.js')
     .addEntry('sponsor', './assets/js/admin/sponsor.js')
     .addEntry('news', './assets/js/site/news.js')
-    .addEntry('site_seatmap', './assets/js/site/seatmap.js')
+    .addEntry('seatmap', './assets/js/site/seatmap.js')
+    .addEntry('tourney', './assets/js/site/tourney.js')
     .addEntry('admin_seatmap', './assets/js/admin/seatmap.js')
+    .addEntry('admin_tourney', './assets/js/admin/tourney.js')
     .addStyleEntry('email', './assets/css/email.scss')
 
     // enables the Symfony UX Stimulus bridge (used in assets/bootstrap.js)
-    //.enableStimulusBridge('./assets/controllers.json')
+    .enableStimulusBridge('./assets/js/controllers.json')
 
     // When enabled, Webpack "splits" your files into smaller pieces for greater optimization.
     .splitEntryChunks()

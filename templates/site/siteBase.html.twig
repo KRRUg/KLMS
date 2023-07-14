@@ -1,6 +1,5 @@
 {% extends 'base.html.twig' %}
 {% block body %}
-
     {% block topbar %}
         {% include 'site/components/topBar.html.twig' %}
     {% endblock %}
@@ -9,7 +8,6 @@
             {% include 'site/components/header.html.twig' %}
         {% endblock %}
     </header>
-
     <main id="main">
         {% include 'site/components/flash.html.twig' %}
         {% block main %}{% endblock %}

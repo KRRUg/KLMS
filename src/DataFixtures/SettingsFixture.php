@@ -30,6 +30,12 @@ class SettingsFixture extends Fixture
         $this->addSetting($manager, 'email.register.subject', 'Registrierung');
         $this->addSetting($manager, 'email.register.text', "<h2>{$lipsum->words()}</h2><p>{$lipsum->paragraphs(2)}</p><h2>{$lipsum->words(2)}</h2><p>{$lipsum->paragraphs(3)}}</p>");
 
+        $this->addSetting($manager, 'lan.seatmap.enabled', true);
+
+        $this->addSetting($manager, 'lan.tourney.enabled', true);
+        $this->addSetting($manager, 'lan.tourney.text', 'Unsere großartigen Turniere. Es gibt auch ganz <i>tolle</i> Preise, versprochen!');
+        $this->addSetting($manager, 'lan.tourney.registration_open', true);
+
         $manager->flush();
     }
 }

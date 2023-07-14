@@ -8,9 +8,8 @@
         {% endfor %}
     {% endif %}
     tabindex="-1" 
-    role="dialog" 
-    aria-labelledby="{{ id }}Label" 
-    aria-hidden="true" 
+    role="dialog"
+    {{ stimulus_controller('form_modal') }}
     >
     <div class="modal-dialog {{ dialogClass | default() }}" role="document">
         <div class="modal-content">
@@ -18,10 +17,12 @@
                 {% block modalContentPrepend %}{% endblock %}
                 <div class="modal-header">
                     {% block modalHeader %}
+                        {% if title is defined %}
                         <h5 class="modal-title" id="{{ id }}Label">{% if titleRaw | default() %}{{ title | raw }}{% else %}{{ title | raw }}{% endif %}</h5>
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                             <span aria-hidden="true">&times;</span>
                         </button>
+                        {% endif %}
                     {% endblock %}
                 </div>
                 <div class="modal-body">

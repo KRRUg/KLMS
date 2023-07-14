@@ -7,22 +7,24 @@ use RuntimeException;
 class ServiceException extends RuntimeException
 {
     // Types of causes
-    final public const CAUSE_EMPTY = 'is_empty';
-    final public const CAUSE_IN_USE = 'in_use';
-    final public const CAUSE_DONT_EXIST = 'dont_exists';
-    final public const CAUSE_EXIST = 'already_exists';
-    final public const CAUSE_INVALID = 'invalid';
+    final public const CAUSE_EMPTY = 1;
+    final public const CAUSE_IN_USE = 2;
+    final public const CAUSE_DONT_EXIST = 3;
+    final public const CAUSE_EXIST = 4;
+    final public const CAUSE_INVALID = 5;
+    final public const CAUSE_INCONSISTENT = 6;
+    final public const CAUSE_FULL = 7;
+    final public const CAUSE_FORBIDDEN = 8;
+    final public const CAUSE_TOO_LONG = 9;
+    final public const CAUSE_INCORRECT_STATE = 10;
 
-    private readonly string $cause;
-
-    public function __construct($cause, $message = '')
+    public function __construct(int $cause, string $message = '')
     {
-        $this->cause = $cause;
-        parent::__construct($message);
+        parent::__construct($message, $cause);
     }
 
-    public function getCause(): string
+    public function getCause(): int
     {
-        return $this->cause;
+        return $this->getCode();
     }
 }

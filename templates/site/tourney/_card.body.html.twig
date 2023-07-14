@@ -1,0 +1,54 @@
+<div class="card-body">
+    <div class="container">
+        <div class="row">
+            {% block blockButtonBar %}
+                <div class="col-md-9">
+
+                </div>
+                <div class="col-md-3">
+
+                </div>
+            {% endblock %}
+        </div>
+        <div class="row">
+            <div class="col-md-9">
+                {% block blockButtonBarMain %}
+                {% endblock %}
+                <div class="row">
+                    {% block mainColTop %}
+                    {% endblock %}
+                    {% block tourneyDesc %}
+                        {% if tourney.description is not empty %}
+                            <div class="col-12">
+                                <b>Beschreibung</b><br>
+                                <p>
+                                    {{ tourney.description | raw }}
+                                </p>
+                            </div>
+                        {% endif %}
+                    {% endblock %}
+                </div>
+            </div>
+            <div class="col-md-3">
+                {% block blockButtonBarRight %}
+                {% endblock %}
+                {% block blockRight %}
+                    <dl>
+                        <dt>Status:</dt>
+                        <dd>{{ tourney.status.message }}</dd>
+                        <dt>Modus:</dt>
+                        <dd>
+                            {{ tourney.mode.message }}
+                        </dd>
+                        {#            {% if tourney.rules is not empty %}#}
+                        {#                <dt>Regeln:</dt> #}
+                        {#                <dd>{tourney.rules}</dd> #}
+                        {#            {% endif %}#}
+                    </dl>
+                {% endblock %}
+            </div>
+        </div>
+    </div>
+    {% block containerBottom %}
+    {% endblock %}
+</div>

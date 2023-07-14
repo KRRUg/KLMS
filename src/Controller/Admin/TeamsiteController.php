@@ -6,12 +6,14 @@ use App\Entity\Teamsite;
 use App\Form\TeamsiteType;
 use App\Service\TeamsiteService;
 use Psr\Log\LoggerInterface;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 #[Route(path: '/teamsite', name: 'teamsite')]
+#[IsGranted('ROLE_ADMIN_CONTENT')]
 class TeamsiteController extends AbstractController
 {
     private readonly LoggerInterface $logger;

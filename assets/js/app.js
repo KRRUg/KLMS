@@ -1,4 +1,5 @@
 import '../css/app.scss';
+import './stimulus';
 
 //Shared JS
 import $ from 'jquery';
@@ -36,7 +37,7 @@ $(document).ready(function () {
         $('.alert-flash-msg').alert('close');
     }, 6500);
 
-    $('.modal').on('shown.bs.modal', function(e) {
+    $('.modal').on('shown.bs.modal', function() {
         $(this).find('[autofocus]').focus();
     });
 

@@ -1,0 +1,85 @@
+{% extends 'site/siteBase.html.twig' %}
+
+{% block title %}{{ settings.get('site.title') }} - {{ tourney.name }}{% endblock %}
+
+{% macro teamname(team) %}
+    {% if team.name is not empty %}
+    {{ team.name }}
+    {% else %}
+    {{ team.members[0].gamer | username }}
+    {% endif %}
+{% endmacro %}
+{% macro teamnameA(game) %}
+    {{ _self.teamname(game.teamA) }}
+{% endmacro %}
+{% macro teamnameB(game) %}
+    {{ _self.teamname(game.teamB) }}
+{% endmacro %}
+
+{% macro tree(tourney, tree, team = null) %}
+    <div class="tournament">
+        {% for round in tree %}
+            <div class="round">
+                {% for game in round %}
+                    {% if game is not empty %}
+                        <div class="match">
+                            <div class="teams">
+                                <div class="team {{ game.teamA is null ? 'team-empty' : '' }} {{ game.hasWon(true) ? 'winner' : '' }} {{ game.teamA is same as team ? 'team-own' : '' }} ">
+                                    {% if game.teamA is not null %}
+                                        <span class="team-name">{{ _self.teamnameA(game) }}</span>
+                                        <span class="team-score">{{ tourney.showPoints ? (game.scoreA() ?? '') : '' }}</span>
+                                    {% endif %}
+                                </div>
+                                <div class="team {{ game.teamB is null ? 'team-empty' : '' }} {{ game.hasWon(false) ? 'winner' : '' }} {{ game.teamB is same as team ? 'team-own' : '' }}">
+                                    {% if game.teamB is not null %}
+                                        <span class="team-name">{{ _self.teamnameB(game) }}</span>
+                                        <span class="team-score">{{ tourney.showPoints ? (game.scoreB() ?? '') : '' }}</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    {% else %}
+                        <div class="match empty"></div>
+                    {% endif %}
+                {% endfor %}
+            </div>
+        {% endfor %}
+    </div>
+{% endmacro %}
+
+{% block main %}
+    {% set team = team | default(null) is null ? false : team %}
+    <div class="container mb-5">
+        <div class="card">
+            <div class="card-body">
+                <div class="card-title">
+                    <h1>{{ tourney.name }}</h1>
+                    <p>{{ tourney.description }}</p>
+                </div>
+                <div class="card-text">
+                    {% if tree_winner | default(null) is null and tree_loser | default(null) is null %}
+                        {{ _self.tree(tourney, tree, team) }}
+                    {% else %}
+                        {% if tree | default(null) is not null %}
+                            <h3>Finale</h3>
+                            {{ _self.tree(tourney, tree, team) }}
+                        {% endif %}
+                        {% if tree_winner | default(null) is not null %}
+                            <h3 class="mt-3">Winner Bracket</h3>
+                            {{ _self.tree(tourney, tree_winner, team) }}
+                        {% endif %}
+                        {% if tree_loser | default(null) is not null %}
+                            <h3 class="mt-3">Loser Bracket</h3>
+                            {{ _self.tree(tourney, tree_loser, team) }}
+                        {% endif %}
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    {{ encore_entry_link_tags('tourney') }}
+{% endblock %}

@@ -140,7 +140,7 @@ class NavigationService
                     return new NavigationNodeGeneric($path);
                 }
                 break;
-            case NavigationNodeEmpty::NAV_NODE_TYPE_EMPTY:
+            case NavigationNode::NAV_NODE_TYPE_EMPTY:
                 return new NavigationNodeEmpty();
             default:
                 return null;
@@ -175,7 +175,7 @@ class NavigationService
 
         $node->setName($name);
         $node->setLft($count++);
-        array_push($result, $node);
+        $result[] = $node;
         $valid = true;
         foreach ($children as $child) {
             $valid &= $this->parse($child, $result, $count);

@@ -13,7 +13,6 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\HasLifecycleCallbacks]
 class Teamsite implements HistoryAwareEntity
 {
-    use EntityHistoryTrait;
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type: 'integer')]
@@ -28,6 +27,8 @@ class Teamsite implements HistoryAwareEntity
     #[ORM\OneToMany(targetEntity: TeamsiteCategory::class, mappedBy: 'teamsite', orphanRemoval: true, cascade: ['all'])]
     #[ORM\OrderBy(['ord' => 'ASC'])]
     private Collection $categories;
+
+    use EntityHistoryTrait;
 
     public function __construct()
     {

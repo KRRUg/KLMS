@@ -33,6 +33,7 @@ class LoginTest extends DatabaseWebTestCase
     {
         $this->databaseTool->loadFixtures([]);
 
+        $this->client->followRedirects(false);
         $crawler = $this->client->request('GET', '/');
         $this->assertResponseStatusCodeSame(200);
         $this->assertSelectorTextContains('#dropdownMenuUser', "Anmelden");
@@ -53,11 +54,12 @@ class LoginTest extends DatabaseWebTestCase
     {
         $this->databaseTool->loadFixtures([]);
 
+        $this->client->followRedirects(false);
         $crawler = $this->client->request('GET', '/');
         $this->assertResponseStatusCodeSame(200);
 
         $form = $crawler->selectButton('Login')->form();
-        $form['username']->setValue('user1@localhost.local');
+        $form['username']->setValue('user16@localhost.local');
         $form['password']->setValue('pa$$word');
         $this->client->submit($form);
 

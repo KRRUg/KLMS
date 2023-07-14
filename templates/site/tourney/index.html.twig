@@ -1,0 +1,58 @@
+{% extends 'site/siteBase.html.twig' %}
+
+{% block title %}{{ settings.get('site.title') }} - Turniere{% endblock %}
+
+{% block main %}
+    <div class="container">
+        <div class="row">
+            <div class="col">
+                <h1>Turniere</h1>
+                <div>{{ settings.get('lan.tourney.text') | raw }}</div>
+            </div>
+        </div>
+        <hr />
+        <div>
+            {% set participates = participates | default(false) %}
+            {% set teams = teams_registered | default([]) %}
+            {% set games = games_active | default([]) %}
+            {% if token | default(null) is not null %}
+                <div class="mb-3 h5 text-right">
+                    Token <span class="badge badge-pill {{ token > 0 ? 'badge-primary' : 'badge-secondary' }} p-2" title="Noch {{ token }} Token verfügbar"><i class="fa-solid fa-coins"></i> {{ token }}/{{ constant('App\\Service\\TourneyService::TOKEN_COUNT') }}</span>
+                </div>
+            {% endif %}
+            <div class="accordion mb-3" id="tourney-list">
+                {% set hasRegisteredTourneys = 0 %}
+                {% for tourney in tourneys %}
+                    {% if tourney.id in teams | keys %}
+                        {% if loop.first %}
+                            {% set hasRegisteredTourneys = 1 %}
+                            <h3>Meine Turniere</h3>
+                            <hr>
+                        {% endif %}
+                        {% include 'site/tourney/_card.html.twig' with {
+                            'tourney' : tourney, 'registered' : true, 'expand' : tourney == show ?? null, 'tm': teams[tourney.id], 'current_game' : (games[tourney.id] ?? null), 'forms': forms[tourney.id] ?? []
+                        } %}
+                    {% endif %}
+                {% endfor %}
+                {% for tourney in tourneys %}
+                    {% if loop.first and hasRegisteredTourneys %}
+                        <h3 class="mt-4">Weitere Turniere</h3>
+                        <hr>
+                    {% endif %}
+                    {% if tourney.id not in teams | keys %}
+                        {% include 'site/tourney/_card.html.twig' with {
+                            'tourney' : tourney, 'registered' : false, 'expand' : tourney == show ?? null, 'forms': forms[tourney.id] ?? [], 'availableToken': token | default(null)
+                        } %}
+                    {% endif %}
+                {% else %}
+                    <span class="alert alert-info">Es sind keine Turniere vorhanden.</span>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    <script>
+        if (location.hash !== null && location.hash !== "") {
+            document.querySelector(location.hash).querySelector('.collapse').classList.add('show');
+        }
+    </script>
+{% endblock %}

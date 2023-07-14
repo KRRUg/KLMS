@@ -5,7 +5,7 @@ twig:
     exception_controller: null
     form_themes:
         - 'form/klms_bootstrap_4_layout.html.twig'
-        - 'widgets/select2_widget.html.twig'
+        - 'form/select2_widget.html.twig'
     globals:
         nav: '@App\Service\NavigationService'
         settings: '@App\Service\SettingService'

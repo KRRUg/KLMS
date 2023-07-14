@@ -1,6 +1,6 @@
 @import 'helper/variables';
 
-@import '~bootstrap/scss/bootstrap';
+@import '~bootstrap';
 
 @import 'helper/header';
 @import 'helper/card';
@@ -26,15 +26,6 @@ footer, #footer {
 
 .navbar {
     box-shadow:  $box-shadow-sm;
-}
-
-.card {
-    box-shadow: $box-shadow-sm;
-    border:none;
-}
-
-.btn.disabled:hover {
-    cursor: not-allowed;
 }
 
 .list-group-hover .list-group-item:hover {
