@@ -23,6 +23,7 @@ class TourneyRuleDoubleElimination extends TourneyRule
             throw new ServiceException(ServiceException::CAUSE_INCONSISTENT, 'at least three teams are required');
 
         $winner = self::seedList($list);
+        $winner = array_reverse($winner);
         $winner = array_map(fn ($c) => $this->makeNode($c), array_chunk($winner, 2));
         $loser = $this->gamesToCallable($winner);
         while (count($winner) > 1) {
@@ -30,8 +31,7 @@ class TourneyRuleDoubleElimination extends TourneyRule
             $loser = array_map(fn ($c) => $this->makeLoserRound($c), array_chunk($loser, 2));
             $winner = array_map(fn ($c) => $this->makeNode($c), array_chunk($winner, 2));
             // merge
-            self::splitAndSwap($loser);
-            $loser = self::mergeArray($loser, $this->gamesToCallable($winner));
+            $loser = self::mergeArray($loser, self::splitAndSwap($this->gamesToCallable($winner)));
             $loser = array_map(fn ($c) => $this->makeLoserRound($c), array_chunk($loser, 2));
         }
         $this->makeNode([$winner[0], $loser[0]]);
@@ -49,12 +49,12 @@ class TourneyRuleDoubleElimination extends TourneyRule
         return $r;
     }
 
-    private static function splitAndSwap(array &$a): void
+    private static function splitAndSwap(array $a): array
     {
         if (count($a) == 1)
-            return;
+            return $a;
         $b = array_chunk($a, count($a)/2);
-        $a = array_merge($b[1],$b[0]);
+        return array_merge($b[1],$b[0]);
     }
 
     private function gamesToCallable(array $games): array

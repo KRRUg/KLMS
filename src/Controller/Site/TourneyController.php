@@ -5,6 +5,7 @@ namespace App\Controller\Site;
 use App\Controller\HttpExceptionTrait;
 use App\Entity\Tourney;
 use App\Entity\TourneyGame;
+use App\Entity\TourneyRules;
 use App\Exception\ServiceException;
 use App\Service\PermissionService;
 use App\Service\TourneyService;
@@ -409,25 +410,39 @@ class TourneyController extends AbstractController
             $ownTeam = $ttm->getTeam();
         }
 
-        $array = [[$final]];
-        $level = 0;
-        $next = true;
-        while ($next) {
-            $array[] = [];
-            $next = false;
-            /** @var TourneyGame $game */
-            foreach ($array[$level++] as $game) {
-                $next = $next || !is_null($game);
-                $array[$level][] = is_null($game) ? null : $game->getChild(true);
-                $array[$level][] = is_null($game) ? null : $game->getChild(false);
+        $calc = function(TourneyGame $root) {
+            $array = [[$root]];
+            $level = 0;
+            $next = true;
+            while ($next) {
+                $array[] = [];
+                $next = false;
+                /** @var TourneyGame $game */
+                foreach ($array[$level++] as $game) {
+                    $next = $next || !is_null($game);
+                    $array[$level][] = is_null($game) ? null : $game->getChild(true);
+                    $array[$level][] = is_null($game) ? null : $game->getChild(false);
+                }
             }
+            array_pop($array);
+            array_pop($array);
+            return array_reverse($array);
+        };
+
+        if ($tourney->getMode() == TourneyRules::DoubleElimination) {
+            $array = [0 => [$final]];
+            $array_winner = $calc($final->getChild(true));
+            $array_loser = $calc($final->getChild(false));
+        } else {
+            $array = $calc($final);
+            $array_loser = null;
+            $array_winner = null;
         }
-        array_pop($array);
-        array_pop($array);
-        $array = array_reverse($array);
 
         return $this->render('site/tourney/show.html.twig', [
             'tourney' => $tourney,
+            'tree_winner' => $array_winner,
+            'tree_loser' => $array_loser,
             'tree' => $array,
             'team' => $ownTeam,
         ]);
