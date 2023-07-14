@@ -46,7 +46,7 @@
                     </div>
                 </div>
             {% else %}
-                {% if current_game is null %}
+                {% if current_game is null and tourney.hasTree %}
                     <div class="alert alert-danger mb-3">Du bist nicht mehr im Rennen!</div>
                 {% endif %}
                 {% if not tourney.singlePlayer %}
