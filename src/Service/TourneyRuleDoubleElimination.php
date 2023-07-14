@@ -145,4 +145,12 @@ class TourneyRuleDoubleElimination extends TourneyRule
 
         return $result;
     }
+
+    public static function getOriginalFinale(TourneyGame $finale): TourneyGame
+    {
+        if (count($finale->getChildren()) == 1) {
+            return $finale->getChildren()[0];
+        }
+        return $finale;
+    }
 }

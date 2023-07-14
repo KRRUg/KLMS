@@ -8,6 +8,7 @@ use App\Entity\TourneyGame;
 use App\Entity\TourneyRules;
 use App\Exception\ServiceException;
 use App\Service\PermissionService;
+use App\Service\TourneyRuleDoubleElimination;
 use App\Service\TourneyService;
 use App\Service\UserService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -431,8 +432,9 @@ class TourneyController extends AbstractController
 
         if ($tourney->getMode() == TourneyRules::DoubleElimination) {
             $array = [0 => [$final]];
-            $array_winner = $calc($final->getChild(true));
-            $array_loser = $calc($final->getChild(false));
+            $orig_finale = TourneyRuleDoubleElimination::getOriginalFinale($final);
+            $array_winner = $calc($orig_finale->getChild(true));
+            $array_loser = $calc($orig_finale->getChild(false));
         } else {
             $array = $calc($final);
             $array_loser = null;
