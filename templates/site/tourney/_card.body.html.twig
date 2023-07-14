@@ -38,7 +38,12 @@
                         <dd>{{ tourney.status.message }}</dd>
                         <dt>Modus:</dt>
                         <dd>
+                            {% if tourney.mode.canHaveGames %}{{ tourney.teamsize }}v{{ tourney.teamsize }} {% endif %}
                             {{ tourney.mode.message }}
+                        </dd>
+                        <dt>Teams:</dt>
+                        <dd>
+                            {{ tourney.teams.count }} / ∞
                         </dd>
                         {#            {% if tourney.rules is not empty %}#}
                         {#                <dt>Regeln:</dt> #}
