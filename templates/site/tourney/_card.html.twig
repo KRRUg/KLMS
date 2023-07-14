@@ -39,7 +39,7 @@
             <span class="statusbar">
             {% if registered %}
                 {{ _self.game_icon(tourney, current_game, tm) }}
-            {% else %}
+            {% elseif participates %}
                 {% if tourney.status == TourneyStage.Registration %}
                     {% if availableToken is defined and tourney.token is defined %}
                         {% if (availableToken - tourney.token) >= 0  %}
