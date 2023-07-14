@@ -4,6 +4,7 @@ namespace App\Controller\Admin;
 
 use App\Controller\HttpExceptionTrait;
 use App\Entity\Tourney;
+use App\Entity\TourneyGame;
 use App\Entity\TourneyRules;
 use App\Entity\TourneyStage;
 use App\Entity\TourneyTeam;
@@ -16,10 +17,12 @@ use App\Service\TourneyService;
 use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use Symfony\Component\Form\Extension\Core\Type\NumberType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[Route(path: '/tourney', name: 'tourney')]
 class TourneyController extends AbstractController
@@ -104,7 +107,6 @@ class TourneyController extends AbstractController
     {
         // TODO render either full site or partial content, depending on xhr request (here and everywhere)
 
-        // TODO implement me
         return $this->render('admin/tourney/details.modal.html.twig', [
             'tourney' => $tourney,
             'csrf_token_advance' => self::CSRF_TOKEN_ADVANCE,
@@ -118,6 +120,42 @@ class TourneyController extends AbstractController
         $this->service->seed($tourney);
         $this->addFlash('success', 'Seed wurde neu berechnet');
         return $this->redirectToRoute('admin_tourney');
+    }
+
+    #[Route(path: '/game-result/{id}', name: '_game_result')]
+    public function enterGameResult(Request $request, TourneyGame $game): Response
+    {
+        $tourney = $game->getTourney();
+        if (!$tourney->getMode()->canHaveGames()) {
+            throw $this->createNotFoundException();
+        }
+        if (!$game->isPending() && !$game->isDone()) {
+            throw $this->createBadRequestHttpException();
+        }
+        $form = $this->createFormBuilder()
+            ->add('scoreA', NumberType::class, ['required' => true, 'attr' => ['pattern' => '[0-9]{1,2}', 'size' =>'2'], 'constraints' => [new Assert\PositiveOrZero()]])
+            ->add('scoreB', NumberType::class, ['required' => true, 'attr' => ['pattern' => '[0-9]{1,2}', 'size' =>'2'], 'constraints' => [new Assert\PositiveOrZero()]])
+            ->add('submit', SubmitType::class, ['label' => 'Speichern'])
+            ->setAction($request->getUri())
+            ->getForm();
+
+        $form->handleRequest($request);
+        if ($form->isSubmitted() && $form->isValid()) {
+            try {
+                $scoreA = $form->get('scoreA')->getData();
+                $scoreB = $form->get('scoreB')->getData();
+                $this->service->logResult($game, $scoreA, $scoreB);
+                $this->addFlash('success', 'Ergebnis wurde erfolgreich gesetzt.');
+            } catch (ServiceException $e) {
+                $this->addFlash('error', 'Ergebnis konnte nicht gesetzt werden: ' . $e->getMessage());
+            }
+            return $this->redirectToRoute('admin_tourney');
+        }
+
+        return $this->render('admin/tourney/gameresult.html.twig', [
+            'game' => $game,
+            'form' => $form->createView(),
+        ]);
     }
 
     #[Route(path: '/result/{id}', name: '_result')]
@@ -166,7 +204,7 @@ class TourneyController extends AbstractController
             ->getForm();
 
         $form->handleRequest($request);
-        if ($form->isSubmitted()) {
+        if ($form->isSubmitted() && $form->isValid()) {
             $data = $form->getData();
             try {
                 $this->service->setResult($tourney, $data['first'], $data['second'], $data['third']);
