@@ -341,6 +341,25 @@ class TourneyServiceIntegrationTest extends DatabaseTestCase
         $this->assertEmpty(TourneyService::getPodium($tourney));
     }
 
+    public function testSameTeamMultipleTourneys()
+    {
+        $this->databaseTool->loadFixtures([TourneyFixture::class, UserFixtures::class]);
+
+        $service = self::getContainer()->get(TourneyService::class);
+        list($t1, $t2, $t3, $t4) = $service->getVisibleTourneys();
+        $user = $this->getUser(10);
+
+        $this->assertEquals('Chess 2v2', $t3->getName());
+        $this->assertEquals('Rollerball', $t4->getName());
+
+        $service->userRegister($t4, $user, 'Not so Pro Team');
+
+        $this->expectException(ServiceException::class);
+        $this->expectExceptionMessageMatches('/name.*exists/');
+        $this->expectExceptionCode(ServiceException::CAUSE_INCONSISTENT);
+        $service->userRegister($t3, $user, 'Not so Pro Team');
+    }
+
     public function testTourneySeedingSingleElimination()
     {
         $this->databaseTool->loadFixtures([TourneyFixtureGames::class, TourneyFixture::class, UserFixtures::class]);

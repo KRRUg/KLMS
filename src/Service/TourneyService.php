@@ -211,9 +211,9 @@ class TourneyService extends OptimalService
         }
     }
 
-    private function teamNameTaken(string $name): bool
+    private function teamNameTaken(Tourney $tourney, string $name): bool
     {
-        return $this->teamRepository->count(['name' => $name]) > 0;
+        return $this->teamRepository->count(['name' => $name, 'tourney' => $tourney]) > 0;
     }
 
     public function userRegister(Tourney $tourney, User $user, TourneyTeam|string|null $team): void
@@ -237,7 +237,7 @@ class TourneyService extends OptimalService
                     throw new ServiceException(ServiceException::CAUSE_TOO_LONG, 'Teamname must be shorter than 25 chars');
                 }
                 $team = substr($team, 0, min(25, strlen($team)));
-                if ($this->teamNameTaken($team)) {
+                if ($this->teamNameTaken($tourney, $team)) {
                     throw new ServiceException(ServiceException::CAUSE_INCONSISTENT, 'Teamname already exists');
                 }
                 $tourney->addTeam(TourneyTeam::createTeamWithUser($user->getUuid(), $team));
