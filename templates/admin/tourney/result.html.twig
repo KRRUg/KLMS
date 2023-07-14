@@ -1,1 +1,26 @@
 {# Enter the result on a Registration only tournament #}
+{% embed "modules/modals/skeleton.html.twig"
+    with {
+    'id': 'showResultModal',
+    'title' : tourney.name ~ ' - Ergebnis eintragen',
+    'dialogClass' : 'modal-xl modal-dialog-scrollable'
+} %}
+    {% block modalContentPrepend %}
+        {{ form_start(form) }}
+    {% endblock %}
+
+    {% block modalBody %}
+        {{ form_row(form.first) }}
+        {{ form_row(form.second) }}
+        {{ form_row(form.third) }}
+    {% endblock %}
+
+    {% block modalFooter %}
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Abbrechen</button>
+        {{ form_row(form.submit) }}
+    {% endblock %}
+
+    {% block modalContentAppend %}
+        {{ form_end(form) }}
+    {% endblock %}
+{% endembed %}

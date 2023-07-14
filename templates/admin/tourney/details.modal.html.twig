@@ -89,6 +89,12 @@
             <a class="btn btn-outline-dark btn-sm" href="{{ path('tourney_show', {'id' : tourney.id}) }}" target="_blank"><i class="fa-solid fa-tree"></i> Baum anzeigen</a>
         {% elseif tourney.status == TourneyStage.Running %}
             {{ _self.back_button('Turnier neustarten', tourney, csrf_token_advance) }}
+            {% if not tourney.mode.canHaveGames %}
+                <button type="button" class="btn btn-outline-dark text-nowrap btn-sm"
+                        data-toggle="ajaxModal" href="{{ path('admin_tourney_result', {'id' : tourney.id}) }}">
+                    <i class="fa-solid fa-trophy"></i> Ergebnis eingtragen
+                </button>
+            {% endif %}
             {{ _self.advance_button('Turnier beenden', tourney, csrf_token_advance) }}
         {% elseif tourney.status == TourneyStage.Finished %}
             {{ _self.back_button('Tournier wiedereröffnen', tourney, csrf_token_advance) }}

@@ -414,7 +414,7 @@ class TourneyService extends OptimalService
 
     /* Tourney state management */
 
-    private static function tryAdvance(Tourney $tourney, TourneyStage $expected)
+    private static function verifyStage(Tourney $tourney, TourneyStage $expected)
     {
         if ($tourney->getStatus() != $expected) {
             throw new ServiceException(ServiceException::CAUSE_INCORRECT_STATE, "Tourney {$tourney->getName()} is not in state {$expected->getMessage()}");
@@ -423,7 +423,7 @@ class TourneyService extends OptimalService
 
     public function start(Tourney $tourney)
     {
-        self::tryAdvance($tourney, TourneyStage::Created);
+        self::verifyStage($tourney, TourneyStage::Created);
         $tourney->setStatus(TourneyStage::Registration);
         $this->em->flush();
     }
@@ -434,7 +434,7 @@ class TourneyService extends OptimalService
      */
     public function seed(Tourney $tourney, ?array $seed = null)
     {
-        self::tryAdvance($tourney, TourneyStage::Seeding);
+        self::verifyStage($tourney, TourneyStage::Seeding);
         if (is_null($seed)) {
             $seed = $tourney->getTeams()->toArray();
             shuffle($seed);
@@ -465,16 +465,17 @@ class TourneyService extends OptimalService
         $this->em->flush();
     }
 
-    /**
-     * @param Tourney $tourney
-     * @param ?TourneyTeam[] $result
-     */
-    public function finish(Tourney $tourney, ?array $result = null)
+    public function setResult(Tourney $tourney, TourneyTeam $first, TourneyTeam $second, ?TourneyTeam $third = null): void
     {
-        self::tryAdvance($tourney, TourneyStage::Running);
-        // TODO implement me
-
+        self::verifyStage($tourney, TourneyStage::Running);
+        $rules = TourneyRule::construct($tourney);
+        if (!($rules instanceof TourneyRuleNone))
+            throw new ServiceException(ServiceException::CAUSE_INVALID, 'Cannot set result on seeded tourney');
+        $this->em->beginTransaction();
+        $this->clearGames($tourney);
+        $rules->setPodium($first, $second, $third);
         $this->em->flush();
+        $this->em->commit();
     }
 
     /**

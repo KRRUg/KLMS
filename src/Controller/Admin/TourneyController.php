@@ -4,12 +4,19 @@ namespace App\Controller\Admin;
 
 use App\Controller\HttpExceptionTrait;
 use App\Entity\Tourney;
+use App\Entity\TourneyRules;
 use App\Entity\TourneyStage;
+use App\Entity\TourneyTeam;
+use App\Entity\User;
 use App\Exception\ServiceException;
 use App\Form\TourneyType;
+use App\Idm\IdmManager;
+use App\Idm\IdmRepository;
 use App\Service\TourneyService;
 use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -18,15 +25,19 @@ use Symfony\Component\Routing\Annotation\Route;
 class TourneyController extends AbstractController
 {
     private TourneyService $service;
+    private IdmRepository $userRepo;
+    private LoggerInterface $logger;
 
     private const CSRF_TOKEN_ADVANCE = 'tourneyAdvanceToken';
     private const CSRF_TOKEN_DELETE = 'tourneyDeleteToken';
 
     use HttpExceptionTrait;
 
-    public function __construct(TourneyService $service, LoggerInterface $logger)
+    public function __construct(TourneyService $service, IdmManager $manager, LoggerInterface $logger)
     {
         $this->service = $service;
+        $this->userRepo = $manager->getRepository(User::class);
+        $this->logger = $logger;
     }
 
     #[Route(path: '/', name: '')]
@@ -110,10 +121,64 @@ class TourneyController extends AbstractController
     #[Route(path: '/result/{id}', name: '_result')]
     public function enterResult(Request $request, Tourney $tourney): Response
     {
-        // TODO implement me here
+        if ($tourney->getMode()->canHaveGames()) {
+            throw $this->createNotFoundException();
+        }
 
-        // ignore CSRF token, as we generate another form
-        return $this->redirectToRoute('admin_tourney');
+        $choices = $tourney->getTeams()->toArray();
+        $label = $tourney->isSinglePlayer()
+            ? fn (TourneyTeam $t) => $this->userRepo->findOneById($t->getMembers()[0]->getGamer())->getNickname()
+            : fn (TourneyTeam $t) => $t->getName();
+        $form = $this->createFormBuilder()
+            ->add('first', ChoiceType::class, [
+                'label' => 'Platz 1',
+                'choices' => $choices,
+                'choice_value' => 'id',
+                'choice_label' => $label,
+                'required' => true,
+                'multiple' => false,
+                'expanded' => false
+            ])
+            ->add('second', ChoiceType::class, [
+                'label' => 'Platz 2',
+                'choices' => $choices,
+                'choice_value' => 'id',
+                'choice_label' => $label,
+                'required' => true,
+                'multiple' => false,
+                'expanded' => false
+            ])
+            ->add('third', ChoiceType::class, [
+                'label' => 'Platz 3',
+                'choices' => $choices,
+                'choice_value' => 'id',
+                'choice_label' => $label,
+                'required' => false,
+                'multiple' => false,
+                'expanded' => false
+            ])
+            ->add('submit', SubmitType::class, [
+                'label' => 'Speichern',
+            ])
+            ->setAction($request->getUri())
+            ->getForm();
+
+        $form->handleRequest($request);
+        if ($form->isSubmitted()) {
+            $data = $form->getData();
+            try {
+                $this->service->setResult($tourney, $data['first'], $data['second'], $data['third']);
+                $this->addFlash('success', 'Podium erfolgreich gesetzt.');
+            } catch (ServiceException $e) {
+                $this->addFlash('error', 'Podium konnte nicht gesetzt werden: ' . $e->getMessage());
+            }
+            return $this->redirectToRoute('admin_tourney');
+        }
+
+        return $this->render('admin/tourney/result.html.twig', [
+            'tourney' => $tourney,
+            'form' => $form->createView(),
+        ]);
     }
 
     #[Route(path: '/advance/{id}', name: '_advance', methods: ['POST'])]
