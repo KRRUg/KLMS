@@ -557,4 +557,11 @@ class TourneyService extends OptimalService
         $this->repository->save($tourney);
         $this->em->flush();
     }
+
+    public function create(Tourney $tourney)
+    {
+        $tourney->setStatus(TourneyStage::Created);
+        $this->repository->save($tourney);
+        $this->em->flush();
+    }
 }

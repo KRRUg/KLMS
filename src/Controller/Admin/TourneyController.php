@@ -56,7 +56,9 @@ class TourneyController extends AbstractController
 
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
-            $this->addFlash('success', 'Success!!!!');
+            $tourney = $form->getData();
+            $this->service->create($tourney);
+            $this->addFlash('success', "Turnier {$tourney->getName()} wurde angelegt.");
             return $this->redirectToRoute('admin_tourney');
         }
 
