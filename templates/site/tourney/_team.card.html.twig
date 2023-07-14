@@ -1,12 +1,21 @@
+{% set show_seat = show_seat | default(false) %}
 <div class="card">
     <div class="card-header {% if mark is defined %}bg-primary text-white{% endif %}">
-        {% if team.name %}<strong>Team:</strong> {{ team.name }}{% else %}{{ team.members[0].gamer | username }}{% endif %}
+        {% if team.name %}
+            <strong>Team:</strong> {{ team.name }}
+        {% else %}
+            {{ team.members[0].gamer | username }}
+            {% if show_seat%}{% set gs = member.gamer | user | seat %}
+                {% if gs | default(null) is not empty %}({{ gs }}){% endif %}{% endif %}
+        {% endif %}
     </div>
     {% if team.name %}
     <ul class="list-group list-group-flush">
         {% for member in team.members %}
             <li class="list-group-item">
                 {{ member.gamer | username }}
+                {% if show_seat%}{% set gs = member.gamer | user | seat %}
+                    {% if gs | default(null) is not empty %}({{ gs }}){% endif %}{% endif %}
             </li>
         {% endfor %}
     </ul>
