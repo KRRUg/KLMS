@@ -5,7 +5,7 @@
             <strong>Team:</strong> {{ team.name }}
         {% else %}
             {{ team.members[0].gamer | username }}
-            {% if show_seat%}{% set gs = member.gamer | user | seat %}
+            {% if show_seat%}{% set gs = team.members[0].gamer | user | seat %}
                 {% if gs | default(null) is not empty %}({{ gs }}){% endif %}{% endif %}
         {% endif %}
     </div>
