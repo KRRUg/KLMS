@@ -80,7 +80,9 @@
             </form>
         {% endmacro %}
         {% macro tourney_tree_link(tourney) %}
+            {% if tourney.mode.hasTree %}
             <a class="btn btn-outline-dark btn-sm" href="{{ path('tourney_show', {'id' : tourney.id}) }}" target="_blank"><i class="fa-solid fa-tree"></i> Baum anzeigen</a>
+            {% endif %}
         {% endmacro %}
         {% set TourneyStage = enum('\\App\\Entity\\TourneyStage') %}
         {% if tourney.status == TourneyStage.Created %}
