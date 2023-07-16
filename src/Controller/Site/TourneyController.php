@@ -406,6 +406,10 @@ class TourneyController extends AbstractController
         $this->userService->preloadUsers($gamers);
 
         $user = ($u = $this->getUser()) ? $u->getUser() : null;
+        $participates = false;
+        if (!is_null($user) && $this->service->userMayParticipate($user)) {
+            $participates = true;
+        }
         $ownTeam = null;
         if (!is_null($user) && !is_null($ttm = $this->service->getTeamMemberByTourneyAndUser($tourney, $user))) {
             $ownTeam = $ttm->getTeam();
@@ -443,6 +447,7 @@ class TourneyController extends AbstractController
 
         return $this->render('site/tourney/show.html.twig', [
             'tourney' => $tourney,
+            'participates' => $participates,
             'tree_winner' => $array_winner,
             'tree_loser' => $array_loser,
             'tree' => $array,

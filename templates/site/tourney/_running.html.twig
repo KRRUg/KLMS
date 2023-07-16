@@ -36,13 +36,13 @@
                 <div class="text-center h4 mb-3 mt-3"><strong>Ausstehendes Spiel</strong></div>
                 <div class="row align-items-center mb-3">
                     <div class="col">
-                        {% include 'site/tourney/_team.card.html.twig' with {team: current_game.teamA, show_seat: true} %}
+                        {% include 'site/tourney/_team.card.html.twig' with {team: current_game.teamA} %}
                     </div>
                     <div class="col-auto">
                         <span class="h4">VS</span>
                     </div>
                     <div class="col">
-                        {% include 'site/tourney/_team.card.html.twig' with {team: current_game.teamB, show_seat: true} %}
+                        {% include 'site/tourney/_team.card.html.twig' with {team: current_game.teamB} %}
                     </div>
                 </div>
             {% else %}
