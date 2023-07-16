@@ -1,5 +1,4 @@
 {% from 'site/tourney/show.html.twig' import teamnameA, teamnameB %}
-{% from 'site/tourney/_card.html.twig' import tree_button %}
 
 {% macro enter_result_button(game = null, form = null) %}
     {% if game is not null %}
@@ -11,14 +10,6 @@
 {% endmacro %}
 
 {% extends 'site/tourney/_card.body.html.twig' %}
-
-{% block blockButtonBarRight %}
-    {% if tourney.hasTree %}
-        <div class="text-right mb-3">
-            {{ tree_button(tourney) }}
-        </div>
-    {% endif %}
-{% endblock %}
 
 {% block blockButtonBarMain %}
     {% if participates and current_game is not null %}

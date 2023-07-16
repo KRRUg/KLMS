@@ -1,5 +1,4 @@
 {% from 'site/tourney/show.html.twig' import teamname %}
-{% from 'site/tourney/_card.html.twig' import tree_button %}
 
 {% macro place2style(place) %}
     {% if place == 1 %}
@@ -10,12 +9,6 @@
 {% endmacro %}
 
 {% extends 'site/tourney/_card.body.html.twig' %}
-
-{% block blockButtonBarRight %}
-    <div class="text-right mb-3">
-        {{ tree_button(tourney) }}
-    </div>
-{% endblock %}
 
 {% block mainColTop %}
 {% if podium | default([]) is not empty %}
