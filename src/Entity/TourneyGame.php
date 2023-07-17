@@ -197,10 +197,14 @@ class TourneyGame
         return ($this->getScoreA() > $this->getScoreB()) == $teamA;
     }
 
+    public function isSeeded(): bool
+    {
+        return !is_null($this->getTeamA()) && !is_null($this->getTeamB());
+    }
+
     public function isPending(): bool
     {
-        return (is_null($this->getScoreA()) || is_null($this->getScoreB()))
-            && (!is_null($this->getTeamA()) && !is_null($this->getTeamB()));
+        return $this->isSeeded() && (is_null($this->getScoreA()) || is_null($this->getScoreB()));
     }
 
     public function getWinner(): ?TourneyTeam

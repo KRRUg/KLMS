@@ -397,12 +397,18 @@ class TourneyService extends OptimalService
         if (($scoreA >= $scoreB && $userInTeamA) || ($scoreB >= $scoreA && $userInTeamB)) {
             throw new ServiceException(ServiceException::CAUSE_FORBIDDEN, 'Loser must enter the result');
         }
+        if (!$game->isPending()) {
+            throw new ServiceException(ServiceException::CAUSE_DONT_EXIST, 'Game is not pending.');
+        }
         $this->logResult($game, $scoreA, $scoreB);
     }
 
     public function logResult(TourneyGame $game, int $scoreA, int $scoreB)
     {
         $this->tryLogResult($game);
+        if (!$game->isSeeded()) {
+            throw new ServiceException(ServiceException::CAUSE_DONT_EXIST, 'Game is not seeded yet.');
+        }
         if ($scoreA == $scoreB) {
             throw new ServiceException(ServiceException::CAUSE_INVALID, 'Tie not allowed.');
         }
