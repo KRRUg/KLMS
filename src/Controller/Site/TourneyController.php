@@ -415,6 +415,8 @@ class TourneyController extends AbstractController
             $ownTeam = $ttm->getTeam();
         }
 
+        $podium = TourneyService::getPodium($tourney);
+
         $calc = function(TourneyGame $root) {
             $array = [[$root]];
             $level = 0;
@@ -435,8 +437,12 @@ class TourneyController extends AbstractController
         };
 
         if ($tourney->getMode() == TourneyRules::DoubleElimination) {
-            $array = [0 => [$final]];
             $orig_finale = TourneyRuleDoubleElimination::getOriginalFinale($final);
+            if ($orig_finale !== $final) {
+                $array = [0 => [$orig_finale], 1 => [$final]];
+            } else {
+                $array = [0 => [$final]];
+            }
             $array_winner = $calc($orig_finale->getChild(true));
             $array_loser = $calc($orig_finale->getChild(false));
         } else {
@@ -451,6 +457,7 @@ class TourneyController extends AbstractController
             'tree_winner' => $array_winner,
             'tree_loser' => $array_loser,
             'tree' => $array,
+            'podium' => $podium,
             'team' => $ownTeam,
         ]);
     }

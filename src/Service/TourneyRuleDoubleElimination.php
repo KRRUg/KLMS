@@ -131,7 +131,7 @@ class TourneyRuleDoubleElimination extends TourneyRule
     public function podium(): array
     {
         $root = $this->getFinal();
-        if (is_null($root))
+        if (is_null($root) || !$root->isDone())
             return [];
 
         $result = array();

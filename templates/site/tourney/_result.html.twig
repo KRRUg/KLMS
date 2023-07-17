@@ -1,36 +1,16 @@
-{% from 'site/tourney/show.html.twig' import teamname %}
-
-{% macro place2style(place) %}
-    {% if place == 1 %}
-        list-group-item-primary
-    {% elseif place == 2 %}
-        list-group-item-secondary
-    {% endif %}
-{% endmacro %}
+{% from 'site/tourney/show.html.twig' import teamname, podium_list %}
 
 {% extends 'site/tourney/_card.body.html.twig' %}
 
 {% block mainColTop %}
 {% if podium | default([]) is not empty %}
     <div class="col-6 offset-3">
-    <div class="card mb-3">
-        <div class="card-header">
-            <strong>Ergebnis</strong>
+        <div class="card mb-3">
+            <div class="card-header">
+                <strong>Ergebnis</strong>
+            </div>
+            {{ podium_list(podium) }}
         </div>
-        <ul class="list-group list-group-flush results">
-            {% for place in range(1, 3) %}
-                {% if podium[place] is defined %}
-                    {% for team in podium[place] %}
-                        <li class="list-group-item {{ _self.place2style(place) }}">
-                            <span class="font-weight-bold mr-2" style="font-size: large;">{{ place }}.</span>
-                            <b>{{ teamname(team) }}</b>
-                            {% if team.countUsers > 1 %} ({% for m in team.members %}{{ m.gamer | username }}{% if not loop.last %}, {% endif %}{% endfor %}){% endif %}
-                        </li>
-                    {% endfor %}
-                {% endif %}
-            {% endfor %}
-        </ul>
-    </div>
     </div>
 {% endif %}
 {% endblock %}
