@@ -1,0 +1,34 @@
+{% embed "modules/modals/skeleton.html.twig"
+    with {
+    'id': 'showResultModal',
+    'title' : game.tourney.name ~ ' - Ergebnis eintragen',
+    'dialogClass' : 'modal-xs'
+} %}
+    {% block modalContentPrepend %}
+        {{ form_start(form) }}
+    {% endblock %}
+
+    {% block modalBody %}
+        {% from 'site/tourney/show.html.twig' import teamnameA, teamnameB %}
+
+        <div class="d-flex justify-content-around m-1">
+            <span class="m-1">{{ teamnameA(game) }}</span>
+            <span class="font-weight-bold text-primary"> vs </span>
+            <span class="m-1">{{ teamnameB(game) }}</span>
+        </div>
+        <div class="d-flex justify-content-around m-1">
+            <div class="">{{ form_widget(form.scoreA, {'attr': {'class': 'text-right'}}) }}</div>
+            <span class="m-1 font-weight-bold"> : </span>
+            <div class="">{{ form_widget(form.scoreB, {'attr': {'class': 'text-left'}}) }}</div>
+        </div>
+    {% endblock %}
+
+    {% block modalFooter %}
+        <button type="button" class="btn btn-secondary btn-sm" data-dismiss="modal">Abbrechen</button>
+        {{ form_widget(form.submit, { 'attr': {'class': 'btn btn-primary btn-sm'}}) }}
+    {% endblock %}
+
+    {% block modalContentAppend %}
+        {{ form_end(form) }}
+    {% endblock %}
+{% endembed %}

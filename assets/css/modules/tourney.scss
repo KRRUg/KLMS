@@ -28,7 +28,7 @@ $max-power-of-two: 8; // max x where 2**x is max teams, 8 means max number of te
   @return $value;
 }
 
-.tournament {
+.tournament .tree {
   display: flex;
   flex-flow: row nowrap;
   justify-content: center;

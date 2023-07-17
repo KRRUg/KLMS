@@ -8,6 +8,7 @@ use App\Entity\TourneyGame;
 use App\Entity\TourneyRules;
 use App\Exception\ServiceException;
 use App\Service\PermissionService;
+use App\Service\TourneyRuleDoubleElimination;
 use App\Service\TourneyService;
 use App\Service\UserService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -131,8 +132,8 @@ class TourneyController extends AbstractController
     {
         return $this->createNamedFormBuilder(self::FORM_NAME_RESULT)
             ->add('id', HiddenType::class, ['required' => true])
-            ->add('scoreA', NumberType::class, ['required' => true, 'attr' => ['pattern' => '[0-9]{1-2}', 'size' =>'2'], 'constraints' => [new Assert\PositiveOrZero()]])
-            ->add('scoreB', NumberType::class, ['required' => true, 'attr' => ['pattern' => '[0-9]{1-2}', 'size' =>'2'], 'constraints' => [new Assert\PositiveOrZero()]])
+            ->add('scoreA', NumberType::class, ['required' => true, 'attr' => ['pattern' => '[0-9]{1,2}', 'size' =>'2'], 'constraints' => [new Assert\PositiveOrZero()]])
+            ->add('scoreB', NumberType::class, ['required' => true, 'attr' => ['pattern' => '[0-9]{1,2}', 'size' =>'2'], 'constraints' => [new Assert\PositiveOrZero()]])
             ->add('submit', SubmitType::class, ['label' => 'Speichern'])
             ->getForm();
     }
@@ -405,10 +406,16 @@ class TourneyController extends AbstractController
         $this->userService->preloadUsers($gamers);
 
         $user = ($u = $this->getUser()) ? $u->getUser() : null;
+        $participates = false;
+        if (!is_null($user) && $this->service->userMayParticipate($user)) {
+            $participates = true;
+        }
         $ownTeam = null;
         if (!is_null($user) && !is_null($ttm = $this->service->getTeamMemberByTourneyAndUser($tourney, $user))) {
             $ownTeam = $ttm->getTeam();
         }
+
+        $podium = TourneyService::getPodium($tourney);
 
         $calc = function(TourneyGame $root) {
             $array = [[$root]];
@@ -430,9 +437,14 @@ class TourneyController extends AbstractController
         };
 
         if ($tourney->getMode() == TourneyRules::DoubleElimination) {
-            $array = [0 => [$final]];
-            $array_winner = $calc($final->getChild(true));
-            $array_loser = $calc($final->getChild(false));
+            $orig_finale = TourneyRuleDoubleElimination::getOriginalFinale($final);
+            if ($orig_finale !== $final) {
+                $array = [0 => [$orig_finale], 1 => [$final]];
+            } else {
+                $array = [0 => [$final]];
+            }
+            $array_winner = $calc($orig_finale->getChild(true));
+            $array_loser = $calc($orig_finale->getChild(false));
         } else {
             $array = $calc($final);
             $array_loser = null;
@@ -441,9 +453,11 @@ class TourneyController extends AbstractController
 
         return $this->render('site/tourney/show.html.twig', [
             'tourney' => $tourney,
+            'participates' => $participates,
             'tree_winner' => $array_winner,
             'tree_loser' => $array_loser,
             'tree' => $array,
+            'podium' => $podium,
             'team' => $ownTeam,
         ]);
     }

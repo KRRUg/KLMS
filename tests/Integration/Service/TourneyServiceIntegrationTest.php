@@ -341,6 +341,25 @@ class TourneyServiceIntegrationTest extends DatabaseTestCase
         $this->assertEmpty(TourneyService::getPodium($tourney));
     }
 
+    public function testSameTeamMultipleTourneys()
+    {
+        $this->databaseTool->loadFixtures([TourneyFixture::class, UserFixtures::class]);
+
+        $service = self::getContainer()->get(TourneyService::class);
+        list($t1, $t2, $t3, $t4) = $service->getVisibleTourneys();
+        $user = $this->getUser(10);
+
+        $this->assertEquals('Chess 2v2', $t3->getName());
+        $this->assertEquals('Rollerball', $t4->getName());
+
+        $service->userRegister($t4, $user, 'Not so Pro Team');
+
+        $this->expectException(ServiceException::class);
+        $this->expectExceptionMessageMatches('/name.*exists/');
+        $this->expectExceptionCode(ServiceException::CAUSE_INCONSISTENT);
+        $service->userRegister($t3, $user, 'Not so Pro Team');
+    }
+
     public function testTourneySeedingSingleElimination()
     {
         $this->databaseTool->loadFixtures([TourneyFixtureGames::class, TourneyFixture::class, UserFixtures::class]);
@@ -392,12 +411,14 @@ class TourneyServiceIntegrationTest extends DatabaseTestCase
         $g8 = TourneyService::getFinal($tourney);
         $this->assertNotEmpty($g8);
         list($g5, $g7) = $g8->getChildren();
+        // winner
         $this->assertCount(2, $g5->getChildren());
         list($g3, $g2) = $g5->getChildren();
-        $this->assertCount(0, $g2->getChildren());
-        $this->assertCount(1, $g3->getChildren());
-        list($g1) = $g3->getChildren();
+        $this->assertCount(1, $g2->getChildren());
+        $this->assertCount(0, $g3->getChildren());
+        list($g1) = $g2->getChildren();
         $this->assertCount(0, $g1->getChildren());
+        // loser
         $this->assertCount(1, $g7->getChildren());
         list($g6) = $g7->getChildren();
         $this->assertCount(1, $g6->getChildren());
@@ -405,11 +426,11 @@ class TourneyServiceIntegrationTest extends DatabaseTestCase
         $this->assertCount(0, $g4->getChildren());
 
         $this->assertEquals($g4, $g1->getLoserNext());
-        $this->assertEquals($g4, $g2->getLoserNext());
+        $this->assertEquals($g4, $g3->getLoserNext());
         $this->assertTrue($g1->isIsLoserNextA());
-        $this->assertFalse($g2->isIsLoserNextA());
-        $this->assertEquals($g6, $g3->getLoserNext());
-        $this->assertTrue($g3->isIsLoserNextA());
+        $this->assertFalse($g3->isIsLoserNextA());
+        $this->assertEquals($g6, $g2->getLoserNext());
+        $this->assertTrue($g2->isIsLoserNextA());
         $this->assertEquals($g7, $g5->getLoserNext());
         $this->assertFalse($g5->isIsLoserNextA());
 
@@ -417,5 +438,179 @@ class TourneyServiceIntegrationTest extends DatabaseTestCase
         $this->assertEmpty($g6->getLoserNext());
         $this->assertEmpty($g7->getLoserNext());
         $this->assertEmpty($g8->getLoserNext());
+    }
+
+    private function seedTestTourney(): array
+    {
+        $service = self::getContainer()->get(TourneyService::class);
+        $tourney = $service->getVisibleTourneys()[2];
+        $tourney->setMode(TourneyRules::DoubleElimination);
+        $service->advance($tourney);
+
+        $teams = $tourney->getTeams()->toArray();
+        $this->assertCount(5, $teams);
+        $seed = [$teams[2], $teams[1], $teams[3], $teams[0], $teams[4]];
+        $service->seed($tourney, $seed);
+        $service->advance($tourney);
+        return array($service, $tourney);
+    }
+
+    public function testTourneyRunDoubleElimination()
+    {
+        $this->databaseTool->loadFixtures([TourneyFixtureGames::class, TourneyFixture::class, UserFixtures::class]);
+
+        /**
+         * @var TourneyService $service
+         * @var Tourney $tourney
+         */
+        list($service, $tourney) = $this->seedTestTourney();
+
+        $this->assertEmpty(TourneyService::getPodium($tourney));
+
+        $g8 = TourneyService::getFinal($tourney);
+        list($g5, $g7) = $g8->getChildren();
+        list($g3, $g2) = $g5->getChildren();
+        list($g1) = $g2->getChildren();
+        list($g6) = $g7->getChildren();
+        list($g4) = $g6->getChildren();
+        $games = [$g1, $g2, $g3, $g4, $g5, $g6, $g7, $g8];
+        $this->assertEquals([false, false, false, false, false, false, false, false], array_map(fn (TourneyGame $g) => $g->isDone(), $games));
+        $this->assertEquals([true,  false, true,  false, false, false, false, false], array_map(fn (TourneyGame $g) => $g->isPending(), $games));
+        $service->logResult($g1, 1, 3);
+        $this->assertEquals([true, false, false, false, false, false, false, false], array_map(fn (TourneyGame $g) => $g->isDone(), $games));
+        $this->assertEquals([false, true, true,  false, false, false, false, false], array_map(fn (TourneyGame $g) => $g->isPending(), $games));
+        $service->logResult($g3, 1, 0);
+        $service->logResult($g2, 1, 2);
+        $this->assertEquals([true, true, true, false, false, false, false, false], array_map(fn (TourneyGame $g) => $g->isDone(), $games));
+        $this->assertEquals([false, false, false, true, true, false, false, false], array_map(fn (TourneyGame $g) => $g->isPending(), $games));
+
+        // winner finale
+        $this->assertEquals($g5->getTeamA(), $g3->getTeamA());
+        $this->assertEquals($g5->getTeamB(), $g2->getTeamB());
+        $service->logResult($g5, 1, 0);
+        $this->assertEquals([false, false, false, true, false, false, false, false], array_map(fn (TourneyGame $g) => $g->isPending(), $games));
+
+        // loser 1st game
+        $this->assertEquals($g4->getTeamA(), $g1->getTeamA());
+        $this->assertEquals($g4->getTeamB(), $g3->getTeamB());
+        $service->logResult($g4, 1, 0);
+        $this->assertEquals([false, false, false, false, false, true, false, false], array_map(fn (TourneyGame $g) => $g->isPending(), $games));
+
+        // loser 2nd game
+        $this->assertEquals($g6->getTeamA(), $g2->getTeamA());
+        $this->assertEquals($g6->getTeamB(), $g4->getTeamA());
+        $service->logResult($g6, 1, 0);
+        $this->assertEquals([false, false, false, false, false, false, true, false], array_map(fn (TourneyGame $g) => $g->isPending(), $games));
+
+        // loser finale
+        $this->assertEquals($g7->getTeamA(), $g6->getTeamA());
+        $this->assertEquals($g7->getTeamB(), $g5->getTeamB());
+        $service->logResult($g7, 1, 0);
+        $this->assertEquals([false, false, false, false, false, false, false, true], array_map(fn (TourneyGame $g) => $g->isPending(), $games));
+
+        // finale
+        $this->assertEquals($g8->getTeamA(), $g5->getTeamA());
+        $this->assertEquals($g8->getTeamB(), $g7->getTeamA());
+        $service->logResult($g8, 2, 1);
+
+        // winner has won, tourney done
+        $podium = $service::getPodium($tourney);
+        $this->assertNotEmpty($podium);
+        $this->assertEquals([$g8->getWinner()], $podium[1]);
+        $this->assertEquals([$g8->getLoser()], $podium[2]);
+        $this->assertEquals([$g7->getLoser()], $podium[3]);
+    }
+
+    public function testTourneyRunDoubleEliminationTwoFinale()
+    {
+        $this->databaseTool->loadFixtures([TourneyFixtureGames::class, TourneyFixture::class, UserFixtures::class]);
+
+        /**
+         * @var TourneyService $service
+         * @var Tourney $tourney
+         */
+        list($service, $tourney) = $this->seedTestTourney();
+
+        $this->assertEmpty(TourneyService::getPodium($tourney));
+
+        $g8 = TourneyService::getFinal($tourney);
+        list($g5, $g7) = $g8->getChildren();
+        list($g3, $g2) = $g5->getChildren();
+        list($g1) = $g2->getChildren();
+        list($g6) = $g7->getChildren();
+        list($g4) = $g6->getChildren();
+        $games = [$g1, $g2, $g3, $g4, $g5, $g6, $g7, $g8];
+        $service->logResult($g1, 1, 3);
+        $service->logResult($g3, 1, 0);
+        $service->logResult($g2, 1, 2);
+        $service->logResult($g5, 1, 0);
+        $service->logResult($g4, 1, 0);
+        $service->logResult($g6, 1, 0);
+        $service->logResult($g7, 1, 0);
+
+        // finale
+        $service->logResult($g8, 1, 2);
+        // loser has won, tourney not done yet
+        $this->assertEmpty(TourneyService::getPodium($tourney));
+        $new_final = TourneyService::getFinal($tourney);
+        $this->assertNotEquals($g8, $new_final);
+        $service->logResult($new_final, 1, 2);
+
+        $podium = $service::getPodium($tourney);
+        $this->assertNotEmpty($podium);
+        $this->assertEquals([$new_final->getWinner()], $podium[1]);
+        $this->assertEquals([$new_final->getLoser()], $podium[2]);
+        $this->assertEquals([$g7->getLoser()], $podium[3]);
+    }
+
+    public function testTourneyLogNotFullySeededGame()
+    {
+        $this->databaseTool->loadFixtures([TourneyFixtureGames::class, TourneyFixture::class, UserFixtures::class]);
+
+        /**
+         * @var TourneyService $service
+         * @var Tourney $tourney
+         */
+        list($service, $tourney) = $this->seedTestTourney();
+        $g8 = TourneyService::getFinal($tourney);
+        list($g5, $g7) = $g8->getChildren();
+        list($g3, $g2) = $g5->getChildren();
+        list($g1) = $g2->getChildren();
+        list($g6) = $g7->getChildren();
+        list($g4) = $g6->getChildren();
+        $this->assertNotNull($g2->getTeamB());
+        $this->assertNull($g2->getTeamA());
+        $this->expectException(ServiceException::class);
+        $service->logResult($g2, 1,2);
+    }
+
+    public function testTourneyLogNotPendingGame()
+    {
+        $this->databaseTool->loadFixtures([TourneyFixtureGames::class, TourneyFixture::class, UserFixtures::class]);
+
+        /**
+         * @var TourneyService $service
+         * @var Tourney $tourney
+         */
+        list($service, $tourney) = $this->seedTestTourney();
+        $g8 = TourneyService::getFinal($tourney);
+        list($g5, $g7) = $g8->getChildren();
+        list($g3, $g2) = $g5->getChildren();
+        list($g1) = $g2->getChildren();
+        list($g6) = $g7->getChildren();
+        list($g4) = $g6->getChildren();
+        $this->assertNotNull($g1->getTeamA());
+        $this->assertNotNull($g1->getTeamB());
+        $this->assertTrue($g1->isPending());
+        // initial result log
+        $service->logResult($g1, 1,2);
+        $this->assertTrue($g1->isDone());
+        $this->assertFalse($g1->isPending());
+        // admin may update game result
+        $service->logResult($g1, 1,3);
+        // user may not
+        $user = $this->getUser(4);
+        $this->expectException(ServiceException::class);
+        $service->logResultUser($g1, $user, 1,5);
     }
 }

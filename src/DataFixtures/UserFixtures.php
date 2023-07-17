@@ -22,7 +22,7 @@ class UserFixtures extends Fixture
         $manager->persist($admin);
 
 
-        $gamer = new UserGamer(Uuid::fromInteger(strval(10)));
+        $gamer = new UserGamer(Uuid::fromInteger(strval(17)));
         $gamer->setRegistered(new DateTime());
         $manager->persist($gamer);
 
@@ -37,7 +37,7 @@ class UserFixtures extends Fixture
         $gamer->setCheckedIn(new DateTime());
         $manager->persist($gamer);
 
-        for ($i = 1; $i <= 9; $i++) {
+        for ($i = 1; $i <= 10; $i++) {
             $gamer = new UserGamer(Uuid::fromInteger(strval($i)));
             $gamer->setRegistered(new DateTime());
             $gamer->setPaid(new DateTime());

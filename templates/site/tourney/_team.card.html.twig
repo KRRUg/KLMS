@@ -1,14 +1,33 @@
-<div class="card">
-    <div class="card-header {% if mark is defined %}bg-primary text-white{% endif %}">
-        {% if team.name %}<strong>Team:</strong> {{ team.name }}{% else %}{{ team.members[0].gamer | username }}{% endif %}
-    </div>
+{% macro team_card_title(team, show_seat = true) %}
     {% if team.name %}
-    <ul class="list-group list-group-flush">
-        {% for member in team.members %}
-            <li class="list-group-item">
-                {{ member.gamer | username }}
-            </li>
-        {% endfor %}
-    </ul>
+        <strong>{{ team.name }}</strong>
+    {% else %}
+        {{ team.members[0].gamer | username }}
+        {% if show_seat %}{% set gs = team.members[0].gamer | user | seat %}
+            {% if gs | default(null) is not empty %}<span class="badge badge-secondary ml-3">{{ gs }}</span>{% endif %}{% endif %}
     {% endif %}
+{% endmacro %}
+
+{% macro team_card_body(team, show_seat = true) %}
+    {% if team.name %}
+        <ul class="list-group list-group-flush">
+            {% for member in team.members %}
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <span>{{ member.gamer | username }}</span>
+                    {% if show_seat %}{% set gs = member.gamer | user | seat %}
+                        {% if gs | default(null) is not empty %}<span class="badge badge-secondary ml-3">{{ gs }}</span>{% endif %}{% endif %}
+                </li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+{% endmacro %}
+
+{% set show_seat = show_seat | default(true) %}
+<div class="card">
+    <div class="card-header {% if mark is defined %}bg-primary text-white{% endif %} d-flex justify-content-between align-items-center">
+        {{ _self.team_card_title(team, show_seat) }}
+    </div>
+    <div>
+        {{ _self.team_card_body(team, show_seat) }}
+    </div>
 </div>

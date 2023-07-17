@@ -211,9 +211,9 @@ class TourneyService extends OptimalService
         }
     }
 
-    private function teamNameTaken(string $name): bool
+    private function teamNameTaken(Tourney $tourney, string $name): bool
     {
-        return $this->teamRepository->count(['name' => $name]) > 0;
+        return $this->teamRepository->count(['name' => $name, 'tourney' => $tourney]) > 0;
     }
 
     public function userRegister(Tourney $tourney, User $user, TourneyTeam|string|null $team): void
@@ -237,7 +237,7 @@ class TourneyService extends OptimalService
                     throw new ServiceException(ServiceException::CAUSE_TOO_LONG, 'Teamname must be shorter than 25 chars');
                 }
                 $team = substr($team, 0, min(25, strlen($team)));
-                if ($this->teamNameTaken($team)) {
+                if ($this->teamNameTaken($tourney, $team)) {
                     throw new ServiceException(ServiceException::CAUSE_INCONSISTENT, 'Teamname already exists');
                 }
                 $tourney->addTeam(TourneyTeam::createTeamWithUser($user->getUuid(), $team));
@@ -397,12 +397,18 @@ class TourneyService extends OptimalService
         if (($scoreA >= $scoreB && $userInTeamA) || ($scoreB >= $scoreA && $userInTeamB)) {
             throw new ServiceException(ServiceException::CAUSE_FORBIDDEN, 'Loser must enter the result');
         }
+        if (!$game->isPending()) {
+            throw new ServiceException(ServiceException::CAUSE_DONT_EXIST, 'Game is not pending.');
+        }
         $this->logResult($game, $scoreA, $scoreB);
     }
 
     public function logResult(TourneyGame $game, int $scoreA, int $scoreB)
     {
         $this->tryLogResult($game);
+        if (!$game->isSeeded()) {
+            throw new ServiceException(ServiceException::CAUSE_DONT_EXIST, 'Game is not seeded yet.');
+        }
         if ($scoreA == $scoreB) {
             throw new ServiceException(ServiceException::CAUSE_INVALID, 'Tie not allowed.');
         }
@@ -554,6 +560,13 @@ class TourneyService extends OptimalService
 
     public function save(Tourney $tourney)
     {
+        $this->repository->save($tourney);
+        $this->em->flush();
+    }
+
+    public function create(Tourney $tourney)
+    {
+        $tourney->setStatus(TourneyStage::Created);
         $this->repository->save($tourney);
         $this->em->flush();
     }

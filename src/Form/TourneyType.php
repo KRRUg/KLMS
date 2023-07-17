@@ -7,6 +7,7 @@ use App\Entity\TourneyRules;
 use App\Service\TourneyService;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use Symfony\Component\Form\Extension\Core\Type\EnumType;
 use Symfony\Component\Form\Extension\Core\Type\NumberType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
@@ -82,14 +83,10 @@ class TourneyType extends AbstractType
                 'empty_data' => 1,
                 'disabled' => !$options['create'],
             ])
-            ->add('mode', ChoiceType::class, [
+            ->add('mode', EnumType::class, [
                 'label' => 'Modus',
-                'choices'  => [
-                    'Nur Anmeldung' => TourneyRules::RegistrationOnly,
-                    'Single Elimination' => TourneyRules::SingleElimination,
-                    'Double Elimination' => TourneyRules::DoubleElimination,
-                ],
-                'empty_data' => TourneyRules::SingleElimination,
+                'class' => TourneyRules::class,
+                'choice_label' => fn ($c) => $c->getMessage(),
                 'expanded' => true,
                 'multiple' => false,
                 'disabled' => !$options['create'],

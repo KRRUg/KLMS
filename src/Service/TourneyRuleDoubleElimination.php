@@ -131,7 +131,7 @@ class TourneyRuleDoubleElimination extends TourneyRule
     public function podium(): array
     {
         $root = $this->getFinal();
-        if (is_null($root))
+        if (is_null($root) || !$root->isDone())
             return [];
 
         $result = array();
@@ -144,5 +144,13 @@ class TourneyRuleDoubleElimination extends TourneyRule
         }
 
         return $result;
+    }
+
+    public static function getOriginalFinale(TourneyGame $finale): TourneyGame
+    {
+        if (count($finale->getChildren()) == 1) {
+            return $finale->getChildren()[0];
+        }
+        return $finale;
     }
 }

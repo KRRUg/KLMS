@@ -221,7 +221,7 @@ class TourneyTest extends DatabaseWebTestCase
         $form = $button->form();
 
         $values = $form[$form->getName().'[team]']->availableOptionValues();
-        $form[$form->getName().'[team]']->select($values[1]);
+        $form[$form->getName().'[team]']->select($values[0]);
         $crawler = $this->client->submit($form);
         $this->assertResponseStatusCodeSame(200);
         $this->assertSelectorExists('#tourney-2.registered');
@@ -241,11 +241,12 @@ class TourneyTest extends DatabaseWebTestCase
         $this->assertNotEmpty($button);
         $form = $button->form()->disableValidation();
         $values = $form[$form->getName().'[team]']->availableOptionValues();
-        $form[$form->getName().'[team]']->select($values[0]);
+        $form[$form->getName().'[team]']->select($values[1]);
         $crawler = $this->client->submit($form);
         $this->assertResponseStatusCodeSame(200);
         $this->assertSelectorNotExists('#tourney-2.registered');
         $this->assertSelectorExists('.alert');
+        $this->assertSelectorTextContains('.alert', 'kann nicht beigetreten werden');
     }
 
     public function testTourneyRegistrationJoinTeamNotExists()

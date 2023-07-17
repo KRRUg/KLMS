@@ -10,7 +10,7 @@ use Ramsey\Uuid\UuidInterface;
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: TourneyTeamRepository::class)]
-#[ORM\UniqueConstraint(name: 'tourney_team_name_unique', fields: ['tourney_id', 'name'])]
+#[ORM\UniqueConstraint(name: 'tourney_team_name_unique', columns: ['tourney_id', 'name'])]
 class TourneyTeam
 {
     #[ORM\Id]

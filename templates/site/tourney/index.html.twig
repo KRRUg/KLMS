@@ -21,29 +21,21 @@
                 </div>
             {% endif %}
             <div class="accordion mb-3" id="tourney-list">
-                {% set hasRegisteredTourneys = 0 %}
-                {% for tourney in tourneys %}
-                    {% if tourney.id in teams | keys %}
-                        {% if loop.first %}
-                            {% set hasRegisteredTourneys = 1 %}
-                            <h3>Meine Turniere</h3>
-                            <hr>
-                        {% endif %}
-                        {% include 'site/tourney/_card.html.twig' with {
-                            'tourney' : tourney, 'registered' : true, 'expand' : tourney == show ?? null, 'tm': teams[tourney.id], 'current_game' : (games[tourney.id] ?? null), 'forms': forms[tourney.id] ?? []
-                        } %}
+                {% for tourney in tourneys | filter(t => t.id in teams | keys) %}
+                    {% if loop.first %}
+                        <h3>Meine Turniere</h3><hr>
+                    {% endif %}
+                    {% include 'site/tourney/_card.html.twig' with {
+                        'tourney' : tourney, 'registered' : true, 'expand' : tourney == show ?? null, 'tm': teams[tourney.id], 'current_game' : (games[tourney.id] ?? null), 'forms': forms[tourney.id] ?? []
+                    } %}
+                    {% if loop.last %}
+                        <h3 class="mt-4">Weitere Turniere</h3><hr>
                     {% endif %}
                 {% endfor %}
-                {% for tourney in tourneys %}
-                    {% if loop.first and hasRegisteredTourneys %}
-                        <h3 class="mt-4">Weitere Turniere</h3>
-                        <hr>
-                    {% endif %}
-                    {% if tourney.id not in teams | keys %}
-                        {% include 'site/tourney/_card.html.twig' with {
-                            'tourney' : tourney, 'registered' : false, 'expand' : tourney == show ?? null, 'forms': forms[tourney.id] ?? [], 'availableToken': token | default(null)
-                        } %}
-                    {% endif %}
+                {% for tourney in tourneys | filter(t => t.id not in teams | keys) %}
+                    {% include 'site/tourney/_card.html.twig' with {
+                        'tourney' : tourney, 'registered' : false, 'expand' : tourney == show ?? null, 'forms': forms[tourney.id] ?? [], 'availableToken': token | default(null)
+                    } %}
                 {% else %}
                     <span class="alert alert-info">Es sind keine Turniere vorhanden.</span>
                 {% endfor %}

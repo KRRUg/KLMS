@@ -1,3 +1,9 @@
+{% macro tree_button(tourney) %}
+    {% if tourney.hasTree %}
+        <a class="btn btn-primary btn-sm btn-block" href="{{ path('tourney_show', {'id': tourney.id }) }}"><i class="fa-solid fa-sitemap"></i> Turnierbaum</a>
+    {% endif %}
+{% endmacro %}
+
 <div class="card-body">
     <div class="container">
         <div class="row">
@@ -31,6 +37,11 @@
             </div>
             <div class="col-md-3">
                 {% block blockButtonBarRight %}
+                    {% if tourney.hasTree %}
+                        <div class="text-right mb-3">
+                            {{ _self.tree_button(tourney) }}
+                        </div>
+                    {% endif %}
                 {% endblock %}
                 {% block blockRight %}
                     <dl>
@@ -38,7 +49,12 @@
                         <dd>{{ tourney.status.message }}</dd>
                         <dt>Modus:</dt>
                         <dd>
+                            {% if tourney.mode.canHaveGames %}{{ tourney.teamsize }}v{{ tourney.teamsize }} {% endif %}
                             {{ tourney.mode.message }}
+                        </dd>
+                        <dt>Teams:</dt>
+                        <dd>
+                            {{ tourney.teams.count }} / &infin;
                         </dd>
                         {#            {% if tourney.rules is not empty %}#}
                         {#                <dt>Regeln:</dt> #}

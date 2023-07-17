@@ -2,12 +2,6 @@
 {% set current_game = current_game | default(null) %}
 {% set expand = expand | default(false) %}
 
-{% macro tree_button(tourney) %}
-    {% if tourney.hasTree %}
-        <a class="btn btn-primary btn-sm btn-block" href="{{ path('tourney_show', {'id': tourney.id }) }}"><i class="fa-solid fa-sitemap"></i> Turnierbaum</a>
-    {% endif %}
-{% endmacro %}
-
 {% macro game_icon(tourney, game = null, tm = null) %}
     {% set TourneyStage = enum('\\App\\Entity\\TourneyStage') %}
     {% if tourney.status == TourneyStage.Registration %}
@@ -39,7 +33,7 @@
             <span class="statusbar">
             {% if registered %}
                 {{ _self.game_icon(tourney, current_game, tm) }}
-            {% else %}
+            {% elseif participates %}
                 {% if tourney.status == TourneyStage.Registration %}
                     {% if availableToken is defined and tourney.token is defined %}
                         {% if (availableToken - tourney.token) >= 0  %}
