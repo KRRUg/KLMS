@@ -72,3 +72,8 @@
     {{ parent() }}
     {{ encore_entry_script_tags('admin_seatmap') }}
 {% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    {{ encore_entry_link_tags('admin_seatmap') }}
+{% endblock %}
