@@ -55,7 +55,7 @@ class AccountController extends AbstractController
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
             $email = $form->getData()['email'];
-            $user = $this->userRepo->findOneBy(['email' => $email]);
+            $user = $this->userRepo->findOneCiBy(['email' => $email]);
             if ($user) {
                 try {
                     $token = $this->tokenService->generateToken($user->getUuid(), self::TOKEN_PW_RESET_STRING);
