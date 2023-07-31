@@ -7,7 +7,6 @@ use App\Entity\TourneyStage;
 use App\Entity\TourneyGame;
 use App\Entity\TourneyTeam;
 use App\Entity\TourneyTeamMember;
-use App\Entity\TourneyRules;
 use App\Entity\User;
 use App\Exception\ServiceException;
 use App\Repository\TourneyGameRepository;
