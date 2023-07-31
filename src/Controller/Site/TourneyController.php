@@ -295,6 +295,10 @@ class TourneyController extends AbstractController
     #[Route(path: '/tourney', name: 'tourney')]
     public function index(Request $request): Response
     {
+        if (!$this->service->active()) {
+            throw $this->createNotFoundException();
+        }
+
         $user = ($u = $this->getUser()) ? $u->getUser() : null;
         $tourneys = $this->service->getVisibleTourneys();
         $podiums = array();
@@ -387,6 +391,10 @@ class TourneyController extends AbstractController
     #[Route(path: '/tourney/{id}', name: 'tourney_show')]
     public function byId(int $id): Response
     {
+        if (!$this->service->active()) {
+            throw $this->createNotFoundException();
+        }
+
         $tourney = $this->service->getTourneyWithTeams($id);
 
         if (is_null($tourney) || !$tourney->getMode()->hasTree()) {
