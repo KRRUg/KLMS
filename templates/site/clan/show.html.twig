@@ -98,12 +98,12 @@
 
                                             {% if userIsAdmin %}
                                                 {% set action = "demote" %}
-                                                {% set modalTitle = "Zu User herabstufen" %}
-                                                {% set modalText = "Wollen Sie diesen User zu einem User herabstufen?" %}
+                                                {% set modalTitle = "Adminrechte entfernen" %}
+                                                {% set modalText = "Wollen Sie diesen User die Adminrechte entfernen?" %}
                                             {% else %}
                                                 {% set action = "promote" %}
                                                 {% set modalTitle = "Zu Admin befördern" %}
-                                                {% set modalText = "Wollen Sie diesen User als Admin hinzufügen?" %}
+                                                {% set modalText = "Wollen Sie diesen User Adminrechte geben?" %}
                                             {% endif %}
                                             <form class="d-inline-block" data-toggle="confirmModal"
                                                   data-modal-title="{{ modalTitle }}" data-modal-text="{{ modalText }}"
