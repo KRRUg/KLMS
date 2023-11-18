@@ -1,3 +1,5 @@
+import '../../css/modules/seatmap.scss';
+
 import $ from 'jquery';
 import 'jquery-ui';
 import 'jquery-ui/ui/widgets/draggable';
