@@ -12,7 +12,9 @@
             <small>gepostet von {{ content.authorId | username }}, <i class="fas fa-clock"></i> {% if content.publishedFrom is null %}{{ content.created | ago }}{% else %}{{ content.publishedFrom | ago }}{% endif %} </small>
         </p>
         <p class="card-text">
-            {{ content.content | striptags | u.truncate(250, '...', false) | raw }} {% if content.content | striptags | u.length > 250 %} <a href="{{ link }}" class="card-link"> mehr</a> {% endif %}
+            {# u.trim trims non-breaking whitespaces as well #}
+            {% set preview = content.content | split('</p>') | map(p => p | striptags | u.trim) | filter(p => p | length > 0) | first %}
+            {{ preview | u.truncate(250, '...', false) | raw }} {% if preview | length > 0 %}<a href="{{ link }}" class="card-link"> mehr</a> {% endif %}
         </p>
     </div>
 </div>
