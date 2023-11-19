@@ -25,7 +25,7 @@
                                     id="join"><i class="fas fa-user-plus"></i> Clan beitreten
                             </button>
                         {% endif %}
-                        {% if user in clan.admins %}
+                        {% if admin %}
                             <a class="btn btn-outline-primary" href="{{ path('clan_edit', {'uuid' : clan.uuid}) }}"><i
                                         class="fas fa-edit"></i> Clan bearbeiten</a>
                         {% endif %}
@@ -67,9 +67,7 @@
                         <tr>
                             <th scope="col" data-searchable="false">Status</th>
                             <th scope="col">Nickname</th>
-                            {% if admin %}
-                                <th scope="col">Aktion</th>
-                            {% endif %}
+                            {% if admin %}<th scope="col"></th>{% endif %}
                         </tr>
                         </thead>
                         {% for user in members_shown | sort((a,b) => a.nickname <=> b.nickname) %}
@@ -77,7 +75,7 @@
                             {% set userOnLan = user is registered_gamer %}
                             {% if userOnLan %}{% set count = count + 1 %}{% endif %}
                             {% set muteUser = not userOnLan and not settings.get('community.all') %}
-                            <tr {% if muteUser %}class="text-muted"{% endif %}>
+                            <tr {% if muteUser %}class="text-secondary"{% endif %}>
                                 <td>
                                     {% if userIsAdmin %}
                                         <i class="fas fa-crown" title="Clan Admin"></i>
@@ -93,30 +91,30 @@
                                     </a>
                                 </td>
                                 {% if admin %}
-                                    <td class="w-1 text-nowrap">
+                                    <td class="w-1 p-2 text-nowrap">
                                         {% if user != app.user.user %}
                                             <form class="d-inline-block" data-toggle="confirmModal"
-                                                  data-modal-title="User entfernen"
-                                                  data-modal-text="Wollen Sie diesen User wirklich entfernen?"
+                                                  data-modal-title="Kick {{ user.nickname }}"
+                                                  data-modal-text="Wollen Sie {{ user.nickname }} wirklich aus dem Clan entfernen?"
                                                   method="post"
                                                   action="{{ path('clan_member_edit', {'uuid' : clan.uuid}) }}">
                                                 <input type="hidden" name="_token"
                                                        value="{{ csrf_token(csrf_token_member_edit) }}"/>
                                                 <input type="hidden" name="user_uuid" value="{{ user.uuid }}"/>
                                                 <input type="hidden" name="action" value="kick"/>
-                                                <button type="submit" class="btn btn-outline-dark"
-                                                        title="User von Clan entfernen"><i
+                                                <button type="submit" class="btn btn-sm {% if muteUser %}btn-outline-secondary{% else %}btn-outline-dark{% endif %}"
+                                                        title="User {{ user.nickname}} von Clan entfernen"><i
                                                             class="fas fa-user-minus fa-fw"></i></button>
                                             </form>
 
                                             {% if userIsAdmin %}
                                                 {% set action = "demote" %}
                                                 {% set modalTitle = "Adminrechte entfernen" %}
-                                                {% set modalText = "Wollen Sie diesen User die Adminrechte entfernen?" %}
+                                                {% set modalText = "Wollen Sie " ~ user.nickname ~ " die Adminrechte entfernen?" %}
                                             {% else %}
                                                 {% set action = "promote" %}
-                                                {% set modalTitle = "Zu Admin befördern" %}
-                                                {% set modalText = "Wollen Sie diesen User Adminrechte geben?" %}
+                                                {% set modalTitle = "Zu Admin machen" %}
+                                                {% set modalText = "Wollen Sie " ~ user.nickname ~ " Adminrechte geben?" %}
                                             {% endif %}
                                             <form class="d-inline-block" data-toggle="confirmModal"
                                                   data-modal-title="{{ modalTitle }}" data-modal-text="{{ modalText }}"
@@ -127,7 +125,7 @@
                                                 <input type="hidden" name="user_uuid" value="{{ user.uuid }}"/>
                                                 <input type="hidden" name="action" value="{{ action }}"/>
                                                 <button type="submit" title="{{ modalTitle }}"
-                                                        class="btn btn-outline-dark">
+                                                        class="btn btn-sm {% if muteUser %}btn-outline-secondary{% else %}btn-outline-dark{% endif %}">
                                                     {% if userIsAdmin %}
                                                         <i class="fas fa-ban fa-fw"></i>
                                                     {% else %}<i class="fas fa-crown fa-fw"></i>{% endif %}</button>
