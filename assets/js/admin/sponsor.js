@@ -33,13 +33,16 @@ $.extend(SponsorCategoryList.prototype, {
         this.$root.empty();
         this._buildHTML(this.$root[ 0 ], this.categoryList);
     },
-    addNew() {
-        this.categoryList.push({
-            'name': 'Neue Kategorie',
-            'can_delete': true,
-        });
+    addNew(name = null) {
+        this._createEntry(name);
         this._synchroniseData()
         this.draw();
+    },
+    _createEntry(name = null) {
+        this.categoryList.push({
+            'name': name ?? 'Neue Kategorie',
+            'count': 0,
+        });
     },
     _buildHTML(baseElement, items) {
         let hasPrevItem = false;
@@ -67,11 +70,14 @@ $.extend(SponsorCategoryList.prototype, {
         let span = document.createElement('SPAN');
         span.setAttribute('class', 'nav-item pl-2');
         span.setAttribute("data-value", item.name);
-        span.setAttribute("data-can-delete", item.can_delete);
+        span.setAttribute("data-count", item.count);
         span.textContent = item.name;
-
+        let span2 = document.createElement('SPAN')
+        span2.setAttribute('class', 'text-muted pl-1');
+        span2.textContent = "(" + item.count + ")";
         let i = document.createElement("I");
         i.setAttribute("class", "fas fa-edit pl-2 edit-img text-dark");
+        span.appendChild(span2);
         span.appendChild(i);
         label.appendChild(span);
         li.appendChild(label);
@@ -121,18 +127,18 @@ $.extend(SponsorCategoryList.prototype, {
         e.preventDefault();
 
         $("form.edit-item-form").each((_, element) => {
-            this._toggelItemEditMode($(element));
+            this._toggleItemEditMode($(element));
         });
 
         let $item = $(e.currentTarget);
-        this._toggelItemEditMode($item);
+        this._toggleItemEditMode($item);
     },
-    _toggelItemEditMode($item) {
+    _toggleItemEditMode($item) {
         if ($item.is('form')) {
             $item.prev().show();
             $item.remove();
         } else {
-            let $form = this._getInputForm($item.data("value"), Boolean($item.data("can-delete")));
+            let $form = this._getInputForm($item.data("value"), Number($item.data("count") === 0 && this.categoryList.length > 1));
             $item.hide();
             $item.after($form);
         }
@@ -165,7 +171,7 @@ $.extend(SponsorCategoryList.prototype, {
             this.categoryList[index].name = $form.find("input.edit-item-value").val();
             this._synchroniseData();
         } else if ($btn.attr("type") === "delete") {
-            if (Boolean(this.categoryList[index].can_delete))
+            if (Number(this.categoryList[index].count) === 0)
                 this.categoryList.splice(index, 1);
             this._synchroniseData();
         }

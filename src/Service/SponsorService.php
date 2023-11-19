@@ -17,6 +17,8 @@ class SponsorService extends OptimalService
     private readonly EntityManagerInterface $em;
     private readonly LoggerInterface $logger;
 
+    private const DEFAULT_CATEGORY_NAME = "Sponsoren";
+
     /**
      * SponsorService constructor.
      */
@@ -37,6 +39,20 @@ class SponsorService extends OptimalService
     protected static function getSettingKey(): string
     {
         return 'sponsor.enabled';
+    }
+
+    // TODO write Test
+    protected function setUp(): void
+    {
+        // Create one category when the service is enabled
+        if ($this->countCategories() == 0) {
+            $c = new SponsorCategory();
+            $this->em->persist(
+                $c
+                    ->setName(self::DEFAULT_CATEGORY_NAME)
+                    ->setPriority(1)
+            );
+        }
     }
 
     /**
@@ -85,6 +101,11 @@ class SponsorService extends OptimalService
         usort($categories, fn ($a, $b) => $a->getPriority() - $b->getPriority());
 
         return $categories;
+    }
+
+    public function countCategories(): int
+    {
+        return $this->categoryRepository->count();
     }
 
     public function renderCategories(): array
@@ -138,7 +159,7 @@ class SponsorService extends OptimalService
 
     private const ARRAY_ID = 'id';
     private const ARRAY_NAME = 'name';
-    private const ARRAY_CAN_DELETE = 'can_delete';
+    private const ARRAY_COUNT = 'count';
 
     // mandatory items for submission
     private const ARRAY_ITEMS = [
@@ -155,7 +176,7 @@ class SponsorService extends OptimalService
             $result[] = [
                 self::ARRAY_ID => $cat->getId(),
                 self::ARRAY_NAME => $cat->getName(),
-                self::ARRAY_CAN_DELETE => $cat->getSponsors()->count() == 0,
+                self::ARRAY_COUNT => $cat->getSponsors()->count(),
             ];
         }
 
