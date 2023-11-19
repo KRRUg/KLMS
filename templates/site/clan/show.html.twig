@@ -8,8 +8,10 @@
             {% block cardBody %}
                 {% if is_granted('IS_AUTHENTICATED_REMEMBERED') %}
                     {% set user = app.user.user %}
+                    {% set admin = user in clan.admins %}
+                    {% set member = user in clan.users %}
                     <div class="float-right  py-2">
-                        {% if user in clan.users %}
+                        {% if member %}
                             <form data-toggle="confirmModal" data-modal-title="Clan verlassen"
                                   data-modal-text="Wollen Sie diesen Clan wirklich verlassen?" method="post"
                                   action="{{ path('clan_leave', {'uuid' : clan.uuid}) }}" class="d-inline-block">
@@ -18,7 +20,7 @@
                                             class="fas fa-user-minus"></i> Clan verlassen
                                 </button>
                             </form>
-                        {% elseif user not in clan.users %}
+                        {% else %}
                             <button class="btn btn-outline-primary" data-toggle="modal" data-target="#joinModal"
                                     id="join"><i class="fas fa-user-plus"></i> Clan beitreten
                             </button>
@@ -28,6 +30,9 @@
                                         class="fas fa-edit"></i> Clan bearbeiten</a>
                         {% endif %}
                     </div>
+                {% else %}
+                    {% set admin = false %}
+                    {% set member = false %}
                 {% endif %}
                 <h1 class="card-title">
                     <div class="d-block d-lg-inline">
@@ -51,10 +56,13 @@
                     </div>
                     <hr>
                 {% endif %}
-                {% set admin = app.user.user in clan.admins %}
                 <div class="card-text">
                     <h3 class="pt-4">Mitglieder</h3>
-                    <table class="table table-striped table-hover datatable">
+                    {% set show_all = settings.get('community.all') or member or is_granted('ROLE_ADMIN_USER') %}
+                    {% set members_shown = show_all ? clan.users : clan.users | filter(g => g is registered_gamer) %}
+                    {% set count = 0 %}
+                    {% if members_shown is not empty %}
+                    <table class="table table-striped table-hover">
                         <thead>
                         <tr>
                             <th scope="col" data-searchable="false">Status</th>
@@ -64,10 +72,13 @@
                             {% endif %}
                         </tr>
                         </thead>
-                        {% for user in clan.users %}
-                            <tr>
-                                {% set userIsAdmin = user in clan.admins %}
-                                <td data-sort="{{ userIsAdmin }}">
+                        {% for user in members_shown | sort((a,b) => a.nickname <=> b.nickname) %}
+                            {% set userIsAdmin = user in clan.admins %}
+                            {% set userOnLan = user is registered_gamer %}
+                            {% if userOnLan %}{% set count = count + 1 %}{% endif %}
+                            {% set muteUser = not userOnLan and not settings.get('community.all') %}
+                            <tr {% if muteUser %}class="text-muted"{% endif %}>
+                                <td>
                                     {% if userIsAdmin %}
                                         <i class="fas fa-crown" title="Clan Admin"></i>
                                     {% else %}
@@ -75,7 +86,9 @@
                                     {% endif %}
                                 </td>
                                 <td class="w-100">
-                                    <a href="{{ path('user_show', {'uuid' : user.uuid}) }}">
+                                    <a href="{{ path('user_show', {'uuid' : user.uuid}) }}"
+                                    {% if muteUser %} class="text-secondary" {% endif %}
+                                    >
                                         {{ user.nickname }}
                                     </a>
                                 </td>
@@ -125,6 +138,15 @@
                             </tr>
                         {% endfor %}
                     </table>
+                    {% endif %}
+                    {% if not settings.get('community.all') %}
+                        {% if show_all %}
+                            <p class="text-muted">{{ count }} von {{ clan.users | length }} Mitglieder sind zur Veranstaltung angemeldet.</p>
+                        {% else %}
+                            {% set not_shown = (clan.users | length) - count %}
+                            {% if not_shown > 0 %}<p class="text-muted"> {{ not_shown }} Mitglieder von {{ clan.name }} sind bei dieser Veranstaltung nicht angemelden.</p>{% endif %}
+                        {% endif %}
+                    {% endif %}
                 </div>
             {% endblock %}
         {% endembed %}
