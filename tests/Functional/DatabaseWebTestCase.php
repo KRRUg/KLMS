@@ -7,6 +7,7 @@ use Liip\TestFixturesBundle\Services\DatabaseToolCollection;
 use Liip\TestFixturesBundle\Services\DatabaseTools\AbstractDatabaseTool;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+use Symfony\Component\Filesystem\Filesystem;
 
 abstract class DatabaseWebTestCase extends WebTestCase
 {
@@ -28,6 +29,15 @@ abstract class DatabaseWebTestCase extends WebTestCase
         $mock = static::getContainer()->get(IdmServerMock::class);
         $this->assertInstanceOf(IdmServerMock::class, $mock);
         $this->mock = $mock;
+    }
+
+    protected function tearDown(): void
+    {
+        /** @var Filesystem $filesystem */
+        $filesystem = static::getContainer()->get(Filesystem::class);
+        $vich_dir = $this->client->getKernel()->getCacheDir() . "/vich_data";
+        $filesystem?->remove($vich_dir);
+        parent::tearDown();
     }
 
     protected function login(string $user): void
