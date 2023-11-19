@@ -13,16 +13,13 @@
         {% if settings.get("sponsor.page.site_links") %}
         <div class="row mb-4">
             <div class="col">
-                {%  for category in categories %}
-                    {% if category.sponsors is not empty or settings.get("sponsor.page.show_empty") %}
-                        <a class="btn btn-secondary ml-1" href="#cat{{ category.id }}">{{ category.name }}</a>
-                    {% endif %}
+                {%  for category in categories | filter(c => c.sponsors is not empty or settings.get("sponsor.page.show_empty"))%}
+                    <a class="btn btn-secondary ml-1" href="#cat{{ category.id }}">{{ category.name }}</a>
                 {% endfor %}
             </div>
         </div>
         {% endif %}
-        {% for category in categories %}
-            {% if category.sponsors is not empty or settings.get("sponsor.page.show_empty") %}
+        {% for category in categories | filter(c => c.sponsors is not empty or settings.get("sponsor.page.show_empty")) %}
             <div class="row">
                 <div class="col">
                     <div class="card w-100 mb-4">
@@ -34,22 +31,22 @@
                             {% for s in category.sponsors %}
                                 <li class="row mb-4">
                                     <div class="col-lg-5 col-12 text-center">
-                                        <a href="{{ s.url }}" target="_blank">
+                                        {% if s.url is not empty %}<a href="{{ s.url }}" target="_blank">{% endif %}
                                         <img style="max-width: 350px; max-height: 350px;" src="{{ vich_uploader_asset(s, 'logoFile') | imagine_filter('sponsor_logo') }}">
-                                        </a>
+                                        {% if s.url is not empty %}</a>{% endif %}
                                     </div>
                                     <div class="col-lg-7 col-12">
                                         <h5 class="mt-2 mb-2">{{ s.name }}</h5>
                                         {{ s.text | raw }}
                                     </div>
                                 </li>
+                                {% if not loop.last %}<hr/>{% endif %}
                             {% endfor %}
                             </ul>
                         </div>
                     </div>
                 </div>
             </div>
-            {% endif %}
         {% endfor %}
     </div>
 {% endblock %}
