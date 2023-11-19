@@ -40,6 +40,7 @@ class SettingService
         'sponsor.page.title' => [self::TB_DESCRIPTION => 'Titel der Sponsoren-Seite', self::TB_TYPE => self::TB_TYPE_STRING],
         'sponsor.page.text' => [self::TB_DESCRIPTION => 'Einleitungstext der Sponsoren-Seite', self::TB_TYPE => self::TB_TYPE_HTML],
         'sponsor.page.site_links' => [self::TB_DESCRIPTION => 'Links zu den Kategorien anzeigen', self::TB_TYPE => self::TB_TYPE_BOOL],
+        'sponsor.page.show_header' => [self::TB_DESCRIPTION => 'Kategorie überschriften anzeigen', self::TB_TYPE => self::TB_TYPE_BOOL],
         'sponsor.page.show_empty' => [self::TB_DESCRIPTION => 'Leere Sponsor Kategorien anzeigen', self::TB_TYPE => self::TB_TYPE_BOOL],
 
         'community.enabled' => [self::TB_DESCRIPTION => 'Community Sektion einschalten', self::TB_TYPE => self::TB_TYPE_BOOL],
