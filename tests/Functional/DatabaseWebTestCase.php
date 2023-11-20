@@ -20,6 +20,7 @@ abstract class DatabaseWebTestCase extends WebTestCase
     protected function setUp(): void
     {
         parent::setUp();
+        self::ensureKernelShutdown();
         $this->client = self::createClient();
         $this->client->followRedirects();
 
