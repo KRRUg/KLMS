@@ -8,6 +8,7 @@ use DateTime;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Common\DataFixtures\DependentFixtureInterface;
 use Doctrine\Persistence\ObjectManager;
+use joshtronic\LoremIpsum;
 use Ramsey\Uuid\Uuid;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
@@ -59,12 +60,14 @@ class SponsorFixtures extends Fixture implements DependentFixtureInterface
             ),
         ];
 
+        $lipsum = new LoremIpsum();
+
         $sponsors = [
             (new Sponsor())
-            ->setName("Cat 1")
+            ->setName("Big Corp.")
             ->setCategory($categories[1])
-            ->setText("Miau")
-            ->setUrl(null)
+            ->setText($lipsum->paragraph())
+            ->setUrl("https://www.example.com")
             ->setLogoFile($logos[0])
             ->setCreated(new DateTime('2020-07-18 05:05'))
             ->setLastModified(new DateTime('2020-07-18 05:05'))
@@ -72,9 +75,9 @@ class SponsorFixtures extends Fixture implements DependentFixtureInterface
             ->setModifierId(Uuid::fromInteger(strval(14))),
 
             (new Sponsor())
-            ->setName("Cat 2")
+            ->setName("ACME Industries")
             ->setCategory($categories[1])
-            ->setText("Miau Miau")
+            ->setText($lipsum->paragraph())
             ->setUrl(null)
             ->setLogoFile($logos[1])
             ->setCreated(new DateTime('2020-07-18 05:05'))

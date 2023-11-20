@@ -22,7 +22,7 @@
         {% for category in categories | filter(c => c.sponsors is not empty or settings.get("sponsor.page.show_empty")) %}
             <div class="row">
                 <div class="col">
-                    <div class="card w-100 mb-4">
+                    <div class="card w-100 mb-4 sponsor-category">
                         {% if settings.get('sponsor.page.show_header', true) %}
                         <div class="card-header" id="cat{{ category.id }}">
                             <h3>{{ category.name }}</h3>
@@ -33,14 +33,14 @@
                         {% endif %}
                             <ul class="list-unstyled">
                             {% for s in category.sponsors %}
-                                <li class="row mb-4">
+                                <li class="row mb-4 sponsor">
                                     <div class="col-lg-5 col-12 text-center">
                                         {% if s.url is not empty %}<a href="{{ s.url }}" target="_blank">{% endif %}
                                         <img style="max-width: 350px; max-height: 350px;" src="{{ vich_uploader_asset(s, 'logoFile') | imagine_filter('sponsor_logo') }}">
                                         {% if s.url is not empty %}</a>{% endif %}
                                     </div>
                                     <div class="col-lg-7 col-12">
-                                        <h5 class="mt-2 mb-2">{{ s.name }}</h5>
+                                        <h5 class="mt-2 mb-2 sponsor-name">{{ s.name }}</h5>
                                         {{ s.text | raw }}
                                     </div>
                                 </li>
