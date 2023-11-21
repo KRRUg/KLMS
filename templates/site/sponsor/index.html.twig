@@ -13,13 +13,13 @@
         {% if settings.get("sponsor.page.site_links") %}
         <div class="row mb-4">
             <div class="col">
-                {%  for category in categories | filter(c => c.sponsors is not empty or settings.get("sponsor.page.show_empty"))%}
+                {%  for category in categories %}
                     <a class="btn btn-secondary ml-1" href="#cat{{ category.id }}">{{ category.name }}</a>
                 {% endfor %}
             </div>
         </div>
         {% endif %}
-        {% for category in categories | filter(c => c.sponsors is not empty or settings.get("sponsor.page.show_empty")) %}
+        {% for category in categories %}
             <div class="row">
                 <div class="col">
                     <div class="card w-100 mb-4 sponsor-category">
