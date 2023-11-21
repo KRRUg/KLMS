@@ -47,3 +47,18 @@ vich_uploader:
             inject_on_load: false
             delete_on_update: true
             delete_on_remove: true
+
+# set different upload destination for testing
+when@test:
+    vich_uploader:
+        mappings:
+            news:
+                upload_destination: '%kernel.cache_dir%/vich_data/images/news'
+            media:
+                upload_destination: '%kernel.cache_dir%/vich_data/media'
+            user:
+                upload_destination: '%kernel.cache_dir%/vich_data/images/user'
+            setting:
+                upload_destination: '%kernel.cache_dir%/vich_data/images/site'
+            sponsor:
+                upload_destination: '%kernel.cache_dir%/vich_data/images/sponsor'

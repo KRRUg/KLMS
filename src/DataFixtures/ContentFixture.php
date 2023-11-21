@@ -3,19 +3,8 @@
 namespace App\DataFixtures;
 
 use App\Entity\Content;
-use App\Entity\Navigation;
-use App\Entity\NavigationNodeContent;
-use App\Entity\NavigationNodeEmpty;
-use App\Entity\NavigationNodeGeneric;
-use App\Entity\NavigationNodeRoot;
-use App\Entity\NavigationNodeTeamsite;
-use App\Entity\Setting;
-use App\Entity\Teamsite;
-use App\Entity\TeamsiteCategory;
-use App\Entity\TeamsiteEntry;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Persistence\ObjectManager;
-use joshtronic\LoremIpsum;
 use Ramsey\Uuid\Uuid;
 
 class ContentFixture extends Fixture

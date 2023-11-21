@@ -9,11 +9,14 @@ use joshtronic\LoremIpsum;
 
 class SettingsFixture extends Fixture
 {
+    public static function createSetting(string $key, string $value): Setting
+    {
+        return (new Setting($key))->setText($value);
+    }
+
     private function addSetting(ObjectManager $manager, string $key, string $value): void
     {
-        $setting = new Setting($key);
-        $setting->setText($value);
-        $manager->persist($setting);
+        $manager->persist(self::createSetting($key, $value));
     }
 
     public function load(ObjectManager $manager): void

@@ -77,7 +77,7 @@ class Sponsor implements HistoryAwareEntity
         return $this;
     }
 
-    public function setLogoFile(?File $logoFile = null): void
+    public function setLogoFile(?File $logoFile = null): self
     {
         $this->logoFile = $logoFile;
 
@@ -86,6 +86,8 @@ class Sponsor implements HistoryAwareEntity
             // otherwise the event listeners won't be called and the file is lost
             $this->setLastModified(new DateTime());
         }
+
+        return $this;
     }
 
     public function getLogoFile(): ?File
