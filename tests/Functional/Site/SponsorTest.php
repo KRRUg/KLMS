@@ -3,6 +3,7 @@
 namespace App\Tests\Functional\Site;
 use App\DataFixtures\SponsorFixtures;
 use App\Service\SettingService;
+use App\Service\SponsorService;
 use App\Tests\Functional\DatabaseWebTestCase;
 
 class SponsorTest extends DatabaseWebTestCase
@@ -86,5 +87,31 @@ class SponsorTest extends DatabaseWebTestCase
         $this->assertResponseStatusCodeSame(200);
         $this->assertCount(1, $crawler->filter('.sponsor-category'));
         $this->assertSelectorNotExists('.sponsor-category h3');
+    }
+
+    public function testSponsorEnable()
+    {
+        $this->databaseTool->loadFixtures([]);
+
+        $this->client->request('GET', '/sponsor');
+        $this->assertResponseStatusCodeSame(404);
+
+        $sponsor_service = static::getContainer()->get(SponsorService::class);
+        $settings = static::getContainer()->get(SettingService::class);
+
+        $this->assertFalse($sponsor_service->active());
+        $sponsor_service->activate();
+        $this->assertTrue($sponsor_service->active());
+
+        $this->client->request('GET', '/sponsor');
+        $this->assertResponseStatusCodeSame(200);
+        $this->assertSelectorNotExists('.sponsor-catebory');
+        $this->assertSelectorNotExists('.sponsor');
+
+        $settings->set('sponsor.page.show_empty', true);
+        $this->client->request('GET', '/sponsor');
+        $this->assertResponseStatusCodeSame(200);
+        $this->assertSelectorExists('.sponsor-category');
+        $this->assertSelectorNotExists('.sponsor');
     }
 }

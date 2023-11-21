@@ -41,7 +41,6 @@ class SponsorService extends OptimalService
         return 'sponsor.enabled';
     }
 
-    // TODO write Test
     protected function setUp(): void
     {
         // Create one category when the service is enabled
@@ -52,6 +51,7 @@ class SponsorService extends OptimalService
                     ->setName(self::DEFAULT_CATEGORY_NAME)
                     ->setPriority(1)
             );
+            $this->em->flush();
         }
     }
 
@@ -105,7 +105,7 @@ class SponsorService extends OptimalService
 
     public function countCategories(): int
     {
-        return $this->categoryRepository->count();
+        return $this->categoryRepository->count([]);
     }
 
     public function renderCategories(): array
