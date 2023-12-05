@@ -7,5 +7,6 @@ RUN apt-get update \
     && apt-get install -y libpq-dev libicu-dev \
     && docker-php-ext-configure intl \
     && docker-php-ext-install pdo pdo_pgsql intl
+
 # Set the working directory to /var/www/html
 WORKDIR /var/www/html

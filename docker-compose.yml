@@ -26,6 +26,9 @@ services:
       - database
     links:
       - database
+    extra_hosts:
+      - "klms.local:127.0.0.1"
+      - "identity.local:127.0.0.1"
 
   # Useful when using postgresql
   # pgadmin:
