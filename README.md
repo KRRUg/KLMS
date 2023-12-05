@@ -48,15 +48,16 @@ yarn install
 yarn encore dev
 ``` 
 
-To create the database schema and some default data run
+To create the database, schema and some default data run
 ```
+bin/console doctrine:database:create
 bin/console doctrine:schema:create
 bin/console doctrine:fixtures:load -n
 ```
 
 ### Run KLMS
-Once all setup steps are done start the symfony development server using
+Once all setup steps are done start the Symfony development server using
 ```
 bin/console server:start
 ```
-Open the printed URL in your browser and login in with a superuser credential 
+Open the printed URL in your browser and log in with a superuser credential 
