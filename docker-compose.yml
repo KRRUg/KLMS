@@ -11,6 +11,35 @@ services:
     volumes:
       - database:/var/lib/postgresql/data:rw
   
+  webserver:
+    build:
+      context: .
+      dockerfile: ./.docker/Dockerfile
+    ports:
+      - "80:80"
+    volumes:
+      - ../IDM:/var/www/identity # You need to have the IDM project in the same directory as the KLMS project
+      - .:/var/www/klms
+      - ./.docker/apache2/idm.conf:/etc/apache2/sites-enabled/idm.conf
+      - ./.docker/apache2/klms.conf:/etc/apache2/sites-enabled/klms.conf
+    depends_on:
+      - database
+    links:
+      - database
+
+  # Useful when using postgresql
+  # pgadmin:
+  #   image: dpage/pgadmin4
+  #   environment:
+  #     PGADMIN_DEFAULT_EMAIL: admin@klms.at
+  #     PGADMIN_DEFAULT_PASSWORD: passwd123
+  #   ports:
+  #     - "9080:80"
+  #   depends_on:
+  #     - database
+  #   links:
+  #     - database
+
   mailcatcher:
     image: schickling/mailcatcher
     ports: [ "1025", "1080" ]

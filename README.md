@@ -20,12 +20,39 @@ KLMS is tested and running in Production with the following Versions:
 * Yarn 1
 * Composer 2
 
-### Database setup
-Login as the PostgreSQL admin user (usually `postgres`) and create a user
-with an according password and create a database for the KLMS instance.
+### Docker based development setup
+We provide a docker-compose-based setup for running Apache 2, PHP 8 and PostgreSQL 12. 
+Make sure you have cloned KLMS and [IDM](https://github.com/krrug/IDM) in the same folder, located next to each other. 
 
-Running Linux and logged on as root, the following commands perform this actions:
+Run `docker-compose up` to run the webserver, database and mailcatcher.
+
+Follow the [_KLMS setup_](#KLMS%20setup) steps below and come back here.
+
+Then follow the IDM installation steps and return here.
+
+Create a `.env.local` with the updated database string:
+```yml
+DATABASE_HOST=database
+DATABASE_URL=postgresql://app:app@${DATABASE_HOST}:5432/klms?serverVersion=12&charset=utf8
 ```
+Setting the host is required since docker-compose containers are linked to each other and connections happen through their hostnames.
+
+Additionally, you need two local DNS entries. For Linux/MacOS edit the file `/etc/hosts` with root permissions. Windows entries can be found in the `C:\Windows\System32\drivers\etc` folder, also use elevated permissions for editing.
+```
+127.0.0.1 klms.local identity.local
+```
+Further database setup below is not necessary.
+
+Restart docker-compose to apply the updated environment file. 
+
+You should be able to access http://klms.local
+
+### Database setup
+Log in as the PostgreSQL admin user (usually `postgres`), create a user
+with an appropriate password and the database for the KLMS instance.
+
+Running Linux and logging on as root, the following commands perform these actions:
+```bash
 sudo -u postgres -i
 createuser -l -P <db_user>
 createdb -O <db_user> <db_name>
@@ -41,22 +68,23 @@ KLMS_IDM_URL=https://<idm_host>:<idm_port>
 KLMS_IDM_APIKEY=<idm_key>
 ```
 
-To set up the required third party libraries go to the project directory and run
-```
+To set up the required third-party libraries go to the project directory and run
+```bash
 composer install
 yarn install
 yarn encore dev
 ``` 
 
 To create the database schema and some default data run
-```
+```bash
+bin/console doctrine:database:create
 bin/console doctrine:schema:create
 bin/console doctrine:fixtures:load -n
 ```
 
 ### Run KLMS
-Once all setup steps are done start the symfony development server using
-```
+Once all setup steps are done start the Symfony development server using
+```bash
 bin/console server:start
 ```
-Open the printed URL in your browser and login in with a superuser credential 
+Open the printed URL in your browser and log in with a superuser credential 
