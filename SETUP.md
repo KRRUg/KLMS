@@ -15,7 +15,7 @@ For the build process the following tools are required (they are not required to
  * Node.js 19
  * [Yarn v1](https://classic.yarnpkg.com/lang/en/docs/install/)
 
-For development, no Apache webserver is required. See [development setup](Development Setup) below.
+For development, no Apache webserver is required (see below).
 
 ## Production Setup
 Assuming you have a running and configured Apache webserver with PHP 8.1 and PostgreSQL database.
