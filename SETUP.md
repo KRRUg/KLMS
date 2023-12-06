@@ -93,7 +93,7 @@ To send emails and perform maintenance tasks, KLMS requires the PHP script `bin/
 We recommend to use supervisor to ensure the process is restarted whenever it ends.
 
 ## Development Setup
-Follow the [Symfony setup guidelines](https://symfony.com/doc/5.4/setup.html) to install the symfony binary set up a basic Symfony installation.
+Follow the [Symfony setup guidelines](https://symfony.com/doc/5.4/setup.html) and install the symfony binary.
 
 When running `symfony check:requirements` ensure that no errors nor warnings are displayed.
 In addition to the basic Symfony setup, install: PostgreSQL server, Node.js, and Yarn.
