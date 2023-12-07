@@ -53,6 +53,11 @@ class SettingService
         'lan.seatmap.allow_booking_for_non_paid' => [self::TB_DESCRIPTION => 'Sitzplanbuchungen für nicht bezahlte Gamer erlauben', self::TB_TYPE => self::TB_TYPE_BOOL],
         'lan.seatmap.locked' => [self::TB_DESCRIPTION => 'Sitzplanbuchungen sperren (Kein Reservieren/Freigeben für User)', self::TB_TYPE => self::TB_TYPE_BOOL],
         'lan.seatmap.bg_image' => [self::TB_DESCRIPTION => 'Sitzplan Hintergrundbild', self::TB_TYPE => self::TB_TYPE_FILE],
+        
+        'lan.seatmap.styles.seat_size' => [self::TB_DESCRIPTION => 'Sitzplatz Größe (px)', self::TB_TYPE => self::TB_TYPE_STRING],
+        'lan.seatmap.styles.seat_tablewidth_multiplier' => [self::TB_DESCRIPTION => 'Sitzplatz Seitenverhältnis (1 für 1/1 quadratisch, 1.5 oder 2 für breitere Tischanzeige), 1 Standard', self::TB_TYPE => self::TB_TYPE_STRING],
+        'lan.seatmap.styles.seat_border_radius' => [self::TB_DESCRIPTION => 'Border Radios des Sitzes (px), 8 Standard', self::TB_TYPE => self::TB_TYPE_STRING],
+        'lan.seatmap.styles.seat_bullet_size' => [self::TB_DESCRIPTION => 'Sesselgröße im Sitzplan (px), 6 Standard', self::TB_TYPE => self::TB_TYPE_STRING],
 
         'lan.stats.show' => [self::TB_DESCRIPTION => 'Statistiken zur Anmeldung anzeigen', self::TB_TYPE => self::TB_TYPE_BOOL],
 

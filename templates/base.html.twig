@@ -6,6 +6,22 @@
         <meta http-equiv="cache-control" content="no-cache"/>
         {% block favicon %}<link rel="shortcut icon" href="{{ asset('favicon.ico') }}" />{% endblock %}
         <title>{% block title %}{{ settings.get('site.title') }}{% endblock %}</title>
+        <style type="text/css">
+            :root {
+                {% if settings.get('lan.seatmap.styles.seat_size', false) %}
+                --seatmap-seat-size: {{ settings.get('lan.seatmap.styles.seat_size') }}px;
+                {% endif %}
+                {% if settings.get('lan.seatmap.styles.seat_tablewidth_multiplier', false) %}
+                --seatmap-seat-tableWidthMultiplier: {{ settings.get('lan.seatmap.styles.seat_tablewidth_multiplier') }};
+                {% endif %}
+                {% if settings.get('lan.seatmap.styles.seat_bullet_size', false) %}
+                --seatmap-seat-bullet-size: {{ settings.get('lan.seatmap.styles.seat_bullet_size') }}px;
+                {% endif %}
+                {% if settings.get('lan.seatmap.styles.seat_border_radius', false) %}
+                --seatmap-seat-border-radius: {{ settings.get('lan.seatmap.styles.seat_border_radius') }}px;
+                {% endif %}
+            }
+        </style>
         {% block stylesheets %}
             {{ encore_entry_link_tags('app') }}
         {% endblock %}
