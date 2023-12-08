@@ -5,6 +5,12 @@
 {% block main %}
     <div class="row">
         <div class="col-12">
+            {% set seatmap_bg = settings.get('lan.seatmap.bg_image') %}
+            {% if seatmap_bg is empty %}
+            <div class="card-body">
+                Lade einen Grundriss hoch um den Sitzplan zu erstellen: <a href="/admin/setting/edit?key=lan.seatmap.bg_image">Zu den Einstellungen</a>
+            </div>
+            {% else %}
             <div class="card-body">
                 <a class="btn btn-primary" href="{{ path('admin_seatmap_export') }}" download>Sitzplan exportieren (.csv)</a>
             </div>
@@ -31,7 +37,6 @@
             <div class="d-flex justify-content-center mt-5">
                 <div class="card">
                     <div class="seatmap" data-position-url="{{ path('admin_seatmap_seat_pos') }}" data-create-url="{{ path('admin_seatmap_seat_create') }}">
-                        {% set seatmap_bg = settings.get('lan.seatmap.bg_image') %}
                         {% if seatmap_bg is not empty %}
                             <img class="seatmap-bg" src="{{ seatmap_bg }}" aria-hidden="true">
                         {% endif %}
@@ -64,6 +69,7 @@
                     </div>
                 </div>
             </div>
+            {% endif %}
         </div>
     </div>
 {% endblock %}
@@ -75,5 +81,21 @@
 
 {% block stylesheets %}
     {{ parent() }}
+    <style type="text/css">
+        :root {
+            {% if settings.get('lan.seatmap.styles.seat_size', false) %}
+            --seatmap-seat-size: {{ settings.get('lan.seatmap.styles.seat_size') }}px;
+            {% endif %}
+            {% if settings.get('lan.seatmap.styles.seat_tablewidth_multiplier', false) %}
+            --seatmap-seat-tableWidthMultiplier: {{ settings.get('lan.seatmap.styles.seat_tablewidth_multiplier') }};
+            {% endif %}
+            {% if settings.get('lan.seatmap.styles.seat_bullet_size', false) %}
+            --seatmap-seat-bullet-size: {{ settings.get('lan.seatmap.styles.seat_bullet_size') }}px;
+            {% endif %}
+            {% if settings.get('lan.seatmap.styles.seat_border_radius', 10) %}
+            --seatmap-seat-border-radius: {{ settings.get('lan.seatmap.styles.seat_border_radius', 10) }}px;
+            {% endif %}
+        }
+    </style>
     {{ encore_entry_link_tags('admin_seatmap') }}
 {% endblock %}

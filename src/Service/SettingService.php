@@ -13,6 +13,7 @@ class SettingService
 {
     private const TB_TYPE = 'type';
     private const TB_DESCRIPTION = 'description';
+    private const TB_DEFAULT_VALUE = 'default';
     final public const TB_TYPE_STRING = 'string';
     final public const TB_TYPE_HTML = 'html';
     final public const TB_TYPE_URL = 'url';
@@ -54,10 +55,11 @@ class SettingService
         'lan.seatmap.locked' => [self::TB_DESCRIPTION => 'Sitzplanbuchungen sperren (Kein Reservieren/Freigeben für User)', self::TB_TYPE => self::TB_TYPE_BOOL],
         'lan.seatmap.bg_image' => [self::TB_DESCRIPTION => 'Sitzplan Hintergrundbild', self::TB_TYPE => self::TB_TYPE_FILE],
         
-        'lan.seatmap.styles.seat_size' => [self::TB_DESCRIPTION => 'Sitzplatz Größe (px)', self::TB_TYPE => self::TB_TYPE_STRING],
-        'lan.seatmap.styles.seat_tablewidth_multiplier' => [self::TB_DESCRIPTION => 'Sitzplatz Seitenverhältnis (1 für 1/1 quadratisch, 1.5 oder 2 für breitere Tischanzeige), 1 Standard', self::TB_TYPE => self::TB_TYPE_STRING],
-        'lan.seatmap.styles.seat_border_radius' => [self::TB_DESCRIPTION => 'Border Radios des Sitzes (px), 8 Standard', self::TB_TYPE => self::TB_TYPE_STRING],
-        'lan.seatmap.styles.seat_bullet_size' => [self::TB_DESCRIPTION => 'Sesselgröße im Sitzplan (px), 6 Standard', self::TB_TYPE => self::TB_TYPE_STRING],
+        'lan.seatmap.styles.seat_size' => [self::TB_DESCRIPTION => 'Sitzplatz Höhe/Breite (px)', self::TB_TYPE => self::TB_TYPE_STRING, self::TB_DEFAULT_VALUE => 27],
+        'lan.seatmap.styles.seat_tablewidth_multiplier' => [self::TB_DESCRIPTION => 'Sitzplatz Seitenverhältnis (1 für 1/1 quadratisch, 1.5 oder 2 für breitere Sitzplätze)', self::TB_TYPE => self::TB_TYPE_STRING, self::TB_DEFAULT_VALUE => 1],
+        'lan.seatmap.styles.seat_border_radius' => [self::TB_DESCRIPTION => 'Border Radios des Sitzes (px)', self::TB_TYPE => self::TB_TYPE_STRING, self::TB_DEFAULT_VALUE => 8],
+        'lan.seatmap.styles.seat_bullet_size' => [self::TB_DESCRIPTION => 'Sesselgröße im Sitzplan (px)', self::TB_TYPE => self::TB_TYPE_STRING, self::TB_DEFAULT_VALUE => 6],
+        'lan.seatmap.styles.seat_multiple_seats_distance' => [self::TB_DESCRIPTION => 'Abstand der Sitzplätze (px)', self::TB_TYPE => self::TB_TYPE_STRING, self::TB_DEFAULT_VALUE => 2],
 
         'lan.stats.show' => [self::TB_DESCRIPTION => 'Statistiken zur Anmeldung anzeigen', self::TB_TYPE => self::TB_TYPE_BOOL],
 
@@ -124,6 +126,14 @@ class SettingService
         return self::validKey($key) ? self::TEXT_BLOCK_KEYS[$key][self::TB_DESCRIPTION] : '';
     }
 
+    public static function getDefaultValue(string $key): string
+    {
+        if (isset(self::TEXT_BLOCK_KEYS[$key][self::TB_DEFAULT_VALUE]) && !empty(self::TEXT_BLOCK_KEYS[$key][self::TB_DEFAULT_VALUE])) {
+            return self::TEXT_BLOCK_KEYS[$key][self::TB_DEFAULT_VALUE];
+        }
+        return '';
+    }
+
     public function isSet(string $key): bool
     {
         return self::validKey($key) && !empty($this->get($key));
@@ -158,8 +168,13 @@ class SettingService
         }
 
         if (!isset($this->cache[$key])) {
-            // valid key, but not yet crated
-            return $default;
+            // valid key, but not yet created, default defined in template
+            if ($default) {
+                return $default;
+            }
+            
+            // valid key, but not yet created, default value from settings
+            return self::getDefaultValue($key);
         }
         if (self::getType($key) == self::TB_TYPE_FILE) {
             return $this->uploaderHelper->asset($this->cache[$key], 'file', Setting::class);

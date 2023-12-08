@@ -12,6 +12,7 @@ use App\Idm\IdmRepository;
 use App\Repository\SeatRepository;
 use App\Service\GamerService;
 use App\Service\SeatmapService;
+use App\Service\SettingService;
 use Doctrine\ORM\EntityManagerInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -31,15 +32,17 @@ class SeatmapController extends AbstractController
     private readonly EntityManagerInterface $em;
     private readonly GamerService $gamerService;
     private readonly SeatmapService $seatmapService;
+    private readonly SettingService $settingService;
     private readonly SeatRepository $seatRepository;
     private readonly SerializerInterface $serializer;
 
-    public function __construct(EntityManagerInterface $em, GamerService $gamerService, IdmManager $manager, SeatmapService $seatmapService, SeatRepository $seatRepository, SerializerInterface $serializer)
+    public function __construct(EntityManagerInterface $em, GamerService $gamerService, IdmManager $manager, SeatmapService $seatmapService, SettingService $settingService, SeatRepository $seatRepository, SerializerInterface $serializer)
     {
         $this->em = $em;
         $this->userRepo = $manager->getRepository(User::class);
         $this->gamerService = $gamerService;
         $this->seatmapService = $seatmapService;
+        $this->settingService = $settingService;
         $this->seatRepository = $seatRepository;
         $this->serializer = $serializer;
     }
@@ -150,6 +153,10 @@ class SeatmapController extends AbstractController
                 return $this->redirectToRoute('admin_seatmap');
             } else {
                 // Create multiple Seats
+                $seatSize = $this->settingService->get('lan.seatmap.styles.seat_size');
+                $seatMultiplier = $this->settingService->get('lan.seatmap.styles.seat_tablewidth_multiplier');
+                $seatSpacing = $this->settingService->get('lan.seatmap.styles.seat_multiple_seats_distance');
+                
                 $x = $seat->getPosX();
                 $y = $seat->getPosY();
                 $i = 1;
@@ -163,9 +170,9 @@ class SeatmapController extends AbstractController
                     $this->em->persist($newSeat);
 
                     if ($seat->getChairPosition() == 'top' || $seat->getChairPosition() == 'bottom') {
-                        $x += 29;
+                        $x += $seatSize * $seatMultiplier + $seatSpacing;
                     } else {
-                        $y += 29;
+                        $y += $seatSize * $seatMultiplier + $seatSpacing;
                     }
                     $seatNumber += 2;
                     ++$i;

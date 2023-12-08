@@ -83,8 +83,7 @@ document.addEventListener('DOMContentLoaded', function () {
         },
         _getRemoteContent() {
             return new Promise((resolve, reject) => {
-                xhr && xhr.readyState && console.log('xhr', xhr && xhr.readyState)
-                if(xhr && xhr.readyState != 4){
+                if (xhr && xhr.readyState != 4){
                     xhr.abort();
                 }
                 xhr = new window.XMLHttpRequest(); // only HttpRequest instance has .abort() method
