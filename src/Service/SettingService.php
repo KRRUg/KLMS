@@ -151,7 +151,7 @@ class SettingService
         return $this->repo->findByKey($key) ?? new Setting($key);
     }
 
-    public function get(string $key, $default = '')
+    public function get(string $key, $default = null)
     {
         $key = strtolower($key);
         if (!static::validKey($key)) {
@@ -168,14 +168,10 @@ class SettingService
         }
 
         if (!isset($this->cache[$key])) {
-            // valid key, but not yet created, default defined in template
-            if ($default) {
-                return $default;
-            }
-            
-            // valid key, but not yet created, default value from settings
-            return self::getDefaultValue($key);
+            // valid key, but not yet created. return either template or service default value
+            return !is_null($default) ? $default : self::getDefaultValue($key);
         }
+
         if (self::getType($key) == self::TB_TYPE_FILE) {
             return $this->uploaderHelper->asset($this->cache[$key], 'file', Setting::class);
         } else {
