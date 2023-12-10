@@ -28,7 +28,7 @@ class Content implements HistoryAwareEntity
     private ?string $description;
 
     #[ORM\Column(type: 'string', length: 255, unique: true, nullable: true)]
-    #[Assert\Regex('/^[a-z]*$/', message: 'Nur Kleinbuchstaben sind hier erlaubt.')]
+    #[Assert\Regex('/^[a-z-]*$/', message: 'Nur Kleinbuchstaben und Bindestriche sind hier erlaubt.')]
     private ?string $alias;
 
     public function __construct()

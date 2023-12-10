@@ -66,5 +66,13 @@
 
 {% block stylesheets %}
     {{ parent() }}
+    <style type="text/css">
+        :root {
+            --seatmap-seat-size: {{ settings.get('lan.seatmap.styles.seat_size') }}px;
+            --seatmap-seat-tableWidthMultiplier: {{ settings.get('lan.seatmap.styles.seat_tablewidth_multiplier') }};
+            --seatmap-seat-bullet-size: {{ settings.get('lan.seatmap.styles.seat_bullet_size') }}px;
+            --seatmap-seat-border-radius: {{ settings.get('lan.seatmap.styles.seat_border_radius', 10) }}px;
+        }
+    </style>
     {{ encore_entry_link_tags('seatmap') }}
 {% endblock %}

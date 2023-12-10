@@ -52,6 +52,7 @@ document.addEventListener('DOMContentLoaded', function () {
     })
 
     "use strict";
+    let xhr;
     let AjaxModal = function (remoteTarget) {
         this.remoteTarget = remoteTarget;
         /*this.$modal.on(
@@ -82,9 +83,14 @@ document.addEventListener('DOMContentLoaded', function () {
         },
         _getRemoteContent() {
             return new Promise((resolve, reject) => {
+                if (xhr && xhr.readyState != 4){
+                    xhr.abort();
+                }
+                xhr = new window.XMLHttpRequest(); // only HttpRequest instance has .abort() method
                 $.ajax({
                     method: 'GET',
                     url: this.remoteTarget,
+                    xhr: () => xhr
                 }).then((data, textStatus, jqXHR) => {
                     resolve(data);
                 }).catch((jqXHR) => {
