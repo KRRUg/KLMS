@@ -11,7 +11,7 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Vich\UploaderBundle\Mapping\Annotation as Vich;
 
 #[ORM\Table]
-#[ORM\Index(name: 'key_idx', columns: ['key'])]
+#[ORM\Index(name: 'key_idx', columns: ['`key`'])]
 #[ORM\Entity(repositoryClass: SettingRepository::class)]
 #[ORM\HasLifecycleCallbacks]
 #[Vich\Uploadable]
@@ -22,7 +22,7 @@ class Setting
     #[ORM\Column(type: 'integer')]
     private ?int $id = null;
 
-    #[ORM\Column(type: 'string', length: 255, unique: true)]
+    #[ORM\Column(type: 'string', length: 255, unique: true, name: '`key`')]
     private ?string $key = null;
 
     #[ORM\Column(type: 'text', nullable: true)]
