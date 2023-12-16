@@ -15,7 +15,7 @@ use App\Repository\NavigationNodeRepository;
 use App\Repository\NavigationRepository;
 use Doctrine\ORM\EntityManagerInterface;
 
-class NavigationService
+class NavigationService implements Resettable
 {
     private readonly EntityManagerInterface $em;
     private readonly NavigationRepository $navRepo;
@@ -196,7 +196,6 @@ class NavigationService
                     array_key_exists($key, self::NAV_LOCATION_DEPTHS) ? self::NAV_LOCATION_DEPTHS[$key] : null);
             }
         }
-        usort($navs, fn (Navigation $a, Navigation $b) => strcmp($a->getName(), $b->getName()));
 
         return $navs;
     }
@@ -269,5 +268,18 @@ class NavigationService
     {
         $this->em->remove($nav);
         $this->em->flush();
+    }
+
+    public function reset(): void
+    {
+        foreach ($this->navRepo->findAll() as $nav) {
+            $this->em->remove($nav);
+        }
+        $this->em->flush();
+    }
+
+    public function resetBefore(): array
+    {
+        return [];
     }
 }

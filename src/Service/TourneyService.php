@@ -19,7 +19,7 @@ use Doctrine\ORM\NoResultException;
 use LogicException;
 use Psr\Log\LoggerInterface;
 
-class TourneyService extends OptimalService
+class TourneyService extends OptimalService implements Resettable
 {
     private readonly EntityManagerInterface $em;
     private readonly LoggerInterface $logger;
@@ -568,5 +568,16 @@ class TourneyService extends OptimalService
         $tourney->setStatus(TourneyStage::Created);
         $this->repository->save($tourney);
         $this->em->flush();
+    }
+
+    public function reset(): void
+    {
+        // TODO: Remove all tournaments.
+        $this->settings->set(self::getSettingKey(), false);
+    }
+
+    public function resetBefore(): array
+    {
+        return [GamerService::class];
     }
 }

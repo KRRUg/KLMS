@@ -9,7 +9,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
-class MediaService
+class MediaService implements Resettable
 {
     private $em;
     private $repo;
@@ -89,5 +89,15 @@ class MediaService
             $this->em->persist($existing);
         }
         $this->em->flush();
+    }
+
+    public function reset(): void
+    {
+        // TODO: Implement reset() method.
+    }
+
+    public function resetBefore(): array
+    {
+        return [NewsService::class, ContentService::class];
     }
 }

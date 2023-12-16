@@ -10,7 +10,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use Exception;
 use Psr\Log\LoggerInterface;
 
-class SponsorService extends OptimalService
+class SponsorService extends OptimalService implements Resettable
 {
     private readonly SponsorRepository $sponsorRepository;
     private readonly SponsorCategoryRepository $categoryRepository;
@@ -197,5 +197,15 @@ class SponsorService extends OptimalService
         }
 
         return true;
+    }
+
+    public function reset(): void
+    {
+        // TODO: Delete all categories and disable the service
+    }
+
+    public function resetBefore(): array
+    {
+        return [];
     }
 }

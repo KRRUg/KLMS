@@ -12,7 +12,7 @@ use App\Repository\TeamsiteEntryRepository;
 use App\Repository\TeamsiteRepository;
 use Doctrine\ORM\EntityManagerInterface;
 
-class TeamsiteService
+class TeamsiteService implements Resettable
 {
     private readonly EntityManagerInterface $em;
     private readonly TeamsiteRepository $repo;
@@ -222,5 +222,15 @@ class TeamsiteService
         $this->em->commit();
 
         return true;
+    }
+
+    public function reset(): void
+    {
+        // TODO: Implement reset() method.
+    }
+
+    public function resetBefore(): array
+    {
+        return [NavigationService::class];
     }
 }
