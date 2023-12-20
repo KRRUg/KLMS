@@ -94,6 +94,11 @@
                             <i class="fab fa-steam fa-fw mr-3" title="Steam Account"></i>{{ user.steamaccount }}
                         </li>
                     {% endif %}
+                    {% if user.battlenetaccount | trim %}
+                        <li class="list-group-item">
+                            <i class="fab fa-battle-net fa-fw mr-3" title="Battle.net Account"></i>{{ user.battlenetaccount }}
+                        </li>
+                    {% endif %}
                     {% if user.website | trim %}
                         <li class="list-group-item">
                             <i class="fas fa-globe fa-fw mr-3" title="Webseite"></i><a href="{{ user.website }}" target="_blank">{{ user.website }}</a>
