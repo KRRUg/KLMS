@@ -39,10 +39,14 @@ class WipeService
     }
 
     /** @return string[]|false */
-    public function sortDependencies(array $serviceIds): array|false
+    public function buildOrder(array $serviceIds): array|false
     {
         $dependsOnMe = array_fill_keys($serviceIds, []);
-        foreach ($this->wipeableServices as $service) {
+        foreach ($serviceIds as $serviceId) {
+            if (!isset($this->wipeableServices[$serviceId])) {
+                return false;
+            }
+            $service = $this->wipeableServices[$serviceId];
             foreach ($service->resetBefore() as $dependency) {
                 if (!array_key_exists($dependency, $dependsOnMe)) {
                     return false;
@@ -74,7 +78,7 @@ class WipeService
     }
 
     /** @param string[]|null $servicesToWipe */
-    public function wipe(?array $servicesToWipe = null): void
+    public function wipe(?array $servicesToWipe = null): bool
     {
         if (is_null($servicesToWipe)) {
             // wipe all services
@@ -84,9 +88,9 @@ class WipeService
             $this->checkServiceIds($servicesToWipe);
         }
 
-        $order = $this->sortDependencies($servicesToWipe);
+        $order = $this->buildOrder($servicesToWipe);
         if ($order === false) {
-            throw new \LogicException("Cyclic Service dependency detected");
+            return false;
         }
 
         $this->em->beginTransaction();
@@ -94,6 +98,7 @@ class WipeService
             $this->wipeableServices[$id]->reset();
         }
         $this->em->commit();
+        return true;
     }
 
     public function getAllDependenciesOfService(string $serviceId): array

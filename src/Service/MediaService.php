@@ -11,9 +11,9 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 class MediaService implements WipeInterface
 {
-    private $em;
-    private $repo;
-    private $logger;
+    private readonly EntityManagerInterface $em;
+    private readonly MediaRepository $repo;
+    private readonly LoggerInterface $logger;
 
     /**
      * ImageService constructor.
@@ -93,7 +93,10 @@ class MediaService implements WipeInterface
 
     public function reset(): void
     {
-        // TODO: Implement reset() method.
+        foreach ($this->repo->findAll() as $m) {
+            $this->em->remove($m);
+        }
+        $this->em->flush();
     }
 
     public function resetBefore(): array

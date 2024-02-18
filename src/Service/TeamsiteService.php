@@ -226,7 +226,10 @@ class TeamsiteService implements WipeInterface
 
     public function reset(): void
     {
-        // TODO: Implement reset() method.
+        foreach ($this->repo->findAll() as $ts) {
+            $this->em->remove($ts);
+        }
+        $this->em->flush();
     }
 
     public function resetBefore(): array

@@ -18,6 +18,7 @@ use App\Service\NavigationService;
 use App\Service\NewsService;
 use App\Service\SeatmapService;
 use App\Service\SponsorService;
+use App\Service\StatisticService;
 use App\Service\TeamsiteService;
 use App\Service\TourneyService;
 use App\Service\WipeService;
@@ -25,7 +26,7 @@ use App\Tests\Integration\DatabaseTestCase;
 
 class WipeServiceIntegrationTest extends DatabaseTestCase
 {
-    private function checkWipedService(array $serviceIds): void
+    private function checkIfServiceIsEmpty(array $serviceIds, bool $checkForEmpty = true): void
     {
         $container = self::getContainer();
         foreach ($serviceIds as $id) {
@@ -44,7 +45,11 @@ class WipeServiceIntegrationTest extends DatabaseTestCase
                     default => $this->fail()
                 }
             );
-            $this->assertCount(0, $repo->findAll());
+            if ($checkForEmpty) {
+                $this->assertEmpty($repo->findAll(), "Failed to verify that class " . $id . " is empty.");
+            } else {
+                $this->assertNotEmpty($repo->findAll(), "Failed to verify that class " . $id . " is not empty.");
+            }
         }
     }
 
@@ -52,7 +57,7 @@ class WipeServiceIntegrationTest extends DatabaseTestCase
     {
         $wipeService = self::getContainer()->get(WipeService::class);
         $all = $wipeService->getWipeableServiceIds();
-        $sorted = $wipeService->sortDependencies($all);
+        $sorted = $wipeService->buildOrder($all);
         $this->assertIsArray($all);
         $this->assertNotFalse($sorted);
         $this->assertIsArray($sorted);
@@ -62,15 +67,38 @@ class WipeServiceIntegrationTest extends DatabaseTestCase
 
     public function testWipeAll()
     {
-        $this->databaseTool->loadFixtures();
-
+        $this->databaseTool->loadAllFixtures();
         $wipeService = self::getContainer()->get(WipeService::class);
         $wipeService->wipe();
-        $this->checkWipedService($wipeService->getWipeableServiceIds());
+        $this->checkIfServiceIsEmpty($wipeService->getWipeableServiceIds());
     }
 
     public function testWipeSingleService()
     {
+        $this->databaseTool->loadAllFixtures();
+        $wipeService = self::getContainer()->get(WipeService::class);
+        $all = $wipeService->getWipeableServiceIds();
+        $wipe = [TourneyService::class];
+        $result = $wipeService->wipe($wipe);
+        $this->assertTrue($result);
+        $this->checkIfServiceIsEmpty($wipe, true);
+        $this->checkIfServiceIsEmpty(array_diff($all, $wipe), false);
+    }
 
+    public function testInvalidClassWipe()
+    {
+        $this->databaseTool->loadAllFixtures();
+        $wipeService = self::getContainer()->get(WipeService::class);
+        $this->expectException(\LogicException::class);
+        $wipeService->wipe([StatisticService::class]);
+    }
+
+    public function testInvalidDependencyWipe()
+    {
+        $this->databaseTool->loadAllFixtures();
+        $wipeService = self::getContainer()->get(WipeService::class);
+        $wipe = [GamerService::class];
+        $result = $wipeService->wipe($wipe);
+        $this->assertFalse($result);
     }
 }

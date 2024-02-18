@@ -7,6 +7,8 @@ use App\Entity\SponsorCategory;
 use App\Repository\SponsorCategoryRepository;
 use App\Repository\SponsorRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\ORM\OptimisticLockException;
+use Doctrine\ORM\ORMException;
 use Exception;
 use Psr\Log\LoggerInterface;
 
@@ -201,7 +203,14 @@ class SponsorService extends OptimalService implements WipeInterface
 
     public function reset(): void
     {
-        // TODO: Delete all categories and disable the service
+        foreach ($this->sponsorRepository->findAll() as $sponsor) {
+            $this->em->remove($sponsor);
+        }
+        foreach ($this->categoryRepository->findAll() as $category) {
+            $this->em->remove($category);
+        }
+        $this->em->flush();
+        $this->deactivate();
     }
 
     public function resetBefore(): array

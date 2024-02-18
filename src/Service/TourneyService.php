@@ -551,19 +551,19 @@ class TourneyService extends OptimalService implements WipeInterface
 
     /* Tourney object management */
 
-    public function delete(Tourney $tourney)
+    public function delete(Tourney $tourney): void
     {
         $this->repository->remove($tourney);
         $this->em->flush();
     }
 
-    public function save(Tourney $tourney)
+    public function save(Tourney $tourney): void
     {
         $this->repository->save($tourney);
         $this->em->flush();
     }
 
-    public function create(Tourney $tourney)
+    public function create(Tourney $tourney): void
     {
         $tourney->setStatus(TourneyStage::Created);
         $this->repository->save($tourney);
@@ -572,12 +572,15 @@ class TourneyService extends OptimalService implements WipeInterface
 
     public function reset(): void
     {
-        // TODO: Remove all tournaments.
-        $this->settings->set(self::getSettingKey(), false);
+        foreach ($this->repository->findAll() as $tourney) {
+            $this->em->remove($tourney);
+        }
+        $this->em->flush();
+        $this->deactivate();
     }
 
     public function resetBefore(): array
     {
-        return [GamerService::class];
+        return [];
     }
 }

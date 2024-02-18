@@ -49,7 +49,7 @@ class Media implements HistoryAwareEntity
         return $this->mediaFile;
     }
 
-    public function setMediaFile(?File $mediaFile = null): void
+    public function setMediaFile(?File $mediaFile = null): self
     {
         $this->mediaFile = $mediaFile;
 
@@ -58,6 +58,8 @@ class Media implements HistoryAwareEntity
             // otherwise the event listeners won't be called and the file is lost
             $this->setLastModified(new DateTime());
         }
+
+        return $this;
     }
 
     public function getFileName(): ?string

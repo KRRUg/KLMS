@@ -22,6 +22,11 @@ abstract class OptimalService
         $this->setUp();
     }
 
+    protected function deactivate(): void
+    {
+        $this->settings->set(static::getSettingKey(), false);
+    }
+
     protected function setUp(): void {}
     abstract protected static function getSettingKey(): string;
 }

@@ -6,6 +6,7 @@ use App\Service\WipeService;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -28,13 +29,12 @@ class WipeController extends AbstractController
     }
 
     #[Route(path: '', name: '')]
-    public function index(): Response
+    public function index(Request $request): Response
     {
         $serviceIds = $this->wipeService->getWipeableServiceIds();
 
         $fb = $this->createFormBuilder();
         $toFriendlyId = fn($id) => str_replace('\\', '-', $id);
-
         foreach ($serviceIds as $serviceId) {
             $fb->add($toFriendlyId($serviceId), CheckboxType::class, [
                 'label' => self::serviceId2Name($serviceId),
@@ -43,6 +43,24 @@ class WipeController extends AbstractController
             ]);
         }
         $form = $fb->getForm();
+
+        $form->handleRequest($request);
+        if ($form->isSubmitted() && $form->isValid()) {
+            $selected = [];
+            foreach ($serviceIds as $serviceId) {
+                if ($form->get($toFriendlyId($serviceId))->getData()) {
+                    $selected[] = $serviceId;
+                }
+            }
+            if (empty($selected)) {
+                $this->addFlash("warning", "Kein Service ausgewählt.");
+            } elseif (!$this->wipeService->wipe($selected)) {
+                $this->addFlash("error", "Wipe configuration invalid.");
+            } else {
+                $this->addFlash("success", "Wipe war erfolgreich.");
+                return $this->redirectToRoute('admin_dashboard');
+            }
+        }
 
         return $this->render('admin/wipe/index.html.twig', [
             'form' => $form->createView(),
