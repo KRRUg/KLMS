@@ -2,7 +2,6 @@
 
 namespace App\Service;
 
-use App\Service\WipeInterface;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\DependencyInjection\Attribute\TaggedIterator;
 
@@ -30,11 +29,13 @@ class WipeService
         return array_keys($this->wipeableServices);
     }
 
-    private function checkServiceIds(array $serviceIds): bool
+    private function checkServiceIds(array $serviceIds): void
     {
         $ids = $this->getWipeableServiceIds();
         // check for subset
-        return array_intersect($serviceIds, $ids) == $serviceIds;
+        if (!array_intersect($serviceIds, $ids) == $serviceIds) {
+            throw new \LogicException("Invalid service specified for wipe");
+        }
     }
 
     /** @return string[]|false */
@@ -80,9 +81,7 @@ class WipeService
             $servicesToWipe = $this->getWipeableServiceIds();
         } else {
             // check if specified services are ok and wipe those
-            if ($this->checkServiceIds($servicesToWipe)) {
-                throw new \LogicException("Invalid service specified for wipe");
-            }
+            $this->checkServiceIds($servicesToWipe);
         }
 
         $order = $this->sortDependencies($servicesToWipe);
@@ -95,5 +94,20 @@ class WipeService
             $this->wipeableServices[$id]->reset();
         }
         $this->em->commit();
+    }
+
+    public function getAllDependenciesOfService(string $serviceId): array
+    {
+        $result = [];
+        $todo = [$serviceId];
+        while (count($todo) > 0) {
+            $currentId = array_pop($todo);
+            if (!array_key_exists($currentId, $result)) {
+                $this->checkServiceIds([$currentId]);
+                $result[$currentId] = true;
+                array_push($todo, ...$this->wipeableServices[$currentId]->resetBefore());
+            }
+        }
+        return array_keys($result);
     }
 }
