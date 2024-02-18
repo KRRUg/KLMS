@@ -8,12 +8,12 @@ use Symfony\Component\DependencyInjection\Attribute\AutoconfigureTag;
 interface WipeInterface
 {
     /**
-     * Performs the reset. All classes specified by resetBefore() are guaranteed to be reset before.
+     * Performs the wipe. All classes specified by wipeBefore() must be guaranteed to be reset before.
      */
-    public function reset(): void;
+    public function wipe(): void;
 
     /**
-     * @return string[] A list of Classes that need to be reset before this can be reset.
+     * @return string[] A list of Classes that need to be wiped before this can be reset.
      */
-    public function resetBefore(): array;
+    public function wipeBefore(): array;
 }

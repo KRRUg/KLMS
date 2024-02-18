@@ -74,7 +74,7 @@ class ContentService implements WipeInterface
         $this->logger->info("Create or Update Content {$content->getId()} ({$content->getTitle()})");
     }
 
-    public function reset(): void
+    public function wipe(): void
     {
         foreach ($this->repo->findAll() as $content) {
             $this->em->remove($content);
@@ -82,7 +82,7 @@ class ContentService implements WipeInterface
         $this->em->flush();
     }
 
-    public function resetBefore(): array
+    public function wipeBefore(): array
     {
         return [NavigationService::class];
     }

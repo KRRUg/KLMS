@@ -52,7 +52,7 @@ class WipeService
                 return false;
             }
             $service = $this->wipeableServices[$serviceId];
-            foreach ($service->resetBefore() as $dependency) {
+            foreach ($service->wipeBefore() as $dependency) {
                 if (!array_key_exists($dependency, $dependsOnMe)) {
                     return false;
                 } else {
@@ -101,7 +101,7 @@ class WipeService
         $this->em->beginTransaction();
         foreach ($order as $id) {
             $this->logger->info("Wiping service " . $id);
-            $this->wipeableServices[$id]->reset();
+            $this->wipeableServices[$id]->wipe();
         }
         $this->em->commit();
         return true;
@@ -116,7 +116,7 @@ class WipeService
             if (!array_key_exists($currentId, $result)) {
                 $this->checkServiceIds([$currentId]);
                 $result[$currentId] = true;
-                array_push($todo, ...$this->wipeableServices[$currentId]->resetBefore());
+                array_push($todo, ...$this->wipeableServices[$currentId]->wipeBefore());
             }
         }
         return array_keys($result);

@@ -60,7 +60,7 @@ class NewsService implements WipeInterface
         $this->em->flush();
     }
 
-    public function reset(): void
+    public function wipe(): void
     {
         foreach ($this->repo->findAll() as $news) {
             $this->em->remove($news);
@@ -68,7 +68,7 @@ class NewsService implements WipeInterface
         $this->em->flush();
     }
 
-    public function resetBefore(): array
+    public function wipeBefore(): array
     {
         return [];
     }

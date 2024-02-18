@@ -137,7 +137,7 @@ class SeatmapService implements WipeInterface
         }
     }
 
-    public function reset(): void
+    public function wipe(): void
     {
         foreach ($this->seatRepository->findAll() as $seat) {
             $this->em->remove($seat);
@@ -145,7 +145,7 @@ class SeatmapService implements WipeInterface
         $this->em->flush();
     }
 
-    public function resetBefore(): array
+    public function wipeBefore(): array
     {
         return [];
     }

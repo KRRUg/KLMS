@@ -201,7 +201,7 @@ class SponsorService extends OptimalService implements WipeInterface
         return true;
     }
 
-    public function reset(): void
+    public function wipe(): void
     {
         foreach ($this->sponsorRepository->findAll() as $sponsor) {
             $this->em->remove($sponsor);
@@ -213,7 +213,7 @@ class SponsorService extends OptimalService implements WipeInterface
         $this->deactivate();
     }
 
-    public function resetBefore(): array
+    public function wipeBefore(): array
     {
         return [];
     }
