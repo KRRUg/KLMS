@@ -39,7 +39,10 @@ class WipeController extends AbstractController
             $fb->add($toFriendlyId($serviceId), CheckboxType::class, [
                 'label' => self::serviceId2Name($serviceId),
                 'required' => false,
-                'attr' => ['data-dependency' => implode(',', array_map($toFriendlyId, $this->wipeService->getAllDependenciesOfService($serviceId)))],
+                'attr' => [
+                    'id' => $toFriendlyId($serviceId),
+                    'data-dependency' => implode(',', array_map($toFriendlyId, $this->wipeService->getAllDependenciesOfService($serviceId)))
+                ],
             ]);
         }
         $form = $fb->getForm();

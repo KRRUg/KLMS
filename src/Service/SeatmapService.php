@@ -147,6 +147,6 @@ class SeatmapService implements WipeInterface
 
     public function resetBefore(): array
     {
-        return [GamerService::class];
+        return [];
     }
 }

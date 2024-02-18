@@ -3,6 +3,7 @@
 namespace App\Service;
 
 use Doctrine\ORM\EntityManagerInterface;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\Attribute\TaggedIterator;
 
 class WipeService
@@ -10,18 +11,22 @@ class WipeService
     /** @var WipeInterface[] */
     private array $wipeableServices;
 
-    private EntityManagerInterface $em;
+    private readonly EntityManagerInterface $em;
+
+    private readonly LoggerInterface $logger;
 
     public function __construct(
         #[TaggedIterator('app.service.wipe')]
         iterable $services,
-        EntityManagerInterface $em
+        EntityManagerInterface $em,
+        LoggerInterface $logger
     ){
         $this->wipeableServices = [];
         foreach ($services as $service) {
             $this->wipeableServices[$service::class] = $service;
         }
         $this->em = $em;
+        $this->logger = $logger;
     }
 
     public function getWipeableServiceIds(): array
@@ -51,7 +56,7 @@ class WipeService
                 if (!array_key_exists($dependency, $dependsOnMe)) {
                     return false;
                 } else {
-                    $dependsOnMe[$dependency][$service::class] = true;
+                    $dependsOnMe[$service::class][$dependency] = true;
                 }
             }
         }
@@ -95,6 +100,7 @@ class WipeService
 
         $this->em->beginTransaction();
         foreach ($order as $id) {
+            $this->logger->info("Wiping service " . $id);
             $this->wipeableServices[$id]->reset();
         }
         $this->em->commit();

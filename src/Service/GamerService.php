@@ -281,6 +281,6 @@ class GamerService implements WipeInterface
 
     public function resetBefore(): array
     {
-        return [TourneyService::class];
+        return [TourneyService::class, SeatmapService::class];
     }
 }
