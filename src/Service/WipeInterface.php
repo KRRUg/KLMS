@@ -2,7 +2,10 @@
 
 namespace App\Service;
 
-interface Resettable
+use Symfony\Component\DependencyInjection\Attribute\AutoconfigureTag;
+
+#[AutoconfigureTag('app.service.wipe')]
+interface WipeInterface
 {
     /**
      * Performs the reset. All classes specified by resetBefore() are guaranteed to be reset before.

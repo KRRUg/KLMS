@@ -14,7 +14,7 @@ use DateTime;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 
-class GamerService implements Resettable
+class GamerService implements WipeInterface
 {
     private readonly LoggerInterface $logger;
     private readonly EntityManagerInterface $em;

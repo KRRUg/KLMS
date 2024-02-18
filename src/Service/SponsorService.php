@@ -10,7 +10,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use Exception;
 use Psr\Log\LoggerInterface;
 
-class SponsorService extends OptimalService implements Resettable
+class SponsorService extends OptimalService implements WipeInterface
 {
     private readonly SponsorRepository $sponsorRepository;
     private readonly SponsorCategoryRepository $categoryRepository;

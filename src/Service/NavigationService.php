@@ -15,7 +15,7 @@ use App\Repository\NavigationNodeRepository;
 use App\Repository\NavigationRepository;
 use Doctrine\ORM\EntityManagerInterface;
 
-class NavigationService implements Resettable
+class NavigationService implements WipeInterface
 {
     private readonly EntityManagerInterface $em;
     private readonly NavigationRepository $navRepo;

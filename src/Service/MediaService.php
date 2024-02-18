@@ -9,7 +9,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
-class MediaService implements Resettable
+class MediaService implements WipeInterface
 {
     private $em;
     private $repo;

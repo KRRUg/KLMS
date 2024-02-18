@@ -12,7 +12,7 @@ use App\Repository\TeamsiteEntryRepository;
 use App\Repository\TeamsiteRepository;
 use Doctrine\ORM\EntityManagerInterface;
 
-class TeamsiteService implements Resettable
+class TeamsiteService implements WipeInterface
 {
     private readonly EntityManagerInterface $em;
     private readonly TeamsiteRepository $repo;

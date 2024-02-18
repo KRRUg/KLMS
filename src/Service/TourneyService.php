@@ -19,7 +19,7 @@ use Doctrine\ORM\NoResultException;
 use LogicException;
 use Psr\Log\LoggerInterface;
 
-class TourneyService extends OptimalService implements Resettable
+class TourneyService extends OptimalService implements WipeInterface
 {
     private readonly EntityManagerInterface $em;
     private readonly LoggerInterface $logger;

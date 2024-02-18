@@ -11,7 +11,7 @@ use App\Repository\SeatRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Security\Core\Security;
 
-class SeatmapService implements Resettable
+class SeatmapService implements WipeInterface
 {
     private readonly EntityManagerInterface $em;
     private readonly SeatRepository $seatRepository;

@@ -7,7 +7,7 @@ use App\Repository\NewsRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 
-class NewsService implements Resettable
+class NewsService implements WipeInterface
 {
     private readonly NewsRepository $repo;
     private readonly EntityManagerInterface $em;
@@ -66,5 +66,10 @@ class NewsService implements Resettable
             $this->em->remove($news);
         }
         $this->em->flush();
+    }
+
+    public function resetBefore(): array
+    {
+        return [];
     }
 }

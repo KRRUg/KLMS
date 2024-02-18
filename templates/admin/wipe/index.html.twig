@@ -1,0 +1,12 @@
+{% extends 'admin/adminBase.html.twig' %}
+
+{% block title %}KLMS - Admin{% endblock %}
+{% block siteheading %}<i class="far fa-trash"></i> Wipe{% endblock %}
+{% block main %}
+<h2>Services</h2>
+    <ul>
+        {% for service in services %}
+        <li>{{ service }}</li>
+        {% endfor %}
+    </ul>
+{% endblock %}

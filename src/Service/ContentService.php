@@ -8,7 +8,7 @@ use App\Repository\ContentRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 
-class ContentService implements Resettable
+class ContentService implements WipeInterface
 {
     private readonly ContentRepository $repo;
     private readonly EntityManagerInterface $em;
