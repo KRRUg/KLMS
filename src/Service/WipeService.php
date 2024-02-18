@@ -119,6 +119,7 @@ class WipeService
                 array_push($todo, ...$this->wipeableServices[$currentId]->wipeBefore());
             }
         }
+        unset($result[$serviceId]);
         return array_keys($result);
     }
 }

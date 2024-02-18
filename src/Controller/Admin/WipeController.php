@@ -28,6 +28,16 @@ class WipeController extends AbstractController
         return str_replace("Service", "", $id);
     }
 
+    static private function serviceId2Label(string $serviceId, array $dependencies) {
+        $result  = "<strong>" . self::serviceId2Name($serviceId) . "</strong>";
+        if ($dependencies) {
+            $result .= "<br><small><span class='text-muted'>("
+                . implode(', ', array_map(fn ($f) => self::serviceId2Name($f), $dependencies))
+                . ")</span></small>";
+        }
+        return $result;
+    }
+
     #[Route(path: '', name: '')]
     public function index(Request $request): Response
     {
@@ -36,12 +46,13 @@ class WipeController extends AbstractController
         $fb = $this->createFormBuilder();
         $toFriendlyId = fn($id) => str_replace('\\', '-', $id);
         foreach ($serviceIds as $serviceId) {
+            $dependencies = $this->wipeService->getAllDependenciesOfService($serviceId);
             $fb->add($toFriendlyId($serviceId), CheckboxType::class, [
-                'label' => self::serviceId2Name($serviceId),
+                'label' => self::serviceId2Label($serviceId, $dependencies),
                 'required' => false,
+                'label_html' => true,
                 'attr' => [
-                    'id' => $toFriendlyId($serviceId),
-                    'data-dependency' => implode(',', array_map($toFriendlyId, $this->wipeService->getAllDependenciesOfService($serviceId)))
+                    'data-dependency' => implode(',', array_map($toFriendlyId, $dependencies))
                 ],
             ]);
         }
