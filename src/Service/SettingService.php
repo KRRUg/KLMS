@@ -9,7 +9,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 use Vich\UploaderBundle\Templating\Helper\UploaderHelper;
 
-class SettingService
+class SettingService implements WipeInterface
 {
     private const TB_TYPE = 'type';
     private const TB_DESCRIPTION = 'description';
@@ -219,24 +219,30 @@ class SettingService
     {
         $keys = array_map(strtolower(...), $keys);
 
-        $result = true;
+        $result = false;
         foreach ($keys as $key) {
             if (!self::validKey($key)) {
-                $result = false;
                 $this->logger->error("Invalid key {$key} was to be deleted by SettingService");
                 continue;
             }
             $block = $this->repo->findByKey($key);
             if (empty($block)) {
-                $result = false;
                 continue;
             }
+            $result = true;
             $this->em->remove($block);
         }
         $this->em->flush();
         $this->cache = null;
 
         return $result;
+    }
+
+    public function clearStartWith(string $pattern): bool
+    {
+        $pattern = strtolower($pattern);
+        $keys = array_filter(self::getKeys(), fn ($k) => str_starts_with($k, $pattern));
+        return $this->clearMultiple($keys);
     }
 
     public function lastModification(string $key): ?DateTimeInterface
@@ -291,5 +297,21 @@ class SettingService
         $this->em->persist($data);
         $this->em->flush();
         $this->cache = null;
+    }
+
+    public function wipe(): void
+    {
+        $keys = [
+            'site.title', 'site.title.show', 'site.subtitle', 'site.subtitle.show', 'site.about', 'site.organisation',
+            'link.fb', 'link.insta', 'link.steam', 'link.yt', 'link.twitter', 'link.discord', 'link.teamspeak', 'link.twitch',
+            'community.enabled', 'community.all', 'lan.signup.enabled', 'lan.signup.info', 'lan.stats.show',
+            'style.logo', 'style.bg_image'
+        ];
+        $this->clearMultiple($keys);
+    }
+
+    public function wipeBefore(): array
+    {
+        return [];
     }
 }

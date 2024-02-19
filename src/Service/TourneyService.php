@@ -576,6 +576,7 @@ class TourneyService extends OptimalService implements WipeInterface
             $this->em->remove($tourney);
         }
         $this->em->flush();
+        $this->settings->clearStartWith('lan.tourney');
         $this->deactivate();
     }
 

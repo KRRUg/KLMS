@@ -69,12 +69,12 @@ class SettingServiceIntegrationTest extends DatabaseTestCase
         $this->assertTrue(SettingService::validKeys($keys));
         $this->assertTrue($settingService->isSet($keys[0]));
         $this->assertFalse($settingService->isSet($keys[1]));
-        $this->assertFalse($settingService->clearMultiple($keys));
+        $this->assertTrue($settingService->clearMultiple($keys));
         $this->assertFalse($settingService->isSet($keys[0]));
         $this->assertFalse($settingService->isSet($keys[1]));
     }
 
-    public function testClearInvalidKeys()
+    public function testClearSomeInvalidKeys()
     {
         $this->databaseTool->loadFixtures([SettingsFixture::class]);
         $settingService = self::getContainer()->get(SettingService::class);
@@ -82,8 +82,56 @@ class SettingServiceIntegrationTest extends DatabaseTestCase
         $this->assertFalse(SettingService::validKeys($keys));
         $this->assertTrue($settingService->isSet($keys[0]));
         $this->assertFalse($settingService->isSet($keys[1]));
-        $this->assertFalse($settingService->clearMultiple($keys));
+        $this->assertTrue($settingService->clearMultiple($keys));
         $this->assertFalse($settingService->isSet($keys[0]));
         $this->assertFalse($settingService->isSet($keys[1]));
+    }
+
+    public function testClearAllInvalidKeys()
+    {
+        $this->databaseTool->loadFixtures([SettingsFixture::class]);
+        $settingService = self::getContainer()->get(SettingService::class);
+        $keys = ['invalid_key_that_does_not_exist', 'another_invalid_key_that_does_not_exist_as_well'];
+        $this->assertFalse(SettingService::validKey($keys[0]));
+        $this->assertFalse(SettingService::validKey($keys[1]));
+        $this->assertFalse($settingService->clearMultiple($keys));
+    }
+
+    public function testClearInvalidAndUnsetKeys()
+    {
+        $this->databaseTool->loadFixtures([SettingsFixture::class]);
+        $settingService = self::getContainer()->get(SettingService::class);
+        $keys = ['link.yt', 'invalid_key_that_does_not_exist'];
+        $this->assertTrue(SettingService::validKey($keys[0]));
+        $this->assertFalse(SettingService::validKey($keys[1]));
+        $this->assertFalse($settingService->isSet($keys[0]));
+        $this->assertFalse($settingService->isSet($keys[1]));
+        $this->assertFalse($settingService->clearMultiple($keys));
+    }
+
+    public function testClearStartWith()
+    {
+        $this->databaseTool->loadFixtures([SettingsFixture::class]);
+        $settingService = self::getContainer()->get(SettingService::class);
+        $keys = ['site.title', 'link.steam'];
+        $this->assertTrue(SettingService::validKeys($keys));
+        $this->assertTrue($settingService->isSet($keys[0]));
+        $this->assertTrue($settingService->isSet($keys[1]));
+        $this->assertTrue($settingService->clearStartWith('link'));
+        $this->assertTrue($settingService->isSet($keys[0]));
+        $this->assertFalse($settingService->isSet($keys[1]));
+    }
+
+    public function testClearStartWithInvalid()
+    {
+        $this->databaseTool->loadFixtures([SettingsFixture::class]);
+        $settingService = self::getContainer()->get(SettingService::class);
+        $keys = ['site.title', 'link.steam'];
+        $this->assertTrue(SettingService::validKeys($keys));
+        $this->assertTrue($settingService->isSet($keys[0]));
+        $this->assertTrue($settingService->isSet($keys[1]));
+        $this->assertFalse($settingService->clearStartWith('invalid_prefix_that_does_not_exist'));
+        $this->assertTrue($settingService->isSet($keys[0]));
+        $this->assertTrue($settingService->isSet($keys[1]));
     }
 }

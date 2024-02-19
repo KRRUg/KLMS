@@ -16,6 +16,7 @@ class SponsorService extends OptimalService implements WipeInterface
 {
     private readonly SponsorRepository $sponsorRepository;
     private readonly SponsorCategoryRepository $categoryRepository;
+    private readonly SettingService $settingService;
     private readonly EntityManagerInterface $em;
     private readonly LoggerInterface $logger;
 
@@ -34,6 +35,7 @@ class SponsorService extends OptimalService implements WipeInterface
         parent::__construct($settings);
         $this->sponsorRepository = $sponsorRepository;
         $this->categoryRepository = $categoryRepository;
+        $this->settingService = $settings;
         $this->em = $em;
         $this->logger = $logger;
     }
@@ -210,6 +212,7 @@ class SponsorService extends OptimalService implements WipeInterface
             $this->em->remove($category);
         }
         $this->em->flush();
+        $this->settingService->clearStartWith('sponsor');
         $this->deactivate();
     }
 

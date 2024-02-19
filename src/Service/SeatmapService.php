@@ -143,6 +143,7 @@ class SeatmapService implements WipeInterface
             $this->em->remove($seat);
         }
         $this->em->flush();
+        $this->settingService->clearStartWith('lan.seatmap');
     }
 
     public function wipeBefore(): array
