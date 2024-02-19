@@ -105,22 +105,30 @@ class SettingService
     public static function validKey(string $key): bool
     {
         $key = strtolower($key);
-
         return array_key_exists($key, self::TEXT_BLOCK_KEYS);
+    }
+
+    public static function validKeys(array $keys): bool
+    {
+        $keys = array_map(strtolower(...), $keys);
+        return array_intersect($keys, array_keys(self::TEXT_BLOCK_KEYS)) == $keys;
     }
 
     public static function getType(string $key): string
     {
+        $key = strtolower($key);
         return self::validKey($key) ? self::TEXT_BLOCK_KEYS[$key][self::TB_TYPE] : '';
     }
 
     public static function getDescription(string $key): string
     {
+        $key = strtolower($key);
         return self::validKey($key) ? self::TEXT_BLOCK_KEYS[$key][self::TB_DESCRIPTION] : '';
     }
 
     public function isSet(string $key): bool
     {
+        $key = strtolower($key);
         return self::validKey($key) && !empty($this->get($key));
     }
 
@@ -188,7 +196,7 @@ class SettingService
         return true;
     }
 
-    public function remove(string $key): bool
+    public function clear(string $key): bool
     {
         $key = strtolower($key);
         if (!static::validKey($key)) {
@@ -197,7 +205,6 @@ class SettingService
         }
         $block = $this->repo->findByKey($key);
         if (empty($block)) {
-            $this->logger->warning("Tried to delete non-existing key {$key}");
             return false;
         }
         $this->em->remove($block);
@@ -205,6 +212,31 @@ class SettingService
         $this->cache = null;
 
         return true;
+    }
+
+    /** @var string[] $keys */
+    public function clearMultiple(array $keys): bool
+    {
+        $keys = array_map(strtolower(...), $keys);
+
+        $result = true;
+        foreach ($keys as $key) {
+            if (!self::validKey($key)) {
+                $result = false;
+                $this->logger->error("Invalid key {$key} was to be deleted by SettingService");
+                continue;
+            }
+            $block = $this->repo->findByKey($key);
+            if (empty($block)) {
+                $result = false;
+                continue;
+            }
+            $this->em->remove($block);
+        }
+        $this->em->flush();
+        $this->cache = null;
+
+        return $result;
     }
 
     public function lastModification(string $key): ?DateTimeInterface
@@ -252,9 +284,10 @@ class SettingService
     {
         $key = $data->getKey();
         if (!static::validKey($key)) {
-            $this->logger->error("Invalid key {$key} was to be deleted by SettingService");
+            $this->logger->error("Invalid key {$key} was to be set by SettingService");
             return;
         }
+        $data->setKey(strtolower($key));
         $this->em->persist($data);
         $this->em->flush();
         $this->cache = null;
