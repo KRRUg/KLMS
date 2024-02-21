@@ -24,7 +24,7 @@ use Symfony\Component\Messenger\Stamp\DelayStamp;
 use Symfony\Component\Mime;
 use Twig\Environment;
 
-class EmailService
+class EmailService implements WipeInterface
 {
     final public const APP_HOOK_REGISTRATION_CONFIRM = 'REGISTRATION_CONFIRMATION';
     final public const APP_HOOK_RESET_PW = 'PASSWORD_RESET';
@@ -311,5 +311,21 @@ class EmailService
         $this->em->commit();
 
         return true;
+    }
+
+    public function wipe(): void
+    {
+        foreach ($this->templateRepository->findAll() as $email) {
+            $sending = $email->getEmailSending();
+            if ($sending)
+                $this->em->remove($sending);
+            $this->em->remove($email);
+        }
+        $this->em->flush();
+    }
+
+    public function wipeBefore(): array
+    {
+        return [];
     }
 }

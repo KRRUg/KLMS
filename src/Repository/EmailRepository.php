@@ -58,12 +58,4 @@ class EmailRepository extends ServiceEntityRepository
 
         return $result;
     }
-
-    public function countMailsSuccess(): int
-    {
-    }
-
-    public function countMailsFail(): int
-    {
-    }
 }

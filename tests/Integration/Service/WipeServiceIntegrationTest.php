@@ -3,6 +3,7 @@
 namespace App\Tests\Integration\Service;
 
 use App\Repository\ContentRepository;
+use App\Repository\EmailRepository;
 use App\Repository\MediaRepository;
 use App\Repository\NavigationRepository;
 use App\Repository\NewsRepository;
@@ -12,6 +13,7 @@ use App\Repository\TeamsiteRepository;
 use App\Repository\TourneyRepository;
 use App\Repository\UserGamerRepository;
 use App\Service\ContentService;
+use App\Service\EmailService;
 use App\Service\GamerService;
 use App\Service\MediaService;
 use App\Service\NavigationService;
@@ -42,6 +44,7 @@ class WipeServiceIntegrationTest extends DatabaseTestCase
                 SponsorService::class => SponsorRepository::class,
                 TeamsiteService::class => TeamsiteRepository::class,
                 TourneyService::class => TourneyRepository::class,
+                EmailService::class => EmailRepository::class,
                 SettingService::class => null,
                 default => $this->fail()
             };
