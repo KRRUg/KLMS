@@ -1,63 +1,23 @@
-# KLMS
-KRRU LAN-Party Management System
+<p align="center"><img src="assets/images/logo.svg" alt="Logo"></p>
+<h3 align="center">KRRU LAN-Party Management System</h3>
 
-## Development setup
+CMS (Content management system) for LAN-Parties. Everything you need to present and manage your event in a modern design.
 
-### Installation
-Follow the Symfony setup guidelines to set up a basic Symfony installation: https://symfony.com/doc/4.4/setup.html
+## Features
 
-When running `symfony check:requirements` ensure that no errors nor warnings are displayed.
-In addition to the basic Symfony setup, install:
-* PostgreSQL server
-* PHP PostgreSQL module
-* Node.js
-* Yarn (see https://yarnpkg.com/getting-started/install/)  
+KLMS helps you with
+ - **Present your event** With news-posts, content pages, and team-sites, you can present your event in an appealing and modern design. Dynamic navigation allows you to structure your site however _you_ want.
+ - **Registration, Payment, and Check-In Support** Keep to date with who is attending your event.
+ - **Seatmap** Create a seatmap for your event. Your guests can choose their favorite seat.
+ - **Tournament System** Keep track of your tournaments. KLMS got you covered with all steps including registration, seeding, and result tracking. To keep the overview, the process is presented in tournament trees.
+ - **Community Management** Who else is attending your event? Who is your audience? KLMS allows you to store your user-base in a central location for all your events.
+ - **E-Mail Newsletter** Keep your audience up-to-date with Newsletters. Send E-Mails to all your customers or specific groups.
 
-KLMS is tested and running in Production with the following Versions:
-* PHP 8.1
-* PostgreSQL 9 & 12
-* Node.js 19
-* Yarn 1
-* Composer 2
+KLMS is
+ - **modern** Using up-to-date technology stacks (Symfony and Bootstrap).
+ - **open source** Licensed under [GPLv3](LICENSE).
+ - **actively maintained** and in use for multiple events.
+ - currently German only. Internationalisation support including an English translation is coming up.
 
-### Database setup
-Login as the PostgreSQL admin user (usually `postgres`) and create a user
-with an according password and create a database for the KLMS instance.
-
-Running Linux and logged on as root, the following commands perform this actions:
-```
-sudo -u postgres -i
-createuser -l -P <db_user>
-createdb -O <db_user> <db_name>
-exit
-``` 
-
-### KLMS setup
-First create the local env file to tell the framework the database and IDM connections.
-Create a file `.env.local` in the project's main directory with the following content:
-```
-DATABASE_URL=postgresql://<db_user>:<db_pw>@<db_ip>:<db_port>/<db_name>?serverVersion=12&charset=utf8
-KLMS_IDM_URL=https://<idm_host>:<idm_port>
-KLMS_IDM_APIKEY=<idm_key>
-```
-
-To set up the required third party libraries go to the project directory and run
-```
-composer install
-yarn install
-yarn encore dev
-``` 
-
-To create the database, schema and some default data run
-```
-bin/console doctrine:database:create
-bin/console doctrine:schema:create
-bin/console doctrine:fixtures:load -n
-```
-
-### Run KLMS
-Once all setup steps are done start the Symfony development server using
-```
-bin/console server:start
-```
-Open the printed URL in your browser and log in with a superuser credential 
+## Setup
+Setup instructions and system requirements can be found in our [setup documentation](SETUP.md).
