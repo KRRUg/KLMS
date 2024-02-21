@@ -7,13 +7,16 @@ use App\Entity\SponsorCategory;
 use App\Repository\SponsorCategoryRepository;
 use App\Repository\SponsorRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\ORM\OptimisticLockException;
+use Doctrine\ORM\ORMException;
 use Exception;
 use Psr\Log\LoggerInterface;
 
-class SponsorService extends OptimalService
+class SponsorService extends OptimalService implements WipeInterface
 {
     private readonly SponsorRepository $sponsorRepository;
     private readonly SponsorCategoryRepository $categoryRepository;
+    private readonly SettingService $settingService;
     private readonly EntityManagerInterface $em;
     private readonly LoggerInterface $logger;
 
@@ -32,6 +35,7 @@ class SponsorService extends OptimalService
         parent::__construct($settings);
         $this->sponsorRepository = $sponsorRepository;
         $this->categoryRepository = $categoryRepository;
+        $this->settingService = $settings;
         $this->em = $em;
         $this->logger = $logger;
     }
@@ -197,5 +201,23 @@ class SponsorService extends OptimalService
         }
 
         return true;
+    }
+
+    public function wipe(): void
+    {
+        foreach ($this->sponsorRepository->findAll() as $sponsor) {
+            $this->em->remove($sponsor);
+        }
+        foreach ($this->categoryRepository->findAll() as $category) {
+            $this->em->remove($category);
+        }
+        $this->em->flush();
+        $this->settingService->clearStartWith('sponsor');
+        $this->deactivate();
+    }
+
+    public function wipeBefore(): array
+    {
+        return [];
     }
 }

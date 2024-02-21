@@ -9,11 +9,11 @@ use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
-class MediaService
+class MediaService implements WipeInterface
 {
-    private $em;
-    private $repo;
-    private $logger;
+    private readonly EntityManagerInterface $em;
+    private readonly MediaRepository $repo;
+    private readonly LoggerInterface $logger;
 
     /**
      * ImageService constructor.
@@ -89,5 +89,18 @@ class MediaService
             $this->em->persist($existing);
         }
         $this->em->flush();
+    }
+
+    public function wipe(): void
+    {
+        foreach ($this->repo->findAll() as $m) {
+            $this->em->remove($m);
+        }
+        $this->em->flush();
+    }
+
+    public function wipeBefore(): array
+    {
+        return [NewsService::class, ContentService::class];
     }
 }

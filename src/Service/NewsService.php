@@ -7,7 +7,7 @@ use App\Repository\NewsRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 
-class NewsService
+class NewsService implements WipeInterface
 {
     private readonly NewsRepository $repo;
     private readonly EntityManagerInterface $em;
@@ -58,5 +58,18 @@ class NewsService
         $this->logger->info("Create or Update News {$news->getId()} ({$news->getTitle()})");
         $this->em->persist($news);
         $this->em->flush();
+    }
+
+    public function wipe(): void
+    {
+        foreach ($this->repo->findAll() as $news) {
+            $this->em->remove($news);
+        }
+        $this->em->flush();
+    }
+
+    public function wipeBefore(): array
+    {
+        return [];
     }
 }

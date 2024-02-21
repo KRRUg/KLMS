@@ -35,4 +35,8 @@
             </div>
         </div>
     {% endfor %}
+    {% if is_granted("ROLE_ADMIN_SUPER") %}
+        <hr>
+        <a class="btn btn-sm btn-danger" href="{{ path('admin_wipe') }}">Wipe Site</a>
+    {% endif %}
 {% endblock %}

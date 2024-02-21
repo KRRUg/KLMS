@@ -12,7 +12,7 @@ use App\Repository\TeamsiteEntryRepository;
 use App\Repository\TeamsiteRepository;
 use Doctrine\ORM\EntityManagerInterface;
 
-class TeamsiteService
+class TeamsiteService implements WipeInterface
 {
     private readonly EntityManagerInterface $em;
     private readonly TeamsiteRepository $repo;
@@ -222,5 +222,18 @@ class TeamsiteService
         $this->em->commit();
 
         return true;
+    }
+
+    public function wipe(): void
+    {
+        foreach ($this->repo->findAll() as $ts) {
+            $this->em->remove($ts);
+        }
+        $this->em->flush();
+    }
+
+    public function wipeBefore(): array
+    {
+        return [NavigationService::class];
     }
 }

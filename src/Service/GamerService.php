@@ -14,7 +14,7 @@ use DateTime;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 
-class GamerService
+class GamerService implements WipeInterface
 {
     private readonly LoggerInterface $logger;
     private readonly EntityManagerInterface $em;
@@ -269,5 +269,18 @@ class GamerService
     public function getUserFromGamer(UserGamer $userGamer): ?User
     {
         return $this->userRepo->findOneById($userGamer->getUuid());
+    }
+
+    public function wipe(): void
+    {
+        foreach ($this->repo->findAll() as $gamer) {
+            $this->em->remove($gamer);
+        }
+        $this->em->flush();
+    }
+
+    public function wipeBefore(): array
+    {
+        return [TourneyService::class, SeatmapService::class];
     }
 }

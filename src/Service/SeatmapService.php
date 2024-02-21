@@ -11,7 +11,7 @@ use App\Repository\SeatRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Security\Core\Security;
 
-class SeatmapService
+class SeatmapService implements WipeInterface
 {
     private readonly EntityManagerInterface $em;
     private readonly SeatRepository $seatRepository;
@@ -135,5 +135,19 @@ class SeatmapService
         } else {
             return null;
         }
+    }
+
+    public function wipe(): void
+    {
+        foreach ($this->seatRepository->findAll() as $seat) {
+            $this->em->remove($seat);
+        }
+        $this->em->flush();
+        $this->settingService->clearStartWith('lan.seatmap');
+    }
+
+    public function wipeBefore(): array
+    {
+        return [];
     }
 }

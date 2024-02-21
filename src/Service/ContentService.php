@@ -8,13 +8,12 @@ use App\Repository\ContentRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 
-class ContentService
+class ContentService implements WipeInterface
 {
-    private $repo;
-    private $em;
-    private $logger;
-
-    private $navService;
+    private readonly ContentRepository $repo;
+    private readonly EntityManagerInterface $em;
+    private readonly LoggerInterface $logger;
+    private readonly NavigationService $navService;
 
     /**
      * ContentService constructor.
@@ -73,5 +72,18 @@ class ContentService
         $this->em->persist($content);
         $this->em->flush();
         $this->logger->info("Create or Update Content {$content->getId()} ({$content->getTitle()})");
+    }
+
+    public function wipe(): void
+    {
+        foreach ($this->repo->findAll() as $content) {
+            $this->em->remove($content);
+        }
+        $this->em->flush();
+    }
+
+    public function wipeBefore(): array
+    {
+        return [NavigationService::class];
     }
 }
