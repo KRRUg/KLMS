@@ -171,7 +171,11 @@ class TourneyService extends OptimalService
 
     public function userMayParticipate(User $user): bool
     {
-        return $this->gamerService->gamerIsOnLan($user);
+        if($this->settings->get(self::SETTING_PREFIX.'allow_registration_for_non_checkedin', false)) {
+            return $this->gamerService->gamerHasPaid($user);
+        } else {
+            return $this->gamerService->gamerIsOnLan($user);
+        }
     }
 
     public function getRegistrableTourneys($user): array
