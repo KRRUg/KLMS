@@ -37,6 +37,7 @@ class UserFixtures extends Fixture
         $gamer->setCheckedIn(new DateTime());
         $manager->persist($gamer);
 
+        // TODO remove this (this is not tickets)
         for ($i = 1; $i <= 10; $i++) {
             $gamer = new UserGamer(Uuid::fromInteger(strval($i)));
             $gamer->setRegistered(new DateTime());
