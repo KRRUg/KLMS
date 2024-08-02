@@ -78,6 +78,21 @@ class ShopOrder
         return $this;
     }
 
+    public function isPaid(): bool
+    {
+        return $this->status == ShopOrderStatus::Paid;
+    }
+
+    public function isCanceled(): bool
+    {
+        return $this->status == ShopOrderStatus::Canceled;
+    }
+
+    public function isOpen(): bool
+    {
+        return $this->status == ShopOrderStatus::Created;
+    }
+
     /**
      * @return Collection<int, ShopOrderPosition>
      */
