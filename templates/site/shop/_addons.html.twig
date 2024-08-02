@@ -1,0 +1,74 @@
+<div class="row">
+    <div class="col">
+        <h1>Addons kaufen</h1>
+        <div class="mb-3">
+            {% if settings.get('lan.signup.info') is not empty %}
+                {{ settings.get('lan.signup.info') | raw }}
+            {% else %}
+                <p>
+                    Erweitere dein Gaming Erlebnis mit diesen tollen Addons!
+                </p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+<hr/>
+<div class="row row-cols-1 row-cols-md-3">
+    <div class="col mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h4 class="my-0 font-weight-normal">10€ Catering Guthaben</h4>
+            </div>
+            <div class="card-body text-center">
+                <h2 class="card-title">€ 10,00</h2>
+                <div class="card-text">
+                    <p>Starte die LAN mit einem Guthaben auf deiner Catering-Card.</p>
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text">Anzahl</span>
+                        </div>
+                        <input type="number" class="form-control" value="0" min="0" max="15">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h4 class="my-0 font-weight-normal">50€ Catering Guthaben</h4>
+            </div>
+            <div class="card-body text-center">
+                <h2 class="card-title">€ 50,00</h2>
+                <div class="card-text">
+                    <p>Starte die LAN mit einem Guthaben auf deiner Catering-Card.</p>
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text">Anzahl</span>
+                        </div>
+                        <input type="number" class="form-control" value="0" min="0" max="15">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h4 class="my-0 font-weight-normal">100€ Catering Guthaben</h4>
+            </div>
+            <div class="card-body text-center">
+                <h2 class="card-title">€ 100,00</h2>
+                <div class="card-text">
+                    <p>Starte die LAN mit einem Guthaben auf deiner Catering-Card.</p>
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text">Anzahl</span>
+                        </div>
+                        <input type="number" class="form-control" value="0" min="0" max="15">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

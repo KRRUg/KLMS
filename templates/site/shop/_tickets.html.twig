@@ -1,0 +1,102 @@
+<div class="row">
+    <div class="col">
+        <h1>LAN Eintritt kaufen</h1>
+        <div class="mb-3">
+            {% if settings.get('lan.signup.info') is not empty %}
+                {{ settings.get('lan.signup.info') | raw }}
+            {% else %}
+                <p>
+                    Sichere dir dein Ticket für die LAN-Party des Jahres! Erlebe epische Matches und erweitere
+                    dein Gaming-Abenteuer mit exklusiven Addons. Jetzt buchen und dabei sein!
+                </p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<hr/>
+<div class="card-deck card-tablist" id="chooseTicketWrapper">
+    <div class="card" id="ticketSelfHead">
+        <button class="btn btn-link btn-block text-center card-body" type="button" data-toggle="pill" data-target="#ticketSelfBody">
+            <span class="h3"><i class="fa-solid fa-user"></i></span><br>
+            <span class="text-dark h4"> Ticket für mich kaufen</span>
+        </button>
+    </div>
+    <div class="card" id="ticketClanHead">
+        <button class="btn btn-link btn-block text-center card-body" type="button" data-toggle="pill"
+                data-target="#ticketClanBody"
+                aria-expanded="false" aria-controls="ticketClanHead">
+            <span class="h3"><i class="fa-solid fa-users"></i> </span><br>
+            <span class="text-dark h4">Ticket für mich + andere kaufen</span>
+        </button>
+    </div>
+    <div class="card" id="redeemCodeHead">
+        <button class="btn btn-link btn-block text-center card-body" type="button" data-toggle="pill"
+                data-target="#redeemCodeBody" aria-expanded="false" aria-controls="redeemCodeHead">
+            <span class="h3"><i class="fa-solid fa-ticket"></i> </span><br>
+            <span class="text-dark h4">Ticket-Code einlösen</span>
+        </button>
+    </div>
+</div>
+<div class="tab-content" id="pills-tabContent">
+    <div id="ticketSelfBody" class="tab-pane fade card" aria-labelledby="ticketSelfHead"
+         data-parent="#chooseTicketWrapper">
+        <div class="card-header">
+            <h4 class="my-0 font-weight-normal">LAN Eintritt für mich kaufen</h4>
+        </div>
+        <div class="card-body">
+            <h3 class="card-title text-center">12,27 €</h3>
+            <div class="card-text">
+                <p>
+                    Erlebe die ultimative LAN-Party mit unserem Eintrittsticket! Genieße stundenlanges Gaming,
+                    spannende
+                    Turniere und eine unvergleichliche Gemeinschaft. Dein Ticket bietet dir Zugang zu allen
+                    Events,
+                    Wettbewerben und exklusiven Bereichen. Sei dabei und kämpfe um den Sieg!
+                </p>
+            </div>
+        </div>
+    </div>
+    <div id="ticketClanBody" class="card tab-pane fade" aria-labelledby="ticketClanHead"
+         data-parent="#chooseTicketWrapper">
+        <div class="card-header">
+            <h4 class="my-0 font-weight-normal">LAN Eintritt für mich + andere kaufen</h4>
+        </div>
+        <div class="card-body">
+            <h2 class="card-title text-center">€ 12,27</h2>
+            <h3 class="card-subtitle text-muted mb-4 text-center">pro Person</h3>
+            <div class="card-text">
+                <div class="input-group">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text">Anzahl der Tickets</span>
+                    </div>
+                    <input type="number" class="form-control" value="1" min="1" max="15">
+                </div>
+                <p class="text-muted">
+                    Bei mehreren Tickets wird das erste automatisch für den eigenen Eintritt verwendet und alle
+                    anderen
+                    als
+                    Ticket-Code versendet.
+                </p>
+            </div>
+        </div>
+    </div>
+    <div id="redeemCodeBody" class="tab-pane fade card" aria-labelledby="redeemCodeHead"
+         data-parent="#chooseTicketWrapper">
+        <div class="card-body">
+            <div class="card-text">
+                <p>Wenn du einen Ticket-Code für einen LAN-Eintritt erhalten hast kannst du ihn hier
+                    eingeben:</p>
+                <div class="input-group">
+                    <input type="text" class="form-control" placeholder="AAAAA-BBBBB-00000"
+                           aria-label="Ticket Code"
+                           aria-describedby="button-addon2">
+                    <div class="input-group-append">
+                        <button class="btn btn-primary" type="button" id="button-addon2">Ticket Code einlösen
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
