@@ -2,14 +2,12 @@
 
 namespace App\Entity;
 
-enum ShopOrderStatus : string
+enum ShopOrderStatus : int
 {
     /** order created */
-    case Created = 'created';
-    /** ongoing payment process */
-    case PaymentPending = 'pending';
+    case Created = 1;
     /** payment done */
-    case Paid = 'paid';
+    case Paid = 9;
     /** order cancelled */
-    case Canceled = 'canceled';
+    case Canceled = 99;
 }

@@ -73,7 +73,7 @@ class ShopFixture extends Fixture
         // three tickets (for discount)
         $order2 = (new ShopOrder())
             ->setCreatedAt(new \DateTimeImmutable('2023-09-25 13:37'))
-            ->setOrderer($user13)
+            ->setOrderer($user14)
             ->setStatus(ShopOrderStatus::Created)
             ->addShopOrderPosition((new ShopOrderPositionTicket())->setTicket(null))
             ->addShopOrderPosition((new ShopOrderPositionTicket())->setTicket(null))

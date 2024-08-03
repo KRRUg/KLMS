@@ -5,8 +5,8 @@ namespace App\Entity;
 use App\Repository\ShopOrderPositionRepository;
 use Doctrine\ORM\Mapping as ORM;
 
+#[ORM\Entity]
 #[ORM\Table(name: "shop_order_position")]
-#[ORM\Entity(repositoryClass: ShopOrderPositionRepository::class)]
 #[ORM\InheritanceType('SINGLE_TABLE')]
 #[ORM\DiscriminatorColumn(name: 'type', type: 'string', length: 25)]
 #[ORM\DiscriminatorMap(['ticket' => ShopOrderPositionTicket::class, 'addon' => ShopOrderPositionAddon::class])]

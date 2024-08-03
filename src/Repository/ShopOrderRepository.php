@@ -3,8 +3,11 @@
 namespace App\Repository;
 
 use App\Entity\ShopOrder;
+use App\Entity\ShopOrderStatus;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
+use Ramsey\Uuid\UuidInterface;
 
 /**
  * @extends ServiceEntityRepository<ShopOrder>
@@ -21,28 +24,35 @@ class ShopOrderRepository extends ServiceEntityRepository
         parent::__construct($registry, ShopOrder::class);
     }
 
-//    /**
-//     * @return ShopOrder[] Returns an array of ShopOrder objects
-//     */
-//    public function findByExampleField($value): array
-//    {
-//        return $this->createQueryBuilder('s')
-//            ->andWhere('s.exampleField = :val')
-//            ->setParameter('val', $value)
-//            ->orderBy('s.id', 'ASC')
-//            ->setMaxResults(10)
-//            ->getQuery()
-//            ->getResult()
-//        ;
-//    }
+    private function createQueryFilterBuilder(?UuidInterface $user, ShopOrderStatus|array|null $status): QueryBuilder
+    {
+        $qb = $this->createQueryBuilder('o');
+        if (!is_null($user)) {
+            $qb->andWhere('o.orderer = :orderer');
+            $qb->setParameter('orderer', $user);
+        }
+        if (!is_null($status)) {
+            $status = is_array($status) ? $status : [$status];
+            $qb->andWhere('o.status IN :status');
+            $qb->setParameter('status', $status);
+        }
+        return $qb;
+    }
 
-//    public function findOneBySomeField($value): ?ShopOrder
-//    {
-//        return $this->createQueryBuilder('s')
-//            ->andWhere('s.exampleField = :val')
-//            ->setParameter('val', $value)
-//            ->getQuery()
-//            ->getOneOrNullResult()
-//        ;
-//    }
+    public function queryOrders(?UuidInterface $user, ShopOrderStatus|array|null $status = null): array
+    {
+        return $this->createQueryFilterBuilder($user, $status)
+            ->addOrderBy('o.status', 'ASC')
+            ->addOrderBy('o.createdAt', 'ASC')
+            ->getQuery()
+            ->getResult();
+    }
+
+    public function countOrders(?UuidInterface $user, ShopOrderStatus|array|null $status = null): int
+    {
+        return $this->createQueryFilterBuilder($user, $status)
+            ->select('count(o)')
+            ->getQuery()
+            ->getSingleScalarResult();
+    }
 }

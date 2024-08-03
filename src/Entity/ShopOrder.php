@@ -22,13 +22,13 @@ class ShopOrder
     #[ORM\Column(type: 'uuid')]
     private ?UuidInterface $orderer = null;
 
-    #[ORM\Column(type: 'string', enumType: ShopOrderStatus::class)]
+    #[ORM\Column(type: 'integer', enumType: ShopOrderStatus::class)]
     private ?ShopOrderStatus $status = null;
 
-    #[ORM\OneToMany(mappedBy: 'shopOrder', targetEntity: ShopOrderPosition::class, cascade: ['persist', 'remove'], orphanRemoval: true)]
+    #[ORM\OneToMany(mappedBy: 'order', targetEntity: ShopOrderPosition::class, cascade: ['persist', 'remove'], fetch: 'EAGER', orphanRemoval: true)]
     private Collection $shopOrderPositions;
 
-    #[ORM\OneToMany(mappedBy: 'showOrder', targetEntity: ShopOrderHistory::class, cascade: ['persist', 'remove'], orphanRemoval: true)]
+    #[ORM\OneToMany(mappedBy: 'order', targetEntity: ShopOrderHistory::class, cascade: ['persist', 'remove'], fetch: 'LAZY', orphanRemoval: true)]
     private Collection $shopOrderHistory;
 
     public function __construct()
@@ -135,7 +135,7 @@ class ShopOrder
     {
         if (!$this->shopOrderHistory->contains($shopOrderHistory)) {
             $this->shopOrderHistory->add($shopOrderHistory);
-            $shopOrderHistory->setShopOrder($this);
+            $shopOrderHistory->setOrder($this);
         }
 
         return $this;
@@ -145,8 +145,8 @@ class ShopOrder
     {
         if ($this->shopOrderHistory->removeElement($shopOrderHistory)) {
             // set the owning side to null (unless already changed)
-            if ($shopOrderHistory->getShopOrder() === $this) {
-                $shopOrderHistory->setShopOrder(null);
+            if ($shopOrderHistory->getOrder() === $this) {
+                $shopOrderHistory->setOrder(null);
             }
         }
 

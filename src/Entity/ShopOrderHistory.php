@@ -16,7 +16,7 @@ class ShopOrderHistory
 
     #[ORM\ManyToOne(inversedBy: 'shopOrderHistory')]
     #[ORM\JoinColumn(nullable: false)]
-    private ?ShopOrder $shopOrder = null;
+    private ?ShopOrder $order = null;
 
     #[ORM\Column]
     private ?\DateTimeImmutable $loggedAt = null;
@@ -35,14 +35,14 @@ class ShopOrderHistory
         return $this->id;
     }
 
-    public function getShopOrder(): ?ShopOrder
+    public function getOrder(): ?ShopOrder
     {
-        return $this->shopOrder;
+        return $this->order;
     }
 
-    public function setShopOrder(?ShopOrder $shopOrder): static
+    public function setOrder(?ShopOrder $order): static
     {
-        $this->shopOrder = $shopOrder;
+        $this->order = $order;
 
         return $this;
     }

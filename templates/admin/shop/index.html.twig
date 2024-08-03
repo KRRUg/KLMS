@@ -27,7 +27,7 @@
                         {% set user = order.orderer | user %}
                         <tr>
                             <td class="text-center">{{ order.id }}</td>
-                            <td data-order="{{ order.createdAt | date('U') }}">{{ order.createdAt | date('d.m.Y h:m') }}</td>
+                            <td data-order="{{ order.createdAt | date('U') }}">{{ order.createdAt | date('d.m.y H:i') }}</td>
                             <td data-order="{{ user.nickname }}">
                                 {% for clan in user.clans %}
                                     <a class="badge badge-pill badge-primary" href="{{ path('admin_clan_show', {'uuid' : clan.uuid }) }}" data-toggle="ajaxModal">{{clan.clantag }}</a>

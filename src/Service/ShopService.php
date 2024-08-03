@@ -4,8 +4,10 @@ namespace App\Service;
 
 use App\Entity\ShopOrder;
 use App\Entity\ShopOrderStatus;
+use App\Entity\User;
 use App\Exception\OrderLifecycleException;
 use App\Repository\ShopOrderRepository;
+use Ramsey\Uuid\UuidInterface;
 
 
 class ShopService
@@ -57,10 +59,15 @@ class ShopService
         switch ($order->getStatus()) {
             case ShopOrderStatus::Created:
             case ShopOrderStatus::Canceled:
-            case ShopOrderStatus::PaymentPending:
             case ShopOrderStatus::Paid:
             default:
         }
         return true;
+    }
+
+    public function hasOpenOrders(User|UuidInterface $user): bool
+    {
+        $uuid = $user instanceof User ? $user->getUuid() : $user;
+        return $this->orderRepository->countOrders($uuid, [ShopOrderStatus::Created]) != 0;
     }
 }

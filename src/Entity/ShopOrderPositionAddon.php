@@ -7,7 +7,6 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Entity]
 class ShopOrderPositionAddon extends ShopOrderPosition
 {
-
     #[ORM\ManyToOne(fetch: 'LAZY')]
     #[ORM\JoinColumn(name: 'addon_id')]
     private ?ShopAddon $addon = null;

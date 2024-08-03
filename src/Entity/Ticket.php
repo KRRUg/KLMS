@@ -17,7 +17,7 @@ class Ticket
     #[ORM\Column(length: 255, unique: true)]
     private ?string $code = null;
 
-    #[ORM\Column(type: 'uuid', nullable: true)]
+    #[ORM\Column(type: 'uuid', unique: true, nullable: true)]
     private ?UuidInterface $redeemer = null;
 
     #[ORM\Column]
