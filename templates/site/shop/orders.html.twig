@@ -5,33 +5,75 @@
 {% block main %}
     <div class="container mb-4">
         <h2>Bestellübersicht</h2>
+        <p>Hier findest du deine Bestellungen für Tickets.</p>
+
+        {% set open_orders = orders | filter(o => o.isOpen) %}
+        {% set done_orders = orders | filter(o => not o.isOpen) %}
         <div id="order-list">
-            {% for o in orders %}
-                <div class="card">
-                    <div class="card-header">
-                        <h5 class="mb-0">
-                            <button class="btn w-100 d-flex" data-toggle="collapse" data-target="#order-{{ o.id }}">
-                                <span>Bestellung <b>#{{ o.id }}</b> vom {{ o.createdAt | date('d.m.y H:i') }}</span>
-                                <div class="flex-fill"></div>
-                                {% if o.isOpen %}
-                                    <span class="badge badge-primary">offen</span>
-                                {% elseif o.isPaid %}
-                                    <span class="badge badge-success">abgeschlossen</span>
-                                {% elseif o.isCanceled %}
-                                    <span class="badge badge-secondary">storniert</span>
-                                {% endif %}
-                            </button>
-                        </h5>
-                    </div>
-                    <div id="order-{{ o.id }}" class="collapse {{ o.id == show_id ? "show" : "" }}" data-parent="#order-list">
-                        <div class="card-body">
-                            {% include 'site/shop/_order.html.twig' with { order: o} %}
+        {% if open_orders %}
+            <h4 class="pt-3">Offene Bestellungen</h4>
+            <p>Offene Bestellungen warten auf deine Zahlung und werden nach Geldeingang bearbeitet.</p>
+                {% for o in open_orders %}
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0">
+                                <button class="btn w-100 d-flex" data-toggle="collapse" data-target="#order-{{ o.id }}">
+                                    <span>Bestellung <b>#{{ o.id }}</b> vom {{ o.createdAt | date('d.m.y H:i') }}</span>
+                                </button>
+                            </h5>
+                        </div>
+                        <div id="order-{{ o.id }}" class="collapse {{ o.id == show_id ? "show" : "" }}" data-parent="#order-list">
+                            <div class="card-body">
+                                <div>
+                                    {% include 'site/shop/_order.html.twig' with { order: o} %}
+                                </div>
+                                <div>
+                                    Bitte bezahle <b>{{ (o.calculateTotal() / 100) | format_currency('EUR') }}</b>
+                                    unter Angabe der Bestellnummer <b>#{{ o.id }}</b>
+                                    {% if settings.get('lan.signup.payment_details') %}
+                                        an:
+                                        <div class="border p-2 m-1">
+                                            {{ settings.get('lan.signup.payment_details') | raw }}
+                                        </div>
+                                    {% else %}
+                                        .
+                                    {% endif %}
+                                </div>
+                            </div>
                         </div>
                     </div>
-                </div>
-            {% else %}
-                <span class="text-muted">Keine Bestellungen vorhanden.</span>
-            {% endfor %}
+                {% else %}
+                    <span class="text-muted">Keine Bestellungen vorhanden.</span>
+                {% endfor %}
+        {% endif %}
+        {% if done_orders %}
+            <h4 class="pt-4">Erledigte Bestellungen</h4>
+                {% for o in done_orders %}
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0">
+                                <button class="btn w-100 d-flex" data-toggle="collapse" data-target="#order-{{ o.id }}">
+                                    <span>Bestellung <b>#{{ o.id }}</b> vom {{ o.createdAt | date('d.m.y H:i') }}</span>
+                                    <div class="flex-fill"></div>
+                                    {% if o.isPaid %}
+                                        <span class="badge badge-primary">abgeschlossen</span>
+                                    {% endif %}
+                                    {% if o.isCanceled %}
+                                        <span class="badge badge-secondary">storniert</span>
+                                    {% endif %}
+                                </button>
+                            </h5>
+                        </div>
+                        <div id="order-{{ o.id }}" class="collapse {{ o.id == show_id ? "show" : "" }}" data-parent="#order-list">
+                            <div class="card-body">
+                                {% include 'site/shop/_order.html.twig' with { order: o} %}
+                            </div>
+                        </div>
+                    </div>
+                {% else %}
+                    <span class="text-muted">Keine Bestellungen vorhanden.</span>
+                {% endfor %}
+        {% endif %}
         </div>
     </div>
 {% endblock %}

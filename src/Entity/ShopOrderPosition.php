@@ -52,4 +52,6 @@ abstract class ShopOrderPosition
 
         return $this;
     }
+
+    public abstract function getText(): ?string;
 }

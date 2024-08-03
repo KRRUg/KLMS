@@ -1,3 +1,14 @@
-<div>
-    {# TODO add order details here #}
-</div>
+<table class="table table-sm table-borderless">
+    <tbody>
+    {% for p in order.shopOrderPositions %}
+        <tr>
+            <td>{{ p.text }}</td>
+            <td class="text-right">{{ (p.price / 100) | format_currency('EUR') }}</td>
+        </tr>
+    {% endfor %}
+        <tr class="font-weight-bold border-top">
+            <td>Gesamt</td>
+            <td class="text-right">{{ (order.calculateTotal / 100) | format_currency('EUR')}}</td>
+        </tr>
+    </tbody>
+</table>

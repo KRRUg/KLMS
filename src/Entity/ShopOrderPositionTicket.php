@@ -23,4 +23,15 @@ class ShopOrderPositionTicket extends ShopOrderPosition
 
         return $this;
     }
+
+    public function getText(): ?string
+    {
+        if (empty($this->ticket)) {
+            return "Ticket";
+        } else {
+            $code = $this->ticket->getCode();
+            $nr = $this->ticket->getId();
+            return "Ticket #{$nr} ({$code})";
+        }
+    }
 }

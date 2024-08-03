@@ -49,6 +49,7 @@ class SettingService
 
         'lan.signup.enabled' => [self::TB_DESCRIPTION => 'LAN-Anmeldung erlauben', self::TB_TYPE => self::TB_TYPE_BOOL],
         'lan.signup.info' => [self::TB_DESCRIPTION => 'Inhalt der beim "Anmelden" zu einer LAN angezeigt wird', self::TB_TYPE => self::TB_TYPE_HTML],
+        'lan.signup.payment_details' => [self::TB_DESCRIPTION => 'Bankdaten für die Zalhung von Bestellungen', self::TB_TYPE => self::TB_TYPE_HTML],
 
         'lan.seatmap.enabled' => [self::TB_DESCRIPTION => 'Sitzplanbuchungen einschalten', self::TB_TYPE => self::TB_TYPE_BOOL],
         'lan.seatmap.allow_booking_for_non_paid' => [self::TB_DESCRIPTION => 'Sitzplanbuchungen für nicht bezahlte Gamer erlauben', self::TB_TYPE => self::TB_TYPE_BOOL],

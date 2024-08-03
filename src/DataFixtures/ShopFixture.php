@@ -11,10 +11,11 @@ use App\Entity\ShopOrderPositionTicket;
 use App\Entity\ShopOrderStatus;
 use App\Entity\Ticket;
 use Doctrine\Bundle\FixturesBundle\Fixture;
+use Doctrine\Common\DataFixtures\DependentFixtureInterface;
 use Doctrine\Persistence\ObjectManager;
 use Ramsey\Uuid\Uuid;
 
-class ShopFixture extends Fixture
+class ShopFixture extends Fixture implements DependentFixtureInterface
 {
     public function load(ObjectManager $manager): void
     {
@@ -105,5 +106,10 @@ class ShopFixture extends Fixture
         $manager->persist($order4);
 
         $manager->flush();
+    }
+
+    public function getDependencies(): array
+    {
+        return [SettingsFixture::class];
     }
 }

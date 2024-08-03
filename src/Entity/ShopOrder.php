@@ -152,4 +152,13 @@ class ShopOrder
 
         return $this;
     }
+
+    public function calculateTotal(): int
+    {
+        $sum = 0;
+        foreach ($this->shopOrderPositions as $position) {
+            $sum += $position->getPrice() ?? 0;
+        }
+        return $sum;
+    }
 }
