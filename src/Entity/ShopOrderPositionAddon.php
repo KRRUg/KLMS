@@ -3,22 +3,31 @@
 namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity]
 class ShopOrderPositionAddon extends ShopOrderPosition
 {
-    #[ORM\ManyToOne(fetch: 'LAZY')]
-    #[ORM\JoinColumn(name: 'addon_id')]
-    private ?ShopAddon $addon = null;
+    #[Assert\NotBlank]
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $text = null;
 
-    public function getAddon(): ?ShopAddon
+    public function getText(): ?string
     {
-        return $this->addon;
+        return $this->text;
     }
 
-    public function setAddon(?ShopAddon $addon): static
+    public function setText(?string $text): self
     {
-        $this->addon = $addon;
+        $this->text = $text;
+
+        return $this;
+    }
+
+    public function setAddon(ShopAddon $addon): self
+    {
+        $this->setText($addon->getName());
+        $this->setPrice($addon->getPrice());
 
         return $this;
     }

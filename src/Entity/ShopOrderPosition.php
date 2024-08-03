@@ -21,6 +21,9 @@ abstract class ShopOrderPosition
     #[ORM\JoinColumn(name: 'order_id', nullable: false)]
     private ?ShopOrder $order = null;
 
+    #[ORM\Column]
+    private ?int $price = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -34,6 +37,18 @@ abstract class ShopOrderPosition
     public function setOrder(?ShopOrder $order): static
     {
         $this->order = $order;
+
+        return $this;
+    }
+
+    public function getPrice(): ?int
+    {
+        return $this->price;
+    }
+
+    public function setPrice(int $price): static
+    {
+        $this->price = $price;
 
         return $this;
     }
