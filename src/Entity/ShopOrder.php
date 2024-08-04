@@ -161,4 +161,9 @@ class ShopOrder
         }
         return $sum;
     }
+
+    public function isEmpty(): bool
+    {
+        return count($this->shopOrderPositions) == 0;
+    }
 }

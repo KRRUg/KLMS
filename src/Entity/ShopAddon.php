@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use App\Repository\ShopAddonsRepository;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: ShopAddonsRepository::class)]
@@ -21,6 +22,12 @@ class ShopAddon
 
     #[ORM\Column]
     private ?bool $active = null;
+
+    #[ORM\Column(nullable: true)]
+    private ?int $index = null;
+
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
+    private ?string $description = null;
 
     public function getId(): ?int
     {
@@ -59,6 +66,30 @@ class ShopAddon
     public function setActive(bool $active): static
     {
         $this->active = $active;
+
+        return $this;
+    }
+
+    public function getIndex(): ?int
+    {
+        return $this->index;
+    }
+
+    public function setIndex(int $index): static
+    {
+        $this->index = $index;
+
+        return $this;
+    }
+
+    public function getDescription(): ?string
+    {
+        return $this->description;
+    }
+
+    public function setDescription(?string $description): static
+    {
+        $this->description = $description;
 
         return $this;
     }

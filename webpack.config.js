@@ -32,7 +32,7 @@ Encore
     .addEntry('news', './assets/js/site/news.js')
     .addEntry('seatmap', './assets/js/site/seatmap.js')
     .addEntry('tourney', './assets/js/site/tourney.js')
-    .addEntry('shop', './assets/js/site/shopCheckout.js')
+    .addEntry('shop', './assets/js/site/shop.js')
     .addEntry('admin_seatmap', './assets/js/admin/seatmap.js')
     .addEntry('admin_tourney', './assets/js/admin/tourney.js')
     .addStyleEntry('email', './assets/css/email.scss')

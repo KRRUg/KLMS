@@ -99,4 +99,14 @@ class Ticket
 
         return $this;
     }
+
+    public function isRedeemed(): bool
+    {
+        return $this->redeemer != null;
+    }
+
+    public function isPunched(): bool
+    {
+        return $this->punchedAt != null;
+    }
 }

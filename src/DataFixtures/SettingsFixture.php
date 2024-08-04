@@ -40,6 +40,9 @@ class SettingsFixture extends Fixture
         $this->addSetting($manager, 'lan.tourney.registration_open', true);
 
         $this->addSetting($manager, 'lan.signup.enabled', true);
+        $this->addSetting($manager, 'lan.signup.price', 1337);
+        $this->addSetting($manager, 'lan.signup.discount.price', 999);
+        $this->addSetting($manager, 'lan.signup.discount.limit', 3);
         $this->addSetting($manager, 'lan.signup.payment_details', "<b>ACME Bank</b><br>IBAN: XX12 3456 7890 1337<br>BIC: ACME123");
 
         $manager->flush();

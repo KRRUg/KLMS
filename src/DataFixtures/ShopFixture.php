@@ -23,11 +23,13 @@ class ShopFixture extends Fixture implements DependentFixtureInterface
     {
         $addon1 = (new ShopAddon())
             ->setName('Catering Guthaben 50€')
+            ->setDescription('Starte die LAN mit einem kleinem Guthaben auf deiner Catering-Card.')
             ->setPrice(5000)
             ->setActive(true);
 
         $addon2 = (new ShopAddon())
             ->setName('Catering Guthaben 100€')
+            ->setDescription('Starte die LAN mit einem großem Guthaben auf deiner Catering-Card.')
             ->setPrice(10000)
             ->setActive(true);
 

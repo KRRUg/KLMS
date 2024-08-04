@@ -4,20 +4,15 @@ namespace App\Controller\Site;
 
 use App\Entity\ShopOrder;
 use App\Entity\User;
-use App\Exception\GamerLifecycleException;
 use App\Exception\OrderLifecycleException;
 use App\Form\CheckoutType;
-use App\Helper\EmailRecipient;
 use App\Repository\ShopOrderRepository;
-use App\Service\EmailService;
-use App\Service\GamerService;
 use App\Service\SettingService;
 use App\Service\ShopService;
 use App\Service\TicketService;
 use Psr\Log\LoggerInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -28,7 +23,7 @@ class LanSignupController extends AbstractController
 {
     private readonly TicketService $ticketService;
     private readonly ShopService $shopService;
-    private ShopOrderRepository $shopOrderRepository;
+    private readonly ShopOrderRepository $shopOrderRepository;
     private readonly SettingService $settingService;
     private readonly LoggerInterface $logger;
 
@@ -69,15 +64,47 @@ class LanSignupController extends AbstractController
             return $this->redirectToRoute('shop_orders', ['show' => $open_order[0]->getId()]);
         }
 
-        $form = $this->createForm(CheckoutType::class);
+        $addons = $this->shopService->getAddons();
+        $form = $this->createForm(CheckoutType::class, options: ['addons' => $addons]);
 
-        // TODO make form here
+        $form->handleRequest($request);
+        if ($form->isSubmitted() && $form->isValid()) {
+            $data = $form->getData();
+
+            // add tickets to order
+            $noTickets = intval($data['tickets'] ?? 0);
+            $order = $this->shopService->createOrder($user);
+            $this->shopService->orderAddTickets($order, $noTickets);
+
+            // add addons to order
+            foreach ($addons as $addon) {
+                $cnt = intval($data['addon'.$addon->getId()] ?? 0);
+                $this->shopService->orderAddAddon($order, $addon, $cnt);
+            }
+
+            // handle code
+            $code = $data['code'] ?? '';
+            if ($this->ticketService->ticketCodeValid($code)) {
+                if ($this->ticketService->redeemTicket($code, $user)) {
+                    $this->addFlash('success', 'Ticket erfolgreich aktiviert.');
+                }
+            }
+
+            if (!$order->isEmpty()) {
+                $this->shopService->saveOrder($order);
+                $this->addFlash('success', "Order erfolgreich.");
+                return $this->redirectToRoute('shop_orders');
+            }
+
+            return $this->redirect('/');
+        }
 
         // show order dialog
         $order_count = count($orders);
         return $this->render('site/shop/checkout.html.twig', [
-            'order_count' => $order_count,
             'form' => $form->createView(),
+            'addons' => $addons,
+            'order_count' => $order_count,
         ]);
     }
 

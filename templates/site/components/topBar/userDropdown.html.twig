@@ -4,6 +4,7 @@
     </button>
     <div class="dropdown-menu dropdown-menu-right mt-0 p-0">
         <a class="dropdown-item" href="{{ path('user_profile') }}"><i class="fa-fw fas fa-user"></i> Mein Profil</a>
+        <a class="dropdown-item" href="{{ path('shop_orders') }}"><i class="fas fa-shopping-cart"></i> Meine Bestellungen </a>
 
         {% if app.user.user.clans | length %}
             <div class="dropdown-divider"></div>

@@ -49,7 +49,11 @@ class SettingService
 
         'lan.signup.enabled' => [self::TB_DESCRIPTION => 'LAN-Anmeldung erlauben', self::TB_TYPE => self::TB_TYPE_BOOL],
         'lan.signup.info' => [self::TB_DESCRIPTION => 'Inhalt der beim "Anmelden" zu einer LAN angezeigt wird', self::TB_TYPE => self::TB_TYPE_HTML],
-        'lan.signup.payment_details' => [self::TB_DESCRIPTION => 'Bankdaten für die Zalhung von Bestellungen', self::TB_TYPE => self::TB_TYPE_HTML],
+        'lan.signup.price' => [self::TB_DESCRIPTION => 'Preis für einen Eintritt in Cent.', self::TB_TYPE => self::TB_TYPE_STRING],
+        'lan.signup.discount.price' => [self::TB_DESCRIPTION => 'Preis für einen Eintritt mit Gruppenermäßigung in Cent.', self::TB_TYPE => self::TB_TYPE_STRING],
+        'lan.signup.discount.limit' => [self::TB_DESCRIPTION => 'Gruppenermäßigung ab x Eintritte.', self::TB_TYPE => self::TB_TYPE_STRING],
+        'lan.signup.payment_details' => [self::TB_DESCRIPTION => 'Bankdaten für die Zahlhung von Bestellungen', self::TB_TYPE => self::TB_TYPE_HTML],
+        // TODO make integer field for price
 
         'lan.seatmap.enabled' => [self::TB_DESCRIPTION => 'Sitzplanbuchungen einschalten', self::TB_TYPE => self::TB_TYPE_BOOL],
         'lan.seatmap.allow_booking_for_non_paid' => [self::TB_DESCRIPTION => 'Sitzplanbuchungen für nicht bezahlte Gamer erlauben', self::TB_TYPE => self::TB_TYPE_BOOL],

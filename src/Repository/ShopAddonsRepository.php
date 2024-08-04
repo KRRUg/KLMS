@@ -21,28 +21,8 @@ class ShopAddonsRepository extends ServiceEntityRepository
         parent::__construct($registry, ShopAddon::class);
     }
 
-//    /**
-//     * @return ShopAddons[] Returns an array of ShopAddons objects
-//     */
-//    public function findByExampleField($value): array
-//    {
-//        return $this->createQueryBuilder('s')
-//            ->andWhere('s.exampleField = :val')
-//            ->setParameter('val', $value)
-//            ->orderBy('s.id', 'ASC')
-//            ->setMaxResults(10)
-//            ->getQuery()
-//            ->getResult()
-//        ;
-//    }
-
-//    public function findOneBySomeField($value): ?ShopAddons
-//    {
-//        return $this->createQueryBuilder('s')
-//            ->andWhere('s.exampleField = :val')
-//            ->setParameter('val', $value)
-//            ->getQuery()
-//            ->getOneOrNullResult()
-//        ;
-//    }
+    public function findActive(): array
+    {
+        return $this->findBy(['active' => true], ['index' => 'ASC']);
+    }
 }
