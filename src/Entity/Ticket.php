@@ -3,8 +3,9 @@
 namespace App\Entity;
 
 use App\Repository\TicketRepository;
-use Doctrine\ORM\Mapping as ORM;
 use Ramsey\Uuid\UuidInterface;
+use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: TicketRepository::class)]
 class Ticket
@@ -21,7 +22,18 @@ class Ticket
     private ?UuidInterface $redeemer = null;
 
     #[ORM\Column]
+    #[Assert\LessThanOrEqual('now')]
     private ?\DateTimeImmutable $createdAt = null;
+
+    #[ORM\Column(nullable: true)]
+    #[Assert\GreaterThanOrEqual(propertyPath: 'createdAt')]
+    #[Assert\LessThanOrEqual('now')]
+    private ?\DateTimeImmutable $redeemedAt = null;
+
+    #[ORM\Column(nullable: true)]
+    #[Assert\GreaterThanOrEqual(propertyPath: 'redeemedAt')]
+    #[Assert\LessThanOrEqual('now')]
+    private ?\DateTimeImmutable $punchedAt = null;
 
     public function getId(): ?int
     {
@@ -60,6 +72,30 @@ class Ticket
     public function setCreatedAt(\DateTimeImmutable $createdAt): static
     {
         $this->createdAt = $createdAt;
+
+        return $this;
+    }
+
+    public function getRedeemedAt(): ?\DateTimeImmutable
+    {
+        return $this->redeemedAt;
+    }
+
+    public function setRedeemedAt(?\DateTimeImmutable $redeemedAt): static
+    {
+        $this->redeemedAt = $redeemedAt;
+
+        return $this;
+    }
+
+    public function getPunchedAt(): ?\DateTimeImmutable
+    {
+        return $this->punchedAt;
+    }
+
+    public function setPunchedAt(?\DateTimeImmutable $punchedAt): static
+    {
+        $this->punchedAt = $punchedAt;
 
         return $this;
     }
