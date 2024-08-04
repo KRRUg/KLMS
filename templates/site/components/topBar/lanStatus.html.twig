@@ -4,7 +4,7 @@
         {% if user is not empty %}
             Dein Status:
             {% if user is not registered_gamer %}
-                <a href="{{ url('lan_signup') }}">Nicht Angemeldet</a>
+                <span>Nicht Angemeldet</span>
             {% else %}
                 Angemeldet&nbsp;&nbsp;|&nbsp;
                 {% if user is paid_gamer %}

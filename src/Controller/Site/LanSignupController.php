@@ -6,6 +6,7 @@ use App\Entity\ShopOrder;
 use App\Entity\User;
 use App\Exception\GamerLifecycleException;
 use App\Exception\OrderLifecycleException;
+use App\Form\CheckoutType;
 use App\Helper\EmailRecipient;
 use App\Repository\ShopOrderRepository;
 use App\Service\EmailService;
@@ -68,12 +69,15 @@ class LanSignupController extends AbstractController
             return $this->redirectToRoute('shop_orders', ['show' => $open_order[0]->getId()]);
         }
 
+        $form = $this->createForm(CheckoutType::class);
+
         // TODO make form here
 
         // show order dialog
         $order_count = count($orders);
         return $this->render('site/shop/checkout.html.twig', [
             'order_count' => $order_count,
+            'form' => $form->createView(),
         ]);
     }
 
@@ -89,7 +93,7 @@ class LanSignupController extends AbstractController
         if ($request->getMethod() == 'POST') {
             $token = $request->request->get('_token');
             $action = $request->request->get('action');
-            $id = $request->request->get('id');
+            $id = $request->request->get('order-id');
 
             if (!$this->isCsrfTokenValid(self::CSRF_TOKEN_CANCEL, $token)) {
                 throw $this->createAccessDeniedException('Invalid CSRF token presented');
@@ -120,7 +124,7 @@ class LanSignupController extends AbstractController
         return $this->render('site/shop/orders.html.twig', [
             'orders' => $orders,
             'show_id' => $show_id,
-            'csrf_token' => self::CSRF_TOKEN_CANCEL,
+            'csrf_token_cancel' => self::CSRF_TOKEN_CANCEL,
         ]);
     }
 
