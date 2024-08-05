@@ -313,18 +313,21 @@ class EmailService implements WipeInterface
         return true;
     }
 
-    public function wipe(): void
+    public function wipe(WipeMode $mode): void
     {
-        foreach ($this->templateRepository->findAll() as $email) {
-            $sending = $email->getEmailSending();
-            if ($sending)
-                $this->em->remove($sending);
-            $this->em->remove($email);
+        if ($mode == WipeMode::WIPE_FULL) {
+            foreach ($this->templateRepository->findAll() as $email) {
+                $sending = $email->getEmailSending();
+                if ($sending)
+                    $this->em->remove($sending);
+                $this->em->remove($email);
+            }
+            $this->em->flush();
         }
-        $this->em->flush();
+        // TODO make reset
     }
 
-    public function wipeBefore(): array
+    public function wipeBefore(WipeMode $mode): array
     {
         return [];
     }

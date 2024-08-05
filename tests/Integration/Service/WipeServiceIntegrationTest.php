@@ -24,8 +24,10 @@ use App\Service\SponsorService;
 use App\Service\StatisticService;
 use App\Service\TeamsiteService;
 use App\Service\TourneyService;
+use App\Service\WipeMode;
 use App\Service\WipeService;
 use App\Tests\Integration\DatabaseTestCase;
+use Generator;
 
 class WipeServiceIntegrationTest extends DatabaseTestCase
 {
@@ -59,11 +61,22 @@ class WipeServiceIntegrationTest extends DatabaseTestCase
         }
     }
 
-    public function testNoCyclicDependencies()
+
+    private static function allWipeModes(): Generator
+    {
+        foreach (WipeMode::cases() as $mode) {
+            yield [$mode];
+        }
+    }
+
+    /**
+     * @dataProvider allWipeModes
+     */
+    public function testNoCyclicDependencies(WipeMode $mode)
     {
         $wipeService = self::getContainer()->get(WipeService::class);
         $all = $wipeService->getWipeableServiceIds();
-        $sorted = $wipeService->buildOrder($all);
+        $sorted = $wipeService->buildOrder($mode, $all);
         $this->assertIsArray($all);
         $this->assertNotFalse($sorted);
         $this->assertIsArray($sorted);

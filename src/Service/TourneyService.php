@@ -570,7 +570,7 @@ class TourneyService extends OptimalService implements WipeInterface
         $this->em->flush();
     }
 
-    public function wipe(): void
+    public function wipe(WipeMode $mode): void
     {
         foreach ($this->repository->findAll() as $tourney) {
             $this->em->remove($tourney);
@@ -580,7 +580,7 @@ class TourneyService extends OptimalService implements WipeInterface
         $this->deactivate();
     }
 
-    public function wipeBefore(): array
+    public function wipeBefore(WipeMode $mode): array
     {
         return [];
     }

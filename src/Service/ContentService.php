@@ -74,16 +74,23 @@ class ContentService implements WipeInterface
         $this->logger->info("Create or Update Content {$content->getId()} ({$content->getTitle()})");
     }
 
-    public function wipe(): void
+    public function wipe(WipeMode $mode): void
     {
-        foreach ($this->repo->findAll() as $content) {
-            $this->em->remove($content);
+        if ($mode == WipeMode::WIPE_FULL) {
+            foreach ($this->repo->findAll() as $content) {
+                $this->em->remove($content);
+            }
+            $this->em->flush();
         }
-        $this->em->flush();
+        // TODO move SettingService Wipe to here
     }
 
-    public function wipeBefore(): array
+    public function wipeBefore(WipeMode $mode): array
     {
-        return [NavigationService::class];
+        return match ($mode) {
+            WipeMode::WIPE_SETTINGS => [],
+            WipeMode::WIPE_RESET => [],
+            WipeMode::WIPE_FULL => [NavigationService::class],
+        };
     }
 }

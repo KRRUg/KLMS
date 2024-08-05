@@ -91,7 +91,7 @@ class MediaService implements WipeInterface
         $this->em->flush();
     }
 
-    public function wipe(): void
+    public function wipe(WipeMode $mode): void
     {
         foreach ($this->repo->findAll() as $m) {
             $this->em->remove($m);
@@ -99,7 +99,7 @@ class MediaService implements WipeInterface
         $this->em->flush();
     }
 
-    public function wipeBefore(): array
+    public function wipeBefore(WipeMode $mode): array
     {
         return [NewsService::class, ContentService::class];
     }

@@ -299,7 +299,7 @@ class SettingService implements WipeInterface
         $this->cache = null;
     }
 
-    public function wipe(): void
+    public function wipe(WipeMode $mode): void
     {
         $keys = [
             'site.title', 'site.title.show', 'site.subtitle', 'site.subtitle.show', 'site.about', 'site.organisation',
@@ -310,7 +310,7 @@ class SettingService implements WipeInterface
         $this->clearMultiple($keys);
     }
 
-    public function wipeBefore(): array
+    public function wipeBefore(WipeMode $mode): array
     {
         return [];
     }

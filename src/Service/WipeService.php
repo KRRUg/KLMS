@@ -44,7 +44,7 @@ class WipeService
     }
 
     /** @return string[]|false */
-    public function buildOrder(array $serviceIds): array|false
+    public function buildOrder(WipeMode $mode, array $serviceIds): array|false
     {
         $dependsOnMe = array_fill_keys($serviceIds, []);
         foreach ($serviceIds as $serviceId) {
@@ -83,7 +83,7 @@ class WipeService
     }
 
     /** @param string[]|null $servicesToWipe */
-    public function wipe(?array $servicesToWipe = null): bool
+    public function wipe(WipeMode $mode, ?array $servicesToWipe = null): bool
     {
         if (is_null($servicesToWipe)) {
             // wipe all services
@@ -93,7 +93,7 @@ class WipeService
             $this->checkServiceIds($servicesToWipe);
         }
 
-        $order = $this->buildOrder($servicesToWipe);
+        $order = $this->buildOrder($mode, $servicesToWipe);
         if ($order === false) {
             return false;
         }

@@ -271,7 +271,7 @@ class GamerService implements WipeInterface
         return $this->userRepo->findOneById($userGamer->getUuid());
     }
 
-    public function wipe(): void
+    public function wipe(WipeMode $mode): void
     {
         foreach ($this->repo->findAll() as $gamer) {
             $this->em->remove($gamer);
@@ -279,7 +279,7 @@ class GamerService implements WipeInterface
         $this->em->flush();
     }
 
-    public function wipeBefore(): array
+    public function wipeBefore(WipeMode $mode): array
     {
         return [TourneyService::class, SeatmapService::class];
     }

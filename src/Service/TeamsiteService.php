@@ -224,7 +224,7 @@ class TeamsiteService implements WipeInterface
         return true;
     }
 
-    public function wipe(): void
+    public function wipe(WipeMode $mode): void
     {
         foreach ($this->repo->findAll() as $ts) {
             $this->em->remove($ts);
@@ -232,7 +232,7 @@ class TeamsiteService implements WipeInterface
         $this->em->flush();
     }
 
-    public function wipeBefore(): array
+    public function wipeBefore(WipeMode $mode): array
     {
         return [NavigationService::class];
     }

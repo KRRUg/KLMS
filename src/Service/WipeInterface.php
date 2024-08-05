@@ -10,10 +10,10 @@ interface WipeInterface
     /**
      * Performs the wipe. All classes specified by wipeBefore() must be guaranteed to be reset before.
      */
-    public function wipe(): void;
+    public function wipe(WipeMode $mode): void;
 
     /**
      * @return string[] A list of Classes that need to be wiped before this can be reset.
      */
-    public function wipeBefore(): array;
+    public function wipeBefore(WipeMode $mode): array;
 }

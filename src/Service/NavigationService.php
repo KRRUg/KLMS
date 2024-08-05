@@ -270,7 +270,7 @@ class NavigationService implements WipeInterface
         $this->em->flush();
     }
 
-    public function wipe(): void
+    public function wipe(WipeMode $mode): void
     {
         foreach ($this->navRepo->findAll() as $nav) {
             $this->em->remove($nav);
@@ -278,7 +278,7 @@ class NavigationService implements WipeInterface
         $this->em->flush();
     }
 
-    public function wipeBefore(): array
+    public function wipeBefore(WipeMode $mode): array
     {
         return [];
     }
