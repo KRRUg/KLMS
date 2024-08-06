@@ -4,15 +4,20 @@
 
 {% block main %}
     {{ form_start(form) }}
-    {% set hasPayed = false %}
+    {% set showTicketSale = form.tickets is defined %}
+    {% set showAddonSale = addons is not empty %}
     <div class="container">
-        {% if not hasPayed %}
-            {% include 'site/shop/_tickets.html.twig' %}
-            <hr />
+        {% if showTicketSale %}
+            <div id="ticketWrapper">
+                {% include 'site/shop/_tickets.html.twig' %}
+                <hr />
+            </div>
         {% endif %}
-        <div id="addonWrapper" class="{% if not hasPayed %}d-none{% endif %}">
-            {% include 'site/shop/_addons.html.twig' %}
-        </div>
+        {% if showAddonSale %}
+            <div id="addonWrapper" class="{% if showTicketSale %}d-none{% endif %}">
+                {% include 'site/shop/_addons.html.twig' %}
+            </div>
+        {% endif %}
         <div id="submitWrapper">
             {% if 'agb' is slug %}
                 <div class="row">

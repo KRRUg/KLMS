@@ -17,29 +17,30 @@ class CheckoutType extends AbstractType
 
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
-        $builder
-            ->add('code', TextType::class, [
-                'required' => false,
-                'attr' => [
-                    'pattern' => TicketService::CODE_REGEX,
-                ],
-                'constraints' => [
-                    new Assert\Regex('/' . TicketService::CODE_REGEX . '/')
-                ]
-            ])
-            ->add('tickets', IntegerType::class, [
-                'required' => false,
-                'empty_data' => 1,
-                'attr' => [
-                    'min' => 0,
-                    'max' => self::MAX_COUNT,
-                ],
-                'constraints' => [
-                    new Assert\GreaterThanOrEqual(0),
-                    new Assert\LessThanOrEqual(self::MAX_COUNT)
-                ]
-            ])
-        ;
+        if ($options['tickets']) {
+            $builder
+                ->add('tickets', IntegerType::class, [
+                    'required' => false,
+                    'empty_data' => 1,
+                    'attr' => [
+                        'min' => 0,
+                        'max' => self::MAX_COUNT,
+                    ],
+                    'constraints' => [
+                        new Assert\GreaterThanOrEqual(0),
+                        new Assert\LessThanOrEqual(self::MAX_COUNT)
+                    ]
+                ])
+                ->add('code', TextType::class, [
+                    'required' => false,
+                    'attr' => [
+                        'pattern' => TicketService::CODE_REGEX,
+                    ],
+                    'constraints' => [
+                        new Assert\Regex('/' . TicketService::CODE_REGEX . '/')
+                    ]
+                ]);
+        }
         foreach ($options['addons'] as $addon) {
             /** @var ShopAddon $addon */
             $builder->add("addon{$addon->getId()}", IntegerType::class, [
@@ -60,9 +61,11 @@ class CheckoutType extends AbstractType
     public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([
+            'tickets' => true,
             'addons' => []
         ]);
         $resolver
-            ->setAllowedTypes('addons', 'array');
+            ->setAllowedTypes('tickets', 'bool')
+            ->setAllowedTypes('addons', ShopAddon::class.'[]');
     }
 }
