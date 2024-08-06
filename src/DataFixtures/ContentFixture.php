@@ -13,39 +13,45 @@ class ContentFixture extends Fixture
     {
         $content = [];
         // Generate Content
-        $content[0] = new Content();
-        $content[0]->setTitle('Lan is');
-        $content[0]->setContent('Lan is wieder einmal.');
-        $content[0]->setAuthorId(Uuid::fromInteger(strval(14)));
-        $content[0]->setModifierId(Uuid::fromInteger(strval(14)));
-        $content[1] = new Content();
-        $content[1]->setTitle('FAQ');
-        $content[1]->setContent('Wer ist dieser LAN?');
-        $content[1]->setAlias('info');
-        $content[1]->setAuthorId(Uuid::fromInteger(strval(14)));
-        $content[1]->setModifierId(Uuid::fromInteger(strval(14)));
-        $content[2] = new Content();
-        $content[2]->setTitle('Das Kulturzentrum');
-        $content[2]->setDescription('Beschreibung des Kulturzentrum');
-        $content[2]->setContent('Wir haben ein paar Sessel gefunden.');
-        $content[2]->setAuthorId(Uuid::fromInteger(strval(14)));
-        $content[2]->setModifierId(Uuid::fromInteger(strval(14)));
-        $content[3] = new Content();
-        $content[3]->setTitle('Catering');
-        $content[3]->setContent('Es gibt was zu essen');
-        $content[3]->setAuthorId(Uuid::fromInteger(strval(14)));
-        $content[3]->setModifierId(Uuid::fromInteger(strval(14)));
-        $content[4] = new Content();
-        $content[4]->setTitle('Netzwerk und Internet');
-        $content[4]->setContent('Haben wir auch.');
-        $content[4]->setAuthorId(Uuid::fromInteger(strval(14)));
-        $content[4]->setModifierId(Uuid::fromInteger(strval(14)));
-        $content[5] = new Content();
-        $content[5]->setTitle('Einzahlung');
-        $content[5]->setContent('Geld überweisen!');
-        $content[5]->setAlias('payment');
-        $content[5]->setAuthorId(Uuid::fromInteger(strval(14)));
-        $content[5]->setModifierId(Uuid::fromInteger(strval(14)));
+        $content[0] = (new Content())
+            ->setTitle('Lan is')
+            ->setContent('Lan is wieder einmal.')
+            ->setAuthorId(Uuid::fromInteger(strval(14)))
+            ->setModifierId(Uuid::fromInteger(strval(14)));
+        $content[1] = (new Content())
+            ->setTitle('FAQ')
+            ->setContent('Wer ist dieser LAN?')
+            ->setAlias('info')
+            ->setAuthorId(Uuid::fromInteger(strval(14)))
+            ->setModifierId(Uuid::fromInteger(strval(14)));
+        $content[2] = (new Content())
+            ->setTitle('Das Kulturzentrum')
+            ->setDescription('Beschreibung des Kulturzentrum')
+            ->setContent('Wir haben ein paar Sessel gefunden.')
+            ->setAuthorId(Uuid::fromInteger(strval(14)))
+            ->setModifierId(Uuid::fromInteger(strval(14)));
+        $content[3] = (new Content())
+            ->setTitle('Catering')
+            ->setContent('Es gibt was zu essen')
+            ->setAuthorId(Uuid::fromInteger(strval(14)))
+            ->setModifierId(Uuid::fromInteger(strval(14)));
+        $content[4] = (new Content())
+            ->setTitle('Netzwerk und Internet')
+            ->setContent('Haben wir auch.')
+            ->setAuthorId(Uuid::fromInteger(strval(14)))
+            ->setModifierId(Uuid::fromInteger(strval(14)));
+        $content[5] = (new Content())
+            ->setTitle('Einzahlung')
+            ->setContent('Geld überweisen!')
+            ->setAlias('payment')
+            ->setAuthorId(Uuid::fromInteger(strval(14)))
+            ->setModifierId(Uuid::fromInteger(strval(14)));
+        $content[6] = (new Content())
+            ->setTitle('AGB')
+            ->setContent('Legal foo.')
+            ->setAlias('agb')
+            ->setAuthorId(Uuid::fromInteger(strval(14)))
+            ->setModifierId(Uuid::fromInteger(strval(14)));
 
         for ($i = 0; $i < count($content); $i++) {
             $c = $content[$i];
