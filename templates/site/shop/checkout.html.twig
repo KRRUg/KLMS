@@ -3,39 +3,48 @@
 {% block title %}{{ settings.get('site.title') }} - Tickets & Addons kaufen{% endblock %}
 
 {% block main %}
-    {{ form_start(form) }}
     {% set showTicketSale = form.tickets is defined %}
     {% set showAddonSale = addons is not empty %}
-    <div class="container" id="shop">
+    {% set showAny = showTicketSale or showAddonSale %}
+
+    {% if showAny %}{{ form_start(form) }}{% endif %}
+    <div id="shop" class="container mb-4">
         {% if showTicketSale %}
             <div id="ticketWrapper">
                 {% include 'site/shop/_tickets.html.twig' %}
-                <hr />
             </div>
         {% endif %}
         {% if showAddonSale %}
             <div id="addonWrapper" class="{% if showTicketSale %}d-none{% endif %}">
+                {% if showTicketSale %}<hr />{% endif %}
                 {% include 'site/shop/_addons.html.twig' %}
             </div>
         {% endif %}
-        <div id="submitWrapper">
-            {% if 'agb' is slug %}
+        {% if showAny %}
+            <div id="submitWrapper" class="{% if showTicketSale %}d-none{% endif %}">
+                <hr/>
+                {% if 'agb' is slug %}
+                    <div class="row">
+                        <div class="col">
+                            <p>Durch das Anmelden zu Veranstaltung stimmst du unseren {{ 'agb' | slug_link(null, true) }} zu.</p>
+                        </div>
+                    </div>
+                {% endif %}
                 <div class="row">
-                    <div class="col">
-                        <p>Durch das Anmelden zu Veranstaltung stimmst du unseren {{ 'agb' | slug_link }} zu.</p>
+                    <div class="col d-flex">
+                        <div class="flex-fill"></div>
+                        {% if showTicketSale %}
+                        <button class="btn btn-secondary m-1" type="button" id="buttonReset">Abbrechen</button>
+                        {% endif %}
+                        <button class="btn btn-primary m-1" type="submit"><i class="fas fa-shopping-cart"></i> Absenden</button>
                     </div>
                 </div>
-            {% endif %}
-            <div class="row mb-3">
-                <div class="col d-flex">
-                    <div class="flex-fill"></div>
-                    <button class="btn btn-secondary m-1" type="button" id="buttonReset">Abbrechen</button>
-                    <button class="btn btn-primary m-1" type="submit"><i class="fas fa-shopping-cart"></i> Absenden</button>
-                </div>
             </div>
-        </div>
+        {% else %}
+            <span>Hier gibts nichts zu sehen.</span>
+        {% endif %}
     </div>
-    {{ form_end(form) }}
+    {% if showAny %}{{ form_end(form) }}{% endif %}
 {% endblock %}
 
 {% block javascripts %}

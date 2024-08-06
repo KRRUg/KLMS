@@ -26,26 +26,64 @@ const Shop = function ($root, config) {
 
     this.$submit = this.$root.find('#submitWrapper');
 
+    this.visibilityStates = storeVisibility([
+        this.$buttonsWrapper,
+        this.$paneRedeem,
+        this.$paneOne,
+        this.$paneMore,
+        this.$addons,
+        this.$submit,
+    ]);
+
+    this.defaultValues = storeValues([
+        this.$formRedeemInput,
+        this.$formTicketCount,
+    ].concat(this.$addonInputs.map((i, v) => $(v)).get()));
+
+    console.log(this.defaultValues);
+
     this.path = config['path'];
     this.smClear();
+
+    // go straight to add-on in case ticket is not rendered
+    if (this.$buttonsWrapper === undefined) {
+        console.log('fup');
+        this.smNext('addon');
+    }
+}
+
+function storeVisibility(elements) {
+    return elements.map(e => { return { element: e, hidden: e.hasClass('d-none') }; })
+}
+
+function restoreVisibility(states) {
+    for (const state of states) {
+        if (state.hidden) { state.element.addClass('d-none'); } else { state.element.removeClass('d-none'); }
+    }
+}
+
+function storeValues(elements) {
+    return elements.map(e => { return {element: e, value: e.val() }; });
+}
+
+function restoreValues(states) {
+    for (const state of states) {
+        state.element.val(state.value);
+    }
 }
 
 const States = Object.freeze({
     START:   Symbol("start"),
     REDEEM:  Symbol("redeem"),
-    BUY:  Symbol("buy"),
+    BUY:     Symbol("buy"),
 });
 
 $.extend(Shop.prototype, {
     smClear() {
         this.state = States.START;
-        this.$buttonsWrapper.removeClass('d-none');
-        this.$paneRedeem.addClass('d-none');
-        this.$paneOne.addClass('d-none');
-        this.$paneMore.addClass('d-none');
-        this.$addons.addClass('d-none');
-        this.$submit.addClass('d-none')
-        this._redeemButtonState();
+        restoreVisibility(this.visibilityStates);
+        restoreValues(this.defaultValues);
+        this._redeemShowState();
     },
     smNext(mode) {
         let new_state = this.state;
@@ -54,6 +92,7 @@ $.extend(Shop.prototype, {
                 switch (mode) {
                     case 'one':
                     case 'multi':
+                    case 'addon':
                         new_state = States.BUY;
                         break;
                     case 'redeem':
@@ -82,6 +121,9 @@ $.extend(Shop.prototype, {
                         break;
                     case 'multi':
                         this._showMany();
+                        this._showAddon();
+                        break;
+                    case 'addon':
                         this._showAddon();
                         break;
                     case 'redeem':
@@ -141,13 +183,13 @@ $.extend(Shop.prototype, {
         const re = new RegExp(pattern);
         if (re.test(code)) {
             this._checkCode(code)
-                .then(r => { this._redeemButtonState(true); this.smNext();})
-                .catch(r => { this._redeemButtonState(false);});
+                .then(r => { this._redeemShowState(true); this.smNext(); })
+                .catch(r => { this._redeemShowState(false); });
         } else {
-            this._redeemButtonState(false);
+            this._redeemShowState(false);
         }
     },
-    _redeemButtonState(ok) {
+    _redeemShowState(ok) {
         if (ok === true) {
             this.$formRedeemButton.prop('disabled', true);
             this.$formRedeemInput.prop('readonly', true).removeClass('is-invalid').addClass('is-valid');

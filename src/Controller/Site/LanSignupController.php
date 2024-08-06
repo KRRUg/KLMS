@@ -66,7 +66,8 @@ class LanSignupController extends AbstractController
         }
 
         $addons = $this->shopService->getAddons();
-        $form = $this->createForm(CheckoutType::class, options: ['addons' => $addons]);
+        $userRegistered = $this->ticketService->userRegistered($user);
+        $form = $this->createForm(CheckoutType::class, options: ['addons' => $addons, 'tickets' => !$userRegistered]);
 
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
