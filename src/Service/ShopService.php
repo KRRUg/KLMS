@@ -39,7 +39,7 @@ class ShopService
 
     public function fulfillOrder(ShopOrder $order)
     {
-
+        // TODO implement
     }
 
     public function cancelOrder(ShopOrder $order): void
@@ -50,9 +50,9 @@ class ShopService
         }
     }
 
-    public function setOrderPaid(ShopOrder $order, $delay=false): void
+    public function setOrderPaid(ShopOrder $order): void
     {
-        $result = $this->setState($order, ShopOrderStatus::Paid, $delay);
+        $result = $this->setState($order, ShopOrderStatus::Paid);
         if (!$result) {
             throw new OrderLifecycleException($order);
         }
@@ -66,16 +66,33 @@ class ShopService
         }
     }
 
-    private function setState(ShopOrder $order, ShopOrderStatus $status, bool $delay = false): bool
+    private function setState(ShopOrder $order, ShopOrderStatus $status): bool
     {
-        // TODO check if processing is allowed and process.
+        // currently only state transfer from created to both other states are allowed.
+        $new_state = match ($order->getStatus()) {
+            ShopOrderStatus::Created => $status,
+            default => $order->getStatus()
+        };
+        if ($new_state != $order->getStatus()){
+            $order->setStatus($new_state);
+            $this->handleNewState($order);
+            $this->saveOrder($order);
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    private function handleNewState(ShopOrder $order): void
+    {
         switch ($order->getStatus()) {
             case ShopOrderStatus::Created:
             case ShopOrderStatus::Canceled:
+                break;
             case ShopOrderStatus::Paid:
-            default:
+                $this->fulfillOrder($order);
+                break;
         }
-        return true;
     }
 
     public function hasOpenOrders(User|UuidInterface $user): bool

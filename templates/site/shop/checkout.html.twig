@@ -6,7 +6,7 @@
     {{ form_start(form) }}
     {% set showTicketSale = form.tickets is defined %}
     {% set showAddonSale = addons is not empty %}
-    <div class="container">
+    <div class="container" id="shop">
         {% if showTicketSale %}
             <div id="ticketWrapper">
                 {% include 'site/shop/_tickets.html.twig' %}
@@ -29,8 +29,8 @@
             <div class="row mb-3">
                 <div class="col d-flex">
                     <div class="flex-fill"></div>
-                    <a class="btn btn-secondary m-1" href="{{ url('index') }}">Abbrechen</a>
-                    <button class="btn btn-primary m-1" type="submit"><i class="fas fa-shopping-cart"></i> Anmelden</button>
+                    <button class="btn btn-secondary m-1" type="button" id="buttonReset">Abbrechen</button>
+                    <button class="btn btn-primary m-1" type="submit"><i class="fas fa-shopping-cart"></i> Absenden</button>
                 </div>
             </div>
         </div>

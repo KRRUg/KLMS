@@ -13,6 +13,7 @@ use App\Service\TicketService;
 use Psr\Log\LoggerInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -108,8 +109,16 @@ class LanSignupController extends AbstractController
         ]);
     }
 
+    #[Route(path: '/check', name: '_check')]
+    public function checkCode(Request $request): JsonResponse
+    {
+        $code = $request->get('code', "");
+        $result = $this->ticketService->ticketCodeUnused($code);
+        return $this->json(['result' => $result]);
+    }
+
     #[Route(path: '/orders', name: '_orders', methods: ['GET', 'POST'])]
-    public function orders(Request $request)
+    public function orders(Request $request): Response
     {
         $show_id = $request->request->getInt('show', -1);
 

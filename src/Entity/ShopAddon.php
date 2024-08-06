@@ -24,7 +24,7 @@ class ShopAddon
     private ?bool $active = null;
 
     #[ORM\Column(nullable: true)]
-    private ?int $index = null;
+    private ?int $sortIndex = null;
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $description = null;
@@ -70,14 +70,14 @@ class ShopAddon
         return $this;
     }
 
-    public function getIndex(): ?int
+    public function getSortIndex(): ?int
     {
-        return $this->index;
+        return $this->sortIndex;
     }
 
-    public function setIndex(int $index): static
+    public function setSortIndex(int $sortIndex): static
     {
-        $this->index = $index;
+        $this->sortIndex = $sortIndex;
 
         return $this;
     }

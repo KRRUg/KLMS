@@ -23,6 +23,6 @@ class ShopAddonsRepository extends ServiceEntityRepository
 
     public function findActive(): array
     {
-        return $this->findBy(['active' => true], ['index' => 'ASC']);
+        return $this->findBy(['active' => true], ['sortIndex' => 'ASC']);
     }
 }

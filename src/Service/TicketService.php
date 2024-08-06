@@ -39,6 +39,12 @@ class TicketService
            && $this->ticketRepository->count(['code' => $code]) > 0;
     }
 
+    public function ticketCodeUnused(string $code): bool
+    {
+        return preg_match('/'.self::CODE_REGEX."/", $code)
+            && $this->ticketRepository->count(['code' => $code, 'redeemer' => null]) > 0;
+    }
+
     public function redeemTicket(string $code, User|UuidInterface $user): bool
     {
         $uuid = $user instanceof User ? $user->getUuid() : $user;

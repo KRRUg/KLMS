@@ -17,34 +17,33 @@
 </div>
 
 <hr/>
-<div class="card-deck card-tablist" id="chooseTicketWrapper">
-    <div class="card" id="ticketSelfHead">
-        <button class="btn btn-link btn-block text-center card-body" type="button" data-toggle="pill" data-target="#ticketSelfBody">
-            <span class="h3"><i class="fa-solid fa-user"></i></span><br>
-            <span class="text-dark h4"> Ticket für mich kaufen</span>
-        </button>
-    </div>
-    <div class="card" id="ticketClanHead">
-        <button class="btn btn-link btn-block text-center card-body" type="button" data-toggle="pill"
-                data-target="#ticketClanBody">
-            <span class="h3"><i class="fa-solid fa-users"></i> </span><br>
-            <span class="text-dark h4">Ticket für mich + andere kaufen</span>
-        </button>
-    </div>
-    <div class="card" id="redeemCodeHead">
-        <button class="btn btn-link btn-block text-center card-body" type="button" data-toggle="pill"
-                data-target="#redeemCodeBody">
-            <span class="h3"><i class="fa-solid fa-ticket"></i> </span><br>
-            <span class="text-dark h4">Ticket-Code einlösen</span>
-        </button>
+<div id="chooseTicketWrapper" class="mb-2">
+    <div class="d-xs-block d-sm-block d-md-flex justify-content-center" >
+        <div class="card m-2 p-0 col-md-4 col-lg-3" id="ticketSelfHead">
+            <button class="btn btn-link btn-block text-center card-body pl-1 pr-1" type="button" data-mode="one">
+                <span class="h3"><i class="fa-solid fa-user"></i></span><br>
+                <span class="text-dark h4"> Ticket für mich kaufen</span>
+            </button>
+        </div>
+        <div class="card m-2 p-0 col-md-4 col-lg-3" id="ticketClanHead">
+            <button class="btn btn-link btn-block text-center card-body pl-1 pr-1" type="button" data-mode="multi">
+                <span class="h3"><i class="fa-solid fa-users"></i> </span><br>
+                <span class="text-dark h4">Ticket für mich + andere kaufen</span>
+            </button>
+        </div>
+        <div class="card m-2 p-0 col-md-4 col-lg-3" id="redeemCodeHead">
+            <button class="btn btn-link btn-block text-center card-body pl-1 pr-1" type="button" data-mode="redeem">
+                <span class="h3"><i class="fa-solid fa-ticket"></i> </span><br>
+                <span class="text-dark h4">Ticket-Code einlösen</span>
+            </button>
+        </div>
     </div>
 </div>
-<div class="tab-content" id="pills-tabContent">
+<div>
     {% set price = settings.get('lan.signup.price') %}
     {% set price_reduced = settings.get('lan.signup.discount.price') %}
     {% set price_reduced_limit = settings.get('lan.signup.discount.limit') %}
-    <div id="ticketSelfBody" class="tab-pane fade card" aria-labelledby="ticketSelfHead"
-         data-parent="#chooseTicketWrapper">
+    <div id="ticketSelfBody" class="card d-none">
         <div class="card-header">
             <h4 class="my-0 font-weight-normal">LAN Eintritt für mich kaufen</h4>
         </div>
@@ -61,8 +60,7 @@
             </div>
         </div>
     </div>
-    <div id="ticketClanBody" class="card tab-pane fade" aria-labelledby="ticketClanHead"
-         data-parent="#chooseTicketWrapper">
+    <div id="ticketClanBody" class="card d-none">
         <div class="card-header">
             <h4 class="my-0 font-weight-normal">LAN Eintritt für mich + andere kaufen</h4>
         </div>
@@ -99,8 +97,10 @@
             </div>
         </div>
     </div>
-    <div id="redeemCodeBody" class="tab-pane fade card" aria-labelledby="redeemCodeHead"
-         data-parent="#chooseTicketWrapper">
+    <div id="redeemCodeBody" class="card d-none">
+        <div class="card-header">
+            <h4 class="my-0 font-weight-normal">Ticket Code einlösen</h4>
+        </div>
         <div class="card-body">
             <div class="card-text">
                 <p>Wenn du einen Ticket-Code für einen LAN-Eintritt erhalten hast, kannst du ihn hier
@@ -109,7 +109,7 @@
                     {{ form_widget(form.code, {'attr': {'placeholder': 'XXXXX-XXXXX-XXXXX'}}) }}
                     {# <input type="text" class="form-control" placeholder="AAAAA-BBBBB-00000"> #}
                     <div class="input-group-append">
-                        <button class="btn btn-primary" type="button" id="button-confirm-code">Ticket Code einlösen</button>
+                        <button class="btn btn-primary" type="button" id="button-confirm-code">Code überprüfen</button>
                     </div>
                 </div>
             </div>
