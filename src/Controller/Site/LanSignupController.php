@@ -79,15 +79,17 @@ class LanSignupController extends AbstractController
 
             // add addons to order
             foreach ($addons as $addon) {
-                $cnt = intval($data['addon'.$addon->getId()] ?? 0);
+                $cnt = $data['addon'.$addon->getId()] ?? 0;
                 $this->shopService->orderAddAddon($order, $addon, $cnt);
             }
 
             // handle code
             $code = $data['code'] ?? '';
-            if ($this->ticketService->ticketCodeValid($code)) {
+            if ($this->ticketService->ticketCodeUnused($code)) {
                 if ($this->ticketService->redeemTicket($code, $user)) {
                     $this->addFlash('success', 'Ticket erfolgreich aktiviert.');
+                } else {
+                    $this->addFlash('error', 'Ticket konnte nicht aktiviert werden.');
                 }
             }
 

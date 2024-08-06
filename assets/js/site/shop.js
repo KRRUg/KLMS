@@ -150,12 +150,12 @@ $.extend(Shop.prototype, {
     _redeemButtonState(ok) {
         if (ok === true) {
             this.$formRedeemButton.prop('disabled', true);
-            this.$formRedeemInput.prop('disabled', true).removeClass('is-invalid').addClass('is-valid');
+            this.$formRedeemInput.prop('readonly', true).removeClass('is-invalid').addClass('is-valid');
         } else if (ok === false) {
-            this.$formRedeemInput.prop('disabled', false).removeClass('is-valid').addClass('is-invalid');
+            this.$formRedeemInput.prop('readonly', false).removeClass('is-valid').addClass('is-invalid');
         } else {
             this.$formRedeemButton.prop('disabled', false);
-            this.$formRedeemInput.prop('disabled', false).removeClass('is-invalid').removeClass('is-valid');
+            this.$formRedeemInput.prop('readonly', false).removeClass('is-invalid').removeClass('is-valid');
         }
     },
 });
