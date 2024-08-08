@@ -88,14 +88,12 @@ class TicketService
         } else {
             while (true) {
                 $ticket->setCode(self::createCode());
-                try {
-                    $this->em->persist($ticket);
+                // this is not entirely sound but hopefully good enough (could better be done with SQL update in the registry)
+                $this->em->persist($ticket);
+                if ($this->ticketRepository->count(['code' => $ticket->getCode()]) == 0) {
                     $this->em->flush();
-                } catch (UniqueConstraintViolationException $e) {
-                    // TODO try this
-                    continue;
+                    break;
                 }
-                break;
             }
         }
     }

@@ -58,7 +58,7 @@ class TicketServiceIntegrationTest extends DatabaseTestCase
     /**
      * @dataProvider provideUsers
      */
-    public function testUserRegistration(int $uid, bool $registered, bool $punched)
+    public function testUserRegistration(int $uid, bool $registered)
     {
         $this->databaseTool->loadFixtures([ShopFixture::class]);
         $tickteService = self::getContainer()->get(TicketService::class);
@@ -131,7 +131,7 @@ class TicketServiceIntegrationTest extends DatabaseTestCase
     /**
      * @dataProvider provideUsers
      */
-    public function testRedeemTicket(int $uid, bool $registered, bool $punched)
+    public function testRedeemTicket(int $uid, bool $registered)
     {
         $this->databaseTool->loadFixtures([ShopFixture::class]);
         $tickteService = self::getContainer()->get(TicketService::class);
