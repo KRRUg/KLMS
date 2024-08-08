@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use App\Repository\TicketRepository;
+use App\Service\TicketState;
 use Ramsey\Uuid\UuidInterface;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -108,5 +109,18 @@ class Ticket
     public function isPunched(): bool
     {
         return $this->punchedAt != null;
+    }
+
+    public function getState(): ?TicketState
+    {
+        if ($this->isRedeemed() && $this->isPunched()) {
+            return TicketState::PUNCHED;
+        } else if ($this->isRedeemed() && !$this->isPunched()) {
+            return TicketState::REDEEMED;
+        } else if (!$this->isRedeemed() && !$this->isPunched()) {
+            return TicketState::NEW;
+        } else {
+            return null;
+        }
     }
 }

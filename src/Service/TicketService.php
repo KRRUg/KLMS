@@ -4,8 +4,10 @@ namespace App\Service;
 
 use App\Entity\Ticket;
 use App\Entity\User;
+use App\Exception\TicketLivecycleException;
 use App\Repository\TicketRepository;
 use DateTimeImmutable;
+use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Doctrine\ORM\EntityManagerInterface;
 use Ramsey\Uuid\UuidInterface;
 
@@ -25,12 +27,32 @@ class TicketService
 
     /**
      * @param User|UuidInterface $user
-     * @return bool true if user has at ticket
+     * @return bool true if user has a ticket
      */
-    public function userRegistered(User|UuidInterface $user): bool
+    public function isUserRegistered(User|UuidInterface $user): bool
+    {
+        return $this->getTicketUser($user) != null;
+    }
+
+    /**
+     * @param User|UuidInterface $user
+     * @return bool true if user has a punched ticket
+     */
+    public function isUserPunched(User|UuidInterface $user): bool
+    {
+        $ticket = $this->getTicketUser($user);
+        return $ticket && $ticket->isPunched();
+    }
+
+    public function getTicketUser(User|UuidInterface $user): ?Ticket
     {
         $uuid = $user instanceof User ? $user->getUuid() : $user;
-        return $this->ticketRepository->ticketByRedeemer($uuid) != null;
+        return $this->ticketRepository->findOneByRedeemer($uuid);
+    }
+
+    public function getTicketCode(string $code): ?Ticket
+    {
+        return $this->ticketRepository->findOneByCode($code);
     }
 
     public function ticketCodeValid(string $code): bool
@@ -45,11 +67,99 @@ class TicketService
             && $this->ticketRepository->count(['code' => $code, 'redeemer' => null]) > 0;
     }
 
+    private static function createCode(): string
+    {
+        $abc = array_merge(range(0, 9), range('A', 'Z'));
+        $code = '';
+        for ($i = 0; $i < 15; $i++) {
+            $code .= $abc[mt_rand(0, count($abc) - 1)];
+            if ($i > 0 && $i % 5 == 0) {
+                $code .= '-';
+            }
+        }
+        return $code;
+    }
+
+    private function persistTicket(Ticket $ticket): void
+    {
+        if ($ticket->getCode()) {
+            $this->em->persist($ticket);
+            $this->em->flush();
+        } else {
+            while (true) {
+                $ticket->setCode(self::createCode());
+                try {
+                    $this->em->persist($ticket);
+                    $this->em->flush();
+                } catch (UniqueConstraintViolationException $e) {
+                    // TODO try this
+                    continue;
+                }
+                break;
+            }
+        }
+    }
+
+    public function registerUser(User|UuidInterface $user): Ticket
+    {
+        $uuid = $user instanceof User ? $user->getUuid() : $user;
+        // check for existing ticket
+        $ticket = $this->getTicketUser($uuid);
+        if ($ticket) {
+            return $ticket;
+        }
+
+        // create new ticket
+        $now = new DateTimeImmutable();
+        $ticket = (new Ticket())
+            ->setCreatedAt($now)
+            ->setRedeemedAt($now)
+            ->setRedeemer($uuid);
+
+        $this->persistTicket($ticket);
+        return $ticket;
+    }
+
+    public function unregisterUser(User|UuidInterface $user, bool $deleteTicket = true): bool
+    {
+        $ticket = $this->getTicketUser($user);
+        if ($ticket == null){
+            return false;
+        }
+
+        if ($deleteTicket) {
+            $this->em->remove($ticket);
+        } else {
+            $ticket
+                ->setRedeemer(null)
+                ->setRedeemedAt(null)
+                ->setPunchedAt(null);
+            $this->em->persist($ticket);
+        }
+        $this->em->flush();
+        return true;
+    }
+
+    public function createTicket(): Ticket
+    {
+        $ticket = (new Ticket())
+            ->setCreatedAt(new DateTimeImmutable());
+        $this->persistTicket($ticket);
+        return $ticket;
+    }
+
     public function redeemTicket(string $code, User|UuidInterface $user): bool
     {
         $uuid = $user instanceof User ? $user->getUuid() : $user;
-        $ticket = $this->ticketRepository->findOneBy(['code' => $code]);
-        if ($ticket && !$ticket->isRedeemed() && !$this->userRegistered($uuid)) {
+        $ticket = $this->ticketRepository->findOneByCode($code);
+        if (is_null($ticket)) {
+            return false;
+        }
+        $state = $ticket->getState();
+        if (is_null($state)) {
+            throw new TicketLivecycleException($ticket);
+        }
+        if ($state == TicketState::NEW && !$this->isUserRegistered($uuid)) {
             $ticket
                 ->setRedeemer($uuid)
                 ->setRedeemedAt(new DateTimeImmutable());
@@ -58,5 +168,59 @@ class TicketService
             return true;
         }
         return false;
+    }
+
+    public function punchTicketCode(string $code): bool
+    {
+        $ticket = $this->ticketRepository->findOneByCode($code);
+        if (is_null($ticket)) {
+            return false;
+        }
+        return $this->punchTicket($ticket);
+    }
+
+    public function punchTicketUser(User|UuidInterface $user): bool
+    {
+        $ticket = $this->getTicketUser($user);
+        if (is_null($ticket)) {
+            return false;
+        }
+        return $this->punchTicket($ticket);
+    }
+
+    private function punchTicket(Ticket $ticket): bool
+    {
+        $state = $ticket->getState();
+        if (is_null($state)) {
+            throw new TicketLivecycleException($ticket);
+        }
+        if ($state == TicketState::REDEEMED) {
+            $ticket
+                ->setPunchedAt(new DateTimeImmutable());
+            $this->em->persist($ticket);
+            $this->em->flush();
+            return true;
+        }
+        return false;
+    }
+
+    public function countTickets(): int
+    {
+        return $this->ticketRepository->count([]);
+    }
+
+    public function countFreeTickets(): int
+    {
+        return $this->ticketRepository->count(['redeemer' => null]);
+    }
+
+    public function countPunchedTickets(): int
+    {
+        return $this->ticketRepository->countPunched();
+    }
+
+    public function hasInvalid(): bool
+    {
+        return $this->ticketRepository->countInvalid() != 0;
     }
 }
