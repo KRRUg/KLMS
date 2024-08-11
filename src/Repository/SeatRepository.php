@@ -4,6 +4,7 @@ namespace App\Repository;
 
 use App\Entity\Seat;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\AbstractQuery;
 use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -61,5 +62,15 @@ class SeatRepository extends ServiceEntityRepository
             ->andWhere('s.owner IS NOT NULL')
             ->getQuery()
             ->getSingleScalarResult();
+    }
+
+    public function getMaxDimension(): array
+    {
+        $r = $this->createQueryBuilder('s')
+            ->select('max(s.posX)')
+            ->addSelect('max(s.posY)')
+            ->getQuery()
+            ->getResult(AbstractQuery::HYDRATE_SCALAR);
+        return ['x' => $r[0][1] ?? 0, 'y' => $r[0][2] ?? 0];
     }
 }

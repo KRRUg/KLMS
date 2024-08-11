@@ -24,10 +24,12 @@
         </div>
         <div class="card" style="overflow-x: scroll;">
             <div class="card-body p-0">
-                <div class="seatmap">
                     {% set seatmap_bg = settings.get('lan.seatmap.bg_image') %}
                     {% if seatmap_bg is not empty %}
+                    <div class="seatmap">
                         <img class="seatmap-bg" src="{{ seatmap_bg }}" aria-hidden="true">
+                    {% else %}
+                    <div id="seatmap" class="seatmap" style="width: {{ dim['x'] + 150 }}px; height: {{ dim['y'] + 150 }}px">
                     {% endif %}
                     <div class="seatmap-wrapper">
                         {% for seat in seatmap %}
@@ -35,10 +37,10 @@
                                 <span style="top: {{ seat.posY }}px; left: {{ seat.posX }}px;" class="seat seat-{{ seat.type }}" data-html="true"
                                       title="{{ seat.name }}"><i class="fas fa-info-circle"></i></span>
                             {% else %}
-                                {% set ownSeat = app.user is not null and seat.owner is not null and seat.owner.uuid == app.user.user.uuid %}
+                                {% set ownSeat = app.user is not null and seat.owner is not null and seat.owner == app.user.user.uuid %}
                                 {% set taken = seat.owner is not empty %}
                                 {% set locked = seat.type == 'locked' %}
-                                <a style="top: {{ seat.posY }}px; left: {{ seat.posX }}px;"
+                                <a id="seat{{ seat.id }}" style="top: {{ seat.posY }}px; left: {{ seat.posX }}px;"
                                     {% if ownSeat %}
                                         class="seat seat-own"
                                     {% elseif taken %}
@@ -53,7 +55,7 @@
                             {% endif %}
                         {% endfor %}
                     </div>
-                </div>
+                </divi>
             </div>
         </div>
     </div>

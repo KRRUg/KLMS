@@ -4,6 +4,7 @@ namespace App\Entity;
 
 use App\Repository\SeatRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Ramsey\Uuid\UuidInterface;
 
 #[ORM\Table]
 #[ORM\UniqueConstraint(name: 'seat_pos', columns: ['pos_x', 'pos_y'])]
@@ -16,18 +17,17 @@ class Seat
     #[ORM\Column(type: 'integer')]
     private ?int $id = null;
 
-    #[ORM\Column(type: 'integer', name: 'pos_x')]
+    #[ORM\Column(name: 'pos_x', type: 'integer')]
     private ?int $posX = null;
 
-    #[ORM\Column(type: 'integer', name: 'pos_y')]
+    #[ORM\Column(name: 'pos_y', type: 'integer')]
     private ?int $posY = null;
 
-    #[ORM\Column(type: 'string', length: 10, nullable: true)]
+    #[ORM\Column(type: 'string', length: 25, nullable: true)]
     private ?string $name = null;
 
-    #[ORM\ManyToOne(inversedBy: 'seats')]
-    #[ORM\JoinColumn(name: 'owner', referencedColumnName: 'uuid', nullable: true)]
-    private ?UserGamer $owner = null;
+    #[ORM\Column(name: 'owner', type: 'uuid', nullable: true)]
+    private ?UuidInterface $owner = null;
 
     #[ORM\Column(type: 'string', length: 1)]
     private ?string $sector = null;
@@ -82,12 +82,12 @@ class Seat
         return $this;
     }
 
-    public function getOwner(): ?UserGamer
+    public function getOwner(): ?UuidInterface
     {
         return $this->owner;
     }
 
-    public function setOwner(?UserGamer $owner): self
+    public function setOwner(?UuidInterface $owner): self
     {
         $this->owner = $owner;
 

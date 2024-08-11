@@ -22,16 +22,12 @@ class UserGamer
     #[ORM\Column(type: 'datetime', nullable: true)]
     private ?DateTimeInterface $paid = null;
 
-    #[ORM\OneToMany(targetEntity: Seat::class, mappedBy: 'owner')]
-    private Collection $seats;
-
     #[ORM\Column(type: 'datetime', nullable: true)]
     private ?DateTimeInterface $checkedIn = null;
 
     public function __construct(?UuidInterface $uuid)
     {
         $this->uuid = $uuid;
-        $this->seats = new ArrayCollection();
     }
 
     public function getRegistered(): ?DateTimeInterface
@@ -78,37 +74,6 @@ class UserGamer
     public function hasPaid(): bool
     {
         return $this->paid !== null;
-    }
-
-    /**
-     * @return Collection|Seat[]
-     */
-    public function getSeats(): Collection
-    {
-        return $this->seats;
-    }
-
-    public function addSeat(Seat $seat): self
-    {
-        if (!$this->seats->contains($seat)) {
-            $this->seats[] = $seat;
-            $seat->setOwner($this);
-        }
-
-        return $this;
-    }
-
-    public function removeSeat(Seat $seat): self
-    {
-        if ($this->seats->contains($seat)) {
-            $this->seats->removeElement($seat);
-            // set the owning side to null (unless already changed)
-            if ($seat->getOwner() === $this) {
-                $seat->setOwner(null);
-            }
-        }
-
-        return $this;
     }
 
     public function getCheckedIn(): ?DateTimeInterface

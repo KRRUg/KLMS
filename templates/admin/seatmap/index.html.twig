@@ -6,43 +6,49 @@
     <div class="row">
         <div class="col-12">
             {% set seatmap_bg = settings.get('lan.seatmap.bg_image') %}
-            {% if seatmap_bg is empty %}
-            <div class="card-body">
-                Lade einen Grundriss hoch um den Sitzplan zu erstellen: <a href="{{ path('admin_setting_edit', {'key': 'lan.seatmap.bg_image'}) }}">Zu den Einstellungen</a>
-            </div>
-            {% else %}
             <div class="card-body">
                 <a class="btn btn-primary" href="{{ path('admin_seatmap_export') }}" download>Sitzplan exportieren (.csv)</a>
             </div>
             <div class="card">
                 <div class="card-title">
-                    <div class="container seatmap-legend">
-                        <div class="row justify-content-center">
+                    <h3>
+                        Legende
+                    </h3>
+                </div>
+                <div class="card-body">
+                    <div class="container">
+                        <div class="row justify-content-center seatmap-legend">
                             <div class="col-md-3 col-lg-2"><span class="seat seat-empty"></span> Frei </div>
                             <div class="col-md-3 col-lg-2"><span class="seat seat-taken"></span> Reserviert</div>
                             <div class="col-md-3 col-lg-2"><span class="seat seat-locked"></span> Gesperrt</div>
                             <div class="col-md-3 col-lg-2"><span class="seat seat-own"></span> Sitzplatz</div>
                         </div>
-                    </div>
+                    <div class="row">
                     {% if settings.get('lan.seatmap.locked') %}
-                        <div class="card-title">
-                            Der Sitzplan ist aktuell gesperrt! Er Kann nur von Admins bearbeitet werden.
-                        </div>
+                        <p class="mt-1">Der Sitzplan ist aktuell gesperrt! Er kann nur von Admins bearbeitet werden.</p>
                     {% endif %}
-                </div>
-                <div class="card-body">
-                    <button id="toggleEditmode" type="button" class="btn btn-primary" data-edit-mode="false">Drag & Drop aktivieren</button>
+                    {% if seatmap_bg is empty %}
+                        <p class="mt-1">Achtung: Es ist kein Grundriss hochgeladen. Lade einen Grundriss hoch: <a href="{{ path('admin_setting_edit', {'key': 'lan.seatmap.bg_image'}) }}"> Zu den Einstellungen</a></p>
+                    {% endif %}
+                    </div>
+                    <div>
+                        <button id="toggleEditmode" type="button" class="btn btn-primary" data-edit-mode="false">Drag & Drop aktivieren</button>
+                    </div>
+                    </div>
                 </div>
             </div>
             <div class="d-flex justify-content-center mt-5">
                 <div class="card">
-                    <div class="seatmap" data-position-url="{{ path('admin_seatmap_seat_pos') }}" data-create-url="{{ path('admin_seatmap_seat_create') }}">
+                    <div class="seatmap" data-position-url="{{ path('admin_seatmap_seat_pos') }}" data-create-url="{{ path('admin_seatmap_seat_create') }}"
                         {% if seatmap_bg is not empty %}
-                            <img class="seatmap-bg" src="{{ seatmap_bg }}" aria-hidden="true">
+                            >
+                        <img class="seatmap-bg" src="{{ seatmap_bg }}" aria-hidden="true">
+                        {% else %}
+                            style="width: {{ dim['x'] + 150 }}px; height: {{ dim['y'] + 150 }}px">
                         {% endif %}
-                        <div class="seatmap-wrapper">
+                        <div class="seatmap-wrapper border">
                             {% for seat in seatmap %}
-                                {% set ownSeat = app.user is not null and seat.owner is not null and seat.owner.uuid == app.user.user.uuid %}
+                                {% set ownSeat = app.user is not null and seat.owner is not null and seat.owner == app.user.user.uuid %}
                                 {% set taken = seat.owner is not empty %}
                                 {% set locked = seat.type == 'locked' %}
                                 {% set information = seat.type == 'information' %}
@@ -69,7 +75,6 @@
                     </div>
                 </div>
             </div>
-            {% endif %}
         </div>
     </div>
 {% endblock %}

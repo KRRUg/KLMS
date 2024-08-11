@@ -4,7 +4,7 @@
     'title' : 'Sitzplatz ' ~ seat.sector ~ '-' ~ seat.seatNumber,
     'dialogClass' : 'modal-lg'
 } %}
-    {% set owner = app.user is not empty and seat.owner is not empty and seat.owner.uuid == app.user.user.uuid %}
+    {% set owner = app.user is not empty and seat.owner is not empty and seat.owner == app.user.user.uuid %}
     {% block modalBody %}
         <div class="container-fluid">
             <div class="col">
@@ -48,13 +48,13 @@
                 {{ form_start(form) }}
                 {{ form_row(form.action) }}
                 {{ form_rest(form) }}
-                <button type="submit" class="btn btn-primary"><i class="fas fa-user-check"></i> Sitzplatz reservieren</button>
+                <button id="reserveSeatButton" type="submit" class="btn btn-primary"><i class="fas fa-user-check"></i> Sitzplatz reservieren</button>
                 {{ form_end(form) }}
             {% elseif owner %}
                 {{ form_start(form) }}
                 {{ form_row(form.action) }}
                 {{ form_rest(form) }}
-                <button type="submit" class="btn btn-primary"><i class="fas fa-user-times"></i> Sitzplatz freigeben</button>
+                <button id="freeSeatButton" type="submit" class="btn btn-primary"><i class="fas fa-user-times"></i> Sitzplatz freigeben</button>
                 {{ form_end(form) }}
             {% endif %}
         {% endif %}
