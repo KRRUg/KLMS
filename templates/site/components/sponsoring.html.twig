@@ -1,26 +1,22 @@
 {% if sponsor.active() and settings.get("sponsor.banner.show") %}
     {% set s = sponsor.getRandom() %}
     {% if s is not empty %}
-        <div class="container mb-5">
-            <div class="card">
-                <div class="card-body">
-                    {% if settings.get("sponsor.banner.show_title", true) %}
-                    <h4>{{ settings.get("sponsor.banner.title") | default("Supported by") }}</h4>
-                    {% endif %}
-                    <div class="d-flex justify-content-center p-2">
-                        <a {% if s.url is not empty %} href="{{ s.url }}" target="_blank" {% endif %}>
-                        <img style="max-width: 300px; max-height: 300px; " src="{{ vich_uploader_asset(s, 'logoFile') | imagine_filter('sponsor_logo') }}">
-                        </a>
-                    </div>
-                    <div class="text-center">
-                        {% if settings.get("sponsor.banner.show_name", false) %}
-                        <h5>{{ s.name }}</h5>
-                        {% endif %}
-                        {% if settings.get("sponsor.banner.show_text", false) %}
-                        <p>{{ s.text | raw }}</p>
-                        {% endif %}
-                    </div>
-                </div>
+        <div id="foot-bar" class="container py-3 text-white">
+            {% if settings.get("sponsor.banner.show_title", true) %}
+            <h4>{{ settings.get("sponsor.banner.title") | default("Supported by") }}</h4>
+            {% endif %}
+            <div class="d-flex justify-content-center p-2">
+                <a {% if s.url is not empty %} href="{{ s.url }}" target="_blank" {% endif %}>
+                <img style="max-width: 300px; max-height: 300px; " src="{{ vich_uploader_asset(s, 'logoFile') | imagine_filter('sponsor_logo') }}">
+                </a>
+            </div>
+            <div class="text-center">
+                {% if settings.get("sponsor.banner.show_name", false) %}
+                <h5>{{ s.name }}</h5>
+                {% endif %}
+                {% if settings.get("sponsor.banner.show_text", false) %}
+                <p>{{ s.text | raw }}</p>
+                {% endif %}
             </div>
         </div>
     {% endif %}
