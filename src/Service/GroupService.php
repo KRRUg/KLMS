@@ -68,23 +68,26 @@ class GroupService
         return $result;
     }
 
-    public static function groupExists(UuidInterface $group): bool
+    public static function groupExists(UuidInterface|string $group): bool
     {
-        return array_key_exists($group->toString(), self::GROUP_SETTING);
+        $group = $group instanceof UuidInterface ? $group->toString() : $group;
+        return array_key_exists($group, self::GROUP_SETTING);
     }
 
-    public static function getName(UuidInterface $group): string
+    public static function getName(UuidInterface|string $group): string
     {
-        return self::GROUP_SETTING[$group->toString()][self::NAME] ?? '';
+        $group = $group instanceof UuidInterface ? $group->toString() : $group;
+        return self::GROUP_SETTING[$group][self::NAME] ?? '';
     }
 
     // TODO once Collection Interface is done for IDM service, change this to Collection
-    public function query(UuidInterface $group): array | IdmPagedCollection
+    public function query(UuidInterface|string $group): array | IdmPagedCollection
     {
+        $group = $group instanceof UuidInterface ? $group->toString() : $group;
         if (!self::groupExists($group)) {
             return [];
         }
-        $config = self::GROUP_SETTING[$group->toString()];
+        $config = self::GROUP_SETTING[$group];
 
         return $this->{$config[self::METHOD]}($config[self::FILTER]);
     }
@@ -92,18 +95,19 @@ class GroupService
     private function getGamer(array $filter): array
     {
         $seat = $filter['seat'] ?? null;
-        $ticketOwners = $this->ticketService->queryUserUuids(TicketState::REDEEMED);
+        $uuids = $this->ticketService->queryUserUuids(TicketState::REDEEMED);
 
         if (!is_null($seat)) {
             $seatOwners = $this->seatmapService->getSeatOwners();
             if ($seat) {
                 // intersect gamer on lan with seat owners
-                $uuids = array_intersect($ticketOwners, $seatOwners);
+                $uuids = array_intersect($uuids, $seatOwners);
             } else {
                 // gamer on lan minus seat owners
-                $uuids = array_diff($ticketOwners, $seatOwners);
+                $uuids = array_diff($uuids, $seatOwners);
             }
         }
+        $uuids = array_values($uuids);
         return $this->userRepo->findById($uuids);
     }
 

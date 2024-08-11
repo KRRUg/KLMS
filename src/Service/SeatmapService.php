@@ -133,7 +133,9 @@ class SeatmapService
      */
     public function getSeatOwners(): array
     {
-        return $this->seatRepository->findSeatOwners();
+        $seats = $this->seatRepository->findTakenSeats();
+        $uuids = array_map(fn (Seat $s) => $s->getOwner(), $seats);
+        return array_unique($uuids);
     }
 
     public function getDimension(): array

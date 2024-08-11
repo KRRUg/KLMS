@@ -35,9 +35,9 @@ class StatisticService extends OptimalService
             'seats_free' => $this->countSeatsFree(),
             'seats_total' => $this->countSeatsTotal(),
             'seats_taken' => $this->countSeatsTaken(),
-            // TODO change names
-            'gamer_registered' => $this->countOrderedTickets(),
-            'gamer_payed' => $this->countRedeemedTickets(),
+            'seats_locked' => $this->countSeatsLocked(),
+            'tickets_ordered' => $this->countOrderedTickets(),
+            'tickets_redeemed' => $this->countRedeemedTickets(),
             default => '',
         };
     }
@@ -55,6 +55,11 @@ class StatisticService extends OptimalService
     public function countSeatsTaken(): int
     {
         return $this->seatRepository->countTakenSeats();
+    }
+
+    public function countSeatsLocked(): int
+    {
+        return $this->seatRepository->countLockedSeats();
     }
 
     public function countOrderedTickets(): int

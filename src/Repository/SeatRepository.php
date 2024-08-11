@@ -54,6 +54,8 @@ class SeatRepository extends ServiceEntityRepository
     {
         return $this->createCountQueryBuilder('s')
             ->andWhere('s.owner IS NULL')
+            ->andWhere('s.type = :st')
+            ->setParameter('st', SeatKind::SEAT)
             ->getQuery()
             ->getSingleScalarResult();
     }
@@ -66,6 +68,16 @@ class SeatRepository extends ServiceEntityRepository
             ->getSingleScalarResult();
     }
 
+    public function countLockedSeats(): int
+    {
+        return $this->createCountQueryBuilder('s')
+            ->andWhere('s.owner IS NULL')
+            ->andWhere('s.type = :st')
+            ->setParameter('st', SeatKind::LOCKED)
+            ->getQuery()
+            ->getSingleScalarResult();
+    }
+
     public function getMaxDimension(): array
     {
         $r = $this->createQueryBuilder('s')
@@ -74,14 +86,5 @@ class SeatRepository extends ServiceEntityRepository
             ->getQuery()
             ->getResult(AbstractQuery::HYDRATE_SCALAR);
         return ['x' => $r[0][1] ?? 0, 'y' => $r[0][2] ?? 0];
-    }
-
-    public function findSeatOwners(): array
-    {
-        return $this->createQueryBuilder('s')
-            ->select('district(s.owner)')
-            ->where('s.owner IS NOT NULL')
-            ->getQuery()
-            ->getResult();
     }
 }
