@@ -1,7 +1,7 @@
 {% extends 'admin/adminBase.html.twig' %}
 
 {% block title %}Einzahlungen - KLMS - Admin{% endblock %}
-{% block siteheading %}<i class="fas fa-money-bill"></i> Einzahlungen{% endblock %}
+{% block siteheading %}<i class="fas fa-money-bill"></i> Tickets{% endblock %}
 {% block main %}
     <div class="row mb-4">
         <div class="col-12">
@@ -18,8 +18,6 @@
                 >
                     <thead>
                     <tr>
-                        <th class="text-nowrap w-1" data-data="user.id">KLMS-ID</th>
-                        <th class="text-nowrap w-1" data-data="user.clans">Clans</th>
                         <th
                                 class="w-25"
 {#                                data-data="user.nickname"#}
@@ -42,30 +40,28 @@
                     </tr>
                     </thead>
                     <tbody>
-                    {% for uuid, v in gamers %}
+                    {# TODO remove filter and handle non-redeemed ticket #}
+                    {% for ticket in tickets | filter(t => t.isRedeemed()) %}
+                        {% set user = users[ticket.redeemer.toString()] %}
                         <tr>
-                            <td class="text-center">{{ v.user.id }}</td>
-                            <td>
-                                {% for clan in v.user.clans %}
+                            <td data-order="{{ user.nickname }}">
+                                {% for clan in user.clans %}
                                     <a class="badge badge-pill badge-primary" href="{{ path('admin_clan_show', {'uuid' : clan.uuid }) }}" data-toggle="ajaxModal">{{clan.clantag }}</a>
                                 {% endfor %}
+                                <a href="{{ path('admin_user_show', {'uuid' : user.uuid }) }}" data-toggle="ajaxModal">{{ user.nickname }}</a>
                             </td>
-                            <td><a href="{{ path('admin_user_show', {'uuid' : v.user.uuid }) }}" data-toggle="ajaxModal">{{ v.user.nickname }}</a></td>
-                            <td>{{ v.user.firstname }}</td>
-                            <td>{{ v.user.surname }}</td>
+                            <td>{{ user.firstname }}</td>
+                            <td>{{ user.surname }}</td>
                             <td>
-                                {% if v.status.hasRegistered() %}
-                                    <span class="badge badge-secondary">Angemeldet</span>
-                                {% endif %}
-                                {% if v.status.hasPaid() %}
+                                {% if ticket.isRedeemed() %}
                                     <span class="badge badge-primary">Bezahlt</span>
                                 {% endif %}
-                                {% if v.status.hasCheckedIn() %}
-                                    <span class="badge badge-info">Checked-In</span>
+                                {% if ticket.isPunched() %}
+                                    <span class="badge badge-secondary">Checked-In</span>
                                 {% endif %}
                             </td>
                             <td>
-                                <a class="btn btn-outline-dark text-nowrap" data-toggle="ajaxModal" href="{{ path('admin_payment_show', {'uuid' : v.user.uuid}) }}">
+                                <a class="btn btn-outline-dark text-nowrap" data-toggle="ajaxModal" href="{{ path('admin_payment_show', {'uuid' : user.uuid}) }}">
                                     <i class="fas fa-money-check"></i> Status ändern
                                 </a>
                             </td>

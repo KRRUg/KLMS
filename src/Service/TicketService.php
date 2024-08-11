@@ -50,6 +50,13 @@ class TicketService
         return $this->ticketRepository->findOneByRedeemer($uuid);
     }
 
+    public function getTicketStateUser(User|UuidInterface $user): ?TicketState
+    {
+        $ticket = $this->getTicketUser($user);
+        if (empty($ticket)) { return null; }
+        return $ticket->getState();
+    }
+
     public function getTicketCode(string $code): ?Ticket
     {
         return $this->ticketRepository->findOneByCode($code);
@@ -202,6 +209,24 @@ class TicketService
         return false;
     }
 
+    /**
+     * @param TicketState $state
+     * @return Ticket[]
+     */
+    public function queryTickets(TicketState $state = TicketState::NEW): array
+    {
+        return $this->ticketRepository->findByState($state);
+    }
+
+    /**
+     * @param TicketState $state
+     * @return UuidInterface[]
+     */
+    public function queryUserUuids(TicketState $state): array
+    {
+        return array_map(function (Ticket $t) { return $t->getRedeemer(); }, $this->ticketRepository->findByState($state));
+    }
+
     public function countTickets(): int
     {
         return $this->ticketRepository->count([]);
@@ -210,6 +235,11 @@ class TicketService
     public function countFreeTickets(): int
     {
         return $this->ticketRepository->count(['redeemer' => null]);
+    }
+
+    public function countRedeemedTickets(): int
+    {
+        return $this->ticketRepository->countRedeemed();
     }
 
     public function countPunchedTickets(): int

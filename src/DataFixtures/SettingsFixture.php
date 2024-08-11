@@ -45,6 +45,8 @@ class SettingsFixture extends Fixture
         $this->addSetting($manager, 'lan.signup.discount.limit', 3);
         $this->addSetting($manager, 'lan.signup.payment_details', "<b>ACME Bank</b><br>IBAN: XX12 3456 7890 1337<br>BIC: ACME123");
 
+        $this->addSetting($manager, 'lan.stats.show', true);
+
         $manager->flush();
     }
 }

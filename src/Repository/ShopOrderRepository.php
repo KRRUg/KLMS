@@ -3,6 +3,7 @@
 namespace App\Repository;
 
 use App\Entity\ShopOrder;
+use App\Entity\ShopOrderPositionTicket;
 use App\Entity\ShopOrderStatus;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\QueryBuilder;
@@ -51,6 +52,18 @@ class ShopOrderRepository extends ServiceEntityRepository
     public function countOrders(?UuidInterface $user, ShopOrderStatus|array|null $status = null): int
     {
         return $this->createQueryFilterBuilder($user, $status)
+            ->select('count(o)')
+            ->getQuery()
+            ->getSingleScalarResult();
+    }
+
+    public function countOrderedTickets(): int
+    {
+        return $this->createQueryBuilder('o')
+            ->join('o.shopOrderPositions', 'op')
+            ->where('op INSTANCE OF '.ShopOrderPositionTicket::class)
+            ->andWhere('o.status = :status')
+            ->setParameter('status', ShopOrderStatus::Created)
             ->select('count(o)')
             ->getQuery()
             ->getSingleScalarResult();

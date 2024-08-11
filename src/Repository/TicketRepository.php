@@ -3,9 +3,9 @@
 namespace App\Repository;
 
 use App\Entity\Ticket;
+use App\Service\TicketState;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
-use Ramsey\Uuid\Uuid;
 use Ramsey\Uuid\UuidInterface;
 
 /**
@@ -33,6 +33,15 @@ class TicketRepository extends ServiceEntityRepository
         return $this->findOneBy(['code' => $code]);
     }
 
+    public function countRedeemed(): int
+    {
+        return $this->createQueryBuilder('t')
+            ->select('count(t)')
+            ->where('t.redeemedAt IS NOT NULL')
+            ->getQuery()
+            ->getSingleScalarResult();
+    }
+
     public function countPunched(): int
     {
         return $this->createQueryBuilder('t')
@@ -54,5 +63,26 @@ class TicketRepository extends ServiceEntityRepository
             ->orWhere('t.createdAt > t.punchedAt')
             ->getQuery()
             ->getSingleScalarResult();
+    }
+
+    /**
+     * Get all Ticket which are in the state or in a later state
+     * @return Ticket[]
+     */
+    public function findByState(TicketState $state): array
+    {
+        $qb = $this->createQueryBuilder('t');
+        switch ($state) {
+            case TicketState::PUNCHED:
+                $qb->andWhere('t.punchedAt IS NOT NULL');
+                break;
+            case TicketState::REDEEMED:
+                $qb->andWhere('t.redeemedAt IS NOT NULL');
+                break;
+            case TicketState::NEW:
+                break;
+        }
+        return $qb->getQuery()
+            ->getResult();
     }
 }

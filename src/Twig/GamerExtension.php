@@ -4,20 +4,20 @@ namespace App\Twig;
 
 use App\Entity\Seat;
 use App\Entity\User;
-use App\Service\GamerService;
 use App\Service\SeatmapService;
+use App\Service\TicketService;
 use Twig\Extension\AbstractExtension;
 use Twig\TwigFilter;
 use Twig\TwigTest;
 
 class GamerExtension extends AbstractExtension
 {
-    private readonly GamerService $gamerService;
+    private readonly TicketService $ticketService;
     private readonly SeatmapService $seatmapService;
 
-    public function __construct(GamerService $gamerService, SeatmapService $seatmapService)
+    public function __construct(TicketService $ticketService, SeatmapService $seatmapService)
     {
-        $this->gamerService = $gamerService;
+        $this->ticketService = $ticketService;
         $this->seatmapService = $seatmapService;
     }
 
@@ -28,7 +28,6 @@ class GamerExtension extends AbstractExtension
     {
         return [
             new TwigTest('registered_gamer', $this->gamerIsRegistered(...)),
-            new TwigTest('paid_gamer', $this->gamerIsPaid(...)),
             new TwigTest('seated_gamer', $this->gamerIsSeated(...)),
         ];
     }
@@ -45,12 +44,7 @@ class GamerExtension extends AbstractExtension
 
     public function gamerIsRegistered(User $user): bool
     {
-        return $this->gamerService->gamerHasRegistered($user);
-    }
-
-    public function gamerIsPaid(User $user): bool
-    {
-        return $this->gamerService->gamerHasPaid($user);
+        return $this->ticketService->isUserRegistered($user);
     }
 
     public function gamerIsSeated(User $user): bool

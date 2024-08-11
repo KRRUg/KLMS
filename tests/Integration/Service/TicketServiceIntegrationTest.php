@@ -40,7 +40,7 @@ class TicketServiceIntegrationTest extends DatabaseTestCase
         return [
             // userid, hasTicket, hasPunchedTicket
             [2,         true,       true],
-            [14,        true,      false],
+            [13,        true,      false],
             [11,       false,      false],
         ];
     }
@@ -50,8 +50,8 @@ class TicketServiceIntegrationTest extends DatabaseTestCase
         return [
             // ticketCode,         isRedeemed, isPunched
             ['CODE1-KRRUG-BBBBB',  false,      false],
-            ['CODE1-KRRUG-AAAAA',  true,       false],
-            ['00000-KRRUG-NR001',  true,       true],
+            ['CODE1-KRRUG-EEEEE',  true,       false],
+            ['CODE1-KRRUG-AAAAA',  true,       true],
         ];
     }
 

@@ -28,17 +28,17 @@ class TourneyService extends OptimalService
     private readonly TourneyTeamRepository $teamRepository;
     private readonly TourneyTeamMemberRepository $teamMemberRepository;
     private readonly SettingService $settings;
-    private readonly GamerService $gamerService;
+    private readonly TicketService $ticketService;
 
     public function __construct(
-        TourneyRepository $repository,
-        TourneyGameRepository $gameRepository,
-        TourneyTeamRepository $teamRepository,
+        TourneyRepository           $repository,
+        TourneyGameRepository       $gameRepository,
+        TourneyTeamRepository       $teamRepository,
         TourneyTeamMemberRepository $teamMemberRepository,
-        SettingService $settings,
-        GamerService $gamerService,
-        EntityManagerInterface $em,
-        LoggerInterface $logger,
+        SettingService              $settings,
+        TicketService               $ticketService,
+        EntityManagerInterface      $em,
+        LoggerInterface             $logger,
     ) {
         parent::__construct($settings);
         $this->repository = $repository;
@@ -46,7 +46,7 @@ class TourneyService extends OptimalService
         $this->teamRepository = $teamRepository;
         $this->teamMemberRepository = $teamMemberRepository;
         $this->settings = $settings;
-        $this->gamerService = $gamerService;
+        $this->ticketService = $ticketService;
         $this->em = $em;
         $this->logger = $logger;
     }
@@ -171,7 +171,7 @@ class TourneyService extends OptimalService
 
     public function userMayParticipate(User $user): bool
     {
-        return $this->gamerService->gamerIsOnLan($user);
+        return $this->ticketService->getTicketUser($user)?->getState() == TicketState::PUNCHED;
     }
 
     public function getRegistrableTourneys($user): array
@@ -326,7 +326,7 @@ class TourneyService extends OptimalService
             throw new ServiceException(ServiceException::CAUSE_IN_USE, 'Tourney registration is not open');
         }
         if (!$this->userMayParticipate($user)) {
-            throw new ServiceException(ServiceException::CAUSE_FORBIDDEN, 'User is not on lan.');
+            throw new ServiceException(ServiceException::CAUSE_FORBIDDEN, 'User is not on LAN.');
         }
     }
 

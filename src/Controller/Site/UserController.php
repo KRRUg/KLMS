@@ -10,8 +10,9 @@ use App\Idm\IdmManager;
 use App\Idm\IdmRepository;
 use App\Security\LoginUser;
 use App\Service\EmailService;
-use App\Service\GamerService;
 use App\Service\SettingService;
+use App\Service\TicketService;
+use App\Service\TicketState;
 use Psr\Log\LoggerInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -27,20 +28,20 @@ class UserController extends AbstractController
     private readonly IdmRepository $userRepo;
     private readonly EmailService $emailService;
     private readonly SettingService $settingService;
-    private readonly GamerService $gamerService;
+    private readonly TicketService $ticketService;
     private readonly LoggerInterface $logger;
 
     public function __construct(IdmManager $manager,
                                 EmailService $emailService,
                                 SettingService $settingService,
-                                GamerService $gamerService,
+                                TicketService $ticketService,
                                 LoggerInterface $logger)
     {
         $this->manager = $manager;
         $this->userRepo = $manager->getRepository(User::class);
         $this->emailService = $emailService;
         $this->settingService = $settingService;
-        $this->gamerService = $gamerService;
+        $this->ticketService = $ticketService;
         $this->logger = $logger;
     }
 
@@ -73,8 +74,8 @@ class UserController extends AbstractController
             $users = $collection->getPage($page, self::SHOW_LIMIT);
             $count = $collection->count();
         } else {
-            $gamers = array_values($this->gamerService->getGamers(false));
-            $users = array_map(fn (array $in) => $in['user'], $gamers);
+            $uuids = $this->ticketService->queryUserUuids(TicketState::REDEEMED);
+            $users = $this->userRepo->findById($uuids);
             if (!empty($search)) {
                 $users = array_filter($users, fn (User $u) => stripos($u->getNickname(), (string) $search) !== false || stripos($u->getFirstname(), (string) $search) !== false);
             }

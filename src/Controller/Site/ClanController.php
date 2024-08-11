@@ -8,8 +8,10 @@ use App\Form\ClanType;
 use App\Idm\Exception\PersistException;
 use App\Idm\IdmManager;
 use App\Idm\IdmRepository;
-use App\Service\GamerService;
 use App\Service\SettingService;
+use App\Service\TicketService;
+use App\Service\TicketState;
+use App\Service\UserService;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\Extension\Core\Type\PasswordType;
@@ -17,9 +19,7 @@ use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
 #[IsGranted('IS_AUTHENTICATED_REMEMBERED')]
 class ClanController extends AbstractController
@@ -31,16 +31,18 @@ class ClanController extends AbstractController
     private readonly IdmManager $im;
     private readonly IdmRepository $clanRepo;
     private readonly IdmRepository $userRepo;
+    private readonly UserService $userService;
     private readonly SettingService $settingService;
-    private readonly GamerService $gamerService;
+    private readonly TicketService $ticketService;
 
-    public function __construct(IdmManager $manager, SettingService $settingService, GamerService $gamerService)
+    public function __construct(IdmManager $manager, UserService $userService, SettingService $settingService, TicketService $ticketService)
     {
         $this->im = $manager;
         $this->clanRepo = $manager->getRepository(Clan::class);
         $this->userRepo = $manager->getRepository(User::class);
+        $this->userService = $userService;
         $this->settingService = $settingService;
-        $this->gamerService = $gamerService;
+        $this->ticketService = $ticketService;
     }
 
     private const SHOW_LIMIT = 10;
@@ -54,14 +56,15 @@ class ClanController extends AbstractController
 
         $search = $request->query->get('q', '');
         $page = $request->query->getInt('page', 1);
-        $page = $page < 1 ? 1 : $page;
+        $page = max($page, 1);
 
         if ($this->settingService->get('community.all', false)) {
             $collection = $this->clanRepo->findFuzzy($search);
             $clans = $collection->getPage($page, self::SHOW_LIMIT);
             $count = $collection->count();
         } else {
-            $clans = array_values($this->gamerService->getClans());
+            $uuids = $this->ticketService->queryUserUuids(TicketState::REDEEMED);
+            $clans = $this->userService->getClansByUsers($uuids);
             if (!empty($search)) {
                 $clans = array_filter($clans, fn (Clan $u) => stripos($u->getClantag(), (string) $search) !== false || stripos($u->getName(), (string) $search) !== false);
             }
@@ -143,7 +146,7 @@ class ClanController extends AbstractController
         return $this->redirectToRoute('clan_show', ['uuid' => $clan->getUuid()]);
     }
 
-    private function removeUserFromClan(Clan $clan, User $user)
+    private function removeUserFromClan(Clan $clan, User $user): void
     {
         if ($clan->isAdmin($user) && (is_countable($clan->getAdmins()) ? count($clan->getAdmins()) : 0) === 1) {
             $this->addFlash('warning', 'Der letzte Admin kann den Clan nicht verlassen.
@@ -160,7 +163,7 @@ class ClanController extends AbstractController
         }
     }
 
-    private function setUserAdmin(Clan $clan, User $user, bool $admin)
+    private function setUserAdmin(Clan $clan, User $user, bool $admin): void
     {
         if (!$admin && $clan->isAdmin($user) && (is_countable($clan->getAdmins()) ? count($clan->getAdmins()) : 0) === 1) {
             $this->addFlash('warning', 'Der letzte Admin muss Admin bleiben.
@@ -267,23 +270,20 @@ class ClanController extends AbstractController
         ]);
     }
 
-    private function throwOnUserNotAdminOfClan(Clan $clan)
+    private function throwOnUserNotAdminOfClan(Clan $clan): void
     {
         if (!$clan->isAdmin($this->getUser()->getUser())) {
             throw $this->createAccessDeniedException('Nur Admins können den Clan bearbeiten!');
         }
     }
 
-    private function throwOnClanNotFound(?Clan $clan)
+    private function throwOnClanNotFound(?Clan $clan): void
     {
         if (empty($clan)) {
             throw $this->createNotFoundException('Clan wurde nicht gefunden.');
         }
     }
 
-    /**
-     * @return AccessDeniedException|RedirectResponse|Response
-     */
     #[Route(path: '/clan/{uuid}/edit', name: 'clan_edit', methods: ['GET', 'POST'])]
     public function edit(string $uuid, Request $request): Response
     {
@@ -318,9 +318,6 @@ class ClanController extends AbstractController
         ]);
     }
 
-    /**
-     * @return AccessDeniedException|RedirectResponse|NotFoundHttpException
-     */
     #[Route(path: '/clan/{uuid}/delete', name: 'clan_delete', methods: ['POST'])]
     public function delete(string $uuid, Request $request): Response
     {

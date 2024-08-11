@@ -11,6 +11,7 @@ use App\Idm\IdmManager;
 use App\Idm\IdmRepository;
 use App\Repository\SeatRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use Ramsey\Uuid\UuidInterface;
 use Symfony\Component\Security\Core\Security;
 
 class SeatmapService
@@ -125,6 +126,14 @@ class SeatmapService
     public function getSeatOwner(Seat $seat): ?User
     {
         return $seat->getOwner() ? $this->userRepo->findOneById($seat->getOwner()) : null;
+    }
+
+    /**
+     * @return UuidInterface[] all uuids of seat owners
+     */
+    public function getSeatOwners(): array
+    {
+        return $this->seatRepository->findSeatOwners();
     }
 
     public function getDimension(): array

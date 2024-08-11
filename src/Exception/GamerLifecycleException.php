@@ -7,7 +7,7 @@ use RuntimeException;
 
 class GamerLifecycleException extends RuntimeException
 {
-    private readonly string $gamerName;
+    public readonly string $gamerName;
 
     public function __construct(User $gamer, $message = '')
     {

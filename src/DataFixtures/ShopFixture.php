@@ -47,7 +47,7 @@ class ShopFixture extends Fixture implements DependentFixtureInterface
         $user18 = Uuid::fromInteger(strval(18));
 
         $tickets = array();
-        $tickets[0] = (new Ticket())->setCode('CODE1-KRRUG-AAAAA')->setCreatedAt(new DateTimeImmutable('2023-09-25 13:37'))->setRedeemer($user14)->setRedeemedAt(new DateTimeImmutable('2023-09-26 14:21'));
+        $tickets[0] = (new Ticket())->setCode('CODE1-KRRUG-AAAAA')->setCreatedAt(new DateTimeImmutable('2023-09-25 13:37'))->setRedeemer($user14)->setRedeemedAt(new DateTimeImmutable('2023-09-26 14:21'))->setPunchedAt(new DateTimeImmutable('2023-10-20 16:00'));
         $tickets[1] = (new Ticket())->setCode('CODE1-KRRUG-BBBBB')->setCreatedAt(new DateTimeImmutable('2023-09-25 13:37'));
         $tickets[2] = (new Ticket())->setCode('CODE1-KRRUG-CCCCC')->setCreatedAt(new DateTimeImmutable('2023-09-25 13:37'));
         $tickets[3] = (new Ticket())->setCode('CODE1-KRRUG-DDDDD')->setCreatedAt(new DateTimeImmutable('2023-09-25 13:37'))->setRedeemer($user13)->setRedeemedAt(new DateTimeImmutable('2023-09-30 11:21'));

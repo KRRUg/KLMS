@@ -75,4 +75,13 @@ class SeatRepository extends ServiceEntityRepository
             ->getResult(AbstractQuery::HYDRATE_SCALAR);
         return ['x' => $r[0][1] ?? 0, 'y' => $r[0][2] ?? 0];
     }
+
+    public function findSeatOwners(): array
+    {
+        return $this->createQueryBuilder('s')
+            ->select('district(s.owner)')
+            ->where('s.owner IS NOT NULL')
+            ->getQuery()
+            ->getResult();
+    }
 }
