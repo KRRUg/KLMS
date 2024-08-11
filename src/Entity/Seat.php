@@ -35,11 +35,11 @@ class Seat
     #[ORM\Column(type: 'integer')]
     private ?int $seatNumber = null;
 
-    #[ORM\Column(type: 'string', length: 32)]
-    private ?string $type = null;
+    #[ORM\Column(type: 'string', length: 8, enumType: SeatKind::class)]
+    private ?SeatKind $type = null;
 
-    #[ORM\Column(type: 'string', length: 10)]
-    private ?string $chairPosition = null;
+    #[ORM\Column(type: 'string', length: 1, enumType: SeatOrientation::class)]
+    private ?SeatOrientation $chairPosition = null;
 
     public function getId(): ?int
     {
@@ -118,24 +118,24 @@ class Seat
         return $this;
     }
 
-    public function getType(): ?string
+    public function getType(): ?SeatKind
     {
         return $this->type;
     }
 
-    public function setType(string $type): self
+    public function setType(SeatKind $type): self
     {
         $this->type = $type;
 
         return $this;
     }
 
-    public function getChairPosition(): ?string
+    public function getChairPosition(): ?SeatOrientation
     {
         return $this->chairPosition;
     }
 
-    public function setChairPosition(string $chairPosition): self
+    public function setChairPosition(SeatOrientation $chairPosition): self
     {
         $this->chairPosition = $chairPosition;
 

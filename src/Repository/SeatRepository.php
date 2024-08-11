@@ -3,6 +3,7 @@
 namespace App\Repository;
 
 use App\Entity\Seat;
+use App\Entity\SeatKind;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\AbstractQuery;
 use Doctrine\ORM\QueryBuilder;
@@ -38,7 +39,8 @@ class SeatRepository extends ServiceEntityRepository
     {
         return $this->createQueryBuilder($alias)
             ->select("count({$alias})")
-            ->andWhere("{$alias}.type != 'information'");
+            ->andWhere("{$alias}.type != :info")
+            ->setParameter('info', SeatKind::INFO);
     }
 
     public function countSeatsTotal(): int

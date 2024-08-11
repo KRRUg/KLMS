@@ -3,6 +3,7 @@
 namespace App\Controller\Admin;
 
 use App\Entity\Seat;
+use App\Entity\SeatOrientation;
 use App\Entity\User;
 use App\Form\SeatType;
 use App\Form\UserSelectType;
@@ -169,7 +170,7 @@ class SeatmapController extends AbstractController
                     // Create the Seat
                     $this->em->persist($newSeat);
 
-                    if ($seat->getChairPosition() == 'top' || $seat->getChairPosition() == 'bottom') {
+                    if ($seat->getChairPosition() == SeatOrientation::NORTH || $seat->getChairPosition() == SeatOrientation::SOUTH) {
                         $x += $seatSize * $seatMultiplier + $seatSpacing;
                     } else {
                         $y += $seatSize * $seatMultiplier + $seatSpacing;

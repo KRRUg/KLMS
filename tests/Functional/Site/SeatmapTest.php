@@ -20,8 +20,8 @@ class SeatmapTest extends DatabaseWebTestCase
         $this->assertSelectorExists('.seatmap');
         $seatmap = $crawler->filter('#seatmap');
         $seats = $seatmap->filter('.seat');
-        $this->assertCount(6, $seats);
-        $this->assertCount(3, $seats->filter('.seat-empty'));
+        $this->assertCount(7, $seats);
+        $this->assertCount(2, $seats->filter('.seat-empty'));
     }
 
     public function testSeatmapDisabled()
@@ -45,7 +45,7 @@ class SeatmapTest extends DatabaseWebTestCase
         $crawler = $this->client->request('GET', '/seatmap' );
         $seatmap = $crawler->filter('#seatmap');
         $this->assertCount(1, $seatmap->filter('.seat.seat-own'));
-        $this->assertCount(3, $seatmap->filter('.seat.seat-empty'));
+        $this->assertCount(2, $seatmap->filter('.seat.seat-empty'));
     }
 
     public function testTakeSeat()

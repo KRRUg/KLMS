@@ -3,8 +3,10 @@
 namespace App\Service;
 
 use App\Entity\Seat;
+use App\Entity\SeatKind;
 use App\Entity\User;
 use App\Exception\GamerLifecycleException;
+use App\Form\SeatType;
 use App\Idm\IdmManager;
 use App\Idm\IdmRepository;
 use App\Repository\SeatRepository;
@@ -114,8 +116,8 @@ class SeatmapService
     public function isSeatBookable(Seat $seat): bool
     {
         return match ($seat->getType()) {
-            'seat' => empty($seat->getOwner()),
-            'locked' => $this->security->isGranted('ROLE_ADMIN_SEATMAP'),
+            SeatKind::SEAT => empty($seat->getOwner()),
+            SeatKind::LOCKED => $this->security->isGranted('ROLE_ADMIN_SEATMAP'),
             default => false,
         };
     }

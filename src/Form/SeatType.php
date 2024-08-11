@@ -3,6 +3,8 @@
 namespace App\Form;
 
 use App\Entity\Seat;
+use App\Entity\SeatKind;
+use App\Entity\SeatOrientation;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\FormBuilderInterface;
@@ -31,18 +33,18 @@ class SeatType extends AbstractType
             ->add('type', ChoiceType::class, [
                 'label' => 'Sitzplatztyp',
                 'choices' => [
-                    'Sitzplatz' => 'seat',
-                    'Gesperrter Sitzplatz' => 'locked',
-                    'Information' => 'information',
+                    'Sitzplatz' => SeatKind::SEAT,
+                    'Gesperrter Sitzplatz' => SeatKind::LOCKED,
+                    'Information' => SeatKind::INFO,
                 ],
             ])
             ->add('chairPosition', ChoiceType::class, [
                 'label' => 'Sitzorientierung',
                 'choices' => [
-                    'Oben' => 'top',
-                    'Links' => 'left',
-                    'Unten' => 'bottom',
-                    'Rechts' => 'right',
+                    'Oben' => SeatOrientation::NORTH,
+                    'Rechts' => SeatOrientation::EAST,
+                    'Unten' => SeatOrientation::SOUTH,
+                    'Links' => SeatOrientation::WEST,
                 ],
             ])
         ;
