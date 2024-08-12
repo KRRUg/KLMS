@@ -22,13 +22,17 @@ class ShopService
     private ShopAddonsRepository $shopAddonsRepository;
     private SettingService $settingService;
     private EntityManagerInterface $em;
+    private TicketService $ticketService;
+
+    public const DEFAULT_TICKET_PRICE = 5000;
 
     public function __construct(ShopOrderRepository $orderRepository, ShopAddonsRepository $shopAddonsRepository,
-                                SettingService $settingService, EntityManagerInterface $em)
+                                SettingService      $settingService, TicketService $ticketService, EntityManagerInterface $em)
     {
         $this->orderRepository = $orderRepository;
         $this->shopAddonsRepository = $shopAddonsRepository;
         $this->settingService = $settingService;
+        $this->ticketService = $ticketService;
         $this->em = $em;
     }
 
@@ -37,9 +41,21 @@ class ShopService
         return $this->orderRepository->findAll();
     }
 
-    public function fulfillOrder(ShopOrder $order)
+    private function fulfillOrder(ShopOrder $order): void
     {
-        // TODO implement
+        $buyer = $order->getOrderer();
+        $first_ticket = null;
+        foreach ($order->getShopOrderPositions() as $pos) {
+            if ($pos instanceof ShopOrderPositionTicket) {
+                $ticket = $this->ticketService->createTicket();
+                $pos->setTicket($ticket);
+                if (!$first_ticket) { $first_ticket = $ticket; }
+            }
+        }
+        // activate one ticket for buyer if they don't have a ticket yet
+        if ($first_ticket && !$this->ticketService->getTicketUser($buyer)) {
+            $this->ticketService->redeemTicket($first_ticket, $buyer);
+        }
     }
 
     public function cancelOrder(ShopOrder $order): void
@@ -98,7 +114,7 @@ class ShopService
     public function hasOpenOrders(User|UuidInterface $user): bool
     {
         $uuid = $user instanceof User ? $user->getUuid() : $user;
-        return $this->orderRepository->countOrders($uuid, [ShopOrderStatus::Created]) != 0;
+        return $this->orderRepository->countOrders($uuid, ShopOrderStatus::Created) != 0;
     }
 
     public function getAddons(): array
@@ -117,7 +133,7 @@ class ShopService
 
     public function orderAddTickets(ShopOrder $order, int $ticketCnt): void
     {
-        $price = $this->settingService->get('lan.signup.price');
+        $price = $this->settingService->get('lan.signup.price', self::DEFAULT_TICKET_PRICE);
         $discount_limit = $this->settingService->get('lan.signup.discount.limit');
         $discount_price = $this->settingService->get('lan.signup.discount.price');
         if ($discount_price && $discount_limit && $ticketCnt >= $discount_limit) {
@@ -137,8 +153,23 @@ class ShopService
 
     public function saveOrder(ShopOrder $order): void
     {
+        if ($order->isEmpty()) {
+            throw new OrderLifecycleException($order);
+        }
+
         // TODO add order history entry
         $this->em->persist($order);
         $this->em->flush();
+    }
+
+    /**
+     * @param User|UuidInterface $user
+     * @param ShopOrderStatus|null $status
+     * @return ShopOrder[]
+     */
+    public function getOrderByUser(User|UuidInterface $user, ?ShopOrderStatus $status = null): array
+    {
+        $uuid = $user instanceof User ? $user->getUuid() : $user;
+        return $this->orderRepository->queryOrders($uuid, $status);
     }
 }

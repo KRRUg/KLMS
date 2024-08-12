@@ -2,7 +2,14 @@
     <tbody>
     {% for p in order.shopOrderPositions %}
         <tr>
-            <td>{{ p.text }}</td>
+            <td><b>{{ p.text }}</b>
+            {% if p is instanceof("\\App\\Entity\\ShopOrderPositionTicket") and p.ticket is not empty %}
+                <br>
+                <span class="ml-2 text-muted">
+                    ({{ p.ticket.code }}{% if show_ticket_detail | default(true) and p.ticket.isRedeemed %}, verwendet von {{ p.ticket.redeemer | username }}{% endif %})
+                </span>
+            {% endif %}
+            </td>
             <td class="text-right">{{ (p.price / 100) | format_currency('EUR') }}</td>
         </tr>
     {% endfor %}

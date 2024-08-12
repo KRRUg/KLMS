@@ -45,6 +45,7 @@ class ShopFixture extends Fixture implements DependentFixtureInterface
         $user13 = Uuid::fromInteger(strval(13));
         $user14 = Uuid::fromInteger(strval(14));
         $user18 = Uuid::fromInteger(strval(18));
+        $user19 = Uuid::fromInteger(strval(19));
 
         $tickets = array();
         $tickets[0] = (new Ticket())->setCode('CODE1-KRRUG-AAAAA')->setCreatedAt(new DateTimeImmutable('2023-09-25 13:37'))->setRedeemer($user14)->setRedeemedAt(new DateTimeImmutable('2023-09-26 14:21'))->setPunchedAt(new DateTimeImmutable('2023-10-20 16:00'));
@@ -68,8 +69,9 @@ class ShopFixture extends Fixture implements DependentFixtureInterface
             $manager->persist($ticket);
         }
 
+        $order = [];
         // one ticket and one extra
-        $order1 = (new ShopOrder())
+        $order[] = (new ShopOrder())
             ->setCreatedAt(new DateTimeImmutable('2023-07-21 05:05'))
             ->setOrderer($user14)
             ->setStatus(ShopOrderStatus::Paid)
@@ -79,17 +81,25 @@ class ShopFixture extends Fixture implements DependentFixtureInterface
         ;
 
         // three tickets (for discount)
-        $order2 = (new ShopOrder())
+        $order[] = (new ShopOrder())
             ->setCreatedAt(new DateTimeImmutable('2024-01-25 13:37'))
-            ->setOrderer($user14)
+            ->setOrderer($user19)
             ->setStatus(ShopOrderStatus::Created)
             ->addShopOrderPosition((new ShopOrderPositionTicket())->setTicket(null)->setPrice(512))
             ->addShopOrderPosition((new ShopOrderPositionTicket())->setTicket(null)->setPrice(1337))
             ->addShopOrderPosition((new ShopOrderPositionTicket())->setTicket(null)->setPrice(1337))
         ;
 
+        // one ticket (no discount)
+        $order[] = (new ShopOrder())
+            ->setCreatedAt(new DateTimeImmutable('2024-01-25 13:37'))
+            ->setOrderer($user14)
+            ->setStatus(ShopOrderStatus::Created)
+            ->addShopOrderPosition((new ShopOrderPositionAddon())->setAddon($addon2)->setPrice(3400))
+        ;
+
         // paid one order
-        $order3 = (new ShopOrder())
+        $order[] = (new ShopOrder())
             ->setCreatedAt(new DateTimeImmutable('2024-02-02 18:27'))
             ->setOrderer($user13)
             ->setStatus(ShopOrderStatus::Paid)
@@ -99,7 +109,7 @@ class ShopFixture extends Fixture implements DependentFixtureInterface
         ;
 
         // cancelled order
-        $order4 = (new ShopOrder())
+        $order[] = (new ShopOrder())
             ->setCreatedAt(new DateTimeImmutable('2024-07-02 19:21'))
             ->setOrderer($user14)
             ->setStatus(ShopOrderStatus::Canceled)
@@ -107,11 +117,10 @@ class ShopFixture extends Fixture implements DependentFixtureInterface
             ->addShopOrderHistory((new ShopOrderHistory())->setAction(ShopOrderHistoryAction::OrderCanceled)->setLoggedAt(new DateTimeImmutable('2024-07-02 20:00'))->setText('cancelled by user')->setLoggedBy($user14))
         ;
 
-        $manager->persist($order1);
-        $manager->persist($order2);
-        $manager->persist($order3);
-        $manager->persist($order4);
-
+        for ($i = 0; $i < count($order); $i++) {
+            $manager->persist($order[$i]);
+            $this->setReference('order-'.$i, $order[$i]);
+        }
         $manager->flush();
     }
 

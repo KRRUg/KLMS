@@ -36,4 +36,19 @@ class ShopTest extends DatabaseWebTestCase
         $this->assertIsBool($result['result']);
         $this->assertEquals($expected, $result['result']);
     }
+
+    public function testCodeActivationWithoutShopping()
+    {
+
+    }
+
+    public function testCodeActivationWithShopping()
+    {
+
+    }
+
+    public function testCheckout()
+    {
+
+    }
 }

@@ -153,10 +153,10 @@ class TicketService
         return $ticket;
     }
 
-    public function redeemTicket(string $code, User|UuidInterface $user): bool
+    public function redeemTicket(Ticket|string $ticket, User|UuidInterface $user): bool
     {
         $uuid = $user instanceof User ? $user->getUuid() : $user;
-        $ticket = $this->ticketRepository->findOneByCode($code);
+        $ticket = $ticket instanceof Ticket ? $ticket : $this->ticketRepository->findOneByCode($ticket);
         if (is_null($ticket)) {
             return false;
         }

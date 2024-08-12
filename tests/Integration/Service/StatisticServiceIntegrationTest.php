@@ -5,7 +5,7 @@ namespace App\Tests\Integration\Service;
 use App\Service\StatisticService;
 use App\Tests\Integration\DatabaseTestCase;
 
-class StatisticServiceTest extends DatabaseTestCase
+class StatisticServiceIntegrationTest extends DatabaseTestCase
 {
     public function testStatistic()
     {

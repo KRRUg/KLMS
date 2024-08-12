@@ -24,13 +24,11 @@ class LanSignupController extends AbstractController
 {
     private readonly TicketService $ticketService;
     private readonly ShopService $shopService;
-    private readonly ShopOrderRepository $shopOrderRepository;
     private readonly SettingService $settingService;
     private readonly LoggerInterface $logger;
 
     public function __construct(TicketService       $ticketService,
                                 ShopService         $shopService,
-                                ShopOrderRepository $shopOrderRepository,
                                 SettingService      $settingService,
                                 LoggerInterface     $logger
     ){
@@ -38,7 +36,6 @@ class LanSignupController extends AbstractController
         $this->shopService = $shopService;
         $this->settingService = $settingService;
         $this->logger = $logger;
-        $this->shopOrderRepository = $shopOrderRepository;
     }
 
     private const CSRF_TOKEN_CANCEL = 'cancelOrder';
@@ -53,7 +50,7 @@ class LanSignupController extends AbstractController
 
         /** @var User $user */
         $user = $this->getUser()->getUser();
-        $orders = $this->shopOrderRepository->queryOrders($user->getUuid());
+        $orders = $this->shopService->getOrderByUser($user);
         $open_order = array_filter($orders, function (ShopOrder $o) { return $o->isOpen(); });
 
         if (count($open_order) > 0) {
@@ -127,7 +124,7 @@ class LanSignupController extends AbstractController
 
         /** @var User $user */
         $user = $this->getUser()->getUser();
-        $orders = $this->shopOrderRepository->queryOrders($user->getUuid());
+        $orders = $this->shopService->getOrderByUser($user);
 
         if ($request->getMethod() == 'POST') {
             $token = $request->request->get('_token');

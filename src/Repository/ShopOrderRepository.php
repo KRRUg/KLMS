@@ -25,7 +25,7 @@ class ShopOrderRepository extends ServiceEntityRepository
         parent::__construct($registry, ShopOrder::class);
     }
 
-    private function createQueryFilterBuilder(?UuidInterface $user, ShopOrderStatus|array|null $status): QueryBuilder
+    private function createQueryFilterBuilder(?UuidInterface $user, ?ShopOrderStatus $status): QueryBuilder
     {
         $qb = $this->createQueryBuilder('o');
         if (!is_null($user)) {
@@ -33,14 +33,13 @@ class ShopOrderRepository extends ServiceEntityRepository
             $qb->setParameter('orderer', $user);
         }
         if (!is_null($status)) {
-            $status = is_array($status) ? $status : [$status];
-            $qb->andWhere('o.status IN :status');
+            $qb->andWhere('o.status = :status');
             $qb->setParameter('status', $status);
         }
         return $qb;
     }
 
-    public function queryOrders(?UuidInterface $user, ShopOrderStatus|array|null $status = null): array
+    public function queryOrders(?UuidInterface $user = null, ?ShopOrderStatus $status = null): array
     {
         return $this->createQueryFilterBuilder($user, $status)
             ->addOrderBy('o.status', 'ASC')
@@ -49,7 +48,7 @@ class ShopOrderRepository extends ServiceEntityRepository
             ->getResult();
     }
 
-    public function countOrders(?UuidInterface $user, ShopOrderStatus|array|null $status = null): int
+    public function countOrders(?UuidInterface $user = null, ?ShopOrderStatus $status = null): int
     {
         return $this->createQueryFilterBuilder($user, $status)
             ->select('count(o)')

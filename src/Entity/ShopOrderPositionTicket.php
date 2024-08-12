@@ -29,9 +29,8 @@ class ShopOrderPositionTicket extends ShopOrderPosition
         if (empty($this->ticket)) {
             return "Ticket";
         } else {
-            $code = $this->ticket->getCode();
             $nr = $this->ticket->getId();
-            return "Ticket #{$nr} ({$code})";
+            return "Ticket #{$nr}";
         }
     }
 }

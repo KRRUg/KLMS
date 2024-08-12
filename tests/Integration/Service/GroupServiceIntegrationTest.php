@@ -5,7 +5,7 @@ namespace App\Tests\Integration\Service;
 use App\Service\GroupService;
 use App\Tests\Integration\DatabaseTestCase;
 
-class GroupServiceTest extends DatabaseTestCase
+class GroupServiceIntegrationTest extends DatabaseTestCase
 {
     public function testGroupAdmin()
     {

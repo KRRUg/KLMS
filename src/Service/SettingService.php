@@ -52,7 +52,7 @@ class SettingService
         'lan.signup.price' => [self::TB_DESCRIPTION => 'Preis für einen Eintritt in Cent.', self::TB_TYPE => self::TB_TYPE_STRING],
         'lan.signup.discount.price' => [self::TB_DESCRIPTION => 'Preis für einen Eintritt mit Gruppenermäßigung in Cent.', self::TB_TYPE => self::TB_TYPE_STRING],
         'lan.signup.discount.limit' => [self::TB_DESCRIPTION => 'Gruppenermäßigung ab x Eintritte.', self::TB_TYPE => self::TB_TYPE_STRING],
-        'lan.signup.payment_details' => [self::TB_DESCRIPTION => 'Bankdaten für die Zahlhung von Bestellungen', self::TB_TYPE => self::TB_TYPE_HTML],
+        'lan.signup.payment_details' => [self::TB_DESCRIPTION => 'Bankdaten für die Zahlung von Bestellungen', self::TB_TYPE => self::TB_TYPE_HTML],
         // TODO make integer field for price
 
         'lan.seatmap.enabled' => [self::TB_DESCRIPTION => 'Sitzplanbuchungen einschalten', self::TB_TYPE => self::TB_TYPE_BOOL],
