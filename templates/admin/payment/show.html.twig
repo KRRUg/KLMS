@@ -44,7 +44,6 @@
         </div>
         <hr/>
 
-        {# TODO make AJAX request to show controller and reaload only the ajaxModal and the table #}
         {% macro confirm_button(title, href, csrf_token, action="", danger = false) %}
             <form method="post" action="{{ href }}" {% if danger %} data-toggle="confirmModal" data-modal-title="Bestätigen" data-modal-text="Sind Sie sicher?" {% endif %}>
                 <input type="hidden" name="_token" value="{{ csrf_token(csrf_token) }}">
@@ -55,59 +54,8 @@
 
         <div class="container">
             {% set dateformat = "d.m.Y" %}
-            {% set href = path('admin_payment_update', {"uuid" : gamer.uuid}) %}
-            <div class="row align-items-center m-2">
-                <div class="col-8">
-                    {% if gamer.hasRegistered() %}
-                        Angemeldet am {{ gamer.registered | date(dateformat) }}
-                    {% else %}
-                        <span class="text-muted">Nicht angemeldet</span>
-                    {% endif %}
-                </div>
-                <div class="col-4 text-right">
-                    {% if gamer.hasRegistered() %}
-                        {{ _self.confirm_button('Abmelden', href, csrf_token, "unregister", true) }}
-                    {% else %}
-                        {{ _self.confirm_button('Anmelden', href, csrf_token, "register") }}
-                    {% endif %}
-                </div>
-            </div>
-            <div class="row align-items-center m-2">
-                <div class="col-8">
-                    {% if gamer.hasPaid() %}
-                        Bezahlt am {{ gamer.paid | date(dateformat) }}
-                    {% else %}
-                        <span class="text-muted">Nicht bezahlt</span>
-                    {% endif %}
-                </div>
-                <div class="col-4 text-right">
-                    {% if gamer.hasRegistered() %}
-                        {% if gamer.hasPaid() %}
-                            {{ _self.confirm_button('Unbezahlt', href, csrf_token, "unpay", true) }}
-                        {% else %}
-                            {{ _self.confirm_button('Bezahlt', href, csrf_token, "pay") }}
-                        {% endif %}
-                    {% endif %}
-                </div>
-            </div>
-            <div class="row align-items-center m-2">
-                <div class="col-8">
-                    {% if gamer.hasCheckedIn() %}
-                        Bezahlt am {{ gamer.checkedIn | date(dateformat) }}
-                    {% else %}
-                        <span class="text-muted">Nicht eingechecked</span>
-                    {% endif %}
-                </div>
-                <div class="col-4 text-right">
-                    {% if gamer.hasRegistered() and gamer.hasPaid() %}
-                        {% if gamer.hasCheckedIn() %}
-                            {{ _self.confirm_button('Check Out', href, csrf_token, "checkout", true) }}
-                        {% else %}
-                            {{ _self.confirm_button('Check In', href, csrf_token, "checkin") }}
-                        {% endif %}
-                    {% endif %}
-                </div>
-            </div>
+            {% set href = path('admin_payment_update', {"uuid" : user.uuid}) %}
+            {# TODO change to Ticket #}
         </div>
     {% endblock %}
     {% block modalFooter %}
