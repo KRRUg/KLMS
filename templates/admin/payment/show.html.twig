@@ -1,24 +1,54 @@
 {% embed "modules/modals/skeleton.html.twig"
     with {
     'id': 'showPaymentModal',
-    'title' : 'Anmeldung ' ~ user.nickname,
+    'title' : 'Ticket #' ~ ticket.id,
     'dialogClass' : 'modal-md'
 } %}
     {% block modalBody %}
+        {{ form_start(form) }}
+        {% set dateformat = "d.m.Y H:i" %}
         <div class="container-fluid">
-            <div class="d-flex justify-content-between w-100 pb-3">
-                <div class="py-1">
-                    <span class="badge badge-primary">KLMS ID: #{{ user.id }}</span> <br>
-                    <span class="badge badge-secondary">UUID: {{ user.uuid }}</span>
+            <div class="row">
+                <div class="col-4 mr-2">
+                    <i class="fa fa-ticket fa-7x"></i>
+                </div>
+                <div class="col">
+                    <p>
+                        <i class="fas fa-keyboard fa-fw mr-2" title="Code"></i>
+                        <span title="Number: {{ ticket.code }}" class="d-inline-block">{{ ticket.code }}</span>
+                    </p>
+                    <p>
+                        <i class="fas fa-user fa-fw mr-2" title="Käufer"></i>
+                        {% if ticket.shopOrderPosition is not empty %}
+                            <span class="d-inline-block">{{ ticket.shopOrderPosition.order.orderer | username }}</span>
+                        {% else %}
+                            <span class="d-inline-block text-muted">nicht gekauft</span>
+                        {% endif %}
+                    </p>
+                    <p>
+                        <i class="fas fa-shopping-cart fa-fw mr-2" title="Gekauft"></i>
+                        <span class="d-inline-block">{{ ticket.createdAt | date(dateformat) }}</span>
+                    </p>
+                    <p>
+                        <i class="fas fa-money-check fa-fw mr-2" title="Eingelöst"></i>
+                        {% if ticket.redeemedAt is not empty %}
+                            <span class="d-inline-block">{{ ticket.redeemedAt | date(dateformat) }}</span>
+                        {% else %}
+                            <span class="d-inline-block text-muted">nicht eingelöst</span>
+                        {% endif %}
+                    </p>
                 </div>
             </div>
+            <hr/>
+            {% if user %}
+            {# TODO make check for personal data here and add DOB or make link to user and add button there #}
             <div class="row">
-                <div class="col-auto">
+                <div class="col-4 mr-2">
                     {% set img = user | user_image %}
                     {% if img is not empty %}
-                        <img src="{{ img | imagine_filter('user_img') }}"/>
+                        <img src="{{ img | imagine_filter('user_img') }}" alt="Image of {{ user|username }}"/>
                     {% else %}
-                        <i class="far fa-user-circle fa-9x"></i>
+                        <i class="far fa-user-circle fa-8x"></i>
                     {% endif %}
                 </div>
                 <div class="col">
@@ -41,24 +71,38 @@
                     </p>
                 </div>
             </div>
+            {% else %}
+            <div class="row">
+                <div class="col">
+                    <span class="text-muted">Ticket nicht eingelöst.</span>
+                    <div class="d-flex form-group">
+                        {{ form_widget(form.user) }}
+                        {{ _self.confirm_button_form(form, "assign", 'Ticket zuweisen') }}
+                    </div>
+                </div>
+            </div>
+            {% endif %}
         </div>
-        <hr/>
 
-        {% macro confirm_button(title, href, csrf_token, action="", danger = false) %}
-            <form method="post" action="{{ href }}" {% if danger %} data-toggle="confirmModal" data-modal-title="Bestätigen" data-modal-text="Sind Sie sicher?" {% endif %}>
-                <input type="hidden" name="_token" value="{{ csrf_token(csrf_token) }}">
-                <input type="hidden" name="action" value="{{ action }}">
-                <button type="submit" class="btn w-100 {% if danger %} btn-danger {% else %} btn-outline-dark {% endif %}">{{ title }}</button>
-            </form>
+        {% macro confirm_button_form(form, attr, title, danger = false) %}
+            {% if attribute(form, attr) is defined %}
+                {% set btn = attribute(form, attr) %}
+                <button type="submit" name="{{ field_name(btn) }}" value="{{ field_value(btn) }}"
+                        class="btn btn-sm mr-1 {% if danger %} btn-outline-danger {% else %} btn-outline-dark {% endif %}"
+                        {% if danger %} data-toggle="confirmModal" data-modal-title="Bestätigen" data-modal-text="Sind Sie sicher?" {% endif %}
+                        >{{ title }}</button>
+            {% endif %}
         {% endmacro %}
-
-        <div class="container">
-            {% set dateformat = "d.m.Y" %}
-            {% set href = path('admin_payment_update', {"uuid" : user.uuid}) %}
-            {# TODO change to Ticket #}
+        <hr/>
+        <div class="container d-flex">
+            {{ _self.confirm_button_form(form, "unassign", 'Ticket freigeben') }}
+            {{ _self.confirm_button_form(form, "delete", (ticket.redeemed) ? 'Ticket freigeben & löschen' : 'Ticket löschen', true) }}
+            {{ _self.confirm_button_form(form, "punch", 'Ticket checkin') }}
+            {{ _self.confirm_button_form(form, "unpunch", 'Ticket checkout') }}
         </div>
+        {{ form_end(form) }}
     {% endblock %}
     {% block modalFooter %}
-        <button type="button" class="btn btn-secondary" data-dismiss="modal">Schließen</button>
+        <button type="button" class="btn btn-sm btn-secondary" data-dismiss="modal">Schließen</button>
     {% endblock %}
 {% endembed %}

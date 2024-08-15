@@ -36,6 +36,9 @@ class Ticket
     #[Assert\LessThanOrEqual('now')]
     private ?\DateTimeImmutable $punchedAt = null;
 
+    #[ORM\OneToOne(inversedBy: 'ticket', cascade: ['persist'])]
+    private ?ShopOrderPositionTicket $shopOrderPosition = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -97,6 +100,18 @@ class Ticket
     public function setPunchedAt(?\DateTimeImmutable $punchedAt): static
     {
         $this->punchedAt = $punchedAt;
+
+        return $this;
+    }
+
+    public function getShopOrderPosition(): ?ShopOrderPositionTicket
+    {
+        return $this->shopOrderPosition;
+    }
+
+    public function setShopOrderPosition(?ShopOrderPositionTicket $shopOrderPosition): static
+    {
+        $this->shopOrderPosition = $shopOrderPosition;
 
         return $this;
     }

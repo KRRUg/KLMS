@@ -5,24 +5,26 @@ namespace App\Service;
 use App\Entity\Ticket;
 use App\Entity\User;
 use App\Exception\TicketLivecycleException;
+use App\Idm\IdmManager;
+use App\Idm\IdmRepository;
 use App\Repository\TicketRepository;
 use DateTimeImmutable;
-use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Doctrine\ORM\EntityManagerInterface;
 use Ramsey\Uuid\UuidInterface;
 
 class TicketService
 {
     private readonly TicketRepository $ticketRepository;
-
+    private readonly IdmRepository $userRepo;
     private EntityManagerInterface $em;
 
     public const CODE_REGEX = '^([0-9A-Za-z]{5}-?){2}[0-9A-Za-z]{5}$';
 
-    public function __construct(TicketRepository $ticketRepository, EntityManagerInterface $em)
+    public function __construct(TicketRepository $ticketRepository, IdmManager $iem, EntityManagerInterface $em)
     {
         $this->ticketRepository = $ticketRepository;
         $this->em = $em;
+        $this->userRepo = $iem->getRepository(User::class);
     }
 
     /**
@@ -48,6 +50,11 @@ class TicketService
     {
         $uuid = $user instanceof User ? $user->getUuid() : $user;
         return $this->ticketRepository->findOneByRedeemer($uuid);
+    }
+
+    public function getTicketId(int $id): ?Ticket
+    {
+        return $this->ticketRepository->find($id);
     }
 
     public function getTicketStateUser(User|UuidInterface $user): ?TicketState
@@ -133,16 +140,30 @@ class TicketService
         }
 
         if ($deleteTicket) {
-            $this->em->remove($ticket);
+            $this->deleteTicket($ticket);
         } else {
-            $ticket
-                ->setRedeemer(null)
-                ->setRedeemedAt(null)
-                ->setPunchedAt(null);
-            $this->em->persist($ticket);
+            $this->unassignTicket($ticket);
         }
-        $this->em->flush();
         return true;
+    }
+
+    public function unassignTicket(Ticket $ticket): void
+    {
+        $ticket
+            ->setRedeemer(null)
+            ->setRedeemedAt(null)
+            ->setPunchedAt(null);
+        $this->em->persist($ticket);
+        $this->em->flush();
+    }
+
+    public function deleteTicket(Ticket $ticket): void
+    {
+        if ($ticket->getShopOrderPosition()) {
+            throw new TicketLivecycleException($ticket);
+        }
+        $this->em->remove($ticket);
+        $this->em->flush();
     }
 
     public function createTicket(): Ticket
@@ -193,7 +214,7 @@ class TicketService
         return $this->punchTicket($ticket);
     }
 
-    private function punchTicket(Ticket $ticket): bool
+    public function punchTicket(Ticket $ticket): bool
     {
         $state = $ticket->getState();
         if (is_null($state)) {
@@ -202,11 +223,43 @@ class TicketService
         if ($state == TicketState::REDEEMED) {
             $ticket
                 ->setPunchedAt(new DateTimeImmutable());
-            $this->em->persist($ticket);
             $this->em->flush();
             return true;
         }
         return false;
+    }
+
+    public function unpunchTicketUser(User|UuidInterface $user): bool
+    {
+        $ticket = $this->getTicketUser($user);
+        if (is_null($ticket)) {
+            return false;
+        }
+        return $this->unpunchTicket($ticket);
+    }
+
+    public function unpunchTicket(Ticket $ticket): bool
+    {
+        $state = $ticket->getState();
+        if (is_null($state)) {
+            throw new TicketLivecycleException($ticket);
+        }
+        if ($state == TicketState::PUNCHED) {
+            $ticket
+                ->setPunchedAt(null);
+            $this->em->flush();
+            return true;
+        }
+        return false;
+    }
+
+    public function userByTicket(Ticket $ticket): ?User
+    {
+        if (empty($ticket->getRedeemer())) {
+            return null;
+        }
+
+        return $this->userRepo->findOneById($ticket->getRedeemer());
     }
 
     /**

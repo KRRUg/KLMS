@@ -8,8 +8,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ORM\Entity]
 class ShopOrderPositionTicket extends ShopOrderPosition
 {
-    #[ORM\ManyToOne(fetch: 'LAZY')]
-    #[ORM\JoinColumn(name: 'ticket_id', unique: true, nullable: true)]
+    #[ORM\OneToOne(mappedBy: 'shopOrderPosition', cascade: ['persist', 'remove'])]
     private ?Ticket $ticket = null;
 
     public function getTicket(): ?Ticket
@@ -19,6 +18,16 @@ class ShopOrderPositionTicket extends ShopOrderPosition
 
     public function setTicket(?Ticket $ticket): static
     {
+        // unset the owning side of the relation if necessary
+        if ($ticket === null && $this->ticket !== null) {
+            $this->ticket->setShopOrderPosition(null);
+        }
+
+        // set the owning side of the relation if necessary
+        if ($ticket !== null && $ticket->getShopOrderPosition() !== $this) {
+            $ticket->setShopOrderPosition($this);
+        }
+
         $this->ticket = $ticket;
 
         return $this;
