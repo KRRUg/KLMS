@@ -15,10 +15,10 @@
                 <div class="col">
                     <p>
                         <i class="fas fa-keyboard fa-fw mr-2" title="Code"></i>
-                        <span title="Number: {{ ticket.code }}" class="d-inline-block">{{ ticket.code }}</span>
+                        <span title="Number: {{ ticket.code }}" class="d-inline-block text-monospace">{{ ticket.code }}</span>
                     </p>
                     <p>
-                        <i class="fas fa-user fa-fw mr-2" title="Käufer"></i>
+                        <i class="fas fa-euro fa-fw mr-2" title="Käufer"></i>
                         {% if ticket.shopOrderPosition is not empty %}
                             <span class="d-inline-block">{{ ticket.shopOrderPosition.order.orderer | username }}</span>
                         {% else %}
