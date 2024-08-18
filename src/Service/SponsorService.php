@@ -78,14 +78,14 @@ class SponsorService extends OptimalService
         return $this->categoryRepository->count([]) > 0;
     }
 
-    public function delete(Sponsor $sponsor)
+    public function delete(Sponsor $sponsor): void
     {
         $this->logger->info("Deleted Sponsor {$sponsor->getId()} ({$sponsor->getName()})");
         $this->em->remove($sponsor);
         $this->em->flush();
     }
 
-    public function save(Sponsor $sponsor)
+    public function save(Sponsor $sponsor): void
     {
         $this->logger->info("Create or Update Sponsor {$sponsor->getId()} ({$sponsor->getName()})");
         $this->em->persist($sponsor);
@@ -95,9 +95,14 @@ class SponsorService extends OptimalService
     /**
      * @return SponsorCategory[] categories in correct order
      */
-    public function getCategories(): array
+    public function getCategories(bool $onlyVisibleSponsors = true): array
     {
-        $categories = $this->categoryRepository->findAll();
+        if($onlyVisibleSponsors) {
+            $categories = $this->categoryRepository->findAllWithVisibleSponsors();
+        } else {
+            $categories = $this->categoryRepository->findAll();
+        }
+
         usort($categories, fn ($a, $b) => $a->getPriority() - $b->getPriority());
 
         return $categories;
@@ -108,9 +113,9 @@ class SponsorService extends OptimalService
         return $this->categoryRepository->count([]);
     }
 
-    public function renderCategories(): array
+    public function renderCategories(bool $onlyVisibleSponsors = true): array
     {
-        return self::render($this->getCategories());
+        return self::render($this->getCategories($onlyVisibleSponsors));
     }
 
     public function parseCategories(?array $input): bool

@@ -72,7 +72,7 @@ class SponsorController extends AbstractController
             throw $this->createNotFoundException();
         }
 
-        $array = $this->sponsorService->renderCategories();
+        $array = $this->sponsorService->renderCategories(false);
         $form = $this->createFormBuilder()
             ->add('categories', HiddenType::class, [
                 'required' => true,
@@ -137,6 +137,19 @@ class SponsorController extends AbstractController
             'form' => $form->createView(),
             'csrf_token_delete' => self::CSRF_TOKEN_DELETE,
         ]);
+    }
+
+    #[Route(path: '/toggleVisibility/{id}', name: '_toggleVisibility')]
+    public function toggleVisibility(Request $request, Sponsor $sponsor): Response
+    {
+        if (!$this->sponsorService->active()) {
+            throw $this->createNotFoundException();
+        }
+
+        $sponsor->setIsVisible(!$sponsor->isVisible());
+        $this->sponsorService->save($sponsor);
+
+        return $this->redirectToRoute('admin_sponsor');
     }
 
     #[Route(path: '/activate', name: '_activate')]

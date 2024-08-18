@@ -89,9 +89,12 @@ class UserExtension extends AbstractExtension
         return GroupService::getName(Uuid::fromString($groupUuid));
     }
 
-    public function getUserImage(User $user): ?string
+    public function getUserImage(?User $user): string
     {
-        return $this->userService->getUserImage($user);
+        if (empty($user)) {
+            return '';
+        }
+        return $this->userService->getUserImage($user) ?? '';
     }
 
     public function validUser($userId): bool

@@ -23,10 +23,6 @@ class SponsorCategoryRepository extends ServiceEntityRepository
         parent::__construct($registry, SponsorCategory::class);
     }
 
-    /**
-     * @throws ORMException
-     * @throws OptimisticLockException
-     */
     public function add(SponsorCategory $entity, bool $flush = true): void
     {
         $this->_em->persist($entity);
@@ -35,10 +31,6 @@ class SponsorCategoryRepository extends ServiceEntityRepository
         }
     }
 
-    /**
-     * @throws ORMException
-     * @throws OptimisticLockException
-     */
     public function remove(SponsorCategory $entity, bool $flush = true): void
     {
         $this->_em->remove($entity);
@@ -47,32 +39,15 @@ class SponsorCategoryRepository extends ServiceEntityRepository
         }
     }
 
-    // /**
-    //  * @return SponsorCategory[] Returns an array of SponsorCategory objects
-    //  */
-    /*
-    public function findByExampleField($value)
-    {
-        return $this->createQueryBuilder('s')
-            ->andWhere('s.exampleField = :val')
-            ->setParameter('val', $value)
-            ->orderBy('s.id', 'ASC')
-            ->setMaxResults(10)
+    public function findAllWithVisibleSponsors(): array {
+        return $this->createQueryBuilder('sc')
+            ->addSelect('s')
+            ->leftJoin('sc.sponsors', 's')
+            ->andWhere("s.isVisible = :isVisible")
+            ->orWhere("s.isVisible is null")
+            ->setParameter("isVisible", true)
             ->getQuery()
             ->getResult()
-        ;
+            ;
     }
-    */
-
-    /*
-    public function findOneBySomeField($value): ?SponsorCategory
-    {
-        return $this->createQueryBuilder('s')
-            ->andWhere('s.exampleField = :val')
-            ->setParameter('val', $value)
-            ->getQuery()
-            ->getOneOrNullResult()
-        ;
-    }
-    */
 }

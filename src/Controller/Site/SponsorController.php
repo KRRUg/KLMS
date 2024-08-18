@@ -28,7 +28,7 @@ class SponsorController extends AbstractController
             throw $this->createNotFoundException();
         }
 
-        $categories = $this->service->getCategories();
+        $categories = $this->service->getCategories(true);
         if (!$this->settings->get('sponsor.page.show_empty', false)) {
             $categories = array_filter($categories, fn(SponsorCategory $c) => $c->getSponsors()->count() > 0);
         }
