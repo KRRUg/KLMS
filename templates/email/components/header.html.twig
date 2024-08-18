@@ -6,8 +6,10 @@
 >
     <div class="head-content container">
         <a href="{{ url('news') }}">
-            {% if settings.get('style.logo') is not empty %}
-                <img class="logo mb-4" src="{{ absolute_url(settings.get('style.logo')) }}" alt="Logo"/>
+            {% if settings.get('style.logo_email') is not empty %}
+                <img class="logo {% if settings.get('style.logo_full_height') %}logo-full-height{% endif %}" src="{{ absolute_url(settings.get('style.logo_email')) }}" alt="Logo"/>
+            {% elseif settings.get('style.logo') is not empty %}
+                <img class="logo {% if settings.get('style.logo_full_height') %}logo-full-height{% endif %}" src="{{ absolute_url(settings.get('style.logo')) }}" alt="Logo"/>
             {% endif %}
         </a>
     </div>

@@ -68,6 +68,8 @@ class SettingService
         'lan.tourney.registration_open' => [self::TB_DESCRIPTION => 'Registrierung freigeschalten', self::TB_TYPE => self::TB_TYPE_BOOL],
 
         'style.logo' => [self::TB_DESCRIPTION => 'Logo', self::TB_TYPE => self::TB_TYPE_FILE],
+        'style.logo_full_height' => [self::TB_DESCRIPTION => 'Soll das Logo die volle Höhe des Headers einnehmen?', self::TB_TYPE => self::TB_TYPE_BOOL, self::TB_DEFAULT_VALUE => false],
+        'style.logo_email' => [self::TB_DESCRIPTION => 'Abweichendes Logo für Mailversand verwenden?', self::TB_TYPE => self::TB_TYPE_FILE],
         'style.bg_image' => [self::TB_DESCRIPTION => 'Hintergrundbild', self::TB_TYPE => self::TB_TYPE_FILE],
 
         'email.register.subject' => [self::TB_DESCRIPTION => 'Betreff der Registrierungsmail', self::TB_TYPE => self::TB_TYPE_STRING],

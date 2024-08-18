@@ -3,9 +3,9 @@
         {% set logo = settings.get('style.logo') %}
         {% if startpage is not defined %}<a href="/">{% endif %}
         {% if logo is empty %}
-            <img class="logo mb-4" src="{{ asset("build/images/logo-white.png") }}" alt="Logo">
+            <img class="logo" src="{{ asset("build/images/logo-white.png") }}" alt="Logo">
         {% else %}
-            <img class="logo mb-4" src="{{ logo }}" alt="Logo">
+            <img class="logo {% if settings.get('style.logo_full_height') %}logo-full-height{% endif %}" src="{{ logo }}" alt="Logo">
         {% endif %}
         {% if startpage is not defined %}</a>{% endif %}
         {% block headerContent %}
