@@ -4,11 +4,16 @@ namespace App\Service;
 
 use App\Entity\ShopAddon;
 use App\Entity\ShopOrder;
+use App\Entity\ShopOrderHistory;
+use App\Entity\ShopOrderHistoryAction;
 use App\Entity\ShopOrderPositionAddon;
 use App\Entity\ShopOrderPositionTicket;
 use App\Entity\ShopOrderStatus;
 use App\Entity\User;
 use App\Exception\OrderLifecycleException;
+use App\Helper\EmailRecipient;
+use App\Idm\IdmManager;
+use App\Idm\IdmRepository;
 use App\Repository\ShopAddonsRepository;
 use App\Repository\ShopOrderRepository;
 use DateTimeImmutable;
@@ -18,21 +23,25 @@ use Ramsey\Uuid\UuidInterface;
 
 class ShopService
 {
-    private ShopOrderRepository $orderRepository;
-    private ShopAddonsRepository $shopAddonsRepository;
-    private SettingService $settingService;
-    private EntityManagerInterface $em;
-    private TicketService $ticketService;
+    private readonly ShopOrderRepository $orderRepository;
+    private readonly ShopAddonsRepository $shopAddonsRepository;
+    private readonly SettingService $settingService;
+    private readonly EntityManagerInterface $em;
+    private readonly TicketService $ticketService;
+    private readonly EmailService $emailService;
+    private readonly IdmRepository $userRepo;
 
     public const DEFAULT_TICKET_PRICE = 5000;
 
-    public function __construct(ShopOrderRepository $orderRepository, ShopAddonsRepository $shopAddonsRepository,
-                                SettingService      $settingService, TicketService $ticketService, EntityManagerInterface $em)
+    public function __construct(ShopOrderRepository $orderRepository, ShopAddonsRepository $shopAddonsRepository, IdmManager $idmManager,
+                                SettingService      $settingService, TicketService $ticketService, EmailService $emailService, EntityManagerInterface $em)
     {
         $this->orderRepository = $orderRepository;
         $this->shopAddonsRepository = $shopAddonsRepository;
+        $this->userRepo = $idmManager->getRepository(User::class);
         $this->settingService = $settingService;
         $this->ticketService = $ticketService;
+        $this->emailService = $emailService;
         $this->em = $em;
     }
 
@@ -55,6 +64,28 @@ class ShopService
         // activate one ticket for buyer if they don't have a ticket yet
         if ($first_ticket && !$this->ticketService->getTicketUser($buyer)) {
             $this->ticketService->redeemTicket($first_ticket, $buyer);
+        }
+    }
+
+    private function emailOrder(ShopOrder $order): void
+    {
+        // notify the buyer and send the codes
+        $user = $this->userRepo->findOneById($order->getOrderer());
+        $this->emailService->scheduleHook(EmailService::APP_HOOK_ORDER, EmailRecipient::fromUser($user), [
+            'order' => $order,
+            'showPaymentInfo' => $order->getStatus() == ShopOrderStatus::Created,
+            'showPaymentSuccess' => $order->getStatus() == ShopOrderStatus::Paid,
+        ]);
+    }
+
+    public function placeOrder(ShopOrder $order): void
+    {
+        if ($order->isEmpty()) {
+            throw new OrderLifecycleException($order);
+        }
+        $result = $this->setState($order, ShopOrderStatus::Created);
+        if (!$result) {
+            throw new OrderLifecycleException($order);
         }
     }
 
@@ -84,15 +115,18 @@ class ShopService
 
     private function setState(ShopOrder $order, ShopOrderStatus $status): bool
     {
-        // currently only state transfer from created to both other states are allowed.
         $new_state = match ($order->getStatus()) {
+            null => ShopOrderStatus::Created,
+            // currently only state transfer from created to both other states are allowed.
             ShopOrderStatus::Created => $status,
             default => $order->getStatus()
         };
         if ($new_state != $order->getStatus()){
             $order->setStatus($new_state);
+            $this->em->persist($order);
+            $this->em->flush();
             $this->handleNewState($order);
-            $this->saveOrder($order);
+            $this->em->flush();
             return true;
         } else {
             return false;
@@ -103,12 +137,24 @@ class ShopService
     {
         switch ($order->getStatus()) {
             case ShopOrderStatus::Created:
+                $this->emailOrder($order);
+                break;
             case ShopOrderStatus::Canceled:
                 break;
             case ShopOrderStatus::Paid:
                 $this->fulfillOrder($order);
+                $this->emailOrder($order);
                 break;
         }
+        $order->addShopOrderHistory(
+            (new ShopOrderHistory())
+                ->setLoggedAt(new DateTimeImmutable())
+                ->setAction(match ($order->getStatus()){
+                    ShopOrderStatus::Created => ShopOrderHistoryAction::OrderCreated,
+                    ShopOrderStatus::Paid => ShopOrderHistoryAction::PaymentSuccessful,
+                    ShopOrderStatus::Canceled => ShopOrderHistoryAction::OrderCanceled,
+                })
+        );
     }
 
     public function hasOpenOrders(User|UuidInterface $user): bool
@@ -122,13 +168,12 @@ class ShopService
         return $this->shopAddonsRepository->findActive();
     }
 
-    public function createOrder(User|UuidInterface $user): ShopOrder
+    public function allocOrder(User|UuidInterface $user): ShopOrder
     {
         $uuid = $user instanceof User ? $user->getUuid() : $user;
         return (new ShopOrder())
             ->setOrderer($uuid)
-            ->setCreatedAt(new DateTimeImmutable())
-            ->setStatus(ShopOrderStatus::Created);
+            ->setCreatedAt(new DateTimeImmutable());
     }
 
     public function orderAddTickets(ShopOrder $order, int $ticketCnt): void
@@ -149,17 +194,6 @@ class ShopService
         for ($i = 0; $i < $cnt; $i++) {
             $order->addShopOrderPosition((new ShopOrderPositionAddon())->setAddon($addon));
         }
-    }
-
-    public function saveOrder(ShopOrder $order): void
-    {
-        if ($order->isEmpty()) {
-            throw new OrderLifecycleException($order);
-        }
-
-        // TODO add order history entry
-        $this->em->persist($order);
-        $this->em->flush();
     }
 
     /**

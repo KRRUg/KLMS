@@ -166,4 +166,15 @@ class ShopOrder
     {
         return count($this->shopOrderPositions) == 0;
     }
+
+    public function countTickets(): int
+    {
+        $cnt = 0;
+        foreach ($this->shopOrderPositions as $position) {
+            if ($position instanceof ShopOrderPositionTicket) {
+                $cnt += 1;
+            }
+        }
+        return $cnt;
+    }
 }

@@ -40,14 +40,11 @@ const Shop = function ($root, config) {
         this.$formTicketCount,
     ].concat(this.$addonInputs.map((i, v) => $(v)).get()));
 
-    console.log(this.defaultValues);
-
     this.path = config['path'];
     this.smClear();
 
     // go straight to add-on in case ticket is not rendered
-    if (this.$buttonsWrapper === undefined) {
-        console.log('fup');
+    if (this.$buttonsWrapper.length === 0) {
         this.smNext('addon');
     }
 }

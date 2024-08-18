@@ -114,7 +114,7 @@ class ShopFixture extends Fixture implements DependentFixtureInterface
             ->setOrderer($user14)
             ->setStatus(ShopOrderStatus::Canceled)
             ->addShopOrderPosition((new ShopOrderPositionAddon())->setAddon($addon1))
-            ->addShopOrderHistory((new ShopOrderHistory())->setAction(ShopOrderHistoryAction::OrderCanceled)->setLoggedAt(new DateTimeImmutable('2024-07-02 20:00'))->setText('cancelled by user')->setLoggedBy($user14))
+            ->addShopOrderHistory((new ShopOrderHistory())->setAction(ShopOrderHistoryAction::OrderCanceled)->setLoggedAt(new DateTimeImmutable('2024-07-02 20:00'))->setText('cancelled by user'))
         ;
 
         for ($i = 0; $i < count($order); $i++) {

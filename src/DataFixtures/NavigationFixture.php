@@ -38,7 +38,7 @@ class NavigationFixture extends Fixture implements DependentFixtureInterface
         $nav->addNode((new NavigationNodeGeneric('/seatmap'))->setName('Sitzplan')->setPos(18, 19));
         $nav->addNode((new NavigationNodeGeneric('/tourney'))->setName('Turniere')->setPos(20, 21));
         $nav->addNode((new NavigationNodeGeneric('/sponsor'))->setName('Sponsoren')->setPos(22, 23));
-        $nav->addNode((new NavigationNodeContent($this->getReference('content-5')))->setName('Einzahlung')->setPos(24, 25));
+        $nav->addNode((new NavigationNodeGeneric('/shop/checkout'))->setName('Shop')->setPos(24, 25));
         $manager->persist($nav);
 
         $footer = new Navigation();

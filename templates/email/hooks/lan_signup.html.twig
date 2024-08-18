@@ -1,8 +1,0 @@
-{% extends 'email/design/standard.html.twig' %}
-
-{% block main %}
-    {% set org = settings.get('site.organisation') %}
-    <h1>Benachrichtigung</h1>
-    <p></p>
-    <p>{{ message }}</p>
-{% endblock %}

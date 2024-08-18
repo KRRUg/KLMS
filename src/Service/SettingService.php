@@ -80,6 +80,8 @@ class SettingService
         'email.reset.subject' => [self::TB_DESCRIPTION => 'Betreff der Passwort-Zurücksetzen Email', self::TB_TYPE => self::TB_TYPE_STRING],
         'email.reset.text' => [self::TB_DESCRIPTION => 'Text der Passwort-Zurücksetzen Email', self::TB_TYPE => self::TB_TYPE_HTML],
         'email.notify.subject' => [self::TB_DESCRIPTION => 'Betreff der Benachrichtigungs-Email', self::TB_TYPE => self::TB_TYPE_STRING],
+        'email.shop.text' => [self::TB_DESCRIPTION => 'Text der Bestellungsemail', self::TB_TYPE => self::TB_TYPE_HTML],
+        'email.shop.subject' => [self::TB_DESCRIPTION => 'Text der Bestellungsemail', self::TB_TYPE => self::TB_TYPE_STRING],
 
         'link.fb' => [self::TB_DESCRIPTION => 'Link zur Facebook Seite', self::TB_TYPE => self::TB_TYPE_URL],
         'link.insta' => [self::TB_DESCRIPTION => 'Link zur Instagram Seite', self::TB_TYPE => self::TB_TYPE_URL],

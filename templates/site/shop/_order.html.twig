@@ -6,7 +6,7 @@
             {% if p is instanceof("\\App\\Entity\\ShopOrderPositionTicket") and p.ticket is not empty %}
                 <br>
                 <span class="ml-2 text-muted">
-                    ({{ p.ticket.code }}{% if show_ticket_detail | default(true) and p.ticket.isRedeemed %}, verwendet von {{ p.ticket.redeemer | username }}{% endif %})
+                    (<span class="text-monospace">{{ p.ticket.code }}</span>{% if show_ticket_detail | default(true) and p.ticket.isRedeemed %}, verwendet von {{ p.ticket.redeemer | username }}{% endif %})
                 </span>
             {% endif %}
             </td>

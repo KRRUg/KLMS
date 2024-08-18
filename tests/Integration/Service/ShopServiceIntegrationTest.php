@@ -82,10 +82,10 @@ class ShopServiceIntegrationTest extends DatabaseTestCase
 
         $this->assertCount(0, $shopService->getOrderByUser($user));
 
-        $order = $shopService->createOrder($user);
+        $order = $shopService->allocOrder($user);
         $this->expectException(OrderLifecycleException::class);
         // can't save empty order
-        $shopService->saveOrder($order);
+        $shopService->placeOrder($order);
     }
 
     private function setValue(string $key, ?int $value): void
@@ -128,9 +128,9 @@ class ShopServiceIntegrationTest extends DatabaseTestCase
 
         $this->assertCount(0, $shopService->getOrderByUser($user));
 
-        $order = $shopService->createOrder($user);
+        $order = $shopService->allocOrder($user);
         $shopService->orderAddTickets($order, $count);
-        $shopService->saveOrder($order);
+        $shopService->placeOrder($order);
 
         $this->assertEquals($expectedTotal, $order->calculateTotal());
         $this->assertCount($count, $order->getShopOrderPositions());

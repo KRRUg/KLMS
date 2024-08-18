@@ -20,7 +20,7 @@ use Symfony\Component\Routing\Annotation\Route;
 
 #[IsGranted('IS_AUTHENTICATED_REMEMBERED')]
 #[Route(path: '/shop', name: 'shop')]
-class LanSignupController extends AbstractController
+class ShopController extends AbstractController
 {
     private readonly TicketService $ticketService;
     private readonly ShopService $shopService;
@@ -72,7 +72,7 @@ class LanSignupController extends AbstractController
 
             // add tickets to order
             $noTickets = intval($data['tickets'] ?? 0);
-            $order = $this->shopService->createOrder($user);
+            $order = $this->shopService->allocOrder($user);
             $this->shopService->orderAddTickets($order, $noTickets);
 
             // add addons to order
@@ -92,7 +92,7 @@ class LanSignupController extends AbstractController
             }
 
             if (!$order->isEmpty()) {
-                $this->shopService->saveOrder($order);
+                $this->shopService->placeOrder($order);
                 $this->addFlash('success', "Order erfolgreich.");
                 return $this->redirectToRoute('shop_orders');
             }
@@ -139,7 +139,7 @@ class LanSignupController extends AbstractController
             if (empty($order)) {
                 throw $this->createAccessDeniedException('Invalid order specified.');
             }
-            $order = $order[0];
+            $order = array_pop($order);
             try {
                 switch ($action) {
                     case 'cancel':

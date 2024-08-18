@@ -41,12 +41,6 @@ class ContentFixture extends Fixture
             ->setAuthorId(Uuid::fromInteger(strval(14)))
             ->setModifierId(Uuid::fromInteger(strval(14)));
         $content[5] = (new Content())
-            ->setTitle('Einzahlung')
-            ->setContent('Geld überweisen!')
-            ->setAlias('payment')
-            ->setAuthorId(Uuid::fromInteger(strval(14)))
-            ->setModifierId(Uuid::fromInteger(strval(14)));
-        $content[6] = (new Content())
             ->setTitle('AGB')
             ->setContent('Legal foo.')
             ->setAlias('agb')

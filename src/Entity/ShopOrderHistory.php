@@ -27,9 +27,6 @@ class ShopOrderHistory
     #[ORM\Column(length: 1024)]
     private ?string $text = '';
 
-    #[ORM\Column(type: 'uuid', nullable: true)]
-    private ?UuidInterface $loggedBy = null;
-
     public function getId(): ?int
     {
         return $this->id;
@@ -79,18 +76,6 @@ class ShopOrderHistory
     public function setText(string $text): static
     {
         $this->text = $text;
-
-        return $this;
-    }
-
-    public function getLoggedBy(): ?UuidInterface
-    {
-        return $this->loggedBy;
-    }
-
-    public function setLoggedBy(?UuidInterface $loggedBy): static
-    {
-        $this->loggedBy = $loggedBy;
 
         return $this;
     }
