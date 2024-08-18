@@ -86,10 +86,10 @@ class TicketService
         $abc = array_merge(range(0, 9), range('A', 'Z'));
         $code = '';
         for ($i = 0; $i < 15; $i++) {
-            $code .= $abc[mt_rand(0, count($abc) - 1)];
             if ($i > 0 && $i % 5 == 0) {
                 $code .= '-';
             }
+            $code .= $abc[mt_rand(0, count($abc) - 1)];
         }
         return $code;
     }
