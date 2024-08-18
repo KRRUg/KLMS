@@ -4,6 +4,7 @@ namespace App\Tests\Integration\Service;
 
 use App\DataFixtures\ShopFixture;
 use App\Entity\User;
+use App\Exception\TicketLivecycleException;
 use App\Idm\IdmManager;
 use App\Service\TicketService;
 use App\Service\TicketState;
@@ -38,10 +39,10 @@ class TicketServiceIntegrationTest extends DatabaseTestCase
     private function provideUsers(): array
     {
         return [
-            // userid, hasTicket, hasPunchedTicket
-            [2,         true,       true],
-            [13,        true,      false],
-            [11,       false,      false],
+            // userid, hasTicket, hasPunchedTicket, hasPurchasedTicket
+            [2,         true,       true,           false],
+            [13,        true,      false,           true],
+            [11,       false,      false,           false],
         ];
     }
 
@@ -81,7 +82,7 @@ class TicketServiceIntegrationTest extends DatabaseTestCase
     /**
      * @dataProvider provideUsers
      */
-    public function testUserUnRegistration(int $uid, bool $registered, bool $punched)
+    public function testUserUnRegistration(int $uid, bool $registered, bool $punched, bool $purchasedTicket)
     {
         $this->databaseTool->loadFixtures([ShopFixture::class]);
         $tickteService = self::getContainer()->get(TicketService::class);
@@ -93,6 +94,8 @@ class TicketServiceIntegrationTest extends DatabaseTestCase
         $cf = $tickteService->countFreeTickets();
         $cp = $tickteService->countPunchedTickets();
 
+        if ($purchasedTicket)
+            $this->expectException(TicketLivecycleException::class);
         $r = $tickteService->unregisterUser($user);
 
         $this->assertEquals($registered, $r);

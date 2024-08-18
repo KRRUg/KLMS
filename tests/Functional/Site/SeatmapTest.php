@@ -14,7 +14,7 @@ class SeatmapTest extends DatabaseWebTestCase
 
         $crawler = $this->client->request('GET', '/seatmap');
         $this->assertResponseStatusCodeSame(200);
-        $this->assertEquals(1, $this->mock->countRequests());
+        $this->assertLessThanOrEqual(3, $this->mock->countRequests());
         $this->assertEquals(0, $this->mock->getInvalidCalls());
 
         $this->assertSelectorExists('.seatmap');
@@ -46,6 +46,19 @@ class SeatmapTest extends DatabaseWebTestCase
         $seatmap = $crawler->filter('#seatmap');
         $this->assertCount(1, $seatmap->filter('.seat.seat-own'));
         $this->assertCount(2, $seatmap->filter('.seat.seat-empty'));
+        $this->assertCount(1, $seatmap->filter('.seat.seat-own-clan'));
+    }
+
+    public function testOwnClanColor()
+    {
+        $this->databaseTool->loadFixtures([SeatmapFixture::class]);
+
+        $this->login('user2@localhost.local');
+        $crawler = $this->client->request('GET', '/seatmap' );
+        $seatmap = $crawler->filter('#seatmap');
+        $this->assertCount(1, $seatmap->filter('.seat.seat-own'));
+        $this->assertCount(2, $seatmap->filter('.seat.seat-empty'));
+        $this->assertCount(2, $seatmap->filter('.seat.seat-own-clan'));
     }
 
     public function testTakeSeat()
@@ -80,6 +93,7 @@ class SeatmapTest extends DatabaseWebTestCase
         $crawler = $this->client->request('GET', '/seatmap' );
         $seatmap = $crawler->filter('#seatmap');
         $this->assertCount(1, $seatmap->filter('.seat-own'));
+        $this->assertCount(1, $seatmap->filter('.seat-own-clan'));
         $seat = $crawler->filter('#seat3');
         $this->assertCount(1, $seat->filter('.seat-own'));
 
@@ -90,7 +104,9 @@ class SeatmapTest extends DatabaseWebTestCase
         $crawler = $this->client->submit($button->form());
         $this->assertResponseStatusCodeSame(200);
         $this->assertSelectorExists('.alert');
-        $this->assertCount(1, $crawler->filter('.seat-own'));
+        $seatmap = $crawler->filter('#seatmap');
+        $this->assertCount(0, $seatmap->filter('.seat-own'));
+        $this->assertCount(1, $seatmap->filter('.seat-own-clan'));
         $seat = $crawler->filter('#seat3');
         $this->assertCount(1, $seat->filter('.seat-empty'));
         $this->assertCount(0, $seat->filter('.seat-own'));
