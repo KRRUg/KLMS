@@ -29,7 +29,7 @@ class Seat
     #[ORM\Column(name: 'owner', type: 'uuid', nullable: true)]
     private ?UuidInterface $owner = null;
 
-    #[ORM\Column(type: 'string', length: 1)]
+    #[ORM\Column(type: 'string', length: 25)]
     private ?string $sector = null;
 
     #[ORM\Column(type: 'integer')]

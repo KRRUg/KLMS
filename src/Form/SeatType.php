@@ -12,15 +12,18 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class SeatType extends AbstractType
 {
-    public function buildForm(FormBuilderInterface $builder, array $options)
+    public function buildForm(FormBuilderInterface $builder, array $options): void
     {
+        if ($options['show_pos']) {
+            $builder
+                ->add('posX', null, [
+                    'label' => 'Position X',
+                ])
+                ->add('posY', null, [
+                    'label' => 'Position Y',
+                ]);
+        }
         $builder
-            ->add('posX', null, [
-                'label' => 'Position X',
-            ])
-            ->add('posY', null, [
-                'label' => 'Position Y',
-            ])
             ->add('name', null, [
                 'label' => 'Sitzplatz Name/Kommentar',
             ])
@@ -50,10 +53,12 @@ class SeatType extends AbstractType
         ;
     }
 
-    public function configureOptions(OptionsResolver $resolver)
+    public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([
             'data_class' => Seat::class,
+            'show_pos' => true,
         ]);
+        $resolver->setAllowedTypes('show_pos', ['bool']);
     }
 }

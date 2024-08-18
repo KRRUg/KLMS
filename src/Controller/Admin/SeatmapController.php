@@ -89,8 +89,7 @@ class SeatmapController extends AbstractController
         ]);
     }
 
-    # TODO add and test format: 'json'
-    #[Route(path: '/seatposition', name: '_seat_pos', methods: ['POST'])]
+    #[Route(path: '/seatposition', name: '_seat_pos', methods: ['POST'], format: 'json')]
     public function changeSeatPosition(Request $request): Response
     {
         $json = json_decode($request->getContent(), null, 512, JSON_THROW_ON_ERROR);
