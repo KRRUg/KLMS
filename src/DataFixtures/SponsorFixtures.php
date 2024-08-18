@@ -39,8 +39,10 @@ class SponsorFixtures extends Fixture implements DependentFixtureInterface
         $src = __DIR__."/../../assets/images/logo.png";
         $src1 = sys_get_temp_dir() . '/logo1.png';
         $src2 = sys_get_temp_dir() . '/logo2.png';
+        $src3 = sys_get_temp_dir() . '/logo3.png';
         $this->filesystem->copy($src, $src1);
         $this->filesystem->copy($src, $src2);
+        $this->filesystem->copy($src, $src3);
         // no need to remove the files from temp, vich uploader moves them away
 
         $logos = [
@@ -58,32 +60,53 @@ class SponsorFixtures extends Fixture implements DependentFixtureInterface
                 null,
                 true
             ),
+            new UploadedFile(
+                $src3,
+                'logo.png',
+                'image/png',
+                null,
+                true
+            ),
         ];
 
         $lipsum = new LoremIpsum();
 
         $sponsors = [
             (new Sponsor())
-            ->setName("Big Corp.")
-            ->setCategory($categories[1])
-            ->setText($lipsum->paragraph())
-            ->setUrl("https://www.example.com")
-            ->setLogoFile($logos[0])
-            ->setCreated(new DateTime('2020-07-18 05:05'))
-            ->setLastModified(new DateTime('2020-07-18 05:05'))
-            ->setAuthorId(Uuid::fromInteger(strval(14)))
-            ->setModifierId(Uuid::fromInteger(strval(14))),
+                ->setName("Big Corp.")
+                ->setIsVisible(true)
+                ->setCategory($categories[1])
+                ->setText($lipsum->paragraph())
+                ->setUrl("https://www.example.com")
+                ->setLogoFile($logos[0])
+                ->setCreated(new DateTime('2020-07-18 05:05'))
+                ->setLastModified(new DateTime('2020-07-18 05:05'))
+                ->setAuthorId(Uuid::fromInteger(strval(14)))
+                ->setModifierId(Uuid::fromInteger(strval(14))),
 
             (new Sponsor())
-            ->setName("ACME Industries")
-            ->setCategory($categories[1])
-            ->setText($lipsum->paragraph())
-            ->setUrl(null)
-            ->setLogoFile($logos[1])
-            ->setCreated(new DateTime('2020-07-18 05:05'))
-            ->setLastModified(new DateTime('2020-07-18 05:05'))
-            ->setAuthorId(Uuid::fromInteger(strval(14)))
-            ->setModifierId(Uuid::fromInteger(strval(14))),
+                ->setName("ACME Industries")
+                ->setIsVisible(true)
+                ->setCategory($categories[1])
+                ->setText($lipsum->paragraph())
+                ->setUrl(null)
+                ->setLogoFile($logos[1])
+                ->setCreated(new DateTime('2020-07-18 05:05'))
+                ->setLastModified(new DateTime('2020-07-18 05:05'))
+                ->setAuthorId(Uuid::fromInteger(strval(14)))
+                ->setModifierId(Uuid::fromInteger(strval(14))),
+
+            (new Sponsor())
+                ->setName("Not Visible Incorporated")
+                ->setIsVisible(false)
+                ->setCategory($categories[1])
+                ->setText($lipsum->paragraph())
+                ->setUrl(null)
+                ->setLogoFile($logos[2])
+                ->setCreated(new DateTime('2020-07-18 05:05'))
+                ->setLastModified(new DateTime('2020-07-18 05:05'))
+                ->setAuthorId(Uuid::fromInteger(strval(14)))
+                ->setModifierId(Uuid::fromInteger(strval(14))),
         ];
 
         foreach ($sponsors as $sponsor) {

@@ -43,6 +43,9 @@ class Sponsor implements HistoryAwareEntity
     #[ORM\JoinColumn(nullable: false)]
     private ?SponsorCategory $category = null;
 
+    #[ORM\Column]
+    private ?bool $isVisible = null;
+
     public function __construct()
     {
         $this->logo = new EmbeddedFile();
@@ -125,6 +128,18 @@ class Sponsor implements HistoryAwareEntity
     public function setCategory(?SponsorCategory $category): self
     {
         $this->category = $category;
+
+        return $this;
+    }
+
+    public function isVisible(): bool
+    {
+        return $this->isVisible;
+    }
+
+    public function setIsVisible(bool $isVisible): static
+    {
+        $this->isVisible = $isVisible;
 
         return $this;
     }

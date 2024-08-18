@@ -25,6 +25,8 @@ class SponsorRepository extends ServiceEntityRepository
     {
         $qb = $this->createQueryBuilder('entity')
             ->select('COUNT(entity.id)')
+            ->andWhere("entity.isVisible = :isVisible")
+            ->setParameter("isVisible", true)
         ;
 
         foreach ($criteria as $field => $value) {
@@ -53,6 +55,14 @@ class SponsorRepository extends ServiceEntityRepository
         ;
     }
 
+    public function findAllVisible()
+    {
+        return $this->createQueryBuilder('s')
+            ->andWhere("entity.isVisible = :isVisible")
+            ->setParameter("isVisible", true)
+            ->getQuery()
+            ->getResult();
+    }
 /*
 //    possibly faster but unfair implementation (unfair in case not all indexes are present)
     public function findOneRandomBy($criteria = [])
