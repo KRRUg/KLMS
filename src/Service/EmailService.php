@@ -4,13 +4,9 @@ namespace App\Service;
 
 use App\Entity\Email;
 use App\Entity\EmailSending;
-use App\Entity\User;
 use App\Helper\EmailRecipient;
-use App\Idm\IdmManager;
-use App\Idm\IdmRepository;
 use App\Messenger\MailingGroupNotification;
 use App\Messenger\MailingHookNotification;
-use App\Repository\EmailRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 use Ramsey\Uuid\Uuid;
@@ -29,7 +25,7 @@ class EmailService
     final public const APP_HOOK_REGISTRATION_CONFIRM = 'REGISTRATION_CONFIRMATION';
     final public const APP_HOOK_RESET_PW = 'PASSWORD_RESET';
     final public const APP_HOOK_CHANGE_NOTIFICATION = 'CHANGE_NOTIFICATION';
-    final public const APP_HOOK_LAN_SIGNUP = 'LAN_SIGNUP';
+    final public const APP_HOOK_ORDER = 'ORDER';
 
     final public const HOOK_TEMPLATE = 'template';
     final public const HOOK_SUBJECT = 'subject';
@@ -55,12 +51,12 @@ class EmailService
             self::HOOK_TEMPLATE => '/email/hooks/change.html.twig',
             self::HOOK_CONTEXT => ['message'],
         ],
-        self::APP_HOOK_LAN_SIGNUP => [
-            self::HOOK_SUBJECT => 'email.notify.subject',
-            self::HOOK_SUBJECT_DEFAULT => 'Anmeldung erfolgreich',
-            self::HOOK_TEMPLATE => '/email/hooks/lan_signup.html.twig',
-            self::HOOK_CONTEXT => ['message'],
-        ],
+        self::APP_HOOK_ORDER => [
+            self::HOOK_SUBJECT => 'email.shop.subject',
+            self::HOOK_SUBJECT_DEFAULT => 'LAN-Shop',
+            self::HOOK_TEMPLATE => '/email/hooks/shop.html.twig',
+            self::HOOK_CONTEXT => ['order', 'showPaymentInfo', 'showPaymentSuccess'],
+        ]
     ];
 
     final public const DESIGN_STANDARD = 'Standard';
@@ -72,10 +68,7 @@ class EmailService
     private readonly MailerInterface $mailer;
     private readonly EntityManagerInterface $em;
     private readonly Mime\Address $senderAddress;
-    private readonly EmailRepository $templateRepository;
     private readonly Environment $twig;
-    private readonly IdmRepository $userRepository;
-    private readonly GroupService $groupService;
     private readonly SettingService $settingService;
     private readonly MessageBusInterface $messageBus;
     private readonly string $appSecret;
@@ -83,17 +76,13 @@ class EmailService
     public function __construct(MailerInterface $mailer,
                                 LoggerInterface $logger,
                                 EntityManagerInterface $em,
-                                GroupService $groupService,
                                 SettingService $settingService,
-                                EmailRepository $templateRepository,
                                 Environment $twig,
                                 MessageBusInterface $messageBus,
-                                IdmManager $manager,
                                 string $appSecret)
     {
         $this->logger = $logger;
         $this->mailer = $mailer;
-        $this->groupService = $groupService;
         $this->settingService = $settingService;
         $this->em = $em;
         $this->twig = $twig;
@@ -102,9 +91,6 @@ class EmailService
         $mailName = $_ENV['MAILER_DEFAULT_SENDER_NAME'];
         $this->senderAddress = new Mime\Address($mailAddress, $mailName);
         $this->messageBus = $messageBus;
-        // repos
-        $this->userRepository = $manager->getRepository(User::class);
-        $this->templateRepository = $templateRepository;
     }
 
     public function scheduleSending(Email $template): bool
@@ -130,13 +116,11 @@ class EmailService
     {
         if (!array_key_exists($hook, self::HOOKS)) {
             $this->logger->critical('Invalid Application hook supplied, no email sent.');
-
             return false;
         }
         $config = self::HOOKS[$hook];
         if (!empty(array_diff($config[self::HOOK_CONTEXT], array_keys($context)))) {
             $this->logger->critical('Invalid Application hook context supplied, no email sent.');
-
             return false;
         }
         $this->messageBus->dispatch(new MailingHookNotification($hook, $recipient, $context));
@@ -171,7 +155,6 @@ class EmailService
     {
         try {
             $this->mailer->send($email);
-
             return true;
         } catch (HandlerFailedException|TransportExceptionInterface $e) {
             if ($e instanceof HandlerFailedException) {
@@ -181,22 +164,19 @@ class EmailService
                 throw $e;
             }
             $this->logger->error("Error sending email: {$e->getMessage()}", ['exception' => $e]);
-
             return false;
         }
     }
 
     private function generateEmailFromHook(string $hook, EmailRecipient $recipient, array $context = []): ?Mime\Email
     {
-        if (empty($recipient) || empty($recipient->getEmailAddress())) {
+        if (empty($recipient->getEmailAddress())) {
             $this->logger->error('No email address given or user object was empty');
-
             return null;
         }
         $config = self::HOOKS[$hook] ?? null;
         if (empty($config)) {
             $this->logger->error('Invalid Hook configuration');
-
             return null;
         }
         $subject = $this->settingService->get($config[self::HOOK_SUBJECT]);
@@ -235,7 +215,6 @@ class EmailService
     {
         if (empty($recipient) || empty($recipient->getEmailAddress())) {
             $this->logger->error('No email address given');
-
             return null;
         }
         $email = $this->renderTemplate($template, $recipient);
@@ -303,7 +282,6 @@ class EmailService
         $sending = $email->getEmailSending();
         if (!$sending->isNotStarted()) {
             $this->em->rollback();
-
             return false;
         }
         $email->setEmailSending(null);

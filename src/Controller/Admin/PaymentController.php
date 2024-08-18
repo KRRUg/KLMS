@@ -2,14 +2,16 @@
 
 namespace App\Controller\Admin;
 
-use App\Entity\User;
-use App\Exception\GamerLifecycleException;
+use App\Entity\Ticket;
+use App\Exception\TicketLivecycleException;
 use App\Form\UserSelectType;
-use App\Idm\IdmManager;
-use App\Idm\IdmRepository;
-use App\Service\GamerService;
+use App\Service\TicketService;
+use App\Service\TicketState;
+use App\Service\UserService;
+use Ramsey\Uuid\UuidInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -19,16 +21,14 @@ use Symfony\Component\Routing\Annotation\Route;
 #[Route(path: '/payment', name: 'payment')]
 class PaymentController extends AbstractController
 {
-    private const CSRF_TOKEN_PAYMENT = 'paymentToken';
+    private readonly TicketService $ticketService;
+    private readonly UserService $userService;
 
-    private readonly GamerService $gamerService;
-    private readonly IdmRepository $userRepo;
-
-    public function __construct(GamerService $gamerService,
-                                IdmManager $manager)
+    public function __construct(TicketService $ticketService,
+                                UserService   $userService)
     {
-        $this->gamerService = $gamerService;
-        $this->userRepo = $manager->getRepository(User::class);
+        $this->ticketService = $ticketService;
+        $this->userService = $userService;
     }
 
     private function createUserSelectForm(): FormInterface
@@ -39,16 +39,47 @@ class PaymentController extends AbstractController
         return $form->getForm();
     }
 
+    private function createTicketModificationForm(Ticket $ticket): FormInterface
+    {
+        $form = $this->createFormBuilder()
+            ->setAction($this->generateUrl('admin_payment_update', ['id' => $ticket->getId()]));
+        $can_delete_ticket = empty($ticket->getShopOrderPosition());
+        switch ($ticket->getState()) {
+            case TicketState::NEW:
+                $form->add('user', UserSelectType::class);
+                $form->add('assign', SubmitType::class);
+                if ($can_delete_ticket) $form->add('delete', SubmitType::class);
+                break;
+            case TicketState::REDEEMED:
+                $form->add('unassign', SubmitType::class);
+                $form->add('punch', SubmitType::class);
+                if ($can_delete_ticket) $form->add('delete', SubmitType::class);
+                break;
+            case TicketState::PUNCHED:
+                $form->add('unpunch', SubmitType::class);
+                $form->add('unassign', SubmitType::class);
+                if ($can_delete_ticket) $form->add('delete', SubmitType::class);
+                break;
+        }
+        return $form->getForm();
+    }
+
     #[Route(path: '', name: '', methods: ['GET'])]
     public function index(): Response
     {
-        $gamers = $this->gamerService->getGamers();
+        $tickets = $this->ticketService->queryTickets();
+        $uuids = array_map(fn (Ticket $t) => $t->getRedeemer(), $tickets);
+        $uuids = array_filter($uuids, fn (?UuidInterface $uuid) => !empty($uuid));
+        $users = $this->userService->getUsers($uuids, assoc: true);
 
         return $this->render('admin/payment/index.html.twig', [
-            'gamers' => $gamers,
+            'tickets' => $tickets,
+            'users' => $users,
             'form_add' => $this->createUserSelectForm()->createView(),
         ]);
     }
+
+    // TODO add create new Ticket Controllerd
 
     #[Route(path: '', name: '_add', methods: ['POST'])]
     public function add(Request $request): Response
@@ -59,13 +90,13 @@ class PaymentController extends AbstractController
             $user = $form->getData()['user'];
             if (empty($user)) {
                 $this->addFlash('error', 'Ungültigen User ausgewählt.');
-            } elseif ($this->gamerService->gamerHasRegistered($user)) {
+            } elseif ($this->ticketService->isUserRegistered($user)) {
                 $this->addFlash('warning', "User {$user->getNickname()} ist schon registriert.");
             } else {
                 try {
-                    $this->gamerService->gamerRegister($user);
-                    $this->addFlash('success', "User {$user->getNickname()} wurde zur Veranstaltung registriert.");
-                } catch (GamerLifecycleException) {
+                    $ticket = $this->ticketService->registerUser($user);
+                    $this->addFlash('success', "User {$user->getNickname()} wurde zur Veranstaltung mit Ticket {$ticket->getCode()} registriert.");
+                } catch (TicketLivecycleException) {
                     $this->addFlash('error', "User {$user->getNickname()}  konnte nicht registriert werden.");
                 }
             }
@@ -74,70 +105,69 @@ class PaymentController extends AbstractController
         return $this->redirectToRoute('admin_payment');
     }
 
-    #[Route(path: '/{uuid}', name: '_update', methods: ['POST'])]
-    public function update(Request $request, string $uuid): Response
+    private static function clickedIfExists(FormInterface $form, string $field): bool
     {
-        $token = $request->request->get('_token');
-        if (!$this->isCsrfTokenValid(self::CSRF_TOKEN_PAYMENT, $token)) {
-            throw $this->createAccessDeniedException('Invalid CSRF token presented');
-        }
+        return $form->has($field) ? $form->get($field)->isClicked() : false;
+    }
 
-        $user = $this->userRepo->findOneById($uuid);
-        if (empty($user)) {
-            throw $this->createNotFoundException('User not found');
-        }
-
-        $action = $request->request->get('action');
-        try {
-            switch ($action) {
-                case 'register':
-                    $this->gamerService->gamerRegister($user);
-                    break;
-                case 'unregister':
-                    $this->gamerService->gamerUnregister($user);
-                    break;
-                case 'pay':
-                    $this->gamerService->gamerPay($user);
-                    break;
-                case 'unpay':
-                    $this->gamerService->gamerUnPay($user);
-                    break;
-                case 'checkin':
-                    $this->gamerService->gamerCheckIn($user);
-                    break;
-                case 'checkout':
-                    $this->gamerService->gamerCheckOut($user);
-                    break;
-                default:
-                    $this->addFlash('error', 'Invalid action specified.');
-
-                    return $this->redirectToRoute('admin_payment');
+    #[Route(path: '/{id}', name: '_update', methods: ['POST'])]
+    public function update(Request $request, Ticket $ticket): Response
+    {
+        $form = $this->createTicketModificationForm($ticket);
+        $form->handleRequest($request);
+        $id = $ticket->getId();
+        $error = "";
+        if ($form->isSubmitted() && $form->isValid()) {
+            try {
+                switch (true) {
+                    case self::clickedIfExists($form, 'assign'):
+                        $user = $form->get('user')->getData();
+                        if ($this->ticketService->isUserRegistered($user)) {
+                            $error = "User {$user->getNickname()} ist schon registriert.";
+                        } else {
+                            $this->ticketService->redeemTicket($ticket, $user);
+                        }
+                        break;
+                    case self::clickedIfExists($form, 'unassign'):
+                        $this->ticketService->unassignTicket($ticket);
+                        break;
+                    case self::clickedIfExists($form, 'punch'):
+                        $this->ticketService->punchTicket($ticket);
+                        break;
+                    case self::clickedIfExists($form, 'unpunch'):
+                        $this->ticketService->unpunchTicket($ticket);
+                        break;
+                    case self::clickedIfExists($form, 'delete'):
+                        $this->ticketService->deleteTicket($ticket);
+                        break;
+                    default:
+                        $this->addFlash('error', "Aktion konnte nicht durchgeführt werden");
+                        return $this->redirectToRoute('admin_payment');
+                }
+            } catch (TicketLivecycleException $exception) {
+                $this->addFlash('error', "Aktion konnte nicht durchgeführt werden ({$exception->getMessage()}).");
+                return $this->redirectToRoute('admin_payment');
             }
-        } catch (GamerLifecycleException $exception) {
-            $this->addFlash('error', "Aktion konnte nicht durchgeführt werden ({$exception->getMessage()}).");
-
-            return $this->redirectToRoute('admin_payment');
+            if (!empty($error)) {
+                $this->addFlash('error', $error);
+            } else {
+                $this->addFlash('success', "Änderung an Ticket #{$id} erfolgreich.");
+            }
         }
-        $this->addFlash('success', "Änderung an User {$user->getNickname()} erfolgreich.");
 
         return $this->redirectToRoute('admin_payment');
     }
 
-    #[Route(path: '/{uuid}', name: '_show', methods: ['GET'])]
-    public function show(string $uuid): Response
+    #[Route(path: '/{id}', name: '_show', methods: ['GET'])]
+    public function show(Request $request, Ticket $ticket): Response
     {
-        $user = $this->userRepo->findOneById($uuid);
-
-        if (empty($user)) {
-            throw $this->createNotFoundException('User not found');
-        }
-
-        $gamer = $this->gamerService->gamerGetStatus($user);
+        $form = $this->createTicketModificationForm($ticket);
+        $user = $this->ticketService->userByTicket($ticket);
 
         return $this->render('admin/payment/show.html.twig', [
             'user' => $user,
-            'gamer' => $gamer,
-            'csrf_token' => self::CSRF_TOKEN_PAYMENT,
+            'ticket' => $ticket,
+            'form' => $form->createView(),
         ]);
     }
 }

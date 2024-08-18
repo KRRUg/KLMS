@@ -1,0 +1,53 @@
+{% extends 'site/siteBase.html.twig' %}
+
+{% block title %}{{ settings.get('site.title') }} - Tickets & Addons kaufen{% endblock %}
+
+{% block main %}
+    {% set showTicketSale = form.tickets is defined %}
+    {% set showAddonSale = addons is not empty %}
+    {% set showAny = showTicketSale or showAddonSale %}
+
+    {% if showAny %}{{ form_start(form) }}{% endif %}
+    <div id="shop" class="container mb-4">
+        {% if showTicketSale %}
+            <div id="ticketWrapper">
+                {% include 'site/shop/_tickets.html.twig' %}
+            </div>
+        {% endif %}
+        {% if showAddonSale %}
+            <div id="addonWrapper" class="{% if showTicketSale %}d-none{% endif %}">
+                {% if showTicketSale %}<hr />{% endif %}
+                {% include 'site/shop/_addons.html.twig' %}
+            </div>
+        {% endif %}
+        {% if showAny %}
+            <div id="submitWrapper" class="{% if showTicketSale %}d-none{% endif %}">
+                <hr/>
+                {% if 'agb' is slug %}
+                    <div class="row">
+                        <div class="col">
+                            <p>Durch das Anmelden zu Veranstaltung stimmst du unseren {{ 'agb' | slug_link(null, true) }} zu.</p>
+                        </div>
+                    </div>
+                {% endif %}
+                <div class="row">
+                    <div class="col d-flex">
+                        <div class="flex-fill"></div>
+                        {% if showTicketSale %}
+                        <button class="btn btn-secondary m-1" type="button" id="buttonReset">Abbrechen</button>
+                        {% endif %}
+                        <button class="btn btn-primary m-1" type="submit"><i class="fas fa-shopping-cart"></i> Absenden</button>
+                    </div>
+                </div>
+            </div>
+        {% else %}
+            <span>Hier gibts nichts zu sehen.</span>
+        {% endif %}
+    </div>
+    {% if showAny %}{{ form_end(form) }}{% endif %}
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    {{ encore_entry_script_tags('shop') }}
+{% endblock %}

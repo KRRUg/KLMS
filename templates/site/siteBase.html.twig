@@ -11,9 +11,13 @@
     <main id="main">
         {% include 'site/components/flash.html.twig' %}
         {% block main %}{% endblock %}
-        {% block sponsor %}{% include 'site/components/sponsoring.html.twig' %}{% endblock %}
     </main>
     <footer id="footer">
+        {% block sponsor %}
+            <div class="bg-secondary text-white">
+                {% include 'site/components/sponsoring.html.twig' %}
+            </div>
+        {% endblock %}
         {% block footer %}
             <div class="bg-dark text-white">
                 {% include 'site/components/footer.html.twig' %}

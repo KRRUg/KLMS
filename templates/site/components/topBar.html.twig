@@ -15,7 +15,7 @@
                 {% if is_granted('IS_AUTHENTICATED_REMEMBERED') and settings.get('community.enabled', false) %}
                     {% include 'site/components/topBar/communityDropdown.html.twig' %}
                 {% endif %}
-                {% if app.user.username is defined %}
+                {% if app.user.user is defined %}
                     {% include 'site/components/topBar/userDropdown.html.twig' %}
                 {% else %}
                     {% include 'site/components/topBar/loginDropdown.html.twig' %}

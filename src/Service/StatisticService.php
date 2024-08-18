@@ -3,21 +3,25 @@
 namespace App\Service;
 
 use App\Repository\SeatRepository;
-use App\Repository\UserGamerRepository;
+use App\Repository\ShopOrderRepository;
+use App\Repository\TicketRepository;
 
 class StatisticService extends OptimalService
 {
     private readonly SeatRepository $seatRepository;
-    private readonly UserGamerRepository $gamerRepository;
+    private readonly TicketRepository $ticketRepository;
+    private readonly ShopOrderRepository $shopOrderRepository;
 
     public function __construct(
-        SeatRepository $seatRepository,
-        UserGamerRepository $gamerRepository,
-        SettingService $settingService
+        SeatRepository      $seatRepository,
+        TicketRepository    $ticketRepository,
+        ShopOrderRepository $shopOrderRepository,
+        SettingService      $settingService
     ) {
         parent::__construct($settingService);
         $this->seatRepository = $seatRepository;
-        $this->gamerRepository = $gamerRepository;
+        $this->ticketRepository = $ticketRepository;
+        $this->shopOrderRepository = $shopOrderRepository;
     }
 
     protected static function getSettingKey(): string
@@ -31,8 +35,9 @@ class StatisticService extends OptimalService
             'seats_free' => $this->countSeatsFree(),
             'seats_total' => $this->countSeatsTotal(),
             'seats_taken' => $this->countSeatsTaken(),
-            'gamer_registered' => $this->countGamerRegistered(),
-            'gamer_payed' => $this->countGamerPayed(),
+            'seats_locked' => $this->countSeatsLocked(),
+            'tickets_ordered' => $this->countOrderedTickets(),
+            'tickets_redeemed' => $this->countRedeemedTickets(),
             default => '',
         };
     }
@@ -52,13 +57,18 @@ class StatisticService extends OptimalService
         return $this->seatRepository->countTakenSeats();
     }
 
-    public function countGamerRegistered(): int
+    public function countSeatsLocked(): int
     {
-        return $this->gamerRepository->countByState(true, null, null);
+        return $this->seatRepository->countLockedSeats();
     }
 
-    public function countGamerPayed(): int
+    public function countOrderedTickets(): int
     {
-        return $this->gamerRepository->countByState(null, true, null);
+        return $this->ticketRepository->count([]) + $this->shopOrderRepository->countOrderedTickets();
+    }
+
+    public function countRedeemedTickets(): int
+    {
+        return $this->ticketRepository->countRedeemed();
     }
 }

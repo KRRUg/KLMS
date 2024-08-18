@@ -2,24 +2,16 @@
     <div class="text-light-muted">
         {% set user = app.user.user %}
         {% if user is not empty %}
-            Dein Status:
-            {% if user is not registered_gamer %}
-                <a href="{{ url('lan_signup') }}">Nicht Angemeldet</a>
+            {% if user is not registered_user %}
+                <a href="{{ path('shop_checkout') }}"><i class="fa fa-ticket"></i> Ticket kaufen</a>
             {% else %}
-                Angemeldet&nbsp;&nbsp;|&nbsp;
-                {% if user is paid_gamer %}
-                    Bezahlt
-                {% else %}
-                    {{ 'payment' | slug_link('Nicht Bezahlt') }}
-                {% endif %}
-                &nbsp;|&nbsp;
-                {% if user is seated_gamer %}
-                    <a href="{{ url('seatmap') }}">Sitzplatz {{ user | seat }}</a>
-                {% else %}
-                    {% if user is paid_gamer or settings.get('lan.seatmap.allow_booking_for_non_paid') %}
-                        <a href="{{ url('seatmap') }}">Kein Sitzplatz</a>
+                <span><i class="fa fa-ticket"></i> Ticket vorhanden</span>
+                {% if settings.get('lan.seatmap.enabled') %}
+                    &nbsp;|&nbsp;
+                    {% if user is seated_user %}
+                        <span><i class="fas fa-chair"></i> Sitzplatz <a href="{{ url('seatmap') }}">{{ user | seat }}</a></span>
                     {% else %}
-                        Kein Sitzplatz
+                        <a href="{{ url('seatmap') }}"><i class="fas fa-chair"></i> Sitzplatz auswählen</a>
                     {% endif %}
                 {% endif %}
             {% endif %}

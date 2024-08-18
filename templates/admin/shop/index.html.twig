@@ -1,0 +1,60 @@
+{% extends 'admin/adminBase.html.twig' %}
+
+{% block title %}Bestellungen - KLMS - Admin{% endblock %}
+{% block siteheading %}<i class="fas fa-cart-shopping"></i> Bestellungen{% endblock %}
+{% block main %}
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <table id="GamerTable" class="table table-striped admin-data-table" data-order='[[2, "asc"]]'>
+                    <thead>
+                    <tr>
+                        <th class="text-nowrap w-1" data-data="order.id">ID</th>
+                        <th class="w-25" data-data="order.date"> Datum</th>
+                        <th class="w-25"> Nickname </th>
+                        <th class="w-25" data-data="user.firstname">Vorname</th>
+                        <th class="w-25" data-data="user.surname">Nachname</th>
+                        <th class="w-25" data-data="order.status">Status</th>
+                        <th
+                                class="text-nowrap w-1"
+                                data-orderable="false"
+                                data-searchable="false"
+                        >Aktionen</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for order in orders %}
+                        {% set user = order.orderer | user %}
+                        <tr>
+                            <td class="text-center">{{ order.id }}</td>
+                            <td data-order="{{ order.createdAt | date('U') }}">{{ order.createdAt | date('d.m.y H:i') }}</td>
+                            <td data-order="{{ user.nickname }}">
+                                {% for clan in user.clans %}
+                                    <a class="badge badge-pill badge-primary" href="{{ path('admin_clan_show', {'uuid' : clan.uuid }) }}" data-toggle="ajaxModal">{{clan.clantag }}</a>
+                                {% endfor %}
+                                <a href="{{ path('admin_user_show', {'uuid' : user.uuid }) }}" data-toggle="ajaxModal">{{ user.nickname }}</a>
+                            </td>
+                            <td>{{ user.firstname }}</td>
+                            <td>{{ user.surname }}</td>
+                            <td>
+                                {% if order.isPaid() %}
+                                    <span class="badge badge-primary">Bezahlt</span>
+                                {% elseif order.isCanceled() %}
+                                    <span class="badge badge-light-muted">Storniert</span>
+                                {% else %}
+                                    <span class="badge badge-info">Angelegt</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <a class="btn btn-sm btn-outline-dark text-nowrap" data-toggle="ajaxModal" href="{{ path('admin_shop_show', {'id' : order.id}) }}">
+                                    <i class="fas fa-money-check"></i> Details
+                                </a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+{% endblock %}

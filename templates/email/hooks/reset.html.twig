@@ -8,4 +8,6 @@
   {% endif %}
   <p>Zum Zurücksetzen des Passworts bei {{ org }} <a href="{{ url('reset_pw', {'user' : user, 'token' : token}) }}">hier</a> klicken.</p>
   <p>Solltest das nicht du gewesen sein, kannst du diese Nachricht ignorieren.</p>
+  <p></p>
+  {% include 'email/components/greetings.html.twig' %}
 {% endblock %}

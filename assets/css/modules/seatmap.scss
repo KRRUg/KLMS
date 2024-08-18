@@ -18,8 +18,17 @@
     @include seat(darkred)
   }
 
+  .seat-reserved {
+    @include seat(red)
+  }
+
   .seat-own {
-    @include seat(orange)
+    @include seat($primary)
+  }
+
+  .seat-own-clan {
+    @include seat(#ffbc4b)
+    //@include seat(#ffbc4b)
   }
 
   .seat-locked {
@@ -50,12 +59,12 @@
     border-radius: var(--seatmap-seat-border-radius, 8px);
     cursor: pointer;
 
-    &[data-chair-position="top"], &[data-chair-position="bottom"] {
+    &[data-chair-position="n"], &[data-chair-position="s"] {
       width: calc(var(--seatmap-seat-size, 27px) * var(--seatmap-seat-tableWidthMultiplier, 1));
       height: var(--seatmap-seat-size, 27px);
     }
 
-    &[data-chair-position="left"], &[data-chair-position="right"] {
+    &[data-chair-position="w"], &[data-chair-position="e"] {
       width: var(--seatmap-seat-size, 27px);
       height: calc(var(--seatmap-seat-size, 27px) * var(--seatmap-seat-tableWidthMultiplier, 1));
     }
@@ -69,25 +78,25 @@
       transform: translate(-50%, -50%);
     }
 
-    &[data-chair-position="top"]::before {
+    &[data-chair-position="n"]::before {
       top: -11px;
       left: 50%;
       transform: translate(-50%, -50%);
     }
 
-    &[data-chair-position="bottom"]::before {
+    &[data-chair-position="s"]::before {
       bottom: -11px;
       left: 50%;
       transform: translate(-50%, 50%);
     }
 
-    &[data-chair-position="left"]::before {
+    &[data-chair-position="w"]::before {
       left: -11px;
       top: 50%;
       transform: translate(-50%, -50%);
     }
 
-    &[data-chair-position="right"]::before {
+    &[data-chair-position="e"]::before {
       right: -11px;
       top: 50%;
       transform: translate(50%, -50%);

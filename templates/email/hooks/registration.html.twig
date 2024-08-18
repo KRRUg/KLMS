@@ -7,4 +7,6 @@
     <h1>Deine Registrierung bei {{ org }}</h1>
   {% endif %}
   <p>Zum Bestätigen der Registrierung <a href="{{ url('app_register_confirm', {'user' : user, 'token' : token}) }}">hier</a> klicken.</p>
+  <p></p>
+  {% include 'email/components/greetings.html.twig' %}
 {% endblock %}

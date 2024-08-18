@@ -3,11 +3,9 @@
 namespace App\Form;
 
 use App\Entity\User;
-use App\Entity\UserGamer;
 use App\Idm\Exception\PersistException;
 use App\Idm\IdmManager;
 use App\Idm\IdmRepository;
-use App\Repository\UserGamerRepository;
 use Ramsey\Uuid\Uuid;
 use Ramsey\Uuid\UuidInterface;
 use Symfony\Component\Form\AbstractType;
@@ -19,38 +17,30 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 class UserSelectType extends AbstractType
 {
     private readonly IdmRepository $userRepository;
-    private readonly UserGamerRepository $gamerRepository;
 
-    public function __construct(IdmManager $manager, UserGamerRepository $gamerRepository)
+    public function __construct(IdmManager $manager)
     {
         $this->userRepository = $manager->getRepository(User::class);
-        $this->gamerRepository = $gamerRepository;
     }
 
-    public function buildForm(FormBuilderInterface $builder, array $options)
+    public function buildForm(FormBuilderInterface $builder, array $options): void
     {
-        switch ($options['type']) {
-            case User::class:
-                $builder->addViewTransformer(new CallbackTransformer($this->transform(...), $this->reverseTransformUser(...)));
-                break;
-            case UserGamer::class:
-                $builder->addViewTransformer(new CallbackTransformer($this->transform(...), $this->reverseTransformGamer(...)));
-                break;
-        }
+        $builder->addViewTransformer(
+            new CallbackTransformer(
+                $this->transform(...),
+                $options['hydrateUser'] ? $this->reverseTransform(...) : $this->reverseTransformUuid(...)
+            )
+        );
     }
 
-    public function configureOptions(OptionsResolver $resolver)
+    public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([
             'multiple' => false,
             'compound' => false,
-            'type' => User::class,
+            'hydrateUser' => true,
         ]);
-
-        $resolver
-            ->setAllowedTypes('type', 'string')
-            ->setAllowedValues('type', [User::class, UserGamer::class])
-        ;
+        $resolver->setAllowedTypes('hydrateUser', 'bool');
     }
 
     public function getBlockPrefix(): string
@@ -69,9 +59,9 @@ class UserSelectType extends AbstractType
             case $entity instanceof User:
                 $data[$entity->getUuid()->toString()] = $entity->getEmail();
                 break;
-            case $entity instanceof UserGamer:
-                $email = $this->userRepository->findOneById($entity->getUuid())->getEmail();
-                $data[$entity->getUuid()->toString()] = $email;
+            case $entity instanceof UuidInterface:
+                $user = $this->userRepository->findOneById($entity);
+                $data[$entity->toString()] = $user->getEmail();
                 break;
             default:
                 throw new TransformationFailedException('Unknown type to convert');
@@ -80,7 +70,7 @@ class UserSelectType extends AbstractType
         return $data;
     }
 
-    public function reverseTransformUser($value): ?object
+    public function reverseTransform($value): ?User
     {
         if (empty($value)) {
             return null;
@@ -94,17 +84,11 @@ class UserSelectType extends AbstractType
         }
     }
 
-    public function reverseTransformGamer($value): ?UserGamer
+    public function reverseTransformUuid($value): ?UuidInterface
     {
         if (empty($value)) {
             return null;
         }
-
-        $value = $value instanceof UuidInterface ? $value : Uuid::fromString($value);
-        try {
-            return $this->gamerRepository->findOneBy(['uuid' => $value]);
-        } catch (PersistException) {
-            throw new TransformationFailedException('Unknown type to convert');
-        }
+        return $value instanceof UuidInterface ? $value : Uuid::fromString($value);
     }
 }

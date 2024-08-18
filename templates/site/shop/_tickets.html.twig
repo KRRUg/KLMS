@@ -1,0 +1,118 @@
+<div class="row">
+    <div class="col">
+        <h1>LAN Eintritt kaufen</h1>
+        <div class="mb-3">
+            {% if settings.get('lan.signup.info') is not empty %}
+                <div>
+                    {{ settings.get('lan.signup.info') | raw }}
+                </div>
+            {% else %}
+                <p>
+                    Sichere dir dein Ticket für die LAN-Party des Jahres! Erlebe epische Matches und erweitere
+                    dein Gaming-Abenteuer mit exklusiven Add-ons. Jetzt buchen und dabei sein!
+                </p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<hr/>
+<div id="chooseTicketWrapper" class="mb-2">
+    <div class="d-xs-block d-sm-block d-md-flex justify-content-center" >
+        <div class="card m-2 p-0 col-md-4 col-lg-3" id="ticketSelfHead">
+            <button class="btn btn-link btn-block text-center card-body pl-1 pr-1" type="button" data-mode="one">
+                <span class="h3"><i class="fa-solid fa-user"></i></span><br>
+                <span class="text-dark h4"> Ticket für mich kaufen</span>
+            </button>
+        </div>
+        <div class="card m-2 p-0 col-md-4 col-lg-3" id="ticketClanHead">
+            <button class="btn btn-link btn-block text-center card-body pl-1 pr-1" type="button" data-mode="multi">
+                <span class="h3"><i class="fa-solid fa-users"></i> </span><br>
+                <span class="text-dark h4">Ticket für mich + andere kaufen</span>
+            </button>
+        </div>
+        <div class="card m-2 p-0 col-md-4 col-lg-3" id="redeemCodeHead">
+            <button class="btn btn-link btn-block text-center card-body pl-1 pr-1" type="button" data-mode="redeem">
+                <span class="h3"><i class="fa-solid fa-ticket"></i> </span><br>
+                <span class="text-dark h4">Ticket-Code einlösen</span>
+            </button>
+        </div>
+    </div>
+</div>
+<div>
+    {% set price = settings.get('lan.signup.price') %}
+    {% set price_reduced = settings.get('lan.signup.discount.price') %}
+    {% set price_reduced_limit = settings.get('lan.signup.discount.limit') %}
+    <div id="ticketSelfBody" class="card d-none">
+        <div class="card-header">
+            <h4 class="my-0 font-weight-normal">LAN Eintritt für mich kaufen</h4>
+        </div>
+        <div class="card-body">
+            <h3 class="card-title text-center">{{ (price / 100) | format_currency('EUR') }}</h3>
+            <div class="card-text">
+                <p>
+                    Erlebe die ultimative LAN-Party mit unserem Eintrittsticket! Genieße stundenlanges Gaming,
+                    spannende
+                    Turniere und eine unvergleichliche Gemeinschaft. Dein Ticket bietet dir Zugang zu allen
+                    Events,
+                    Wettbewerben und exklusiven Bereichen. Sei dabei und kämpfe um den Sieg!
+                </p>
+            </div>
+        </div>
+    </div>
+    <div id="ticketClanBody" class="card d-none">
+        <div class="card-header">
+            <h4 class="my-0 font-weight-normal">LAN Eintritt für mich + andere kaufen</h4>
+        </div>
+        <div class="card-body">
+            <div class="d-flex justify-content-center">
+                <div class="mr-5 align-bottom" style="height: 100%">
+                    <h6 class="card-subtitle text-muted text-center">&nbsp;</h6>
+                    <h2 class="card-title text-center">{{ (price / 100) | format_currency('EUR') }}</h2>
+                    <h6 class="card-subtitle text-muted mb-4 text-center">pro Person</h6>
+                </div>
+                {% if price_reduced_limit and price_reduced %}
+                <div class="ml-5 align-bottom">
+                    <h6 class="card-subtitle text-muted text-center">ab {{ price_reduced_limit}} Personen</h6>
+                    <h2 class="card-title text-center">{{ (price_reduced / 100) | format_currency('EUR') }}</h2>
+                    <h6 class="card-subtitle text-muted mb-4 text-center">pro Person</h6>
+                </div>
+                {% endif %}
+            </div>
+            <div class="card-text">
+                <div class="input-group">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text">Anzahl der Tickets</span>
+                    </div>
+                    {{ form_widget(form.tickets) }}
+                    {# <input type="number" class="form-control" value="1" min="1" max="15"> #}
+                    <div class="input-group-append">
+                        {# <button class="btn btn-primary" type="button" id="button-confirm-ticket">Tickets kaufen</button> #}
+                    </div>
+                </div>
+                <p class="text-muted">
+                    Bei mehreren Tickets wird das erste automatisch für den eigenen Eintritt verwendet und alle
+                    anderen als Ticket-Code versendet.
+                </p>
+            </div>
+        </div>
+    </div>
+    <div id="redeemCodeBody" class="card d-none">
+        <div class="card-header">
+            <h4 class="my-0 font-weight-normal">Ticket Code einlösen</h4>
+        </div>
+        <div class="card-body">
+            <div class="card-text">
+                <p>Wenn du einen Ticket-Code für einen LAN-Eintritt erhalten hast, kannst du ihn hier
+                    eingeben:</p>
+                <div class="input-group">
+                    {{ form_widget(form.code, {'attr': {'placeholder': 'XXXXX-XXXXX-XXXXX'}}) }}
+                    {# <input type="text" class="form-control" placeholder="AAAAA-BBBBB-00000"> #}
+                    <div class="input-group-append">
+                        <button class="btn btn-primary" type="button" id="button-confirm-code">Code überprüfen</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

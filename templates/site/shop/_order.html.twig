@@ -1,0 +1,21 @@
+<table class="table table-sm table-borderless">
+    <tbody>
+    {% for p in order.shopOrderPositions %}
+        <tr>
+            <td><b>{{ p.text }}</b>
+            {% if p is instanceof("\\App\\Entity\\ShopOrderPositionTicket") and p.ticket is not empty %}
+                <br>
+                <span class="ml-2 text-muted">
+                    (<span class="text-monospace">{{ p.ticket.code }}</span>{% if show_ticket_detail | default(true) and p.ticket.isRedeemed %}, verwendet von {{ p.ticket.redeemer | username }}{% endif %})
+                </span>
+            {% endif %}
+            </td>
+            <td class="text-right">{{ (p.price / 100) | format_currency('EUR') }}</td>
+        </tr>
+    {% endfor %}
+        <tr class="font-weight-bold border-top">
+            <td>Gesamt</td>
+            <td class="text-right">{{ (order.calculateTotal / 100) | format_currency('EUR')}}</td>
+        </tr>
+    </tbody>
+</table>

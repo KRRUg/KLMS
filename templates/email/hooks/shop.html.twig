@@ -1,0 +1,33 @@
+{% extends 'email/design/standard.html.twig' %}
+
+{% block main %}
+{% set text = settings.get('email.shop.text') %}
+{% set org = settings.get('site.organisation') %}
+<h1>Bestellung #{{ order.id }}</h1>
+<p>
+{% if text is empty %}Danke für deine Bestellung bei {{ org }}.{% else %}{{ text }}{% endif %}
+</p>
+<div class="my-2">
+{% include 'site/shop/_order.html.twig' %}
+</div>
+<div class="my-2">
+{% if showPaymentInfo | default(false) %}
+Bitte bezahle <b>{{ (order.calculateTotal() / 100) | format_currency('EUR') }}</b>
+unter Angabe der Bestellnummer <b>#{{ order.id }}</b>
+{% if settings.get('lan.signup.payment_details') %}
+an:
+<div class="border p-2 m-1">{{ settings.get('lan.signup.payment_details') | raw }}</div>
+{% else %}
+.
+{% endif %}
+{% elseif showPaymentSuccess | default(false) %}
+Wir haben dein Geld erhalten und deine Bestellung wurde bearbeitet.
+{% if order.countTickets >= 1 %}
+Dein Eintritt wurde freigeschaltet. Solltest du noch keinen Sitzplatz reserviert haben, mach das <a href="{{ url('seatmap') }}">hier</a>!
+{% if order.countTickets > 1 %} Die Codes für die weiteren Tickets findest du oben. Gib diese an deine Freunde weiter. {% endif %}
+{% endif %}
+{% endif %}
+</div>
+<p></p>
+{% include 'email/components/greetings.html.twig' %}
+{% endblock %}

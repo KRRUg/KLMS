@@ -6,61 +6,66 @@
     <div class="row">
         <div class="col-12">
             {% set seatmap_bg = settings.get('lan.seatmap.bg_image') %}
-            {% if seatmap_bg is empty %}
-            <div class="card-body">
-                Lade einen Grundriss hoch um den Sitzplan zu erstellen: <a href="{{ path('admin_setting_edit', {'key': 'lan.seatmap.bg_image'}) }}">Zu den Einstellungen</a>
-            </div>
-            {% else %}
-            <div class="card-body">
-                <a class="btn btn-primary" href="{{ path('admin_seatmap_export') }}" download>Sitzplan exportieren (.csv)</a>
-            </div>
-            <div class="card">
-                <div class="card-title">
-                    <div class="container seatmap-legend">
-                        <div class="row justify-content-center">
-                            <div class="col-md-3 col-lg-2"><span class="seat seat-empty"></span> Frei </div>
-                            <div class="col-md-3 col-lg-2"><span class="seat seat-taken"></span> Reserviert</div>
-                            <div class="col-md-3 col-lg-2"><span class="seat seat-locked"></span> Gesperrt</div>
-                            <div class="col-md-3 col-lg-2"><span class="seat seat-own"></span> Sitzplatz</div>
-                        </div>
-                    </div>
+            <div class="card mb-2">
+                <div class="card-body container">
                     {% if settings.get('lan.seatmap.locked') %}
-                        <div class="card-title">
-                            Der Sitzplan ist aktuell gesperrt! Er Kann nur von Admins bearbeitet werden.
+                        <div class="alert alert-warning" role="alert">
+                            Der Sitzplan ist aktuell <a href="{{ path('admin_setting_edit', {'key': 'lan.seatmap.locked'}) }}" class="alert-link">gesperrt</a> und kann nur von Admins bearbeitet werden.
                         </div>
                     {% endif %}
+                    {% if seatmap_bg is empty %}
+                        <div class="alert alert-warning" role="alert">
+                            Es ist kein Grundriss <a href="{{ path('admin_setting_edit', {'key': 'lan.seatmap.bg_image'}) }}" class="alert-link">hochgeladen</a>.
+                        </div>
+                    {% endif %}
+                    <div>
+                        <button id="toggleEditmode" type="button" class="btn btn-sm btn-primary" data-edit-mode="false">Drag & Drop aktivieren</button>
+                        <a class="btn btn-sm btn-primary" href="{{ path('admin_seatmap_export') }}" download>Sitzplan exportieren (.csv)</a>
+                    </div>
                 </div>
-                <div class="card-body">
-                    <button id="toggleEditmode" type="button" class="btn btn-primary" data-edit-mode="false">Drag & Drop aktivieren</button>
+            </div>
+            <div class="card mb-2">
+                <div class="card-body row justify-content-center">
+                        <div class="col-md-8 col-lg-7 d-flex justify-content-center seatmap-legend">
+                            <div class="d-block text-center flex-fill"> <span class="seat seat-empty"></span><br><span>Frei</span></div>
+                            <div class="d-block text-center flex-fill"> <span class="seat seat-taken"></span><br><span>Reserviert</span></div>
+                            <div class="d-block text-center flex-fill"> <span class="seat seat-reserved"></span><br><span> Reserviert<br>(unbezahlt)</span></div>
+                            <div class="d-block text-center flex-fill"> <span class="seat seat-locked"></span><br><span> Gesperrt</span></div>
+                        </div>
                 </div>
             </div>
             <div class="d-flex justify-content-center mt-5">
                 <div class="card">
-                    <div class="seatmap" data-position-url="{{ path('admin_seatmap_seat_pos') }}" data-create-url="{{ path('admin_seatmap_seat_create') }}">
+                    <div class="seatmap" data-position-url="{{ path('admin_seatmap_seat_pos') }}" data-create-url="{{ path('admin_seatmap_seat_create') }}"
                         {% if seatmap_bg is not empty %}
-                            <img class="seatmap-bg" src="{{ seatmap_bg }}" aria-hidden="true">
+                            >
+                        <img class="seatmap-bg" src="{{ seatmap_bg }}" aria-hidden="true">
+                        {% else %}
+                            style="width: {{ dim['x'] + 150 }}px; height: {{ dim['y'] + 150 }}px">
                         {% endif %}
-                        <div class="seatmap-wrapper">
+                        <div class="seatmap-wrapper border">
                             {% for seat in seatmap %}
-                                {% set ownSeat = app.user is not null and seat.owner is not null and seat.owner.uuid == app.user.user.uuid %}
                                 {% set taken = seat.owner is not empty %}
-                                {% set locked = seat.type == 'locked' %}
-                                {% set information = seat.type == 'information' %}
+                                {% set reserved = seat.owner is not empty and seat.owner is registered_user %}
+                                {% set locked = seat.type.value == 'locked' %}
+                                {% set info = seat.type.value == 'info' %}
                                     <a style="top: {{ seat.posY }}px; left: {{ seat.posX }}px;"
-                                            {% if ownSeat %}
-                                                class="seat seat-own"
+                                       class="seat
+                                            {% if reserved %}
+                                                seat-taken seat-reserved
                                             {% elseif taken %}
-                                                class="seat seat-taken"
+                                                seat-taken
                                             {% elseif locked %}
-                                                class="seat seat-locked"
-                                            {% elseif information %}
-                                                class="seat seat-information"
+                                                seat-locked
+                                            {% elseif info %}
+                                                seat-information
                                             {% else %}
-                                                class="seat seat-empty"
+                                                seat-empty
                                             {% endif %}
-                                       data-chair-position="{{ seat.chairPosition }}" data-toggle="ajaxModal" data-id="{{ seat.id }}"
+                                       "
+                                       data-chair-position="{{ seat.chairPosition.value }}" data-toggle="ajaxModal" data-id="{{ seat.id }}"
                                        data-html="true" title="{{ include('site/seatmap/tooltip.html.twig') }}" href="{{ path('admin_seatmap_seat_edit', {'id' : seat.id}) }}">
-                                        {% if seat.type == 'information' %}
+                                        {% if seat.type.value == 'info' %}
                                             <i class="fas fa-info-circle"></i>
                                         {% endif %}
                                     </a>
@@ -69,7 +74,6 @@
                     </div>
                 </div>
             </div>
-            {% endif %}
         </div>
     </div>
 {% endblock %}
@@ -81,7 +85,7 @@
 
 {% block stylesheets %}
     {{ parent() }}
-    <style type="text/css">
+    <style>
         :root {
             --seatmap-seat-size: {{ settings.get('lan.seatmap.styles.seat_size') }}px;
             --seatmap-seat-tableWidthMultiplier: {{ settings.get('lan.seatmap.styles.seat_tablewidth_multiplier') }};

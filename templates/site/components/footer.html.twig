@@ -1,11 +1,11 @@
-<div id="foot-bar" class="container py-5 bg-dark text-white">
+<div id="foot-bar" class="container py-4 text-white">
     <div class="row">
         <div class="col-8">
-            <h3>Über uns</h3>
+            <h4>Über uns</h4>
             <p>{{ settings.get('site.about')|raw }}</p>
         </div>
         <div class="col-4">
-            <h3>Links</h3>
+            <h4>Links</h4>
             {% include 'site/components/socialLinks.html.twig' %}
         </div>
     </div>

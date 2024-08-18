@@ -44,10 +44,12 @@ document.addEventListener('DOMContentLoaded', function () {
             $('.seat').draggable("disable");
             $this.data('editMode', false);
             $this.text('Drag & Drop aktivieren');
+            $this.removeClass('btn-danger').addClass('btn-primary');
         } else {
             $('.seat').draggable("enable");
             $this.data('editMode', true);
             $this.text('Drag & Drop deaktivieren');
+            $this.removeClass('btn-primary').addClass('btn-danger');
         }
     })
 

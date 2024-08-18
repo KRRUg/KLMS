@@ -3,14 +3,13 @@
 namespace App\Controller\Admin;
 
 use App\Entity\Seat;
+use App\Entity\SeatOrientation;
 use App\Entity\User;
-use App\Entity\UserGamer;
 use App\Form\SeatType;
 use App\Form\UserSelectType;
 use App\Idm\IdmManager;
 use App\Idm\IdmRepository;
 use App\Repository\SeatRepository;
-use App\Service\GamerService;
 use App\Service\SeatmapService;
 use App\Service\SettingService;
 use Doctrine\ORM\EntityManagerInterface;
@@ -30,17 +29,20 @@ class SeatmapController extends AbstractController
 {
     private readonly IdmRepository $userRepo;
     private readonly EntityManagerInterface $em;
-    private readonly GamerService $gamerService;
     private readonly SeatmapService $seatmapService;
     private readonly SettingService $settingService;
     private readonly SeatRepository $seatRepository;
     private readonly SerializerInterface $serializer;
 
-    public function __construct(EntityManagerInterface $em, GamerService $gamerService, IdmManager $manager, SeatmapService $seatmapService, SettingService $settingService, SeatRepository $seatRepository, SerializerInterface $serializer)
+    public function __construct(EntityManagerInterface $em,
+                                IdmManager $manager,
+                                SeatmapService $seatmapService,
+                                SettingService $settingService,
+                                SeatRepository $seatRepository,
+                                SerializerInterface $serializer)
     {
         $this->em = $em;
         $this->userRepo = $manager->getRepository(User::class);
-        $this->gamerService = $gamerService;
         $this->seatmapService = $seatmapService;
         $this->settingService = $settingService;
         $this->seatRepository = $seatRepository;
@@ -51,9 +53,11 @@ class SeatmapController extends AbstractController
     public function index(): Response
     {
         $seats = $this->seatmapService->getSeatmap();
+        $dim = $this->seatmapService->getDimension();
 
         return $this->render('admin/seatmap/index.html.twig', [
             'seatmap' => $seats,
+            'dim' => $dim,
             'users' => $this->seatmapService->getSeatedUser($seats),
         ]);
     }
@@ -61,17 +65,13 @@ class SeatmapController extends AbstractController
     #[Route(path: '/show/{id}', name: '_seat_edit', methods: ['GET', 'POST'])]
     public function seatShow(Seat $seat, Request $request): Response
     {
-        if ($seat->getOwner()) {
-            $seatUser = $this->gamerService->getUserFromGamer($seat->getOwner());
-        } else {
-            $seatUser = null;
-        }
+        $seatUser = $this->seatmapService->getSeatOwner($seat);
 
         $form = $this->createForm(SeatType::class, $seat, [
             'action' => $this->generateUrl('admin_seatmap_seat_edit', ['id' => $seat->getId()]),
         ]);
 
-        $form->add('owner', UserSelectType::class, ['type' => UserGamer::class, 'required' => false]);
+        $form->add('owner', UserSelectType::class, ['required' => false, 'hydrateUser' => false]);
         $form->setData($seat);
         $form->handleRequest($request);
 
@@ -89,7 +89,7 @@ class SeatmapController extends AbstractController
         ]);
     }
 
-    #[Route(path: '/seatposition', name: '_seat_pos', methods: ['POST'])]
+    #[Route(path: '/seatposition', name: '_seat_pos', methods: ['POST'], format: 'json')]
     public function changeSeatPosition(Request $request): Response
     {
         $json = json_decode($request->getContent(), null, 512, JSON_THROW_ON_ERROR);
@@ -169,7 +169,7 @@ class SeatmapController extends AbstractController
                     // Create the Seat
                     $this->em->persist($newSeat);
 
-                    if ($seat->getChairPosition() == 'top' || $seat->getChairPosition() == 'bottom') {
+                    if ($seat->getChairPosition() == SeatOrientation::NORTH || $seat->getChairPosition() == SeatOrientation::SOUTH) {
                         $x += $seatSize * $seatMultiplier + $seatSpacing;
                     } else {
                         $y += $seatSize * $seatMultiplier + $seatSpacing;
