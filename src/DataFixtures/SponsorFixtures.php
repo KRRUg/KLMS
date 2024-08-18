@@ -73,28 +73,28 @@ class SponsorFixtures extends Fixture implements DependentFixtureInterface
 
         $sponsors = [
             (new Sponsor())
-            ->setName("Big Corp.")
-            ->setIsVisible(true)
-            ->setCategory($categories[1])
-            ->setText($lipsum->paragraph())
-            ->setUrl("https://www.example.com")
-            ->setLogoFile($logos[0])
-            ->setCreated(new DateTime('2020-07-18 05:05'))
-            ->setLastModified(new DateTime('2020-07-18 05:05'))
-            ->setAuthorId(Uuid::fromInteger(strval(14)))
-            ->setModifierId(Uuid::fromInteger(strval(14))),
+                ->setName("Big Corp.")
+                ->setIsVisible(true)
+                ->setCategory($categories[1])
+                ->setText($lipsum->paragraph())
+                ->setUrl("https://www.example.com")
+                ->setLogoFile($logos[0])
+                ->setCreated(new DateTime('2020-07-18 05:05'))
+                ->setLastModified(new DateTime('2020-07-18 05:05'))
+                ->setAuthorId(Uuid::fromInteger(strval(14)))
+                ->setModifierId(Uuid::fromInteger(strval(14))),
 
             (new Sponsor())
-            ->setName("ACME Industries")
-            ->setIsVisible(true)
-            ->setCategory($categories[1])
-            ->setText($lipsum->paragraph())
-            ->setUrl(null)
-            ->setLogoFile($logos[1])
-            ->setCreated(new DateTime('2020-07-18 05:05'))
-            ->setLastModified(new DateTime('2020-07-18 05:05'))
-            ->setAuthorId(Uuid::fromInteger(strval(14)))
-            ->setModifierId(Uuid::fromInteger(strval(14))),
+                ->setName("ACME Industries")
+                ->setIsVisible(true)
+                ->setCategory($categories[1])
+                ->setText($lipsum->paragraph())
+                ->setUrl(null)
+                ->setLogoFile($logos[1])
+                ->setCreated(new DateTime('2020-07-18 05:05'))
+                ->setLastModified(new DateTime('2020-07-18 05:05'))
+                ->setAuthorId(Uuid::fromInteger(strval(14)))
+                ->setModifierId(Uuid::fromInteger(strval(14))),
 
             (new Sponsor())
                 ->setName("Not Visible Incorporated")

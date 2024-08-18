@@ -26,7 +26,7 @@ class SponsorType extends AbstractType
     {
         $builder
             ->add('name')
-            ->add('isVisible', null, ['label' => 'Sponsor anzeigen?'])
+            ->add('isVisible', null, ['label' => 'Sponsor anzeigen'])
             ->add('url', null, ['label' => 'URL'])
             ->add('text', HtmlTextareaType::class, [
                 'label' => 'Text',

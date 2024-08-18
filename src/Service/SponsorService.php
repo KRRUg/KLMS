@@ -78,14 +78,14 @@ class SponsorService extends OptimalService
         return $this->categoryRepository->count([]) > 0;
     }
 
-    public function delete(Sponsor $sponsor)
+    public function delete(Sponsor $sponsor): void
     {
         $this->logger->info("Deleted Sponsor {$sponsor->getId()} ({$sponsor->getName()})");
         $this->em->remove($sponsor);
         $this->em->flush();
     }
 
-    public function save(Sponsor $sponsor)
+    public function save(Sponsor $sponsor): void
     {
         $this->logger->info("Create or Update Sponsor {$sponsor->getId()} ({$sponsor->getName()})");
         $this->em->persist($sponsor);
