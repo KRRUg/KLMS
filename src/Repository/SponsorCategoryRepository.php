@@ -47,6 +47,18 @@ class SponsorCategoryRepository extends ServiceEntityRepository
         }
     }
 
+    public function findAllWithVisibleSponsors(): array {
+        return $this->createQueryBuilder('sc')
+            ->addSelect('s')
+            ->leftJoin('sc.sponsors', 's')
+            ->andWhere("s.isVisible = :isVisible")
+            ->orWhere("s.isVisible is null")
+            ->setParameter("isVisible", true)
+            ->getQuery()
+            ->getResult()
+            ;
+    }
+
     // /**
     //  * @return SponsorCategory[] Returns an array of SponsorCategory objects
     //  */
