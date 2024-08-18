@@ -19,7 +19,7 @@
                             <small class="text-muted"><b>{{ email.subject }}</b></small>
                         </td>
                         <td>
-                            {{ email.recipientGroup | groupname }}
+                            {{ email.recipientGroup | group_name }}
                         </td>
                         {% set sending = email.emailSending %}
                         <td>

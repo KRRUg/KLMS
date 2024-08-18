@@ -117,4 +117,32 @@ class UserService
         }
         return $this->getClans(array_unique($clan_uuid), $assoc);
     }
+
+    public function isUserInClan(User|UuidInterface $user, Clan|UuidInterface $clan): bool
+    {
+        $user = $user instanceof User ? $user : $this->userRepo->findOneById($user);
+        $needle = $clan instanceof Clan ? $clan->getUuid() : $clan;
+        foreach ($user->getClans()->toUuidArray() as $clanUuid) {
+            if ($needle->equals($clanUuid->getUuid())) return true;
+        }
+        return false;
+    }
+
+    /**
+     * @param User|UuidInterface $user
+     * @param Clan[]|UuidInterface[] $clans
+     * @return bool
+     */
+    public function isUserInClans(User|UuidInterface $user, array $clans): bool
+    {
+        $user = $user instanceof User ? $user : $this->userRepo->findOneById($user);
+        $userClanUuids = $user->getClans()->toUuidArray();
+        $clanUuids = array_map(fn ($clan) => $clan instanceof Clan ? $clan->getUuid() : $clan, $clans);
+        foreach ($clanUuids as $clanUuid) {
+            foreach ($userClanUuids as $userClanUuid) {
+                if ($clanUuid->equals($userClanUuid->getUuid())) return true;
+            }
+        }
+        return false;
+    }
 }

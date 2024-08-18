@@ -3,6 +3,8 @@
 namespace App\Tests\Integration\Service;
 
 use App\Entity\Clan;
+use App\Entity\User;
+use App\Idm\IdmManager;
 use App\Service\UserService;
 use App\Tests\Integration\DatabaseTestCase;
 use Ramsey\Uuid\Nonstandard\Uuid;
@@ -133,5 +135,57 @@ class UserServiceIntegrationTest extends DatabaseTestCase
             $this->assertArrayHasKey($s, $clans);
             $this->assertEquals($s, $clans[$s]->getUuid()->toString());
         }
+    }
+
+    private function getUserClanData(): array
+    {
+        return [
+            [Uuid::fromInteger(2), Uuid::fromInteger(9), true],
+            [Uuid::fromInteger(2), Uuid::fromInteger(0x3EA), true],
+            [Uuid::fromInteger(5), Uuid::fromInteger(9), false],
+            [Uuid::fromInteger(3), Uuid::fromInteger(0x3EA), true],
+        ];
+    }
+
+    /**
+     * @dataProvider getUserClanData
+     */
+    public function testUserInClan(UuidInterface $userUuid, UuidInterface $clanUuid, bool $expected)
+    {
+        $userService = self::getContainer()->get(UserService::class);
+        $manager = self::getContainer()->get(IdmManager::class);
+        $user = $manager->getRepository(User::class)->findOneById($userUuid);
+        $clan = $manager->getRepository(Clan::class)->findOneById($clanUuid);
+
+        $this->assertEquals($expected, $userService->isUserInClan($userUuid, $clanUuid));
+        $this->assertEquals($expected, $userService->isUserInClan($userUuid, $clan));
+        $this->assertEquals($expected, $userService->isUserInClan($user, $clanUuid));
+        $this->assertEquals($expected, $userService->isUserInClan($user, $clan));
+    }
+
+    private function getUserClansData(): array
+    {
+        return [
+            [Uuid::fromInteger(2), [], false],
+            [Uuid::fromInteger(2), [Uuid::fromInteger(9), Uuid::fromInteger(0x3EA)], true],
+            [Uuid::fromInteger(1), [Uuid::fromInteger(9), Uuid::fromInteger(0x3EA)], true],
+            [Uuid::fromInteger(5), [Uuid::fromInteger(9), Uuid::fromInteger(0x3EA)], false],
+        ];
+    }
+
+    /**
+     * @dataProvider getUserClansData
+     */
+    public function testUserInClans(UuidInterface $userUuid, array $clanUuids, bool $expected)
+    {
+        $userService = self::getContainer()->get(UserService::class);
+        $manager = self::getContainer()->get(IdmManager::class);
+        $user = $manager->getRepository(User::class)->findOneById($userUuid);
+        $clans = $manager->getRepository(Clan::class)->findById($clanUuids);
+
+        $this->assertEquals($expected, $userService->isUserInClans($userUuid, $clanUuids));
+        $this->assertEquals($expected, $userService->isUserInClans($userUuid, $clans));
+        $this->assertEquals($expected, $userService->isUserInClans($user, $clanUuids));
+        $this->assertEquals($expected, $userService->isUserInClans($user, $clans));
     }
 }

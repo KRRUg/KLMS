@@ -59,7 +59,7 @@
                 <div class="card-text">
                     <h3 class="pt-4">Mitglieder</h3>
                     {% set show_all = settings.get('community.all') or member or is_granted('ROLE_ADMIN_USER') %}
-                    {% set members_shown = show_all ? clan.users : clan.users | filter(g => g is registered_gamer) %}
+                    {% set members_shown = show_all ? clan.users : clan.users | filter(g => g is registered_user) %}
                     {% set count = 0 %}
                     {% if members_shown is not empty %}
                     <table class="table table-striped table-hover">
@@ -72,7 +72,7 @@
                         </thead>
                         {% for user in members_shown | sort((a,b) => a.nickname <=> b.nickname) %}
                             {% set userIsAdmin = user in clan.admins %}
-                            {% set userOnLan = user is registered_gamer %}
+                            {% set userOnLan = user is registered_user %}
                             {% if userOnLan %}{% set count = count + 1 %}{% endif %}
                             {% set muteUser = not userOnLan and not settings.get('community.all') %}
                             <tr {% if muteUser %}class="text-secondary"{% endif %}>
