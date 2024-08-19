@@ -77,6 +77,8 @@ class ShopFixture extends Fixture implements DependentFixtureInterface
             ->setStatus(ShopOrderStatus::Paid)
             ->addShopOrderPosition((new ShopOrderPositionTicket())->setTicket($tickets[0])->setPrice(1337))
             ->addShopOrderPosition((new ShopOrderPositionAddon())->setAddon($addon1))
+            ->addShopOrderPosition((new ShopOrderPositionAddon())->setAddon($addon1))
+            ->addShopOrderPosition((new ShopOrderPositionAddon())->setAddon($addon2))
             ->addShopOrderHistory((new ShopOrderHistory())->setAction(ShopOrderHistoryAction::PaymentSuccessful)->setLoggedAt(new DateTimeImmutable('2024-07-21 05:10'))->setText('payment successfully done with credit card'))
         ;
 

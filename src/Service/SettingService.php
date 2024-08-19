@@ -49,6 +49,7 @@ class SettingService
 
         'lan.signup.enabled' => [self::TB_DESCRIPTION => 'LAN-Anmeldung erlauben', self::TB_TYPE => self::TB_TYPE_BOOL],
         'lan.signup.info' => [self::TB_DESCRIPTION => 'Inhalt der beim "Anmelden" zu einer LAN angezeigt wird', self::TB_TYPE => self::TB_TYPE_HTML],
+        'lan.signup.text.single' => [self::TB_DESCRIPTION => 'Text der als Beschreibung eines Tickets angezeigt wird.', self::TB_TYPE => self::TB_TYPE_HTML],
         'lan.signup.price' => [self::TB_DESCRIPTION => 'Preis für einen Eintritt in Cent.', self::TB_TYPE => self::TB_TYPE_STRING],
         'lan.signup.discount.price' => [self::TB_DESCRIPTION => 'Preis für einen Eintritt mit Gruppenermäßigung in Cent.', self::TB_TYPE => self::TB_TYPE_STRING],
         'lan.signup.discount.limit' => [self::TB_DESCRIPTION => 'Gruppenermäßigung ab x Eintritte.', self::TB_TYPE => self::TB_TYPE_STRING],

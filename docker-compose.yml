@@ -4,9 +4,9 @@ services:
   database:
     image: postgres:12
     environment:
-      POSTGRES_USER: ${DATABASE_USER:-app}
-      POSTGRES_PASSWORD: ${DATABASE_PASSWORD:-app}
-      POSTGRES_DB: ${DATABASE_DB:-app}
+      POSTGRES_USER: 'krru'
+      POSTGRES_PASSWORD: 'krru'
+      POSTGRES_DB: 'klms'
     ports: [ "5432:5432" ]
     volumes:
       - database:/var/lib/postgresql/data:rw

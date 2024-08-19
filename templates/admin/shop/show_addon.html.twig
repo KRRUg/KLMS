@@ -1,0 +1,33 @@
+{% embed "modules/modals/skeleton.html.twig"
+    with {
+    'id': 'showAddonModal',
+    'title' : 'Addon',
+    'dialogClass' : 'modal-sm'
+} %}
+    {% block modalBody %}
+        <div class="container-fluid">
+            <div class="d-flex justify-content-center">
+                {{ form_start(form) }}
+                {{ form_rest(form) }}
+                <div class="p-2">
+                    <button type="submit" class="btn btn-sm btn-primary">Speichern</button>
+                </div>
+                {{ form_end(form) }}
+            </div>
+        </div>
+    {% endblock %}
+
+    {% block modalFooter %}
+        {% macro confirm_button(title, href, csrf_token, class="primary", confirm=false) %}
+            <form method="post" action="{{ href }}" {% if confirm %} data-toggle="confirmModal" data-modal-title="Bestätigen" data-modal-text="Sind Sie sicher?" {% endif %}>
+                <input type="hidden" name="_token" value="{{ csrf_token(csrf_token) }}">
+                <button type="submit" class="btn btn-sm btn-{{ class }} w-100">{{ title }}</button>
+            </form>
+        {% endmacro %}
+
+        {% if csrf_token is defined %}
+            {{ _self.confirm_button('Löschen', path('admin_shop_addon_delete', { 'id': addon.id }), csrf_token, "danger", true) }}
+        {% endif %}
+        <button type="button" class="btn btn-sm btn-secondary" data-dismiss="modal">Schließen</button>
+    {% endblock %}
+{% endembed %}
