@@ -15,6 +15,7 @@ use App\Helper\EmailRecipient;
 use App\Idm\IdmManager;
 use App\Idm\IdmRepository;
 use App\Repository\ShopAddonsRepository;
+use App\Repository\ShopOrderPositionRepository;
 use App\Repository\ShopOrderRepository;
 use DateTimeImmutable;
 use Doctrine\ORM\EntityManagerInterface;
@@ -24,6 +25,7 @@ use Ramsey\Uuid\UuidInterface;
 class ShopService
 {
     private readonly ShopOrderRepository $orderRepository;
+    private readonly ShopOrderPositionRepository $shopOrderPositionRepository;
     private readonly ShopAddonsRepository $shopAddonsRepository;
     private readonly SettingService $settingService;
     private readonly EntityManagerInterface $em;
@@ -33,10 +35,11 @@ class ShopService
 
     public const DEFAULT_TICKET_PRICE = 5000;
 
-    public function __construct(ShopOrderRepository $orderRepository, ShopAddonsRepository $shopAddonsRepository, IdmManager $idmManager,
-                                SettingService      $settingService, TicketService $ticketService, EmailService $emailService, EntityManagerInterface $em)
+    public function __construct(ShopOrderRepository $orderRepository, ShopOrderPositionRepository $shopOrderPositionRepository, ShopAddonsRepository $shopAddonsRepository,
+                                IdmManager          $idmManager, SettingService $settingService, TicketService $ticketService, EmailService $emailService, EntityManagerInterface $em)
     {
         $this->orderRepository = $orderRepository;
+        $this->shopOrderPositionRepository = $shopOrderPositionRepository;
         $this->shopAddonsRepository = $shopAddonsRepository;
         $this->userRepo = $idmManager->getRepository(User::class);
         $this->settingService = $settingService;
@@ -163,9 +166,9 @@ class ShopService
         return $this->orderRepository->countOrders($uuid, ShopOrderStatus::Created) != 0;
     }
 
-    public function getAddons(): array
+    public function getAddons(bool $all = false): array
     {
-        return $this->shopAddonsRepository->findActive();
+        return !$all ? $this->shopAddonsRepository->findActive() : $this->shopAddonsRepository->findAll();
     }
 
     public function allocOrder(User|UuidInterface $user): ShopOrder
@@ -205,5 +208,47 @@ class ShopService
     {
         $uuid = $user instanceof User ? $user->getUuid() : $user;
         return $this->orderRepository->queryOrders($uuid, $status);
+    }
+
+    public function toggleAddonActivity(ShopAddon $addon): void
+    {
+        $addon->setActive(!$addon->isActive());
+        $this->em->flush();
+    }
+
+    public function allocAddon(): ShopAddon
+    {
+        return (new ShopAddon())->setActive(false)->setPrice(100)->setName('Neues Addon')->setDescription('');
+    }
+
+    public function saveAddon(ShopAddon $addon): void
+    {
+        $this->em->persist($addon);
+        $this->em->flush();
+    }
+
+    public function deleteAddon(ShopAddon $addon): void
+    {
+        $this->em->remove($addon);
+        $this->em->flush();;
+    }
+
+    /**
+     * @return array [[User, Text, Price],...]
+     */
+    public function getAddonOrders(): array
+    {
+        $sop = $this->shopOrderPositionRepository->getOrderedAddons(ShopOrderStatus::Paid);
+        $uuids = array_map(fn($p) => $p->getOrder()->getOrderer(), $sop);
+
+        // preload users
+        $this->userRepo->findById($uuids);
+
+        $result = [];
+        foreach ($sop as $item) {
+            $result[] = ['user' => $this->userRepo->findOneById($item->getOrder()->getOrderer()),
+                'text' => $item->getText(), 'price' => $item->getPrice()];
+        }
+        return $result;
     }
 }

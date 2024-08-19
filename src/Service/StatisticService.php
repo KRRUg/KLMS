@@ -3,25 +3,25 @@
 namespace App\Service;
 
 use App\Repository\SeatRepository;
-use App\Repository\ShopOrderRepository;
+use App\Repository\ShopOrderPositionRepository;
 use App\Repository\TicketRepository;
 
 class StatisticService extends OptimalService
 {
     private readonly SeatRepository $seatRepository;
     private readonly TicketRepository $ticketRepository;
-    private readonly ShopOrderRepository $shopOrderRepository;
+    private readonly ShopOrderPositionRepository $shopOrderPositionRepository;
 
     public function __construct(
-        SeatRepository      $seatRepository,
-        TicketRepository    $ticketRepository,
-        ShopOrderRepository $shopOrderRepository,
-        SettingService      $settingService
+        SeatRepository              $seatRepository,
+        TicketRepository            $ticketRepository,
+        ShopOrderPositionRepository $shopOrderPositionRepository,
+        SettingService              $settingService
     ) {
         parent::__construct($settingService);
         $this->seatRepository = $seatRepository;
         $this->ticketRepository = $ticketRepository;
-        $this->shopOrderRepository = $shopOrderRepository;
+        $this->shopOrderPositionRepository = $shopOrderPositionRepository;
     }
 
     protected static function getSettingKey(): string
@@ -64,7 +64,7 @@ class StatisticService extends OptimalService
 
     public function countOrderedTickets(): int
     {
-        return $this->ticketRepository->count([]) + $this->shopOrderRepository->countOrderedTickets();
+        return $this->ticketRepository->count([]) + $this->shopOrderPositionRepository->countOrderedTickets();
     }
 
     public function countRedeemedTickets(): int

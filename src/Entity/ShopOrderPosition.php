@@ -5,7 +5,7 @@ namespace App\Entity;
 use App\Repository\ShopOrderPositionRepository;
 use Doctrine\ORM\Mapping as ORM;
 
-#[ORM\Entity]
+#[ORM\Entity(repositoryClass: ShopOrderPositionRepository::class)]
 #[ORM\Table(name: "shop_order_position")]
 #[ORM\InheritanceType('SINGLE_TABLE')]
 #[ORM\DiscriminatorColumn(name: 'type', type: 'string', length: 25)]
@@ -17,7 +17,7 @@ abstract class ShopOrderPosition
     #[ORM\Column(type: 'integer')]
     private ?int $id = null;
 
-    #[ORM\ManyToOne(inversedBy: 'shopOrderPositions')]
+    #[ORM\ManyToOne(fetch: 'EAGER', inversedBy: 'shopOrderPositions')]
     #[ORM\JoinColumn(name: 'order_id', nullable: false)]
     private ?ShopOrder $order = null;
 

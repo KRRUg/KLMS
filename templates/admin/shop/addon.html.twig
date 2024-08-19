@@ -1,0 +1,71 @@
+{% extends 'admin/adminBase.html.twig' %}
+
+{% block title %}Addons - KLMS - Admin{% endblock %}
+{% block siteheading %}<i class="fas fa-cart-shopping"></i> Addons{% endblock %}
+{% block main %}
+    <div class="row">
+        <div class="col-12">
+{#            <h3>Verfügbar</h3>#}
+            <div class="mb-2">
+                <a id="new" class="btn btn-sm btn-success" data-toggle="ajaxModal" href="{{ path('admin_shop_addon_new') }}"><i class="fas fa-plus"></i> Anlegen</a>
+                <a id="export" class="btn btn-sm btn-primary"  href="{{ path('admin_shop_addon_export') }}">Verkäufe exportieren (.csv)</a>
+            </div>
+            <div class="card">
+                <table class="table table-striped admin-data-table">
+                    <thead>
+                    <tr>
+                        <th scope="col" style="width: 4em;" class="text-nowrap w-1">ID</th>
+                        <th scope="col" style="width: 4em;">Sichtbar</th>
+                        <th scope="col" style="width: 4em;">Index</th>
+                        <th scope="col" class="flex-fill">Name</th>
+                        <th scope="col" class="">Preis</th>
+                        <th
+                                class="text-nowrap w-1"
+                                data-orderable="false"
+                                data-searchable="false"
+                        >Aktionen</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for addon in addons %}
+                        <tr>
+                            <td class="text-center">{{ addon.id }}</td>
+                            <td class="text-center">
+                                <a href="{{ path('admin_shop_addon_toggle', {'id' : addon.id}) }}" title="Sichtbarkeit ändern">{% if addon.isActive %}<i class="fas fa-eye text-success" title="sichtbar"></i>{% else %}<i class="fas fa-eye-slash text-danger" title="ausgeblendet"></i>{% endif %}</a>
+                            </td>
+                            <td>{{ addon.sortIndex }}</td>
+                            <td>{{ addon.name }}</td>
+                            <td class="text-right" data-order="{{ addon.price }}">{{ (addon.price/100) | format_currency('EUR') }}</td>
+                            <td>
+                                <a class="btn btn-sm btn-outline-dark text-nowrap" data-toggle="ajaxModal" href="{{ path('admin_shop_addon_edit', {'id' : addon.id}) }}">
+                                    <i class="fas fa-money-check"></i> Details
+                                </a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+{#    <div class="row mt-4">#}
+{#        <div class="col-12">#}
+{#            <h3>Verkäufe</h3>#}
+{#            <div class="mb-2">#}
+{#                <a id="export" class="btn btn-sm btn-primary"  href="{{ path('admin_shop_addon_export') }}">Verkäufe exportieren (.csv)</a>#}
+{#            </div>#}
+{#            <div class="card">#}
+{#                <table class="table table-striped admin-data-table">#}
+{#                    <thead>#}
+{#                    <tr>#}
+{#                        <th></th>#}
+{#                    </tr>#}
+{#                    </thead>#}
+{#                    <tbody>#}
+
+{#                    </tbody>#}
+{#                </table>#}
+{#            </div>#}
+{#        </div>#}
+{#    </div>#}
+{% endblock %}
