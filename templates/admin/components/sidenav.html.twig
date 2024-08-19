@@ -60,6 +60,9 @@
                     <a class="nav-link {% if app.request.get('_route') starts with 'admin_shop' %}active{% endif %}" href="{{ path('admin_shop') }}"><i class="fas fa-cart-shopping fa-fw"></i> Bestellungen </a>
                 </li>
                 <li class="nav-item">
+                    <a class="nav-link {% if app.request.get('_route') starts with 'admin_shop_addon' %}active{% endif %}" href="{{ path('admin_shop_addon') }}"><i class="fas fa-plus fa-fw"></i> Addons </a>
+                </li>
+                <li class="nav-item">
                     <a class="nav-link {% if app.request.get('_route') starts with 'admin_payment' %}active{% endif %}" href="{{ path('admin_payment') }}"><i class="fas fa-ticket fa-fw"></i> Tickets </a>
                 </li>
                 {% endif %}
