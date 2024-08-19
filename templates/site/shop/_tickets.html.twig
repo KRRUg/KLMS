@@ -51,11 +51,15 @@
             <h3 class="card-title text-center">{{ (price / 100) | format_currency('EUR') }}</h3>
             <div class="card-text">
                 <p>
+                {% if settings.get('lan.signup.text.single') is not empty %}
+                    {{ settings.get('lan.signup.text.single') | raw }}
+                {% else %}
                     Erlebe die ultimative LAN-Party mit unserem Eintrittsticket! Genieße stundenlanges Gaming,
                     spannende
                     Turniere und eine unvergleichliche Gemeinschaft. Dein Ticket bietet dir Zugang zu allen
                     Events,
                     Wettbewerben und exklusiven Bereichen. Sei dabei und kämpfe um den Sieg!
+                {% endif %}
                 </p>
             </div>
         </div>
