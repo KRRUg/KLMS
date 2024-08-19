@@ -19,7 +19,7 @@
   }
 
   .seat-reserved {
-    @include seat(red)
+    @include seat(#0080C0)
   }
 
   .seat-own {
@@ -28,7 +28,6 @@
 
   .seat-own-clan {
     @include seat(#ffbc4b)
-    //@include seat(#ffbc4b)
   }
 
   .seat-locked {

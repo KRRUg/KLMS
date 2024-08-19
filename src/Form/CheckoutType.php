@@ -3,6 +3,7 @@
 namespace App\Form;
 
 use App\Entity\ShopAddon;
+use App\Service\ShopService;
 use App\Service\TicketService;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\IntegerType;
@@ -13,7 +14,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 class CheckoutType extends AbstractType
 {
-    public const MAX_COUNT = 20;
+    private const MAX_COUNT = ShopService::MAX_ADDON_COUNT;
 
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {

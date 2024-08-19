@@ -2,9 +2,9 @@
     <div class="col">
         <h1>LAN Eintritt kaufen</h1>
         <div class="mb-3">
-            {% if settings.get('lan.signup.info') is not empty %}
+            {% if settings.get('lan.signup.info.ticket') is not empty %}
                 <div>
-                    {{ settings.get('lan.signup.info') | raw }}
+                    {{ settings.get('lan.signup.info.ticket') | raw }}
                 </div>
             {% else %}
                 <p>

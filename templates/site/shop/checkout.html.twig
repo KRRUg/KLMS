@@ -27,6 +27,9 @@
                     <div class="row">
                         <div class="col">
                             <p>Durch das Anmelden zu Veranstaltung stimmst du unseren {{ 'agb' | slug_link(null, true) }} zu.</p>
+                            {% if settings.get('lan.signup.info') is not empty %}
+                                {{ settings.get('lan.signup.info') | raw }}
+                            {% endif %}
                         </div>
                     </div>
                 {% endif %}
