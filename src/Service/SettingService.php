@@ -48,9 +48,11 @@ class SettingService
         'community.all' => [self::TB_DESCRIPTION => 'Alle IDM User in Community anzeigen', self::TB_TYPE => self::TB_TYPE_BOOL],
 
         'lan.signup.enabled' => [self::TB_DESCRIPTION => 'LAN-Anmeldung erlauben', self::TB_TYPE => self::TB_TYPE_BOOL],
-        'lan.signup.info' => [self::TB_DESCRIPTION => 'Inhalt der beim "Anmelden" zu einer LAN angezeigt wird', self::TB_TYPE => self::TB_TYPE_HTML],
+        'lan.signup.info' => [self::TB_DESCRIPTION => 'Text der beim Bestellbutton angezeigt wird.', self::TB_TYPE => self::TB_TYPE_HTML],
+        'lan.signup.info.ticket' => [self::TB_DESCRIPTION => 'Text der beim Ticketshop angezeigt wird.', self::TB_TYPE => self::TB_TYPE_HTML],
+        'lan.signup.info.addon' => [self::TB_DESCRIPTION => 'Text der beim Addonshop angezeigt wird.', self::TB_TYPE => self::TB_TYPE_HTML],
         'lan.signup.text.single' => [self::TB_DESCRIPTION => 'Text der als Beschreibung eines Tickets angezeigt wird.', self::TB_TYPE => self::TB_TYPE_HTML],
-        'lan.signup.price' => [self::TB_DESCRIPTION => 'Preis für einen Eintritt in Cent.', self::TB_TYPE => self::TB_TYPE_STRING],
+        'lan.signup.price' => [self::TB_DESCRIPTION => 'Preis für einen Eintritt in Cent.', self::TB_TYPE => self::TB_TYPE_STRING, self::TB_DEFAULT_VALUE => ShopService::DEFAULT_TICKET_PRICE],
         'lan.signup.discount.price' => [self::TB_DESCRIPTION => 'Preis für einen Eintritt mit Gruppenermäßigung in Cent.', self::TB_TYPE => self::TB_TYPE_STRING],
         'lan.signup.discount.limit' => [self::TB_DESCRIPTION => 'Gruppenermäßigung ab x Eintritte.', self::TB_TYPE => self::TB_TYPE_STRING],
         'lan.signup.payment_details' => [self::TB_DESCRIPTION => 'Bankdaten für die Zahlung von Bestellungen', self::TB_TYPE => self::TB_TYPE_HTML],
@@ -85,6 +87,7 @@ class SettingService
         'email.notify.subject' => [self::TB_DESCRIPTION => 'Betreff der Benachrichtigungs-Email', self::TB_TYPE => self::TB_TYPE_STRING],
         'email.shop.text' => [self::TB_DESCRIPTION => 'Text der Bestellungsemail', self::TB_TYPE => self::TB_TYPE_HTML],
         'email.shop.subject' => [self::TB_DESCRIPTION => 'Text der Bestellungsemail', self::TB_TYPE => self::TB_TYPE_STRING],
+        'email.signature' => [self::TB_DESCRIPTION => 'Grußformel für die autmatischen Emails.', self::TB_TYPE => self::TB_TYPE_HTML],
 
         'link.fb' => [self::TB_DESCRIPTION => 'Link zur Facebook Seite', self::TB_TYPE => self::TB_TYPE_URL],
         'link.insta' => [self::TB_DESCRIPTION => 'Link zur Instagram Seite', self::TB_TYPE => self::TB_TYPE_URL],
