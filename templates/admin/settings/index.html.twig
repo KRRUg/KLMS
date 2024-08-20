@@ -17,11 +17,12 @@
                                 <small class="text-muted">{{ desc }}</small>
                             </td>
                             <td style="width: 75%">
+                                {% set SettingType = enum('\\App\\Service\\SettingType') %}
                                 {% set value = service.get(key) %}
                                 {% if value is not empty %}
-                                    {% if service.getType(key) == 'bool' %}
+                                    {% if service.getType(key) == SettingType.Bool %}
                                         {{ value ? 'Aktiviert' : 'Deaktiviert' }}
-                                    {% elseif service.getType(key) == 'money' %}
+                                    {% elseif service.getType(key) == SettingType.Money %}
                                         {% if value is not empty %}{{ (value/100) | format_currency('EUR') }}{% endif %}
                                     {% else %}
                                         {{ value | striptags | u.truncate(100, '...', false) | raw }}
