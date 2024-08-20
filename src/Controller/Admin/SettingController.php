@@ -4,10 +4,13 @@ namespace App\Controller\Admin;
 
 use App\Form\HtmlTextareaType;
 use App\Service\SettingService;
+use App\Service\SettingType;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\HiddenType;
+use Symfony\Component\Form\Extension\Core\Type\IntegerType;
+use Symfony\Component\Form\Extension\Core\Type\MoneyType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Core\Type\UrlType;
 use Symfony\Component\HttpFoundation\Request;
@@ -60,18 +63,25 @@ class SettingController extends AbstractController
         $fb = $this->createFormBuilder($this->service->getSettingObject($key))
             ->add('key', HiddenType::class);
 
+        $options = ['required' => false, 'label' => false];
         switch (SettingService::getType($key)) {
             default:
-            case SettingService::TB_TYPE_STRING:
-                $fb->add('text', TextType::class, ['required' => false, 'label' => false]);
+            case SettingType::String:
+                $fb->add('text', TextType::class, $options);
                 break;
-            case SettingService::TB_TYPE_HTML:
-                $fb->add('text', HtmlTextareaType::class, ['required' => false, 'label' => false]);
+            case SettingType::HTML:
+                $fb->add('text', HtmlTextareaType::class, $options);
                 break;
-            case SettingService::TB_TYPE_URL:
-                $fb->add('text', UrlType::class, ['required' => false, 'label' => false]);
+            case SettingType::URL:
+                $fb->add('text', UrlType::class, $options);
                 break;
-            case SettingService::TB_TYPE_FILE:
+            case SettingType::Integer:
+                $fb->add('text', IntegerType::class, $options);
+                break;
+            case SettingType::Money:
+                $fb->add('text', MoneyType::class, array_merge($options, ['divisor' => 100]));
+                break;
+            case SettingType::File:
                 $fb->add('file', VichFileType::class, [
                     'required' => false,
                     'label' => false,
@@ -80,7 +90,7 @@ class SettingController extends AbstractController
                     'delete_label' => 'Löschen',
                     ]);
                 break;
-            case SettingService::TB_TYPE_BOOL:
+            case SettingType::Bool:
                 $fb->add('text', ChoiceType::class, [
                     'choices' => [
                         'Aktiviert' => '1',

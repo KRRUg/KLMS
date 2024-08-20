@@ -21,6 +21,8 @@
                                 {% if value is not empty %}
                                     {% if service.getType(key) == 'bool' %}
                                         {{ value ? 'Aktiviert' : 'Deaktiviert' }}
+                                    {% elseif service.getType(key) == 'money' %}
+                                        {% if value is not empty %}{{ (value/100) | format_currency('EUR') }}{% endif %}
                                     {% else %}
                                         {{ value | striptags | u.truncate(100, '...', false) | raw }}
                                     {% endif %}
