@@ -47,11 +47,11 @@ class CheckoutType extends AbstractType
                 'empty_data' => 0,
                 'attr' => [
                     'min' => 0,
-                    'max' => ShopService::MAX_ADDON_COUNT,
+                    'max' => $addon->getMaxQuantity() ?? ShopService::MAX_ADDON_COUNT,
                 ],
                 'constraints' => [
                     new Assert\GreaterThanOrEqual(0),
-                    new Assert\LessThanOrEqual(ShopService::MAX_ADDON_COUNT)
+                    new Assert\LessThanOrEqual($addon->getMaxQuantity() ?? ShopService::MAX_ADDON_COUNT)
                 ]
             ]);
         }

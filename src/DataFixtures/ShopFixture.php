@@ -38,9 +38,16 @@ class ShopFixture extends Fixture implements DependentFixtureInterface
             ->setPrice(1337)
             ->setActive(false);
 
+        $addon4 = (new ShopAddon())
+            ->setName('Own Chair')
+            ->setPrice(0)
+            ->setMaxQuantity(1)
+            ->setActive(true);
+
         $manager->persist($addon1);
         $manager->persist($addon2);
         $manager->persist($addon3);
+        $manager->persist($addon4);
 
         $user13 = Uuid::fromInteger(strval(13));
         $user14 = Uuid::fromInteger(strval(14));
