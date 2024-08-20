@@ -6,7 +6,6 @@ use App\Entity\ShopOrder;
 use App\Entity\User;
 use App\Exception\OrderLifecycleException;
 use App\Form\CheckoutType;
-use App\Repository\ShopOrderRepository;
 use App\Service\SettingService;
 use App\Service\ShopService;
 use App\Service\TicketService;
@@ -151,7 +150,6 @@ class ShopController extends AbstractController
             } catch (OrderLifecycleException $e) {
                 $this->addFlash('error', "Bestellung #{$order->getId()} konnte nicht geändert werden.");
             }
-            $show_id = $order->getId();
         }
 
         // show open order with option to cancel

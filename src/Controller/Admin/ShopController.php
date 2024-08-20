@@ -63,6 +63,9 @@ class ShopController extends AbstractController
                 case 'undo':
                     $this->shopService->setOrderPaidUndo($order);
                     break;
+                case 'delete':
+                    $this->shopService->deleteOrder($order);
+                    break;
                 default:
                     $this->addFlash('error', 'Invalid action specified.');
                     return $this->redirectToRoute('admin_shop');

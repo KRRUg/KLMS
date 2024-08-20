@@ -8,7 +8,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ORM\Entity]
 class ShopOrderPositionTicket extends ShopOrderPosition
 {
-    #[ORM\OneToOne(mappedBy: 'shopOrderPosition', cascade: ['persist', 'remove'])]
+    #[ORM\OneToOne(mappedBy: 'shopOrderPosition', cascade: ['persist'])]
     private ?Ticket $ticket = null;
 
     public function getTicket(): ?Ticket

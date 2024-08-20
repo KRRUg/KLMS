@@ -59,10 +59,13 @@
             </form>
         {% endmacro %}
 
-        {% if order.isOpen() %}
-            {% set href = path('admin_shop_edit', {"id" : order.id}) %}
+        {% set href = path('admin_shop_edit', {"id" : order.id}) %}
+        {% if order.open %}
             {{ _self.confirm_button("Freigeben", href, csrf_token, "paid", "primary", true) }}
             {{ _self.confirm_button("Stornieren", href, csrf_token, "cancel", "danger", true) }}
+        {% endif %}
+        {% if order.canceled %}
+            {{ _self.confirm_button("Löschen", href, csrf_token, "delete", "danger", true) }}
         {% endif %}
         <div class="flex-fill"></div>
         <button type="button" class="btn btn-sm btn-secondary" data-dismiss="modal">Schließen</button>
