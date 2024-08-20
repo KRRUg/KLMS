@@ -61,7 +61,7 @@
 
         {% set href = path('admin_shop_edit', {"id" : order.id}) %}
         {% if order.open %}
-            {{ _self.confirm_button("Freigeben", href, csrf_token, "paid", "primary", true) }}
+            {{ _self.confirm_button("Zahlung bestätigen", href, csrf_token, "paid", "primary", true) }}
             {{ _self.confirm_button("Stornieren", href, csrf_token, "cancel", "danger", true) }}
         {% endif %}
         {% if order.canceled %}
