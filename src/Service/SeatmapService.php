@@ -49,7 +49,7 @@ class SeatmapService
 
     /**
      * @param Seat[] $seats
-     * @return array
+     * @return (?User)[]
      */
     public function getSeatedUser(array $seats): array
     {
