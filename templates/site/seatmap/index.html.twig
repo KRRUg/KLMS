@@ -8,13 +8,14 @@
         <div class="card">
             <div class="card-body">
                 <h1 class="card-title">Sitzplan</h1>
+                {% set tempSeat = user is not empty and user is seated_user and user is not registered_user %}
                 <div class="container seatmap-legend my-3">
                     <div class="row justify-content-center">
                         <div class="col-md-4 col-lg-2 d-flex"><span class="seat seat-empty"></span><span class="align-self-center ml-1"> Frei </span></div>
                         <div class="col-md-4 col-lg-2 d-flex"><span class="seat seat-taken"></span><span class="align-self-center ml-1"> Reserviert</span></div>
                         <div class="col-md-4 col-lg-2 d-flex"><span class="seat seat-locked"></span><span class="align-self-center ml-1"> Gesperrt</span></div>
                         {% if user is not empty %}
-                            <div class="col-md-4 col-lg-2 d-flex"><span class="seat seat-own"></span><span class="align-self-center ml-1"> Dein Platz</span></div>
+                            <div class="col-md-4 col-lg-2 d-flex"><span class="seat seat-own"></span><span class="align-self-center ml-1">{{ tempSeat ? "Vorgemerkt" : "Dein Platz" }}</span></div>
                             <div class="col-md-4 col-lg-2 d-flex"><span class="seat seat-own-clan"></span><span class="align-self-center ml-1"> Dein Clan</span></div>
                         {% endif %}
                     </div>
@@ -24,10 +25,20 @@
                     Der Sitzplan ist aktuell gesperrt und kann zurzeit nur von den Administratoren bearbeitet werden.
                 </div>
                 {% endif %}
-                {% if user is not empty and user is seated_user and user is not registered_user %}
+                {% if tempSeat %}
                 <div class="alert alert-warning text-center" role="alert">
                     Dein Sitzplatz ist derzeit nur unverbindlich reserviert.
                     <a href="{{ path('shop_checkout') }}" class="alert-link">Kaufe</a> ein Ticket für einen fixen Platz.
+                </div>
+                {% endif %}
+                {% if user is not empty and user is not seated_user and user is not registered_user %}
+                <div class="alert alert-warning text-center" role="alert">
+                {% if settings.get('lan.seatmap.allow_booking_for_non_paid', false) %}
+                    Du hast noch kein Ticket. Du kannst einen Sitzplatz unverbindlich vormerken.
+                    Kaufe ein <a href="{{ path('shop_checkout') }}">Ticket</a> um einen Fixplatz zu sichern.
+                {% else %}
+                    Kaufe und bezahle dein <a href="{{ path('shop_checkout') }}">Ticket</a> um einen Sitzplatz zu reservieren.
+                {% endif %}
                 </div>
                 {% endif %}
             </div>

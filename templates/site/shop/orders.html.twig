@@ -22,7 +22,7 @@
                                 </button>
                             </h5>
                         </div>
-                        <div id="order-{{ o.id }}" class="collapse {{ o.id == show_id ? "show" : "" }}" data-parent="#order-list">
+                        <div id="order-{{ o.id }}" class="collapse {{ loop.first ? "show" : "" }}" data-parent="#order-list">
                             <div class="card-body">
                                 <div>
                                     {% include 'site/shop/_order.html.twig' with { order: o} %}
@@ -73,7 +73,7 @@
                                 </button>
                             </h5>
                         </div>
-                        <div id="order-{{ o.id }}" class="collapse {{ o.id == show_id ? "show" : "" }}" data-parent="#order-list">
+                        <div id="order-{{ o.id }}" class="collapse" data-parent="#order-list">
                             <div class="card-body">
                                 {% include 'site/shop/_order.html.twig' with { order: o} %}
                             </div>

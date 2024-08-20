@@ -120,8 +120,6 @@ class ShopController extends AbstractController
     #[Route(path: '/orders', name: '_orders', methods: ['GET', 'POST'])]
     public function orders(Request $request): Response
     {
-        $show_id = $request->request->getInt('show', -1);
-
         /** @var User $user */
         $user = $this->getUser()->getUser();
         $orders = $this->shopService->getOrderByUser($user);
@@ -159,7 +157,6 @@ class ShopController extends AbstractController
         // show open order with option to cancel
         return $this->render('site/shop/orders.html.twig', [
             'orders' => $orders,
-            'show_id' => $show_id,
             'csrf_token_cancel' => self::CSRF_TOKEN_CANCEL,
         ]);
     }
