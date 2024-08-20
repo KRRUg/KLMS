@@ -14,89 +14,83 @@ class SettingService
     private const TB_TYPE = 'type';
     private const TB_DESCRIPTION = 'description';
     private const TB_DEFAULT_VALUE = 'default';
-    final public const TB_TYPE_STRING = 'string';
-    final public const TB_TYPE_HTML = 'html';
-    final public const TB_TYPE_URL = 'url';
-    final public const TB_TYPE_FILE = 'file';
-    final public const TB_TYPE_BOOL = 'bool';
 
     // //////////////////////////////////////////////
     // / Text block names
     // //////////////////////////////////////////////
 
     private const TEXT_BLOCK_KEYS = [
-        'site.title' => [self::TB_DESCRIPTION => 'Titel der Seite', self::TB_TYPE => self::TB_TYPE_STRING],
-        'site.title.show' => [self::TB_DESCRIPTION => 'Titel der Seite anzeigen', self::TB_TYPE => self::TB_TYPE_BOOL],
-        'site.subtitle' => [self::TB_DESCRIPTION => 'Untertitel der Seite', self::TB_TYPE => self::TB_TYPE_STRING],
-        'site.subtitle.show' => [self::TB_DESCRIPTION => 'Untertitel der Seite anzeigen', self::TB_TYPE => self::TB_TYPE_BOOL],
-        'site.about' => [self::TB_DESCRIPTION => 'Über uns, Homepage links unten', self::TB_TYPE => self::TB_TYPE_HTML],
-        'site.organisation' => [self::TB_DESCRIPTION => 'Organisationsname / Vereinsname', self::TB_TYPE => self::TB_TYPE_STRING],
+        'site.title' => [self::TB_DESCRIPTION => 'Titel der Seite', self::TB_TYPE => SettingType::String],
+        'site.title.show' => [self::TB_DESCRIPTION => 'Titel der Seite anzeigen', self::TB_TYPE => SettingType::Bool],
+        'site.subtitle' => [self::TB_DESCRIPTION => 'Untertitel der Seite', self::TB_TYPE => SettingType::String],
+        'site.subtitle.show' => [self::TB_DESCRIPTION => 'Untertitel der Seite anzeigen', self::TB_TYPE => SettingType::Bool],
+        'site.about' => [self::TB_DESCRIPTION => 'Über uns, Homepage links unten', self::TB_TYPE => SettingType::HTML],
+        'site.organisation' => [self::TB_DESCRIPTION => 'Organisationsname / Vereinsname', self::TB_TYPE => SettingType::String],
 
-        'sponsor.enabled' => [self::TB_DESCRIPTION => 'Sponsorenbanner einschalten', self::TB_TYPE => self::TB_TYPE_BOOL],
-        'sponsor.banner.show' => [self::TB_DESCRIPTION => 'Sponsoren-Banner anzeigen', self::TB_TYPE => self::TB_TYPE_BOOL],
-        'sponsor.banner.title' => [self::TB_DESCRIPTION => 'Titel des Sponsorenbanner', self::TB_TYPE => self::TB_TYPE_STRING],
-        'sponsor.banner.show_title' => [self::TB_DESCRIPTION => 'Titel des Sponsoren-Banner anzeigen', self::TB_TYPE => self::TB_TYPE_BOOL],
-        'sponsor.banner.show_name' => [self::TB_DESCRIPTION => 'Sponsorname im Sponsoren-Banner anzeigen', self::TB_TYPE => self::TB_TYPE_BOOL],
-        'sponsor.banner.show_text' => [self::TB_DESCRIPTION => 'Detailtext im Sponsoren-Banner anzeigen', self::TB_TYPE => self::TB_TYPE_BOOL],
-        'sponsor.page.title' => [self::TB_DESCRIPTION => 'Titel der Sponsoren-Seite', self::TB_TYPE => self::TB_TYPE_STRING],
-        'sponsor.page.text' => [self::TB_DESCRIPTION => 'Einleitungstext der Sponsoren-Seite', self::TB_TYPE => self::TB_TYPE_HTML],
-        'sponsor.page.site_links' => [self::TB_DESCRIPTION => 'Links zu den Kategorien anzeigen', self::TB_TYPE => self::TB_TYPE_BOOL],
-        'sponsor.page.show_header' => [self::TB_DESCRIPTION => 'Kategorie überschriften anzeigen', self::TB_TYPE => self::TB_TYPE_BOOL],
-        'sponsor.page.show_empty' => [self::TB_DESCRIPTION => 'Leere Sponsor Kategorien anzeigen', self::TB_TYPE => self::TB_TYPE_BOOL],
+        'sponsor.enabled' => [self::TB_DESCRIPTION => 'Sponsorenbanner einschalten', self::TB_TYPE => SettingType::Bool],
+        'sponsor.banner.show' => [self::TB_DESCRIPTION => 'Sponsoren-Banner anzeigen', self::TB_TYPE => SettingType::Bool],
+        'sponsor.banner.title' => [self::TB_DESCRIPTION => 'Titel des Sponsorenbanner', self::TB_TYPE => SettingType::String],
+        'sponsor.banner.show_title' => [self::TB_DESCRIPTION => 'Titel des Sponsoren-Banner anzeigen', self::TB_TYPE => SettingType::Bool],
+        'sponsor.banner.show_name' => [self::TB_DESCRIPTION => 'Sponsorname im Sponsoren-Banner anzeigen', self::TB_TYPE => SettingType::Bool],
+        'sponsor.banner.show_text' => [self::TB_DESCRIPTION => 'Detailtext im Sponsoren-Banner anzeigen', self::TB_TYPE => SettingType::Bool],
+        'sponsor.page.title' => [self::TB_DESCRIPTION => 'Titel der Sponsoren-Seite', self::TB_TYPE => SettingType::String],
+        'sponsor.page.text' => [self::TB_DESCRIPTION => 'Einleitungstext der Sponsoren-Seite', self::TB_TYPE => SettingType::HTML],
+        'sponsor.page.site_links' => [self::TB_DESCRIPTION => 'Links zu den Kategorien anzeigen', self::TB_TYPE => SettingType::Bool],
+        'sponsor.page.show_header' => [self::TB_DESCRIPTION => 'Kategorie überschriften anzeigen', self::TB_TYPE => SettingType::Bool],
+        'sponsor.page.show_empty' => [self::TB_DESCRIPTION => 'Leere Sponsor Kategorien anzeigen', self::TB_TYPE => SettingType::Bool],
 
-        'community.enabled' => [self::TB_DESCRIPTION => 'Community Sektion einschalten', self::TB_TYPE => self::TB_TYPE_BOOL],
-        'community.all' => [self::TB_DESCRIPTION => 'Alle IDM User in Community anzeigen', self::TB_TYPE => self::TB_TYPE_BOOL],
+        'community.enabled' => [self::TB_DESCRIPTION => 'Community Sektion einschalten', self::TB_TYPE => SettingType::Bool],
+        'community.all' => [self::TB_DESCRIPTION => 'Alle IDM User in Community anzeigen', self::TB_TYPE => SettingType::Bool],
 
-        'lan.signup.enabled' => [self::TB_DESCRIPTION => 'LAN-Anmeldung erlauben', self::TB_TYPE => self::TB_TYPE_BOOL],
-        'lan.signup.info' => [self::TB_DESCRIPTION => 'Text der beim Bestellbutton angezeigt wird.', self::TB_TYPE => self::TB_TYPE_HTML],
-        'lan.signup.info.ticket' => [self::TB_DESCRIPTION => 'Text der beim Ticketshop angezeigt wird.', self::TB_TYPE => self::TB_TYPE_HTML],
-        'lan.signup.info.addon' => [self::TB_DESCRIPTION => 'Text der beim Addonshop angezeigt wird.', self::TB_TYPE => self::TB_TYPE_HTML],
-        'lan.signup.text.single' => [self::TB_DESCRIPTION => 'Text der als Beschreibung eines Tickets angezeigt wird.', self::TB_TYPE => self::TB_TYPE_HTML],
-        'lan.signup.price' => [self::TB_DESCRIPTION => 'Preis für einen Eintritt in Cent.', self::TB_TYPE => self::TB_TYPE_STRING, self::TB_DEFAULT_VALUE => ShopService::DEFAULT_TICKET_PRICE],
-        'lan.signup.discount.price' => [self::TB_DESCRIPTION => 'Preis für einen Eintritt mit Gruppenermäßigung in Cent.', self::TB_TYPE => self::TB_TYPE_STRING],
-        'lan.signup.discount.limit' => [self::TB_DESCRIPTION => 'Gruppenermäßigung ab x Eintritte.', self::TB_TYPE => self::TB_TYPE_STRING],
-        'lan.signup.payment_details' => [self::TB_DESCRIPTION => 'Bankdaten für die Zahlung von Bestellungen', self::TB_TYPE => self::TB_TYPE_HTML],
-        // TODO make integer field for price
+        'lan.signup.enabled' => [self::TB_DESCRIPTION => 'LAN-Anmeldung erlauben', self::TB_TYPE => SettingType::Bool],
+        'lan.signup.info' => [self::TB_DESCRIPTION => 'Text der beim Bestellbutton angezeigt wird.', self::TB_TYPE => SettingType::HTML],
+        'lan.signup.info.ticket' => [self::TB_DESCRIPTION => 'Text der beim Ticketshop angezeigt wird.', self::TB_TYPE => SettingType::HTML],
+        'lan.signup.info.addon' => [self::TB_DESCRIPTION => 'Text der beim Addonshop angezeigt wird.', self::TB_TYPE => SettingType::HTML],
+        'lan.signup.text.single' => [self::TB_DESCRIPTION => 'Text der als Beschreibung eines Tickets angezeigt wird.', self::TB_TYPE => SettingType::HTML],
+        'lan.signup.price' => [self::TB_DESCRIPTION => 'Preis für einen Eintritt.', self::TB_TYPE => SettingType::Money, self::TB_DEFAULT_VALUE => ShopService::DEFAULT_TICKET_PRICE],
+        'lan.signup.discount.price' => [self::TB_DESCRIPTION => 'Preis für einen Eintritt mit Gruppenermäßigung.', self::TB_TYPE => SettingType::Money],
+        'lan.signup.discount.limit' => [self::TB_DESCRIPTION => 'Gruppenermäßigung ab x Eintritte.', self::TB_TYPE => SettingType::Integer],
+        'lan.signup.payment_details' => [self::TB_DESCRIPTION => 'Bankdaten für die Zahlung von Bestellungen', self::TB_TYPE => SettingType::HTML],
 
-        'lan.seatmap.enabled' => [self::TB_DESCRIPTION => 'Sitzplanbuchungen einschalten', self::TB_TYPE => self::TB_TYPE_BOOL],
-        'lan.seatmap.allow_booking_for_non_paid' => [self::TB_DESCRIPTION => 'Sitzplanbuchungen für nicht bezahlte Gamer erlauben', self::TB_TYPE => self::TB_TYPE_BOOL],
-        'lan.seatmap.locked' => [self::TB_DESCRIPTION => 'Sitzplanbuchungen sperren (Kein Reservieren/Freigeben für User)', self::TB_TYPE => self::TB_TYPE_BOOL],
-        'lan.seatmap.bg_image' => [self::TB_DESCRIPTION => 'Sitzplan Hintergrundbild', self::TB_TYPE => self::TB_TYPE_FILE],
+        'lan.seatmap.enabled' => [self::TB_DESCRIPTION => 'Sitzplanbuchungen einschalten', self::TB_TYPE => SettingType::Bool],
+        'lan.seatmap.allow_booking_for_non_paid' => [self::TB_DESCRIPTION => 'Sitzplanbuchungen für nicht bezahlte Gamer erlauben', self::TB_TYPE => SettingType::Bool],
+        'lan.seatmap.locked' => [self::TB_DESCRIPTION => 'Sitzplanbuchungen sperren (Kein Reservieren/Freigeben für User)', self::TB_TYPE => SettingType::Bool],
+        'lan.seatmap.bg_image' => [self::TB_DESCRIPTION => 'Sitzplan Hintergrundbild', self::TB_TYPE => SettingType::File],
         
-        'lan.seatmap.styles.seat_size' => [self::TB_DESCRIPTION => 'Sitzplatz Höhe/Breite (px)', self::TB_TYPE => self::TB_TYPE_STRING, self::TB_DEFAULT_VALUE => 27],
-        'lan.seatmap.styles.seat_tablewidth_multiplier' => [self::TB_DESCRIPTION => 'Sitzplatz Seitenverhältnis (1 für 1/1 quadratisch, 1.5 oder 2 für breitere Sitzplätze)', self::TB_TYPE => self::TB_TYPE_STRING, self::TB_DEFAULT_VALUE => 1],
-        'lan.seatmap.styles.seat_border_radius' => [self::TB_DESCRIPTION => 'Border Radios des Sitzes (px)', self::TB_TYPE => self::TB_TYPE_STRING, self::TB_DEFAULT_VALUE => 8],
-        'lan.seatmap.styles.seat_bullet_size' => [self::TB_DESCRIPTION => 'Sesselgröße im Sitzplan (px)', self::TB_TYPE => self::TB_TYPE_STRING, self::TB_DEFAULT_VALUE => 6],
-        'lan.seatmap.styles.seat_multiple_seats_distance' => [self::TB_DESCRIPTION => 'Abstand der Sitzplätze (px)', self::TB_TYPE => self::TB_TYPE_STRING, self::TB_DEFAULT_VALUE => 2],
+        'lan.seatmap.styles.seat_size' => [self::TB_DESCRIPTION => 'Sitzplatz Höhe/Breite (px)', self::TB_TYPE => SettingType::Integer, self::TB_DEFAULT_VALUE => 27],
+        'lan.seatmap.styles.seat_tablewidth_multiplier' => [self::TB_DESCRIPTION => 'Sitzplatz Seitenverhältnis (1 für 1/1 quadratisch, 1.5 oder 2 für breitere Sitzplätze)', self::TB_TYPE => SettingType::String, self::TB_DEFAULT_VALUE => 1],
+        'lan.seatmap.styles.seat_border_radius' => [self::TB_DESCRIPTION => 'Border Radios des Sitzes (px)', self::TB_TYPE => SettingType::Integer, self::TB_DEFAULT_VALUE => 8],
+        'lan.seatmap.styles.seat_bullet_size' => [self::TB_DESCRIPTION => 'Sesselgröße im Sitzplan (px)', self::TB_TYPE => SettingType::Integer, self::TB_DEFAULT_VALUE => 6],
+        'lan.seatmap.styles.seat_multiple_seats_distance' => [self::TB_DESCRIPTION => 'Abstand der Sitzplätze (px)', self::TB_TYPE => SettingType::Integer, self::TB_DEFAULT_VALUE => 2],
 
-        'lan.stats.show' => [self::TB_DESCRIPTION => 'Statistiken zur Anmeldung anzeigen', self::TB_TYPE => self::TB_TYPE_BOOL],
+        'lan.stats.show' => [self::TB_DESCRIPTION => 'Statistiken zur Anmeldung anzeigen', self::TB_TYPE => SettingType::Bool],
 
-        'lan.tourney.enabled' => [self::TB_DESCRIPTION => 'Tourney einschalten', self::TB_TYPE => self::TB_TYPE_BOOL],
-        'lan.tourney.text' => [self::TB_DESCRIPTION => 'Tourney Einleitungstext', self::TB_TYPE => self::TB_TYPE_HTML],
-        'lan.tourney.registration_open' => [self::TB_DESCRIPTION => 'Registrierung freigeschalten', self::TB_TYPE => self::TB_TYPE_BOOL],
+        'lan.tourney.enabled' => [self::TB_DESCRIPTION => 'Tourney einschalten', self::TB_TYPE => SettingType::Bool],
+        'lan.tourney.text' => [self::TB_DESCRIPTION => 'Tourney Einleitungstext', self::TB_TYPE => SettingType::HTML],
+        'lan.tourney.registration_open' => [self::TB_DESCRIPTION => 'Registrierung freigeschalten', self::TB_TYPE => SettingType::Bool],
 
-        'style.logo' => [self::TB_DESCRIPTION => 'Logo', self::TB_TYPE => self::TB_TYPE_FILE],
-        'style.logo_full_height' => [self::TB_DESCRIPTION => 'Soll das Logo die volle Höhe des Headers einnehmen?', self::TB_TYPE => self::TB_TYPE_BOOL, self::TB_DEFAULT_VALUE => false],
-        'style.logo_email' => [self::TB_DESCRIPTION => 'Abweichendes Logo für Mailversand verwenden?', self::TB_TYPE => self::TB_TYPE_FILE],
-        'style.bg_image' => [self::TB_DESCRIPTION => 'Hintergrundbild', self::TB_TYPE => self::TB_TYPE_FILE],
+        'style.logo' => [self::TB_DESCRIPTION => 'Logo', self::TB_TYPE => SettingType::File],
+        'style.logo_full_height' => [self::TB_DESCRIPTION => 'Soll das Logo die volle Höhe des Headers einnehmen?', self::TB_TYPE => SettingType::Bool, self::TB_DEFAULT_VALUE => false],
+        'style.logo_email' => [self::TB_DESCRIPTION => 'Abweichendes Logo für Mailversand verwenden?', self::TB_TYPE => SettingType::File],
+        'style.bg_image' => [self::TB_DESCRIPTION => 'Hintergrundbild', self::TB_TYPE => SettingType::File],
 
-        'email.register.subject' => [self::TB_DESCRIPTION => 'Betreff der Registrierungsmail', self::TB_TYPE => self::TB_TYPE_STRING],
-        'email.register.text' => [self::TB_DESCRIPTION => 'Text der Registrierungsmail', self::TB_TYPE => self::TB_TYPE_HTML],
-        'email.reset.subject' => [self::TB_DESCRIPTION => 'Betreff der Passwort-Zurücksetzen Email', self::TB_TYPE => self::TB_TYPE_STRING],
-        'email.reset.text' => [self::TB_DESCRIPTION => 'Text der Passwort-Zurücksetzen Email', self::TB_TYPE => self::TB_TYPE_HTML],
-        'email.notify.subject' => [self::TB_DESCRIPTION => 'Betreff der Benachrichtigungs-Email', self::TB_TYPE => self::TB_TYPE_STRING],
-        'email.shop.text' => [self::TB_DESCRIPTION => 'Text der Bestellungsemail', self::TB_TYPE => self::TB_TYPE_HTML],
-        'email.shop.subject' => [self::TB_DESCRIPTION => 'Text der Bestellungsemail', self::TB_TYPE => self::TB_TYPE_STRING],
-        'email.signature' => [self::TB_DESCRIPTION => 'Grußformel für die autmatischen Emails.', self::TB_TYPE => self::TB_TYPE_HTML],
+        'email.register.subject' => [self::TB_DESCRIPTION => 'Betreff der Registrierungsmail', self::TB_TYPE => SettingType::String],
+        'email.register.text' => [self::TB_DESCRIPTION => 'Text der Registrierungsmail', self::TB_TYPE => SettingType::HTML],
+        'email.reset.subject' => [self::TB_DESCRIPTION => 'Betreff der Passwort-Zurücksetzen Email', self::TB_TYPE => SettingType::String],
+        'email.reset.text' => [self::TB_DESCRIPTION => 'Text der Passwort-Zurücksetzen Email', self::TB_TYPE => SettingType::HTML],
+        'email.notify.subject' => [self::TB_DESCRIPTION => 'Betreff der Benachrichtigungs-Email', self::TB_TYPE => SettingType::String],
+        'email.shop.text' => [self::TB_DESCRIPTION => 'Text der Bestellungsemail', self::TB_TYPE => SettingType::HTML],
+        'email.shop.subject' => [self::TB_DESCRIPTION => 'Text der Bestellungsemail', self::TB_TYPE => SettingType::String],
+        'email.signature' => [self::TB_DESCRIPTION => 'Grußformel für die autmatischen Emails.', self::TB_TYPE => SettingType::HTML],
 
-        'link.fb' => [self::TB_DESCRIPTION => 'Link zur Facebook Seite', self::TB_TYPE => self::TB_TYPE_URL],
-        'link.insta' => [self::TB_DESCRIPTION => 'Link zur Instagram Seite', self::TB_TYPE => self::TB_TYPE_URL],
-        'link.steam' => [self::TB_DESCRIPTION => 'Link zur Steam Gruppe', self::TB_TYPE => self::TB_TYPE_URL],
-        'link.yt' => [self::TB_DESCRIPTION => 'Link zur YouTube Seite', self::TB_TYPE => self::TB_TYPE_URL],
-        'link.twitter' => [self::TB_DESCRIPTION => 'Link zur Twitter Seite', self::TB_TYPE => self::TB_TYPE_URL],
-        'link.discord' => [self::TB_DESCRIPTION => 'Link zur Discord Server', self::TB_TYPE => self::TB_TYPE_URL],
-        'link.teamspeak' => [self::TB_DESCRIPTION => 'Teamspeak Invite Link', self::TB_TYPE => self::TB_TYPE_URL],
-        'link.twitch' => [self::TB_DESCRIPTION => 'Link zum Twitchkanal', self::TB_TYPE => self::TB_TYPE_URL],
+        'link.fb' => [self::TB_DESCRIPTION => 'Link zur Facebook Seite', self::TB_TYPE => SettingType::URL],
+        'link.insta' => [self::TB_DESCRIPTION => 'Link zur Instagram Seite', self::TB_TYPE => SettingType::URL],
+        'link.steam' => [self::TB_DESCRIPTION => 'Link zur Steam Gruppe', self::TB_TYPE => SettingType::URL],
+        'link.yt' => [self::TB_DESCRIPTION => 'Link zur YouTube Seite', self::TB_TYPE => SettingType::URL],
+        'link.twitter' => [self::TB_DESCRIPTION => 'Link zur Twitter Seite', self::TB_TYPE => SettingType::URL],
+        'link.discord' => [self::TB_DESCRIPTION => 'Link zur Discord Server', self::TB_TYPE => SettingType::URL],
+        'link.teamspeak' => [self::TB_DESCRIPTION => 'Teamspeak Invite Link', self::TB_TYPE => SettingType::URL],
+        'link.twitch' => [self::TB_DESCRIPTION => 'Link zum Twitchkanal', self::TB_TYPE => SettingType::URL],
 
         // extend here
     ];
@@ -129,9 +123,9 @@ class SettingService
         return array_key_exists($key, self::TEXT_BLOCK_KEYS);
     }
 
-    public static function getType(string $key): string
+    public static function getType(string $key): ?SettingType
     {
-        return self::validKey($key) ? self::TEXT_BLOCK_KEYS[$key][self::TB_TYPE] : '';
+        return self::validKey($key) ? self::TEXT_BLOCK_KEYS[$key][self::TB_TYPE] : null;
     }
 
     public static function getDescription(string $key): string
@@ -185,7 +179,7 @@ class SettingService
             return !is_null($default) ? $default : self::getDefaultValue($key);
         }
 
-        if (self::getType($key) == self::TB_TYPE_FILE) {
+        if (self::getType($key) == SettingType::File) {
             return $this->uploaderHelper->asset($this->cache[$key], 'file', Setting::class);
         } else {
             return $this->cache[$key]->getText() ?? '';

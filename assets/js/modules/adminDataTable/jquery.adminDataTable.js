@@ -26,7 +26,8 @@ import '../../modules/confirmModal/confirmModal.js';
         init: function () {
             let dtOptions = {
                 searchHighlight: true,
-                language: dTLang
+                language: dTLang,
+                pageLength: 25,
             };
 
             if (this.settings.remoteTarget) {

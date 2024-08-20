@@ -56,10 +56,11 @@
                         {% endif %}
                             <td>
                                 {% if ticket.isRedeemed() %}
-                                    <span class="badge badge-primary">Bezahlt</span>
-                                {% endif %}
-                                {% if ticket.isPunched() %}
-                                    <span class="badge badge-secondary">Checked-In</span>
+                                    <span class="badge badge-primary">Eingel&ouml;&szlig;t</span>
+                                {% elseif ticket.isPunched() %}
+                                    <span class="badge badge-success">Checked-In</span>
+                                {% else %}
+                                    <span class="badge badge-secondary">Offen</span>
                                 {% endif %}
                             </td>
                             <td>

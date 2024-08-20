@@ -1,6 +1,6 @@
 <p>
 {% if settings.get('email.signature') %}
-{{ settings.get('email.signature') }}
+{{ settings.get('email.signature') | raw }}
 {% else %}
 Liebe Grüße<br>
 {{ org }}
