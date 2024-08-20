@@ -37,7 +37,8 @@
                             </td>
                             <td>{{ user.firstname }}</td>
                             <td>{{ user.surname }}</td>
-                            <td>{{ (order.calculateTotal / 100) | format_currency('EUR')}}</td>
+                            {% set total = order.calculateTotal %}
+                            <td data-order="{{total}}">{{ (total / 100) | format_currency('EUR')}}</td>
                             <td>
                                 {% if order.isPaid() %}
                                     <span class="badge badge-primary">Bezahlt</span>
