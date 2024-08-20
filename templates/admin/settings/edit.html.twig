@@ -34,13 +34,16 @@
             </div>
         </div>
     </div>
-
-    <div class="row">
-    </div>
     <hr>
-    <div class="float-right">
-        <a class="btn btn-secondary" href="{{ path('admin_setting') }}">Abbrechen</a>
-        <button type="submit" id="setting_save" class="btn-primary btn">Speichern</button>
+    <div class="row">
+        <div class="col">
+            <div class="d-flex flex-grow-1">
+            {{ form_widget(form.delete, {'attr': {'data-toggle': 'confirmModal', 'class': 'btn btn-sm btn-danger mr-1'}}) }}
+            <div class="flex-fill"></div>
+            <a class="btn btn-sm btn-secondary ml-1" href="{{ path('admin_setting') }}">Abbrechen</a>
+            {{ form_widget(form.save, {'attr': {'class': 'btn btn-sm btn-primary ml-1'}}) }}
+            </div>
+        </div>
     </div>
     {{ form_end(form) }}
 {% endblock %}

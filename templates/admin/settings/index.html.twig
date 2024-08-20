@@ -14,13 +14,13 @@
                         {% set value = service.get(key) %}
                         {% set type = service.getType(key) %}
                         {% set desc = service.getDescription(key) %}
-                        <tr>
+                        <tr id="{{ key }}">
                             <td style="width: 25%">
                                 <a href="{{ path('admin_setting_edit', {'key' : key}) }}" {% if type != SettingType.HTML and type != SettingType.File %}data-toggle="ajaxModal"{% endif %} title="Bearbeiten {{ key }}"> {{ key }}</a><br>
                                 <small class="text-muted">{{ desc }}</small>
                             </td>
-                            <td style="width: 75%"{% if not service.isSet(key) %} class="text-disabled"{% endif %}>
-                                {% if value is not empty %}
+                            <td style="width: 75%">
+                                {% if service.isSet(key) %}
                                     {% if type == SettingType.Bool %}
                                         {{ value ? 'Aktiviert' : 'Deaktiviert' }}
                                     {% elseif type == SettingType.Money %}
@@ -29,7 +29,7 @@
                                         {{ value | striptags | u.truncate(100, '...', false) | raw }}
                                     {% endif %}
                                 {% else %}
-                                    <p>(nicht gesetzt)</p>
+                                    <p class="text-disabled">(nicht gesetzt)</p>
                                 {% endif %}
                             </td>
                         </tr>

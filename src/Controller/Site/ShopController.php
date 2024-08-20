@@ -42,7 +42,7 @@ class ShopController extends AbstractController
     #[Route(path: '/checkout', name: '_checkout')]
     public function checkout(Request $request): Response
     {
-        if (!$this->settingService->isSet('lan.signup.enabled')) {
+        if (!$this->settingService->get('lan.signup.enabled', false)) {
             $this->addFlash('warning', "Anmeldung ist noch nicht freigeschalten.");
             return $this->redirect('/');
         }

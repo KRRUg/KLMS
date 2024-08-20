@@ -76,7 +76,7 @@ class SeatmapService
         $countSeats = $this->getUserSeatCount($user);
 
         return $countSeats == 0 && ($this->ticketService->isUserRegistered($user)
-                || $this->settingService->isSet('lan.seatmap.allow_booking_for_non_paid') === true);
+                || $this->settingService->get('lan.seatmap.allow_booking_for_non_paid', false));
     }
 
     public function canBookSeat(Seat $seat, User|UuidInterface $user): bool

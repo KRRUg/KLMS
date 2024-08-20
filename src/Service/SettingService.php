@@ -143,7 +143,14 @@ class SettingService
 
     public function isSet(string $key): bool
     {
-        return self::validKey($key) && !empty($this->get($key));
+        $key = strtolower($key);
+        if (!static::validKey($key)) {
+            $this->logger->error("Invalid key {$key} was requested by SettingService");
+            return false;
+        }
+
+        $this->loadCache();
+        return isset($this->cache[$key]);
     }
 
     public function getSettingObject(string $key): ?Setting
@@ -158,6 +165,16 @@ class SettingService
         return $this->repo->findByKey($key) ?? new Setting($key);
     }
 
+    private function loadCache(): void
+    {
+        if (is_null($this->cache)) {
+            $this->cache = array();
+            foreach ($this->repo->findAll() as $item) {
+                $this->cache[$item->getKey()] = $item;
+            }
+        }
+    }
+
     public function get(string $key, $default = null)
     {
         $key = strtolower($key);
@@ -167,12 +184,7 @@ class SettingService
         }
 
         // load cache if empty
-        if (is_null($this->cache)) {
-            $this->cache = array();
-            foreach ($this->repo->findAll() as $item) {
-                $this->cache[$item->getKey()] = $item;
-            }
-        }
+        $this->loadCache();
 
         if (!isset($this->cache[$key])) {
             // valid key, but not yet created. return either template or service default value
