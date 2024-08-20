@@ -6,7 +6,7 @@
     <div class="row">
         <div class="col-12">
             <div class="card">
-                <table class="table table-striped admin-data-table">
+                <table class="table table-striped admin-data-table" data-order="[[ 1, &quot;desc&quot; ]]">
                     <thead>
                     <tr>
                         <th class="text-nowrap w-1">ID</th>
@@ -14,7 +14,8 @@
                         <th class="w-25"> Nickname </th>
                         <th class="w-25">Vorname</th>
                         <th class="w-25">Nachname</th>
-                        <th class="w-25">Status</th>
+                        <th>Summe</th>
+                        <th>Status</th>
                         <th
                                 class="text-nowrap w-1"
                                 data-orderable="false"
@@ -36,6 +37,7 @@
                             </td>
                             <td>{{ user.firstname }}</td>
                             <td>{{ user.surname }}</td>
+                            <td>{{ (order.calculateTotal / 100) | format_currency('EUR')}}</td>
                             <td>
                                 {% if order.isPaid() %}
                                     <span class="badge badge-primary">Bezahlt</span>
