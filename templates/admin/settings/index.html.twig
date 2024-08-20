@@ -10,25 +10,26 @@
                 <table class="table">
                     <tbody>
                     {% for key in kk %}
+                        {% set SettingType = enum('\\App\\Service\\SettingType') %}
+                        {% set value = service.get(key) %}
+                        {% set type = service.getType(key) %}
                         {% set desc = service.getDescription(key) %}
                         <tr>
                             <td style="width: 25%">
-                                <a href="{{ path('admin_setting_edit', {'key' : key}) }}" title="Bearbeiten {{ key }}"> {{ key }}</a><br>
+                                <a href="{{ path('admin_setting_edit', {'key' : key}) }}" {% if type != SettingType.HTML and type != SettingType.File %}data-toggle="ajaxModal"{% endif %} title="Bearbeiten {{ key }}"> {{ key }}</a><br>
                                 <small class="text-muted">{{ desc }}</small>
                             </td>
-                            <td style="width: 75%">
-                                {% set SettingType = enum('\\App\\Service\\SettingType') %}
-                                {% set value = service.get(key) %}
+                            <td style="width: 75%"{% if not service.isSet(key) %} class="text-disabled"{% endif %}>
                                 {% if value is not empty %}
-                                    {% if service.getType(key) == SettingType.Bool %}
+                                    {% if type == SettingType.Bool %}
                                         {{ value ? 'Aktiviert' : 'Deaktiviert' }}
-                                    {% elseif service.getType(key) == SettingType.Money %}
+                                    {% elseif type == SettingType.Money %}
                                         {% if value is not empty %}{{ (value/100) | format_currency('EUR') }}{% endif %}
                                     {% else %}
                                         {{ value | striptags | u.truncate(100, '...', false) | raw }}
                                     {% endif %}
                                 {% else %}
-                                    <p class="text-disabled">(nicht gesetzt)</p>
+                                    <p>(nicht gesetzt)</p>
                                 {% endif %}
                             </td>
                         </tr>

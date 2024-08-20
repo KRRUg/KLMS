@@ -1,0 +1,34 @@
+{% embed "modules/modals/form.html.twig"
+    with {
+    'id': 'settingEditModal',
+    'title' : 'Setting <span class="text-primary">' ~ key ~ '</span>',
+    'dialogClass' : 'modal-lg'
+}
+%}
+{% block modalBody %}
+    <div class="row">
+        <div class="col mb-4">
+            <div class="card">
+                <div class="card-body">
+                    Setting <span class="text-primary">{{ key }}</span><br/>
+                    <small class="text-muted">{{ desc }}</small>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col mb-4">
+            <div class="card">
+                <div class="card-body">
+                    {% if form.text is defined %}
+                        {{ form_row(form.text) }}
+                    {% endif %}
+                    {% if form.file is defined %}
+                        {{ form_row(form.file) }}
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+{% endembed %}
