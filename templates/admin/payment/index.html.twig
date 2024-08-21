@@ -23,6 +23,7 @@
                         <th>&#8470;</th>
                         <th>Code</th>
                         <th><i class="fas fa-euro-sign"></i></th>
+                        <th>Eingelöst</th>
                         <th class="w-25">Nickname</th>
                         <th class="w-25">Name</th>
                         <th class="w-25">Status</th>
@@ -42,6 +43,7 @@
                             <td class="text-nowrap text-monospace">{{ ticket.code }}</td>
                             <td>{% if ticket.shopOrderPosition %} <span class="badge badge-secondary" title="Gekauft"><i class="fas fa-euro-sign"></i></span>{% endif %}</td>
                         {% if ticket.redeemed %}
+                            <td data-order="{{ ticket.redeemedAt | date('U') }}">{{ ticket.redeemedAt | date('d.m.y H:i') }}</td>
                             {% set user = users[ticket.redeemer.toString()] %}
                             <td data-order="{{ user.nickname }}">
                                 {% for clan in user.clans %}
@@ -53,12 +55,19 @@
                         {% else %}
                             <td></td>
                             <td></td>
+                            <td></td>
                         {% endif %}
                             <td>
                                 {% if ticket.isRedeemed() %}
-                                    <span class="badge badge-primary">Eingel&ouml;&szlig;t</span>
-                                {% elseif ticket.isPunched() %}
-                                    <span class="badge badge-success">Checked-In</span>
+                                    {% if ticket.isPunched() %}
+                                        <span class="badge badge-success">Checked-In</span>
+                                    {% else %}
+                                        <span class="badge badge-primary">Eingel&ouml;&szlig;t</span>
+                                    {% endif %}
+
+                                    {% if ticket.redeemer is not seated_user %}
+                                        <span class="badge badge-danger">Kein Sitzplatz</span>
+                                    {% endif %}
                                 {% else %}
                                     <span class="badge badge-secondary">Offen</span>
                                 {% endif %}
