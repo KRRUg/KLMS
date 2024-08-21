@@ -1,8 +1,6 @@
-version: '3.8'
-
 services:
   database:
-    image: postgres:12
+    image: postgres:12-alpine
     environment:
       POSTGRES_USER: 'krru'
       POSTGRES_PASSWORD: 'krru'
@@ -13,7 +11,9 @@ services:
   
   mailcatcher:
     image: schickling/mailcatcher
-    ports: [ "1025", "1080" ]
+    ports:
+      - "1025:1025"
+      - "1080:1080"
     labels:
       com.symfony.server.service-prefix: 'MailCatcher'
 
