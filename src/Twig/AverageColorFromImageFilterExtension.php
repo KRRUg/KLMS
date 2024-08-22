@@ -4,6 +4,7 @@ namespace App\Twig;
 
 use Twig\Extension\AbstractExtension;
 use Twig\TwigFilter;
+use GdImage;
 
 /**
  * Description of AgoFilterExtension.
@@ -17,7 +18,7 @@ class AverageColorFromImageFilterExtension extends AbstractExtension
         ];
     }
 
-    public function getAverageColorFromImage($imagePath): string
+    public function getAverageColorFromImage(string $imagePath): string
     {
 
         $image = $this->createImageFromFile($imagePath);
@@ -32,7 +33,7 @@ class AverageColorFromImageFilterExtension extends AbstractExtension
         return sprintf("#%02x%02x%02x", $rgb["red"], $rgb["green"], $rgb["blue"]);
     }
 
-    private function createImageFromFile(string $imagePath): \GdImage|false {
+    private function createImageFromFile(string $imagePath): GdImage|false {
         $info = getimagesize($imagePath);
         $mime = image_type_to_mime_type($info[2]);
         return match ($mime) {
