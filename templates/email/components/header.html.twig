@@ -1,7 +1,7 @@
 {# TODO embedd logo to make it independent of changes #}
 <div class="head-wrap bg-primary"
      {% if settings.get('style.bg_image') is not empty %}
-     style="background-image: url({{ absolute_url(settings.get('style.bg_image')) }})"
+     style="background-image: url({{ absolute_url(settings.get('style.bg_image')) }}); background-color: {{ absolute_url(settings.get('style.bg_image')) | average_color }}"
      {% endif %}
 >
     <div class="head-content container">
