@@ -9,6 +9,37 @@
   }
 }
 
+.seat-border {}
+@mixin seat-border($color) {
+  @extend .seat-border;
+  border: $seat-mark-border-width solid $color;
+}
+
+$seat-point-distance: 11px;
+$seat-mark-border-width: 4px;
+
+$seat-orientations: n, e, s, w;
+
+@mixin char-seat-point($orientation, $distance) {
+  @if $orientation == n  {
+    top: -$distance;
+    left: 50%;
+    transform: translate(-50%, -50%);
+  } @else if $orientation == e {
+    right: -$distance;
+    top: 50%;
+    transform: translate(50%, -50%);
+  } @else if $orientation == s {
+    bottom: -$distance;
+    left: 50%;
+    transform: translate(-50%, 50%);
+  } @else if $orientation == w {
+    left: -$distance;
+    top: 50%;
+    transform: translate(-50%, -50%);
+  }
+}
+
 .seatmap-legend, .seatmap-wrapper {
   .seat-empty {
     @include seat(green)
@@ -26,12 +57,16 @@
     @include seat($primary)
   }
 
-  .seat-own-clan {
-    @include seat(#ffbc4b)
-  }
-
   .seat-locked {
     @include seat(gray)
+  }
+
+  .seat-own-clan {
+    @include seat-border($primary);
+  }
+
+  .seat-clan-reserved {
+    @include seat-border(#303030);
   }
 }
 
@@ -77,28 +112,14 @@
       transform: translate(-50%, -50%);
     }
 
-    &[data-chair-position="n"]::before {
-      top: -11px;
-      left: 50%;
-      transform: translate(-50%, -50%);
-    }
+    @each $orientation in $seat-orientations {
+      &[data-chair-position="#{$orientation}"]::before {
+        @include char-seat-point($orientation, $seat-point-distance);
+      }
 
-    &[data-chair-position="s"]::before {
-      bottom: -11px;
-      left: 50%;
-      transform: translate(-50%, 50%);
-    }
-
-    &[data-chair-position="w"]::before {
-      left: -11px;
-      top: 50%;
-      transform: translate(-50%, -50%);
-    }
-
-    &[data-chair-position="e"]::before {
-      right: -11px;
-      top: 50%;
-      transform: translate(50%, -50%);
+      &[data-chair-position="#{$orientation}"].seat-border::before {
+        @include char-seat-point($orientation, $seat-point-distance+$seat-mark-border-width);
+      }
     }
   }
 

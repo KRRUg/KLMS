@@ -43,7 +43,6 @@ $.extend(TeamSiteAdmin.prototype, {
         this.teamSite = JSON.parse(srcJSON);
     },
     drawTSAdmin() {
-        console.log(this.teamSite);
         this.$root.empty();
         for (let i = 0; i < this.teamSite.length; i++) {
             let section = this._generateSection(this.teamSite[i], i);
@@ -677,7 +676,7 @@ let showAreYouSureFunction = function (e) {
 
 $(document).ready(() => {
     let teamSiteAdmin = new TeamSiteAdmin($('#teamSiteAdmin'));
-    var changeEvent = null;
+    let changeEvent = null;
 
     teamSiteAdmin.dispatcher.on("changed", function (e) {
         if (changeEvent === null) {
@@ -693,8 +692,8 @@ $(document).ready(() => {
         let index = $(e.relatedTarget).data("index");
         let $target = $(e.currentTarget);
         let form = $target.find("form");
-        form.trigger("reset");
-        form.find('select.select2-enable').trigger('change');
+        form.trigger('reset');
+        form.find('select').trigger('change');
         form.find('input[name="index"]').val(index);
     });
 
@@ -707,8 +706,8 @@ $(document).ready(() => {
         e.preventDefault();
 
         let index = $(this).find('input[name="index"]').val();
-        let selectedUserData = $(this).find('select.select2-enable').select2('data');
-        let user = selectedUserData[0].user
+        let selectedUserData = $(this).find('select').select2('data');
+        let user = selectedUserData[0].val
 
         if (user) {
             teamSiteAdmin.addTeamMember(index, user);

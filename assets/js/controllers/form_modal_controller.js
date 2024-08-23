@@ -6,6 +6,6 @@ export default class extends Controller {
     connect() {
         $(this.element).on('hidden.bs.modal', function () {
             $(this).find('form').trigger('reset');
-        })
+        });
     }
 }

@@ -3,7 +3,6 @@ import '../../css/modules/seatmap.scss';
 import $ from 'jquery';
 import 'jquery-ui';
 import 'jquery-ui/ui/widgets/draggable';
-import '../modules/select2/select2';
 
 import 'bootstrap';
 

@@ -2,61 +2,89 @@
     with {
     'id': 'showSeatModal',
     'title' : 'Sitzplatz ' ~ seat.sector ~ '-' ~ seat.seatNumber,
-    'dialogClass' : 'modal-lg'
+    'dialogClass' : 'modal-md'
 } %}
     {% set owner = app.user is not empty and seat.owner is not empty and seat.owner == app.user.user.uuid %}
     {% block modalBody %}
         <div class="container-fluid">
-            <div class="col">
-                <p>
-                    Sitzplatz: {{ seat.generateSeatName }}
-                    <br>
-                    Status:
-                    {% if seat.owner is not empty %}
-                        Reserviert
-                    {% elseif seat.type == 'locked' %}
-                        Gesperrt
-                    {% else %}
-                        Frei
-                    {% endif %}
-                </p>
+            <div class="row my-1">
+                <div class="col-3 mr-2 text-center">
+                    <i class="fa fa-chair fa-5x"></i>
+                </div>
+                <div class="col">
+                    <p>
+                        <i class="fas fa-location-dot fa-fw mr-2" title="Position"></i>
+                        <span title="Location" class="d-inline-block">{{ seat.generateSeatName }}</span>
+                    </p>
+                    <p>
+                        <i class="fas fa-circle-check fa-fw mr-2" title="Status"></i>
+                        <span title="Status" class="d-inline-block">
+                            {% if seat.owner is not empty %}
+                                Belegt
+                            {% elseif seat.type == 'locked' %}
+                                Gesperrt
+                            {% else %}
+                                Frei
+                            {% endif %}
+                        </span>
+                    </p>
+                </div>
+            </div>
+            {% if seat.owner is not empty or seat.clanReservation is not empty %}
+            <hr/>
+            <div class="row my-1">
                 {% if seat.owner is not empty %}
-                    <h1 title="Nickname" class="h4 d-inline-block">Nickname:
-                        <a target="_blank" href="{{ path('user_show', {'uuid': user.uuid }) }}">{{ user.nickname }}</a>
-                    </h1>
-                    <br/>
-                    {% if user.clans is not empty %}
-                        <h5 title="Clan" class="d-inline-block">Clans:</h5>
-                        <ul>
+                    <div class="col-3 mr-2 text-center">
+                        <i class="far fa-user fa-5x"></i>
+                    </div>
+                    {% set user = seat.owner | user %}
+                    <div class="col">
+                        <i class="fas fa-headset fa-fw mr-2" title="Name"></i>
+                        <div title="Nickname" class="h5 d-inline-block">
                             {% for clan in user.clans %}
-                                <li>
-                                    <a target="_blank"
-                                       href="{{ path('clan_show', {'uuid': clan.uuid}) }}">[{{ clan.clantag }}]</a>
-                                </li>
-                            {% endfor %}
-                        </ul>
+                                <a class="badge badge-pill badge-primary" target="_blank" href="{{ path('clan_show', {'uuid': clan.uuid}) }}">{{ clan.clantag }}</a>
+                            {% endfor %}<br/>
+                            <a target="_blank" href="{{ path('user_show', {'uuid': user.uuid }) }}">{{ user.nickname }}</a>
+                        </div>
+                        <br>
+                        <i class="fas fa-signature fa-fw mr-2" title="Vorname"></i>
+                        <div title="Vorname" class="h5 d-inline-block">{{ user.firstname|defaultBadge('Vorname n.v.') }}</div>
+                    </div>
+                {% elseif seat.clanReservation is not empty %}
+                    <div class="col-3 mr-2 text-center">
+                        <i class="fa fa-users fa-5x"></i>
+                    </div>
+                    {% set clan = seat.clanReservation | clan %}
+                    {% if clan %}
+                    <div class="col">
+                        <div>Reserviert für Clan:</div>
+                        <br/>
+                        <div title="Clanname" class="h4">
+                            {% if clan.clantag %}<span class="badge badge-pill badge-primary">{{ clan.clantag }}</span>{% endif %}
+                            <a target="_blank" href="{{ path('clan_show', {'uuid': clan.uuid }) }}">{{ clan.name }}</a>
+                        </div>
+                    </div>
+                    {% else %}
+                        <p>Reserviert für Clan.</p>
                     {% endif %}
                 {% endif %}
-                <br>
             </div>
+            {% endif %}
         </div>
     {% endblock %}
 
     {% block modalFooter %}
         {% if form is not empty %}
+            {{ form_start(form, {attr: {class: 'form-inline'}}) }}
             {% if seat.owner is empty %}
-                {{ form_start(form) }}
                 {{ form_row(form.action) }}
-                {{ form_rest(form) }}
                 <button id="reserveSeatButton" type="submit" class="btn btn-primary"><i class="fas fa-user-check"></i> Sitzplatz reservieren</button>
-                {{ form_end(form) }}
             {% elseif owner %}
-                {{ form_start(form) }}
                 {{ form_row(form.action) }}
-                {{ form_rest(form) }}
                 <button id="freeSeatButton" type="submit" class="btn btn-primary"><i class="fas fa-user-times"></i> Sitzplatz freigeben</button>
-                {{ form_end(form) }}
             {% endif %}
+            {{ form_rest(form) }}
+            {{ form_end(form) }}
         {% endif %}
         <button type="button" class="btn btn-secondary" data-dismiss="modal">Schließen</button>
     {% endblock %}

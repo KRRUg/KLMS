@@ -43,7 +43,7 @@ class SeatmapFixture extends Fixture implements DependentFixtureInterface
         $seat[] = (new Seat())
             ->setType(SeatKind::LOCKED)
             ->setPosX(50)->setPosY(50)
-            ->setChairPosition(SeatOrientation::EAST)
+            ->setChairPosition(SeatOrientation::WEST)
             ->setSector('X')->setSeatNumber(1);
 
         $seat[] = (new Seat())
@@ -57,6 +57,26 @@ class SeatmapFixture extends Fixture implements DependentFixtureInterface
             ->setPosX(50)->setPosY(150)
             ->setChairPosition(SeatOrientation::SOUTH)
             ->setSector('X')->setSeatNumber(3);
+
+        $seat[] = (new Seat())
+            ->setType(SeatKind::SEAT)
+            ->setPosX(100)->setPosY(50)
+            ->setChairPosition(SeatOrientation::EAST)
+            ->setSector('Y')->setSeatNumber(1)
+            ->setClanReservation(Uuid::fromInteger(0x3EA));
+
+        $seat[] = (new Seat())
+            ->setType(SeatKind::SEAT)
+            ->setPosX(100)->setPosY(100)
+            ->setChairPosition(SeatOrientation::EAST)
+            ->setSector('Y')->setSeatNumber(2)
+            ->setClanReservation(Uuid::fromInteger(0x3EA));
+
+        $seat[] = (new Seat())
+            ->setType(SeatKind::SEAT)
+            ->setPosX(100)->setPosY(150)
+            ->setChairPosition(SeatOrientation::SOUTH)
+            ->setSector('Y')->setSeatNumber(3);
 
         $seat[] = (new Seat())
             ->setType(SeatKind::INFO)

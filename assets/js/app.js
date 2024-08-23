@@ -14,8 +14,6 @@ import './modules/dateTimePicker/jquery.dateTimePicker.js';
 import { German } from "flatpickr/dist/l10n/de.js"
 import 'lightbox2';
 
-import select2Init from './modules/select2/select2';
-
 const cfi = require('bs-custom-file-input');
 
 import './modules/confirmModal/confirmModal.js';
@@ -31,7 +29,6 @@ $(document).ready(function () {
     }
     );
     $('.datatable').AdminDataTable();
-    $('.select2-enable').Select2();
 
     setTimeout(function () {
         $('.alert-flash-msg').alert('close');

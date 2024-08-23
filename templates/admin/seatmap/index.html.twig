@@ -31,6 +31,7 @@
                             <div class="d-block text-center flex-fill"> <span class="seat seat-taken"></span><br><span>Reserviert<br>(bezahlt)</span></div>
                             <div class="d-block text-center flex-fill"> <span class="seat seat-reserved"></span><br><span> Vorgemerkt<br>(unbezahlt)</span></div>
                             <div class="d-block text-center flex-fill"> <span class="seat seat-locked"></span><br><span> Gesperrt</span></div>
+                            <div class="d-block text-center flex-fill"> <span class="seat seat-clan-reserved"></span><br><span> Clan zugeordnet</span></div>
                         </div>
                 </div>
             </div>
@@ -47,6 +48,7 @@
                             {% for seat in seatmap %}
                                 {% set taken = seat.owner is not empty %}
                                 {% set reserved = seat.owner is not empty and seat.owner is not registered_user %}
+                                {% set clanAssigned = seat.clanReservation is not empty %}
                                 {% set locked = seat.type.value == 'locked' %}
                                 {% set info = seat.type.value == 'info' %}
                                     <a style="top: {{ seat.posY }}px; left: {{ seat.posX }}px;"
@@ -61,6 +63,9 @@
                                                 seat-information
                                             {% else %}
                                                 seat-empty
+                                            {% endif %}
+                                            {% if clanAssigned %}
+                                                seat-clan-reserved
                                             {% endif %}
                                        "
                                        data-chair-position="{{ seat.chairPosition.value }}" data-toggle="ajaxModal" data-id="{{ seat.id }}"

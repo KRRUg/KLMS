@@ -4,24 +4,28 @@
     'title' : 'Sitzplatz',
     'dialogClass' : 'modal-sm'
 } %}
+    {% block modalContentPrepend %}{{ form_start(form) }}{% endblock %}
+
     {% block modalBody %}
         <div class="container-fluid">
             <div class="d-flex justify-content-center">
                 <div class="p-2">
-                    {{ form_start(form) }}
-
                     {{ form_row(form.owner) }}
+                    {{ form_row(form.clanReservation) }}
+                    <hr/>
                     {{ form_rest(form) }}
-                    <button type="submit" class="btn btn-secondary">Editieren</button>
                 </div>
-                {{ form_end(form) }}
             </div>
         </div>
     {% endblock %}
 
     {% block modalFooter %}
-        <a type="button" class="btn btn-danger"
+        <a type="button" class="btn btn-sm btn-danger"
            href="{{ path('admin_seatmap_seat_delete', {'id': form.vars.data.id}) }}">Löschen</a>
-        <button type="button" class="btn btn-secondary" data-dismiss="modal">Schließen</button>
+        <div class="flex-fill"></div>
+        <button type="submit" class="btn btn-sm btn-primary">Speichern</button>
+        <button type="button" class="btn btn-sm btn-secondary" data-dismiss="modal">Schließen</button>
     {% endblock %}
+
+    {% block modalContentAppend %}{{ form_end(form) }}{% endblock %}
 {% endembed %}

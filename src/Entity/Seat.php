@@ -5,6 +5,7 @@ namespace App\Entity;
 use App\Repository\SeatRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Ramsey\Uuid\UuidInterface;
+use Symfony\Component\Uid\Uuid;
 
 #[ORM\Table]
 #[ORM\UniqueConstraint(name: 'seat_pos', columns: ['pos_x', 'pos_y'])]
@@ -28,6 +29,9 @@ class Seat
 
     #[ORM\Column(name: 'owner', type: 'uuid', nullable: true)]
     private ?UuidInterface $owner = null;
+
+    #[ORM\Column(type: 'uuid', nullable: true)]
+    private ?UuidInterface $clanReservation = null;
 
     #[ORM\Column(type: 'string', length: 25)]
     private ?string $sector = null;
@@ -90,6 +94,18 @@ class Seat
     public function setOwner(?UuidInterface $owner): self
     {
         $this->owner = $owner;
+
+        return $this;
+    }
+
+    public function getClanReservation(): ?UuidInterface
+    {
+        return $this->clanReservation;
+    }
+
+    public function setClanReservation(?UuidInterface $clanReservation): self
+    {
+        $this->clanReservation = $clanReservation;
 
         return $this;
     }

@@ -1,6 +1,6 @@
 {% block select2_widget %}
     {% apply spaceless %}
-    <select class="select2-enable" data-remote-target="{{ path('api_users') }}" {{ block('widget_attributes') }}>
+    <select {{ stimulus_controller('select2', {'remoteTarget': path(remoteController)}) }} {{ block('widget_attributes') }}>
         {% if value is not empty and value is iterable %}
             {% for k,v in value %}
                 <option value="{{ k }}">{{ v }}</option>

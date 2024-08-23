@@ -59,18 +59,24 @@
                                       title="{{ seat.name }}"><i class="fas fa-info-circle"></i></span>
                             {% else %}
                                 {% set ownSeat = user is not empty and seat.owner is not empty and seat.owner == user.uuid %}
-                                {% set ownClan = user is not empty and seat.owner is not empty and seat.owner is in_clans(user.clans.toArray) %}
+                                {% set ownClan = user is not empty and (
+                                        (seat.owner is not empty and seat.owner is in_clans(user.clans.toArray)) or
+                                        (seat.clanReservation is not empty and user is in_clan(seat.clanReservation))
+                                ) %}
                                 {% set taken = seat.owner is not empty %}
+                                {% set reserved = seat.clanReservation is not empty %}
                                 {% set locked = seat.type.value == 'locked' %}
                                 <a id="seat{{ seat.id }}" style="top: {{ seat.posY }}px; left: {{ seat.posX }}px;"
                                     class="seat
                                     {% if ownSeat %}
                                         seat-own
-                                    {% elseif ownClan %}
-                                        seat-own-clan
-                                    {% elseif taken %}
-                                        seat-taken
                                     {% elseif locked %}
+                                        seat-locked
+                                    {% elseif taken %}
+                                        seat-taken {% if ownClan %}seat-own-clan{% endif %}
+                                    {% elseif reserved and ownClan %}
+                                        seat-empty seat-own-clan
+                                    {% elseif reserved %}
                                         seat-locked
                                     {% else %}
                                         seat-empty

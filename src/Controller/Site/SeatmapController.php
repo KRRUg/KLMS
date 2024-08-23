@@ -47,6 +47,7 @@ class SeatmapController extends AbstractController
             'seatmap' => $seats,
             'dim' => $dim,
             'users' => $this->seatmapService->getSeatedUser($seats),
+            'clans' => $this->seatmapService->getReservedClans($seats),
         ]);
     }
 
@@ -109,11 +110,8 @@ class SeatmapController extends AbstractController
             }
         }
 
-        $owner = $this->seatmapService->getSeatOwner($seat);
-
         return $this->render('site/seatmap/seat.html.twig', [
             'seat' => $seat,
-            'user' => $owner,
             'form' => $view,
         ]);
     }

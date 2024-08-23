@@ -2,7 +2,7 @@
     with {
     'id': 'addTeamMemberModal',
     'title' : 'Teammitglied hinzufügen',
-    'dialogClass' : 'modal-lg'
+    'dialogClass' : 'modal-md'
 }
 %}
     {% block modalContentPrepend %}
@@ -13,7 +13,7 @@
         <input type="hidden" name="index" value="" />
         <div class="form-group">
             <label for="addTeamUser">User wählen:</label>
-            <select id="addTeamUser" name="user" class="select2-enable" data-remote-target="{{ path('api_users') }}">
+            <select id="addTeamUser" name="user" {{ stimulus_controller('select2', {'remoteTarget': path('api_users')}) }}>
             </select>
             <small id="addTeamUserHelp" class="form-text text-muted">Wählen Sie einen User, den Sie hinzufügen möchten.</small>
         </div>

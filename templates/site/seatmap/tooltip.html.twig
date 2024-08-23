@@ -1,11 +1,11 @@
 Sitzplatz: {{ seat.generateSeatName }}
 <br>
 {% if seat.id in users | keys and users[seat.id] is not empty %}
-    User: {{ users[seat.id].nickname }}
-    <br>
-    Status: Reserviert
-{% elseif seat.type == "locked" %}
-    Status: Gesperrt
-{% elseif seat.type == "seat" %}
-    Status: Frei
+    {{ users[seat.id].nickname }}
+{% elseif seat.id in clans | keys and clans[seat.id] is not empty %}
+    Reserviert für {{ clans[seat.id].name }}
+{% elseif seat.type.value == "locked" %}
+    Gesperrt
+{% elseif seat.type.value == "seat" %}
+    Frei
 {% endif %}

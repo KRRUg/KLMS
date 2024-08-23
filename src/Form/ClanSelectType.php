@@ -2,7 +2,7 @@
 
 namespace App\Form;
 
-use App\Entity\User;
+use App\Entity\Clan;
 use App\Idm\Exception\PersistException;
 use App\Idm\IdmManager;
 use App\Idm\IdmRepository;
@@ -16,13 +16,13 @@ use Symfony\Component\Form\FormInterface;
 use Symfony\Component\Form\FormView;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
-class UserSelectType extends AbstractType
+class ClanSelectType extends AbstractType
 {
-    private readonly IdmRepository $userRepository;
+    private readonly IdmRepository $clanRepository;
 
     public function __construct(IdmManager $manager)
     {
-        $this->userRepository = $manager->getRepository(User::class);
+        $this->clanRepository = $manager->getRepository(Clan::class);
     }
 
     public function buildForm(FormBuilderInterface $builder, array $options): void
@@ -37,7 +37,7 @@ class UserSelectType extends AbstractType
 
     public function buildView(FormView $view, FormInterface $form, array $options): void
     {
-        $view->vars['remoteController'] = 'api_users';
+        $view->vars['remoteController'] = 'api_clans';
     }
 
     public function configureOptions(OptionsResolver $resolver): void
@@ -63,12 +63,12 @@ class UserSelectType extends AbstractType
         }
 
         switch (true) {
-            case $entity instanceof User:
-                $data[$entity->getUuid()->toString()] = $entity->getEmail();
+            case $entity instanceof Clan:
+                $data[$entity->getUuid()->toString()] = $entity->getName();
                 break;
             case $entity instanceof UuidInterface:
-                $user = $this->userRepository->findOneById($entity);
-                $data[$entity->toString()] = $user->getEmail();
+                $clan = $this->clanRepository->findOneById($entity);
+                $data[$entity->toString()] = $clan->getName();
                 break;
             default:
                 throw new TransformationFailedException('Unknown type to convert');
@@ -77,7 +77,7 @@ class UserSelectType extends AbstractType
         return $data;
     }
 
-    public function reverseTransform($value): ?User
+    public function reverseTransform($value): ?Clan
     {
         if (empty($value)) {
             return null;
@@ -85,7 +85,7 @@ class UserSelectType extends AbstractType
 
         $value = $value instanceof UuidInterface ? $value : Uuid::fromString($value);
         try {
-            return $this->userRepository->findOneById($value);
+            return $this->clanRepository->findOneById($value);
         } catch (PersistException) {
             throw new TransformationFailedException('Unknown type to convert');
         }

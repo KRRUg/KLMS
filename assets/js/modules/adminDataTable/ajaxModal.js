@@ -24,7 +24,6 @@
                         this.$modal = this._initModal(data);
                         this.$modal.modal('show');
                         this.$modal.find(".admin-data-table").AdminDataTable();
-                        this.$modal.find(".select2-enable").Select2()
                     }).catch((e) => {
                 console.error('Error loading remote content!', e);
             });

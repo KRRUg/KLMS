@@ -4,6 +4,7 @@ namespace App\Controller\Admin;
 
 use App\Entity\Seat;
 use App\Entity\SeatOrientation;
+use App\Form\ClanSelectType;
 use App\Form\SeatType;
 use App\Form\UserSelectType;
 use App\Repository\SeatRepository;
@@ -57,6 +58,7 @@ class SeatmapController extends AbstractController
             'seatmap' => $seats,
             'dim' => $dim,
             'users' => $this->seatmapService->getSeatedUser($seats),
+            'clans' => $this->seatmapService->getReservedClans($seats),
         ]);
     }
 
@@ -69,7 +71,8 @@ class SeatmapController extends AbstractController
             'action' => $this->generateUrl('admin_seatmap_seat_edit', ['id' => $seat->getId()]),
         ]);
 
-        $form->add('owner', UserSelectType::class, ['required' => false, 'hydrateUser' => false]);
+        $form->add('owner', UserSelectType::class, ['required' => false, 'hydrate' => false]);
+        $form->add('clanReservation', ClanSelectType::class, ['required' => false, 'hydrate' => false]);
         $form->setData($seat);
         $form->handleRequest($request);
 
@@ -147,8 +150,6 @@ class SeatmapController extends AbstractController
                 $this->em->persist($seat);
                 $this->em->flush();
                 $this->addFlash('success', "Sitzplatz {$seat->getSector()}-{$seat->getSeatNumber()} erfolgreich erstellt.");
-
-                return $this->redirectToRoute('admin_seatmap');
             } else {
                 // Create multiple Seats
                 $seatSize = $this->settingService->get('lan.seatmap.styles.seat_size');
@@ -157,9 +158,8 @@ class SeatmapController extends AbstractController
                 
                 $x = $seat->getPosX();
                 $y = $seat->getPosY();
-                $i = 1;
                 $seatNumber = $seat->getSeatNumber();
-                while ($i <= $count) {
+                for ($i = 0; $i <= $count; $i++) {
                     $newSeat = clone $seat;
                     $newSeat->setPosX($x);
                     $newSeat->setPosY($y);
@@ -173,13 +173,11 @@ class SeatmapController extends AbstractController
                         $y += $seatSize * $seatMultiplier + $seatSpacing;
                     }
                     $seatNumber += 2;
-                    ++$i;
                 }
                 $this->em->flush();
                 $this->addFlash('success', $count.' Sitzplätze erfolgreich erstellt.');
-
-                return $this->redirectToRoute('admin_seatmap');
             }
+            return $this->redirectToRoute('admin_seatmap');
         }
 
         return $this->render('admin/seatmap/create.html.twig', [

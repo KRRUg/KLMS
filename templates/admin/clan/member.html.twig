@@ -8,10 +8,12 @@
         <div class="col mb-4">
             <div class="card">
                 <div class="card-body">
-                    <form method="post" class="form-inline" action="{{ path('admin_clan_member_edit', {'uuid' : clan.uuid}) }}">
-                        <label for="add_user_uuid">User hinzufügen: </label>
-                        <select id="add_user_uuid" style="width:30%;" class="select2-enable form-control" data-remote-target="{{ path('api_users', {'fullUser' : false}) }}" name="user_uuid">
+                    <form method="post" class="form-inline d-flex" action="{{ path('admin_clan_member_edit', {'uuid' : clan.uuid}) }}">
+                        <label for="add_user_uuid" class="mr-1">User hinzufügen: </label>
+                        <div class="flex-fill">
+                        <select id="add_user_uuid" name="user_uuid" class="form-control" {{ stimulus_controller('select2', {'remoteTarget': path('api_users')}) }}>
                         </select>
+                        </div>
                         <input type="hidden" name="_token" value="{{ csrf_token(csrf_token_member_edit) }}">
                         <input type="hidden" name="action" value="add">
                         <input class="btn btn-success" type="submit" value="User hinzufügen"/>
@@ -44,7 +46,7 @@
                                             <input type="hidden" name="_token" value="{{ csrf_token(csrf_token_member_edit) }}" />
                                             <input type="hidden" name="user_uuid" value="{{ user.uuid }}" />
                                             <input type="hidden" name="action" value="kick">
-                                            <button type="submit" class="btn btn-outline-dark" title="User von Clan entfernen"><i class="fas fa-user-minus fa-fw"></i></button>
+                                            <button type="submit" class="btn btn-sm btn-outline-dark" title="User von Clan entfernen"><i class="fas fa-user-minus fa-fw"></i></button>
                                         </form>
                                         {% if userIsAdmin %}
                                             {% set action = "demote" %}
@@ -60,7 +62,7 @@
                                             <input type="hidden" name="_token" value="{{ csrf_token(csrf_token_member_edit) }}" />
                                             <input type="hidden" name="user_uuid" value="{{ user.uuid }}" />
                                             <input type="hidden" name="action" value="{{ action }}" />
-                                            <button type="submit" class="btn btn-outline-dark" title="{{ modalTitle }}" >{% if userIsAdmin %}<i class="fas fa-ban fa-fw"></i>{% else %}<i class="fas fa-crown fa-fw"></i>{% endif %}</button>
+                                            <button type="submit" class="btn btn-sm btn-outline-dark" title="{{ modalTitle }}" >{% if userIsAdmin %}<i class="fas fa-ban fa-fw"></i>{% else %}<i class="fas fa-crown fa-fw"></i>{% endif %}</button>
                                         </form>
                                     </td>
                                 </tr>

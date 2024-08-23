@@ -53,8 +53,9 @@ class SeatRepository extends ServiceEntityRepository
     public function countFreeSeats(): int
     {
         return $this->createCountQueryBuilder('s')
-            ->andWhere('s.owner IS NULL')
             ->andWhere('s.type = :st')
+            ->andWhere('s.owner IS NULL')
+            ->andWhere('s.clanReservation IS NULL')
             ->setParameter('st', SeatKind::SEAT)
             ->getQuery()
             ->getSingleScalarResult();

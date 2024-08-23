@@ -2,6 +2,7 @@
 
 namespace App\Service;
 
+use App\Entity\Clan;
 use App\Entity\Seat;
 use App\Entity\SeatKind;
 use App\Entity\User;
@@ -9,7 +10,6 @@ use App\Exception\GamerLifecycleException;
 use App\Idm\IdmManager;
 use App\Idm\IdmRepository;
 use App\Repository\SeatRepository;
-use App\Service\UserService;
 use Doctrine\ORM\EntityManagerInterface;
 use Ramsey\Uuid\UuidInterface;
 use Symfony\Component\Security\Core\Security;
@@ -21,6 +21,7 @@ class SeatmapService
     private readonly TicketService $ticketService;
     private readonly Security $security;
     private readonly IdmRepository $userRepo;
+    private readonly IdmRepository $clanRepo;
     private readonly SettingService $settingService;
     private readonly UserService $userService;
 
@@ -35,6 +36,7 @@ class SeatmapService
     {
         $this->em = $entityManager;
         $this->userRepo = $manager->getRepository(User::class);
+        $this->clanRepo = $manager->getRepository(Clan::class);
         $this->seatRepository = $seatRepository;
         $this->security = $security;
         $this->ticketService = $ticketService;
@@ -69,6 +71,25 @@ class SeatmapService
     }
 
     /**
+     * @param Seat[] $seats
+     * @return (?Clan)[]
+     */
+    public function getReservedClans(array $seats): array
+    {
+        $uuids = array_map(fn (Seat $seat) => $seat->getClanReservation()?->toString(), $seats);
+        $uuids = array_filter($uuids); // remove null from uuids
+        // preload clans
+        $this->clanRepo->findById($uuids);
+
+        $ret = [];
+        foreach ($seats as $seat) {
+            $ret[$seat->getId()] = $this->getClanReservation($seat);
+        }
+
+        return $ret;
+    }
+
+    /**
      * Returns true if the provided User can still book a seat.
      */
     public function hasSeatEligibility(User|UuidInterface $user): bool
@@ -81,7 +102,7 @@ class SeatmapService
 
     public function canBookSeat(Seat $seat, User|UuidInterface $user): bool
     {
-        return $this->hasSeatEligibility($user) && $this->isSeatBookable($seat);
+        return $this->hasSeatEligibility($user) && $this->isSeatBookable($seat, $user);
     }
 
     public function isSeatOwner(Seat $seat, User|UuidInterface $user): bool
@@ -123,8 +144,11 @@ class SeatmapService
         return $this->seatRepository->count(['owner' => $uuid]);
     }
 
-    public function isSeatBookable(Seat $seat): bool
+    public function isSeatBookable(Seat $seat, User $user): bool
     {
+        if (!empty($seat->getClanReservation()) && !$this->userService->isUserInClan($user, $seat->getClanReservation())) {
+            return false;
+        }
         return match ($seat->getType()) {
             SeatKind::SEAT => empty($seat->getOwner()),
             SeatKind::LOCKED => $this->security->isGranted('ROLE_ADMIN_SEATMAP'),
@@ -135,6 +159,11 @@ class SeatmapService
     public function getSeatOwner(Seat $seat): ?User
     {
         return $seat->getOwner() ? $this->userRepo->findOneById($seat->getOwner()) : null;
+    }
+
+    public function getClanReservation(Seat $seat): ?Clan
+    {
+       return $seat->getClanReservation() ? $this->clanRepo->findOneById($seat->getClanReservation()) : null;
     }
 
     /**
