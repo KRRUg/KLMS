@@ -70,14 +70,12 @@
                                     class="seat
                                     {% if ownSeat %}
                                         seat-own
-                                    {% elseif locked %}
-                                        seat-locked
                                     {% elseif taken %}
                                         seat-taken {% if ownClan %}seat-own-clan{% endif %}
-                                    {% elseif reserved and ownClan %}
-                                        seat-empty seat-own-clan
-                                    {% elseif reserved %}
+                                    {% elseif locked %}
                                         seat-locked
+                                    {% elseif reserved %}
+                                        {% if ownClan %}seat-empty seat-own-clan{% else %}seat-locked{% endif %}
                                     {% else %}
                                         seat-empty
                                     {% endif %}
