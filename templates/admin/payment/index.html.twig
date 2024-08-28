@@ -65,6 +65,11 @@
                                         <span class="badge badge-primary">Eingel&ouml;&szlig;t</span>
                                     {% endif %}
 
+                                    {% set user = ticket.redeemer | user %}
+                                    {% if user is age_below(18) %}
+                                        <span class="badge badge-danger">U18</span>
+                                    {% endif %}
+
                                     {% if ticket.redeemer is not seated_user %}
                                         <span class="badge badge-danger">Kein Sitzplatz</span>
                                     {% endif %}

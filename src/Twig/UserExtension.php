@@ -45,6 +45,7 @@ class UserExtension extends AbstractExtension
             new TwigTest('seated_user', $this->userIsSeated(...)),
             new TwigTest('in_clan', $this->userIsInClan(...)),
             new TwigTest('in_clans', $this->userIsInClans(...)),
+            new TwigTest('age_below', $this->userAgeBelow(...)),
         ];
     }
 
@@ -137,6 +138,11 @@ class UserExtension extends AbstractExtension
     public function userIsInClans(User|UuidInterface $user, array $clans): bool
     {
         return $this->userService->isUserInClans($user, $clans);
+    }
+
+    public function userAgeBelow(User|UuidInterface $user, int $age): bool
+    {
+        return !($this->userService->userAgeAbove($user, $age) ?? true);
     }
 
     public function getSeat(User $user): string

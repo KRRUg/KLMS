@@ -7,6 +7,8 @@ use App\Entity\User;
 use App\Idm\IdmManager;
 use App\Idm\IdmRepository;
 use App\Repository\UserImageRepository;
+use DateInterval;
+use DateTime;
 use Ramsey\Uuid\Uuid;
 use Ramsey\Uuid\UuidInterface;
 use Vich\UploaderBundle\Templating\Helper\UploaderHelper;
@@ -144,5 +146,16 @@ class UserService
             }
         }
         return false;
+    }
+
+    public function userAgeAbove(UuidInterface|User $user, int $age): ?bool
+    {
+        $user = $user instanceof User ? $user : $this->userRepo->findOneById($user);
+        if (empty($user) || empty($user->getBirthdate())) {
+            return null;
+        }
+        $limit = DateInterval::createFromDateString($age.' years');
+        $birthday = $user->getBirthdate()->add($limit);
+        return (new DateTime()) >= $birthday;
     }
 }
