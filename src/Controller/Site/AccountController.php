@@ -176,12 +176,12 @@ class AccountController extends AbstractController
         }
         $user->setEmailConfirmed(true);
         $this->manager->flush();
-        $this->addFlash('success', 'User wurde freigeschalten. Herzlich Willkommen!');
+        $this->addFlash('success', 'User wurde freigeschaltet. Herzlich Willkommen!');
 
         return $userAuthenticator->authenticateUser(new LoginUser($user), $login, $request);
     }
 
-    private function sendRegisterToken(User $user)
+    private function sendRegisterToken(User $user): void
     {
         try {
             $token = $this->tokenService->generateToken($user->getUuid(), self::TOKEN_MAIL_CONFIRM_STRING);
