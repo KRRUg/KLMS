@@ -89,10 +89,6 @@
                         <span class="input-group-text">Anzahl der Tickets</span>
                     </div>
                     {{ form_widget(form.tickets) }}
-                    {# <input type="number" class="form-control" value="1" min="1" max="15"> #}
-                    <div class="input-group-append">
-                        {# <button class="btn btn-primary" type="button" id="button-confirm-ticket">Tickets kaufen</button> #}
-                    </div>
                 </div>
                 <p class="text-muted">
                     Bei mehreren Tickets wird das erste automatisch für den eigenen Eintritt verwendet und alle
@@ -111,12 +107,14 @@
                     eingeben:</p>
                 <div class="input-group">
                     {{ form_widget(form.code, {'attr': {'placeholder': 'XXXXX-XXXXX-XXXXX'}}) }}
-                    {# <input type="text" class="form-control" placeholder="AAAAA-BBBBB-00000"> #}
                     <div class="input-group-append">
                         <button class="btn btn-primary" type="button" id="button-confirm-code">Code überprüfen</button>
                     </div>
                 </div>
             </div>
         </div>
+    </div>
+    <div id="backButton" class="d-none mt-2 text-right">
+        <button class="btn btn-secondary ml-1" type="reset">Abbrechen</button>
     </div>
 </div>

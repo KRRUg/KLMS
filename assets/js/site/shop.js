@@ -12,6 +12,7 @@ const Shop = function ($root, config) {
     this.$paneMore = this.$tickets.find('#ticketClanBody');
     this.$paneMore.find('#button-confirm-ticket').on('click', () => this.smNext());
     this.$paneRedeem = this.$tickets.find('#redeemCodeBody');
+    this.$backButton = this.$tickets.find('#backButton');
 
     this.$form = this.$root.find('form');
     this.$formTicketCount = this.$paneMore.find('input');
@@ -21,13 +22,14 @@ const Shop = function ($root, config) {
 
     this.$addons = this.$root.find('#addonWrapper');
     this.$addonInputs = this.$addons.find('input');
-    this.$buttonReset = this.$root.find('#buttonReset');
-    this.$buttonReset.on('click', () => this.smClear());
+    this.$buttonReset = this.$root.find('button[type="reset"]');
+    this.$buttonReset.on('click', (e) => { e.preventDefault(); this.smClear() });
 
     this.$submit = this.$root.find('#submitWrapper');
 
     this.visibilityStates = storeVisibility([
         this.$buttonsWrapper,
+        this.$backButton,
         this.$paneRedeem,
         this.$paneOne,
         this.$paneMore,
@@ -151,9 +153,11 @@ $.extend(Shop.prototype, {
         this.$formRedeemInput.val('');
         this.$buttonsWrapper.addClass('d-none');
         this.$paneRedeem.removeClass('d-none');
+        this.$backButton.removeClass('d-none');
     },
     _showAddon() {
         this.$addons.find('input').val(0);
+        this.$backButton.addClass('d-none');
         this.$addons.removeClass('d-none');
         this.$submit.removeClass('d-none');
     },
