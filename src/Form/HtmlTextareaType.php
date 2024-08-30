@@ -15,7 +15,7 @@ class HtmlTextareaType extends TextareaType
         $this->htmlHandlingSubscriber = $htmlHandlingSubscriber;
     }
 
-    public function buildForm(FormBuilderInterface $builder, array $options)
+    public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         parent::buildForm($builder, $options);
         $builder->addEventSubscriber($this->htmlHandlingSubscriber);
@@ -25,7 +25,7 @@ class HtmlTextareaType extends TextareaType
     final public const CLEAR_SCRIPTS = 'clear_scripts';
     final public const FIX_HEADLINES = 'fix_headlines';
 
-    public function configureOptions(OptionsResolver $resolver)
+    public function configureOptions(OptionsResolver $resolver): void
     {
         parent::configureOptions($resolver);
         $resolver
@@ -41,6 +41,10 @@ class HtmlTextareaType extends TextareaType
             ->setDefault(self::FIX_HEADLINES, true)
             ->setAllowedTypes(self::FIX_HEADLINES, 'bool')
         ;
-        $resolver->setDefault('attr', ['class' => 'wysiwyg']);
+    }
+
+    public function getBlockPrefix(): string
+    {
+        return 'tinymce';
     }
 }
