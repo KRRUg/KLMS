@@ -63,7 +63,7 @@ class ShopController extends AbstractController
 
         $addons = $this->shopService->getAddons();
         $userRegistered = $this->ticketService->isUserRegistered($user);
-        $form = $this->createForm(CheckoutType::class, options: ['addons' => $addons, 'tickets' => !$userRegistered]);
+        $form = $this->createForm(CheckoutType::class, options: ['addons' => $addons, 'code' => !$userRegistered]);
 
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
@@ -100,11 +100,10 @@ class ShopController extends AbstractController
         }
 
         // show order dialog
-        $order_count = count($orders);
         return $this->render('site/shop/checkout.html.twig', [
             'form' => $form->createView(),
             'addons' => $addons,
-            'order_count' => $order_count,
+            'has_ticket' => $userRegistered,
         ]);
     }
 

@@ -20,7 +20,7 @@ class CheckoutType extends AbstractType
             $builder
                 ->add('tickets', IntegerType::class, [
                     'required' => false,
-                    'empty_data' => 1,
+                    'empty_data' => 0,
                     'attr' => [
                         'min' => 0,
                         'max' => ShopService::MAX_TICKET_COUNT,
@@ -29,7 +29,10 @@ class CheckoutType extends AbstractType
                         new Assert\GreaterThanOrEqual(0),
                         new Assert\LessThanOrEqual(ShopService::MAX_TICKET_COUNT)
                     ]
-                ])
+                ]);
+        }
+        if ($options['code']) {
+            $builder
                 ->add('code', TextType::class, [
                     'required' => false,
                     'attr' => [
@@ -61,10 +64,12 @@ class CheckoutType extends AbstractType
     {
         $resolver->setDefaults([
             'tickets' => true,
+            'code' => true,
             'addons' => []
         ]);
         $resolver
             ->setAllowedTypes('tickets', 'bool')
+            ->setAllowedTypes('code', 'bool')
             ->setAllowedTypes('addons', ShopAddon::class.'[]');
     }
 }

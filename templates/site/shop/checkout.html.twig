@@ -4,12 +4,13 @@
 
 {% block main %}
     {% set showTicketSale = form.tickets is defined %}
+    {% set showTicketRedeem = form.code is defined %}
     {% set showAddonSale = addons is not empty %}
     {% set showAny = showTicketSale or showAddonSale %}
 
     {% if showAny %}{{ form_start(form) }}{% endif %}
     <div id="shop" class="container mb-4">
-        {% if showTicketSale %}
+        {% if showTicketSale or showTicketRedeem %}
             <div id="ticketWrapper">
                 {% include 'site/shop/_tickets.html.twig' %}
             </div>
