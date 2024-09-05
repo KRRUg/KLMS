@@ -2,6 +2,7 @@
     <div class="col">
         <h1>LAN Eintritt kaufen</h1>
         <div class="mb-3">
+        {% if not has_ticket %}
             {% if settings.get('lan.signup.info.ticket') is not empty %}
                 <div>
                     {{ settings.get('lan.signup.info.ticket') | raw }}
@@ -12,10 +13,23 @@
                     dein Gaming-Abenteuer mit exklusiven Add-ons. Jetzt buchen und dabei sein!
                 </p>
             {% endif %}
+        {% else %}
+            <div class="alert alert-success text-center" role="alert">
+            Du hast bereits ein Ticket und bist mit dabei!
+            </div>
+            {% if form.tickets is defined %}
+                <div id="showAdditionalTicketsPane">
+                    Wenn du weitere Tickets für Freunde kaufen möchtest, klicke <a id="showAdditionalTickets" href="#">hier</a>.
+                </div>
+            {% endif %}
+        {% endif %}
         </div>
     </div>
 </div>
-<hr/>
+{% set price = settings.get('lan.signup.price') %}
+{% set price_reduced = settings.get('lan.signup.discount.price') %}
+{% set price_reduced_limit = settings.get('lan.signup.discount.limit') %}
+{% if not has_ticket %}
 <div id="chooseTicketWrapper" class="mb-2">
     <div class="d-xs-block d-sm-block d-md-flex justify-content-center" >
         {% if form.tickets is defined %}
@@ -44,9 +58,6 @@
 </div>
 <div>
     {% if form.tickets is defined %}
-    {% set price = settings.get('lan.signup.price') %}
-    {% set price_reduced = settings.get('lan.signup.discount.price') %}
-    {% set price_reduced_limit = settings.get('lan.signup.discount.limit') %}
     <div id="ticketSelfBody" class="card d-none">
         <div class="card-header">
             <h4 class="my-0 font-weight-normal">LAN Eintritt für mich kaufen</h4>
@@ -125,3 +136,39 @@
         <button class="btn btn-secondary ml-1" type="reset">Abbrechen</button>
     </div>
 </div>
+{% else %}
+    {% if form.tickets is defined %}
+        <div id="ticketAdditionalBody" class="card d-none">
+            <div class="card-header">
+                <h4 class="my-0 font-weight-normal">Weiteren LAN Eintritt kaufen</h4>
+            </div>
+            <div class="card-body">
+                <div class="d-flex justify-content-center">
+                    <div class="mr-5 align-bottom" style="height: 100%">
+                        <h6 class="card-subtitle text-muted text-center">&nbsp;</h6>
+                        <h2 class="card-title text-center">{{ (price / 100) | format_currency('EUR') }}</h2>
+                        <h6 class="card-subtitle text-muted mb-4 text-center">pro Person</h6>
+                    </div>
+                    {% if price_reduced_limit and price_reduced %}
+                        <div class="ml-5 align-bottom">
+                            <h6 class="card-subtitle text-muted text-center">ab {{ price_reduced_limit}} Personen</h6>
+                            <h2 class="card-title text-center">{{ (price_reduced / 100) | format_currency('EUR') }}</h2>
+                            <h6 class="card-subtitle text-muted mb-4 text-center">pro Person</h6>
+                        </div>
+                    {% endif %}
+                </div>
+                <div class="card-text">
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text">Anzahl der Tickets</span>
+                        </div>
+                        {{ form_widget(form.tickets) }}
+                    </div>
+                    <p class="text-muted">
+                        Du hast bereits ein Ticket. Weitere Tickets werden als Ticket-Codes für deine Freunde versendet.
+                    </p>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+{% endif %}

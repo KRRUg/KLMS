@@ -6,6 +6,7 @@
     {% set showTicketSale = form.tickets is defined %}
     {% set showTicketRedeem = form.code is defined %}
     {% set showAddonSale = addons is not empty %}
+    {% set twoSteps = showTicketSale and not has_ticket %}
     {% set showAny = showTicketSale or showAddonSale %}
 
     {% if showAny %}{{ form_start(form) }}{% endif %}
@@ -16,13 +17,13 @@
             </div>
         {% endif %}
         {% if showAddonSale %}
-            <div id="addonWrapper" class="{% if showTicketSale %}d-none{% endif %}">
+            <div id="addonWrapper" class="{% if twoSteps %}d-none{% endif %}">
                 {% if showTicketSale %}<hr />{% endif %}
                 {% include 'site/shop/_addons.html.twig' %}
             </div>
         {% endif %}
         {% if showAny %}
-            <div id="submitWrapper" class="{% if showTicketSale %}d-none{% endif %}">
+            <div id="submitWrapper" class="{% if twoSteps %}d-none{% endif %}">
                 <hr/>
                 {% if 'agb' is slug %}
                     <div class="row">
@@ -37,7 +38,7 @@
                 <div class="row">
                     <div class="col d-flex">
                         <div class="flex-fill"></div>
-                        {% if showTicketSale %}
+                        {% if twoSteps %}
                         <button class="btn btn-secondary m-1" type="reset">Abbrechen</button>
                         {% endif %}
                         <button class="btn btn-primary m-1" type="submit"><i class="fas fa-shopping-cart"></i> Absenden</button>

@@ -81,8 +81,10 @@ class ShopController extends AbstractController
             }
 
             // handle code
+            $ticketActivation = false;
             $code = $data['code'] ?? '';
             if ($this->ticketService->ticketCodeUnused($code)) {
+                $ticketActivation = true;
                 if ($this->ticketService->redeemTicket($code, $user)) {
                     $this->addFlash('success', 'Ticket erfolgreich aktiviert.');
                 } else {
@@ -92,8 +94,10 @@ class ShopController extends AbstractController
 
             if (!$order->isEmpty()) {
                 $this->shopService->placeOrder($order);
-                $this->addFlash('success', "Order erfolgreich.");
+                $this->addFlash('success', "Order erfolgreich angelegt.");
                 return $this->redirectToRoute('shop_orders');
+            } else if(!$ticketActivation) {
+                $this->addFlash('warning', "Leere Bestellung kann nicht angelegt werden.");
             }
 
             return $this->redirect('/');
