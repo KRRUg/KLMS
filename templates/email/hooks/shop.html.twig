@@ -21,7 +21,11 @@ an:
 .
 {% endif %}
 {% elseif showPaymentSuccess | default(false) %}
+{% if order.calculateTotal > 0 %}
 Wir haben dein Geld erhalten und deine Bestellung wurde bearbeitet.
+{% else %}
+Deine Bestellung wurde bearbeitet.
+{% endif %}
 {% if order.countTickets >= 1 %}
 Dein Eintritt wurde freigeschaltet. Solltest du noch keinen Sitzplatz reserviert haben, mach das <a href="{{ url('seatmap') }}">hier</a>!
 {% if order.countTickets > 1 %} Die Codes für die weiteren Tickets findest du oben. Gib diese an deine Freunde weiter.

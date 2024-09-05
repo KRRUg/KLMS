@@ -124,7 +124,8 @@ class ShopService
     private function setState(ShopOrder $order, ShopOrderStatus $status): bool
     {
         $new_state = match ($order->getStatus()) {
-            null => ShopOrderStatus::Created,
+            // if the order has 0 amount, it is fulfilled immediately
+            null => $order->calculateTotal() == 0 ? ShopOrderStatus::Paid : ShopOrderStatus::Created,
             // currently only state transfer from created to both other states are allowed.
             ShopOrderStatus::Created => $status,
             default => $order->getStatus()
