@@ -13,7 +13,7 @@
 <div class="my-2">
 {% if showPaymentInfo | default(false) %}
 Bitte bezahle <b>{{ (order.calculateTotal() / 100) | format_currency('EUR') }}</b>
-unter Angabe der Bestellnummer <b>#{{ order.id }}</b>
+unter der Angabe <b>Bestellnummer {{ order.id }}</b>
 {% if settings.get('lan.signup.payment_details') %}
 an:
 <div class="border p-2 m-1">{{ settings.get('lan.signup.payment_details') | raw }}</div>

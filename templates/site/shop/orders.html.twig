@@ -29,7 +29,7 @@
                                 </div>
                                 <div>
                                     Bitte bezahle <b>{{ (o.calculateTotal() / 100) | format_currency('EUR') }}</b>
-                                    unter Angabe der Bestellnummer <b>#{{ o.id }}</b>
+                                    unter der Angabe <b>Bestellnummer {{ o.id }}</b>
                                     {% if settings.get('lan.signup.payment_details') %}
                                         an:
                                         <div class="border p-2 m-1">
