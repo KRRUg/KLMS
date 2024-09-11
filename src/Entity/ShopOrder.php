@@ -26,6 +26,7 @@ class ShopOrder
     private ?ShopOrderStatus $status = null;
 
     #[ORM\OneToMany(mappedBy: 'order', targetEntity: ShopOrderPosition::class, cascade: ['persist', 'remove'], fetch: 'EAGER', orphanRemoval: true)]
+    #[ORM\OrderBy(['id' => 'ASC'])]
     private Collection $shopOrderPositions;
 
     #[ORM\OneToMany(mappedBy: 'order', targetEntity: ShopOrderHistory::class, cascade: ['persist', 'remove'], fetch: 'LAZY', orphanRemoval: true)]
