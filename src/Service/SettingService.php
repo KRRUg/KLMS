@@ -64,6 +64,7 @@ class SettingService
         'lan.seatmap.styles.seat_multiple_seats_distance' => [self::TB_DESCRIPTION => 'Abstand der Sitzplätze (px)', self::TB_TYPE => SettingType::Integer, self::TB_DEFAULT_VALUE => 2],
 
         'lan.stats.show' => [self::TB_DESCRIPTION => 'Statistiken zur Anmeldung anzeigen', self::TB_TYPE => SettingType::Bool],
+        'lan.stats.show_seats' => [self::TB_DESCRIPTION => 'Statistik über Sitzplätze statt Tickets', self::TB_TYPE => SettingType::Bool],
 
         'lan.tourney.enabled' => [self::TB_DESCRIPTION => 'Tourney einschalten', self::TB_TYPE => SettingType::Bool],
         'lan.tourney.text' => [self::TB_DESCRIPTION => 'Tourney Einleitungstext', self::TB_TYPE => SettingType::HTML],

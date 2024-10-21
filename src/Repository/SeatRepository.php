@@ -79,6 +79,16 @@ class SeatRepository extends ServiceEntityRepository
             ->getSingleScalarResult();
     }
 
+    public function countClanReservedSeats(): int
+    {
+        return $this->createCountQueryBuilder('s')
+            ->andWhere('s.owner IS NULL')
+            ->andWhere('s.type = :seat AND s.clanReservation IS NOT NULL')
+            ->setParameter('seat', SeatKind::SEAT)
+            ->getQuery()
+            ->getSingleScalarResult();
+    }
+
     public function getMaxDimension(): array
     {
         $r = $this->createQueryBuilder('s')

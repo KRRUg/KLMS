@@ -1,9 +1,17 @@
 {% if settings.get("lan.stats.show") %}
-    {% set display = [
-        {name: 'Tickets bestellt', key: 'tickets_ordered', icon: 'fas fa-user' },
-        {name: 'Tickets bezahlt', key: 'tickets_sold', icon: 'fas fa-money-bill' },
-        {name: 'Freie Sitzplätze', key: 'seats_free', icon: 'fas fa-chair' },
-    ] %}
+    {% if settings.get("lan.stats.show_seats") %}
+        {% set display = [
+            {name: 'Reservierte Plätze', key: 'seats_taken', icon: 'fas fa-user' },
+            {name: 'Vorgemerkte Plätze', key: 'seats_locked', icon: 'fas fa-lock' },
+            {name: 'Freie Plätze', key: 'seats_free', icon: 'fas fa-chair' },
+        ] %}
+    {% else %}
+        {% set display = [
+            {name: 'Tickets bestellt', key: 'tickets_ordered', icon: 'fas fa-user' },
+            {name: 'Tickets bezahlt', key: 'tickets_sold', icon: 'fas fa-money-bill' },
+            {name: 'Freie Sitzplätze', key: 'seats_free', icon: 'fas fa-chair' },
+        ] %}
+    {% endif %}
     <div class="container">
         <div class="card">
             <div class="card-body row justify-content-center">

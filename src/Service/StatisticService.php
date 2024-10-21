@@ -60,7 +60,7 @@ class StatisticService extends OptimalService
 
     public function countSeatsLocked(): int
     {
-        return $this->seatRepository->countLockedSeats();
+        return $this->seatRepository->countLockedSeats() + $this->seatRepository->countClanReservedSeats();
     }
 
     public function countOrderedTickets(): int
