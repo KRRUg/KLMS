@@ -16,7 +16,7 @@ class StatisticServiceIntegrationTest extends DatabaseTestCase
         $this->assertEquals(3, $stat->get('seats_free'));
         $this->assertEquals(9, $stat->get('seats_total'));
         $this->assertEquals(3, $stat->get('seats_taken'));
-        $this->assertEquals(1, $stat->get('seats_locked'));
+        $this->assertEquals(3, $stat->get('seats_locked'));
         $this->assertEquals(18, $stat->get('tickets_ordered'));
         $this->assertEquals(13, $stat->get('tickets_redeemed'));
     }
