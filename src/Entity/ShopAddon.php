@@ -29,8 +29,11 @@ class ShopAddon
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $description = null;
 
+    #[ORM\Column]
+    private ?bool $onlyOnce = null;
+
     #[ORM\Column(nullable: true)]
-    private ?int $maxQuantity = null;
+    private ?int $maxQuantityGlobal = null;
 
     public function getId(): ?int
     {
@@ -97,14 +100,26 @@ class ShopAddon
         return $this;
     }
 
-    public function getMaxQuantity(): ?int
+    public function getOnlyOnce(): ?bool
     {
-        return $this->maxQuantity;
+        return $this->onlyOnce;
     }
 
-    public function setMaxQuantity(?int $maxQuantity): static
+    public function setOnlyOnce(?bool $onlyOnce): static
     {
-        $this->maxQuantity = $maxQuantity;
+        $this->onlyOnce = $onlyOnce;
+
+        return $this;
+    }
+
+    public function getMaxQuantityGlobal(): ?int
+    {
+        return $this->maxQuantityGlobal;
+    }
+
+    public function setMaxQuantityGlobal(?int $maxQuantityGlobal): static
+    {
+        $this->maxQuantityGlobal = $maxQuantityGlobal;
 
         return $this;
     }

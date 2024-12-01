@@ -202,7 +202,7 @@ class ShopService
     public function orderAddAddon(ShopOrder $order, ShopAddon $addon, int $cnt): void
     {
         for ($i = 0; $i < $cnt; $i++) {
-            $order->addShopOrderPosition((new ShopOrderPositionAddon())->setAddon($addon));
+            $order->addShopOrderPosition((new ShopOrderPositionAddon())->fillWithAddon($addon));
         }
     }
 
@@ -267,5 +267,20 @@ class ShopService
                 'text' => $item->getText(), 'price' => $item->getPrice()];
         }
         return $result;
+    }
+
+    /**
+     * @param ShopAddon $addon The addon to be counted.
+     * @param User|UuidInterface|null $user An optimal user to count the purchases for that user.
+     * @return int The number of purchased items
+     */
+    public function countBoughtAddon(ShopAddon $addon, User|UuidInterface|null $user): int
+    {
+        $uuid = $user instanceof User ? $user->getUuid() : $user;
+        if (is_null($uuid)) {
+            return $this->shopOrderPositionRepository->countOrderedAddons($addon);
+        } else {
+            return $this->shopOrderPositionRepository->countOrderedAddonsOfUser($addon, $uuid);
+        }
     }
 }

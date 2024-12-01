@@ -2,6 +2,7 @@
 
 namespace App\Controller\Site;
 
+use App\Entity\ShopAddon;
 use App\Entity\ShopOrder;
 use App\Entity\User;
 use App\Exception\OrderLifecycleException;
@@ -39,6 +40,18 @@ class ShopController extends AbstractController
 
     private const CSRF_TOKEN_CANCEL = 'cancelOrder';
 
+    private function maxCountAddon(ShopAddon $addon): ?int
+    {
+        if ($addon->getOnlyOnce() && $this->shopService->countBoughtAddon($addon, $this->getUser()->getUser()) > 0) {
+            return -1;
+        }
+        if (!is_null($addon->getMaxQuantityGlobal())) {
+            $boughtGlobal = $this->shopService->countBoughtAddon($addon, null);
+            return max(0, $addon->getMaxQuantityGlobal() - $boughtGlobal);
+        }
+        return null;
+    }
+
     #[Route(path: '/checkout', name: '_checkout')]
     public function checkout(Request $request): Response
     {
@@ -63,7 +76,11 @@ class ShopController extends AbstractController
 
         $addons = $this->shopService->getAddons();
         $userRegistered = $this->ticketService->isUserRegistered($user);
-        $form = $this->createForm(CheckoutType::class, options: ['addons' => $addons, 'code' => !$userRegistered]);
+        $form = $this->createForm(CheckoutType::class, options: [
+            'code' => !$userRegistered,
+            'addons' => $addons,
+            'max_addon_count_callback' => $this->maxCountAddon(...),
+        ]);
 
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {

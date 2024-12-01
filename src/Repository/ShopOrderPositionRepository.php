@@ -2,12 +2,14 @@
 
 namespace App\Repository;
 
+use App\Entity\ShopAddon;
 use App\Entity\ShopOrderPosition;
 use App\Entity\ShopOrderPositionAddon;
 use App\Entity\ShopOrderPositionTicket;
 use App\Entity\ShopOrderStatus;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
+use Ramsey\Uuid\UuidInterface;
 
 /**
  * @extends ServiceEntityRepository<ShopOrderPosition>
@@ -32,6 +34,36 @@ class ShopOrderPositionRepository extends ServiceEntityRepository
             ->where('op INSTANCE OF '.ShopOrderPositionTicket::class)
             ->andWhere('o.status = :status')
             ->setParameter('status', $status)
+            ->getQuery()
+            ->getSingleScalarResult();
+    }
+
+    public function countOrderedAddons(ShopAddon $addon): int
+    {
+        $qb = $this->getEntityManager()->createQueryBuilder();
+        return $qb->select('count(op)')
+            ->from(ShopOrderPositionAddon::class, 'op')
+            ->andWhere('op.addon = :addon')
+            ->setParameter('addon', $addon)
+            ->join('op.order', 'o')
+            ->andWhere('o.status != :status')
+            ->setParameter('status', ShopOrderStatus::Canceled)
+            ->getQuery()
+            ->getSingleScalarResult();
+    }
+
+    public function countOrderedAddonsOfUser(ShopAddon $addon, UuidInterface $user): int
+    {
+        $qb = $this->getEntityManager()->createQueryBuilder();
+        return $qb->select('count(op)')
+            ->from(ShopOrderPositionAddon::class, 'op')
+            ->join('op.order', 'o')
+            ->andWhere('o.orderer = :user')
+            ->andWhere('op.addon = :addon')
+            ->andWhere('o.status != :status')
+            ->setParameter('status', ShopOrderStatus::Canceled)
+            ->setParameter('addon', $addon)
+            ->setParameter('user', $user)
             ->getQuery()
             ->getSingleScalarResult();
     }

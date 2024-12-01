@@ -23,11 +23,17 @@
                     <h2 class="card-title">{{ (addon.price / 100) | format_currency('EUR') }}</h2>
                     <div class="card-text">
                         <p>{{ addon.description }}</p>
-                        <div class="input-group">
-                            <div class="input-group-prepend">
-                                <span class="input-group-text">Anzahl</span>
-                            </div>
-                            {{ form_widget(attribute(form, "addon" ~ addon.id)) }}
+                        {% set item = attribute(form, "addon" ~ addon.id) %}
+                        <p>{{ form_help(item) }}</p>
+                        <div class="input-group d-flex justify-content-center">
+                            {% if addon.onlyOnce %}
+                                {{ form_widget(item) }}
+                            {% else %}
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text">Anzahl</span>
+                                </div>
+                                {{ form_widget(item) }}
+                            {% endif %}
                         </div>
                     </div>
                 </div>
