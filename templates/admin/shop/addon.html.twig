@@ -16,6 +16,7 @@
                     <tr>
                         <th scope="col" style="width: 4em;" class="text-nowrap w-1">ID</th>
                         <th scope="col" style="width: 4em;">Sichtbar</th>
+                        <th scope="col" style="width: 4em;">Einmal</th>
                         <th scope="col" style="width: 4em;">Index</th>
                         <th scope="col" class="flex-fill">Name</th>
                         <th scope="col" class="">Preis</th>
@@ -32,6 +33,9 @@
                             <td class="text-center">{{ addon.id }}</td>
                             <td class="text-center">
                                 <a href="{{ path('admin_shop_addon_toggle', {'id' : addon.id}) }}" title="Sichtbarkeit ändern">{% if addon.isActive %}<i class="fas fa-eye text-success" title="sichtbar"></i>{% else %}<i class="fas fa-eye-slash text-danger" title="ausgeblendet"></i>{% endif %}</a>
+                            </td>
+                            <td class="text-center">
+                                {% if addon.onlyOnce %}<i class="fas fa-thumbs-up"></i>{% endif %}
                             </td>
                             <td>{{ addon.sortIndex }}</td>
                             <td>{{ addon.name }}</td>

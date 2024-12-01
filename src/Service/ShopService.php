@@ -235,7 +235,7 @@ class ShopService
 
     public function allocAddon(): ShopAddon
     {
-        return (new ShopAddon())->setActive(false)->setPrice(100)->setName('Neues Addon')->setDescription('');
+        return (new ShopAddon())->setActive(false)->setPrice(100)->setName('Neues Addon')->setDescription('')->setOnlyOnce(false);
     }
 
     public function saveAddon(ShopAddon $addon): void

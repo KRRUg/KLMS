@@ -21,7 +21,7 @@ class ShopAddonType extends AbstractType
             ->add('name', TextType::class, ['label' => 'Name'])
             ->add('price', MoneyType::class, ['label' => 'Preis', 'divisor' => 100])
             ->add('active', CheckboxType::class, ['label' => 'Aktiv', 'required' => false])
-            ->add('onlyOnce', CheckboxType::class, ['label' => 'Kann nur einmal pro User gekauft werden.'])
+            ->add('onlyOnce', CheckboxType::class, ['label' => 'Kann nur einmal pro User gekauft werden.', 'required' => false])
             ->add('maxQuantityGlobal', IntegerType::class, ['label' => 'Maximale Anzahl (global)', 'required' => false, 'attr' => ['min' => 1], 'constraints' => [new Assert\Positive()]])
             ->add('sortIndex', IntegerType::class, ['label' => 'Sortierung', 'required' => false, 'attr' => ['min' => 1], 'constraints' => [new Assert\Positive()]])
             ->add('description', TextAreaType::class, ['label' => 'Beschreibung', 'required' => false])
