@@ -38,34 +38,39 @@ class ShopOrderPositionRepository extends ServiceEntityRepository
             ->getSingleScalarResult();
     }
 
-    public function countOrderedAddons(ShopAddon $addon): int
+    public function countOrderedAddonsById(?UuidInterface $uuid = null): array
     {
         $qb = $this->getEntityManager()->createQueryBuilder();
-        return $qb->select('count(op)')
+        $q = $qb->select('identity(op.addon) as aid, count(op) as cnt')
             ->from(ShopOrderPositionAddon::class, 'op')
-            ->andWhere('op.addon = :addon')
-            ->setParameter('addon', $addon)
+            ->groupBy('op.addon')
             ->join('op.order', 'o')
             ->andWhere('o.status != :status')
-            ->setParameter('status', ShopOrderStatus::Canceled)
-            ->getQuery()
-            ->getSingleScalarResult();
+            ->setParameter('status', ShopOrderStatus::Canceled);
+        if (!is_null($uuid)) {
+            $q
+                ->andWhere('o.orderer = :uuid')
+                ->setParameter('uuid', $uuid);
+        }
+        return array_column($q->getQuery()->getArrayResult(), 'cnt', 'aid');
     }
 
-    public function countOrderedAddonsOfUser(ShopAddon $addon, UuidInterface $user): int
+    public function countOrderedAddons(ShopAddon $addon, ?UuidInterface $uuid = null): int
     {
         $qb = $this->getEntityManager()->createQueryBuilder();
-        return $qb->select('count(op)')
+        $q = $qb->select('count(op)')
             ->from(ShopOrderPositionAddon::class, 'op')
             ->join('op.order', 'o')
-            ->andWhere('o.orderer = :user')
             ->andWhere('op.addon = :addon')
             ->andWhere('o.status != :status')
             ->setParameter('status', ShopOrderStatus::Canceled)
-            ->setParameter('addon', $addon)
-            ->setParameter('user', $user)
-            ->getQuery()
-            ->getSingleScalarResult();
+            ->setParameter('addon', $addon);
+        if (!is_null($uuid)) {
+            $q
+                ->andWhere('o.orderer = :uuid')
+                ->setParameter('uuid', $uuid);
+        }
+        return $q->getQuery()->getSingleScalarResult();
     }
 
     /**

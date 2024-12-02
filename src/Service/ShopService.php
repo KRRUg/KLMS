@@ -58,8 +58,37 @@ class ShopService
         return $this->orderRepository->findAll();
     }
 
+    private function checkLimits(ShopOrder $order): bool
+    {
+        $countTotal = $this->countOrderedAddons();
+        $countUser = $this->countOrderedAddons($order->getOrderer());
+
+        foreach ($order->getShopOrderPositions() as $pos) {
+            if (!($pos instanceof ShopOrderPositionAddon)) {
+                continue;
+            }
+            $addon = $pos->getAddon();
+            $id = $addon->getId();
+            if ($addon->getOnlyOnce() && ($countUser[$id] ?? 0) > 0) {
+                return false;
+            }
+            if (!is_null($addon->getMaxQuantityGlobal())) {
+                $countTotal[$id] += 1;
+                if ($countTotal[$id] >= $addon->getMaxQuantityGlobal()) return false;
+            }
+        }
+
+        return true;
+    }
+
     private function fulfillOrder(ShopOrder $order): void
     {
+        // check addons
+        if (!$this->checkLimits($order)) {
+            throw new OrderLifecycleException($order);
+        }
+
+        // handle tickets
         $buyer = $order->getOrderer();
         $first_ticket = null;
         foreach ($order->getShopOrderPositions() as $pos) {
@@ -89,6 +118,9 @@ class ShopService
     public function placeOrder(ShopOrder $order): void
     {
         if ($order->isEmpty()) {
+            throw new OrderLifecycleException($order);
+        }
+        if (!$this->checkLimits($order)) {
             throw new OrderLifecycleException($order);
         }
         $result = $this->setState($order, ShopOrderStatus::Created);
@@ -165,6 +197,11 @@ class ShopService
                     ShopOrderStatus::Canceled => ShopOrderHistoryAction::OrderCanceled,
                 })
         );
+    }
+
+    public function orderAdheresToLimits(ShopOrder $order): bool
+    {
+        return $this->checkLimits($order);
     }
 
     public function hasOpenOrders(User|UuidInterface $user): bool
@@ -270,17 +307,27 @@ class ShopService
     }
 
     /**
-     * @param ShopAddon $addon The addon to be counted.
      * @param User|UuidInterface|null $user An optimal user to count the purchases for that user.
+     * @return array Array mapping AddonId to count of sold items of that addon.
+     */
+    public function countOrderedAddons(User|UuidInterface|null $user = null): array
+    {
+        $uuid = $user instanceof User ? $user->getUuid() : $user;
+        return $this->shopOrderPositionRepository->countOrderedAddonsById($uuid);
+    }
+
+    /**
+     * @param ShopAddon $addon The addon to be counted.
+     * @param User|UuidInterface|null $user
      * @return int The number of purchased items
      */
-    public function countBoughtAddon(ShopAddon $addon, User|UuidInterface|null $user): int
+    public function countOrderedAddon(ShopAddon $addon, User|UuidInterface|null $user): int
     {
         $uuid = $user instanceof User ? $user->getUuid() : $user;
         if (is_null($uuid)) {
             return $this->shopOrderPositionRepository->countOrderedAddons($addon);
         } else {
-            return $this->shopOrderPositionRepository->countOrderedAddonsOfUser($addon, $uuid);
+            return $this->shopOrderPositionRepository->countOrderedAddons($addon, $uuid);
         }
     }
 }

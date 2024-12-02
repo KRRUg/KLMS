@@ -40,13 +40,14 @@ class ShopController extends AbstractController
 
     private const CSRF_TOKEN_CANCEL = 'cancelOrder';
 
+    // create an object to only query it once
     private function maxCountAddon(ShopAddon $addon): ?int
     {
-        if ($addon->getOnlyOnce() && $this->shopService->countBoughtAddon($addon, $this->getUser()->getUser()) > 0) {
+        if ($addon->getOnlyOnce() && $this->shopService->countOrderedAddon($addon, $this->getUser()->getUser()) > 0) {
             return -1;
         }
         if (!is_null($addon->getMaxQuantityGlobal())) {
-            $boughtGlobal = $this->shopService->countBoughtAddon($addon, null);
+            $boughtGlobal = $this->shopService->countOrderedAddon($addon, null);
             return max(0, $addon->getMaxQuantityGlobal() - $boughtGlobal);
         }
         return null;

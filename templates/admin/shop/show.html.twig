@@ -44,6 +44,12 @@
             </div>
         </div>
         <hr/>
+        {% if order.open and not fulfillable %}
+            <div class="alert alert-error">
+                <i class="fas fa-exclamation-triangle fa-fw mr-2"></i>
+                Order kann nicht erfüllt werden: Add-On nicht verfügbar.
+            </div>
+        {% endif %}
         <div class="container">
             {% include 'site/shop/_order.html.twig' with {order: order} %}
         </div>

@@ -86,12 +86,13 @@ class ShopController extends AbstractController
             throw $this->createNotFoundException('Order not found');
         }
 
-        if (!$request->isxmlhttprequest()) {
-            throw $this->createnotfoundexception();
+        if (!$request->isXmlHttpRequest()) {
+            throw $this->createNotFoundException();
         }
 
         return $this->render('admin/shop/show.html.twig', [
             'order' => $order,
+            'fulfillable' => $this->shopService->orderAdheresToLimits($order),
             'csrf_token' => self::CSRF_TOKEN_PAYED
         ]);
     }
