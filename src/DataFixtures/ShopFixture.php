@@ -32,7 +32,7 @@ class ShopFixture extends Fixture implements DependentFixtureInterface
             ->setName('Catering Guthaben 100€')
             ->setDescription('Starte die LAN mit einem großem Guthaben auf deiner Catering-Card.')
             ->setPrice(10000)
-            ->setMaxQuantityGlobal(8)
+            ->setMaxQuantityGlobal(4)
             ->setOnlyOnce(false)
             ->setActive(true);
 

@@ -43,11 +43,11 @@ class ShopController extends AbstractController
     // create an object to only query it once
     private function maxCountAddon(ShopAddon $addon): ?int
     {
-        if ($addon->getOnlyOnce() && $this->shopService->countOrderedAddon($addon, $this->getUser()->getUser()) > 0) {
+        if ($addon->getOnlyOnce() && $this->shopService->countOrderedAddonByUser($addon, $this->getUser()->getUser()) > 0) {
             return -1;
         }
         if (!is_null($addon->getMaxQuantityGlobal())) {
-            $boughtGlobal = $this->shopService->countOrderedAddon($addon, null);
+            $boughtGlobal = $this->shopService->countOrderedAddon($addon);
             return max(0, $addon->getMaxQuantityGlobal() - $boughtGlobal);
         }
         return null;

@@ -137,4 +137,156 @@ class ShopServiceIntegrationTest extends DatabaseTestCase
         $this->assertCount(1, $shopService->getOrderByUser($user));
         $this->assertCount(1, $shopService->getOrderByUser($user, ShopOrderStatus::Created));
     }
+
+    public function testAddonBuyDisabled(): void
+    {
+        $this->databaseTool->loadFixtures([ShopFixture::class, SettingsFixture::class]);
+        $shopService = $this->getContainer()->get(ShopService::class);
+        $user = $this->getUser(8);
+
+        $this->assertCount(0, $shopService->getOrderByUser($user, ShopOrderStatus::Created));
+        $addonsAll = $shopService->getAddons(true);
+        $addons = $shopService->getAddons(false);
+        $this->assertCount(4, $addonsAll);
+        $this->assertCount(3, $addons);
+
+        // get an addon that is disabled
+        $addon = array_values(array_udiff($addonsAll, $addons, fn($a, $b) => $a->getId() - $b->getId()));
+        $this->assertCount(1, $addon);
+        $addon = $addon[0];
+        $this->assertEquals("VIP Seat", $addon->getName());
+        $this->assertFalse($addon->isActive());
+
+        // try to buy it anyway
+        $order = $shopService->allocOrder($user);
+        $shopService->orderAddAddon($order, $addon, 1);
+
+        $this->expectException(OrderLifecycleException::class);
+        $shopService->placeOrder($order);
+    }
+
+    public function testAddonBuyOnlyOnce(): void
+    {
+        $this->databaseTool->loadFixtures([ShopFixture::class, SettingsFixture::class]);
+        $shopService = $this->getContainer()->get(ShopService::class);
+        $user = $this->getUser(8);
+
+        $this->assertCount(0, $shopService->getOrderByUser($user, ShopOrderStatus::Created));
+        $this->assertCount(0, $shopService->getOrderByUser($user, ShopOrderStatus::Paid));
+        $addons = array_values(array_filter($shopService->getAddons(), fn($a) => $a->getOnlyOnce() == true));
+        $this->assertNotEmpty($addons);
+        $addon = $addons[0];
+
+        $order = $shopService->allocOrder($user);
+        $shopService->orderAddAddon($order, $addon, 1);
+        $this->assertEquals("Own Chair", $addon->getName());
+        $shopService->placeOrder($order);
+        $this->assertEquals(0, $order->calculateTotal());
+        $this->assertEquals(ShopOrderStatus::Paid, $order->getStatus());
+        $this->assertCount(1, $shopService->getOrderByUser($user, ShopOrderStatus::Paid));
+    }
+
+    public function testAddonBuyOnlyOnceTwice(): void
+    {
+        $this->databaseTool->loadFixtures([ShopFixture::class, SettingsFixture::class]);
+        $shopService = $this->getContainer()->get(ShopService::class);
+        $user = $this->getUser(8);
+
+        $this->assertCount(0, $shopService->getOrderByUser($user, ShopOrderStatus::Created));
+        $this->assertCount(0, $shopService->getOrderByUser($user, ShopOrderStatus::Paid));
+        $addons = array_values(array_filter($shopService->getAddons(), fn($a) => $a->getOnlyOnce() == true));
+        $this->assertNotEmpty($addons);
+        $addon = $addons[0];
+
+        $order = $shopService->allocOrder($user);
+        $shopService->orderAddAddon($order, $addon, 2);
+        $this->assertEquals("Own Chair", $addon->getName());
+        $this->expectException(OrderLifecycleException::class);
+        $shopService->placeOrder($order);
+    }
+
+    public function testAddonBuyOnlyOnceAgain(): void
+    {
+        $this->databaseTool->loadFixtures([ShopFixture::class, SettingsFixture::class]);
+        $shopService = $this->getContainer()->get(ShopService::class);
+        $user = $this->getUser(8);
+
+        $this->assertCount(0, $shopService->getOrderByUser($user, ShopOrderStatus::Created));
+        $this->assertCount(0, $shopService->getOrderByUser($user, ShopOrderStatus::Paid));
+        $addons = array_values(array_filter($shopService->getAddons(), fn($a) => $a->getOnlyOnce() == true));
+        $this->assertNotEmpty($addons);
+        $addon = $addons[0];
+
+        $order = $shopService->allocOrder($user);
+        $shopService->orderAddAddon($order, $addon, 1);
+        $shopService->placeOrder($order);
+        $this->assertEquals(0, $order->calculateTotal());
+        $this->assertEquals(ShopOrderStatus::Paid, $order->getStatus());
+
+        $this->assertCount(1, $shopService->getOrderByUser($user, ShopOrderStatus::Paid));
+
+        // try to buy it again
+        $order = $shopService->allocOrder($user);
+        $shopService->orderAddAddon($order, $addon, 1);
+        $this->expectException(OrderLifecycleException::class);
+        $shopService->placeOrder($order);
+    }
+
+    public function testAddonBuyWithGlobalLimit(): void
+    {
+        $this->databaseTool->loadFixtures([ShopFixture::class, SettingsFixture::class]);
+        $shopService = $this->getContainer()->get(ShopService::class);
+        $user = $this->getUser(8);
+
+        $this->assertCount(0, $shopService->getOrderByUser($user, ShopOrderStatus::Created));
+        $this->assertCount(0, $shopService->getOrderByUser($user, ShopOrderStatus::Paid));
+        $addons = array_values(array_filter($shopService->getAddons(), fn($a) => !is_null($a->getMaxQuantityGlobal())));
+        $this->assertNotEmpty($addons);
+        $addon = $addons[0];
+        $this->assertEquals(4, $addon->getMaxQuantityGlobal());
+        $this->assertEquals(2, $shopService->countOrderedAddon($addon));
+
+        // let's order one more
+        $order = $shopService->allocOrder($user);
+        $shopService->orderAddAddon($order, $addon, 1);
+        $shopService->placeOrder($order);
+        $this->assertEquals(3, $shopService->countOrderedAddon($addon));
+        $this->assertEquals(ShopOrderStatus::Created, $order->getStatus());
+
+        // let's pay the order
+        $shopService->setOrderPaid($order);
+        $this->assertEquals(ShopOrderStatus::Paid, $order->getStatus());
+        $this->assertEquals(3, $shopService->countOrderedAddon($addon));
+
+        // try to buy one more (reach the max)
+        $order = $shopService->allocOrder($user);
+        $shopService->orderAddAddon($order, $addon, 1);
+        $shopService->placeOrder($order);
+        $this->assertEquals(4, $shopService->countOrderedAddon($addon));
+        $this->assertEquals(ShopOrderStatus::Created, $order->getStatus());
+
+        $shopService->cancelOrder($order);
+        $this->assertEquals(3, $shopService->countOrderedAddon($addon));
+    }
+
+    public function testAddonBuyWithExceedingGlobalLimit(): void
+    {
+        $this->databaseTool->loadFixtures([ShopFixture::class, SettingsFixture::class]);
+        $shopService = $this->getContainer()->get(ShopService::class);
+        $user = $this->getUser(8);
+
+        $this->assertCount(0, $shopService->getOrderByUser($user, ShopOrderStatus::Created));
+        $this->assertCount(0, $shopService->getOrderByUser($user, ShopOrderStatus::Paid));
+        $addons = array_values(array_filter($shopService->getAddons(), fn($a) => !is_null($a->getMaxQuantityGlobal())));
+        $this->assertNotEmpty($addons);
+        $addon = $addons[0];
+        $this->assertEquals(4, $addon->getMaxQuantityGlobal());
+        $this->assertEquals(2, $shopService->countOrderedAddon($addon));
+
+        // exceed the maximum
+        $order = $shopService->allocOrder($user);
+        $shopService->orderAddAddon($order, $addon, 3);
+        $this->expectException(OrderLifecycleException::class);
+        $shopService->placeOrder($order);
+    }
 }

@@ -69,12 +69,16 @@ class ShopService
             }
             $addon = $pos->getAddon();
             $id = $addon->getId();
-            if ($addon->getOnlyOnce() && ($countUser[$id] ?? 0) > 0) {
+            if (!$addon->isActive()) {
                 return false;
             }
+            $countUser[$id] = ($countUser[$id] ?? 0) + 1;
+            if ($addon->getOnlyOnce() && $countUser[$id] > 1) {
+                return false;
+            }
+            $countTotal[$id] = ($countTotal[$id] ?? 0) + 1;
             if (!is_null($addon->getMaxQuantityGlobal())) {
-                $countTotal[$id] += 1;
-                if ($countTotal[$id] >= $addon->getMaxQuantityGlobal()) return false;
+                if ($countTotal[$id] > $addon->getMaxQuantityGlobal()) return false;
             }
         }
 
@@ -83,11 +87,6 @@ class ShopService
 
     private function fulfillOrder(ShopOrder $order): void
     {
-        // check addons
-        if (!$this->checkLimits($order)) {
-            throw new OrderLifecycleException($order);
-        }
-
         // handle tickets
         $buyer = $order->getOrderer();
         $first_ticket = null;
@@ -318,16 +317,21 @@ class ShopService
 
     /**
      * @param ShopAddon $addon The addon to be counted.
-     * @param User|UuidInterface|null $user
      * @return int The number of purchased items
      */
-    public function countOrderedAddon(ShopAddon $addon, User|UuidInterface|null $user): int
+    public function countOrderedAddon(ShopAddon $addon): int
+    {
+        return $this->shopOrderPositionRepository->countOrderedAddons($addon);
+    }
+
+    /**
+     * @param ShopAddon $addon The addon to be counted.
+     * @param User|UuidInterface $user
+     * @return int The number of purchased items
+     */
+    public function countOrderedAddonByUser(ShopAddon $addon, User|UuidInterface $user): int
     {
         $uuid = $user instanceof User ? $user->getUuid() : $user;
-        if (is_null($uuid)) {
-            return $this->shopOrderPositionRepository->countOrderedAddons($addon);
-        } else {
-            return $this->shopOrderPositionRepository->countOrderedAddons($addon, $uuid);
-        }
+        return $this->shopOrderPositionRepository->countOrderedAddons($addon, $uuid);
     }
 }
