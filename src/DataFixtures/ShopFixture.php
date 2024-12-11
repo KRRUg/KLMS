@@ -117,6 +117,7 @@ class ShopFixture extends Fixture implements DependentFixtureInterface
             ->setOrderer($user13)
             ->setStatus(ShopOrderStatus::Paid)
             ->addShopOrderPosition((new ShopOrderPositionTicket())->setTicket($tickets[3])->setPrice(1337))
+            ->addShopOrderPosition((new ShopOrderPositionAddon())->fillWithAddon($addon4))
             ->addShopOrderHistory((new ShopOrderHistory())->setAction(ShopOrderHistoryAction::PaymentFailed)->setLoggedAt(new DateTimeImmutable('2024-07-02 20:00'))->setText('invalid card details'))
             ->addShopOrderHistory((new ShopOrderHistory())->setAction(ShopOrderHistoryAction::PaymentSuccessful)->setLoggedAt(new DateTimeImmutable('2024-07-03 05:15'))->setText('payment successfully done with credit card'))
         ;

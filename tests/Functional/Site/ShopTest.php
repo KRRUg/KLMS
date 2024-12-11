@@ -2,12 +2,126 @@
 
 namespace App\Tests\Functional\Site;
 
+use App\DataFixtures\SettingsFixture;
 use App\DataFixtures\ShopFixture;
 use App\DataFixtures\UserFixtures;
 use App\Tests\Functional\DatabaseWebTestCase;
 
 class ShopTest extends DatabaseWebTestCase
 {
+    public function testShopPage(): void
+    {
+        $this->databaseTool->loadFixtures([ShopFixture::class, UserFixtures::class, SettingsFixture::class]);
+        $this->login("user8@localhost.local");
+
+        $crawler = $this->client->request('GET', '/shop/checkout');
+        $this->assertResponseStatusCodeSame(200);
+
+        // count that there are 3 addons
+        $addons = $crawler->filter('div[data-addon-id]');
+        $this->assertCount(3, $addons);
+
+        $addon0 = $addons->eq(0);
+        $this->assertStringContainsString("Catering Guthaben", $addon0->filter('.card-header')->text());
+        $this->assertStringContainsString("50,00", $addon0->filter('.card-body')->text());
+        $input = $addon0->filter('input[type="number"]');
+        $this->assertNotEmpty($input);
+        $this->assertEquals('0', $input->attr('min'));
+
+        $addon1 = $addons->eq(1);
+        $this->assertStringContainsString("Catering Guthaben", $addon1->filter('.card-header')->text());
+        $this->assertStringContainsString("100,00", $addon1->filter('.card-body')->text());
+        $input = $addon1->filter('input[type="number"]');
+        $this->assertNotEmpty($input);
+        $this->assertEquals('0', $input->attr('min'));
+        $this->assertEquals('2', $input->attr('max'));
+        $this->assertStringContainsString("nur noch 2 Stück verfügbar", $addon1->text());
+
+        $addon2 = $addons->eq(2);
+        $this->assertStringContainsString("Chair", $addon2->filter('.card-header')->text());
+        $this->assertStringContainsString("0,00", $addon2->filter('.card-body')->text());
+        $input = $addon2->filter('input[type="checkbox"]');
+        $this->assertNotEmpty($input);
+    }
+
+    public function testShopPageWithExistingOrders()
+    {
+        $this->databaseTool->loadFixtures([ShopFixture::class, UserFixtures::class, SettingsFixture::class]);
+        $this->login("user13@localhost.local");
+
+        $crawler = $this->client->request('GET', '/shop/checkout');
+        $this->assertResponseStatusCodeSame(200);
+
+        // count that there are 3 addons
+        $addons = $crawler->filter('div[data-addon-id]');
+        $this->assertCount(3, $addons);
+
+        // has already ordered own gaming chair
+        $addon2 = $addons->eq(2);
+        $this->assertStringContainsString("Chair", $addon2->filter('.card-header')->text());
+        $this->assertStringContainsString("0,00", $addon2->filter('.card-body')->text());
+        $input = $addon2->filter('input[type="checkbox"]');
+        $this->assertNotEmpty($input);
+        // check that $input is disabled
+        $this->assertNotEmpty($input->attr('disabled'));
+        $this->assertStringContainsString("Add-On nicht", $addon2->text());
+    }
+
+    public function testShopPageWithOpenOrders(): void
+    {
+        // user14 has an open order
+        $this->databaseTool->loadFixtures([ShopFixture::class, UserFixtures::class, SettingsFixture::class]);
+        $this->login("user14@localhost.local");
+
+        // don't follow the redirect
+        $this->client->followRedirects(false);
+        $this->client->request('GET', '/shop/checkout');
+        $this->assertResponseRedirects('/shop/orders?show=4');
+        $this->client->followRedirect();
+        $this->assertResponseStatusCodeSame(200);
+        $this->assertSelectorTextContains('h2', 'Bestellübersicht');
+    }
+
+    public function testSubmitEmptyForm(): void
+    {
+        $this->databaseTool->loadFixtures([ShopFixture::class, UserFixtures::class, SettingsFixture::class]);
+        $this->login("user8@localhost.local");
+
+        $this->client->followRedirects(false);
+
+        $crawler = $this->client->request('GET', '/shop/checkout');
+        $this->assertResponseStatusCodeSame(200);
+        $this->assertSelectorTextContains('h1', 'LAN Eintritt kaufen');
+
+        $form = $crawler->selectButton('Absenden')->form();
+        $this->client->submit($form);
+        $this->assertResponseStatusCodeSame(304);
+        //$this->assertResponseRedirects('/');
+        $this->client->followRedirect();
+        $this->assertResponseStatusCodeSame(200);
+        $this->assertSelectorTextContains('.alert', 'Leere Bestellung kann nicht angelegt werden.');
+    }
+
+    public function testShopCancelOpenOrder()
+    {
+        $this->databaseTool->loadFixtures([ShopFixture::class, UserFixtures::class, SettingsFixture::class]);
+        $this->login("user14@localhost.local");
+
+        $crawler = $this->client->request('GET', '/shop/orders');
+        $this->assertResponseStatusCodeSame(200);
+        $this->assertSelectorTextContains('h2', 'Bestellübersicht');
+        $button = $crawler->selectButton("Bestellung stornieren");
+        $this->assertNotEmpty($button);
+        $this->client->submit($button->form());
+        $this->assertResponseStatusCodeSame(200);
+        $this->assertSelectorExists('.alert.alert-success');
+
+        // check if a new order can be made
+        $this->client->followRedirects(false);
+        $this->client->request('GET', '/shop/checkout');
+        $this->assertResponseStatusCodeSame(200);
+    }
+
     private function provideCodes(): array
     {
         return [
@@ -22,7 +136,7 @@ class ShopTest extends DatabaseWebTestCase
     /**
      * @dataProvider provideCodes
      */
-    public function testCodeCheck(string $code, bool $expected)
+    public function testCodeCheck(string $code, bool $expected): void
     {
         $this->databaseTool->loadFixtures([ShopFixture::class, UserFixtures::class]);
 
@@ -37,17 +151,17 @@ class ShopTest extends DatabaseWebTestCase
         $this->assertEquals($expected, $result['result']);
     }
 
-    public function testCodeActivationWithoutShopping()
+    public function testCodeActivationWithoutShopping(): void
     {
 
     }
 
-    public function testCodeActivationWithShopping()
+    public function testCodeActivationWithShopping(): void
     {
 
     }
 
-    public function testCheckout()
+    public function testCheckout(): void
     {
 
     }
