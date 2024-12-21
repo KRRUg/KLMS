@@ -26,7 +26,8 @@ const Shop = function ($root, config) {
     this.$formTicketAdditional.val(0);
 
     this.$addons = this.$root.find('#addonWrapper');
-    this.$addonInputs = this.$addons.find('input');
+    this.$addonInputs = this.$addons.find('input[type="number"]');
+    this.$addonInputsCheckbox = this.$paneAdditional.find('input[type="checkbox"]');
     this.$buttonReset = this.$root.find('button[type="reset"]');
     this.$buttonReset.on('click', (e) => { e.preventDefault(); this.smClear() });
 

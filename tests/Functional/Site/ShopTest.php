@@ -82,24 +82,149 @@ class ShopTest extends DatabaseWebTestCase
         $this->assertSelectorTextContains('h2', 'Bestellübersicht');
     }
 
-    public function testSubmitEmptyForm(): void
+    public function testSubmitCheckout(): void
     {
         $this->databaseTool->loadFixtures([ShopFixture::class, UserFixtures::class, SettingsFixture::class]);
         $this->login("user8@localhost.local");
-
         $this->client->followRedirects(false);
 
         $crawler = $this->client->request('GET', '/shop/checkout');
         $this->assertResponseStatusCodeSame(200);
         $this->assertSelectorTextContains('h1', 'LAN Eintritt kaufen');
 
-        $form = $crawler->selectButton('Absenden')->form();
+        $button = $crawler->selectButton('Absenden');
+        $this->assertNotEmpty($button);
+        $form = $button->form()->disableValidation();
+        $form->setValues([
+            'checkout[tickets]' => "0",
+            'checkout[addon1]' => "1",
+            'checkout[addon2]' => "0",
+        ]);
         $this->client->submit($form);
-        $this->assertResponseStatusCodeSame(304);
-        //$this->assertResponseRedirects('/');
+
+        $this->assertResponseStatusCodeSame(302);
+        $this->assertResponseRedirects('/shop/orders');
+        $this->client->followRedirect();
+        $this->assertResponseStatusCodeSame(200);
+        $this->assertSelectorTextContains('#order-list', 'Bestellnummer');
+        $this->assertSelectorTextContains('#order-list', '50');
+    }
+
+    public function testSubmitEmptyForm(): void
+    {
+        $this->databaseTool->loadFixtures([ShopFixture::class, UserFixtures::class, SettingsFixture::class]);
+        $this->login("user8@localhost.local");
+        $this->client->followRedirects(false);
+
+        $crawler = $this->client->request('GET', '/shop/checkout');
+        $this->assertResponseStatusCodeSame(200);
+        $this->assertSelectorTextContains('h1', 'LAN Eintritt kaufen');
+
+        $button = $crawler->selectButton('Absenden');
+        $this->assertNotEmpty($button);
+        $form = $button->form()->disableValidation();
+        $form->setValues([
+            'checkout[tickets]' => "0",
+            'checkout[addon1]' => "0",
+            'checkout[addon2]' => "0",
+        ]);
+        $this->client->submit($form);
+
+        $this->assertResponseStatusCodeSame(302);
+        $this->assertResponseRedirects('/');
         $this->client->followRedirect();
         $this->assertResponseStatusCodeSame(200);
         $this->assertSelectorTextContains('.alert', 'Leere Bestellung kann nicht angelegt werden.');
+    }
+
+    public function testOrderAllRemaining(): void
+    {
+        $this->databaseTool->loadFixtures([ShopFixture::class, UserFixtures::class, SettingsFixture::class]);
+        $this->login("user8@localhost.local");
+
+        $crawler = $this->client->request('GET', '/shop/checkout');
+        $this->assertResponseStatusCodeSame(200);
+        $this->assertSelectorTextContains('h1', 'LAN Eintritt kaufen');
+
+        $button = $crawler->selectButton('Absenden');
+        $this->assertNotEmpty($button);
+        $form = $button->form()->disableValidation();
+        $form->setValues([
+            'checkout[tickets]' => "0",
+            'checkout[addon1]' => "0",
+            'checkout[addon2]' => "2", // only 2 left
+        ]);
+        $this->client->submit($form);
+        $this->assertResponseStatusCodeSame(200);
+
+        // the other use can't buy it anymore
+        $this->logout();
+        $this->login("user9@localhost.local");
+        $this->client->request('GET', '/shop/checkout');
+        $this->assertResponseStatusCodeSame(200);
+        $this->assertSelectorTextContains('h1', 'LAN Eintritt kaufen');
+        $this->assertSelectorExists('div[data-addon-id=2] > * input[type="number"][disabled]');
+        $this->assertSelectorTextContains('div[data-addon-id=2]','Dieses Addon ist nicht mehr verfügbar.');
+    }
+
+    public function testOrderAllRemainingCancel(): void
+    {
+        $this->databaseTool->loadFixtures([ShopFixture::class, UserFixtures::class, SettingsFixture::class]);
+        $this->login("user8@localhost.local");
+
+        $crawler = $this->client->request('GET', '/shop/checkout');
+        $this->assertResponseStatusCodeSame(200);
+        $this->assertSelectorTextContains('h1', 'LAN Eintritt kaufen');
+
+        $button = $crawler->selectButton('Absenden');
+        $this->assertNotEmpty($button);
+        $form = $button->form()->disableValidation();
+        $form->setValues([
+            'checkout[tickets]' => "0",
+            'checkout[addon1]' => "0",
+            'checkout[addon2]' => "2", // only 2 left
+        ]);
+        $crawler = $this->client->submit($form);
+        $this->assertResponseStatusCodeSame(200);
+
+        // cancel the order now
+        $form = $crawler->selectButton('Bestellung stornieren')->form();
+        $this->client->submit($form);
+        $this->assertResponseStatusCodeSame(200);
+        $this->assertSelectorExists('h2', 'Bestellübersicht');
+
+        $crawler = $this->client->request('GET', '/shop/checkout');
+        $this->assertResponseStatusCodeSame(200);
+        $this->assertSelectorTextContains('h1', 'LAN Eintritt kaufen');
+        $this->assertSelectorNotExists('div[data-addon-id=2] > * input[type="number"][disabled]');
+        $this->assertSelectorTextNotContains('div[data-addon-id=2]','Dieses Addon ist nicht mehr verfügbar.');
+    }
+
+    public function testOrderSingleton(): void
+    {
+        $this->databaseTool->loadFixtures([ShopFixture::class, UserFixtures::class, SettingsFixture::class]);
+        $this->login("user8@localhost.local");
+        $this->client->followRedirects(false);
+
+        $crawler = $this->client->request('GET', '/shop/checkout');
+        $this->assertResponseStatusCodeSame(200);
+        $this->assertSelectorTextContains('h1', 'LAN Eintritt kaufen');
+
+        $button = $crawler->selectButton('Absenden');
+        $this->assertNotEmpty($button);
+        $form = $button->form()->disableValidation();
+        $form->setValues([
+            'checkout[tickets]' => "0",
+            'checkout[addon1]' => "0",
+            'checkout[addon2]' => "0",
+            'checkout[addon3]' => "1",
+        ]);
+        $this->client->submit($form);
+
+        $this->assertResponseStatusCodeSame(302);
+        $this->assertResponseRedirects('/shop/orders');
+        $this->client->followRedirect();
+        $this->assertResponseStatusCodeSame(200);
     }
 
     public function testShopCancelOpenOrder()
@@ -157,11 +282,6 @@ class ShopTest extends DatabaseWebTestCase
     }
 
     public function testCodeActivationWithShopping(): void
-    {
-
-    }
-
-    public function testCheckout(): void
     {
 
     }
