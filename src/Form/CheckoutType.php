@@ -22,7 +22,7 @@ class CheckoutType extends AbstractType
             $builder
                 ->add('tickets', IntegerType::class, [
                     'required' => false,
-                    'empty_data' => 0,
+                    'empty_data' => "0",
                     'attr' => [
                         'min' => 0,
                         'max' => $max ?? ShopService::MAX_TICKET_COUNT,
@@ -67,14 +67,14 @@ class CheckoutType extends AbstractType
             if ($addon->getOnlyOnce()) {
                 $builder->add($name, CheckboxType::class, array_merge($form_opt, [
                     'required' => false,
-                    'value' => 1,
+                    'value' => "1",
                     'label' => "Hinzufügen",
                 ]));
             } else {
                 $max = max(0, $max ?? ShopService::MAX_TICKET_COUNT);
                 $builder->add($name, IntegerType::class, array_merge($form_opt, [
                     'required' => false,
-                    'empty_data' => 0,
+                    'empty_data' => "0",
                     'attr' => [
                         'min' => 0,
                         'max' => $max,

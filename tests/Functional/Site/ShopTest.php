@@ -5,7 +5,9 @@ namespace App\Tests\Functional\Site;
 use App\DataFixtures\SettingsFixture;
 use App\DataFixtures\ShopFixture;
 use App\DataFixtures\UserFixtures;
+use App\Service\TicketService;
 use App\Tests\Functional\DatabaseWebTestCase;
+use Ramsey\Uuid\Uuid;
 
 class ShopTest extends DatabaseWebTestCase
 {
@@ -284,11 +286,94 @@ class ShopTest extends DatabaseWebTestCase
 
     public function testCodeActivationWithoutShopping(): void
     {
+        $this->databaseTool->loadFixtures([ShopFixture::class, UserFixtures::class]);
+        $ticketService = $this->client->getContainer()->get(TicketService::class);
+        $this->assertFalse($ticketService->isUserRegistered(Uuid::fromInteger(15)));
 
+        $this->login('user15@localhost.local');
+
+        $crawler = $this->client->request('GET', '/shop/checkout');
+        $this->assertResponseStatusCodeSame(200);
+        $this->assertSelectorTextContains('h1', 'LAN Eintritt kaufen');
+
+        $button = $crawler->selectButton('Absenden');
+        $this->assertNotEmpty($button);
+        $form = $button->form()->disableValidation();
+        $form->setValues([
+            'checkout[tickets]' => "0",
+            'checkout[addon1]' => "0",
+            'checkout[addon2]' => "0",
+            'checkout[code]' => "CODE1-KRRUG-BBBBB",
+        ]);
+        $this->client->followRedirects(false);
+        $this->client->submit($form);
+
+        // should redirect to home
+        $this->assertResponseRedirects('/');
+        $this->client->followRedirect();
+        $this->assertSelectorTextContains('.alert-success', 'Ticket erfolgreich aktiviert.');
+
+        // check that user is on lan
+        $this->assertTrue($ticketService->isUserRegistered(Uuid::fromInteger(15)));
     }
 
     public function testCodeActivationWithShopping(): void
     {
+        $this->databaseTool->loadFixtures([ShopFixture::class, UserFixtures::class]);
+        $ticketService = $this->client->getContainer()->get(TicketService::class);
+        $this->assertFalse($ticketService->isUserRegistered(Uuid::fromInteger(15)));
 
+        $this->login('user15@localhost.local');
+
+        $crawler = $this->client->request('GET', '/shop/checkout');
+        $this->assertResponseStatusCodeSame(200);
+        $this->assertSelectorTextContains('h1', 'LAN Eintritt kaufen');
+
+        $button = $crawler->selectButton('Absenden');
+        $this->assertNotEmpty($button);
+        $form = $button->form()->disableValidation();
+        $form->setValues([
+            'checkout[tickets]' => "0",
+            'checkout[addon1]' => "0",
+            'checkout[addon2]' => "0",
+            'checkout[code]' => "CODE1-KRRUG-BBBBB",
+        ]);
+        $this->client->followRedirects(false);
+        $this->client->submit($form);
+
+        // should redirect to home
+        $this->assertResponseRedirects('/');
+        $this->client->followRedirect();
+        $this->assertSelectorTextContains('.alert-success', 'Ticket erfolgreich aktiviert.');
+
+        // check that user is on lan
+        $this->assertTrue($ticketService->isUserRegistered(Uuid::fromInteger(15)));
+    }
+
+    public function testCodeActivationInvalidCode(): void
+    {
+        $this->databaseTool->loadFixtures([ShopFixture::class, UserFixtures::class]);
+        $ticketService = $this->client->getContainer()->get(TicketService::class);
+        $this->assertFalse($ticketService->isUserRegistered(Uuid::fromInteger(15)));
+
+        $this->login('user15@localhost.local');
+
+        $crawler = $this->client->request('GET', '/shop/checkout');
+        $this->assertResponseStatusCodeSame(200);
+        $this->assertSelectorTextContains('h1', 'LAN Eintritt kaufen');
+
+        $button = $crawler->selectButton('Absenden');
+        $this->assertNotEmpty($button);
+        $form = $button->form()->disableValidation();
+        $form->setValues([
+            'checkout[tickets]' => "0",
+            'checkout[addon1]' => "0",
+            'checkout[addon2]' => "0",
+            'checkout[code]' => "CODE1-KRRUG-AAAAA", // valid but used code
+        ]);
+        //$this->client->followRedirects(false);
+        $this->client->submit($form);
+        // check that user is on lan
+        $this->assertFalse($ticketService->isUserRegistered(Uuid::fromInteger(15)));
     }
 }
