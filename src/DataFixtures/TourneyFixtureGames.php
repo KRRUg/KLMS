@@ -3,6 +3,7 @@
 namespace App\DataFixtures;
 
 use App\Entity\Tourney;
+use App\Entity\TourneyGame;
 use App\Entity\TourneyStage;
 use App\Entity\TourneyTeam;
 use App\Entity\TourneyTeamMember;
@@ -19,13 +20,13 @@ class TourneyFixtureGames extends Fixture implements DependentFixtureInterface
     public function load(ObjectManager $manager): void
     {
         /** @var Tourney $tourney0 */
-        $tourney0 = $this->getReference('tourney-0');
+        $tourney0 = $this->getReference('tourney-0', Tourney::class);
 
-        $n0 = $this->getReference('tourney0-game0');
-        $n1 = $this->getReference('tourney0-game1');
-        $n2 = $this->getReference('tourney0-game2');
-        $n3 = $this->getReference('tourney0-game3');
-        $n6 = $this->getReference('tourney0-game6');
+        $n0 = $this->getReference('tourney0-game0', TourneyGame::class);
+        $n1 = $this->getReference('tourney0-game1', TourneyGame::class);
+        $n2 = $this->getReference('tourney0-game2', TourneyGame::class);
+        $n3 = $this->getReference('tourney0-game3', TourneyGame::class);
+        $n6 = $this->getReference('tourney0-game6', TourneyGame::class);
 
         $n3->setscoreA(4)->setScoreB(3)->getParent()->setTeamA($n3->getTeamA());
         $n6->setscoreA(1)->setScoreB(2)->getParent()->setTeamB($n6->getTeamB());
@@ -35,11 +36,11 @@ class TourneyFixtureGames extends Fixture implements DependentFixtureInterface
 
         $tourney0->setStatus(TourneyStage::Finished);
 
-        $tourney1 = $this->getReference('tourney-1');
-        $t1 = $this->getReference('tourney1-team1');
-        $t2 = $this->getReference('tourney1-team2');
-        $t3 = $this->getReference('tourney1-team3');
-        $t4 = $this->getReference('tourney1-team4');
+        $tourney1 = $this->getReference('tourney-1', Tourney::class);
+        $t1 = $this->getReference('tourney1-team1', TourneyTeam::class);
+        $t2 = $this->getReference('tourney1-team2', TourneyTeam::class);
+        $t3 = $this->getReference('tourney1-team3', TourneyTeam::class);
+        $t4 = $this->getReference('tourney1-team4', TourneyTeam::class);
 
         $t2->addMember((new TourneyTeamMember())->setGamer(Uuid::fromInteger(12))->setAccepted(true));
         $t3->getMembers()[1]->setAccepted(true);
