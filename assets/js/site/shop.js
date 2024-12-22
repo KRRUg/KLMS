@@ -26,8 +26,7 @@ const Shop = function ($root, config) {
     this.$formTicketAdditional.val(0);
 
     this.$addons = this.$root.find('#addonWrapper');
-    this.$addonInputs = this.$addons.find('input[type="number"]');
-    this.$addonInputsCheckbox = this.$paneAdditional.find('input[type="checkbox"]');
+    this.$addonInputs = this.$addons.find('input');
     this.$buttonReset = this.$root.find('button[type="reset"]');
     this.$buttonReset.on('click', (e) => { e.preventDefault(); this.smClear() });
 
@@ -70,12 +69,13 @@ function restoreVisibility(states) {
 }
 
 function storeValues(elements) {
-    return elements.map(e => { return {element: e, value: e.val() }; });
+    return elements.map(e => { return { element: e, value: e.val(), checked: e.prop('checked') }; });
 }
 
 function restoreValues(states) {
-    for (const state of states) {
-        state.element.val(state.value);
+    for (const s of states) {
+        s.element.val(s.value);
+        s.element.prop('checked', s.checked);
     }
 }
 
