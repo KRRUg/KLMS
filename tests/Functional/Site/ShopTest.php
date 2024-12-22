@@ -217,7 +217,7 @@ class ShopTest extends DatabaseWebTestCase
             'checkout[tickets]' => "0",
             'checkout[addon1]' => "0",
             'checkout[addon2]' => "0",
-            'checkout[addon3]' => "1",
+            'checkout[addon4]' => "1", // that is the singleton with price 0
         ]);
         $this->client->submit($form);
 
@@ -225,6 +225,12 @@ class ShopTest extends DatabaseWebTestCase
         $this->assertResponseRedirects('/shop/orders');
         $this->client->followRedirect();
         $this->assertResponseStatusCodeSame(200);
+
+        $this->client->followRedirects(false);
+        $this->client->request('GET', '/shop/checkout');
+        $this->assertResponseStatusCodeSame(200); // no redirect
+        $this->assertSelectorTextContains('div[data-addon-id=4]', 'Du kannst dieses Add-On nicht (noch einmal) bestellen.');
+        $this->assertSelectorExists('div[data-addon-id=4] > * input[type="checkbox"][disabled]');
     }
 
     public function testShopCancelOpenOrder()
