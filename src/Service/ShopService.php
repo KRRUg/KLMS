@@ -289,6 +289,27 @@ class ShopService
     }
 
     /**
+     * @return array [[User, Order], ...]
+     */
+    public function getOrders(): array
+    {
+        $orders = $this->orderRepository->findAll();
+        $uuids = array_map(fn($o) => $o->getOrderer(), $orders);
+
+        // preload users
+        $this->userRepo->findById($uuids);
+
+        $result = [];
+        foreach ($orders as $item) {
+            $result[] = [
+                'user' => $this->userRepo->findOneById($item->getOrderer()),
+                'order' => $item
+            ];
+        }
+        return $result;
+    }
+
+    /**
      * @return array [[User, Text, Price],...]
      */
     public function getAddonOrders(): array

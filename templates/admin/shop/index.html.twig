@@ -5,6 +5,9 @@
 {% block main %}
     <div class="row">
         <div class="col-12">
+            <div class="mb-2">
+                <a id="export" class="btn btn-sm btn-primary"  href="{{ path('admin_shop_order_export') }}">Bestellungen exportieren (.csv)</a>
+            </div>
             <div class="card">
                 <table class="table table-striped admin-data-table" data-order="[[ 1, &quot;desc&quot; ]]">
                     <thead>

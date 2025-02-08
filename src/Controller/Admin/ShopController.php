@@ -43,7 +43,7 @@ class ShopController extends AbstractController
         ]);
     }
 
-    #[Route(path: '/order/{id}', name:'_edit', methods: ['POST'])]
+    #[Route(path: '/order/{id}', name:'_edit', requirements: ['id' => '\d+'], methods: ['POST'])]
     public function edit(Request $request, ?ShopOrder $order): Response
     {
         $token = $request->request->get('_token');
@@ -79,7 +79,7 @@ class ShopController extends AbstractController
         return $this->redirectToRoute('admin_shop');
     }
 
-    #[Route(path: '/order/{id}', name: '_show', methods: ['GET'])]
+    #[Route(path: '/order/{id}', name: '_show', requirements: ['id' => '\d+'], methods: ['GET'])]
     public function show(Request $request, ?ShopOrder $order): Response
     {
         if (empty($order)) {
@@ -165,6 +165,37 @@ class ShopController extends AbstractController
         $this->shopService->deleteAddon($addon);
         $this->addFlash('success', "Addon {$addon->getId()} wurde gelöscht.");
         return $this->redirectToRoute('admin_shop_addon');
+    }
+
+    #[Route(path: '/order/export', name:'_order_export', methods: ['GET'])]
+    public function exportOrder(): Response
+    {
+        $csvData = [];
+
+        $orders = $this->shopService->getOrders();
+
+        foreach ($orders as $o) {
+            /** @var User $user */
+            $user = $o['user'];
+            /** @var ShopOrder $o */
+            $order = $o['order'];
+            $csvData[] = [
+                'uuid' => $user->getUuid()->toString(),
+                'nickname' => $user->getNickname(),
+                'vorname' => $user->getFirstname(),
+                'nachname' => $user->getSurname(),
+                'date' => $order->getCreatedAt()->format('Y-m-d H:i:s'),
+                'tickets' => $order->countTickets(),
+                'amount' => $order->calculateTotal(),
+                'status' => $order->getStatus()->name,
+            ];
+        }
+
+        $response = new Response($this->serializer->serialize($csvData, 'csv'));
+        $response->headers->set('Content-Type', 'text/csv');
+        $response->headers->set('Content-Disposition', 'attachment; filename="orders.csv"');
+
+        return $response;
     }
 
     #[Route(path: '/addon/export', name:'_addon_export', methods: ['GET'])]
