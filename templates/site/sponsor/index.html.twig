@@ -32,7 +32,7 @@
                         <div class="card-body" id="cat{{ category.id }}">
                         {% endif %}
                             <ul class="list-unstyled">
-                            {% for s in category.sponsors %}
+                            {% for s in category.sponsors | sort((a, b) => b.sortOrder <=> a.sortOrder) %}
                                 <li class="row mb-4 sponsor">
                                     <div class="col-lg-5 col-12 align-self-center text-center">
                                         {% if s.url is not empty %}<a href="{{ s.url }}" target="_blank">{% endif %}
