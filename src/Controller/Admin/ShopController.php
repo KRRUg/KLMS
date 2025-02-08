@@ -92,7 +92,7 @@ class ShopController extends AbstractController
 
         return $this->render('admin/shop/show.html.twig', [
             'order' => $order,
-            'fulfillable' => $this->shopService->orderAdheresToLimits($order),
+            'fulfillable' => $this->shopService->orderAdheresToLimits($order, true),
             'csrf_token' => self::CSRF_TOKEN_PAYED
         ]);
     }

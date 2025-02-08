@@ -36,7 +36,6 @@ class ShopService
 
     public const DEFAULT_TICKET_PRICE = 5000;
     public const MAX_TICKET_COUNT = 20;
-    public const MAX_ADDON_COUNT = 7;
     private LoggerInterface $logger;
 
     public function __construct(ShopOrderRepository $orderRepository, ShopOrderPositionRepository $shopOrderPositionRepository, ShopAddonsRepository $shopAddonsRepository,
@@ -58,16 +57,19 @@ class ShopService
         return $this->orderRepository->findAll();
     }
 
-    private function checkLimits(ShopOrder $order): bool
+    private function checkLimits(ShopOrder $order, bool $paidOnly = false): bool
     {
-        $countTotal = $this->countOrderedAddons();
-        $countUser = $this->countOrderedAddons($order->getOrderer());
+        $countTotal = $this->countOrderedAddons(null, $paidOnly);
+        $countUser = $this->countOrderedAddons($order->getOrderer(), $paidOnly);
 
         foreach ($order->getShopOrderPositions() as $pos) {
             if (!($pos instanceof ShopOrderPositionAddon)) {
                 continue;
             }
             $addon = $pos->getAddon();
+            if (empty($addon)) {
+                continue;
+            }
             $id = $addon->getId();
             if (!$addon->isActive()) {
                 return false;
@@ -198,9 +200,9 @@ class ShopService
         );
     }
 
-    public function orderAdheresToLimits(ShopOrder $order): bool
+    public function orderAdheresToLimits(ShopOrder $order, bool $paidOnly): bool
     {
-        return $this->checkLimits($order);
+        return $this->checkLimits($order, $paidOnly);
     }
 
     public function hasOpenOrders(User|UuidInterface $user): bool
@@ -307,31 +309,34 @@ class ShopService
 
     /**
      * @param User|UuidInterface|null $user An optimal user to count the purchases for that user.
+     * @param bool $paidOnly only handle paid orders
      * @return array Array mapping AddonId to count of sold items of that addon.
      */
-    public function countOrderedAddons(User|UuidInterface|null $user = null): array
+    public function countOrderedAddons(User|UuidInterface|null $user = null, bool $paidOnly = false): array
     {
         $uuid = $user instanceof User ? $user->getUuid() : $user;
-        return $this->shopOrderPositionRepository->countOrderedAddonsById($uuid);
+        return $this->shopOrderPositionRepository->countOrderedAddonsById($uuid, $paidOnly);
     }
 
     /**
      * @param ShopAddon $addon The addon to be counted.
+     * @param bool $paidOnly only handle paid orders
      * @return int The number of purchased items
      */
-    public function countOrderedAddon(ShopAddon $addon): int
+    public function countOrderedAddon(ShopAddon $addon, bool $paidOnly = false): int
     {
-        return $this->shopOrderPositionRepository->countOrderedAddons($addon);
+        return $this->shopOrderPositionRepository->countOrderedAddons($addon, null, $paidOnly);
     }
 
     /**
      * @param ShopAddon $addon The addon to be counted.
      * @param User|UuidInterface $user
+     * @param bool $paidOnly only hanlde paid orders
      * @return int The number of purchased items
      */
-    public function countOrderedAddonByUser(ShopAddon $addon, User|UuidInterface $user): int
+    public function countOrderedAddonByUser(ShopAddon $addon, User|UuidInterface $user, bool $paidOnly = false): int
     {
         $uuid = $user instanceof User ? $user->getUuid() : $user;
-        return $this->shopOrderPositionRepository->countOrderedAddons($addon, $uuid);
+        return $this->shopOrderPositionRepository->countOrderedAddons($addon, $uuid, $paidOnly);
     }
 }
