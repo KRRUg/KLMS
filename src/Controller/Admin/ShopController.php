@@ -101,7 +101,11 @@ class ShopController extends AbstractController
     public function indexAddons(): Response
     {
         $addons = $this->shopService->getAddons(all: true);
-        return $this->render('admin/shop/addon.html.twig', ['addons' => $addons]);
+        return $this->render('admin/shop/addon.html.twig', [
+            'addons' => $addons,
+            'countAddons' => $this->shopService->countOrderedAddons(),
+            'countAddonsPaid' => $this->shopService->countOrderedAddons(null, true),
+        ]);
     }
 
     #[Route(path: '/addon/new', name:'_addon_new', methods: ['GET', 'POST'])]

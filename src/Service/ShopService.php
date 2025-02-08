@@ -308,7 +308,7 @@ class ShopService
     }
 
     /**
-     * @param User|UuidInterface|null $user An optimal user to count the purchases for that user.
+     * @param User|UuidInterface|null $user An optional user to count the purchases for that user.
      * @param bool $paidOnly only handle paid orders
      * @return array Array mapping AddonId to count of sold items of that addon.
      */
@@ -326,17 +326,5 @@ class ShopService
     public function countOrderedAddon(ShopAddon $addon, bool $paidOnly = false): int
     {
         return $this->shopOrderPositionRepository->countOrderedAddons($addon, null, $paidOnly);
-    }
-
-    /**
-     * @param ShopAddon $addon The addon to be counted.
-     * @param User|UuidInterface $user
-     * @param bool $paidOnly only hanlde paid orders
-     * @return int The number of purchased items
-     */
-    public function countOrderedAddonByUser(ShopAddon $addon, User|UuidInterface $user, bool $paidOnly = false): int
-    {
-        $uuid = $user instanceof User ? $user->getUuid() : $user;
-        return $this->shopOrderPositionRepository->countOrderedAddons($addon, $uuid, $paidOnly);
     }
 }
