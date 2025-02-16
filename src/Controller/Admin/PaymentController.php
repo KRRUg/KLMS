@@ -11,6 +11,7 @@ use App\Service\UserService;
 use Ramsey\Uuid\UuidInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -31,11 +32,11 @@ class PaymentController extends AbstractController
         $this->userService = $userService;
     }
 
-    private function createUserSelectForm(): FormInterface
+    private function createTicketCreateForm(string $action = "", bool $forceUser = false): FormInterface
     {
         $form = $this->createFormBuilder();
-        $form->add('user', UserSelectType::class);
-
+        $form->add('action', HiddenType::class, ['data' => $action]);
+        $form->add('user', UserSelectType::class, ['required' => $forceUser]);
         return $form->getForm();
     }
 
@@ -75,33 +76,46 @@ class PaymentController extends AbstractController
         return $this->render('admin/payment/index.html.twig', [
             'tickets' => $tickets,
             'users' => $users,
-            'form_add' => $this->createUserSelectForm()->createView(),
+            'form_add' => $this->createTicketCreateForm("add", true)->createView(),
+            'form_new' => $this->createTicketCreateForm("new", false)->createView(),
         ]);
     }
-
-    // TODO add create new Ticket Controllerd
 
     #[Route(path: '', name: '_add', methods: ['POST'])]
     public function add(Request $request): Response
     {
-        $form = $this->createUserSelectForm();
+        $form = $this->createTicketCreateForm();
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
-            $user = $form->getData()['user'];
-            if (empty($user)) {
-                $this->addFlash('error', 'Ungültigen User ausgewählt.');
-            } elseif ($this->ticketService->isUserRegistered($user)) {
-                $this->addFlash('warning', "User {$user->getNickname()} ist schon registriert.");
-            } else {
-                try {
-                    $ticket = $this->ticketService->registerUser($user);
-                    $this->addFlash('success', "User {$user->getNickname()} wurde zur Veranstaltung mit Ticket {$ticket->getCode()} registriert.");
-                } catch (TicketLivecycleException) {
-                    $this->addFlash('error', "User {$user->getNickname()}  konnte nicht registriert werden.");
-                }
+            switch ($form->getData()['action']) {
+                case 'add':
+                    $user = $form->getData()['user'];
+                    if (empty($user)) {
+                        $this->addFlash('error', 'Ungültigen User ausgewählt.');
+                    } elseif ($this->ticketService->isUserRegistered($user)) {
+                        $this->addFlash('warning', "User {$user->getNickname()} ist schon registriert.");
+                    } else {
+                        try {
+                            $ticket = $this->ticketService->registerUser($user);
+                            $this->addFlash('success', "User {$user->getNickname()} wurde zur Veranstaltung mit Ticket {$ticket->getCode()} registriert.");
+                        } catch (TicketLivecycleException) {
+                            $this->addFlash('error', "User {$user->getNickname()}  konnte nicht registriert werden.");
+                        }
+                    }
+                    break;
+                case 'new':
+                    try {
+                        $ticket = $this->ticketService->createTicket();
+                        $this->addFlash('success', "Ticket {$ticket->getCode()} wurde angelegt.");
+                    } catch (TicketLivecycleException) {
+                        $this->addFlash('error', "Ticket konnte nicht angelegt werden.");
+                    }
+                    break;
+                default:
+                    $this->addFlash('error', "Ungültige Aktion.");
+                    break;
             }
         }
-
         return $this->redirectToRoute('admin_payment');
     }
 
