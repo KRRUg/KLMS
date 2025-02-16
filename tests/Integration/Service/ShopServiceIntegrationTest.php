@@ -74,6 +74,42 @@ class ShopServiceIntegrationTest extends DatabaseTestCase
         $this->assertEmpty($ticketService->getTicketUser($user));
     }
 
+    public function testOrderRefund()
+    {
+        $this->databaseTool->loadFixtures([ShopFixture::class]);
+        $shopService = $this->getContainer()->get(ShopService::class);
+        $ticketService = $this->getContainer()->get(TicketService::class);
+        $user = $this->getUser(13);
+
+        // first unassign ticket
+        $order = $shopService->getOrderByUser($user, ShopOrderStatus::Paid)[0];
+        $this->assertTrue($order->getStatus()->isActive());
+        $this->assertTrue($order->countRedeemedTickets() > 0);
+        foreach ($order->getShopOrderPositions() as $pos){
+            if ($pos instanceof ShopOrderPositionTicket){
+                $this->assertNotEmpty($pos->getTicket());
+                $ticketService->unassignTicket($pos->getTicket());
+            }
+        }
+        $this->assertTrue($order->countRedeemedTickets() == 0);
+
+        // then refund order
+        $shopService->refundOrder($order);
+        $this->assertTrue($order->getStatus()->isDead());
+    }
+
+    public function testOrderRefundUsedTicket()
+    {
+        $this->databaseTool->loadFixtures([ShopFixture::class]);
+        $shopService = $this->getContainer()->get(ShopService::class);
+        $user = $this->getUser(13);
+
+        $order = $shopService->getOrderByUser($user, ShopOrderStatus::Paid)[0];
+        $this->assertTrue($order->countRedeemedTickets() > 0);
+        $this->expectException(OrderLifecycleException::class);
+        $shopService->refundOrder($order);
+    }
+
     public function testCreateEmptyOrder()
     {
         $this->databaseTool->loadFixtures([ShopFixture::class]);

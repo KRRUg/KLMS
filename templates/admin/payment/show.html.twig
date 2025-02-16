@@ -20,7 +20,7 @@
                     <p>
                         <i class="fas fa-euro fa-fw mr-2" title="Käufer"></i>
                         {% if ticket.shopOrderPosition is not empty %}
-                            <span class="d-inline-block">{{ ticket.shopOrderPosition.order.orderer | username }}</span>
+                            <span class="d-inline-block" title="Bestellnummer">&numero; {{ ticket.shopOrderPosition.order.id }}</span>&nbsp;|&nbsp;<span class="d-inline-block">{{ ticket.shopOrderPosition.order.orderer | username }}</span>
                         {% else %}
                             <span class="d-inline-block text-muted">nicht gekauft</span>
                         {% endif %}

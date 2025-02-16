@@ -105,6 +105,21 @@ class ShopService
         }
     }
 
+    private function unfulfillOrder(ShopOrder $order, bool $deleteTickets): void
+    {
+        // handle tickets
+        foreach ($order->getShopOrderPositions() as $pos) {
+            if ($pos instanceof ShopOrderPositionTicket) {
+                // invalidate ticket
+                $pos->setTicket(null);
+                $ticket = $pos->getTicket();
+                if ($deleteTickets && $ticket) {
+                    $this->ticketService->deleteTicket($ticket);
+                }
+            }
+        }
+    }
+
     private function emailOrder(ShopOrder $order): void
     {
         // notify the buyer and send the codes
@@ -138,6 +153,17 @@ class ShopService
         }
     }
 
+    public function refundOrder(ShopOrder $order): void
+    {
+        if ($order->countRedeemedTickets() > 0) {
+            throw new OrderLifecycleException($order);
+        }
+        $result = $this->setState($order, ShopOrderStatus::Refunded);
+        if (!$result) {
+            throw new OrderLifecycleException($order);
+        }
+    }
+
     public function setOrderPaid(ShopOrder $order): void
     {
         $result = $this->setState($order, ShopOrderStatus::Paid);
@@ -156,23 +182,28 @@ class ShopService
 
     private function setState(ShopOrder $order, ShopOrderStatus $status): bool
     {
+        $valid_transfer = match ($order->getStatus()) {
+            null => $status == ShopOrderStatus::Created,
+            ShopOrderStatus::Created => $status == ShopOrderStatus::Paid || $status == ShopOrderStatus::Canceled,
+            ShopOrderStatus::Paid => $status == ShopOrderStatus::Refunded,
+            default => false,
+        };
+        if (!$valid_transfer) {
+            return false;
+        }
+
         $new_state = match ($order->getStatus()) {
             // if the order has 0 amount, it is fulfilled immediately
             null => $order->calculateTotal() == 0 ? ShopOrderStatus::Paid : ShopOrderStatus::Created,
             // currently only state transfer from created to both other states are allowed.
-            ShopOrderStatus::Created => $status,
-            default => $order->getStatus()
+            default => $status,
         };
-        if ($new_state != $order->getStatus()){
-            $order->setStatus($new_state);
-            $this->em->persist($order);
-            $this->em->flush();
-            $this->handleNewState($order);
-            $this->em->flush();
-            return true;
-        } else {
-            return false;
-        }
+        $order->setStatus($new_state);
+        $this->em->persist($order);
+        $this->em->flush();
+        $this->handleNewState($order);
+        $this->em->flush();
+        return true;
     }
 
     private function handleNewState(ShopOrder $order): void
@@ -181,6 +212,9 @@ class ShopService
         switch ($order->getStatus()) {
             case ShopOrderStatus::Created:
                 $this->emailOrder($order);
+                break;
+            case ShopOrderStatus::Refunded:
+                $this->unfulfillOrder($order, true);
                 break;
             case ShopOrderStatus::Canceled:
                 break;
@@ -195,6 +229,7 @@ class ShopService
                 ->setAction(match ($order->getStatus()){
                     ShopOrderStatus::Created => ShopOrderHistoryAction::OrderCreated,
                     ShopOrderStatus::Paid => ShopOrderHistoryAction::PaymentSuccessful,
+                    ShopOrderStatus::Refunded => ShopOrderHistoryAction::OrderRefunded,
                     ShopOrderStatus::Canceled => ShopOrderHistoryAction::OrderCanceled,
                 })
         );
@@ -257,7 +292,7 @@ class ShopService
 
     public function deleteOrder(ShopOrder $order): void
     {
-        if ($order->getStatus() !== ShopOrderStatus::Canceled) {
+        if (!$order->getStatus()->isDead()) {
             throw new OrderLifecycleException($order);
         }
         $this->logger->info("Order {$order->getId()} was deleted.");
@@ -314,7 +349,8 @@ class ShopService
      */
     public function getAddonOrders(): array
     {
-        $sop = $this->shopOrderPositionRepository->getOrderedAddons(ShopOrderStatus::Paid);
+        $filter = ShopOrderStatus::STATUS_ACTIVE;
+        $sop = $this->shopOrderPositionRepository->getOrderedAddons($filter);
         $uuids = array_map(fn($p) => $p->getOrder()->getOrderer(), $sop);
 
         // preload users
@@ -336,7 +372,8 @@ class ShopService
     public function countOrderedAddons(User|UuidInterface|null $user = null, bool $paidOnly = false): array
     {
         $uuid = $user instanceof User ? $user->getUuid() : $user;
-        return $this->shopOrderPositionRepository->countOrderedAddonsById($uuid, $paidOnly);
+        $filter = $paidOnly ? ShopOrderStatus::STATUS_ACTIVE : ShopOrderStatus::STATUS_NOT_DEAD;
+        return $this->shopOrderPositionRepository->countOrderedAddonsById($uuid, $filter);
     }
 
     /**
@@ -346,6 +383,7 @@ class ShopService
      */
     public function countOrderedAddon(ShopAddon $addon, bool $paidOnly = false): int
     {
-        return $this->shopOrderPositionRepository->countOrderedAddons($addon, null, $paidOnly);
+        $filter = $paidOnly ? ShopOrderStatus::STATUS_ACTIVE : ShopOrderStatus::STATUS_NOT_DEAD;
+        return $this->shopOrderPositionRepository->countOrderedAddons($addon, null, $filter);
     }
 }

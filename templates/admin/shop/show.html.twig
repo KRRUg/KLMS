@@ -4,8 +4,21 @@
     'title' : 'Bestellung ' ~ order.id,
     'dialogClass' : 'modal-lg'
 } %}
+    {% macro orderStatusBadge(order) %}
+        {% if order.isActive() %}
+            <span class="badge badge-primary">Bezahlt</span>
+        {% elseif order.isCanceled() %}
+            <span class="badge badge-light-muted">Storniert</span>
+        {% elseif order.isRefunded() %}
+            <span class="badge badge-light-muted">Rückerstattet</span>
+        {% elseif order.isOpen() %}
+            <span class="badge badge-info">Angelegt</span>
+        {% endif %}
+    {% endmacro %}
+
     {% set user = order.orderer | user %}
     {% block modalBody %}
+        {% set dateformat = "d.m.Y H:i" %}
         <div class="container-fluid">
             <div class="d-flex justify-content-between w-100 pb-3">
                 <div class="py-1">
@@ -14,10 +27,10 @@
                 </div>
             </div>
             <div class="row">
-                <div class="col-auto">
+                <div class="col-4 text-center">
                     {% set img = user | user_image %}
                     {% if img is not empty %}
-                        <img src="{{ img | imagine_filter('user_img') }}"/>
+                        <img src="{{ img | imagine_filter('user_img') }}" alt="user image"/>
                     {% else %}
                         <i class="far fa-user-circle fa-9x"></i>
                     {% endif %}
@@ -42,14 +55,34 @@
                     </p>
                 </div>
             </div>
-        </div>
-        <hr/>
-        {% if order.open and not fulfillable %}
-            <div class="alert alert-error">
-                <i class="fas fa-exclamation-triangle fa-fw mr-2"></i>
-                Order kann nicht erfüllt werden: Add-On nicht verfügbar.
+            <hr/>
+            <div class="row">
+                <div class="col-4 text-center">
+                    <i class="fa fa-file-invoice-dollar fa-7x"></i>
+                </div>
+                <div class="col">
+                    <p>
+                        <span class="mr-2">&numero;</span>
+                        <span title="Number: {{ order.id }}" class="d-inline-block">{{order.id}}</span>
+                    </p>
+                    <p>
+                        <i class="fas fa-calendar fa-fw mr-2" title="Bestelldatum"></i>
+                        <span class="d-inline-block">{{ order.createdAt | date(dateformat) }}</span>
+                    </p>
+                    <p>
+                        <i class="fas fa-money-check fa-fw mr-2" title="Status"></i>
+                        <span class="d-inline-block">{{ _self.orderStatusBadge(order) }}</span>
+                    </p>
+                    {% if order.open and not fulfillable %}
+                        <div class="alert alert-error">
+                            <i class="fas fa-exclamation-triangle fa-fw mr-2"></i>
+                            Order kann nicht erfüllt werden: Add-On nicht verfügbar.
+                        </div>
+                    {% endif %}
+                </div>
             </div>
-        {% endif %}
+            <hr/>
+        </div>
         <div class="container">
             {% include 'site/shop/_order.html.twig' with {order: order} %}
         </div>
@@ -61,16 +94,19 @@
             <form method="post" action="{{ href }}" {% if confirm %} data-toggle="confirmModal" data-modal-title="Bestätigen" data-modal-text="Sind Sie sicher?" {% endif %}>
                 <input type="hidden" name="_token" value="{{ csrf_token(csrf_token) }}">
                 <input type="hidden" name="action" value="{{ action }}">
-                <button type="submit" class="btn btn-sm btn-{{ class }} w-100">{{ title }}</button>
+                <button type="submit" class="btn btn-sm btn-{{ class }} w-100" {% if action is empty %}disabled{% endif %}>{{ title }}</button>
             </form>
         {% endmacro %}
 
         {% set href = path('admin_shop_edit', {"id" : order.id}) %}
-        {% if order.open %}
+        {% if order.isOpen() %}
             {{ _self.confirm_button("Zahlung bestätigen", href, csrf_token, "paid", "primary", true) }}
             {{ _self.confirm_button("Stornieren", href, csrf_token, "cancel", "danger", true) }}
         {% endif %}
-        {% if order.canceled %}
+        {% if order.isActive() %}
+            {{ _self.confirm_button("Rückerstatten", href, csrf_token, order.countRedeemedTickets == 0 ? "refund" : "", "danger", true) }}
+        {% endif %}
+        {% if order.isDead() %}
             {{ _self.confirm_button("Löschen", href, csrf_token, "delete", "danger", true) }}
         {% endif %}
         <div class="flex-fill"></div>

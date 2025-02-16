@@ -43,11 +43,13 @@
                             {% set total = order.calculateTotal %}
                             <td class="text-right" data-order="{{total}}">{{ (total / 100) | format_currency('EUR')}}</td>
                             <td>
-                                {% if order.isPaid() %}
+                                {% if order.isActive() %}
                                     <span class="badge badge-primary">Bezahlt</span>
                                 {% elseif order.isCanceled() %}
                                     <span class="badge badge-light-muted">Storniert</span>
-                                {% else %}
+                                {% elseif order.isRefunded() %}
+                                    <span class="badge badge-light-muted">Rückerstattet</span>
+                                {% elseif order.isOpen() %}
                                     <span class="badge badge-info">Angelegt</span>
                                 {% endif %}
                             </td>
