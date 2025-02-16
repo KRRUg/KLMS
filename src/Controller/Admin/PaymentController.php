@@ -47,7 +47,7 @@ class PaymentController extends AbstractController
         $can_delete_ticket = empty($ticket->getShopOrderPosition());
         switch ($ticket->getState()) {
             case TicketState::NEW:
-                $form->add('user', UserSelectType::class);
+                $form->add('user', UserSelectType::class, ['required' => false]);
                 $form->add('assign', SubmitType::class);
                 if ($can_delete_ticket) $form->add('delete', SubmitType::class);
                 break;
@@ -136,7 +136,9 @@ class PaymentController extends AbstractController
                 switch (true) {
                     case self::clickedIfExists($form, 'assign'):
                         $user = $form->get('user')->getData();
-                        if ($this->ticketService->isUserRegistered($user)) {
+                        if (empty($user)) {
+                            $error = "Keinen User ausgewählt.";
+                        } elseif ($this->ticketService->isUserRegistered($user)) {
                             $error = "User {$user->getNickname()} ist schon registriert.";
                         } else {
                             $this->ticketService->redeemTicket($ticket, $user);
