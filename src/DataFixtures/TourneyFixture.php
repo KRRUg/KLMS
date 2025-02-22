@@ -144,7 +144,7 @@ class TourneyFixture extends Fixture implements DependentFixtureInterface
             ->setToken(15)
             ->setOrder(2)
             ->setTeamsize(1)
-            ->setMaxTeams(4)
+            ->setMaxTeams(3)
             ->setMode(TourneyRules::RegistrationOnly)
             ->setAuthorId(Uuid::fromInteger(13))
             ->setModifierId(Uuid::fromInteger(13))
