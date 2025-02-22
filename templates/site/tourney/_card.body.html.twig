@@ -54,7 +54,7 @@
                         </dd>
                         <dt>Teams:</dt>
                         <dd>
-                            {{ tourney.teams.count }} / &infin;
+                            {{ tourney.teams.count }} / {{ tourney.maxTeams | default("&infin;") | raw }}
                         </dd>
                         {#            {% if tourney.rules is not empty %}#}
                         {#                <dt>Regeln:</dt> #}

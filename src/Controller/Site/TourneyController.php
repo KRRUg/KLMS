@@ -181,7 +181,7 @@ class TourneyController extends AbstractController
                     ServiceException::CAUSE_EXIST => 'User ist bereits registriert.',
                     ServiceException::CAUSE_FORBIDDEN => 'User darf sich nicht registrieren.',
                     ServiceException::CAUSE_INCONSISTENT => 'Teamname existiert schon.',
-                    ServiceException::CAUSE_FULL => 'Team ist schon voll',
+                    ServiceException::CAUSE_FULL => 'Team oder Turnier ist schon voll',
                     ServiceException::CAUSE_TOO_LONG => "Teamname darf nicht länger als " . TourneyService::TEAM_NAME_MAX_LENGTH . ' Zeichen lang sein.',
                     ServiceException::CAUSE_INVALID => "Ausgewähltem Team kann nicht beigetreten werden.",
                     default => 'unbekannter Fehler.'
@@ -338,13 +338,14 @@ class TourneyController extends AbstractController
         if ($mayRegister) {
             $token = $this->service->calculateUserToken($user);
             foreach ($this->service->getRegistrableTourneys($user) as $t) {
-                if ($t->isSinglePlayer()) {
+                if ($t->isSinglePlayer() && $t->hasSpotsLeft()) {
                     $forms[$t->getId()] = [self::FORM_NAME_SP => $this->generateFormRegistrationSinglePlayer()->setData(['id' => $t->getId()])->createView()];
                 } else {
-                    $forms[$t->getId()] = [
-                        self::FORM_NAME_JOIN => $this->generateFormRegistrationJoin()->setData(['id' => $t->getId()])->createView(),
-                        self::FORM_NAME_CREATE => $this->generateFormRegistrationCreate()->setData(['id' => $t->getId()])->createView(),
-                    ];
+                    $forms[$t->getId()] = array();
+                    $forms[$t->getId()][self::FORM_NAME_JOIN] = $this->generateFormRegistrationJoin()->setData(['id' => $t->getId()])->createView();
+                    if ($t->hasSpotsLeft()) {
+                        $forms[$t->getId()][self::FORM_NAME_CREATE] = $this->generateFormRegistrationCreate()->setData(['id' => $t->getId()])->createView();
+                    }
                 }
             }
         }
