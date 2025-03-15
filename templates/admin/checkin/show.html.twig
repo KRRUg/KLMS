@@ -1,0 +1,86 @@
+{% embed "modules/modals/skeleton.html.twig"
+    with {
+    'id': 'showCheckinModal',
+    'title' : 'Ticket #' ~ ticket.id,
+    'dialogClass' : 'modal-md'
+} %}
+    {% block modalBody %}
+        {{ form_start(form) }}
+        {% set dateformat = "d.m.Y H:i" %}
+        <div class="container-fluid">
+            {# TODO make check for personal data here and add DOB or make link to user and add button there #}
+            <div class="row">
+                <div class="col-4 mr-2">
+                    {% set img = user | user_image %}
+                    {% if img is not empty %}
+                        <img src="{{ img | imagine_filter('user_img') }}" alt="Image of {{ user|username }}"/>
+                    {% else %}
+                        <i class="far fa-user-circle fa-8x"></i>
+                    {% endif %}
+                </div>
+                <div class="col">
+                    <i class="fas fa-headset fa-fw mr-2" title="Name"></i>
+                    <h1 title="Nickname: {{ user.nickname }}"
+                        class="h3 d-inline-block">{{ user.nickname|defaultBadge('Nickname n.v.') }}</h1>
+                    <br>
+                    <i class="fas fa-signature fa-fw mr-2" title="Name"></i>
+                    <h2 class="h4 d-inline-block">
+                        <span title="Vorname: {{ user.firstname }}">{{ user.firstname|defaultBadge('Vorname n.v.') }}</span>
+                        <span title="Nachname: {{ user.surname }}">{{ user.surname|defaultBadge('Nachname n.v.') }}</span>
+                    </h2>
+                    <p>
+                        <i class="far fa-envelope fa-fw mr-2"
+                           title="E-Mail Adresse"></i>{{ user.email|defaultBadge('E-Mailadresse n.v.') }}
+                    </p>
+                    <p>
+                        <i class="fas fa-mobile-alt fa-fw mr-2"
+                           title="Telefonnummer"></i>{{ user.phone|defaultBadge(' n.v. ') }}
+                    </p>
+                </div>
+                <hr/>
+                <div class="col">
+                    {{ form_start(form2) }}
+                    {{ form_row(form2.email) }}
+                    {{ form_row(form2.nickname) }}
+                    {{ form_row(form2.firstname) }}
+                    {{ form_row(form2.surname) }}
+                    {{ form_row(form2.birthdate) }}
+                    {{ form_row(form2.gender) }}
+                    {{ form_row(form2.infoMails) }}
+                    {{ form_row(form2.personalDataConfirmed) }}
+                    <button type="submit"
+                            class="btn btn-sm mr-1 btn-outline-dark"
+                    >User editieren</button>
+                    {{ form_end(form2, {render_rest: false}) }}
+                </div>
+                <hr/>
+                <div class="col">
+                    {{ form_start(form3) }}
+                    <button type="submit"
+                            class="btn btn-sm mr-1 btn-outline-dark"
+                    >Catering anlegen</button>
+                    {{ form_end(form3) }}
+                </div>
+            </div>
+        </div>
+
+        {% macro confirm_button_form(form, attr, title, danger = false) %}
+            {% if attribute(form, attr) is defined %}
+                {% set btn = attribute(form, attr) %}
+                <button type="submit" name="{{ field_name(btn) }}" value="{{ field_value(btn) }}"
+                        class="btn btn-sm mr-1 {% if danger %} btn-outline-danger {% else %} btn-outline-dark {% endif %}"
+                        {% if danger %} data-toggle="confirmModal" data-modal-title="Bestätigen" data-modal-text="Sind Sie sicher?" {% endif %}
+                        >{{ title }}</button>
+            {% endif %}
+        {% endmacro %}
+        <hr/>
+        <div class="container d-flex">
+            {{ _self.confirm_button_form(form, "punch", 'Ticket checkin') }}
+            {{ _self.confirm_button_form(form, "unpunch", 'Ticket checkout') }}
+        </div>
+        {{ form_end(form) }}
+    {% endblock %}
+    {% block modalFooter %}
+        <button type="button" class="btn btn-sm btn-secondary" data-dismiss="modal">Schließen</button>
+    {% endblock %}
+{% endembed %}
