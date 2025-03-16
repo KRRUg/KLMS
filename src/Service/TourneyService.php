@@ -171,7 +171,9 @@ class TourneyService extends OptimalService
 
     public function userMayParticipate(User $user): bool
     {
-        return $this->ticketService->getTicketUser($user)?->getState() == TicketState::PUNCHED;
+        $require_checkin = $this->settings->get(self::SETTING_PREFIX.'registration_require_checkin', true);
+        $status = $this->ticketService->getTicketUser($user)?->getState();
+        return ($status == TicketState::PUNCHED) || (!$require_checkin && $status == TicketState::REDEEMED);
     }
 
     /** @return Tourney[] */

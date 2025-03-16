@@ -19,7 +19,7 @@
             <div class="container-fluid row">
                 <div class="{% if tourney.canHaveGames %} col-lg-6 {% else %} col-lg-12 {% endif %}">
                     <h5><i class="fa-solid fa-people-group"></i> Teams ({{ tourney.teams | length }} / {{ turney.maxTeams | default("&infin;") | raw }})</h5>
-                    <span style="font-size: small;">Registrierte User (bestätigt, <i class="italic">nicht bestätigt</i>).</span>
+                    <span style="font-size: small;">Registrierte User{% if not tourney.singlePlayer %} (bestätigt, <i class="italic">nicht bestätigt</i>){% endif %}.</span>
                     <hr>
                     <ul class="list-group mb-3">
                         {% for team in tourney.teams %}
