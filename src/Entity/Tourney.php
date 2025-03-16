@@ -238,6 +238,11 @@ class Tourney implements HistoryAwareEntity
         return $this->status == TourneyStage::Running;
     }
 
+    public function canRegister(): bool
+    {
+        return $this->status == TourneyStage::Registration;
+    }
+
     public function getOrder(): ?int
     {
         return $this->order;

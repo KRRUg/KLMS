@@ -310,6 +310,12 @@ class TourneyService extends OptimalService
         $this->em->commit();
     }
 
+    public function teamUnregister(TourneyTeam $team): void
+    {
+        $this->teamRepository->remove($team);
+        $this->em->flush();
+    }
+
     public function getTeamMemberByTourneyAndUser(Tourney $tourney, User $user): ?TourneyTeamMember
     {
         $tm = $this->teamMemberRepository->getTeamMemberByUser($user->getUuid(), $tourney);
@@ -323,7 +329,7 @@ class TourneyService extends OptimalService
 
     private function tryModifyRegistration(Tourney $tourney, User $user): void
     {
-        if ($tourney->getStatus() != TourneyStage::Registration) {
+        if (!$tourney->getStatus()->canRegister()) {
             throw new ServiceException(ServiceException::CAUSE_IN_USE, 'Tourney registration is not open');
         }
         if (!$this->userMayParticipate($user)) {

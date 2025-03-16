@@ -46,4 +46,9 @@ enum TourneyStage : int
     {
         return $this != self::Registration && $this != self::Created;
     }
+
+    public function canRegister(): bool
+    {
+        return $this == self::Registration;
+    }
 }
