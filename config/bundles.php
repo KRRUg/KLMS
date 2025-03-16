@@ -20,4 +20,5 @@ return [
     Sentry\SentryBundle\SentryBundle::class => ['prod' => true],
     EWZ\Bundle\RecaptchaBundle\EWZRecaptchaBundle::class => ['all' => true],
     Eko\FeedBundle\EkoFeedBundle::class => ['all' => true],
+    Symfony\UX\StimulusBundle\StimulusBundle::class => ['all' => true],
 ];

@@ -4,26 +4,28 @@ namespace App\Controller\Admin;
 
 use App\Entity\Ticket;
 use App\Entity\User;
-use App\Entity\UserImage;
+use App\Idm\Exception\PersistException;
+use App\Idm\IdmManager;
+use App\Service\KlcsConnectorService;
 use App\Exception\TicketLivecycleException;
 use App\Form\UserSelectType;
 use App\Form\UserType;
-use App\Repository\UserImageRepository;
 use App\Service\TicketService;
-use App\Service\TicketState;
 use App\Service\UserService;
-use Doctrine\DBAL\Types\StringType;
-use Ramsey\Uuid\Doctrine\UuidType;
+use Ramsey\Uuid\Uuid;
 use Ramsey\Uuid\UuidInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
-use Symfony\Component\Form\Form;
+use Symfony\Component\Form\FormError;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Validator\Constraints\NotBlank;
+use Symfony\Component\Validator\Constraints\Uuid as UuidConstraint;
 
 #[IsGranted('ROLE_ADMIN_PAYMENT')]
 #[Route(path: '/checkin', name: 'checkin')]
@@ -31,15 +33,18 @@ class CheckinController extends AbstractController
 {
     private readonly TicketService $ticketService;
     private readonly UserService $userService;
-    private readonly UserImageRepository $userImgRepo;
+    private KlcsConnectorService $klcsConnectorService;
+    private IdmManager $manager;
 
-    public function __construct(TicketService $ticketService,
-                                UserService   $userService,
-                                UserImageRepository $userImgRepo)
-    {
+    public function __construct(KlcsConnectorService $klcsConnectorService,
+                                IdmManager $manager,
+                                TicketService $ticketService,
+                                UserService $userService
+    ){
+        $this->klcsConnectorService = $klcsConnectorService;
+        $this->manager = $manager;
         $this->ticketService = $ticketService;
         $this->userService = $userService;
-        $this->userImgRepo = $userImgRepo;
     }
 
     private function createUserSelectForm(): FormInterface
@@ -50,20 +55,39 @@ class CheckinController extends AbstractController
         return $form->getForm();
     }
 
-    private function createTicketModificationForm(Ticket $ticket): FormInterface
+    private function createKlcsAccountBindingForm(User $user): FormInterface
+    {
+        $form = $this->createFormBuilder()
+            ->setAction($this->generateUrl('admin_checkin_klcs_create', ['uuid' => $user->getUuid()]));
+        $form->add('klcsUuid', TextType::class, [
+            'required' => true,
+            'label' => 'KLCS Account UUID (QR Code)',
+            'constraints' => [
+                new UuidConstraint(),
+                new NotBlank(),
+            ]
+            ]);
+
+        return $form->getForm();
+    }
+
+    private function createTicketCheckinForm(Ticket $ticket): FormInterface
     {
         $form = $this->createFormBuilder()
             ->setAction($this->generateUrl('admin_checkin_update', ['id' => $ticket->getId()]));
-        $can_delete_ticket = empty($ticket->getShopOrderPosition());
-        switch ($ticket->getState()) {
-            case TicketState::REDEEMED:
                 $form->add('punch', SubmitType::class);
-                break;
-            case TicketState::PUNCHED:
-                $form->add('unpunch', SubmitType::class);
-                break;
-        }
+
         return $form->getForm();
+    }
+
+    private function createUserVerifyForm(User $user): FormInterface
+    {
+
+        return $this->createForm(UserType::class, $user, [
+            'disable_on_lock' => false,
+            'with_image' => false,
+            'action' => $this->generateUrl('admin_checkin_user_verify', ['uuid' => $user->getUuid()]),
+        ]);
     }
 
     #[Route(path: '', name: '', methods: ['GET'])]
@@ -77,36 +101,8 @@ class CheckinController extends AbstractController
         return $this->render('admin/checkin/index.html.twig', [
             'tickets' => $tickets,
             'users' => $users,
-            'form_add' => $this->createUserSelectForm()->createView(),
         ]);
     }
-
-    // TODO add create new Ticket Controllerd
-
-    #[Route(path: '', name: '_add', methods: ['POST'])]
-    public function add(Request $request): Response
-    {
-        $form = $this->createUserSelectForm();
-        $form->handleRequest($request);
-        if ($form->isSubmitted() && $form->isValid()) {
-            $user = $form->getData()['user'];
-            if (empty($user)) {
-                $this->addFlash('error', 'Ungültigen User ausgewählt.');
-            } elseif ($this->ticketService->isUserRegistered($user)) {
-                $this->addFlash('warning', "User {$user->getNickname()} ist schon registriert.");
-            } else {
-                try {
-                    $ticket = $this->ticketService->registerUser($user);
-                    $this->addFlash('success', "User {$user->getNickname()} wurde zur Veranstaltung mit Ticket {$ticket->getCode()} registriert.");
-                } catch (TicketLivecycleException) {
-                    $this->addFlash('error', "User {$user->getNickname()}  konnte nicht registriert werden.");
-                }
-            }
-        }
-
-        return $this->redirectToRoute('admin_checkin');
-    }
-
     private static function clickedIfExists(FormInterface $form, string $field): bool
     {
         return $form->has($field) ? $form->get($field)->isClicked() : false;
@@ -115,32 +111,15 @@ class CheckinController extends AbstractController
     #[Route(path: '/{id}', name: '_update', methods: ['POST'])]
     public function update(Request $request, Ticket $ticket): Response
     {
-        $form = $this->createTicketModificationForm($ticket);
+        $form = $this->createTicketCheckinForm($ticket);
         $form->handleRequest($request);
-        $id = $ticket->getId();
+        $user = $this->userService->getUsers([$ticket->getRedeemer()])[0];
         $error = "";
         if ($form->isSubmitted() && $form->isValid()) {
             try {
                 switch (true) {
-                    case self::clickedIfExists($form, 'assign'):
-                        $user = $form->get('user')->getData();
-                        if ($this->ticketService->isUserRegistered($user)) {
-                            $error = "User {$user->getNickname()} ist schon registriert.";
-                        } else {
-                            $this->ticketService->redeemTicket($ticket, $user);
-                        }
-                        break;
-                    case self::clickedIfExists($form, 'unassign'):
-                        $this->ticketService->unassignTicket($ticket);
-                        break;
                     case self::clickedIfExists($form, 'punch'):
                         $this->ticketService->punchTicket($ticket);
-                        break;
-                    case self::clickedIfExists($form, 'unpunch'):
-                        $this->ticketService->unpunchTicket($ticket);
-                        break;
-                    case self::clickedIfExists($form, 'delete'):
-                        $this->ticketService->deleteTicket($ticket);
                         break;
                     default:
                         $this->addFlash('error', "Aktion konnte nicht durchgeführt werden");
@@ -153,7 +132,7 @@ class CheckinController extends AbstractController
             if (!empty($error)) {
                 $this->addFlash('error', $error);
             } else {
-                $this->addFlash('success', "Änderung an Ticket #{$id} erfolgreich.");
+                $this->addFlash('success', "User " . $user->getNickname() . " erfolgreich eingechecked!");
             }
         }
 
@@ -161,24 +140,109 @@ class CheckinController extends AbstractController
     }
 
     #[Route(path: '/{id}', name: '_show', methods: ['GET'])]
-    public function show(Request $request, Ticket $ticket): Response
+    public function show(Ticket $ticket): Response
     {
-        $form = $this->createTicketModificationForm($ticket);
+        $ticketCheckinForm = $this->createTicketCheckinForm($ticket);
         $user = $this->ticketService->userByTicket($ticket);
-        $image = $this->userImgRepo->findOneByUser($user) ?? new UserImage($user->getUuid());
-        $form2 = $this->createForm(UserType::class, $user, ['disable_on_lock' => false, 'with_image' => true]);
-        $form2->get('image')->setData($image);
-
-        $form3 = $this->createFormBuilder()
-            ->setAction($this->generateUrl('admin_checkin_update', ['id' => $ticket->getId()]));
-        $form3->add('klcsUuid', TextType::class);
+        $userVerifyForm = $this->createUserVerifyForm($user);
+        $klcsAccountBindingForm = $this->createKlcsAccountBindingForm($user);
 
         return $this->render('admin/checkin/show.html.twig', [
             'user' => $user,
             'ticket' => $ticket,
-            'form' => $form->createView(),
-            'form2' => $form2->createView(),
-            'form3' => $form3->getForm()->createView()
+            'klcsEnabled' => $this->klcsConnectorService->isConnectorEnabled(),
+            'ticketCheckinForm' => $ticketCheckinForm->createView(),
+            'userVerifyForm' => $userVerifyForm->createView(),
+            'klcsAccountBindingForm' => $klcsAccountBindingForm->createView()
         ]);
     }
+
+    #[Route(path: '/klcs/create/{uuid}', name: '_klcs_create', methods: ['POST'])]
+    public function createKlcsAccountBinding(Request $request, string $uuid): Response
+    {
+
+        if(!(Uuid::isValid(Uuid::fromString($uuid))) || empty($uuid)) {
+            throw new BadRequestHttpException('Not a valid UUID');
+        }
+        $user = $this->userService->getUsers([Uuid::fromString($uuid)])[0];
+
+        if (empty($user)) {
+            throw $this->createNotFoundException('User not found');
+        }
+
+        $form = $this->createKlcsAccountBindingForm($user);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            try {
+                $this->klcsConnectorService->createAccount($user, Uuid::fromString($form->get('klcsUuid')->getData()));
+
+                if ($request->isXmlHttpRequest()) {
+                    return new Response(null, Response::HTTP_NO_CONTENT);
+                }
+
+                // FIXME: Doesn't work on AJAX Requests
+                $this->addFlash('success', 'KLCS Account verbunden!');
+
+                return $this->redirectToRoute('admin_checkin');
+            } catch (\Exception $e) {
+                $form->get('klcsUuid')->addError(new FormError('Fehler beim Verbinden des KLCS Accounts: ' . $e->getMessage()));
+            }
+        }
+
+        return $this->render('admin/checkin/_form.klcs_binding.html.twig', [
+            'form' => $form->createView(),
+        ], new Response(
+            null,
+            $form->isSubmitted() && !$form->isValid() ? 422 : 200,
+        ));
+    }
+
+    #[Route(path: '/user/verify/{uuid}', name: '_user_verify', methods: ['POST'])]
+    public function verifyUser(Request $request, string $uuid): Response
+    {
+
+        if(!(Uuid::isValid(Uuid::fromString($uuid))) || empty($uuid)) {
+            throw new BadRequestHttpException('Not a valid UUID');
+        }
+        $user = $this->userService->getUsers([Uuid::fromString($uuid)])[0];
+
+        if (empty($user)) {
+            throw $this->createNotFoundException('User not found');
+        }
+
+        $form = $this->createUserVerifyForm($user);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            try {
+                $user = $form->getData();
+                $user->setPersonalDataConfirmed(true);
+                $this->manager->persist($user);
+                $this->manager->flush();
+
+                if ($request->isXmlHttpRequest()) {
+                    return new Response(null, Response::HTTP_NO_CONTENT);
+                }
+
+                $this->addFlash('success', 'User erfolgreich bearbeitet!');
+                return $this->redirectToRoute('admin_checkin');
+            } catch (PersistException $e) {
+                match ($e->getCode()) {
+                    PersistException::REASON_NON_UNIQUE => $form->get('nickname')->addError(new FormError('Nickname und/oder Email ist schon in Verwendung')),
+                    default => $form->get('nickname')->addError(new FormError('Es ist ein unerwarteter Fehler beim User bearbeiten aufgetreten')),
+                };
+            }
+
+        }
+
+        return $this->render('admin/checkin/_form.user_verify.html.twig', [
+            'form' => $form->createView(),
+        ], new Response(
+            null,
+            $form->isSubmitted() && !$form->isValid() ? 422 : 200,
+        ));
+    }
+
+
 }

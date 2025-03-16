@@ -1,0 +1,18 @@
+{{ form_start(form) }}
+{{ form_row(form.email) }}
+{{ form_row(form.nickname) }}
+{{ form_row(form.firstname) }}
+{{ form_row(form.surname) }}
+{{ form_row(form.birthdate) }}
+{{ form_row(form.gender) }}
+{{ form_row(form.infoMails) }}
+{{ form_row(form._token) }}
+<button type="button"
+        class="btn btn-sm mr-1 btn-outline-dark"
+        data-action="admin-checkin#submitForm"
+>1) User editieren & bestätigen
+</button>
+<div data-admin-checkin-target="status">
+
+</div>
+{{ form_end(form, {render_rest: false}) }}
