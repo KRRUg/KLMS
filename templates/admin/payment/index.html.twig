@@ -80,6 +80,8 @@
 
                                     {% if ticket.redeemer is not seated_user %}
                                         <span class="badge badge-danger">Kein Sitzplatz</span>
+                                    {% else %}
+                                        <span class="badge badge-secondary"><i class="fa-solid fa-chair"></i> {{ ticket.redeemer | seat }}</span>
                                     {% endif %}
                                 {% else %}
                                     <span class="badge badge-secondary">Offen</span>
