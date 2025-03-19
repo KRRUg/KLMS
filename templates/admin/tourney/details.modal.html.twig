@@ -7,18 +7,29 @@
 {# TODO check https://stackoverflow.com/questions/19528173/bootstrap-open-another-modal-in-modal #}
     {% from 'site/tourney/show.html.twig' import teamname, teamnameA, teamnameB %}
     {% block modalBody %}
+        {% macro unregister_team(team, token) %}
+            <form data-toggle="confirmModal" data-modal-title="Bestätigen" data-modal-text="Wirklich abmelden?" method="post" action="{{ path('admin_tourney_remove_team', {'id' : team.id}) }}" class="d-inline-block">
+                <input type="hidden" name="_token" value="{{ csrf_token(token) }}">
+                <button type="submit" class="btn btn-sm btn-outline-danger"><i class="fa-solid fa-trash"></i></button>
+            </form>
+        {% endmacro %}
         {% if not tourney.canHaveTeams %}
             <span class="text-muted text-center">Dieses Turnier hat noch keine Details.</span>
         {% else %}
             <div class="container-fluid row">
                 <div class="{% if tourney.canHaveGames %} col-lg-6 {% else %} col-lg-12 {% endif %}">
-                    <h5><i class="fa-solid fa-people-group"></i> Teams ({{ tourney.teams | length }})</h5>
+                    <h5><i class="fa-solid fa-people-group"></i> Teams ({{ tourney.teams | length }} / {{ turney.maxTeams | default("&infin;") | raw }})</h5>
+                    <span style="font-size: small;">Registrierte User{% if not tourney.singlePlayer %} (bestätigt, <i class="italic">nicht bestätigt</i>){% endif %}.</span>
                     <hr>
                     <ul class="list-group mb-3">
                         {% for team in tourney.teams %}
                             <li class="list-group-item">
-                                <b>{{ teamname(team) }}</b><br>
+                                <b>{{ teamname(team) }}</b>
+                                {% if tourney.status.canRegister %}
+                                {{ _self.unregister_team(team, csrf_token_modify) }}
+                                {% endif %}
                                 {% if not tourney.singlePlayer %}
+                                    <br>
                                     <span>{% for tm in team.members %}{% if not tm.accepted %}<i class="text-muted">{% endif %}{{ tm.gamer | username }}{% if not tm.accepted %}</i>{% endif %}{% if not loop.last %},  {% endif %}{% endfor %}</span>
                                 {% endif %}
                             </li>

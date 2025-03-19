@@ -79,19 +79,29 @@ class ShopOrder
         return $this;
     }
 
-    public function isPaid(): bool
+    public function isActive(): bool
     {
-        return $this->status == ShopOrderStatus::Paid;
+        return $this->status->isActive();
+    }
+
+    public function isDead(): bool
+    {
+        return $this->status->isDead();
+    }
+
+    public function isRefunded(): bool
+    {
+        return $this->status->isRefunded();
     }
 
     public function isCanceled(): bool
     {
-        return $this->status == ShopOrderStatus::Canceled;
+        return $this->status->isCanceled();
     }
 
     public function isOpen(): bool
     {
-        return $this->status == ShopOrderStatus::Created;
+        return $this->status->isOpen();
     }
 
     /**
@@ -174,6 +184,19 @@ class ShopOrder
         foreach ($this->shopOrderPositions as $position) {
             if ($position instanceof ShopOrderPositionTicket) {
                 $cnt += 1;
+            }
+        }
+        return $cnt;
+    }
+
+    public function countRedeemedTickets(): int
+    {
+        $cnt = 0;
+        foreach ($this->shopOrderPositions as $position) {
+            if ($position instanceof ShopOrderPositionTicket) {
+                if ($position->getTicket() && $position->getTicket()->isRedeemed()) {
+                    $cnt += 1;
+                }
             }
         }
         return $cnt;

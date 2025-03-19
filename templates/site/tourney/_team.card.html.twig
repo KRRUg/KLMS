@@ -4,7 +4,7 @@
     {% else %}
         {{ team.members[0].gamer | username }}
         {% if show_seat %}{% set gs = team.members[0].gamer | user | seat %}
-            {% if gs | default(null) is not empty %}<span class="badge badge-secondary ml-3">{{ gs }}</span>{% endif %}{% endif %}
+            {% if gs | default(null) is not empty %}<span class="badge badge-secondary ml-3"><i class="fa-solid fa-chair"></i> {{ gs }}</span>{% endif %}{% endif %}
     {% endif %}
 {% endmacro %}
 
@@ -15,7 +15,7 @@
                 <li class="list-group-item d-flex justify-content-between align-items-center">
                     <span>{{ member.gamer | username }}</span>
                     {% if show_seat %}{% set gs = member.gamer | user | seat %}
-                        {% if gs | default(null) is not empty %}<span class="badge badge-secondary ml-3">{{ gs }}</span>{% endif %}{% endif %}
+                        {% if gs | default(null) is not empty %}<span class="badge badge-secondary ml-3"><i class="fa-solid fa-chair"></i> {{ gs }}</span>{% endif %}{% endif %}
                 </li>
             {% endfor %}
         </ul>

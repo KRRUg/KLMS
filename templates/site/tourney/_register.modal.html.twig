@@ -5,14 +5,19 @@
         {% if tourney.singlePlayer %}
             <span>Wirklich teilnehmen?</span>
         {% else %}
-            <span>Neues Team ertellen</span>
-            <div class="m-1">
-                {{ form_start(fc, { 'attr': {'class': 'form-inline'}}) }}
-                {{ form_widget(fc.name, { 'attr': {'class': 'form-control-sm flex-fill m-1'}}) }}
-                {{ form_widget(fc.submit, { 'attr': {'class': 'btn btn-primary btn-sm m-1'}}) }}
-                {{ form_end(fc) }}
-            </div>
-            <div class="hr-text mt-2 mb-2">oder</div>
+            {% if fc is not null %}
+                <span>Neues Team erstellen</span>
+                <div class="m-1">
+                    {{ form_start(fc, { 'attr': {'class': 'form-inline'}}) }}
+                    {{ form_widget(fc.name, { 'attr': {'class': 'form-control-sm flex-fill m-1'}}) }}
+                    {{ form_widget(fc.submit, { 'attr': {'class': 'btn btn-primary btn-sm m-1'}}) }}
+                    {{ form_end(fc) }}
+                </div>
+                <div class="hr-text mt-2 mb-2">oder</div>
+            {% else %}
+                <p class="text-muted ml-1" style="font-size: small;">Es können keine weiteren Teams für dieses Turnier angelegt werden.</p>
+                <div class="hr-text mt-2 mb-2"></div>
+            {% endif %}
             <span>Existierendem Team beitreten</span>
             <div class="m-1">
                 {{ form_start(fj, { 'attr': {'class': 'form-inline'}}) }}
