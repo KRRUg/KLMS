@@ -5,11 +5,14 @@
 {% block main %}
     <div class="row">
         <div class="col-12">
+            <div class="mb-2">
+                <a id="export" class="btn btn-sm btn-primary"  href="{{ path('admin_shop_order_export') }}">Bestellungen exportieren (.csv)</a>
+            </div>
             <div class="card">
                 <table class="table table-striped admin-data-table" data-order="[[ 1, &quot;desc&quot; ]]">
                     <thead>
                     <tr>
-                        <th class="text-nowrap w-1">ID</th>
+                        <th class="text-nowrap w-1">&#8470;</th>
                         <th class="w-25"> Datum</th>
                         <th class="w-25"> Nickname </th>
                         <th class="w-25">Vorname</th>
@@ -40,11 +43,13 @@
                             {% set total = order.calculateTotal %}
                             <td class="text-right" data-order="{{total}}">{{ (total / 100) | format_currency('EUR')}}</td>
                             <td>
-                                {% if order.isPaid() %}
+                                {% if order.isActive() %}
                                     <span class="badge badge-primary">Bezahlt</span>
                                 {% elseif order.isCanceled() %}
                                     <span class="badge badge-light-muted">Storniert</span>
-                                {% else %}
+                                {% elseif order.isRefunded() %}
+                                    <span class="badge badge-light-muted">Rückerstattet</span>
+                                {% elseif order.isOpen() %}
                                     <span class="badge badge-info">Angelegt</span>
                                 {% endif %}
                             </td>

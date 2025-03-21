@@ -2,6 +2,7 @@
 
 namespace App\Service;
 
+use App\Entity\ShopOrderStatus;
 use App\Repository\SeatRepository;
 use App\Repository\ShopOrderPositionRepository;
 use App\Repository\TicketRepository;
@@ -65,7 +66,7 @@ class StatisticService extends OptimalService
 
     public function countOrderedTickets(): int
     {
-        return $this->ticketRepository->count([]) + $this->shopOrderPositionRepository->countOrderedTickets();
+        return $this->ticketRepository->count([]) + $this->shopOrderPositionRepository->countOrderedTickets(ShopOrderStatus::STATUS_OPEN);
     }
 
     public function countSoldTickets(): int

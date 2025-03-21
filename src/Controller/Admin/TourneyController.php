@@ -31,6 +31,7 @@ class TourneyController extends AbstractController
     private IdmRepository $userRepo;
     private LoggerInterface $logger;
 
+    private const CSRF_TOKEN_MODIFY = 'tourneyModifyToken';
     private const CSRF_TOKEN_ADVANCE = 'tourneyAdvanceToken';
     private const CSRF_TOKEN_DELETE = 'tourneyDeleteToken';
 
@@ -110,6 +111,7 @@ class TourneyController extends AbstractController
         return $this->render('admin/tourney/details.modal.html.twig', [
             'tourney' => $tourney,
             'csrf_token_advance' => self::CSRF_TOKEN_ADVANCE,
+            'csrf_token_modify' => self::CSRF_TOKEN_MODIFY,
         ]);
     }
 
@@ -253,6 +255,26 @@ class TourneyController extends AbstractController
         try{
             $this->service->back($tourney);
             $this->addFlash('success', "Tourney {$tourney->getName()} {$tourney->getStatus()->getAdjective()}.");
+        } catch (ServiceException $e) {
+            $this->addFlash('error', $e->getMessage());
+        }
+        return $this->redirectToRoute('admin_tourney');
+    }
+
+    #[Route(path: '/remove-team/{id}', name: '_remove_team', methods: ['POST'])]
+    public function unregister(Request $request, TourneyTeam $team): Response
+    {
+        $tourney = $team->getTourney();
+        if ($tourney->getStatus() != TourneyStage::Registration) {
+            throw $this->createNotFoundException();
+        }
+        $token = $request->request->get('_token');
+        if (!$this->isCsrfTokenValid(self::CSRF_TOKEN_MODIFY, $token)) {
+            throw $this->createAccessDeniedException('The CSRF token is invalid.');
+        }
+        try {
+            $this->service->teamUnregister($team);
+            $this->addFlash('success', "Team {$team->getName()} wurde von Tourney {$tourney->getName()} abgemeldet.");
         } catch (ServiceException $e) {
             $this->addFlash('error', $e->getMessage());
         }

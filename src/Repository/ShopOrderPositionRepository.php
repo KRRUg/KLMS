@@ -26,27 +26,39 @@ class ShopOrderPositionRepository extends ServiceEntityRepository
         parent::__construct($registry, ShopOrderPosition::class);
     }
 
-    public function countOrderedTickets(ShopOrderStatus $status = ShopOrderStatus::Created): int
+    /**
+     * @param ShopOrderStatus[] $statusFilter
+     * @return int
+     */
+    public function countOrderedTickets(array $statusFilter): int
     {
         return $this->createQueryBuilder('op')
             ->select('count(op)')
             ->join('op.order', 'o')
             ->where('op INSTANCE OF '.ShopOrderPositionTicket::class)
-            ->andWhere('o.status = :status')
-            ->setParameter('status', $status)
+            ->andWhere('o.status in (:status)')
+            ->setParameter('status', $statusFilter)
             ->getQuery()
             ->getSingleScalarResult();
     }
 
-    public function countOrderedAddonsById(?UuidInterface $uuid = null): array
+    /**
+     * @param UuidInterface|null $uuid
+     * @param ShopOrderStatus[] $statusFilter
+     * @return array [array_id => cnt]
+     */
+    public function countOrderedAddonsById(?UuidInterface $uuid = null, array $statusFilter = []): array
     {
         $qb = $this->getEntityManager()->createQueryBuilder();
         $q = $qb->select('identity(op.addon) as aid, count(op) as cnt')
             ->from(ShopOrderPositionAddon::class, 'op')
             ->groupBy('op.addon')
-            ->join('op.order', 'o')
-            ->andWhere('o.status != :status')
-            ->setParameter('status', ShopOrderStatus::Canceled);
+            ->join('op.order', 'o');
+        if (!empty($statusFilter)) {
+           $q
+               ->andWhere('o.status in (:status)')
+               ->setPaRAMETER('status', $statusFilter);
+        }
         if (!is_null($uuid)) {
             $q
                 ->andWhere('o.orderer = :uuid')
@@ -55,16 +67,25 @@ class ShopOrderPositionRepository extends ServiceEntityRepository
         return array_column($q->getQuery()->getArrayResult(), 'cnt', 'aid');
     }
 
-    public function countOrderedAddons(ShopAddon $addon, ?UuidInterface $uuid = null): int
+    /**
+     * @param ShopAddon $addon
+     * @param UuidInterface|null $uuid
+     * @param ShopOrderStatus[] $statusFilter
+     * @return int
+     */
+    public function countOrderedAddons(ShopAddon $addon, ?UuidInterface $uuid = null, array $statusFilter = []): int
     {
         $qb = $this->getEntityManager()->createQueryBuilder();
         $q = $qb->select('count(op)')
             ->from(ShopOrderPositionAddon::class, 'op')
             ->join('op.order', 'o')
             ->andWhere('op.addon = :addon')
-            ->andWhere('o.status != :status')
-            ->setParameter('status', ShopOrderStatus::Canceled)
             ->setParameter('addon', $addon);
+        if (!empty($statusFilter)) {
+            $q
+                ->andWhere('o.status in (:status)')
+                ->setPaRAMETER('status', $statusFilter);
+        }
         if (!is_null($uuid)) {
             $q
                 ->andWhere('o.orderer = :uuid')
@@ -74,16 +95,16 @@ class ShopOrderPositionRepository extends ServiceEntityRepository
     }
 
     /**
-     * @param ShopOrderStatus $status
+     * @param ShopOrderStatus[] $statusFilter
      * @return ShopOrderPosition[]
      */
-    public function getOrderedAddons(ShopOrderStatus $status = ShopOrderStatus::Paid): array
+    public function getOrderedAddons(array $statusFilter = []): array
     {
         return $this->createQueryBuilder('op')
             ->join('op.order', 'o')
             ->where('op INSTANCE OF '.ShopOrderPositionAddon::class)
-            ->andWhere('o.status = :status')
-            ->setParameter('status', $status)
+            ->andWhere('o.status in (:status)')
+            ->setParameter('status', $statusFilter)
             ->getQuery()
             ->getResult();
     }

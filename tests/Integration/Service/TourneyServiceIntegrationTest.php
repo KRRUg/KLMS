@@ -235,6 +235,24 @@ class TourneyServiceIntegrationTest extends DatabaseTestCase
         $service->userUnregister($tourney, $user18);
     }
 
+    public function testTeamUnregister()
+    {
+        $this->databaseTool->loadFixtures([TourneyFixture::class, UserFixtures::class]);
+        $service = self::getContainer()->get(TourneyService::class);
+
+        $user2 = $this->getUser(2);
+        $tourneys = $service->getRegisteredTourneys($user2);
+        $this->assertCount(2, $tourneys);
+        $tourney = $tourneys[1];
+        $this->assertEquals(TourneyStage::Registration, $tourney->getStatus());
+
+        $team = $service->getTeamMemberByTourneyAndUser($tourney, $user2)->getTeam();
+        $service->teamUnregister($team);
+
+        $tourneys = $service->getRegisteredTourneys($user2);
+        $this->assertCount(1, $tourneys);
+    }
+
     public function testRegisterNotParticipatingUser()
     {
         $this->databaseTool->loadFixtures([TourneyFixture::class, UserFixtures::class]);
@@ -245,6 +263,83 @@ class TourneyServiceIntegrationTest extends DatabaseTestCase
         $this->assertEquals(TourneyStage::Registration, $tourney->getStatus());
         $this->expectException(ServiceException::class);
         $service->userRegister($tourney, $user0, null);
+    }
+
+    public function testTeamLimitSinglePlayer()
+    {
+        $this->databaseTool->loadFixtures([TourneyFixture::class, UserFixtures::class]);
+
+        $service = self::getContainer()->get(TourneyService::class);
+        $tourney = $service->getVisibleTourneys()[1];
+
+        $this->assertTrue($tourney->isSinglePlayer());
+        $this->assertNotNull($tourney->getMaxTeams());
+        $this->assertEquals(3, $tourney->getMaxTeams());
+        $this->assertCount(1, $tourney->getTeams());
+        $this->assertTrue($tourney->hasSpotsLeft());
+
+        // register 3 more users
+        $user1 = $this->getUser(10);
+        $user2 = $this->getUser(14);
+        $user3 = $this->getUser(7);
+
+        $this->assertTrue($service->userCanRegisterForTourney($tourney, $user1));
+        $this->assertTrue($service->userCanRegisterForTourney($tourney, $user2));
+        $this->assertTrue($service->userCanRegisterForTourney($tourney, $user3));
+
+        $service->userRegister($tourney, $user1, null);
+        $service->userRegister($tourney, $user2, null);
+
+        // 4th user registering
+        $this->expectException(ServiceException::class);
+        $service->userRegister($tourney, $user3, null);
+    }
+
+    public function testTeamLimitMultiplePlayer()
+    {
+        $this->databaseTool->loadFixtures([TourneyFixture::class, UserFixtures::class]);
+
+        $service = self::getContainer()->get(TourneyService::class);
+        $tourney = $service->getVisibleTourneys()[3];
+
+        $this->assertFalse($tourney->isSinglePlayer());
+        $this->assertNotNull($tourney->getMaxTeams());
+        $this->assertEquals(2, $tourney->getMaxTeams());
+        $this->assertCount(1, $tourney->getTeams());
+        $this->assertTrue($tourney->hasSpotsLeft());
+
+        $user1 = $this->getUser(10);
+        $user2 = $this->getUser(14);
+        $this->assertTrue($service->userCanRegisterForTourney($tourney, $user1));
+        $this->assertTrue($service->userCanRegisterForTourney($tourney, $user2));
+
+        $service->userRegister($tourney, $user1, "New Team");
+        $this->expectException(ServiceException::class);
+        $service->userRegister($tourney, $user2, "New Team 2");
+    }
+
+    public function testTeamLimitMultiplePlayerJoin()
+    {
+        $this->databaseTool->loadFixtures([TourneyFixture::class, UserFixtures::class]);
+
+        $service = self::getContainer()->get(TourneyService::class);
+        $tourney = $service->getVisibleTourneys()[3];
+
+        $this->assertFalse($tourney->isSinglePlayer());
+        $this->assertNotNull($tourney->getMaxTeams());
+        $this->assertEquals(2, $tourney->getMaxTeams());
+        $this->assertCount(1, $tourney->getTeams());
+        $this->assertTrue($tourney->hasSpotsLeft());
+
+        $user1 = $this->getUser(10);
+        $user2 = $this->getUser(14);
+        $this->assertTrue($service->userCanRegisterForTourney($tourney, $user1));
+        $this->assertTrue($service->userCanRegisterForTourney($tourney, $user2));
+
+        $service->userRegister($tourney, $user1, "New Team");
+        $team = $service->getTeamMemberByTourneyAndUser($tourney, $user1)->getTeam();
+        // no exception
+        $service->userRegister($tourney, $user2, $team);
     }
 
     private function provideLogResultInvalidUser(): array

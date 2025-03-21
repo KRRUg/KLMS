@@ -8,6 +8,7 @@ use App\Service\TourneyService;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\EnumType;
+use Symfony\Component\Form\Extension\Core\Type\IntegerType;
 use Symfony\Component\Form\Extension\Core\Type\NumberType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
@@ -89,6 +90,12 @@ class TourneyType extends AbstractType
                 'choice_label' => fn ($c) => $c->getMessage(),
                 'expanded' => true,
                 'multiple' => false,
+                'disabled' => !$options['create'],
+            ])
+            ->add('maxTeams', IntegerType::class, [
+                'label' => 'Maximum Teams',
+                'required' => false,
+                'empty_data' => null,
                 'disabled' => !$options['create'],
             ])
         ;

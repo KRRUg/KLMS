@@ -13,7 +13,7 @@
             <td class="text-right">{{ (p.price / 100) | format_currency('EUR') }}</td>
         </tr>
     {% endfor %}
-        <tr class="font-weight-bold border-top">
+        <tr class="font-weight-bold border-top border-dark">
             <td>Gesamt</td>
             <td class="text-right">{{ (order.calculateTotal / 100) | format_currency('EUR')}}</td>
         </tr>

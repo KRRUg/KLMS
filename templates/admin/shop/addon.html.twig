@@ -13,11 +13,12 @@
                 <table class="table table-striped admin-data-table">
                     <thead>
                     <tr>
-                        <th scope="col" style="width: 4em;" class="text-nowrap w-1">ID</th>
-                        <th scope="col" style="width: 4em;">Sichtbar</th>
-                        <th scope="col" style="width: 4em;">Einmal</th>
-                        <th scope="col" style="width: 4em;">Index</th>
+                        <th scope="col" style="width: 4em;" class="text-nowrap w-1">&#8470;</th>
+                        <th scope="col" class="text-center" style="width: 2em;"><i title="Sichtbar" class="fas fa-eye"></i></th>
+                        <th scope="col" style="width: 4em;">Anzahl</th>
+                        <th scope="col" class="text-center" style="width: 2em;"><i title="Reihenfolge" class="fa-solid fa-arrow-up-1-9"></i></th>
                         <th scope="col" class="flex-fill">Name</th>
+                        <th scope="col" style="width: 2em;"><i title="einmalig buchbar" class="fa-solid fa-hand-point-up"></i></th>
                         <th scope="col" class="">Preis</th>
                         <th
                                 class="text-nowrap w-1"
@@ -30,14 +31,17 @@
                     {% for addon in addons %}
                         <tr>
                             <td class="text-center">{{ addon.id }}</td>
-                            <td class="text-center">
+                            <td class="text-center" data-order="{{ addon.isActive }}">
                                 <a href="{{ path('admin_shop_addon_toggle', {'id' : addon.id}) }}" title="Sichtbarkeit ändern">{% if addon.isActive %}<i class="fas fa-eye text-success" title="sichtbar"></i>{% else %}<i class="fas fa-eye-slash text-danger" title="ausgeblendet"></i>{% endif %}</a>
                             </td>
-                            <td class="text-center">
-                                {% if addon.onlyOnce %}<i class="fas fa-thumbs-up"></i>{% endif %}
+                            <td class="text-center" data-order="{{ countAddons[addon.id] ?? 0 }}">
+                                <span title="bestellt/bezahlt/verfügbar">{{ countAddons[addon.id] ?? 0 }}&nbsp;/&nbsp;{{ countAddonsPaid[addon.id] ?? 0 }}&nbsp;/&nbsp;{% if addon.maxQuantityGlobal is not null %}{{ addon.maxQuantityGlobal }}{% else %}∞{% endif %}</span>
                             </td>
-                            <td>{{ addon.sortIndex }}</td>
+                            <td class="text-center">{{ addon.sortIndex }}</td>
                             <td>{{ addon.name }}</td>
+                            <td class="text-center" data-order="{{ addon.onlyOnce }}">
+                                {% if addon.onlyOnce %}<i title="einmalig buchbar" class="fa-solid fa-hand-point-up"></i>{% endif %}
+                            </td>
                             <td class="text-right" data-order="{{ addon.price }}">{{ (addon.price/100) | format_currency('EUR') }}</td>
                             <td>
                                 <a class="btn btn-sm btn-outline-dark text-nowrap" data-toggle="ajaxModal" href="{{ path('admin_shop_addon_edit', {'id' : addon.id}) }}">

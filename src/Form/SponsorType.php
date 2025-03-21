@@ -7,6 +7,7 @@ use App\Entity\SponsorCategory;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use Symfony\Component\Form\Extension\Core\Type\IntegerType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Vich\UploaderBundle\Form\Type\VichImageType;
@@ -27,6 +28,7 @@ class SponsorType extends AbstractType
         $builder
             ->add('name')
             ->add('isVisible', null, ['label' => 'Sponsor anzeigen'])
+            ->add('sortOrder', IntegerType::class, ['label' => 'Sortierung'])
             ->add('url', null, ['label' => 'URL'])
             ->add('text', HtmlTextareaType::class, [
                 'label' => 'Text',
