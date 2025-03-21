@@ -27,7 +27,7 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Uuid as UuidConstraint;
 
-#[IsGranted('ROLE_ADMIN_PAYMENT')]
+#[IsGranted('ROLE_ADMIN_CHECKIN')]
 #[Route(path: '/checkin', name: 'checkin')]
 class CheckinController extends AbstractController
 {
