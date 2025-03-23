@@ -39,7 +39,7 @@
                                         <a href="{{ path('admin_user_show', {'uuid' : user.uuid }) }}" data-toggle="ajaxModal">{{ user.nickname }}</a>
                                     </td>
                                     <td>{{ user.firstname }} {{ user.surname }}</td>
-                                    <td>{{ user.birthdate|date('d.m.Y') }}</td>
+                                    <td data-order="{{ user.birthdate|date('U')  }}">{{ user.birthdate is empty ? "" : user.birthdate|date('d.m.Y') }}</td>
                                 {% endif %}
                                 <td>
                                     {% if ticket.isRedeemed() %}
