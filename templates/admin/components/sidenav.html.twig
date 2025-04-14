@@ -51,7 +51,7 @@
             </ul>
         </li>
     {% endif %}
-    {% if is_granted('ROLE_ADMIN_PAYMENT') or is_granted('ROLE_ADMIN_SEATMAP') or is_granted('ROLE_ADMIN_TOURNEY') %}
+    {% if is_granted('ROLE_ADMIN_PAYMENT') or is_granted('ROLE_ADMIN_SEATMAP') or is_granted('ROLE_ADMIN_TOURNEY') or is_granted('ROLE_ADMIN_CHECKIN') %}
         <li class="nav-item">
             <a class="nav-link" href="#lanMenu" data-toggle="collapse"><i class="fas fa-laptop-house fa-fw"></i> LAN</a>
             <ul id="lanMenu" class="collapse show list-group">
@@ -64,6 +64,11 @@
                 </li>
                 <li class="nav-item">
                     <a class="nav-link {% if app.request.get('_route') starts with 'admin_payment' %}active{% endif %}" href="{{ path('admin_payment') }}"><i class="fas fa-ticket fa-fw"></i> Tickets </a>
+                </li>
+                {% endif %}
+                {% if is_granted('ROLE_ADMIN_CHECKIN') %}
+                <li class="nav-item">
+                    <a class="nav-link {% if app.request.get('_route') starts with 'admin_checkin' %}active{% endif %}" href="{{ path('admin_checkin') }}"><i class="fas fa-shipping-fast fa-fw"></i> Express CheckIn </a>
                 </li>
                 {% endif %}
                 {% if is_granted('ROLE_ADMIN_SEATMAP') %}

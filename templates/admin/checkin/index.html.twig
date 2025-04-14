@@ -1,0 +1,73 @@
+{% extends 'admin/adminBase.html.twig' %}
+
+{% block title %}Einzahlungen - KLMS - Admin{% endblock %}
+{% block siteheading %}<i class="fas fa-shipping-fast"></i> CheckIn{% endblock %}
+{% block main %}
+    <div class="row">
+        <div class="col-12">
+            <div class="card" data-controller="dt-autofocus">
+                <table id="GamerTable" class="table table-striped admin-data-table" data-order='[[2, "asc"]]'
+                >
+                    <thead>
+                    <tr>
+                        <th>Ticket &#8470;</th>
+                        <th class="w-25">Nickname</th>
+                        <th class="w-25">Name</th>
+                        <th class="w-10">Geburtsdatum</th>
+                        <th>Status</th>
+                        <th
+                                class="text-nowrap w-1"
+                                data-orderable="false"
+                                data-searchable="false"
+                        >
+                            Aktionen
+                        </th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for ticket in tickets %}
+                        {% if ticket.redeemed and ticket.redeemer is seated_user %}
+                            <tr>
+                                <td class="text-nowrap text-monospace text-right">{{ ticket.id }}</td>
+                                {% if ticket.redeemed %}
+                                    {% set user = users[ticket.redeemer.toString()] %}
+                                    <td data-order="{{ user.nickname }}">
+                                        {% for clan in user.clans %}
+                                            <a class="badge badge-pill badge-primary" href="{{ path('admin_clan_show', {'uuid' : clan.uuid }) }}"
+                                               data-toggle="ajaxModal">{{ clan.clantag }}</a>
+                                        {% endfor %}
+                                        <a href="{{ path('admin_user_show', {'uuid' : user.uuid }) }}" data-toggle="ajaxModal">{{ user.nickname }}</a>
+                                    </td>
+                                    <td>{{ user.firstname }} {{ user.surname }}</td>
+                                    <td data-order="{{ user.birthdate|date('U')  }}">{{ user.birthdate is empty ? "" : user.birthdate|date('d.m.Y') }}</td>
+                                {% endif %}
+                                <td>
+                                    {% if ticket.isRedeemed() %}
+                                        {% if ticket.isPunched() %}
+                                            <span class="badge badge-success">Checked-In</span>
+                                        {% endif %}
+
+                                        {% set user = ticket.redeemer | user %}
+                                        {% if user is age_below(18) %}
+                                            <span class="badge badge-danger">U18</span>
+                                        {% endif %}
+                                    {% else %}
+                                        <span class="badge badge-secondary">Offen</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if not ticket.isPunched() %}
+                                        <a class="btn btn-sm btn-outline-dark text-nowrap" href="{{ path('admin_checkin_show', {'id' : ticket.id}) }}">
+                                            <i class="fas fa-ticket"></i> CheckIn
+                                        </a>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% endif %}
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+{% endblock %}

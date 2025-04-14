@@ -66,6 +66,10 @@ class UserExtension extends AbstractExtension
 
     public function getUser($userId): ?User
     {
+        if($userId instanceof User){
+            $userId = $userId->getUuid();
+        }
+
         if (empty($userId) || !Uuid::isValid($userId)) {
             return null;
         }

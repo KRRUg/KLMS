@@ -112,3 +112,7 @@ symfony server:start --port=8000 --no-interaction --no-tls
 ```
 Open the printed URL in your browser and log in with a super-admin credential
 (in case have been following the IDM development setup, those are `admin@admin.local` with password `admin`).
+
+# Notes
+* The KLCS Connector is currently only tested with Keycloak.
+* The KLCS_CONNECTOR_TOKEN_ENDPOINT can be found in the well-known endpoint of your Keycloak instance. [https://[Keycloak]/realms/[realm]/.well-known/openid-configuration](https://Keycloak/realms/realm/.well-known/openid-configuration) -> "token_endpoint"
