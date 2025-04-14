@@ -81,6 +81,10 @@ class UserType extends AbstractType
                 'label' => 'Steam Account',
                 'required' => false,
             ])
+            ->add('battlenetAccount', TextType::class, [
+                'label' => 'Battle.net Account',
+                'required' => false,
+            ])
             ->add('hardware', TextareaType::class, [
                 'required' => false,
             ])
