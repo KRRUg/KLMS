@@ -9,9 +9,9 @@ use LogicException;
 
 class TourneyRuleNone extends TourneyRule
 {
-    public function __construct(Tourney $tourney)
+    public function __construct(Tourney $tourney, SettingService $settingService)
     {
-        parent::__construct($tourney);
+        parent::__construct($tourney, $settingService);
     }
 
     public function seed(array $list): void

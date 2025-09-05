@@ -304,7 +304,7 @@ class TourneyController extends AbstractController
         $podiums = array();
 
         foreach ($tourneys as $tourney) {
-            $p = TourneyService::getPodium($tourney);
+            $p = $this->service->getPodium($tourney);
             if (!empty($p))
                 $podiums[$tourney->getId()] = $p;
         }
@@ -406,7 +406,7 @@ class TourneyController extends AbstractController
             throw $this->createNotFoundException();
         }
 
-        $final = TourneyService::getFinal($tourney);
+        $final = $this->service->getFinal($tourney);
         if (is_null($final)) {
             throw $this->createNotFoundException();
         }
@@ -424,7 +424,7 @@ class TourneyController extends AbstractController
             $ownTeam = $ttm->getTeam();
         }
 
-        $podium = TourneyService::getPodium($tourney);
+        $podium = $this->service->getPodium($tourney);
 
         $calc = function(TourneyGame $root) {
             $array = [[$root]];

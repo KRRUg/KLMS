@@ -11,6 +11,7 @@ abstract class TourneyRule
 {
     public function __construct(
         protected readonly Tourney $tourney,
+        protected readonly SettingService $settingService,
     ){}
 
     /**
@@ -50,12 +51,12 @@ abstract class TourneyRule
         return !is_null($finale) && $finale->isDone();
     }
 
-    public static function construct(Tourney $tourney): self
+    public static function construct(Tourney $tourney, SettingService $settings): self
     {
         return match($tourney->getMode()) {
-            TourneyRules::RegistrationOnly => new TourneyRuleNone($tourney),
-            TourneyRules::DoubleElimination => new TourneyRuleDoubleElimination($tourney),
-            TourneyRules::SingleElimination => new TourneyRuleSingleElimination($tourney),
+            TourneyRules::RegistrationOnly => new TourneyRuleNone($tourney, $settings),
+            TourneyRules::DoubleElimination => new TourneyRuleDoubleElimination($tourney, $settings),
+            TourneyRules::SingleElimination => new TourneyRuleSingleElimination($tourney, $settings),
         };
     }
 

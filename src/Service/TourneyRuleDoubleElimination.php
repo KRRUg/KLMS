@@ -9,9 +9,9 @@ use LogicException;
 
 class TourneyRuleDoubleElimination extends TourneyRule
 {
-    public function __construct(Tourney $tourney)
+    public function __construct(Tourney $tourney, SettingService $settingService)
     {
-        parent::__construct($tourney);
+        parent::__construct($tourney, $settingService);
     }
 
     // see https://www.printyourbrackets.com/
@@ -102,9 +102,10 @@ class TourneyRuleDoubleElimination extends TourneyRule
 
     public function processGame(TourneyGame $game, bool $overwrite): void
     {
-        // if the winner of the loser bracket (side B) wins the finale, there is a second finale
+        // in proper double-elim, if the winner of the loser bracket (side B) wins the finale, there is a second finale
         if ($game === $this->getFinal()) {
-            if (count($game->getChildren()) == 2 && $game->hasWon(false)) {
+            if ($this->settingService->get('lan.tourney.proper_double_elim')
+                && count($game->getChildren()) == 2 && $game->hasWon(false)) {
                 $nf = (new TourneyGame())
                     ->addChild($game->setIsChildA(true))
                     ->setTeamA($game->getTeamA())

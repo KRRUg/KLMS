@@ -433,9 +433,9 @@ class TourneyServiceIntegrationTest extends DatabaseTestCase
         $this->assertEquals(TourneyRules::SingleElimination, $tourney->getMode());
 
         $this->assertEquals(TourneyStage::Finished, $tourney->getStatus());
-        $podium = TourneyService::getPodium($tourney);
+        $podium = $service->getPodium($tourney);
         $this->assertCount(3, $podium);
-        $final = TourneyService::getFinal($tourney);
+        $final = $service->getFinal($tourney);
         $this->assertEquals($final->getWinner(), $podium[1][0]);
         $this->assertEquals($final->getLoser(), $podium[2][0]);
         $this->assertCount(2, $podium[3]);
@@ -449,7 +449,7 @@ class TourneyServiceIntegrationTest extends DatabaseTestCase
         $tourney = $service->getVisibleTourneys()[2];
 
         $this->assertEquals(TourneyStage::Registration, $tourney->getStatus());
-        $this->assertEmpty(TourneyService::getPodium($tourney));
+        $this->assertEmpty($service->getPodium($tourney));
     }
 
     public function testSameTeamMultipleTourneys()
@@ -485,7 +485,7 @@ class TourneyServiceIntegrationTest extends DatabaseTestCase
         $seed = [$teams[2], $teams[1], $teams[3], $teams[0], $teams[4]];
         $service->seed($tourney, $seed);
         $this->assertCount(4, $tourney->getGames());
-        $finale = TourneyService::getFinal($tourney);
+        $finale = $service->getFinal($tourney);
         $this->assertNotEmpty($finale);
         list($g1, $g2) = $finale->getChildren();
         $this->assertNotEmpty($g1);
@@ -519,7 +519,7 @@ class TourneyServiceIntegrationTest extends DatabaseTestCase
         $seed = [$teams[2], $teams[1], $teams[3], $teams[0], $teams[4]];
         $service->seed($tourney, $seed);
         $this->assertCount(8, $tourney->getGames());
-        $g8 = TourneyService::getFinal($tourney);
+        $g8 = $service->getFinal($tourney);
         $this->assertNotEmpty($g8);
         list($g5, $g7) = $g8->getChildren();
         // winner
@@ -576,9 +576,9 @@ class TourneyServiceIntegrationTest extends DatabaseTestCase
          */
         list($service, $tourney) = $this->seedTestTourney();
 
-        $this->assertEmpty(TourneyService::getPodium($tourney));
+        $this->assertEmpty($service->getPodium($tourney));
 
-        $g8 = TourneyService::getFinal($tourney);
+        $g8 = $service->getFinal($tourney);
         list($g5, $g7) = $g8->getChildren();
         list($g3, $g2) = $g5->getChildren();
         list($g1) = $g2->getChildren();
@@ -625,7 +625,7 @@ class TourneyServiceIntegrationTest extends DatabaseTestCase
         $service->logResult($g8, 2, 1);
 
         // winner has won, tourney done
-        $podium = $service::getPodium($tourney);
+        $podium = $service->getPodium($tourney);
         $this->assertNotEmpty($podium);
         $this->assertEquals([$g8->getWinner()], $podium[1]);
         $this->assertEquals([$g8->getLoser()], $podium[2]);
@@ -642,9 +642,9 @@ class TourneyServiceIntegrationTest extends DatabaseTestCase
          */
         list($service, $tourney) = $this->seedTestTourney();
 
-        $this->assertEmpty(TourneyService::getPodium($tourney));
+        $this->assertEmpty($service->getPodium($tourney));
 
-        $g8 = TourneyService::getFinal($tourney);
+        $g8 = $service->getFinal($tourney);
         list($g5, $g7) = $g8->getChildren();
         list($g3, $g2) = $g5->getChildren();
         list($g1) = $g2->getChildren();
@@ -662,12 +662,12 @@ class TourneyServiceIntegrationTest extends DatabaseTestCase
         // finale
         $service->logResult($g8, 1, 2);
         // loser has won, tourney not done yet
-        $this->assertEmpty(TourneyService::getPodium($tourney));
-        $new_final = TourneyService::getFinal($tourney);
+        $this->assertEmpty($service->getPodium($tourney));
+        $new_final = $service->getFinal($tourney);
         $this->assertNotEquals($g8, $new_final);
         $service->logResult($new_final, 1, 2);
 
-        $podium = $service::getPodium($tourney);
+        $podium = $service->getPodium($tourney);
         $this->assertNotEmpty($podium);
         $this->assertEquals([$new_final->getWinner()], $podium[1]);
         $this->assertEquals([$new_final->getLoser()], $podium[2]);
@@ -683,7 +683,7 @@ class TourneyServiceIntegrationTest extends DatabaseTestCase
          * @var Tourney $tourney
          */
         list($service, $tourney) = $this->seedTestTourney();
-        $g8 = TourneyService::getFinal($tourney);
+        $g8 = $service->getFinal($tourney);
         list($g5, $g7) = $g8->getChildren();
         list($g3, $g2) = $g5->getChildren();
         list($g1) = $g2->getChildren();
@@ -704,7 +704,7 @@ class TourneyServiceIntegrationTest extends DatabaseTestCase
          * @var Tourney $tourney
          */
         list($service, $tourney) = $this->seedTestTourney();
-        $g8 = TourneyService::getFinal($tourney);
+        $g8 = $service->getFinal($tourney);
         list($g5, $g7) = $g8->getChildren();
         list($g3, $g2) = $g5->getChildren();
         list($g1) = $g2->getChildren();

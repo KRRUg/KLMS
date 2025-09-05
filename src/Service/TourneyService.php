@@ -369,9 +369,9 @@ class TourneyService extends OptimalService
 
     /* Tourney tree */
 
-    public static function getPodium(Tourney $tourney): array
+    public function getPodium(Tourney $tourney): array
     {
-        return TourneyRule::construct($tourney)->podium();
+        return TourneyRule::construct($tourney, $this->settings)->podium();
     }
     
     /* Result logging */
@@ -434,7 +434,7 @@ class TourneyService extends OptimalService
         }
         $game->setScoreA($scoreA);
         $game->setScoreB($scoreB);
-        TourneyRule::construct($game->getTourney())->processGame($game, false);
+        TourneyRule::construct($game->getTourney(), $this->settings)->processGame($game, false);
         $this->em->flush();
     }
 
@@ -473,7 +473,7 @@ class TourneyService extends OptimalService
         }
         $this->em->beginTransaction();
         $this->clearGames($tourney);
-        TourneyRule::construct($tourney)->seed($seed);
+        TourneyRule::construct($tourney, $this->settings)->seed($seed);
         $this->em->flush();
         $this->em->commit();
     }
@@ -494,7 +494,7 @@ class TourneyService extends OptimalService
     public function setResult(Tourney $tourney, TourneyTeam $first, TourneyTeam $second, ?TourneyTeam $third = null): void
     {
         self::verifyStage($tourney, TourneyStage::Running);
-        $rules = TourneyRule::construct($tourney);
+        $rules = TourneyRule::construct($tourney, $this->settings);
         if (!($rules instanceof TourneyRuleNone))
             throw new ServiceException(ServiceException::CAUSE_INVALID, 'Cannot set result on seeded tourney');
         $this->em->beginTransaction();
@@ -565,9 +565,9 @@ class TourneyService extends OptimalService
         $this->em->flush();
     }
 
-    public static function getFinal(Tourney $tourney): ?TourneyGame
+    public function getFinal(Tourney $tourney): ?TourneyGame
     {
-        return TourneyRule::construct($tourney)->getFinal();
+        return TourneyRule::construct($tourney, $this->settings)->getFinal();
     }
 
     /* Tourney object management */
