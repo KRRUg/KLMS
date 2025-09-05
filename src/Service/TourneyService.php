@@ -303,6 +303,7 @@ class TourneyService extends OptimalService
         } else {
             $team->removeMember($tm);
             if ($team->countUsers() == 0) {
+                $this->teamMemberRepository->remove($tm);
                 $this->teamRepository->remove($team);
             } else {
                 $this->teamMemberRepository->remove($tm);

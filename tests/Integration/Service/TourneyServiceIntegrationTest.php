@@ -342,6 +342,22 @@ class TourneyServiceIntegrationTest extends DatabaseTestCase
         $service->userRegister($tourney, $user2, $team);
     }
 
+    public function testTeamDeletion()
+    {
+        $this->databaseTool->loadFixtures([TourneyFixture::class, UserFixtures::class]);
+
+        $service = self::getContainer()->get(TourneyService::class);
+        $tourney = $service->getVisibleTourneys()[2];
+        $this->assertFalse($tourney->isSinglePlayer());
+
+        $user1 = $this->getUser(10);
+        $this->assertTrue($service->userCanRegisterForTourney($tourney, $user1));
+        $service->userRegister($tourney, $user1, "New Team");
+        $this->assertFalse($service->userCanRegisterForTourney($tourney, $user1));
+        $service->userUnregister($tourney, $user1);
+        $this->assertTrue($service->userCanRegisterForTourney($tourney, $user1));
+    }
+
     private function provideLogResultInvalidUser(): array
     {
         return [
