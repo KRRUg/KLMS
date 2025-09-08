@@ -445,27 +445,24 @@ class TourneyController extends AbstractController
             return array_reverse($array);
         };
 
+        $tree = array();
         if ($tourney->getMode() == TourneyRules::DoubleElimination) {
             $orig_finale = TourneyRuleDoubleElimination::getOriginalFinale($final);
             if ($orig_finale !== $final) {
-                $array = [0 => [$orig_finale], 1 => [$final]];
+                $tree["Finale"] = [0 => [$orig_finale], 1 => [$final]];
             } else {
-                $array = [0 => [$final]];
+                $tree["Finale"] = [0 => [$final]];
             }
-            $array_winner = $calc($orig_finale->getChild(true));
-            $array_loser = $calc($orig_finale->getChild(false));
+            $tree["Winner Bracket"] = $calc($orig_finale->getChild(true));
+            $tree["Looser Bracket"] = $calc($orig_finale->getChild(false));
         } else {
-            $array = $calc($final);
-            $array_loser = null;
-            $array_winner = null;
+            $tree[""] = $calc($final);
         }
 
         return $this->render('site/tourney/show.html.twig', [
             'tourney' => $tourney,
             'participates' => $participates,
-            'tree_winner' => $array_winner,
-            'tree_loser' => $array_loser,
-            'tree' => $array,
+            'trees' => $tree,
             'podium' => $podium,
             'team' => $ownTeam,
         ]);

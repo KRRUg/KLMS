@@ -106,22 +106,10 @@
                     {% endif %}
                     {% set show_seat = participates or is_granted('ROLE_ADMIN_TOURNEY') %}
                     <div class="tournament" {{ stimulus_controller('tourney_tree') }}>
-                        {% if tree_winner | default(null) is null and tree_loser | default(null) is null %}
+                        {% for name, tree in trees %}
+                            {% if name is not empty %}<h4 {% if not loop.first %}class="mt-3"{% endif %}>{{ name }}</h4>{% endif %}
                             {{ _self.tree(tourney, tree, team, show_seat) }}
-                        {% else %}
-                            {% if tree | default(null) is not null %}
-                                <h4>Finale</h4>
-                                {{ _self.tree(tourney, tree, team, show_seat) }}
-                            {% endif %}
-                            {% if tree_winner | default(null) is not null %}
-                                <h4 class="mt-3">Winner Bracket</h4>
-                                {{ _self.tree(tourney, tree_winner, team, show_seat) }}
-                            {% endif %}
-                            {% if tree_loser | default(null) is not null %}
-                                <h4 class="mt-3">Loser Bracket</h4>
-                                {{ _self.tree(tourney, tree_loser, team, show_seat) }}
-                            {% endif %}
-                        {% endif %}
+                        {% endfor %}
                     </div>
                 </div>
             </div>
