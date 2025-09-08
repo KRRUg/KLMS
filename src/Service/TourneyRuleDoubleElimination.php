@@ -154,4 +154,36 @@ class TourneyRuleDoubleElimination extends TourneyRule
         }
         return $finale;
     }
+
+    function getFinal(): ?TourneyGame
+    {
+        foreach ($this->tourney->getGames() as $game) {
+            if (is_null($game->getParent()))
+                return $game;
+        }
+        return null;
+    }
+
+    public function getTrees(): array
+    {
+        $tree = array();
+        $final = $this->getFinal();
+        $orig_finale = TourneyRuleDoubleElimination::getOriginalFinale($final);
+        if ($orig_finale !== $final) {
+            $tree["Finale (Round 1)"] = [$orig_finale, 1];
+            $tree["Finale (Round 2)"] = [$final, 1];
+        } else {
+            $tree["Finale"] = [$final, 1];
+        }
+        $tree["Winner Bracket"] = [$orig_finale->getChild(true), -1];
+        $tree["Looser Bracket"] = [$orig_finale->getChild(false), -1];
+        return $tree;
+    }
+
+    public function isCompleted(): bool
+    {
+        // double elimination is complete if the final game is complete
+        $finale = $this->getFinal();
+        return !is_null($finale) && $finale->isDone();
+    }
 }

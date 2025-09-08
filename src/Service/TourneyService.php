@@ -565,6 +565,11 @@ class TourneyService extends OptimalService
         $this->em->flush();
     }
 
+    public function getRoots(Tourney $tourney): array
+    {
+        return TourneyRule::construct($tourney, $this->settings)->getTrees();
+    }
+
     public function getFinal(Tourney $tourney): ?TourneyGame
     {
         return TourneyRule::construct($tourney, $this->settings)->getFinal();

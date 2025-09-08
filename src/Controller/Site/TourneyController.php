@@ -406,8 +406,8 @@ class TourneyController extends AbstractController
             throw $this->createNotFoundException();
         }
 
-        $final = $this->service->getFinal($tourney);
-        if (is_null($final)) {
+        $roots = $this->service->getRoots($tourney);
+        if (empty($roots)) {
             throw $this->createNotFoundException();
         }
 
@@ -426,7 +426,10 @@ class TourneyController extends AbstractController
 
         $podium = $this->service->getPodium($tourney);
 
-        $calc = function(TourneyGame $root) {
+        // array of root, level to games
+        $calc = function(array $a) {
+            $root = $a[0];
+            $max_level = $a[1];
             $array = [[$root]];
             $level = 0;
             $next = true;
@@ -439,30 +442,21 @@ class TourneyController extends AbstractController
                     $array[$level][] = is_null($game) ? null : $game->getChild(true);
                     $array[$level][] = is_null($game) ? null : $game->getChild(false);
                 }
+                if ($max_level > 0 && $level > $max_level) {
+                    break;
+                }
             }
             array_pop($array);
             array_pop($array);
             return array_reverse($array);
         };
 
-        $tree = array();
-        if ($tourney->getMode() == TourneyRules::DoubleElimination) {
-            $orig_finale = TourneyRuleDoubleElimination::getOriginalFinale($final);
-            if ($orig_finale !== $final) {
-                $tree["Finale"] = [0 => [$orig_finale], 1 => [$final]];
-            } else {
-                $tree["Finale"] = [0 => [$final]];
-            }
-            $tree["Winner Bracket"] = $calc($orig_finale->getChild(true));
-            $tree["Looser Bracket"] = $calc($orig_finale->getChild(false));
-        } else {
-            $tree[""] = $calc($final);
-        }
+        $trees = array_map($calc, $roots);
 
         return $this->render('site/tourney/show.html.twig', [
             'tourney' => $tourney,
             'participates' => $participates,
-            'trees' => $tree,
+            'trees' => $trees,
             'podium' => $podium,
             'team' => $ownTeam,
         ]);
