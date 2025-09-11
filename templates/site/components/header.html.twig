@@ -3,8 +3,8 @@
 {% endblock %}
 
 {% if startpage is defined %}
-	<div class="videobox  flex-column">
-		<video class="w-100" autoplay="" loop="" muted="" playsinline="" preload="auto"><source type="video/webm" src="{{ asset("media/dot25-video-hero.webm") }}"></video>
+	<div class="videobox flex-column">
+		<video class="w-100" autoplay loop muted playsinline preload="auto"><source type="video/mp4" src="{{ asset("media/dot25-video-hero.mp4") }}"></video>
 	</div>
 	<div class="vid-overlay"></div>
 	<div class="l-section-shape pos_bottom">
@@ -23,7 +23,7 @@
 				<img class="logo {% if settings.get('style.logo_full_height') %}logo-full-height{% endif %}" src="{{ logo }}" alt="Logo">
 			{% endif %}
 			{% block headerContent %}{% endblock %}
-            <h5>252 Gamer | 19. - 21. September 2025 | Messehallen Ried im Innkreis</h5>
+            <h5>19. - 21. September 2025 | Messehallen Ried im Innkreis</h5>
 			{% include 'site/components/stats.html.twig' %}
 
 		</div>

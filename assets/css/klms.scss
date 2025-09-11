@@ -91,17 +91,17 @@ pointer-events: none;
   height: 100%;
 z-index: -1000;
 overflow: hidden;
+background: rgba(0,0,0,0.60);
 }
 
 .vid-overlay {
-position: absolute;
+  position: absolute;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-background: rgba(0,0,0,0.60);
-z-index: -999;
-
+  background: rgba(0,0,0,0.60);
+  z-index: -999;
 }
 
 .l-section-shape {
@@ -150,13 +150,24 @@ z-index: -999;
     font-weight: 700 !important;
 }
 
-@include media-breakpoint-down(sm) {
+@include media-breakpoint-down(xl) {
   .navbar {
     font-size: 1rem !important;
     font-family: Montserrat Alternates !important;
     font-weight: 700 !important;
     background-color: #000;
   }    
+
+.vid-overlay {
+  background-image: url("https://www.dot-lan.at/media/header_dot_bg.jpg");
+  background-position: center; /* Center the image */
+  background-repeat: no-repeat; /* Do not repeat the image */
+  background-size: cover; /* Resize the background image to cover the entire container */
+}
+
+.videobox {
+  display: none !important;
+}
 }
 
 .username {

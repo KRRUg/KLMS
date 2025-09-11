@@ -36,6 +36,17 @@ class ShopOrderPositionRepository extends ServiceEntityRepository
             ->getSingleScalarResult();
     }
 
+public function countTicketsNotCancelled(): int
+    {
+        return $this->createQueryBuilder('op')
+            ->select('count(op)')
+            ->join('op.order', 'o')
+            ->where('op INSTANCE OF '.ShopOrderPositionTicket::class)
+            ->andWhere('o.status = 1 OR o.status = 9')
+            ->getQuery()
+            ->getSingleScalarResult();
+    }
+
     /**
      * @param ShopOrderStatus $status
      * @return ShopOrderPosition[]

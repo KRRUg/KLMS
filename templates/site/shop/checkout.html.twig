@@ -23,10 +23,10 @@
         {% endif %}
         {% if showAny %}
             <div id="submitWrapper" class="{% if twoSteps %}d-none{% endif %}">
-                <hr/>
+
                 {% if 'agb' is slug %}
                     <div class="row">
-                        <div class="col">
+                        <div class="col d-flex justify-content-end">
                             <p>Durch das Absenden der Bestellung oder dem Einlösen eines Tickets stimmst du unseren {{ 'agb' | slug_link(null, true) }} zu.</p>
                             {% if settings.get('lan.signup.info') is not empty %}
                                 {{ settings.get('lan.signup.info') | raw }}
@@ -40,7 +40,7 @@
                         {% if twoSteps %}
                         <button class="btn btn-secondary m-1" type="reset">Abbrechen</button>
                         {% endif %}
-                        <button class="btn btn-primary m-1" type="submit"><i class="fas fa-shopping-cart"></i> Kostenpflichtig bestellen</button>
+                        <button class="btn btn-primary m-1" type="submit"><i class="fas fa-shopping-cart"></i> Tickets reservieren</button>
                     </div>
                 </div>
             </div>

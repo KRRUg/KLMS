@@ -1,8 +1,8 @@
-<nav id="main-nav" class="navbar fixed-top navbar-expand-lg navbar-dark">
+<nav id="main-nav" class="navbar fixed-top navbar-expand-xxl navbar-dark">
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#main-nav-content" aria-controls="main-nav-content" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
     </button>
-    <img class="header-logo" src="{{ asset("build/images/logo-header-menu.png") }}" />
+    <a href="/"><img class="header-logo" src="{{ asset("build/images/logo-header-menu.png") }}"/></a>
     <div class="collapse navbar-collapse" id="main-nav-content">        
 	<ul class="navbar-nav mr-auto">
             {% set root = nav.renderNavByName('main_menu') %}
@@ -36,6 +36,12 @@
                     {% endif %}
                 {% endfor %}
             {% endif %}
+            <li class="nav-item nav-only-collapsed">
+            	<a class="btn btn-link" href="/shop/checkout"><i class="fa fa-ticket"></i> Ticket kaufen</a>
+            </li>
+            <li class="nav-item nav-only-collapsed">
+            	<a class="btn btn-link" href="/login"><i class="fas fa-user-circle"></i> Anmelden</a>
+            </li>
         </ul>
     </div>
     {% include 'site/components/topBar.html.twig' %}

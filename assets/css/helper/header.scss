@@ -21,8 +21,13 @@
     }
 }
 
-// Medium devices (tablets, 768px and down)
-@include media-breakpoint-down(md) {
+@include media-breakpoint-up(xxl) {
+	.nav-only-collapsed {
+		display: none !important;
+	}
+}
+
+@include media-breakpoint-down(xl) {
     #header .head-wrap {
 
         &.startpage {
@@ -32,6 +37,10 @@
             }
         }
     }
+
+	.videobox {
+			display: none !important;
+	}
 
     #rightTopBar {
 	display: none !important;
