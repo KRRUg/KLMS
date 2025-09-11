@@ -3,7 +3,7 @@
 {% block main %}
   {% set org = settings.get('site.organisation') %}
   <h1>Benachrichtigung</h1>
-  <p>{{ message }}</p>
+  <p>{{ message | raw }}</p>
   <p>Solltest das nicht du gewesen sein, kontaktiere uns bitte.</p>
   <p></p>
   {% include 'email/components/greetings.html.twig' %}

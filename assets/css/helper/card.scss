@@ -2,8 +2,8 @@
 @import '~bootstrap';
 
 .card {
-    box-shadow: $box-shadow-sm;
     border:none;
+    background-color: $bg-dark;
 }
 
 .card-avatar {

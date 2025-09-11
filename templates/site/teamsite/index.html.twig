@@ -4,16 +4,15 @@
 
 {% block main %}
     <div class="container">
-        <div class="row">
+        <div class="row mb-4">
             <div class="col">
-                <h1>{{ teamsite.title }}</h1>
+                <h1 class="text-center">{{ teamsite.title }}</h1>
                 <div>{{ teamsite.description }}</div>
             </div>
         </div>
-        <hr>
         {% for category in teamsite.categories %}
-            <h3>{{ category.title }}</h3>
-            <div class="mb-2">{{ category.description }}</div>
+            <h4 style="margin-bottom: 0rem;">{{ category.title }}</h4>
+            <div class="mb-4">{{ category.description }}</div>
             {% if category.entries is not empty %}
                 <div class="row">
                     {% for entry in category.entries %}
@@ -50,8 +49,8 @@
                                                 </p>
                                             </div>
                                             <div class="card-body">
-                                                <h5 class="card-title mb-1">{{ entry.title }}</h5>
-                                                <p class="card-text">{{ entry.description|nl2br }}</p>
+                                                <p class="text-primary">{{ entry.title }}</p>
+                                                <span>{{ entry.description|nl2br }}</span>
                                             </div>
                                         </div>
                                     </div>
@@ -63,8 +62,6 @@
             {% else %}
                 <p class="text-muted">Keine Einträge in dieser Kategorie.</p>
             {% endif %}
-
-            <hr>
         {% endfor %}
     </div>
 {% endblock %}

@@ -2,6 +2,11 @@
 
 namespace App\Controller\Site;
 
+use Google\Cloud\RecaptchaEnterprise\V1\RecaptchaEnterpriseServiceClient;
+use Google\Cloud\RecaptchaEnterprise\V1\Event;
+use Google\Cloud\RecaptchaEnterprise\V1\Assessment;
+use Google\Cloud\RecaptchaEnterprise\V1\TokenProperties\InvalidReason;
+
 use App\Entity\User;
 use App\Exception\TokenException;
 use App\Form\UserRegisterType;
@@ -47,7 +52,7 @@ class AccountController extends AbstractController
         if ($this->isGranted('IS_AUTHENTICATED_REMEMBERED')) {
             return $this->redirectToRoute('user_profile');
         }
-
+    
         $form = $this->createFormBuilder()
             ->add('email', EmailType::class, ['required' => true])
             ->getForm();
@@ -209,25 +214,69 @@ class AccountController extends AbstractController
         $form = $this->createForm(UserRegisterType::class);
         $form->handleRequest($request);
 
-        if ($form->isSubmitted() && $form->isValid()) {
-            $user = $form->getData();
-            try {
+        if ($form->isSubmitted() && $form->isValid()) {               
+              try {
+                $user = $form->getData();
                 $this->manager->persist($user);
                 $this->manager->flush();
                 $this->sendRegisterToken($user);
                 $this->addFlash('info', 'Registrierung abgeschlossen. Bestätigungsemail wurde gesendet.');
 
                 return $this->redirectToRoute('app_login');
-            } catch (PersistException $e) {
+              } catch (PersistException $e) {
                 match ($e->getCode()) {
                     PersistException::REASON_NON_UNIQUE => $this->addFlash('error', 'Nickname und/oder E-Mail Adresse schon vergeben'),
                     default => $this->addFlash('error', 'Es ist ein unerwarteter Fehler aufgetreten'),
                 };
-            }
+              } 
         }
 
         return $this->render('security/register.html.twig', [
             'form' => $form->createView(),
         ]);
     }
+
+    function create_assessment(
+  string $recaptchaKey,
+  string $token,
+  string $project,
+  string $action
+): void {
+  // Erstellen Sie den reCAPTCHA-Client.
+  // AUFGABE: Speichern Sie den Clientgenerierungscode im Cache (empfohlen) oder rufen Sie „client.close()“ auf, bevor Sie die Methode verlassen.
+  $client = new RecaptchaEnterpriseServiceClient();
+  $projectName = $client->projectName($project);
+
+  // Legen Sie die Attribute des Ereignisses fest, das verfolgt werden soll.
+  $event = (new Event())
+    ->setSiteKey($recaptchaKey)
+    ->setToken($token);
+
+  // Erstellen Sie die Bewertungsanfrage.
+  $assessment = (new Assessment())
+    ->setEvent($event);
+
+    $response = $client->createAssessment(
+      $projectName,
+      $assessment
+    );
+
+    // Prüfen Sie, ob das Token gültig ist.
+    if ($response->getTokenProperties()->getValid() == false) {
+      printf('The CreateAssessment() call failed because the token was invalid for the following reason: ');
+      printf(InvalidReason::name($response->getTokenProperties()->getInvalidReason()));
+      return;
+    }
+
+    // Prüfen Sie, ob die erwartete Aktion ausgeführt wurde.
+    if ($response->getTokenProperties()->getAction() == $action) {
+      // Rufen Sie den Risikowert und den oder die Gründe ab.
+      // Weitere Informationen zum Interpretieren der Bewertung finden Sie hier:
+      // https://cloud.google.com/recaptcha-enterprise/docs/interpret-assessment
+      printf('The score for the protection action is:');
+      printf($response->getRiskAnalysis()->getScore());
+    } else {
+      printf('The action attribute in your reCAPTCHA tag does not match the action you are expecting to score');
+    }
+}
 }

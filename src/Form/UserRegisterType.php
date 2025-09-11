@@ -39,7 +39,7 @@ class UserRegisterType extends AbstractType
             ])
             // TODO add link to privacy information site (once content alias is done)
             ->add('infoMails', CheckboxType::class, [
-                'label' => 'Newsletter abonnieren',
+                'label' => 'Ich möchte Informationen zum Event per Mail erhalten.',
                 'required' => false,
             ]);
         $recaptchaSiteKey = !empty($_ENV['EWZ_RECAPTCHA_SITE_KEY']) && $_ENV['EWZ_RECAPTCHA_SITE_KEY'];

@@ -1,9 +1,6 @@
 {% extends 'base.html.twig' %}
 {% block body %}
-    {% block topbar %}
-        {% include 'site/components/topBar.html.twig' %}
-    {% endblock %}
-    <header id="header" class="mb-4">
+    <header id="header">
         {% block header %}
             {% include 'site/components/header.html.twig' %}
         {% endblock %}
@@ -14,17 +11,17 @@
     </main>
     <footer id="footer">
         {% block sponsor %}
-            <div class="bg-secondary text-white">
+            <div class="">
                 {% include 'site/components/sponsoring.html.twig' %}
             </div>
         {% endblock %}
         {% block footer %}
-            <div class="bg-dark text-white">
+            <div class="">
                 {% include 'site/components/footer.html.twig' %}
             </div>
         {% endblock %}
         {% block footbar %}
-            <div class="bg-darker text-muted">
+            <div class="">
                 {% include 'site/components/footBar.html.twig' %}
             </div>
         {% endblock %}

@@ -5,14 +5,8 @@
 {% block main %}
     <div class="container mb-5">
         <div class="card">
-            <div class="card-body">
-                <h1 class="card-title">{{ content.title }}</h1>
                 <div class="card-text">
                     {{ content.content|raw }}
-                </div>
-            </div>
-                <div class="card-footer">
-                    <small> zuletzt geändert: {{ content.lastModified | ago }}</small>
                 </div>
         </div>
     </div>

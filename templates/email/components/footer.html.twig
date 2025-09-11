@@ -1,5 +1,5 @@
 <div class="container py-2">
-    <div class="row small text-muted">
+    <div class="row small">
         <div class="col text-left">
             {{ settings.get('site.organisation') }}
         </div>
@@ -7,11 +7,11 @@
             {% set imprint = 'imprint' is slug %}
             {% set unsub = unsubscribe is defined %}
             {% if imprint %}
-                <a class="text-muted" href="{{ absolute_url(slug_url('imprint')) }}">Impressum</a>
+                <a href="{{ absolute_url(slug_url('imprint')) }}">Impressum</a>
             {% endif %}
             {% if imprint and unsub %} | {% endif %}
             {% if unsub %}
-                <a class="text-muted" href="{{ url('email_unsubscribe', {'token' : unsubscribe}) }}">Unsubscribe</a>
+                <a  href="{{ url('email_unsubscribe', {'token' : unsubscribe}) }}">Unsubscribe</a>
             {% endif %}
         </div>
     </div>

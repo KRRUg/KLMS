@@ -1,20 +1,31 @@
-<div class="head-wrap {% if startpage is defined %}startpage{% endif %}" style="background-image: url({{ settings.get('style.bg_image') }})">
-    <div class="head-content container">
-        {% set logo = settings.get('style.logo') %}
-        {% if startpage is not defined %}<a href="/">{% endif %}
-        {% if logo is empty %}
-            <img class="logo" src="{{ asset("build/images/logo-white.png") }}" alt="Logo">
-        {% else %}
-            <img class="logo {% if settings.get('style.logo_full_height') %}logo-full-height{% endif %}" src="{{ logo }}" alt="Logo">
-        {% endif %}
-        {% if startpage is not defined %}</a>{% endif %}
-        {% block headerContent %}
-        {% endblock %}
-    </div>
-</div>
-
 {% block nav %}
-    <div class="container">
-        {%  include 'site/components/nav/navMain.html.twig' %}
-    </div>
+	{%  include 'site/components/nav/navMain.html.twig' %}
 {% endblock %}
+
+{% if startpage is defined %}
+	<div class="videobox flex-column">
+		<video class="w-100" autoplay loop muted playsinline preload="auto"><source type="video/mp4" src="{{ asset("media/dot25-video-hero.mp4") }}"></video>
+	</div>
+	<div class="vid-overlay"></div>
+	<div class="l-section-shape pos_bottom">
+		<svg xmlns="http://www.w3.org/2000/svg" viewbox="0 0 64 8" preserveaspectratio="none" width="100%" height="100%">
+			<path fill="currentColor" d="M64 8 L0 8 L0 0 L32 7.9 L64 0 Z"></path>
+		</svg>
+	</div>
+
+	<div class="head-wrap {% if startpage is defined %}startpage d-flex justify-content-center {% else %}contentpage{%endif %} ">
+		<div class="head-content container">
+			{% set logo = settings.get('style.logo') %}
+
+			{% if logo is empty %}
+				<img class="logo" src="{{ asset("build/images/logo-white.png") }}" alt="Logo">
+			{% else %}
+				<img class="logo {% if settings.get('style.logo_full_height') %}logo-full-height{% endif %}" src="{{ logo }}" alt="Logo">
+			{% endif %}
+			{% block headerContent %}{% endblock %}
+            <h5>19. - 21. September 2025 | Messehallen Ried im Innkreis</h5>
+			{% include 'site/components/stats.html.twig' %}
+
+		</div>
+	{% endif %}
+</div>

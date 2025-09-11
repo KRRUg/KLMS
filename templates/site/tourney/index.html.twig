@@ -6,11 +6,10 @@
     <div class="container">
         <div class="row">
             <div class="col">
-                <h1>Turniere</h1>
+                <h1 class="card-title text-center">Turniere</h1>
                 <div>{{ settings.get('lan.tourney.text') | raw }}</div>
             </div>
         </div>
-        <hr />
         <div>
             {% set participates = participates | default(false) %}
             {% set teams = teams_registered | default([]) %}
@@ -37,7 +36,7 @@
                         'tourney' : tourney, 'registered' : false, 'expand' : tourney == show ?? null, 'forms': forms[tourney.id] ?? [], 'availableToken': token | default(null)
                     } %}
                 {% else %}
-                    <span class="alert alert-info">Es sind keine Turniere vorhanden.</span>
+                    <span class="alert alert-info">Es sind noch keine Turniere vorhanden. Halte unsere Kan&#228;le im Auge, um keine Ank&#252;ndigung zu verpassen!</span>
                 {% endfor %}
             </div>
         </div>

@@ -89,7 +89,7 @@ class User
     #[Groups(['read', 'write'])]
     private ?string $website = null;
 
-    #[Assert\Length(max: 250, maxMessage: 'The steam account cannot be longer than {{ limit }} characters')]
+    #[Assert\Length(max: 250, maxMessage: 'The discord tag cannot be longer than {{ limit }} characters')]
     #[Groups(['read', 'write'])]
     private ?string $steamAccount = null;
 

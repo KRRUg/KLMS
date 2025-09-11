@@ -1,11 +1,14 @@
 {% extends 'site/siteBase.html.twig' %}
 
-{% block title %}{{ settings.get('site.title') }} - Tickets & Addons kaufen{% endblock %}
+{% block title %}
+	{{ settings.get('site.title') }}
+	- Tickets & Addons kaufen
+{% endblock %}
 
 {% block main %}
-    <div class="container mb-4">
-        <h2>Bestellübersicht</h2>
-        <p>Hier findest du deine Bestellungen für Tickets.</p>
+	<div class="container mb-4">
+		<h1 class="text-center">Bestellübersicht</h1>
+		<p>Hier findest du deine Bestellungen für Tickets und Addons.</p>
 
         {% set open_orders = orders | filter(o => o.isOpen) %}
         {% set done_orders = orders | filter(o => o.isActive) %}
@@ -15,13 +18,13 @@
             <p>Offene Bestellungen warten auf deine Zahlung und werden nach Geldeingang bearbeitet.</p>
                 {% for o in open_orders %}
                     <div class="card">
-                        <div class="card-header">
                             <h5 class="mb-0">
                                 <button class="btn w-100 d-flex" data-toggle="collapse" data-target="#order-{{ o.id }}">
                                     <span>Bestellung <b>#{{ o.id }}</b> vom {{ o.createdAt | date('d.m.y H:i') }}</span>
+                                    <div class="flex-fill"></div>
+                                    <span class="p-1 badge-primary">nicht bezahlt</span>
                                 </button>
                             </h5>
-                        </div>
                         <div id="order-{{ o.id }}" class="collapse {{ loop.first ? "show" : "" }}" data-parent="#order-list">
                             <div class="card-body">
                                 <div>
@@ -56,23 +59,21 @@
                 {% endfor %}
         {% endif %}
         {% if done_orders %}
-            <h4 class="pt-4">Erledigte Bestellungen</h4>
+            <h4 class="pt-4">Abgeschlossene Bestellungen</h4>
                 {% for o in done_orders %}
                     <div class="card">
-                        <div class="card-header">
                             <h5 class="mb-0">
                                 <button class="btn w-100 d-flex" data-toggle="collapse" data-target="#order-{{ o.id }}">
                                     <span>Bestellung <b>#{{ o.id }}</b> vom {{ o.createdAt | date('d.m.y H:i') }}</span>
                                     <div class="flex-fill"></div>
                                     {% if o.isActive() %}
-                                        <span class="badge badge-primary">abgeschlossen</span>
+                                        <span class="badge badge-primary">bezahlt</span>
                                     {% endif %}
                                     {% if o.isDead() %}
                                         <span class="badge badge-secondary">storniert</span>
                                     {% endif %}
                                 </button>
                             </h5>
-                        </div>
                         <div id="order-{{ o.id }}" class="collapse {{ open_orders is empty and loop.first ? "show" : "" }}" data-parent="#order-list">
                             <div class="card-body">
                                 {% include 'site/shop/_order.html.twig' with { order: o} %}

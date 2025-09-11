@@ -17,7 +17,7 @@ class ClanType extends AbstractType
         $builder
             ->add('name')
             ->add('joinPassword', TextType::class, [
-                'label' => 'Join Passwort',
+                'label' => 'Join Passwort (damit können deine Clanmates dem Clan beitreten)',
                 'required' => $options['require_password'],
                 'help' => 'Muss min. 6 Zeichen lang sein.',
                 'empty_data' => null,

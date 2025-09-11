@@ -10,3 +10,4 @@ import './styles/app.css';
 
 // start the Stimulus application
 import './js/stimulus';
+

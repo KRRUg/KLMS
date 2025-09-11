@@ -1,0 +1,66 @@
+@import 'variables';
+
+@import '~bootstrap';
+
+
+html, body {
+    height: 100%;
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+}
+
+main, #main {
+    flex: 1 0 auto;
+}
+
+footer, #footer {
+    box-shadow: $box-shadow;
+    flex-shrink: 0;
+}
+
+.navbar {
+    box-shadow:  $box-shadow-sm;
+}
+
+.list-group-hover .list-group-item:hover {
+    z-index: 1;
+    color: $list-group-action-hover-color;
+    text-decoration: none;
+    background-color: $list-group-hover-bg;
+}
+
+.bg-darker {
+    background-color: darken($dark, 5);
+}
+
+.text-disabled {
+    color: $gray-300;
+}
+
+.badge-pill {
+    border-radius: $badge-pill-border-radius;
+}
+
+.dropdown-menu-lg {
+    min-width: $dropdown-min-width * 2;
+}
+
+input.datetimepicker[readonly]:not([disabled]) {
+    background:$input-bg;
+}
+
+input.datepicker[readonly]:not([disabled]) {
+    background:$input-bg;
+}
+
+.social-btn-group {
+    .btn {
+        font-size:1.5rem;
+        padding: 0.1rem 0.3rem;
+        margin-right: 0.5rem;
+        margin-bottom: 0.7rem;
+    }
+}

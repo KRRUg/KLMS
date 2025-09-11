@@ -1,26 +1,22 @@
-<div id="top-bar" class="bg-dark text-white">
-    <div class="container">
-        <div class="row align-items-center">
-            <div class="col-lg-6">
-                {% if is_granted('IS_AUTHENTICATED_REMEMBERED') %}
-                    {% include 'site/components/topBar/lanStatus.html.twig' %}
-                {% endif %}
-            </div>
-            <div class="col-lg-6 text-right">
-                {% if is_granted('ROLE_ADMIN') %}
-                    <a class="btn btn-link" href="{{ path('admin_dashboard') }}">
-                        <i class="fas fa-cogs"></i> Admin
-                    </a>
-                {% endif %}
-                {% if is_granted('IS_AUTHENTICATED_REMEMBERED') and settings.get('community.enabled', false) %}
-                    {% include 'site/components/topBar/communityDropdown.html.twig' %}
-                {% endif %}
-                {% if app.user.user is defined %}
-                    {% include 'site/components/topBar/userDropdown.html.twig' %}
-                {% else %}
-                    {% include 'site/components/topBar/loginDropdown.html.twig' %}
-                {% endif %}
-            </div>
-        </div>
-    </div>
+<div id="rightTopBar" class="d-flex flex-row">
+	<div>
+		{% if is_granted('ROLE_ADMIN') %}
+			<a class="btn btn-link" href="{{ path('admin_dashboard') }}">
+				<i class="fas fa-cogs"></i>
+				Admin
+			</a>
+		{% endif %}
+	</div>
+	<div>
+		{% if not is_granted('ROLE_ADMIN')  %}
+			{% include 'site/components/topBar/lanStatus.html.twig' %}
+		{% endif %}
+	</div>
+	<div>
+		{% if app.user.user is defined %}
+			{% include 'site/components/topBar/userDropdown.html.twig' %}
+		{% else %}
+			{% include 'site/components/topBar/loginDropdown.html.twig' %}
+		{% endif %}
+	</div>
 </div>

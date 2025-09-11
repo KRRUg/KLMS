@@ -13,7 +13,7 @@
             {% block cardBody %}{% endblock %}
         </div>
         {% if block('cardFooter') is defined %}
-            <div class="card-footer py-4 bg-dark text-light">
+            <div class="card-footer border-top-0 text-center  py-4 bg-darker text-light">
                 {{ block('cardFooter')|raw }}
             </div>
         {% endif %}

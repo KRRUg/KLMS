@@ -40,14 +40,12 @@
                     </div>
                     {{ clan.name }}
                 </h1>
-                <hr>
                 {% if clan.description is not empty %}
                     <div class="card-text mb-3">
                         <blockquote class="blockquote">
                             <p class="mb-0">{{ clan.description }}</p>
                         </blockquote>
                     </div>
-                    <hr>
                 {% endif %}
                 {% if clan.website is not empty %}
                     <div class="card-text mb-3">
@@ -57,7 +55,7 @@
                     <hr>
                 {% endif %}
                 <div class="card-text">
-                    <h3 class="pt-4">Mitglieder</h3>
+                    <h4 class="pt-4">Mitglieder</h4>
                     {% set show_all = settings.get('community.all') or member or is_granted('ROLE_ADMIN_USER') %}
                     {% set members_shown = show_all ? clan.users : clan.users | filter(g => g is registered_user) %}
                     {% set count = 0 %}

@@ -13,35 +13,34 @@
                         <a class="btn btn-outline-primary" href="{{ path('user_profile_edit') }}"><i class="fas fa-user-edit"></i> Profil bearbeiten</a>
                     </div>
                 {% endif %}
-                <div class="d-lg-flex align-items-center">
+                <div class="d-lg-flex align-items-center pb-4">
                     <h1 class="card-title mb-0">
                         {{ user.nickname }}
                     </h1>
-                    <h2 class="text-muted d-block d-lg-inline mb-0 ml-lg-3">
-                        {% if is_granted('IS_AUTHENTICATED_REMEMBERED') %}
+                    <h5 class="text-muted d-block d-lg-inline mb-0 ml-lg-3">
+                        aka.
+			{% if is_granted('IS_AUTHENTICATED_REMEMBERED') %}
                             {{ user.firstname }}
                         {% endif %}
                         {% if details %}
                             {{ user.surname }}
                         {% endif %}
-                    </h2>
+                    </h5>
                     {% if details and user.personalDataConfirmed %}
                         <span class="ml-lg-3 badge badge-pill badge-primary" title="Persönliche Daten wurden überprüft!">
                             <i class="fas fa-check"></i> geprüft
                         </span>
                     {% endif %}
                 </div>
-                <hr>
                 {% if user.statements | trim %}
                     <div class="card-text mb-3">
                         <blockquote class="blockquote">
                             <p class="mb-0">{{ user.statements }}</p>
                         </blockquote>
-                        <hr>
                     </div>
                 {% endif %}
                 <div class="card-text">
-                    <h3>Clans</h3>
+                    <h4>Clans</h4>
                     <div class="row">
                         {% if user.clans is not empty %}
                             {% for clan in user.clans %}
@@ -51,15 +50,15 @@
                             {% endfor %}
                         {% else %}
                             <div class="col-sm-12">
-                                <p class="text-muted">{{ user.nickname }} ist in keinem Clan.</p>
+                                <p class="ml-3">{{ user.nickname }} ist in keinem Clan.</p>
                             </div>
                         {% endif %}
                     </div>
                 </div>
-                <h3>Details</h3>
+                <h4>Details</h4>
                 <ul class="list-group list-group-flush">
                     {% if details and (user.street | trim or user.street | trim or user.city | trim or user.country | trim) %}
-                        <li class="list-group-item">
+                        <li class="list-group-item bg-darker border-0">
                             <div class="d-flex w-100">
                                 <div class="mr-3 flex-shrink-1">
                                     <i class="fas fa-map-marked-alt" title="Adresse"></i>
@@ -75,36 +74,36 @@
                         </li>
                     {% endif %}
                     {% if details and user.gender | trim %}
-                        <li class="list-group-item">
+                        <li class="list-group-item bg-darker border-0">
                             <i class="fas fa-venus-mars fa-fw mr-3" title="Geschlecht"></i>{% if user.gender == 'm' %} männlich {% elseif user.gender == 'f' %} weiblich {% else %} divers {% endif %}
                         </li>
                     {% endif %}
                     {% if details and user.birthdate is not empty %}
-                        <li class="list-group-item">
+                        <li class="list-group-item bg-darker border-0">
                             <i class="fas fa-birthday-cake fa-fw mr-3" title="Geburtstag"></i>{{ user.birthdate|date("d. F Y") }}
                         </li>
                     {% endif %}
                     {% if details and user.phone | trim %}
-                        <li class="list-group-item">
+                        <li class="list-group-item bg-darker border-0">
                             <i class="fas fa-mobile-alt fa-fw mr-3" title="Telefonnummer"></i><a href="tel:{{ user.phone }}">{{ user.phone }}</a>
                         </li>
                     {% endif %}
                     {% if user.steamaccount | trim %}
-                        <li class="list-group-item">
-                            <i class="fab fa-steam fa-fw mr-3" title="Steam Account"></i>{{ user.steamaccount }}
+                        <li class="list-group-item bg-darker border-0">
+                            <i class="fab fa-discord fa-fw mr-3" title="Discord"></i>{{ user.steamaccount }}
                         </li>
                     {% endif %}
                     {% if user.website | trim %}
-                        <li class="list-group-item">
+                        <li class="list-group-item bg-darker border-0">
                             <i class="fas fa-globe fa-fw mr-3" title="Webseite"></i><a href="{{ user.website }}" target="_blank">{{ user.website }}</a>
                         </li>
                     {% endif %}
                     {% if user.hardware | trim %}
-                        <li class="list-group-item">
+                        <li class="list-group-item bg-darker border-0">
                             <i class="fas fa-desktop fa-fw mr-3" title="Hardware"></i>{{ user.hardware }}
                         </li>
                     {% endif %}
-                    <li class="list-group-item">
+                    <li class="list-group-item bg-darker border-0">
                         <i class="fas fa-clock fa-fw mr-3" title="dabei seit"></i>{{ user.registeredAt|date("d. F Y") }}
                     </li>
                 </ul>

@@ -2,7 +2,6 @@
 
 #main-nav .dropdown-menu {
     border:none;
-    box-shadow: $box-shadow;
 
     .dropdown-item {
         padding: 0;
@@ -10,7 +9,7 @@
         a {
             width:100%;
             display:block;
-            padding: 0.75rem 1.5rem;
+            padding: 0.3rem 1rem;
             color: $gray-900;
             border-left: 3px solid transparent;
 

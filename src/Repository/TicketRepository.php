@@ -33,6 +33,26 @@ class TicketRepository extends ServiceEntityRepository
         return $this->findOneBy(['code' => $code]);
     }
 
+    public function countFromTicket(): int
+    {
+        return $this->createQueryBuilder('t')
+            ->select('count(t)')
+            ->andwhere('t.shopOrderPosition IS NOT NULL')
+        	->andwhere('t.redeemedAt IS NULL')
+            ->getQuery()
+            ->getSingleScalarResult();
+    }
+
+	public function countRedeemedWithoutOrder(): int
+    {
+        return $this->createQueryBuilder('t')
+            ->select('count(t)')
+        ->andwhere('t.shopOrderPosition IS NULL')
+            ->andwhere('t.redeemedAt IS NOT NULL')
+            ->getQuery()
+            ->getSingleScalarResult();
+    }
+
     public function countRedeemed(): int
     {
         return $this->createQueryBuilder('t')

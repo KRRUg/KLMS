@@ -4,9 +4,8 @@
 
 {% block main %}
     <div class="container block-search" data-limit="{{ limit }}">
-        <h1 class='mb-3'>Clans</h1>
+        <h1 class='text-center'>Clans</h1>
         <div class="card mb-4">
-            <div class="card-body">
                 <div class="row">
                     <div class="col mb-3 mb-md-0">
                         <form action="{{ path('clan') }}" method="get">
@@ -17,7 +16,7 @@
                                     </span>
                                 </div>
                                 <input type="text" name="q" class="form-control block-search-input" placeholder="Clan suchen" value="{{ search }}">
-                                <div class="input-group-append">
+                                <div class="input-group-append ml-2">
                                     <button class="btn btn-outline-primary" type="submit" id="button-addon2">Suchen</button>
                                 </div>
                             </div>
@@ -27,13 +26,12 @@
                         <a role="button" class="btn btn-primary" href="{{ path('clan_create') }}"><i class="fas fa-plus"></i> Clan erstellen</a>
                     </div>
                 </div>
-            </div>
         </div>
 
         <div class="row block-search-results">
             {% if clans is empty %}
                 <div class="col mb-3">
-                    <div class="alert alert-info" role="alert">
+                    <div  role="alert">
                         <h4 class="alert-heading">Kein Ergebnis gefunden!</h4>
                         <p>Es konnte kein Clan mit dem Namen <strong>{{ search }}</strong> gefunden werden!</p>
                     </div>
@@ -49,7 +47,7 @@
 
         {% if clans is not empty %}
             <nav class="">
-                <ul class="pagination justify-content-center block-search-pagination">
+                <ul class="pagination mt-3 justify-content-center block-search-pagination">
                     <li class="page-item page-item-back {% if page == 1 %}disabled{% endif %}">
                         <a class="page-link" href="{{  path('clan', {"page" : page-1, "q" : search}) }}" tabindex="-1"><i class="fas fa-arrow-left"></i> Zurück</a>
                     </li>

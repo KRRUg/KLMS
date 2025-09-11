@@ -1,7 +1,7 @@
 <div class="row">
     <div class="col">
-        <h1>LAN Eintritt kaufen</h1>
-        <div class="mb-3">
+        <h1 class="text-center">Ticketshop</h1>
+        <div class="pb-4">
         {% if not has_ticket %}
             {% if settings.get('lan.signup.info.ticket') is not empty %}
                 <div>
@@ -9,8 +9,7 @@
                 </div>
             {% else %}
                 <p>
-                    Sichere dir dein Ticket für die LAN-Party des Jahres! Erlebe epische Matches und erweitere
-                    dein Gaming-Abenteuer mit exklusiven Add-ons. Jetzt buchen und dabei sein!
+                    Hol dir dein Ticket für ein besonderes LAN-Event! Freu dich auf spannende Matches und exklusive Add-ons, die dein Gaming-Erlebnis erweitern. Jetzt buchen und dabei sein!
                 </p>
             {% endif %}
         {% else %}
@@ -18,7 +17,7 @@
             Du hast bereits ein Ticket und bist mit dabei!
             </div>
             {% if form.tickets is defined %}
-                <div id="showAdditionalTicketsPane">
+                <div class="pt-4 pb-3" id="showAdditionalTicketsPane">
                     Wenn du weitere Tickets für Freunde kaufen möchtest, klicke <a id="showAdditionalTickets" href="#">hier</a>.
                 </div>
             {% endif %}
@@ -36,13 +35,13 @@
         <div class="card m-2 p-0 col-md-4 col-lg-3" id="ticketSelfHead">
             <button class="btn btn-link btn-block text-center card-body pl-1 pr-1" type="button" data-mode="one">
                 <span class="h3"><i class="fa-solid fa-user"></i></span><br>
-                <span class="text-dark h4"> Ticket für mich kaufen</span>
+                <span class="h4">Einzelticket</span>
             </button>
         </div>
         <div class="card m-2 p-0 col-md-4 col-lg-3" id="ticketClanHead">
             <button class="btn btn-link btn-block text-center card-body pl-1 pr-1" type="button" data-mode="multi">
                 <span class="h3"><i class="fa-solid fa-users"></i> </span><br>
-                <span class="text-dark h4">Ticket für mich + andere kaufen</span>
+                <span class="h4">Gruppenticket</span>
             </button>
         </div>
         {% endif %}
@@ -50,7 +49,7 @@
         <div class="card m-2 p-0 col-md-4 col-lg-3" id="redeemCodeHead">
             <button class="btn btn-link btn-block text-center card-body pl-1 pr-1" type="button" data-mode="redeem">
                 <span class="h3"><i class="fa-solid fa-ticket"></i> </span><br>
-                <span class="text-dark h4">Ticket-Code einlösen</span>
+                <span class="h4">Ticket-Code<br/>einlösen</span>
             </button>
         </div>
         {% endif %}
@@ -59,9 +58,7 @@
 <div>
     {% if form.tickets is defined %}
     <div id="ticketSelfBody" class="card d-none">
-        <div class="card-header">
-            <h4 class="my-0 font-weight-normal">LAN Eintritt für mich kaufen</h4>
-        </div>
+        <h2 class="my-0 font-weight-normal">Einzelticket kaufen</h2>
         <div class="card-body">
             <h3 class="card-title text-center">{{ (price / 100) | format_currency('EUR') }}</h3>
             <div class="card-text">
@@ -80,20 +77,18 @@
         </div>
     </div>
     <div id="ticketClanBody" class="card d-none">
-        <div class="card-header">
-            <h4 class="my-0 font-weight-normal">LAN Eintritt für mich + andere kaufen</h4>
-        </div>
+        <h2 class="my-0 font-weight-normal">Gruppenticket kaufen</h2>
         <div class="card-body">
             <div class="d-flex justify-content-center">
                 <div class="mr-5 align-bottom" style="height: 100%">
                     <h6 class="card-subtitle text-muted text-center">&nbsp;</h6>
-                    <h2 class="card-title text-center">{{ (price / 100) | format_currency('EUR') }}</h2>
+                    <h3 class="card-title text-center">{{ (price / 100) | format_currency('EUR') }}</h3>
                     <h6 class="card-subtitle text-muted mb-4 text-center">pro Person</h6>
                 </div>
                 {% if price_reduced_limit and price_reduced %}
                 <div class="ml-5 align-bottom">
                     <h6 class="card-subtitle text-muted text-center">ab {{ price_reduced_limit}} Personen</h6>
-                    <h2 class="card-title text-center">{{ (price_reduced / 100) | format_currency('EUR') }}</h2>
+                    <h3 class="card-title text-center">{{ (price_reduced / 100) | format_currency('EUR') }}</h3>
                     <h6 class="card-subtitle text-muted mb-4 text-center">pro Person</h6>
                 </div>
                 {% endif %}
@@ -105,9 +100,9 @@
                     </div>
                     {{ form_widget(form.tickets) }}
                 </div>
-                <p class="text-muted">
-                    Bei mehreren Tickets wird das erste automatisch für den eigenen Eintritt verwendet und alle
-                    anderen als Ticket-Code versendet.
+                <p class="mt-4">
+                    Bei mehreren Tickets wird das erste automatisch für deinen eigenen Eintritt verwendet und alle
+                    anderen als Ticket-Code an dich zum Weiterleiten versendet. Solltest du mehr als 20 Tickets kaufen wollen, <a href="/content/support">wende dich bitte an uns.</a>
                 </p>
             </div>
         </div>
@@ -115,9 +110,7 @@
     {% endif %}
     {% if form.code is defined %}
     <div id="redeemCodeBody" class="card d-none">
-        <div class="card-header">
-            <h4 class="my-0 font-weight-normal">Ticket Code einlösen</h4>
-        </div>
+        <h2 class="my-0 font-weight-normal">Ticket Code einlösen</h2>
         <div class="card-body">
             <div class="card-text">
                 <p>Wenn du einen Ticket-Code für einen LAN-Eintritt erhalten hast, kannst du ihn hier
@@ -139,10 +132,8 @@
 {% else %}
     {% if form.tickets is defined %}
         <div id="ticketAdditionalBody" class="card d-none">
-            <div class="card-header">
-                <h4 class="my-0 font-weight-normal">Weiteren LAN Eintritt kaufen</h4>
-            </div>
-            <div class="card-body">
+                <h2 class="my-0 font-weight-normal">Weiteren LAN Eintritt kaufen</h2>
+            <div class="pt-4 pb-3">
                 <div class="d-flex justify-content-center">
                     <div class="mr-5 align-bottom" style="height: 100%">
                         <h6 class="card-subtitle text-muted text-center">&nbsp;</h6>

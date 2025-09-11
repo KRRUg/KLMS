@@ -4,9 +4,8 @@
 
 {% block main %}
     <div class="container block-search" data-limit="{{ limit }}">
-        <h1 class='mb-3'>Gamer</h1>
+        <h1 class='mb-3 text-center'>Gamer</h1>
         <div class="card mb-4">
-            <div class="card-body">
                 <div class="row">
                     <div class="col mb-3 mb-md-0">
                         <form action="{{ path('user') }}" method="get">
@@ -16,14 +15,13 @@
                                         <i class="fas fa-search"></i>
                                     </span>
                                 </div>
-                                <input type="text" name="q" class="form-control block-search-input" placeholder="User suchen" value="{{ search }}">
-                                <div class="input-group-append">
+                                <input type="text" name="q" class="form-control block-search-input" placeholder="Gamer suchen" value="{{ search }}">
+                                <div class="ml-2 input-group-append">
                                     <button class="btn btn-outline-primary" type="submit" id="button-addon2">Suchen</button>
                                 </div>
                             </div>
                         </form>
                     </div>
-                </div>
             </div>
         </div>
 
@@ -38,7 +36,7 @@
             {% endif %}
 
             {% for user in users %}
-                <div class="col-md-6 mb-3">
+                <div class="mb-3 w-100">
                     {% include 'site/components/cards/cardUserPreview.html.twig' with {'user': user} %}
                 </div>
             {% endfor %}

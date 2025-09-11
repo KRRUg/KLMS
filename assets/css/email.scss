@@ -1,4 +1,4 @@
-@import 'klms';
+@import 'email/klms_base';
 
 .container {
   max-width: map-get($container-max-widths, md) ;

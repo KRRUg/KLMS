@@ -5,7 +5,7 @@
     <ul class="dropdown-menu dropdown-menu-lg dropdown-menu-right mt-0 p-0">
         <li class="px-4 py-3">
             <form action="{{ path('app_login') }}" method="post" class="form login-form" role="form" >
-                <h4 class="text-center font-weight-normal mb-3">Anmeldung</h4>
+                <h4 class="text-center font-weight-normal text-muted mb-3">Anmeldung</h4>
                 <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}" >
                 <div class="form-group">
                     <div class="input-group">
@@ -29,7 +29,7 @@
                 </div>
                 <div class="form-group form-check custom-control custom-checkbox">
                     <input type="checkbox" class="form-check-input custom-control-input" id="input-remember-me" name="_remember_me">
-                    <label class="form-check-label custom-control-label" for="input-remember-me">Angemeldet bleiben</label>
+                    <label class="form-check-label custom-control-label text-muted" for="input-remember-me">Angemeldet bleiben</label>
                 </div>
                 <input type="hidden" name="_target_path" value="{{ app.request.uri }}"/>
             </form>

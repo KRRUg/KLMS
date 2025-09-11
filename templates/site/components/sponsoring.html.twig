@@ -1,13 +1,13 @@
-{% if sponsor.active() and settings.get("sponsor.banner.show") %}
+{% if sponsor.active() and settings.get("sponsor.banner.show")  %}
     {% set s = sponsor.getRandom() %}
     {% if s is not empty %}
-        <div id="foot-bar" class="container py-3 text-white">
+        <div id="foot-bar" class="container py-3">
             {% if settings.get("sponsor.banner.show_title", true) %}
-            <h4>{{ settings.get("sponsor.banner.title") | default("Supported by") }}</h4>
+            <h2>{{ settings.get("sponsor.banner.title") | default("Supported by") }}</h2>
             {% endif %}
             <div class="d-flex justify-content-center p-2">
                 <a {% if s.url is not empty %} href="{{ s.url }}" target="_blank" {% endif %}>
-                <img style="max-width: 300px; max-height: 300px; " src="{{ vich_uploader_asset(s, 'logoFile') | imagine_filter('sponsor_logo') }}">
+                <img style="max-width: 250px; max-height:200px; " src="{{ vich_uploader_asset(s, 'logoFile') | imagine_filter('sponsor_logo') }}">
                 </a>
             </div>
             <div class="text-center">

@@ -5,7 +5,7 @@
 {% set org = settings.get('site.organisation') %}
 <h1>Bestellung #{{ order.id }}</h1>
 <p>
-{% if text is empty %}Danke für deine Bestellung bei {{ org }}.{% else %}{{ text }}{% endif %}
+{% if text is empty %}Danke für deine Bestellung bei der DoT-LAN!{% else %}{{ tex | raw }}{% endif %}
 </p>
 <div class="my-2">
 {% include 'site/shop/_order.html.twig' %}

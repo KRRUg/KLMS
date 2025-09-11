@@ -78,7 +78,7 @@ class UserType extends AbstractType
                 'required' => false,
             ])
             ->add('steamAccount', TextType::class, [
-                'label' => 'Steam Account',
+                'label' => 'Discord',
                 'required' => false,
             ])
             ->add('hardware', TextareaType::class, [

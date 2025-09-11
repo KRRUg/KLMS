@@ -3,12 +3,8 @@
 {% block main %}
   {% set text = settings.get('email.register.text') %}
   {% set org = settings.get('site.organisation') %}
-  {% if text is empty %}
-    <h1>Deine Registrierung bei {{ org }}</h1>
-  {% else %}
-    {{ text | raw }}
-  {% endif %}
-  <p>Zum Bestätigen der Registrierung <a href="{{ url('app_register_confirm', {'user' : user, 'token' : token}) }}">hier</a> klicken.</p>
-  <p></p>
+   <p><strong>Vielen Dank für deine Registrierung! &#x1F389;</strong><br/>Bitte bestätige deine E-Mail Adresse, dann bist du offiziell Teil der DoT-LAN Familie.</p>
+   <p>Zum Bestätigen der Registrierung <a href="{{ url('app_register_confirm', {'user' : user, 'token' : token}) }}">hier</a> klicken.</p>
+   {{ text | raw }}
   {% include 'email/components/greetings.html.twig' %}
 {% endblock %}

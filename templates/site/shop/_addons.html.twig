@@ -1,6 +1,6 @@
 <div class="row">
     <div class="col">
-        <h1>Addons kaufen</h1>
+        <h2>Addons kaufen</h2>
         <div class="mb-3">
             {% if settings.get('lan.signup.info.addon') is not empty %}
                 {{ settings.get('lan.signup.info.addon') | raw }}
@@ -16,13 +16,13 @@
     {% for addon in addons %}
         <div class="col mb-3">
             <div class="card" data-addon-id="{{ addon.id }}">
-                <div class="card-header">
-                    <h4 class="my-0 font-weight-normal">{{ addon.name }}</h4>
+                <div class="card-body">
+                    <h4 class="my-0 font-weight-normal">{{ addon.name }}:</h4>
                 </div>
                 <div class="card-body text-center">
-                    <h2 class="card-title">{{ (addon.price / 100) | format_currency('EUR') }}</h2>
+                    <h3 class="card-title">{{ (addon.price / 100) | format_currency('EUR') }}</h3>
                     <div class="card-text">
-                        <p>{{ addon.description }}</p>
+                        <p>{{ addon.description | raw }}</p>
                         {% set item = attribute(form, "addon" ~ addon.id) %}
                         <p>{{ form_help(item) }}</p>
                         <div class="input-group d-flex justify-content-center">

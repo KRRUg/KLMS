@@ -7,10 +7,10 @@
     <div class="container mb-5">
         <div class="card">
             <div class="card-body">
-                <h1 class="card-title">Sitzplan</h1>
+                <h1 class="card-title text-center">Sitzplan</h1>
                 {% set tempSeat = user is not empty and user is seated_user and user is not registered_user %}
                 <div class="container seatmap-legend my-3">
-                    <div class="row justify-content-center">
+                    <div class="row card-body justify-content-center">
                         <div class="col-md-4 col-lg-2 d-flex"><span class="seat seat-empty"></span><span class="align-self-center ml-1"> Frei </span></div>
                         <div class="col-md-4 col-lg-2 d-flex"><span class="seat seat-taken"></span><span class="align-self-center ml-1"> Reserviert</span></div>
                         <div class="col-md-4 col-lg-2 d-flex"><span class="seat seat-locked"></span><span class="align-self-center ml-1"> Gesperrt</span></div>
@@ -43,8 +43,8 @@
                 {% endif %}
             </div>
         </div>
-        <div class="card" style="overflow-x: scroll;">
-            <div class="card-body p-0">
+        <div class="card " style="overflow-x: scroll;">
+            <div class="card-body p-0 justify-content-center">
                     {% set seatmap_bg = settings.get('lan.seatmap.bg_image') %}
                     {% if seatmap_bg is not empty %}
                     <div class="seatmap">

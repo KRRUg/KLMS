@@ -35,6 +35,7 @@ class ShopService
     private readonly IdmRepository $userRepo;
 
     public const DEFAULT_TICKET_PRICE = 5000;
+    public const MAX_ADDON_COUNT = 20;
     public const MAX_TICKET_COUNT = 20;
     private LoggerInterface $logger;
 

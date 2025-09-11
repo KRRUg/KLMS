@@ -6,7 +6,7 @@
   {% if text is empty %}
     <h1>Passwort zurücksetzen</h1>
   {% endif %}
-  <p>Zum Zurücksetzen des Passworts bei {{ org }} <a href="{{ url('reset_pw', {'user' : user, 'token' : token}) }}">hier</a> klicken.</p>
+  <p>Zum Zurücksetzen des Passworts <a href="{{ url('reset_pw', {'user' : user, 'token' : token}) }}">hier</a> klicken.</p>
   <p>Solltest das nicht du gewesen sein, kannst du diese Nachricht ignorieren.</p>
   <p></p>
   {% include 'email/components/greetings.html.twig' %}

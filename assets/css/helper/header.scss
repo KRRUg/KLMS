@@ -1,82 +1,50 @@
 @import 'variables';
 
 #header .head-wrap {
-    display: flex;
-    background-size: cover;
-    background-position: center center;
-    background-repeat: no-repeat;
-    box-shadow: $box-shadow;
-    height: 12rem;
-    background-color: $primary;
-
+    
     .head-content {
         text-align: center;
         align-self: center;
-        color:$header-color;
+        color:#fff;
 
-        .logo {
-            max-height: 5.5rem;
-            margin-bottom: 1.5rem;
-
-            &.logo-full-height {
-                max-height: 10.5rem
-            }
-        }
     }
 
     &.startpage {
-        height: 16rem;
+	height: 100vh;
+	margin-bottom: -7rem;
+
         .head-content .logo {
             max-height: 5.5rem;
+	    margin-bottom: 20px;
 
-            &.logo-full-height {
-                max-height: 14.5rem
-            }
         }
     }
 }
 
+@include media-breakpoint-up(xxl) {
+	.nav-only-collapsed {
+		display: none !important;
+	}
+}
 
-// Medium devices (tablets, 768px and up)
-@include media-breakpoint-up(md) {
+@include media-breakpoint-down(xl) {
     #header .head-wrap {
-        height: 12rem;
-        .head-content .logo {
-            max-height: 8rem;
-        }
-        &.startpage {
-            height: 16rem;
-            .head-content .logo {
-                max-height: 10rem;
 
-                &.logo-full-height {
-                    max-height: 14.5rem
-                }
+        &.startpage {
+            .head-content .logo {
+                display: none !important;
+
             }
         }
     }
-}
 
-// Large devices (desktops, 992px and up)
-@include media-breakpoint-up(lg) {
-    #header .head-wrap {
-        height: 12rem;
-        .head-content .logo {
-            max-height: 9rem;
+	.videobox {
+			display: none !important;
+	}
 
-            &.logo-full-height {
-                max-height: 10.5rem
-            }
-        }
-        &.startpage {
-            height: 23rem;
-            .head-content .logo {
-                max-height: 16rem;
-
-                &.logo-full-height {
-                    max-height: 21.5rem
-                }
-            }
-        }
+    #rightTopBar {
+	display: none !important;
     }
 }
+
+
