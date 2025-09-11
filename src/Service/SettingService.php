@@ -68,7 +68,9 @@ class SettingService
 
         'lan.tourney.enabled' => [self::TB_DESCRIPTION => 'Tourney einschalten', self::TB_TYPE => SettingType::Bool],
         'lan.tourney.text' => [self::TB_DESCRIPTION => 'Tourney Einleitungstext', self::TB_TYPE => SettingType::HTML],
+        'lan.tourney.proper_double_elim' => [self::TB_DESCRIPTION => 'Loser bracket winner must win twice.', self::TB_TYPE => SettingType::Bool, self::TB_DEFAULT_VALUE => true],
         'lan.tourney.registration_open' => [self::TB_DESCRIPTION => 'Registrierung freigeschalten', self::TB_TYPE => SettingType::Bool],
+        'lan.tourney.registration_require_checkin' => [self::TB_DESCRIPTION => 'Tourney Anmeldung nur mit check-in erlauben', self::TB_TYPE => SettingType::Bool],
 
         'style.logo' => [self::TB_DESCRIPTION => 'Logo', self::TB_TYPE => SettingType::File],
         'style.logo_full_height' => [self::TB_DESCRIPTION => 'Soll das Logo die volle Höhe des Headers einnehmen?', self::TB_TYPE => SettingType::Bool, self::TB_DEFAULT_VALUE => false],

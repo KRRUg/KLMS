@@ -145,7 +145,7 @@ class UserExtension extends AbstractExtension
         return !($this->userService->userAgeAbove($user, $age) ?? true);
     }
 
-    public function getSeat(User $user): string
+    public function getSeat(User|UuidInterface $user): string
     {
         $seats = $this->seatmapService->getUserSeats($user);
         $names = array_map(fn (Seat $seat) => $seat->generateSeatName(), $seats);

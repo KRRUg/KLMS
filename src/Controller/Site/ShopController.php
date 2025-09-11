@@ -2,6 +2,7 @@
 
 namespace App\Controller\Site;
 
+use App\Entity\ShopAddon;
 use App\Entity\ShopOrder;
 use App\Entity\User;
 use App\Exception\OrderLifecycleException;
@@ -64,7 +65,23 @@ class ShopController extends AbstractController
 
         $addons = $this->shopService->getAddons();
         $userRegistered = $this->ticketService->isUserRegistered($user);
-        $form = $this->createForm(CheckoutType::class, options: ['addons' => $addons, 'code' => !$userRegistered]);
+        $addon_count = $this->shopService->countOrderedAddons();
+        $addon_count_user = $this->shopService->countOrderedAddons($user);
+        $count_cb = function(ShopAddon $addon) use ($addon_count, $addon_count_user): ?int {
+            if ($addon->getOnlyOnce() && ($addon_count_user[$addon->getId()] ?? 0) > 0) {
+                return -1;
+            }
+            if (!is_null($addon->getMaxQuantityGlobal())) {
+                $boughtGlobal = $addon_count[$addon->getId()] ?? 0;
+                return max(0, $addon->getMaxQuantityGlobal() - $boughtGlobal);
+            }
+            return null;
+        };
+        $form = $this->createForm(CheckoutType::class, options: [
+            'code' => !$userRegistered,
+            'addons' => $addons,
+            'max_addon_count_callback' => $count_cb,
+        ]);
 
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {

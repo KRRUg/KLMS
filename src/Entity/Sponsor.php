@@ -46,6 +46,9 @@ class Sponsor implements HistoryAwareEntity
     #[ORM\Column]
     private ?bool $isVisible = null;
 
+    #[ORM\Column(type: 'integer', nullable: true)]
+    private ?int $sortOrder = null;
+
     public function __construct()
     {
         $this->logo = new EmbeddedFile();
@@ -140,6 +143,18 @@ class Sponsor implements HistoryAwareEntity
     public function setIsVisible(bool $isVisible): static
     {
         $this->isVisible = $isVisible;
+
+        return $this;
+    }
+
+    public function getSortOrder(): ?int
+    {
+        return $this->sortOrder;
+    }
+
+    public function setSortOrder(?int $sortOrder): self
+    {
+        $this->sortOrder = $sortOrder;
 
         return $this;
     }

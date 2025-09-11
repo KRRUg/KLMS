@@ -54,6 +54,9 @@ class Tourney implements HistoryAwareEntity
     #[ORM\OneToMany(mappedBy: 'tourney', targetEntity: TourneyGame::class, orphanRemoval: true, cascade: ['persist', 'remove'])]
     private Collection $games;
 
+    #[ORM\Column(nullable: true)]
+    private ?int $max_teams = null;
+
     use EntityHistoryTrait;
 
     public function __construct()
@@ -235,6 +238,11 @@ class Tourney implements HistoryAwareEntity
         return $this->status == TourneyStage::Running;
     }
 
+    public function canRegister(): bool
+    {
+        return $this->status == TourneyStage::Registration;
+    }
+
     public function getOrder(): ?int
     {
         return $this->order;
@@ -266,5 +274,23 @@ class Tourney implements HistoryAwareEntity
         if (is_null($this->status) || is_null($this->mode))
             return false;
         return $this->status->canHaveGames() && $this->mode->canHaveGames();
+    }
+
+    public function hasSpotsLeft(): bool
+    {
+        if (is_null($this->getMaxTeams())) return true;
+        return count($this->getTeams()) < $this->getMaxTeams();
+    }
+
+    public function getMaxTeams(): ?int
+    {
+        return $this->max_teams;
+    }
+
+    public function setMaxTeams(?int $max_teams): static
+    {
+        $this->max_teams = $max_teams;
+
+        return $this;
     }
 }

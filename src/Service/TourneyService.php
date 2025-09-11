@@ -171,9 +171,12 @@ class TourneyService extends OptimalService
 
     public function userMayParticipate(User $user): bool
     {
-        return $this->ticketService->getTicketUser($user)?->getState() == TicketState::PUNCHED;
+        $require_checkin = $this->settings->get(self::SETTING_PREFIX.'registration_require_checkin', true);
+        $status = $this->ticketService->getTicketUser($user)?->getState();
+        return ($status == TicketState::PUNCHED) || (!$require_checkin && $status == TicketState::REDEEMED);
     }
 
+    /** @return Tourney[] */
     public function getRegistrableTourneys($user): array
     {
         $registeredTourneys = $this->getRegisteredTourneys($user);
@@ -221,7 +224,7 @@ class TourneyService extends OptimalService
         $this->tryRegister($tourney, $user, $registered);
 
         if ($tourney->isSinglePlayer()) {
-            $tourney->addTeam(TourneyTeam::createTeamWithUser($user->getUuid()));
+            $this->addTeam($tourney, TourneyTeam::createTeamWithUser($user->getUuid()));
         } else {
             if ($team instanceof TourneyTeam) {
                 if ($team->getTourney() !== $tourney) {
@@ -239,7 +242,7 @@ class TourneyService extends OptimalService
                 if ($this->teamNameTaken($tourney, $team)) {
                     throw new ServiceException(ServiceException::CAUSE_INCONSISTENT, 'Teamname already exists');
                 }
-                $tourney->addTeam(TourneyTeam::createTeamWithUser($user->getUuid(), $team));
+                $this->addTeam($tourney, TourneyTeam::createTeamWithUser($user->getUuid(), $team));
             } else {
                 throw new ServiceException(ServiceException::CAUSE_INVALID, 'Invalid team specified');
             }
@@ -300,6 +303,7 @@ class TourneyService extends OptimalService
         } else {
             $team->removeMember($tm);
             if ($team->countUsers() == 0) {
+                $this->teamMemberRepository->remove($tm);
                 $this->teamRepository->remove($team);
             } else {
                 $this->teamMemberRepository->remove($tm);
@@ -307,6 +311,12 @@ class TourneyService extends OptimalService
         }
         $this->em->flush();
         $this->em->commit();
+    }
+
+    public function teamUnregister(TourneyTeam $team): void
+    {
+        $this->teamRepository->remove($team);
+        $this->em->flush();
     }
 
     public function getTeamMemberByTourneyAndUser(Tourney $tourney, User $user): ?TourneyTeamMember
@@ -322,7 +332,7 @@ class TourneyService extends OptimalService
 
     private function tryModifyRegistration(Tourney $tourney, User $user): void
     {
-        if ($tourney->getStatus() != TourneyStage::Registration) {
+        if (!$tourney->getStatus()->canRegister()) {
             throw new ServiceException(ServiceException::CAUSE_IN_USE, 'Tourney registration is not open');
         }
         if (!$this->userMayParticipate($user)) {
@@ -346,11 +356,22 @@ class TourneyService extends OptimalService
         }
     }
 
+    private function addTeam(Tourney $tourney, TourneyTeam $team): void
+    {
+        if ($tourney->getStatus() != TourneyStage::Registration) {
+            throw new ServiceException(ServiceException::CAUSE_IN_USE, 'Tourney registration is not open.');
+        }
+        if (!$tourney->hasSpotsLeft()) {
+            throw new ServiceException(ServiceException::CAUSE_FULL, 'Tourney has no empty spots left');
+        }
+        $tourney->addTeam($team);
+    }
+
     /* Tourney tree */
 
-    public static function getPodium(Tourney $tourney): array
+    public function getPodium(Tourney $tourney): array
     {
-        return TourneyRule::construct($tourney)->podium();
+        return TourneyRule::construct($tourney, $this->settings)->podium();
     }
     
     /* Result logging */
@@ -366,7 +387,7 @@ class TourneyService extends OptimalService
         return $game[0];
     }
 
-    private function tryLogResult(TourneyGame $game)
+    private function tryLogResult(TourneyGame $game): void
     {
         $tourney = $game->getTourney();
         if (is_null($tourney) || $tourney->getStatus() != TourneyStage::Running) {
@@ -385,7 +406,7 @@ class TourneyService extends OptimalService
         return array_filter($result, fn($u) => !is_null($u));
     }
 
-    public function logResultUser(TourneyGame $game, User $user, int $scoreA, int $scoreB)
+    public function logResultUser(TourneyGame $game, User $user, int $scoreA, int $scoreB): void
     {
         $userInTeamA = $this->teamRepository->userInTeam($game->getTeamA(), $user->getUuid());
         $userInTeamB = $this->teamRepository->userInTeam($game->getTeamB(), $user->getUuid());
@@ -402,7 +423,7 @@ class TourneyService extends OptimalService
         $this->logResult($game, $scoreA, $scoreB);
     }
 
-    public function logResult(TourneyGame $game, int $scoreA, int $scoreB)
+    public function logResult(TourneyGame $game, int $scoreA, int $scoreB): void
     {
         $this->tryLogResult($game);
         if (!$game->isSeeded()) {
@@ -413,20 +434,20 @@ class TourneyService extends OptimalService
         }
         $game->setScoreA($scoreA);
         $game->setScoreB($scoreB);
-        TourneyRule::construct($game->getTourney())->processGame($game, false);
+        TourneyRule::construct($game->getTourney(), $this->settings)->processGame($game, false);
         $this->em->flush();
     }
 
     /* Tourney state management */
 
-    private static function verifyStage(Tourney $tourney, TourneyStage $expected)
+    private static function verifyStage(Tourney $tourney, TourneyStage $expected): void
     {
         if ($tourney->getStatus() != $expected) {
             throw new ServiceException(ServiceException::CAUSE_INCORRECT_STATE, "Tourney {$tourney->getName()} is not in state {$expected->getMessage()}");
         }
     }
 
-    public function start(Tourney $tourney)
+    public function start(Tourney $tourney): void
     {
         self::verifyStage($tourney, TourneyStage::Created);
         $tourney->setStatus(TourneyStage::Registration);
@@ -437,7 +458,7 @@ class TourneyService extends OptimalService
      * @param Tourney $tourney
      * @param TourneyTeam[]|null $seed
      */
-    public function seed(Tourney $tourney, ?array $seed = null)
+    public function seed(Tourney $tourney, ?array $seed = null): void
     {
         self::verifyStage($tourney, TourneyStage::Seeding);
         if (is_null($seed)) {
@@ -452,7 +473,7 @@ class TourneyService extends OptimalService
         }
         $this->em->beginTransaction();
         $this->clearGames($tourney);
-        TourneyRule::construct($tourney)->seed($seed);
+        TourneyRule::construct($tourney, $this->settings)->seed($seed);
         $this->em->flush();
         $this->em->commit();
     }
@@ -473,7 +494,7 @@ class TourneyService extends OptimalService
     public function setResult(Tourney $tourney, TourneyTeam $first, TourneyTeam $second, ?TourneyTeam $third = null): void
     {
         self::verifyStage($tourney, TourneyStage::Running);
-        $rules = TourneyRule::construct($tourney);
+        $rules = TourneyRule::construct($tourney, $this->settings);
         if (!($rules instanceof TourneyRuleNone))
             throw new ServiceException(ServiceException::CAUSE_INVALID, 'Cannot set result on seeded tourney');
         $this->em->beginTransaction();
@@ -544,26 +565,31 @@ class TourneyService extends OptimalService
         $this->em->flush();
     }
 
-    public static function getFinal(Tourney $tourney): ?TourneyGame
+    public function getRoots(Tourney $tourney): array
     {
-        return TourneyRule::construct($tourney)->getFinal();
+        return TourneyRule::construct($tourney, $this->settings)->getTrees();
+    }
+
+    public function getFinal(Tourney $tourney): ?TourneyGame
+    {
+        return TourneyRule::construct($tourney, $this->settings)->getFinal();
     }
 
     /* Tourney object management */
 
-    public function delete(Tourney $tourney)
+    public function delete(Tourney $tourney): void
     {
         $this->repository->remove($tourney);
         $this->em->flush();
     }
 
-    public function save(Tourney $tourney)
+    public function save(Tourney $tourney): void
     {
         $this->repository->save($tourney);
         $this->em->flush();
     }
 
-    public function create(Tourney $tourney)
+    public function create(Tourney $tourney): void
     {
         $tourney->setStatus(TourneyStage::Created);
         $this->repository->save($tourney);

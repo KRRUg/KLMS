@@ -11,7 +11,7 @@
 		<p>Hier findest du deine Bestellungen für Tickets und Addons.</p>
 
         {% set open_orders = orders | filter(o => o.isOpen) %}
-        {% set done_orders = orders | filter(o => o.isPaid) %}
+        {% set done_orders = orders | filter(o => o.isActive) %}
         <div id="order-list">
         {% if open_orders %}
             <h4 class="pt-3">Offene Bestellungen</h4>
@@ -66,11 +66,11 @@
                                 <button class="btn w-100 d-flex" data-toggle="collapse" data-target="#order-{{ o.id }}">
                                     <span>Bestellung <b>#{{ o.id }}</b> vom {{ o.createdAt | date('d.m.y H:i') }}</span>
                                     <div class="flex-fill"></div>
-                                    {% if o.isPaid %}
-                                        <span class="p-1 badge-success">bezahlt</span>
+                                    {% if o.isActive() %}
+                                        <span class="badge badge-primary">bezahlt</span>
                                     {% endif %}
-                                    {% if o.isCanceled %}
-                                        <span class="p-1 badge-secondary">storniert</span>
+                                    {% if o.isDead() %}
+                                        <span class="badge badge-secondary">storniert</span>
                                     {% endif %}
                                 </button>
                             </h5>

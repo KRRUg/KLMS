@@ -25,23 +25,27 @@ class ShopFixture extends Fixture implements DependentFixtureInterface
             ->setName('Catering Guthaben 50€')
             ->setDescription('Starte die LAN mit einem kleinem Guthaben auf deiner Catering-Card.')
             ->setPrice(5000)
+            ->setOnlyOnce(false)
             ->setActive(true);
 
         $addon2 = (new ShopAddon())
             ->setName('Catering Guthaben 100€')
             ->setDescription('Starte die LAN mit einem großem Guthaben auf deiner Catering-Card.')
             ->setPrice(10000)
+            ->setMaxQuantityGlobal(4)
+            ->setOnlyOnce(false)
             ->setActive(true);
 
         $addon3 = (new ShopAddon())
             ->setName('VIP Seat')
             ->setPrice(1337)
+            ->setOnlyOnce(true)
             ->setActive(false);
 
         $addon4 = (new ShopAddon())
             ->setName('Own Chair')
             ->setPrice(0)
-            ->setMaxQuantity(1)
+            ->setOnlyOnce(true)
             ->setActive(true);
 
         $manager->persist($addon1);
@@ -83,9 +87,9 @@ class ShopFixture extends Fixture implements DependentFixtureInterface
             ->setOrderer($user14)
             ->setStatus(ShopOrderStatus::Paid)
             ->addShopOrderPosition((new ShopOrderPositionTicket())->setTicket($tickets[0])->setPrice(1337))
-            ->addShopOrderPosition((new ShopOrderPositionAddon())->setAddon($addon1))
-            ->addShopOrderPosition((new ShopOrderPositionAddon())->setAddon($addon1))
-            ->addShopOrderPosition((new ShopOrderPositionAddon())->setAddon($addon2))
+            ->addShopOrderPosition((new ShopOrderPositionAddon())->fillWithAddon($addon1))
+            ->addShopOrderPosition((new ShopOrderPositionAddon())->fillWithAddon($addon1))
+            ->addShopOrderPosition((new ShopOrderPositionAddon())->fillWithAddon($addon2))
             ->addShopOrderHistory((new ShopOrderHistory())->setAction(ShopOrderHistoryAction::PaymentSuccessful)->setLoggedAt(new DateTimeImmutable('2024-07-21 05:10'))->setText('payment successfully done with credit card'))
         ;
 
@@ -104,7 +108,7 @@ class ShopFixture extends Fixture implements DependentFixtureInterface
             ->setCreatedAt(new DateTimeImmutable('2024-01-25 13:37'))
             ->setOrderer($user14)
             ->setStatus(ShopOrderStatus::Created)
-            ->addShopOrderPosition((new ShopOrderPositionAddon())->setAddon($addon2)->setPrice(3400))
+            ->addShopOrderPosition((new ShopOrderPositionAddon())->fillWithAddon($addon2)->setPrice(3400))
         ;
 
         // paid one order
@@ -113,6 +117,7 @@ class ShopFixture extends Fixture implements DependentFixtureInterface
             ->setOrderer($user13)
             ->setStatus(ShopOrderStatus::Paid)
             ->addShopOrderPosition((new ShopOrderPositionTicket())->setTicket($tickets[3])->setPrice(1337))
+            ->addShopOrderPosition((new ShopOrderPositionAddon())->fillWithAddon($addon4))
             ->addShopOrderHistory((new ShopOrderHistory())->setAction(ShopOrderHistoryAction::PaymentFailed)->setLoggedAt(new DateTimeImmutable('2024-07-02 20:00'))->setText('invalid card details'))
             ->addShopOrderHistory((new ShopOrderHistory())->setAction(ShopOrderHistoryAction::PaymentSuccessful)->setLoggedAt(new DateTimeImmutable('2024-07-03 05:15'))->setText('payment successfully done with credit card'))
         ;
@@ -122,7 +127,7 @@ class ShopFixture extends Fixture implements DependentFixtureInterface
             ->setCreatedAt(new DateTimeImmutable('2024-07-02 19:21'))
             ->setOrderer($user14)
             ->setStatus(ShopOrderStatus::Canceled)
-            ->addShopOrderPosition((new ShopOrderPositionAddon())->setAddon($addon1))
+            ->addShopOrderPosition((new ShopOrderPositionAddon())->fillWithAddon($addon1))
             ->addShopOrderHistory((new ShopOrderHistory())->setAction(ShopOrderHistoryAction::OrderCanceled)->setLoggedAt(new DateTimeImmutable('2024-07-02 20:00'))->setText('cancelled by user'))
         ;
 

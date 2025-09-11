@@ -15,7 +15,7 @@
 <div class="row row-cols-1 row-cols-md-3">
     {% for addon in addons %}
         <div class="col mb-3">
-            <div class="card">
+            <div class="card" data-addon-id="{{ addon.id }}">
                 <div class="card-body">
                     <h4 class="my-0 font-weight-normal">{{ addon.name }}:</h4>
                 </div>
@@ -23,11 +23,17 @@
                     <h3 class="card-title">{{ (addon.price / 100) | format_currency('EUR') }}</h3>
                     <div class="card-text">
                         <p>{{ addon.description | raw }}</p>
-                        <div class="input-group">
-                            <div class="input-group-prepend">
-                                <span class="input-group-text">Anzahl</span>
-                            </div>
-                            {{ form_widget(attribute(form, "addon" ~ addon.id)) }}
+                        {% set item = attribute(form, "addon" ~ addon.id) %}
+                        <p>{{ form_help(item) }}</p>
+                        <div class="input-group d-flex justify-content-center">
+                            {% if addon.onlyOnce %}
+                                {{ form_widget(item) }}
+                            {% else %}
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text">Anzahl</span>
+                                </div>
+                                {{ form_widget(item) }}
+                            {% endif %}
                         </div>
                     </div>
                 </div>

@@ -181,7 +181,7 @@ class TourneyController extends AbstractController
                     ServiceException::CAUSE_EXIST => 'User ist bereits registriert.',
                     ServiceException::CAUSE_FORBIDDEN => 'User darf sich nicht registrieren.',
                     ServiceException::CAUSE_INCONSISTENT => 'Teamname existiert schon.',
-                    ServiceException::CAUSE_FULL => 'Team ist schon voll',
+                    ServiceException::CAUSE_FULL => 'Team oder Turnier ist schon voll',
                     ServiceException::CAUSE_TOO_LONG => "Teamname darf nicht länger als " . TourneyService::TEAM_NAME_MAX_LENGTH . ' Zeichen lang sein.',
                     ServiceException::CAUSE_INVALID => "Ausgewähltem Team kann nicht beigetreten werden.",
                     default => 'unbekannter Fehler.'
@@ -304,7 +304,7 @@ class TourneyController extends AbstractController
         $podiums = array();
 
         foreach ($tourneys as $tourney) {
-            $p = TourneyService::getPodium($tourney);
+            $p = $this->service->getPodium($tourney);
             if (!empty($p))
                 $podiums[$tourney->getId()] = $p;
         }
@@ -338,13 +338,14 @@ class TourneyController extends AbstractController
         if ($mayRegister) {
             $token = $this->service->calculateUserToken($user);
             foreach ($this->service->getRegistrableTourneys($user) as $t) {
-                if ($t->isSinglePlayer()) {
+                if ($t->isSinglePlayer() && $t->hasSpotsLeft()) {
                     $forms[$t->getId()] = [self::FORM_NAME_SP => $this->generateFormRegistrationSinglePlayer()->setData(['id' => $t->getId()])->createView()];
                 } else {
-                    $forms[$t->getId()] = [
-                        self::FORM_NAME_JOIN => $this->generateFormRegistrationJoin()->setData(['id' => $t->getId()])->createView(),
-                        self::FORM_NAME_CREATE => $this->generateFormRegistrationCreate()->setData(['id' => $t->getId()])->createView(),
-                    ];
+                    $forms[$t->getId()] = array();
+                    $forms[$t->getId()][self::FORM_NAME_JOIN] = $this->generateFormRegistrationJoin()->setData(['id' => $t->getId()])->createView();
+                    if ($t->hasSpotsLeft()) {
+                        $forms[$t->getId()][self::FORM_NAME_CREATE] = $this->generateFormRegistrationCreate()->setData(['id' => $t->getId()])->createView();
+                    }
                 }
             }
         }
@@ -405,8 +406,8 @@ class TourneyController extends AbstractController
             throw $this->createNotFoundException();
         }
 
-        $final = TourneyService::getFinal($tourney);
-        if (is_null($final)) {
+        $roots = $this->service->getRoots($tourney);
+        if (empty($roots)) {
             throw $this->createNotFoundException();
         }
 
@@ -423,9 +424,12 @@ class TourneyController extends AbstractController
             $ownTeam = $ttm->getTeam();
         }
 
-        $podium = TourneyService::getPodium($tourney);
+        $podium = $this->service->getPodium($tourney);
 
-        $calc = function(TourneyGame $root) {
+        // array of root, level to games
+        $calc = function(array $a) {
+            $root = $a[0];
+            $max_level = $a[1];
             $array = [[$root]];
             $level = 0;
             $next = true;
@@ -438,33 +442,21 @@ class TourneyController extends AbstractController
                     $array[$level][] = is_null($game) ? null : $game->getChild(true);
                     $array[$level][] = is_null($game) ? null : $game->getChild(false);
                 }
+                if ($max_level > 0 && $level > $max_level) {
+                    break;
+                }
             }
             array_pop($array);
             array_pop($array);
             return array_reverse($array);
         };
 
-        if ($tourney->getMode() == TourneyRules::DoubleElimination) {
-            $orig_finale = TourneyRuleDoubleElimination::getOriginalFinale($final);
-            if ($orig_finale !== $final) {
-                $array = [0 => [$orig_finale], 1 => [$final]];
-            } else {
-                $array = [0 => [$final]];
-            }
-            $array_winner = $calc($orig_finale->getChild(true));
-            $array_loser = $calc($orig_finale->getChild(false));
-        } else {
-            $array = $calc($final);
-            $array_loser = null;
-            $array_winner = null;
-        }
+        $trees = array_map($calc, $roots);
 
         return $this->render('site/tourney/show.html.twig', [
             'tourney' => $tourney,
             'participates' => $participates,
-            'tree_winner' => $array_winner,
-            'tree_loser' => $array_loser,
-            'tree' => $array,
+            'trees' => $trees,
             'podium' => $podium,
             'team' => $ownTeam,
         ]);

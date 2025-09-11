@@ -4,11 +4,10 @@
                    
                     
                     {% block userName %}
-                     {% for clan in user.clans %}
-                                    <a class="badge badge-pill badge-primary" href="{{ path('clan_show', {'uuid' : clan.uuid }) }}">{{clan.clantag }}</a>
-                                {% endfor %}
-                        <span class="username"><a href="{{ path('user_show', {'uuid' : user.uuid}) }}">{{ user.nickname }}</a></span>
-		    {% endblock %}
+                        <a href="{{ path('user_show', {'uuid' : user.uuid}) }}">{{ user.nickname }}</a>
+                        <span class="text-muted ml-4">{{ user.firstname }}</span>
+                        <span class="badge badge-secondary badge-pill ml-4">{{ user | seat }}</span>
+                    {% endblock %}
                 </h4>
         </div>
 	<div class="col">

@@ -49,6 +49,9 @@ abstract class DatabaseWebTestCase extends WebTestCase
             'username' => $user,
             'password' => 'password',
         ]);
+        if ($this->client->getResponse()->isRedirect()) {
+            $this->client->followRedirect();
+        }
         $this->assertResponseStatusCodeSame(200);
         $this->assertSelectorTextNotContains('#dropdownMenuUser', "Anmelden");
     }
@@ -56,6 +59,9 @@ abstract class DatabaseWebTestCase extends WebTestCase
     protected function logout(): void
     {
         $this->client->request('GET', '/logout');
+        if ($this->client->getResponse()->isRedirect()) {
+            $this->client->followRedirect();
+        }
         $this->assertResponseStatusCodeSame(200);
         $this->assertSelectorTextContains('#dropdownMenuUser', "Anmelden");
     }

@@ -332,6 +332,68 @@ class TourneyTest extends DatabaseWebTestCase
         $this->assertSelectorExists('.alert');
     }
 
+    public function testTourneyRegistrationInsufficientSinglePlayer()
+    {
+        $this->databaseTool->loadFixtures([TourneyFixture::class, UserFixtures::class]);
+
+        $this->login('user7@localhost.local');
+        $crawler = $this->client->request('GET', '/tourney');
+        $this->assertSelectorNotExists('#tourney-3.registered');
+        $this->assertSelectorExists('#tourney-3 #form_sp_submit');
+        $this->assertSelectorTextContains('#tourney-3', "1 / 3");
+        $node = $crawler->filter('#tourney-3')->selectButton('Teilnehmen');
+        $form = $node->form();
+        $this->client->submit($form);
+        $this->assertResponseStatusCodeSame(200);
+        $this->assertSelectorExists('#tourney-3.registered');
+        $this->logout();
+
+        $this->login('user10@localhost.local');
+        $crawler = $this->client->request('GET', '/tourney');
+        $this->assertSelectorNotExists('#tourney-3.registered');
+        $this->assertSelectorExists('#tourney-3 #form_sp_submit');
+        $this->assertSelectorTextContains('#tourney-3', "2 / 3");
+        $node = $crawler->filter('#tourney-3')->selectButton('Teilnehmen');
+        $form = $node->form();
+        $this->client->submit($form);
+        $this->assertResponseStatusCodeSame(200);
+        $this->assertSelectorExists('#tourney-3.registered');
+        $this->logout();
+
+        $this->login('user14@localhost.local');
+        $crawler = $this->client->request('GET', '/tourney');
+        $this->assertSelectorNotExists('#tourney-3.registered');
+        $this->assertSelectorTextContains('#tourney-3', "3 / 3");
+        $node = $crawler->filter('#tourney-3')->selectButton('Teilnehmen');
+        $this->assertSelectorExists('#tourney-3 button:disabled');
+    }
+
+    public function testTourneyRegistrationInsufficientTeams()
+    {
+        $this->databaseTool->loadFixtures([TourneyFixture::class, UserFixtures::class]);
+
+        $this->login('user7@localhost.local');
+        $crawler = $this->client->request('GET', '/tourney');
+        $this->assertSelectorNotExists('#tourney-4.registered');
+        $this->assertSelectorExists('#tourney-4 #form_create_submit');
+        $this->assertSelectorExists('#tourney-4 #form_join_submit');
+        $this->assertSelectorTextContains('#tourney-4', "1 / 2");
+
+        $node = $crawler->filter('#tourney-4')->selectButton('Erstellen');
+        $form = $node->form();
+        $form[$form->getName().'[name]'] = 'new team';
+        $this->client->submit($form);
+        $this->assertResponseStatusCodeSame(200);
+        $this->assertSelectorExists('#tourney-4.registered');
+        $this->logout();
+
+        $this->login('user10@localhost.local');
+        $this->client->request('GET', '/tourney');
+        $this->assertSelectorNotExists('#tourney-4 #form_create_submit');
+        $this->assertSelectorExists('#tourney-4 #form_join_submit');
+        $this->assertSelectorTextContains('#tourney-4', "2 / 2");
+    }
+
     public function testTourneyUnregister()
     {
         $this->databaseTool->loadFixtures([TourneyFixture::class, UserFixtures::class]);

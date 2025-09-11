@@ -9,9 +9,9 @@ use LogicException;
 
 class TourneyRuleNone extends TourneyRule
 {
-    public function __construct(Tourney $tourney)
+    public function __construct(Tourney $tourney, SettingService $settingService)
     {
-        parent::__construct($tourney);
+        parent::__construct($tourney, $settingService);
     }
 
     public function seed(array $list): void
@@ -24,9 +24,28 @@ class TourneyRuleNone extends TourneyRule
         throw new LogicException('invalid operation');
     }
 
+    public function getTrees(): array
+    {
+        return [];
+    }
+
+    public function isCompleted(): bool
+    {
+        throw new LogicException('invalid operation');
+    }
+
+    public function getFinal(): ?TourneyGame
+    {
+        throw new LogicException('invalid operation');
+    }
+
     public function podium(): array
     {
-        $root = $this->getFinal();
+        $root = null;
+        foreach ($this->tourney->getGames() as $game) {
+            if (is_null($game->getParent()))
+                $root = $game;
+        }
         if (is_null($root) || !$root->isDone())
             return [];
         $result = array();

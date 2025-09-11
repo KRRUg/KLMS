@@ -4,13 +4,18 @@
 {% block siteheading %}<i class="fas fa-ticket"></i> Tickets{% endblock %}
 {% block main %}
     <div class="row mb-4">
-        <div class="col-12">
-            <button class="btn btn-success" data-toggle="modal" data-target="#newModal" id="new">
+        <div class="col-auto pr-0">
+            {{ form_start(form_new) }}
+                <button type="submit" class="btn btn-sm btn-success" id="new-empty">
+                    <i class="fas fa-plus"></i> Ticket anlegen
+                </button>
+            {% do form_new.user.setRendered() %}
+            {{ form_end(form_new) }}
+        </div>
+        <div class="col-auto">
+            <button class="btn btn-sm btn-success" data-toggle="modal" data-target="#newModal" id="new">
                 <i class="fas fa-plus"></i> Gamer anmelden
             </button>
-{#            <button class="btn btn-success" data-toggle="modal" data-target="#newModal" id="new">#}
-{#                <i class="fas fa-plus"></i> Ticket anlegen#}
-{#            </button>#}
         </div>
     </div>
     <div class="row">
@@ -23,10 +28,12 @@
                         <th>&#8470;</th>
                         <th>Code</th>
                         <th><i class="fas fa-euro-sign"></i></th>
+                        <th>Erstellt</th>
                         <th>Eingelöst</th>
                         <th class="w-25">Nickname</th>
                         <th class="w-25">Name</th>
                         <th>Status</th>
+                        <th>Sitzplatz</th>
                         <th
                                 class="text-nowrap w-1"
                                 data-orderable="false"
@@ -37,13 +44,15 @@
                     </tr>
                     </thead>
                     <tbody>
+                    {% set dateformat = "d.m.Y H:i" %}
                     {% for ticket in tickets %}
                         <tr>
                             <td class="text-nowrap text-monospace text-right">{{ ticket.id }}</td>
                             <td class="text-nowrap text-monospace">{{ ticket.code }}</td>
                             <td>{% if ticket.shopOrderPosition %} <span class="badge badge-secondary" title="Gekauft"><i class="fas fa-euro-sign"></i></span>{% endif %}</td>
+                            <td data-order="{{ ticket.createdAt | date('U') }}">{{ ticket.createdAt | date(dateformat) }}</td>
                         {% if ticket.redeemed %}
-                            <td data-order="{{ ticket.redeemedAt | date('U') }}">{{ ticket.redeemedAt | date('d.m.y H:i') }}</td>
+                            <td data-order="{{ ticket.redeemedAt | date('U') }}">{{ ticket.redeemedAt | date(dateformat) }}</td>
                             {% set user = users[ticket.redeemer.toString()] %}
                             <td data-order="{{ user.nickname }}">
                                 {% for clan in user.clans %}
@@ -57,9 +66,9 @@
                             <td></td>
                             <td></td>
                         {% endif %}
-                            <td>
-                                {% if ticket.isRedeemed() %}
-                                    {% if ticket.isPunched() %}
+                            <td class="text-center">
+                                {% if ticket.isRedeemed %}
+                                    {% if ticket.isPunched %}
                                         <span class="badge badge-success">Checked-In</span>
                                     {% else %}
                                         <span class="badge badge-primary">Eingel&ouml;st</span>
@@ -69,12 +78,17 @@
                                     {% if user is age_below(18) %}
                                         <span class="badge badge-danger">U18</span>
                                     {% endif %}
-
-                                    {% if ticket.redeemer is not seated_user %}
-                                        <span class="badge badge-danger">Kein Sitzplatz</span>
-                                    {% endif %}
                                 {% else %}
                                     <span class="badge badge-secondary">Offen</span>
+                                {% endif %}
+                            </td>
+                            <td class="text-center">
+                                {% if ticket.isRedeemed %}
+                                    {% if ticket.redeemer is not seated_user %}
+                                        <span class="badge badge-danger">n.v.</span>
+                                    {% else %}
+                                        <span class="badge badge-secondary"><i class="fa-solid fa-chair"></i> {{ ticket.redeemer | seat }}</span>
+                                    {% endif %}
                                 {% endif %}
                             </td>
                             <td>

@@ -69,12 +69,13 @@ function restoreVisibility(states) {
 }
 
 function storeValues(elements) {
-    return elements.map(e => { return {element: e, value: e.val() }; });
+    return elements.map(e => { return { element: e, value: e.val(), checked: e.prop('checked') }; });
 }
 
 function restoreValues(states) {
-    for (const state of states) {
-        state.element.val(state.value);
+    for (const s of states) {
+        s.element.val(s.value);
+        s.element.prop('checked', s.checked);
     }
 }
 

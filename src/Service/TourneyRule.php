@@ -11,6 +11,7 @@ abstract class TourneyRule
 {
     public function __construct(
         protected readonly Tourney $tourney,
+        protected readonly SettingService $settingService,
     ){}
 
     /**
@@ -30,32 +31,26 @@ abstract class TourneyRule
     public abstract function podium(): array;
 
     /**
-     * @return TourneyGame The finale of the tourney.
+     * @return TourneyGame|null The finale of the tourney.
      */
-    public function getFinal(): ?TourneyGame
-    {
-        foreach ($this->tourney->getGames() as $game) {
-            if (is_null($game->getParent()))
-                return $game;
-        }
-        return null;
-    }
+    public abstract function getFinal(): ?TourneyGame;
+
+    /**
+     * @return array<string, array<TourneyGame, int>> Returns the root game of all trees (e.g. winner and loser bracket) with their depth.
+     */
+    public abstract function getTrees(): array;
 
     /**
      * @return bool Returns true if all games are played.
      */
-    public function completed(): bool
-    {
-        $finale = $this->getFinal();
-        return !is_null($finale) && $finale->isDone();
-    }
+    public abstract function isCompleted(): bool;
 
-    public static function construct(Tourney $tourney): self
+    public static function construct(Tourney $tourney, SettingService $settings): self
     {
         return match($tourney->getMode()) {
-            TourneyRules::RegistrationOnly => new TourneyRuleNone($tourney),
-            TourneyRules::DoubleElimination => new TourneyRuleDoubleElimination($tourney),
-            TourneyRules::SingleElimination => new TourneyRuleSingleElimination($tourney),
+            TourneyRules::RegistrationOnly => new TourneyRuleNone($tourney, $settings),
+            TourneyRules::DoubleElimination => new TourneyRuleDoubleElimination($tourney, $settings),
+            TourneyRules::SingleElimination => new TourneyRuleSingleElimination($tourney, $settings),
         };
     }
 

@@ -8,9 +8,9 @@ use App\Exception\ServiceException;
 
 class TourneyRuleSingleElimination extends TourneyRule
 {
-    public function __construct(Tourney $tourney)
+    public function __construct(Tourney $tourney, SettingService $settingService)
     {
-        parent::__construct($tourney);
+        parent::__construct($tourney, $settingService);
     }
 
     public function seed(array $list): void
@@ -50,5 +50,49 @@ class TourneyRuleSingleElimination extends TourneyRule
             $result[3][] = $child->getLoser();
         }
         return $result;
+    }
+
+    public function getFinal(): ?TourneyGame
+    {
+       foreach ($this->tourney->getGames() as $game) {
+           if (is_null($game->getParent()) && !empty($game->getChildren())) {
+               return $game;
+           }
+       }
+       return null;
+    }
+
+    public function getSmallFinal(): ?TourneyGame
+    {
+        foreach ($this->tourney->getGames() as $game) {
+            if (is_null($game->getParent()) && empty($game->getChildren())) {
+                return $game;
+            }
+        }
+        return null;
+    }
+
+    public function getTrees(): array
+    {
+        $tree = array();
+        $final = $this->getFinal();
+        $smallFinal = $this->getSmallFinal();
+
+        // find proper tree
+        $tree[''] = [$final, -1];
+
+        // find game for 3rd place
+        if ($smallFinal)
+            $tree['3rd Place'] = [$smallFinal, 1];
+
+        return $tree;
+    }
+
+    public function isCompleted(): bool
+    {
+        $final = $this->getFinal();
+        $smallFinal = $this->getSmallFinal();
+
+        return $final != null && $final->isDone() && ($smallFinal == null || $smallFinal->isDone());
     }
 }

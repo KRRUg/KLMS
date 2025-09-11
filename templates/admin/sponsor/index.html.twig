@@ -16,8 +16,9 @@
                 <table class="table table-striped admin-data-table">
                     <thead>
                     <tr>
-                        <th scope="col" style="width: 4em;" class="text-center">#</th>
-                        <th scope="col" style="width: 4em;" class="text-center">Sichtbar</th>
+                        <th scope="col" style="width: 2em;" class="text-center">&#8470;</th>
+                        <th scope="col" style="width: 2em;" class="text-center"><i title="Sichtbar" class="fas fa-eye"></i></th>
+                        <th scope="col" style="width: 2em;" class="text-center"><i title="Sortierung" class="fa-solid fa-arrow-up-1-9"></i></th>
                         <th scope="col" style="width: auto">Name</th>
                         <th scope="col" style="width: 10em;">Kategorie</th>
                     </tr>
@@ -26,7 +27,8 @@
                     {% for s in sponsors %}
                         <tr>
                             <td class="text-center">{{ s.getId() }}</td>
-                            <td class="text-center"><a href="{{ path('admin_sponsor_toggleVisibility', {'id' : s.id}) }}" title="Sichtbarkeit ändern">{% if s.isVisible %}<i class="fas fa-eye text-success" title="sichtbar"></i>{% else %}<i class="fas fa-eye-slash text-danger" title="ausgeblendet"></i>{% endif %}</a></td>
+                            <td class="text-center" data-order="{{ s.isVisible }}"><a href="{{ path('admin_sponsor_toggleVisibility', {'id' : s.id}) }}" title="Sichtbarkeit ändern">{% if s.isVisible %}<i class="fas fa-eye text-success" title="sichtbar"></i>{% else %}<i class="fas fa-eye-slash text-danger" title="ausgeblendet"></i>{% endif %}</a></td>
+                            <td class="text-center">{{ s.sortOrder }}</td>
                             <td><a href="{{ path('admin_sponsor_edit', {'id' : s.id}) }}" title="Bearbeiten {{ s.name }}"> {{ s.name }}</a></td>
                             <td><span class="badge badge-secondary">{{ s.category.name }}</span></td>
                         </tr>

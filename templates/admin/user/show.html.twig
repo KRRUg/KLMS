@@ -54,17 +54,38 @@
             </div>
             <ul class="nav nav-tabs" id="myTab" role="tablist">
                 <li class="nav-item" role="presentation">
-                    <a class="nav-link active" id="profile-tab" data-toggle="tab" href="#profile" role="tab" aria-controls="profile" aria-selected="true">Profil</a>
+                    <a class="nav-link{% if user is registered_user %} active{% endif %}" id="lan-tab" data-toggle="tab" href="#lan" role="tab">Profil</a>
                 </li>
                 <li class="nav-item" role="presentation">
-                    <a class="nav-link" id="clans-tab" data-toggle="tab" href="#clans" role="tab" aria-controls="clans" aria-selected="false">Clans</a>
+                    <a class="nav-link{% if user is not registered_user%} active{% endif %}" id="profile-tab" data-toggle="tab" href="#profile" role="tab">Profil</a>
                 </li>
                 <li class="nav-item" role="presentation">
-                    <a class="nav-link" id="others-tab" data-toggle="tab" href="#others" role="tab" aria-controls="others" aria-selected="false">Sonstiges</a>
+                    <a class="nav-link" id="clans-tab" data-toggle="tab" href="#clans" role="tab">Clans</a>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <a class="nav-link" id="others-tab" data-toggle="tab" href="#others" role="tab">Sonstiges</a>
                 </li>
             </ul>
-            <div class="tab-content p-3 border border-top-0" id="myTabContent">
-                <div class="tab-pane fade show active" id="profile" role="tabpanel" aria-labelledby="home-tab">
+            <div class="tab-content p-3 border border-top-0" id="tabContent">
+                <div class="tab-pane fade{% if user is registered_user%} show active{% endif %}" id="lan" role="tabpanel">
+                    {% if user is registered_user %}
+                        <p>
+                            <i class="fas fa-ticket fa-fw mr-3" title="Ticket"></i>
+                            <span class="badge badge-secondary">Ticket vorhanden</span>
+                        </p>
+                        <p>
+                            <i class="fas fa-chair fa-fw mr-3" title="Sitzplatz"></i>
+                            {% if user is seated_user %}
+                                <span class="badge badge-secondary">{{ user | seat }}</span>
+                            {% else %}
+                                <span class="badge badge-danger">kein Sitzplatz</span>
+                            {% endif %}
+                        </p>
+                    {% else %}
+                        <span class="text-muted">User ist nicht registriert.</span>
+                    {% endif %}
+                </div>
+                <div class="tab-pane fade{% if user is not registered_user%} show active{% endif %}" id="profile" role="tabpanel">
                     <ul class="list-group list-group-flush">
                         <li class="list-group-item">
                             <div class="d-flex w-100">
@@ -98,6 +119,8 @@
                             <div class="col-sm-6 mb-3">
                                 {% include 'admin/components/cards/cardClanPreview.html.twig' with {'clan': clan} %}
                             </div>
+                        {% else %}
+                            <span class="text-muted">Keine vorhanden.</span>
                         {% endfor %}
                     </div>
                 </div>

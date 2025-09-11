@@ -2,6 +2,7 @@
 
 namespace App\Service;
 
+use App\Entity\ShopOrderStatus;
 use App\Repository\SeatRepository;
 use App\Repository\ShopOrderPositionRepository;
 use App\Repository\TicketRepository;
