@@ -23,6 +23,10 @@ class TourneyRuleSingleElimination extends TourneyRule
         while (count($list) > 1) {
             $list = array_map(fn($c) => $this->makeNode($c), array_chunk($list, 2));
         }
+        // generate small final if desired
+        if ($count >= 4 && $this->settingService->get('lan.tourney.small_final')) {
+            $this->tourney->addGame(new TourneyGame());
+        }
     }
 
     public function processGame(TourneyGame $game, bool $overwrite): void
@@ -34,20 +38,39 @@ class TourneyRuleSingleElimination extends TourneyRule
             } else {
                 $parent->setTeamB($game->getWinner());
             }
+
+            // if the next game is the finale, put the loser to the small final if it exists
+            $finale = $this->getFinal();
+            if ($parent === $finale) {
+                $smallFinal = $this->getSmallFinal();
+                if (!is_null($smallFinal)) {
+                    if ($game->isChildA()) {
+                        $smallFinal->setTeamA($game->getLoser());
+                    } else {
+                        $smallFinal->setTeamB($game->getLoser());
+                    }
+                }
+            }
         }
     }
 
     public function podium(): array
     {
-        $root = $this->getFinal();
-        if (is_null($root) || !$root->isDone())
+        $final = $this->getFinal();
+        $smallFinal = $this->getSmallFinal();
+        if (is_null($final) || !$final->isDone() || (!is_null($smallFinal) && !$smallFinal->isDone()))
             return [];
+
         $result = array();
-        $result[1] = [$root->getWinner()];
-        $result[2] = [$root->getLoser()];
-        $result[3] = array();
-        foreach ($root->getChildren() as $child) {
-            $result[3][] = $child->getLoser();
+        $result[1] = [$final->getWinner()];
+        $result[2] = [$final->getLoser()];
+        if (!is_null($smallFinal)) {
+            $result[3] = [$smallFinal->getWinner()];
+        } else {
+            $result[3] = array();
+            foreach ($final->getChildren() as $child) {
+                $result[3][] = $child->getLoser();
+            }
         }
         return $result;
     }
@@ -55,7 +78,7 @@ class TourneyRuleSingleElimination extends TourneyRule
     public function getFinal(): ?TourneyGame
     {
        foreach ($this->tourney->getGames() as $game) {
-           if (is_null($game->getParent()) && !empty($game->getChildren())) {
+           if (is_null($game->getParent()) && !$game->getChildren()->isEmpty()) {
                return $game;
            }
        }
@@ -65,7 +88,7 @@ class TourneyRuleSingleElimination extends TourneyRule
     public function getSmallFinal(): ?TourneyGame
     {
         foreach ($this->tourney->getGames() as $game) {
-            if (is_null($game->getParent()) && empty($game->getChildren())) {
+            if (is_null($game->getParent()) && $game->getChildren()->isEmpty()) {
                 return $game;
             }
         }
