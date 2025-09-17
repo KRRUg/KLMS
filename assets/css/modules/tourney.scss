@@ -10,13 +10,13 @@ $color-background:	#f0f2f2;
 $color-border:      #c0c0c8;
 
 $match-width: 12rem;
-$match-height: 3rem;
+$match-height: 4rem;
 $match-gap: 1rem;
 $match-horizontal-gap: 2rem;
 $group-gap: 1rem;
 $match-connection-border: 1px solid $color-content;
 $border-radius: .5rem;
-$max-power-of-two: 8; // max x where 2**x is max teams, 8 means max number of teams is 256
+$max-power-of-two: 8; // max x where 2**x is max s, 8 means max number of teams is 256
 
 @function pow($number, $exponent) {
   $value: 1;
@@ -109,7 +109,7 @@ $max-power-of-two: 8; // max x where 2**x is max teams, 8 means max number of te
             pointer-events: none;
           }
           &.team-own {
-            background: rgba($color-content, .25);
+            background: rgba($color-primary, .25);
           }
           &.winner {
             color: $color-primary;

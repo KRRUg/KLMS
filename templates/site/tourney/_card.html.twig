@@ -5,7 +5,7 @@
 {% macro game_icon(tourney, game = null, tm = null) %}
     {% set TourneyStage = enum('\\App\\Entity\\TourneyStage') %}
     {% if tourney.status == TourneyStage.Registration %}
-        <span class="badge badge-pill badge-secondary"> <i class="fa-solid fa-table-list"></i> Angemeldet</span>
+        <span class="badge badge-pill badge-success"> <i class="fa-solid fa-table-list"></i> Angemeldet</span>
         {% if tm is not null and not tm.accepted %}
             <span class="badge badge-pill badge-warning" title="Achtung: Jemand aus deinem Team muss deine Teilnahme noch bestätigen!"> <i class="fa-solid fa-triangle-exclamation"></i> Bestätigung ausstehend!</span>
         {% endif %}
@@ -24,11 +24,11 @@
     {% endif %}
 {% endmacro %}
 
-<div class="card mb-3 tourney {% if registered %}registered{% endif %}" id="tourney-{{ tourney.id }}">
+<div class="card tourney {% if registered %}registered{% endif %}" id="tourney-{{ tourney.id }}">
     {% set TourneyStage = enum('\\App\\Entity\\TourneyStage') %}
     <div class="card-header">
         <h4 class="mb-0">
-        <button class="btn btn-block d-flex justify-content-between align-items-center" type="button" data-toggle="collapse" data-target="#collapse-{{ tourney.id }}">
+        <button class="btn border border-primary btn-block d-flex justify-content-between align-items-center" type="button" data-toggle="collapse" data-target="#collapse-{{ tourney.id }}">
             {{ tourney.name }}
             <span class="statusbar">
             {% if registered %}

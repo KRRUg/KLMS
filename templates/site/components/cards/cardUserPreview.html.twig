@@ -1,12 +1,8 @@
 <div class=" h-100 container">
     <div class="row no-gutters h-100">
-        <div class="col">
-                   
-                    
+        <div class="col">       
                     {% block userName %}
                         <a href="{{ path('user_show', {'uuid' : user.uuid}) }}">{{ user.nickname }}</a>
-                        <span class="text-muted ml-4">{{ user.firstname }}</span>
-                        <span class="badge badge-secondary badge-pill ml-4">{{ user | seat }}</span>
                     {% endblock %}
                 </h4>
         </div>
