@@ -4,6 +4,7 @@ namespace App\Service;
 
 use App\Entity\ShopAddon;
 use App\Entity\ShopOrder;
+use Ramsey\Uuid\UuidInterface;
 use App\Entity\ShopOrderHistory;
 use App\Entity\ShopOrderHistoryAction;
 use App\Entity\ShopOrderPositionAddon;
@@ -20,7 +21,6 @@ use App\Repository\ShopOrderRepository;
 use DateTimeImmutable;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
-use Ramsey\Uuid\UuidInterface;
 
 
 class ShopService
@@ -39,9 +39,17 @@ class ShopService
     public const MAX_TICKET_COUNT = 20;
     private LoggerInterface $logger;
 
-    public function __construct(ShopOrderRepository $orderRepository, ShopOrderPositionRepository $shopOrderPositionRepository, ShopAddonsRepository $shopAddonsRepository,
-                                IdmManager          $idmManager, SettingService $settingService, TicketService $ticketService, EmailService $emailService, EntityManagerInterface $em, LoggerInterface $logger)
-    {
+    public function __construct(
+        ShopOrderRepository $orderRepository,
+        ShopOrderPositionRepository $shopOrderPositionRepository,
+        ShopAddonsRepository $shopAddonsRepository,
+        IdmManager          $idmManager,
+        SettingService $settingService,
+        TicketService $ticketService,
+        EmailService $emailService,
+        EntityManagerInterface $em,
+        LoggerInterface $logger
+    ) {
         $this->orderRepository = $orderRepository;
         $this->shopOrderPositionRepository = $shopOrderPositionRepository;
         $this->shopAddonsRepository = $shopAddonsRepository;
@@ -97,7 +105,9 @@ class ShopService
             if ($pos instanceof ShopOrderPositionTicket) {
                 $ticket = $this->ticketService->createTicket();
                 $pos->setTicket($ticket);
-                if (!$first_ticket) { $first_ticket = $ticket; }
+                if (!$first_ticket) {
+                    $first_ticket = $ticket;
+                }
             }
         }
         // activate one ticket for buyer if they don't have a ticket yet
@@ -227,7 +237,7 @@ class ShopService
         $order->addShopOrderHistory(
             (new ShopOrderHistory())
                 ->setLoggedAt(new DateTimeImmutable())
-                ->setAction(match ($order->getStatus()){
+                ->setAction(match ($order->getStatus()) {
                     ShopOrderStatus::Created => ShopOrderHistoryAction::OrderCreated,
                     ShopOrderStatus::Paid => ShopOrderHistoryAction::PaymentSuccessful,
                     ShopOrderStatus::Refunded => ShopOrderHistoryAction::OrderRefunded,
@@ -260,14 +270,17 @@ class ShopService
             ->setCreatedAt(new DateTimeImmutable());
     }
 
-    public function orderAddTickets(ShopOrder $order, int $ticketCnt): void
+    public function orderAddTickets(ShopOrder $order, int $ticketCnt, int $price): void
     {
-        $price = $this->settingService->get('lan.signup.price', self::DEFAULT_TICKET_PRICE);
-        $discount_limit = $this->settingService->get('lan.signup.discount.limit');
-        $discount_price = $this->settingService->get('lan.signup.discount.price');
-        if ($discount_price && $discount_limit && $ticketCnt >= $discount_limit) {
-            $price = $discount_price;
+        if ($price === null) {
+            $price = $this->settingService->get('lan.signup.price', self::DEFAULT_TICKET_PRICE);
+            $discount_limit = $this->settingService->get('lan.signup.discount.limit');
+            $discount_price = $this->settingService->get('lan.signup.discount.price');
+            if ($discount_price && $discount_limit && $ticketCnt >= $discount_limit) {
+                $price = $discount_price;
+            }
         }
+
         for ($i = 0; $i < $ticketCnt; $i++) {
             $order->addShopOrderPosition((new ShopOrderPositionTicket())->setPrice($price));
         }
@@ -321,7 +334,7 @@ class ShopService
     public function deleteAddon(ShopAddon $addon): void
     {
         $this->em->remove($addon);
-        $this->em->flush();;
+        $this->em->flush();
     }
 
     /**
@@ -359,8 +372,11 @@ class ShopService
 
         $result = [];
         foreach ($sop as $item) {
-            $result[] = ['user' => $this->userRepo->findOneById($item->getOrder()->getOrderer()),
-                'text' => $item->getText(), 'price' => $item->getPrice()];
+            $result[] = [
+                'user' => $this->userRepo->findOneById($item->getOrder()->getOrderer()),
+                'text' => $item->getText(),
+                'price' => $item->getPrice()
+            ];
         }
         return $result;
     }
@@ -386,5 +402,33 @@ class ShopService
     {
         $filter = $paidOnly ? ShopOrderStatus::STATUS_ACTIVE : ShopOrderStatus::STATUS_NOT_DEAD;
         return $this->shopOrderPositionRepository->countOrderedAddons($addon, null, $filter);
+    }
+
+    /**
+     * Liefert die gespeicherte checkoutId (falls vorhanden) für eine Order.
+     */
+    public function getCheckoutId(ShopOrder $order): ?UuidInterface
+    {
+        // order enthält ggf. das Feld checkoutId
+        return method_exists($order, 'getCheckoutId') ? $order->getCheckoutId() : null;
+    }
+
+    /**
+     * Speichert die checkoutId an der Order und persistiert sie.
+     */
+    public function saveCheckoutId(ShopOrder $order, string $checkoutId): void
+    {
+        if (!method_exists($order, 'setCheckoutId')) {
+            // If entity doesn't expose setter, do nothing
+            return;
+        }
+        try {
+            $uuid = \Ramsey\Uuid\Uuid::fromString($checkoutId);
+            $order->setCheckoutId($uuid);
+            $this->em->persist($order);
+            $this->em->flush();
+        } catch (\Throwable $e) {
+            $this->logger->warning('Could not parse checkoutId to UUID.');
+        }
     }
 }

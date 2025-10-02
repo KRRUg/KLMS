@@ -1,0 +1,47 @@
+{% extends 'admin/adminBase.html.twig' %}
+
+{% block title %}Clan Discounts - KLMS - Admin
+{% endblock %}
+{% block siteheading %}
+	<i class="fas fa-percent"></i>
+	Clan Discount
+{% endblock %}
+{% block main %}
+	<div class="row">
+		<div class="col mb-4">
+			<a role="button" class="btn btn-success" href="{{ path('admin_clandiscount_create') }}">
+				<i class="fas fa-plus"></i>
+				Discount erstellen</a>
+		</div>
+	</div>
+	<div class="row">
+		<div class="col-12">
+			<div class="card">
+				<table id="clanDiscountTable" class="table table-striped admin-data-table" data-order='[[1, "asc"]]'>
+					<thead>
+						<tr>
+							<th class="text-nowrap">Clan</th>
+							<th class="">Preis</th>
+							<th class="text-nowrap w-1">Aktionen</th>
+						</tr>
+					</thead>
+					<tbody>
+						{% for discount in discounts %}
+							<tr>
+								<td>
+									<a data-render-function='{"elemType":"A", "attributes":{"data-toggle":"ajaxModal", "href": {"prepend": "{{ path('admin_clan_show', {'uuid': discount.clanId}) }}"}}}' data-toggle="ajaxModal" href="{{ path('admin_clan_show', {'uuid': discount.clanId}) }}">{{ discount.clanName }}</a>
+								</td>
+								<td>{{ discount.price }}</td>
+								<td>
+									<a class="btn btn-sm btn-outline-dark text-nowrap" href="{{ path('admin_clandiscount_edit', {'id': discount.id}) }}">
+										<i class="fas fa-edit"></i>
+										Bearbeiten</a>
+								</td>
+							</tr>
+						{% endfor %}
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</div>
+{% endblock %}

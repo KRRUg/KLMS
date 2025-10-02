@@ -99,7 +99,7 @@ class CheckoutType extends AbstractType
             'code' => true,
             'addons' => [],
             'max_ticket_count_callback' => null,
-            'max_addon_count_callback' => null,
+            'max_addon_count_callback' => null
         ]);
 
         $resolver
