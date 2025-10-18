@@ -1,62 +1,67 @@
 <!DOCTYPE html>
 <html lang="de">
-    <head>
-       {% if app.request.pathInfo == '/' %}
-       <script src="https://cloud.ccm19.de/app.js?apiKey=932e21686a83961685f2bed1b8df4edbe72c1df40f872c34&amp;domain=6735fc1128bff9b1060bb0a2" referrerpolicy="origin"></script>
-       {% endif %}
-       {% if app.request.pathInfo == '/content/support' %}
-       <script src="https://desk.zoho.eu/portal/api/feedbackwidget/189051000000274310?orgId=20103009939&displayType=embeded"></script>
-       {% endif %}
-       {% if app.request.pathInfo == '/register' %}
-       <script src="https://www.google.com/recaptcha/api.js" async defer></script>
-       {% endif %}
-       {% if app.request.pathInfo starts with '/shop/payment' %}
-       <script src="https://gateway.sumup.com/gateway/ecom/card/v2/sdk.js"></script>
-       {% endif %}
-       <script async data-ccm-loader-src="https://www.googletagmanager.com/gtag/js?id=G-K4CZJW5359" type="text/x-ccm-loader" data-ccm-loader-group="google-analytics"></script>
-       <script type="text/x-ccm-loader" data-ccm-loader-group="google-analytics">
-          window.dataLayer = window.dataLayer || [];
-          function gtag(){dataLayer.push(arguments);}
-          gtag('js', new Date());
-          gtag('config', 'G-K4CZJW5359');
-        </script>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-        <meta http-equiv="cache-control" content="no-cache"/>
-        {% block favicon %}<link rel="shortcut icon" href="{{ asset('favicon.ico') }}" />{% endblock %}
-        <title>{% block title %}{{ settings.get('site.title') }}{% endblock %}</title>    
-        {% block stylesheets %}
-           <link rel="stylesheet" id="us-fonts-css" href="https://fonts.googleapis.com/css?family=Open+Sans%3A400%2C700%7CMontserrat+Alternates%3A700&amp;display=swap&amp;ver=6.6.2" media="all">    
-           {{ encore_entry_link_tags('app') }}
-        {% endblock %}
-</head>
-    <body>
-          {% if settings.get('site.prepage.show') and not (is_granted('ROLE_ADMIN') and (app.request.pathInfo starts with '/admin' or app.request.pathInfo == '/login')) and not app.request.pathInfo starts with '/_' %}
-            <div class="container mt-4">
-                {{ settings.get('site.prepage.text')|raw }}
-            </div>
-             <footer id="footer">
-        {% block sponsor %}
-            <div class="">
-                {% include 'site/components/sponsoring.html.twig' %}
-            </div>
-        {% endblock %}
-        {% block footer %}
-            <div class="">
-                {% include 'site/components/footer.html.twig' %}
-            </div>
-        {% endblock %}
-        {% block footbar %}
-            <div class="">
-                {% include 'site/components/footBar.html.twig' %}
-            </div>
-        {% endblock %}
-    </footer>
-        {% else %}
-            {% block body %}{% endblock %}
-            {% block javascripts %}
-            {{ encore_entry_script_tags('app') }}
-        {% endblock %}
-        {% endif %}
-</body>
+	<head>
+		{% if app.request.pathInfo == '/' %}
+			<script src="https://cloud.ccm19.de/app.js?apiKey=932e21686a83961685f2bed1b8df4edbe72c1df40f872c34&amp;domain=6735fc1128bff9b1060bb0a2" referrerpolicy="origin"></script>
+		{% endif %}
+		{% if app.request.pathInfo == '/content/support' %}
+			<script src="https://desk.zoho.eu/portal/api/feedbackwidget/189051000000274310?orgId=20103009939&displayType=embeded"></script>
+		{% endif %}
+		{% if app.request.pathInfo == '/register' %}
+			<script src="https://www.google.com/recaptcha/api.js" async defer></script>
+		{% endif %}
+		{% if app.request.pathInfo starts with '/shop/payment' %}
+			<script src="https://gateway.sumup.com/gateway/ecom/card/v2/sdk.js"></script>
+		{% endif %}
+		<script async data-ccm-loader-src="https://www.googletagmanager.com/gtag/js?id=G-K4CZJW5359" type="text/x-ccm-loader" data-ccm-loader-group="google-analytics"></script>
+		<script type="text/x-ccm-loader" data-ccm-loader-group="google-analytics">
+			window.dataLayer = window.dataLayer || [];
+			          function gtag(){dataLayer.push(arguments);}
+			          gtag('js', new Date());
+			          gtag('config', 'G-K4CZJW5359');
+		</script>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+		<meta http-equiv="cache-control" content="no-cache"/>
+		{% block favicon %}<link rel="shortcut icon" href="{{ asset('favicon.ico') }}"/>
+		{% endblock %}
+		<title>
+			{% block title %}
+				{{ settings.get('site.title') }}
+			{% endblock %}
+		</title>
+		{% block stylesheets %}
+			<link rel="stylesheet" id="us-fonts-css" href="https://fonts.googleapis.com/css?family=Open+Sans%3A400%2C700%7CMontserrat+Alternates%3A700&amp;display=swap&amp;ver=6.6.2" media="all">
+			{{ encore_entry_link_tags('app') }}
+		{% endblock %}
+	</head>
+	<body>
+		{% if (settings.get('site.prepage.show') == "1" and not (app.request.pathInfo starts with '/admin' or app.request.pathInfo == '/login'))  %}
+			<div class="container mt-4">
+				{{ settings.get('site.prepage.text')|raw }}
+			</div>
+			<footer id="footer">
+				{% block sponsor %}
+					<div class="">
+						{% include 'site/components/sponsoring.html.twig' %}
+					</div>
+				{% endblock %}
+				{% block footer %}
+					<div class="">
+						{% include 'site/components/footer.html.twig' %}
+					</div>
+				{% endblock %}
+				{% block footbar %}
+					<div class="">
+						{% include 'site/components/footBar.html.twig' %}
+					</div>
+				{% endblock %}
+			</footer>
+		{% else %}
+			{% block body %}{% endblock %}
+			{% block javascripts %}
+				{{ encore_entry_script_tags('app') }}
+			{% endblock %}
+		{% endif %}
+	</body>
 </html>
