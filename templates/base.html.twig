@@ -31,9 +31,32 @@
         {% endblock %}
 </head>
     <body>
-        {% block body %}{% endblock %}
-        {% block javascripts %}
+          {% if settings.get('site.prepage.show') and not (is_granted('ROLE_ADMIN') and (app.request.pathInfo starts with '/admin' or app.request.pathInfo == '/login')) and not app.request.pathInfo starts with '/_' %}
+            <div class="container mt-4">
+                {{ settings.get('site.prepage.text')|raw }}
+            </div>
+             <footer id="footer">
+        {% block sponsor %}
+            <div class="">
+                {% include 'site/components/sponsoring.html.twig' %}
+            </div>
+        {% endblock %}
+        {% block footer %}
+            <div class="">
+                {% include 'site/components/footer.html.twig' %}
+            </div>
+        {% endblock %}
+        {% block footbar %}
+            <div class="">
+                {% include 'site/components/footBar.html.twig' %}
+            </div>
+        {% endblock %}
+    </footer>
+        {% else %}
+            {% block body %}{% endblock %}
+            {% block javascripts %}
             {{ encore_entry_script_tags('app') }}
         {% endblock %}
+        {% endif %}
 </body>
 </html>

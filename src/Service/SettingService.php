@@ -26,6 +26,8 @@ class SettingService
         'site.subtitle.show' => [self::TB_DESCRIPTION => 'Untertitel der Seite anzeigen', self::TB_TYPE => SettingType::Bool],
         'site.about' => [self::TB_DESCRIPTION => 'Über uns, Homepage links unten', self::TB_TYPE => SettingType::HTML],
         'site.organisation' => [self::TB_DESCRIPTION => 'Organisationsname / Vereinsname', self::TB_TYPE => SettingType::String],
+        'site.prepage.show' => [self::TB_DESCRIPTION => 'Vorschau der Seite anzeigen', self::TB_TYPE => SettingType::Bool],
+        'site.prepage.text' => [self::TB_DESCRIPTION => 'Text der Vorschau-Seite', self::TB_TYPE => SettingType::HTML],
 
         'sponsor.enabled' => [self::TB_DESCRIPTION => 'Sponsorenbanner einschalten', self::TB_TYPE => SettingType::Bool],
         'sponsor.banner.show' => [self::TB_DESCRIPTION => 'Sponsoren-Banner anzeigen', self::TB_TYPE => SettingType::Bool],
