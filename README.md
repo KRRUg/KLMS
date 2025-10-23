@@ -1,23 +1,57 @@
-<p align="center"><img src="assets/images/logo.svg" alt="Logo"></p>
-<h3 align="center">KRRU LAN-Party Management System</h3>
+<p align="center"><img src="assets/images/logo-black.png" alt="Logo"></p>
 
-CMS (Content management system) for LAN-Parties. Everything you need to present and manage your event in a modern design.
+Rep der Website der **Days of Thunder LAN (DoT-LAN)** – entwickelt auf Basis des [KRRU LAN-Party Management Systems (KLMS)](https://github.com/KRRU/klms).  
+Dieses Repository dient als Frontend- und Content-Plattform für die aktuelle sowie kommende Veranstaltungsausgabe.
+
+---
+
+## Über das Projekt
+
+Dieses Repository enthält die Web-Instanz der **DoT-LAN**, einer der traditionsreichsten LAN-Partys in Österreich und deren Verein **LANBUDDYs**.
+Die Seite bietet Informationen rund um das Event, Sponsoren, Turniere, Tickets und aktuelle News.
+
+Die technische Grundlage stammt vom **[KRRU LAN-Party Management System](https://github.com/KRRU/klms)**, das von uns an das Branding, die Inhalte und Abläufe der DoT-LAN angepasst wurde.
+
+---
 
 ## Features
 
-KLMS helps you with
- - **Present your event** With news-posts, content pages, and team-sites, you can present your event in an appealing and modern design. Dynamic navigation allows you to structure your site however _you_ want.
- - **Registration, Payment, and Check-In Support** Keep to date with who is attending your event.
- - **Seatmap** Create a seatmap for your event. Your guests can choose their favorite seat.
- - **Tournament System** Keep track of your tournaments. KLMS got you covered with all steps including registration, seeding, and result tracking. To keep the overview, the process is presented in tournament trees.
- - **Community Management** Who else is attending your event? Who is your audience? KLMS allows you to store your user-base in a central location for all your events.
- - **E-Mail Newsletter** Keep your audience up-to-date with Newsletters. Send E-Mails to all your customers or specific groups.
+KLMS bietet:
+- **Event-Präsentation** – News, Sponsoren, Turniere, Teamvorstellungen und mehr, alles in einem modernen Design.  
+- **Anmeldung & Tickets** – Direkte Registrierung und Ticketbuchung für Teilnehmer:innen.  
+- **Sitzplan** – Intuitive Sitzplatzwahl direkt auf der Website.  
+- **Turnierverwaltung** – Übersicht über alle Wettbewerbe, Anmeldungen und Ergebnisse.  
+- **Community & Partnerseiten** – Vorstellung unserer Streamer, Sponsoren und Partner.  
+- **Newsletter-System** – Immer auf dem Laufenden bleiben über aktuelle News und Aktionen.
 
-KLMS is
- - **modern** Using up-to-date technology stacks (Symfony and Bootstrap).
- - **open source** Licensed under [GPLv3](LICENSE).
- - **actively maintained** and in use for multiple events.
- - currently German only. Internationalisation support including an English translation is coming up.
+Es wurde von uns erweitert um:
 
-## Setup
-Setup instructions and system requirements can be found in our [setup documentation](SETUP.md).
+- **Clan-Discount** – Die Möglichkeit bei Clans einen speziellen Preis zu hinterlegen. 
+- **SumUp Integration** – Zahlungsfunktion via **[SumUp](www.sumup.com)**.
+- **Bildergallerie** – Bilder von vergangenen Veranstaltungen anzeigen.
+
+---
+
+## Technologie
+
+Basierend auf dem **Symfony Framework** und **Bootstrap**.  
+Daten und Logik stammen aus dem KRRU-Kernsystem.
+
+---
+
+## Lizenz
+
+Dieses Projekt basiert auf dem [KRRU LAN-Party Management System (KLMS)](https://github.com/KRRU/klms)  
+und steht wie das Original unter der [GPLv3 Lizenz](LICENSE).
+
+---
+
+## Mitwirkende
+
+- **LANBUDDYS Verein für Gamingkultur & E-Sport** – Veranstalter der DoT-LAN  
+- **KRRU Team** – Entwickler und Maintainer des ursprünglichen Systems  
+- **Community & Partner** – Unterstützung durch Sponsoren, Streamer und Gamer:innen  
+
+---
+
+<p align="center"><em>„LAN on!“ – Wir sehen uns auf der DoT-LAN 2k26!</em></p>
