@@ -1,0 +1,127 @@
+{% extends 'admin/adminBase.html.twig' %}
+
+{% block title %}KLMS - Admin{% endblock %}
+{% block siteheading %}<i class="fas fa-images fa-fw"></i> Bild bearbeiten{% endblock %}
+
+{% block main %}
+<div class="container-fluid mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+     
+                <div class="card-body">
+                    {% for message in app.flashes('success') %}
+                        <div class="alert alert-success alert-dismissible fade show" role="alert">
+                            <i class="fas fa-check-circle me-2"></i>{{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    {% endfor %}
+
+                    <div class="row">
+                        <!-- Bild-Vorschau -->
+                        <div class="col-md-5">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5 class="mb-0">
+                                        <i class="fas fa-image me-2"></i> Vorschau
+                                    </h5>
+                                </div>
+                                <div class="card-body text-center">
+                                    <img src="{{ galleryImage.getImagePath()|imagine_filter('gallery_thumb') }}" 
+                                         alt="{{ galleryImage.title ?? 'Bild' }}"
+                                         class="img-fluid rounded shadow-sm"
+                                         style="max-height: 300px;">
+                                    
+                                    <div class="mt-3">
+                                        <a href="{{ galleryImage.getImagePath() }}" 
+                                           target="_blank" 
+                                           class="btn btn-outline-primary btn-sm">
+                                            <i class="fas fa-external-link-alt me-1"></i> Vollbild öffnen
+                                        </a>
+                                    </div>
+                                    
+                                    <div class="mt-3 text-muted small">
+                                        <p class="mb-1">
+                                            <i class="fas fa-calendar me-1"></i>
+                                            Erstellt: {{ galleryImage.createdAt|date('d.m.Y H:i') }}
+                                        </p>
+                                        {% if galleryImage.updatedAt %}
+                                            <p class="mb-1">
+                                                <i class="fas fa-edit me-1"></i>
+                                                Aktualisiert: {{ galleryImage.updatedAt|date('d.m.Y H:i') }}
+                                            </p>
+                                        {% endif %}
+                                        <p class="mb-0">
+                                            <i class="fas fa-fingerprint me-1"></i>
+                                            ID: {{ galleryImage.uuid|slice(0, 8) }}...
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Bearbeitung-Formular -->
+                        <div class="col-md-7">
+                            {{ form_start(form, {'attr': {'class': 'needs-validation', 'novalidate': true}}) }}
+                            
+                            <div class="mb-3">
+                                {{ form_label(form.event, null, {'label_attr': {'class': 'form-label'}}) }}
+                                {{ form_widget(form.event, {'attr': {'class': 'form-control'}}) }}
+                                <div class="form-text">
+                                    Event-Name in kebab-case (z.B. "lan-party-2023")
+                                </div>
+                                {{ form_errors(form.event) }}
+                            </div>
+
+                            <div class="mb-3">
+                                {{ form_label(form.title, null, {'label_attr': {'class': 'form-label'}}) }}
+                                {{ form_widget(form.title, {'attr': {'class': 'form-control', 'placeholder': 'Aussagekräftiger Titel für das Bild'}}) }}
+                                <div class="form-text">
+                                    Titel wird in der Lightbox und als Alt-Text verwendet
+                                </div>
+                                {{ form_errors(form.title) }}
+                            </div>
+
+                            <div class="mb-4">
+                                {{ form_label(form.description, null, {'label_attr': {'class': 'form-label'}}) }}
+                                {{ form_widget(form.description, {'attr': {'class': 'form-control', 'placeholder': 'Optionale Beschreibung des Bildes...'}}) }}
+                                <div class="form-text">
+                                    Beschreibung wird in der Lightbox unter dem Bild angezeigt
+                                </div>
+                                {{ form_errors(form.description) }}
+                            </div>
+                            
+                            		<div class="float-right">
+			<a class="btn btn-secondary" href="{{ path('admin_gallery') }}">Abbrechen</a>
+			{{ form_widget(form.submit, {'attr': {'class': 'btn btn-primary'}}) }}
+		</div>
+
+
+                            {{ form_end(form) }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Form validation
+    (function() {
+        'use strict';
+        window.addEventListener('load', function() {
+            var forms = document.getElementsByClassName('needs-validation');
+            var validation = Array.prototype.filter.call(forms, function(form) {
+                form.addEventListener('submit', function(event) {
+                    if (form.checkValidity() === false) {
+                        event.preventDefault();
+                        event.stopPropagation();
+                    }
+                    form.classList.add('was-validated');
+                }, false);
+            });
+        }, false);
+    })();
+</script>
+{% endblock %}

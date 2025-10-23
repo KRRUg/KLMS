@@ -1,0 +1,106 @@
+{% extends 'admin/adminBase.html.twig' %}
+
+{% block title %}KLMS - Admin{% endblock %}
+{% block siteheading %}<i class="fas fa-images fa-fw"></i> Einzelbild hochladen{% endblock %}
+
+{% block main %}
+<div class="container-fluid mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-body">
+                    {% for message in app.flashes('success') %}
+                        <div class="alert alert-success alert-dismissible fade show" role="alert">
+                            <i class="fas fa-check-circle me-2"></i>{{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    {% endfor %}
+
+                    {{ form_start(form, {'attr': {'class': 'needs-validation', 'novalidate': true}}) }}
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                {{ form_label(form.event, null, {'label_attr': {'class': 'form-label'}}) }}
+                                {{ form_widget(form.event, {'attr': {'class': 'form-control'}}) }}
+                                <div class="form-text">
+                                    Verwenden Sie kebab-case (z.B. "lan-party-2023")
+                                </div>
+                                {{ form_errors(form.event) }}
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                {{ form_label(form.title, null, {'label_attr': {'class': 'form-label'}}) }}
+                                {{ form_widget(form.title, {'attr': {'class': 'form-control'}}) }}
+                                {{ form_errors(form.title) }}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        {{ form_label(form.description, null, {'label_attr': {'class': 'form-label'}}) }}
+                        {{ form_widget(form.description, {'attr': {'class': 'form-control'}}) }}
+                        {{ form_errors(form.description) }}
+                    </div>
+
+                    <div class="mb-4">
+                        {{ form_label(form.imageFile, null, {'label_attr': {'class': 'form-label'}}) }}
+                        {{ form_widget(form.imageFile, {'attr': {'class': 'form-control', 'accept': 'image/*'}}) }}
+                        <div class="form-text">
+                            Unterstützte Formate: JPEG, PNG, GIF, WebP. Maximale Dateigröße: 10MB
+                        </div>
+                        {{ form_errors(form.imageFile) }}
+                    </div>
+                    
+                     <div class="float-right">
+            <a class="btn btn-secondary" href="{{ path('admin_gallery') }}">Abbrechen</a>
+             {{ form_widget(form.submit, {'attr': {'class': 'btn btn-primary'}}) }}
+        </div>
+
+                   
+
+                    {{ form_end(form) }}
+                </div>
+            </div>
+
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-info-circle me-2"></i>
+                        Hinweise zum Upload
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <ul class="mb-0">
+                        <li><strong>Event-Name:</strong> Verwenden Sie konsistente Namen für Events (z.B. "lan-party-2023")</li>
+                        <li><strong>Ordnerstruktur:</strong> Bilder werden automatisch in /public/images/gallery/[event-name]/ gespeichert</li>
+                        <li><strong>Thumbnails:</strong> Werden automatisch generiert</li>
+                        <li><strong>Dateiformate:</strong> JPEG, PNG, GIF und WebP werden unterstützt</li>
+                        <li><strong>Dateigröße:</strong> Maximum 10MB pro Bild</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Form validation
+    (function() {
+        'use strict';
+        window.addEventListener('load', function() {
+            var forms = document.getElementsByClassName('needs-validation');
+            var validation = Array.prototype.filter.call(forms, function(form) {
+                form.addEventListener('submit', function(event) {
+                    if (form.checkValidity() === false) {
+                        event.preventDefault();
+                        event.stopPropagation();
+                    }
+                    form.classList.add('was-validated');
+                }, false);
+            });
+        }, false);
+    })();
+</script>
+{% endblock %}

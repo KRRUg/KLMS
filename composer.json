@@ -19,7 +19,7 @@
         "doctrine/orm": "^2.13",
         "eko/feedbundle": "^2.1",
         "excelwebzone/recaptcha-bundle": "^1.5",
-        "liip/imagine-bundle": "^2.3",
+        "liip/imagine-bundle": "^2.15",
         "nyholm/psr7": "^1.2",
         "phpdocumentor/reflection-docblock": "^5.1",
         "ramsey/uuid": "^4.0",
@@ -52,7 +52,7 @@
         "twig/intl-extra": "^3.2",
         "twig/string-extra": "^3.0",
         "twig/twig": "^2.12|^3.0",
-        "vich/uploader-bundle": "2.0.*",
+        "vich/uploader-bundle": "^2.8",
         "wa72/url": "^0.7.1"
     },
     "require-dev": {

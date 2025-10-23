@@ -20,6 +20,9 @@
                     <li class="nav-item">
                         <a class="nav-link {% if app.request.get('_route') starts with 'admin_media' %}active{% endif %}" href="{{ path('admin_media') }}"><i class="far fa-file-image fa-fw"></i> Media </a>
                     </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if app.request.get('_route') starts with 'admin_gallery' %}active{% endif %}" href="{{ path('admin_gallery') }}"><i class="fas fa-images fa-fw"></i> Galerie </a>
+                    </li>
                 {% endif %}
                 {% if is_granted('ROLE_ADMIN_CONTENT') %}
                     <li class="nav-item">

@@ -1,0 +1,154 @@
+{% extends 'admin/adminBase.html.twig' %}
+
+{% block title %}KLMS - Admin{% endblock %}
+{% block siteheading %}<i class="fas fa-images fa-fw"></i> Gallery{% endblock %}
+
+{% block main %}
+<div class="container-fluid mt-4">
+    <div class="row">
+
+        
+
+        <div class="col-12">
+            <a href="{{ path('admin_gallery_upload') }}" class="btn btn-success">
+                        <i class="fas fa-upload me-2"></i> Einzel Upload
+                    </a>
+                    <a href="{{ path('admin_gallery_bulk_upload') }}" class="btn btn-success">
+                        <i class="fas fa-cloud-upload me-2"></i> Mehrfach Upload
+                    </a>
+                </div>
+
+      
+
+            {% for message in app.flashes('success') %}
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    <i class="fas fa-check-circle me-2"></i>{{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            {% endfor %}
+
+            {% if photosByEvent is empty %}
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle me-2"></i>
+                    Noch keine Bilder in der Galerie vorhanden.
+                    <a href="{{ path('admin_gallery_upload') }}" class="btn btn-sm btn-primary ms-3">
+                        Jetzt Bilder hochladen
+                    </a>
+                </div>
+            {% else %}
+                <div class="row">
+                    <div class="col-md-3">
+                        <div class="card  ml-3">
+                            <div class="card-header">
+                                <h5 class="mb-0">Events</h5>
+                            </div>
+                            <div class="list-group list-group-flush">
+                                <button type="button" class="list-group-item list-group-item-action active" onclick="showAllEvents()">
+                                    <i class="fas fa-images me-2"></i>Alle Events
+                                    <span class="badge bg-primary rounded-pill float-end">
+                                        {{ photosByEvent|reduce((carry, photos) => carry + photos|length, 0) }}
+                                    </span>
+                                </button>
+                                {% for event in events %}
+                                    <button type="button" class="list-group-item list-group-item-action" onclick="showEvent('{{ event }}')">
+                                        <i class="fas fa-calendar-alt me-2"></i>{{ event|replace({'-': ' '})|title }}
+                                        <span class="badge bg-secondary rounded-pill float-end">
+                                            {{ photosByEvent[event]|length }}
+                                        </span>
+                                    </button>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-9">
+                        {% for event, photos in photosByEvent %}
+                            <div class="event-section" data-event="{{ event }}">
+                                <h3 class="mb-3">
+                                    {{ event|replace({'-': ' '})|title }}
+                                    <small class="text-muted">({{ photos|length }} Bilder)</small>
+                                </h3>
+                                
+                                <div class="row g-3">
+                                    {% for photo in photos %}
+                                        <div class="col-6 col-md-4 col-lg-3">
+                                            <div class="card">
+                                                <img src="{{ photo.getImagePath()|imagine_filter('gallery_thumb') }}"
+                                                     alt="{{ photo.title ?? 'Bild ' ~ photo.uuid }}"
+                                                     class="card-img-top"
+                                                     style="height: 150px; object-fit: cover;">
+                                                <div class="card-body p-2">
+                                                    {% if photo.title %}
+                                                        <h6 class="card-title small mb-1">{{ photo.title }}</h6>
+                                                    {% endif %}
+                                                    <p class="card-text small text-muted mb-2">
+                                                        <i class="fas fa-calendar me-1"></i> {{ photo.createdAt|date('d.m.Y H:i') }}
+                                                    </p>
+                                                    <div class="btn-group w-100" role="group">
+                                                        <a href="{{ photo.getImagePath() }}" 
+                                                           target="_blank" 
+                                                           class="btn btn-outline-primary btn-sm"
+                                                           title="Anschauen">
+                                                            <i class="fas fa-eye"></i>
+                                                        </a>
+                                                        <a href="{{ path('admin_gallery_edit', {'uuid': photo.uuid}) }}" 
+                                                           class="btn btn-outline-primary btn-sm"
+                                                           title="Bearbeiten">
+                                                            <i class="fas fa-edit"></i>
+                                                        </a>
+                                                        <form method="post" 
+                                                              action="{{ path('admin_gallery_delete', {'uuid': photo.uuid}) }}"
+                                                              onsubmit="return confirm('Bild wirklich löschen?')"
+                                                              class="d-inline">
+                                                            <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ photo.uuid) }}">
+                                                            <button type="submit" class="btn btn-outline-danger btn-sm"
+                                                                    title="Löschen">
+                                                                <i class="fas fa-trash"></i>
+                                                            </button>
+                                                        </form>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                                <hr class="my-4">
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<script>
+    function showAllEvents() {
+        document.querySelectorAll('.event-section').forEach(section => {
+            section.style.display = 'block';
+        });
+        setActiveButton('all');
+    }
+
+    function showEvent(eventName) {
+        document.querySelectorAll('.event-section').forEach(section => {
+            if (section.dataset.event === eventName) {
+                section.style.display = 'block';
+            } else {
+                section.style.display = 'none';
+            }
+        });
+        setActiveButton(eventName);
+    }
+
+    function setActiveButton(activeEvent) {
+        document.querySelectorAll('.list-group-item').forEach(btn => {
+            btn.classList.remove('active');
+            if ((activeEvent === 'all' && btn.textContent.includes('Alle Events')) ||
+                (btn.textContent.toLowerCase().includes(activeEvent.replace(/-/g, ' ').toLowerCase()))) {
+                btn.classList.add('active');
+            }
+        });
+    }
+</script>
+{% endblock %}
