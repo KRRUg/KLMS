@@ -1,0 +1,119 @@
+{% extends 'site/siteBase.html.twig' %}
+
+{% block title %}Galerie - {{ parent() }}{% endblock %}
+
+{% block main %}
+<div class="container my-5">
+    <div class="row">
+        <div class="col-12">
+            <h1 class="text-center">
+                Galerie
+            </h1>
+            <p>Taucht ein in die Highlights vergangener Events! Hier findet ihr eine kleine Auswahl an Bildern, die die Atmosphäre, die Begeisterung und die besten Momente der DoT-LANs einfangen. Lasst euch inspirieren und freut euch auf das nächste Event!</p>
+            
+            {% if photosByEvent is empty %}
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle me-2"></i>
+                    Noch keine Bilder in der Galerie vorhanden.
+                </div>
+            {% else %}
+                {# Event Navigation #}
+                <div class="mb-4">
+                    <div class="row">
+                        <div class="col-md-8">
+                            <div class="btn-group" role="group" aria-label="Event Navigation">
+                                <button type="button" class="btn btn-outline-primary active" onclick="showAllEvents()">
+                                    Alle Events
+                                </button>
+                                {% for event in events %}
+                                    <button type="button" class="btn btn-outline-primary" onclick="showEvent('{{ event }}')">
+                                        {{ event|replace({'-': ' '})|title }}
+                                    </button>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {# Images by Event #}
+                {% for event, photos in photosByEvent %}
+                    <div class="event-section" data-event="{{ event }}">
+                        <h2 class="h3 mb-4">
+                            <i class="fas fa-calendar-alt me-2"></i>
+                            {{ event|replace({'-': ' '})|title }}
+                            <small class="text-muted">({{ photos|length }} Bilder)</small>
+                        </h2>
+                        
+                        <div class="row g-3 mb-5">
+                            {% for photo in photos %}
+                                <div class="col-6 col-md-4 col-lg-3 mb-4">
+                                    <div class="card border-0">
+                                        <a href="{{ photo.getImagePath() }}" 
+                                           class="glightbox" 
+                                           data-gallery="{{ event }}"
+                                           data-title="{{ photo.title ?? ''  }}"
+                                           data-description="{{ photo.description ?? '' }}">
+                                            <img src="{{ photo.getImagePath()|imagine_filter('gallery_thumb') }}"
+                                                 alt="{{ photo.title ?? 'Bild'}}"
+                                                 class="card-img-top"
+                                                 loading="lazy"
+                                                 style="height: 200px; object-fit: cover;">
+                                        </a>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    
+    {# GLightbox CSS and JS #}
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/glightbox/dist/css/glightbox.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/glightbox/dist/js/glightbox.min.js"></script>
+    
+    <script>
+        // Initialize GLightbox
+        const lightbox = GLightbox({
+            touchNavigation: true,
+            loop: true,
+            autoplayVideos: false
+        });
+
+        // Event filtering
+        function showAllEvents() {
+            document.querySelectorAll('.event-section').forEach(section => {
+                section.style.display = 'block';
+            });
+            setActiveButton('Alle Events');
+        }
+
+        function showEvent(eventName) {
+            document.querySelectorAll('.event-section').forEach(section => {
+                if (section.dataset.event === eventName) {
+                    section.style.display = 'block';
+                } else {
+                    section.style.display = 'none';
+                }
+            });
+            setActiveButton(eventName);
+        }
+
+        function setActiveButton(activeEvent) {
+            document.querySelectorAll('.btn-group .btn').forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.textContent.trim() === 'Alle Events' && activeEvent === 'Alle Events') {
+                    btn.classList.add('active');
+                } else if (btn.textContent.trim().toLowerCase() === activeEvent.replace(/-/g, ' ').toLowerCase()) {
+                    btn.classList.add('active');
+                }
+            });
+        }
+    </script>
+{% endblock %}

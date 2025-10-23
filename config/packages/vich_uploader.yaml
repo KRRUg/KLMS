@@ -48,6 +48,17 @@ vich_uploader:
             delete_on_update: true
             delete_on_remove: true
 
+        gallery:
+            uri_prefix: /images/gallery
+            upload_destination: '%kernel.project_dir%/public/images/gallery'
+            namer: Vich\UploaderBundle\Naming\SmartUniqueNamer
+            directory_namer:
+                service: Vich\UploaderBundle\Naming\PropertyDirectoryNamer
+                options: { property: 'event' }
+            inject_on_load: false
+            delete_on_update: true
+            delete_on_remove: true
+
 # set different upload destination for testing
 when@test:
     vich_uploader:
@@ -62,3 +73,5 @@ when@test:
                 upload_destination: '%kernel.cache_dir%/vich_data/images/site'
             sponsor:
                 upload_destination: '%kernel.cache_dir%/vich_data/images/sponsor'
+            gallery:
+                upload_destination: '%kernel.cache_dir%/vich_data/images/gallery'

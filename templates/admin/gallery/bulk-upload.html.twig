@@ -1,0 +1,338 @@
+{% extends 'admin/adminBase.html.twig' %}
+
+{% block title %}KLMS - Admin{% endblock %}
+{% block siteheading %}<i class="fas fa-images fa-fw"></i> Mehrere Bilder hochladen{% endblock %}
+
+{% block main %}
+<div class="container-fluid mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-10">
+            <div class="card">
+                <div class="card-body">
+                    <form id="bulkUploadForm" enctype="multipart/form-data">
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                <label for="eventSelect" class="form-label">Event auswählen</label>
+                                <div class="input-group">
+                                    <select id="eventSelect" name="event" class="form-select" required>
+                                        <option value="">-- Event auswählen --</option>
+                                        {% for event in events %}
+                                            <option value="{{ event }}">{{ event }}</option>
+                                        {% endfor %}
+                                    </select>
+                                    <button type="button" class="btn btn-outline-secondary ml-2" id="newEventBtn">
+                                        <i class="fas fa-plus"></i> Neues Event
+                                    </button>
+                                </div>
+                                <div class="form-text">
+                                    Vorhandenes Event wählen oder ein neues erstellen.
+                                </div>
+                            </div>
+                            <div class="col-md-6" id="newEventField" style="display: none;">
+                                <label for="newEvent" class="form-label">Neuer Event-Name</label>
+                                <input type="text" id="newEvent" class="form-control" placeholder="z.B. lan-party-2023">
+                                <div class="form-text">
+                                    Verwenden Sie kebab-case (Kleinbuchstaben mit Bindestrichen)
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Drag & Drop Area -->
+                        <div class="mb-4">
+                            <div id="dropZone" class="border border-2 border-dashed border-primary rounded p-5 text-center bg-light">
+                                <i class="fas fa-cloud-upload-alt fa-3x text-primary mb-3"></i>
+                                <h4>Bilder hierher ziehen oder klicken zum Auswählen</h4>
+                                <p class="text-muted">
+                                    Unterstützte Formate: JPEG, PNG, GIF, WebP<br>
+                                    Maximale Dateigröße: 10MB pro Bild<br>
+                                    Bis zu 100+ Bilder gleichzeitig möglich
+                                </p>
+                                <input type="file" id="fileInput" name="images[]" multiple accept="image/*" style="display: none;">
+                                <button type="button" class="btn btn-primary" id="selectFilesBtn">
+                                    <i class="fas fa-folder-open me-2"></i>Bilder auswählen
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Selected Files List -->
+                        <div id="filesList" class="mb-4" style="display: none;">
+                            <h5><i class="fas fa-images me-2"></i>Ausgewählte Bilder <span id="fileCount" class="badge bg-primary">0</span></h5>
+                            <div id="filesContainer" class="row g-2" style="max-height: 300px; overflow-y: auto;">
+                                <!-- Files will be added here dynamically -->
+                            </div>
+                        </div>
+
+                        <!-- Progress Bar -->
+                        <div id="uploadProgress" class="mb-4" style="display: none;">
+                            <h5><i class="fas fa-spinner fa-spin me-2"></i>Upload läuft...</h5>
+                            <div class="progress mb-2">
+                                <div id="progressBar" class="progress-bar progress-bar-striped progress-bar-animated" 
+                                     role="progressbar" style="width: 0%"></div>
+                            </div>
+                            <div id="progressText" class="text-center">0 / 0 Bilder hochgeladen</div>
+                        </div>
+
+                        <!-- Results -->
+                        <div id="uploadResults" style="display: none;">
+                            <!-- Results will be shown here -->
+                        </div>
+                        
+                         <div class="float-right">
+                         <a class="btn btn-secondary" href="{{ path('admin_gallery') }}">Abbrechen / Zurück</a>
+      <button type="button" id="clearBtn" class="btn-secondary btn" disabled>
+                                <i class="fas fa-trash me-2"></i> Auswahl löschen
+                            </button>
+                            <button type="submit" id="uploadBtn" class="btn-primary btn" disabled>
+                                <i class="fas fa-cloud-upload-alt me-2"></i> Alle hochladen
+                            </button>
+        </div>
+
+                        
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const dropZone = document.getElementById('dropZone');
+    const fileInput = document.getElementById('fileInput');
+    const selectFilesBtn = document.getElementById('selectFilesBtn');
+    const eventSelect = document.getElementById('eventSelect');
+    const newEventBtn = document.getElementById('newEventBtn');
+    const newEventField = document.getElementById('newEventField');
+    const newEventInput = document.getElementById('newEvent');
+    const filesList = document.getElementById('filesList');
+    const filesContainer = document.getElementById('filesContainer');
+    const fileCount = document.getElementById('fileCount');
+    const clearBtn = document.getElementById('clearBtn');
+    const uploadBtn = document.getElementById('uploadBtn');
+    const uploadProgress = document.getElementById('uploadProgress');
+    const progressBar = document.getElementById('progressBar');
+    const progressText = document.getElementById('progressText');
+    const uploadResults = document.getElementById('uploadResults');
+    const form = document.getElementById('bulkUploadForm');
+
+    let selectedFiles = [];
+
+    // Event handlers
+    selectFilesBtn.addEventListener('click', () => fileInput.click());
+    
+    newEventBtn.addEventListener('click', function() {
+        if (newEventField.style.display === 'none') {
+            newEventField.style.display = 'block';
+            newEventBtn.innerHTML = '<i class="fas fa-times"></i> Abbrechen';
+            eventSelect.disabled = true;
+            eventSelect.value = '';
+        } else {
+            newEventField.style.display = 'none';
+            newEventBtn.innerHTML = '<i class="fas fa-plus"></i> Neues Event';
+            eventSelect.disabled = false;
+            newEventInput.value = '';
+        }
+        updateUploadButton();
+    });
+
+    eventSelect.addEventListener('change', updateUploadButton);
+    newEventInput.addEventListener('input', updateUploadButton);
+
+    clearBtn.addEventListener('click', function() {
+        selectedFiles = [];
+        fileInput.value = '';
+        updateFilesList();
+        updateUploadButton();
+    });
+
+    // Drag & Drop handlers
+    dropZone.addEventListener('dragover', function(e) {
+        e.preventDefault();
+        dropZone.classList.add('border-success');
+    });
+
+    dropZone.addEventListener('dragleave', function(e) {
+        e.preventDefault();
+        dropZone.classList.remove('border-success');
+    });
+
+    dropZone.addEventListener('drop', function(e) {
+        e.preventDefault();
+        dropZone.classList.remove('border-success');
+        
+        const files = Array.from(e.dataTransfer.files).filter(file => 
+            file.type.startsWith('image/')
+        );
+        
+        addFiles(files);
+    });
+
+    fileInput.addEventListener('change', function(e) {
+        addFiles(Array.from(e.target.files));
+    });
+
+    // Form submission
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        uploadFiles();
+    });
+
+    function addFiles(files) {
+        files.forEach(file => {
+            if (file.type.startsWith('image/') && !selectedFiles.find(f => f.name === file.name && f.size === file.size)) {
+                selectedFiles.push(file);
+            }
+        });
+        updateFilesList();
+        updateUploadButton();
+    }
+
+    function updateFilesList() {
+        if (selectedFiles.length === 0) {
+            filesList.style.display = 'none';
+            return;
+        }
+
+        filesList.style.display = 'block';
+        fileCount.textContent = selectedFiles.length;
+        
+        filesContainer.innerHTML = '';
+        selectedFiles.forEach((file, index) => {
+            const fileElement = document.createElement('div');
+            fileElement.className = 'col-md-3';
+            fileElement.innerHTML = `
+                <div class="card">
+                    <div class="card-body p-2">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <small class="text-truncate me-2" title="${file.name}">${file.name}</small>
+                            <button type="button" class="btn btn-sm btn-outline-danger" onclick="removeFile(${index})">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                        <small class="text-muted">${(file.size / 1024 / 1024).toFixed(2)} MB</small>
+                    </div>
+                </div>
+            `;
+            filesContainer.appendChild(fileElement);
+        });
+
+        clearBtn.disabled = selectedFiles.length === 0;
+    }
+
+    function updateUploadButton() {
+        const hasEvent = eventSelect.value || newEventInput.value.trim();
+        const hasFiles = selectedFiles.length > 0;
+        uploadBtn.disabled = !hasEvent || !hasFiles;
+    }
+
+    function uploadFiles() {
+        if (selectedFiles.length === 0) return;
+
+        const eventName = newEventInput.value.trim() || eventSelect.value;
+        if (!eventName) return;
+
+        uploadProgress.style.display = 'block';
+        uploadBtn.disabled = true;
+        clearBtn.disabled = true;
+
+        const formData = new FormData();
+        formData.append('event', eventName);
+        
+        selectedFiles.forEach(file => {
+            formData.append('images[]', file);
+        });
+
+        let uploaded = 0;
+        const total = selectedFiles.length;
+
+        // Simulate progress (since we can't track individual file progress easily)
+        const progressInterval = setInterval(() => {
+            if (uploaded < total) {
+                const progress = (uploaded / total) * 100;
+                progressBar.style.width = progress + '%';
+                progressText.textContent = `${uploaded} / ${total} Bilder hochgeladen`;
+            }
+        }, 100);
+
+        fetch('{{ path("admin_gallery_bulk_upload") }}', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            clearInterval(progressInterval);
+            
+            progressBar.style.width = '100%';
+            progressText.textContent = `Upload abgeschlossen`;
+            
+            let resultHtml = '';
+            if (data.success) {
+                resultHtml += `
+                    <div class="alert alert-success">
+                        <i class="fas fa-check-circle me-2"></i>
+                        <strong>Erfolgreich!</strong> ${data.uploaded} Bilder wurden hochgeladen.
+                    </div>
+                `;
+                
+                if (data.errors && data.errors.length > 0) {
+                    resultHtml += `
+                        <div class="alert alert-warning">
+                            <i class="fas fa-exclamation-triangle me-2"></i>
+                            <strong>Warnungen:</strong>
+                            <ul class="mb-0 mt-2">
+                    `;
+                    data.errors.forEach(error => {
+                        resultHtml += `<li>${error}</li>`;
+                    });
+                    resultHtml += `</ul></div>`;
+                }
+
+                // Reset form after success
+                setTimeout(() => {
+                    selectedFiles = [];
+                    fileInput.value = '';
+                    updateFilesList();
+                    uploadProgress.style.display = 'none';
+                    uploadBtn.disabled = false;
+                    clearBtn.disabled = false;
+                    updateUploadButton();
+                }, 2000);
+            } else {
+                resultHtml = `
+                    <div class="alert alert-danger">
+                        <i class="fas fa-times-circle me-2"></i>
+                        <strong>Fehler:</strong> ${data.error || 'Upload fehlgeschlagen'}
+                    </div>
+                `;
+                uploadBtn.disabled = false;
+                clearBtn.disabled = false;
+            }
+            
+            uploadResults.innerHTML = resultHtml;
+            uploadResults.style.display = 'block';
+        })
+        .catch(error => {
+            clearInterval(progressInterval);
+            console.error('Upload error:', error);
+            
+            uploadResults.innerHTML = `
+                <div class="alert alert-danger">
+                    <i class="fas fa-times-circle me-2"></i>
+                    <strong>Fehler:</strong> Netzwerkfehler beim Upload
+                </div>
+            `;
+            uploadResults.style.display = 'block';
+            uploadBtn.disabled = false;
+            clearBtn.disabled = false;
+        });
+    }
+
+    // Make removeFile globally accessible
+    window.removeFile = function(index) {
+        selectedFiles.splice(index, 1);
+        updateFilesList();
+        updateUploadButton();
+    };
+});
+</script>
+{% endblock %}
