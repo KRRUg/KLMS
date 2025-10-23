@@ -1,6 +1,6 @@
 <p align="center"><img src="assets/images/logo-black.png" alt="Logo"></p>
 
-Rep der Website der **Days of Thunder LAN (DoT-LAN)** – entwickelt auf Basis des [KRRU LAN-Party Management Systems (KLMS)](https://github.com/KRRU/klms).  
+Repo der Website der **Days of Thunder LAN (DoT-LAN)** – entwickelt auf Basis des [KRRU LAN-Party Management Systems (KLMS)](https://github.com/KRRU/klms).  
 Dieses Repository dient als Frontend- und Content-Plattform für die aktuelle sowie kommende Veranstaltungsausgabe.
 
 ---
@@ -27,7 +27,7 @@ KLMS bietet:
 Es wurde von uns erweitert um:
 
 - **Clan-Discount** – Die Möglichkeit bei Clans einen speziellen Preis zu hinterlegen. 
-- **SumUp Integration** – Zahlungsfunktion via **[SumUp](www.sumup.com)**.
+- **SumUp Integration** – Zahlungsfunktion via **[SumUp](https://www.sumup.com)**.
 - **Bildergallerie** – Bilder von vergangenen Veranstaltungen anzeigen.
 
 ---
