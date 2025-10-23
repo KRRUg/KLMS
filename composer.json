@@ -26,6 +26,7 @@
         "ramsey/uuid-doctrine": "^1.6",
         "sensio/framework-extra-bundle": "^6.2",
         "sentry/sentry-symfony": "^4.4",
+        "sumup/sumup-ecom-php-sdk": "^1.2",
         "symfony/asset": "5.4.*",
         "symfony/console": "5.4.*",
         "symfony/dom-crawler": "5.4.*",

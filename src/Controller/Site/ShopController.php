@@ -4,13 +4,16 @@ namespace App\Controller\Site;
 
 use App\Entity\ShopAddon;
 use App\Entity\ShopOrder;
+use App\Entity\ShopOrderStatus;
 use App\Entity\User;
 use App\Exception\OrderLifecycleException;
 use App\Form\CheckoutType;
 use App\Service\SettingService;
 use App\Service\ShopService;
+use App\Service\SumupService;
 use App\Service\TicketService;
 use Psr\Log\LoggerInterface;
+use Ramsey\Uuid\Uuid;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -24,16 +27,20 @@ class ShopController extends AbstractController
 {
     private readonly TicketService $ticketService;
     private readonly ShopService $shopService;
+    private readonly SumupService $sumupService;
     private readonly SettingService $settingService;
     private readonly LoggerInterface $logger;
 
-    public function __construct(TicketService       $ticketService,
-                                ShopService         $shopService,
-                                SettingService      $settingService,
-                                LoggerInterface     $logger
-    ){
+    public function __construct(
+        TicketService       $ticketService,
+        ShopService         $shopService,
+        SumupService        $sumupService,
+        SettingService      $settingService,
+        LoggerInterface     $logger
+    ) {
         $this->ticketService = $ticketService;
         $this->shopService = $shopService;
+        $this->sumupService = $sumupService;
         $this->settingService = $settingService;
         $this->logger = $logger;
     }
@@ -41,7 +48,7 @@ class ShopController extends AbstractController
     private const CSRF_TOKEN_CANCEL = 'cancelOrder';
 
     #[Route(path: '/checkout', name: '_checkout')]
-    public function checkout(Request $request): Response
+    public function checkout(Request $request, \App\Service\ClanDiscountService $clanDiscountService): Response
     {
         if (!$this->settingService->get('lan.signup.enabled', false)) {
             $this->addFlash('warning', "Anmeldung ist noch nicht freigeschalten.");
@@ -52,7 +59,9 @@ class ShopController extends AbstractController
         /** @var User $user */
         $user = $this->getUser()->getUser();
         $orders = $this->shopService->getOrderByUser($user);
-        $open_order = array_filter($orders, function (ShopOrder $o) { return $o->isOpen(); });
+        $open_order = array_filter($orders, function (ShopOrder $o) {
+            return $o->isOpen();
+        });
 
         if (count($open_order) > 0) {
             $this->logger->warning("User {$user->getUuid()} has multiple open orders.");
@@ -63,11 +72,21 @@ class ShopController extends AbstractController
             return $this->redirectToRoute('shop_orders', ['show' => $open_order[0]->getId()]);
         }
 
+        // Berechne den günstigsten ClanDiscount-Preis für den eingeloggten User
+        $userDiscountPrice = null;
+        if ($user) {
+            $clanUuids = array_map(fn($clan) => $clan->getUuid(), $user->getClans()->toArray());
+            $discounts = $clanDiscountService->findByClanIds($clanUuids);
+            if ($discounts) {
+                $userDiscountPrice = min(array_map(fn($d) => $d->getPrice(), $discounts));
+            }
+        }
+
         $addons = $this->shopService->getAddons();
         $userRegistered = $this->ticketService->isUserRegistered($user);
         $addon_count = $this->shopService->countOrderedAddons();
         $addon_count_user = $this->shopService->countOrderedAddons($user);
-        $count_cb = function(ShopAddon $addon) use ($addon_count, $addon_count_user): ?int {
+        $count_cb = function (ShopAddon $addon) use ($addon_count, $addon_count_user): ?int {
             if ($addon->getOnlyOnce() && ($addon_count_user[$addon->getId()] ?? 0) > 0) {
                 return -1;
             }
@@ -80,7 +99,7 @@ class ShopController extends AbstractController
         $form = $this->createForm(CheckoutType::class, options: [
             'code' => !$userRegistered,
             'addons' => $addons,
-            'max_addon_count_callback' => $count_cb,
+            'max_addon_count_callback' => $count_cb
         ]);
 
         $form->handleRequest($request);
@@ -90,11 +109,11 @@ class ShopController extends AbstractController
             // add tickets to order
             $noTickets = intval($data['tickets'] ?? 0);
             $order = $this->shopService->allocOrder($user);
-            $this->shopService->orderAddTickets($order, $noTickets);
+            $this->shopService->orderAddTickets($order, $noTickets, $userDiscountPrice);
 
             // add addons to order
             foreach ($addons as $addon) {
-                $cnt = $data['addon'.$addon->getId()] ?? 0;
+                $cnt = $data['addon' . $addon->getId()] ?? 0;
                 $this->shopService->orderAddAddon($order, $addon, $cnt);
             }
 
@@ -112,10 +131,15 @@ class ShopController extends AbstractController
 
             if (!$order->isEmpty()) {
                 $this->shopService->placeOrder($order);
-                $this->addFlash('success', "Order erfolgreich angelegt.");
-                return $this->redirectToRoute('shop_orders');
-            } else if(!$ticketActivation) {
+                if ($this->settingService->get('lan.signup.payment_sumupenabled', false)) {
+                    return $this->redirectToRoute('shop_payment');
+                } else {
+                     $this->addFlash('success', 'Bestellung erfolgreich erstellt.');
+                    return $this->redirectToRoute('shop_orders');
+                }
+            } else if (!$ticketActivation) {
                 $this->addFlash('warning', "Leere Bestellung kann nicht angelegt werden.");
+                return $this->redirectToRoute('shop_orders');
             }
 
             return $this->redirect('/');
@@ -126,6 +150,7 @@ class ShopController extends AbstractController
             'form' => $form->createView(),
             'addons' => $addons,
             'has_ticket' => $userRegistered,
+            'userDiscountPrice' => $userDiscountPrice
         ]);
     }
 
@@ -153,7 +178,9 @@ class ShopController extends AbstractController
                 throw $this->createAccessDeniedException('Invalid CSRF token presented');
             }
             // check if the order is by the user
-            $order = array_filter($orders, function (ShopOrder $order) use ($id) { return $order->getId() == $id; });
+            $order = array_filter($orders, function (ShopOrder $order) use ($id) {
+                return $order->getId() == $id;
+            });
             if (empty($order)) {
                 throw $this->createAccessDeniedException('Invalid order specified.');
             }
@@ -162,6 +189,7 @@ class ShopController extends AbstractController
                 switch ($action) {
                     case 'cancel':
                         $this->shopService->cancelOrder($order);
+                        $this->sumupService->delete((string)$order->getCheckoutId());
                         break;
                     default:
                         $this->addFlash('error', "Invalid action specified.");
@@ -178,5 +206,82 @@ class ShopController extends AbstractController
             'orders' => $orders,
             'csrf_token_cancel' => self::CSRF_TOKEN_CANCEL,
         ]);
+    }
+
+    #[Route(path: '/payment', name: '_payment')]
+    public function payment(): Response
+    {
+        /** @var User $user */
+        $user = $this->getUser()->getUser();
+        $order = $this->shopService->getOrderByUser($user, ShopOrderStatus::Created)[0] ?? null;
+
+        if ($order === null) {
+            $this->addFlash('error', "Keine offene Bestellung vorhanden.");
+            return $this->redirectToRoute('shop_orders');
+        }
+
+        $checkoutId = $this->shopService->getCheckoutId($order);
+
+        if ($checkoutId === null) {
+            try {
+                $amount = $order->calculateTotal() / 100;
+                $currency = 'EUR'; // Adjust as needed
+                $checkoutRef = 'Order-' . $order->getId();
+                $payToEmail = $this->settingService->get('lan.signup.payment_paytoemail');
+                $payFromEmail = $user->getEmail();
+
+                $checkoutId = $this->sumupService->createCheckout($amount, $currency, $checkoutRef, $payToEmail, $checkoutRef, $payFromEmail);
+                $this->shopService->saveCheckoutId($order, $checkoutId);
+            } catch (\Exception $e) {
+                $this->logger->error('Unexpected SumUp error');
+                $this->addFlash('error', 'Fehler beim Erstellen der Zahlung.');
+                return $this->redirectToRoute('shop_orders');
+            }
+
+            return $this->render('site/shop/payment.html.twig', [
+                'order' => $order,
+                'checkoutId' => $checkoutId
+            ]);
+        }
+
+        // If a checkoutId already existed on the order (UuidInterface), render the template
+        if ($checkoutId !== null) {
+            return $this->render('site/shop/payment.html.twig', [
+                'order' => $order,
+                'checkoutId' => (string)$checkoutId
+            ]);
+        }
+    }
+
+    #[Route(path: '/payment/verify', name: '_payment_verify', methods: ['GET'])]
+    public function verifyPayment(Request $request): Response
+    {
+        $checkoutId = $request->query->get('checkoutId');
+        if (!$checkoutId) {
+            $this->addFlash('error', 'Keine Zahlung zum Prüfen vorhanden.');
+            return $this->redirectToRoute('shop_orders');
+        }
+
+        $user = $this->getUser()->getUser();
+        $order = $this->shopService->getOrderByUser($user, ShopOrderStatus::Created)[0] ?? null;
+
+        if ($order === null) {
+            $this->addFlash('error', "Keine offene Zahlung vorhanden.");
+            return $this->redirectToRoute('shop_orders');
+        }
+
+        try {
+            $body = $this->sumupService->retrieveCheckout($checkoutId);
+            if ($body->status === 'PAID' && $body->id === (string)$order->getCheckoutId()) {
+                $this->shopService->setOrderPaid($order);
+                $this->addFlash('success', 'Zahlung erfolgreich abgeschlossen.');
+            } else {
+                $this->addFlash('error', 'Fehler beim Prüfen der Zahlung.');
+            }
+            return $this->redirectToRoute('shop_orders');
+        } catch (\Exception $e) {
+             $this->addFlash('error', 'Fehler beim Prüfen der Zahlung.');
+            return $this->redirectToRoute('shop_orders');
+        }
     }
 }

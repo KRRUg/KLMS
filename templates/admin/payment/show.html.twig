@@ -46,7 +46,7 @@
                 <div class="col-4 mr-2">
                     {% set img = user | user_image %}
                     {% if img is not empty %}
-                        <img src="{{ img | imagine_filter('user_img') }}" alt="Image of {{ user|username }}"/>
+                        <img src="{{ img | imagine_filter('user_img') }}" alt="Image"/>
                     {% else %}
                         <i class="far fa-user-circle fa-8x"></i>
                     {% endif %}

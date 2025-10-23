@@ -32,6 +32,9 @@ class ShopOrder
     #[ORM\OneToMany(mappedBy: 'order', targetEntity: ShopOrderHistory::class, cascade: ['persist', 'remove'], fetch: 'LAZY', orphanRemoval: true)]
     private Collection $shopOrderHistory;
 
+    #[ORM\Column(type: 'uuid', nullable: true)]
+    private ?UuidInterface $checkoutId = null;
+
     public function __construct()
     {
         $this->shopOrderPositions = new ArrayCollection();
@@ -160,6 +163,18 @@ class ShopOrder
                 $shopOrderHistory->setOrder(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getCheckoutId(): ?UuidInterface
+    {
+        return $this->checkoutId;
+    }
+
+    public function setCheckoutId(?UuidInterface $checkoutId): static
+    {
+        $this->checkoutId = $checkoutId;
 
         return $this;
     }

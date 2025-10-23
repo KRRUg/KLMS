@@ -67,10 +67,10 @@
                                     <span>Bestellung <b>#{{ o.id }}</b> vom {{ o.createdAt | date('d.m.y H:i') }}</span>
                                     <div class="flex-fill"></div>
                                     {% if o.isActive() %}
-                                        <span class="badge badge-primary">bezahlt</span>
+                                        <span class="p-1 badge-primary">bezahlt</span>
                                     {% endif %}
                                     {% if o.isDead() %}
-                                        <span class="badge badge-secondary">storniert</span>
+                                        <span class="p-1 badge-secondary">storniert</span>
                                     {% endif %}
                                 </button>
                             </h5>

@@ -48,6 +48,9 @@
                 <li class="nav-item">
                     <a class="nav-link {% if app.request.get('_route') starts with 'admin_clan' %}active{% endif %}" href="{{ path('admin_clan') }}"><i class="fas fa-users fa-fw"></i> Clan </a>
                 </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if app.request.get('_route') starts with 'admin_clandiscount' %}active{% endif %}" href="{{ path('admin_clandiscount') }}"><i class="fas fa-percent fa-fw"></i> Clan Discount </a>
+                    </li>
             </ul>
         </li>
     {% endif %}
