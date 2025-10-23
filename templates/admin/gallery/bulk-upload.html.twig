@@ -10,6 +10,7 @@
             <div class="card">
                 <div class="card-body">
                     <form id="bulkUploadForm" enctype="multipart/form-data">
+                        
                         <div class="row mb-4">
                             <div class="col-md-6">
                                 <label for="eventSelect" class="form-label">Event auswählen</label>
@@ -42,10 +43,10 @@
                             <div id="dropZone" class="border border-2 border-dashed border-primary rounded p-5 text-center bg-light">
                                 <i class="fas fa-cloud-upload-alt fa-3x text-primary mb-3"></i>
                                 <h4>Bilder hierher ziehen oder klicken zum Auswählen</h4>
-                                <p class="text-muted">
+                                                                <p class="text-muted">
                                     Unterstützte Formate: JPEG, PNG, GIF, WebP<br>
-                                    Maximale Dateigröße: 10MB pro Bild<br>
-                                    Bis zu 100+ Bilder gleichzeitig möglich
+                                    Bis zu 100+ Bilder gleichzeitig möglich<br>
+                                    PHP-Limits beachten! Upload-Limits in der php.ini usw.
                                 </p>
                                 <input type="file" id="fileInput" name="images[]" multiple accept="image/*" style="display: none;">
                                 <button type="button" class="btn btn-primary" id="selectFilesBtn">
@@ -226,10 +227,22 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function uploadFiles() {
-        if (selectedFiles.length === 0) return;
+        if (selectedFiles.length === 0) {
+            alert('Bitte wählen Sie mindestens eine Datei aus.');
+            return;
+        }
 
-        const eventName = newEventInput.value.trim() || eventSelect.value;
-        if (!eventName) return;
+        const eventName = (newEventInput.value.trim() || eventSelect.value || '').trim();
+        
+        if (!eventName) {
+            alert('Bitte wählen Sie ein Event aus oder geben Sie einen neuen Event-Namen ein.');
+            return;
+        }
+
+        if (eventName.length < 3) {
+            alert('Der Event-Name muss mindestens 3 Zeichen lang sein.');
+            return;
+        }
 
         uploadProgress.style.display = 'block';
         uploadBtn.disabled = true;
@@ -238,31 +251,25 @@ document.addEventListener('DOMContentLoaded', function() {
         const formData = new FormData();
         formData.append('event', eventName);
         
-        selectedFiles.forEach(file => {
+        selectedFiles.forEach((file, index) => {
             formData.append('images[]', file);
         });
 
         let uploaded = 0;
         const total = selectedFiles.length;
 
-        // Simulate progress (since we can't track individual file progress easily)
-        const progressInterval = setInterval(() => {
-            if (uploaded < total) {
-                const progress = (uploaded / total) * 100;
-                progressBar.style.width = progress + '%';
-                progressText.textContent = `${uploaded} / ${total} Bilder hochgeladen`;
-            }
-        }, 100);
+        // Show indeterminate progress
+        progressBar.classList.add('progress-bar-striped', 'progress-bar-animated');
+        progressBar.style.width = '100%';
+        progressText.textContent = `${total} Bilder werden hochgeladen...`;
 
-        fetch('{{ path("admin_gallery_bulk_upload") }}', {
+        // Start upload
+        fetch('{{ path('admin_gallery_bulk_upload') }}', {
             method: 'POST',
             body: formData
         })
         .then(response => response.json())
         .then(data => {
-            clearInterval(progressInterval);
-            
-            progressBar.style.width = '100%';
             progressText.textContent = `Upload abgeschlossen`;
             
             let resultHtml = '';
@@ -312,13 +319,12 @@ document.addEventListener('DOMContentLoaded', function() {
             uploadResults.style.display = 'block';
         })
         .catch(error => {
-            clearInterval(progressInterval);
             console.error('Upload error:', error);
             
             uploadResults.innerHTML = `
                 <div class="alert alert-danger">
                     <i class="fas fa-times-circle me-2"></i>
-                    <strong>Fehler:</strong> Netzwerkfehler beim Upload
+                    <strong>Fehler:</strong> Upload fehlgeschlagen
                 </div>
             `;
             uploadResults.style.display = 'block';

@@ -15,13 +15,14 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Validator\Constraints\File;
-use Doctrine\ORM\EntityManagerInterface;
+use Psr\Log\LoggerInterface;
 
+use Doctrine\ORM\EntityManagerInterface;
 #[IsGranted('ROLE_ADMIN_MEDIA')]
-#[Route('/gallery', name: 'gallery', methods: ['GET'])]
+#[Route('gallery', name: 'gallery')]
 class GalleryController extends AbstractController
 {
-    #[Route(path: '', name: '')]
+    #[Route('', name: '', methods: ['GET'])]
     public function index(GalleryImageRepository $repository): Response
     {
         $photosByEvent = $repository->findAllGroupedByEvent();
@@ -98,23 +99,17 @@ class GalleryController extends AbstractController
             $event = $request->request->get('event');
             $files = $request->files->get('images');
             
-            if (!$event) {
+            if (!$event || trim($event) === '') {
                 return $this->json(['error' => 'Event name is required'], 400);
             }
-
-            if (!$files || !is_array($files)) {
+            
+            if (!$files || !is_array($files) || count($files) === 0) {
                 return $this->json(['error' => 'No files uploaded'], 400);
             }
 
             $uploaded = 0;
             $errors = [];
-
-            // Create event directory if it doesn't exist
-            $eventFolder = $this->getParameter('kernel.project_dir') . '/public/images/gallery/' . $event;
-            if (!is_dir($eventFolder)) {
-                mkdir($eventFolder, 0755, true);
-            }
-
+            
             foreach ($files as $file) {
                 try {
                     // Validate file
@@ -131,21 +126,16 @@ class GalleryController extends AbstractController
 
                     // Create GalleryImage entity
                     $galleryImage = new GalleryImage();
-                    $galleryImage->setEvent($event);
+                    $galleryImage->setEvent(trim($event));
                     $galleryImage->setTitle(pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME));
                     $galleryImage->setImageFile($file);
 
-                    $repository->save($galleryImage, false); // Don't flush yet
+                    $repository->save($galleryImage, true);
                     $uploaded++;
 
                 } catch (\Exception $e) {
                     $errors[] = $file->getClientOriginalName() . ': ' . $e->getMessage();
                 }
-            }
-
-            // Flush all changes at once
-            if ($uploaded > 0) {
-                $em->flush();
             }
 
             return $this->json([
