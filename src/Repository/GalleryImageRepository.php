@@ -39,18 +39,22 @@ class GalleryImageRepository extends ServiceEntityRepository
      */
     public function findAllGroupedByEvent(): array
     {
-        $images = $this->findBy([], ['createdAt' => 'DESC']);
+        $images = $this->createQueryBuilder('g')
+            ->leftJoin('g.galleryEvent', 'e')
+            ->orderBy('e.priority', 'ASC')
+            ->addOrderBy('g.createdAt', 'DESC')
+            ->getQuery()
+            ->getResult();
+        
         $grouped = [];
-
         foreach ($images as $image) {
-            $event = $image->getEvent();
-            if (!isset($grouped[$event])) {
-                $grouped[$event] = [];
+            $event = $image->getGalleryEvent();
+            $eventKey = $event ? $event->getName() : 'Ohne Event';
+            if (!isset($grouped[$eventKey])) {
+                $grouped[$eventKey] = [];
             }
-            $grouped[$event][] = $image;
+            $grouped[$eventKey][] = $image;
         }
-    
-        ksort($grouped);
 
         return $grouped;
     }
@@ -58,27 +62,51 @@ class GalleryImageRepository extends ServiceEntityRepository
     /**
      * @return GalleryImage[] Returns images for a specific event
      */
-    public function findByEvent(string $event): array
+    public function findByEvent(string $eventName): array
     {
+        if ($eventName === 'Ohne Event') {
+            return $this->createQueryBuilder('g')
+                ->where('g.galleryEvent IS NULL')
+                ->orderBy('g.createdAt', 'DESC')
+                ->getQuery()
+                ->getResult();
+        }
+        
         return $this->createQueryBuilder('g')
-            ->andWhere('g.event = :event')
-            ->setParameter('event', $event)
+            ->leftJoin('g.galleryEvent', 'e')
+            ->where('e.name = :eventName')
+            ->setParameter('eventName', $eventName)
             ->orderBy('g.createdAt', 'DESC')
             ->getQuery()
             ->getResult();
     }
 
     /**
-     * @return string[] Returns unique event names
+     * @return array Returns event entities with their names
      */
     public function findEvents(): array
     {
         $result = $this->createQueryBuilder('g')
-            ->select('DISTINCT g.event')
-            ->orderBy('g.event', 'ASC')
+            ->select('DISTINCT e.name')
+            ->leftJoin('g.galleryEvent', 'e')
+            ->where('e.name IS NOT NULL')
+            ->orderBy('e.priority', 'ASC')
             ->getQuery()
             ->getScalarResult();
 
-        return array_column($result, 'event');
+        $events = array_column($result, 'name');
+        
+        // Add "Ohne Event" if there are images without events
+        $hasImagesWithoutEvent = $this->createQueryBuilder('g')
+            ->select('COUNT(g.uuid)')
+            ->where('g.galleryEvent IS NULL')
+            ->getQuery()
+            ->getSingleScalarResult() > 0;
+            
+        if ($hasImagesWithoutEvent) {
+            $events[] = 'Ohne Event';
+        }
+        
+        return $events;
     }
 }

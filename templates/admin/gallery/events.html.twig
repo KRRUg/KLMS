@@ -1,0 +1,41 @@
+{% extends 'admin/adminBase.html.twig' %}
+
+{% block title %}KLMS - Admin{% endblock %}
+{% block siteheading %}<i class="fas fa-images fa-fw"></i> Gallery Events{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    {{ encore_entry_script_tags('admin_gallery') }}
+{% endblock %}
+
+{% block main %}
+    <div class="row mb-4">
+        <div class="col-12">
+            <a class="btn btn-success" id="new"> <i class="fas fa-plus"></i> Event hinzufügen</a>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col mb-2">
+            <div class="card">
+                <div class="card-body">
+                    <ul id="eventList" class="list-group list-group-hover" data-source-input="#form_events">
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col">
+            <span class="p-2 text-muted small">Hinweis: Nur leere Events können gelöscht werden. Das letzte Event kann nicht gelöscht werden.</span>
+        </div>
+    </div>
+    <hr>
+    {{ form_start(form, {'attr': {'id': 'event_edit_form'}}) }}
+    <div class="float-right">
+        {{ form_row(form.events) }}
+
+        <a class="btn btn-secondary" href="{{ path('admin_gallery') }}">Abbrechen</a>
+        <button type="submit" id="events_save" class="btn-primary btn">Speichern</button>
+    </div>
+    {{ form_end(form) }}
+{% endblock %}

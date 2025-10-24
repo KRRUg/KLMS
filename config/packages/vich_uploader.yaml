@@ -54,7 +54,7 @@ vich_uploader:
             namer: Vich\UploaderBundle\Naming\SmartUniqueNamer
             directory_namer:
                 service: Vich\UploaderBundle\Naming\PropertyDirectoryNamer
-                options: { property: 'event' }
+                options: { property: 'getEventDirectoryName' }
             inject_on_load: false
             delete_on_update: true
             delete_on_remove: true

@@ -3,46 +3,50 @@
 namespace App\Controller\Admin;
 
 use App\Entity\GalleryImage;
-use App\Repository\GalleryImageRepository;
+use App\Entity\GalleryEvent;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
+use Symfony\Component\Form\Extension\Core\Type\CollectionType;
+use Symfony\Component\Form\Extension\Core\Type\HiddenType;
+use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Validator\Constraints\File;
-use Psr\Log\LoggerInterface;
+use Symfony\Component\Validator\Constraints as Assert;
+use App\Service\GalleryService;
 
-use Doctrine\ORM\EntityManagerInterface;
 #[IsGranted('ROLE_ADMIN_MEDIA')]
 #[Route('gallery', name: 'gallery')]
 class GalleryController extends AbstractController
 {
     #[Route('', name: '', methods: ['GET'])]
-    public function index(GalleryImageRepository $repository): Response
+    public function index(GalleryService $galleryService): Response
     {
-        $photosByEvent = $repository->findAllGroupedByEvent();
-        $events = $repository->findEvents();
+        $eventsWithImages = $galleryService->getAllEventsWithImages();
 
         return $this->render('admin/gallery/index.html.twig', [
-            'photosByEvent' => $photosByEvent,
-            'events' => $events,
+            'eventsWithImages' => $eventsWithImages,
         ]);
     }
 
     #[Route('/upload', name: '_upload', methods: ['GET', 'POST'])]
-    public function upload(Request $request, GalleryImageRepository $repository): Response
+    public function upload(Request $request, GalleryService $galleryService): Response
     {
         $galleryImage = new GalleryImage();
 
         $form = $this->createFormBuilder($galleryImage)
-            ->add('event', TextType::class, [
-                'label' => 'Event Name',
-                'attr' => ['placeholder' => 'z.B. lan-party-2023']
+            ->add('galleryEvent', EntityType::class, [
+                'class' => GalleryEvent::class,
+                'choice_label' => 'name',
+                'label' => 'Event auswählen',
+                'placeholder' => '-- Event auswählen --',
+                'choices' => $galleryService->getAll()
             ])
             ->add('title', TextType::class, [
                 'label' => 'Titel (optional)',
@@ -75,13 +79,7 @@ class GalleryController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            // Create event directory if it doesn't exist
-            $eventFolder = $this->getParameter('kernel.project_dir') . '/public/images/gallery/' . $galleryImage->getEvent();
-            if (!is_dir($eventFolder)) {
-                mkdir($eventFolder, 0755, true);
-            }
-
-            $repository->save($galleryImage, true);
+            $galleryService->saveImage($galleryImage);
 
             $this->addFlash('success', 'Bild wurde erfolgreich hochgeladen!');
             return $this->redirectToRoute('admin_gallery');
@@ -93,15 +91,18 @@ class GalleryController extends AbstractController
     }
 
     #[Route('/bulk-upload', name: '_bulk_upload', methods: ['GET', 'POST'])]
-    public function bulkUpload(Request $request, GalleryImageRepository $repository, EntityManagerInterface $em): Response
+    public function bulkUpload(Request $request, GalleryService $galleryService): Response
     {
         if ($request->isMethod('POST')) {
-            $event = $request->request->get('event');
+            $eventName = $request->request->get('event');
             $files = $request->files->get('images');
             
-            if (!$event || trim($event) === '') {
+            if (!$eventName || trim($eventName) === '') {
                 return $this->json(['error' => 'Event name is required'], 400);
             }
+            
+            // Find or create GalleryEvent
+            $galleryEvent = $galleryService->findOrCreateByName($eventName);
             
             if (!$files || !is_array($files) || count($files) === 0) {
                 return $this->json(['error' => 'No files uploaded'], 400);
@@ -126,11 +127,11 @@ class GalleryController extends AbstractController
 
                     // Create GalleryImage entity
                     $galleryImage = new GalleryImage();
-                    $galleryImage->setEvent(trim($event));
+                    $galleryImage->setGalleryEvent($galleryEvent);
                     $galleryImage->setTitle(pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME));
                     $galleryImage->setImageFile($file);
 
-                    $repository->save($galleryImage, true);
+                    $galleryService->saveImage($galleryImage);
                     $uploaded++;
 
                 } catch (\Exception $e) {
@@ -146,20 +147,16 @@ class GalleryController extends AbstractController
         }
 
         // GET request - show bulk upload form
-        $events = $repository->findEvents();
+        $events = $galleryService->getAll();
         return $this->render('admin/gallery/bulk-upload.html.twig', [
             'events' => $events
         ]);
     }
 
     #[Route('/edit/{uuid}', name: '_edit', methods: ['GET', 'POST'])]
-    public function edit(GalleryImage $galleryImage, Request $request, GalleryImageRepository $repository): Response
+    public function edit(GalleryImage $galleryImage, Request $request, GalleryService $galleryService): Response
     {
         $form = $this->createFormBuilder($galleryImage)
-            ->add('event', TextType::class, [
-                'label' => 'Event Name',
-                'attr' => ['placeholder' => 'z.B. lan-party-2023']
-            ])
             ->add('title', TextType::class, [
                 'label' => 'Titel',
                 'required' => false
@@ -175,7 +172,7 @@ class GalleryController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $repository->save($galleryImage, true);
+            $galleryService->saveImage($galleryImage);
 
             $this->addFlash('success', 'Bild wurde erfolgreich aktualisiert!');
             return $this->redirectToRoute('admin_gallery');
@@ -188,13 +185,44 @@ class GalleryController extends AbstractController
     }
 
     #[Route('/delete/{uuid}', name: '_delete', methods: ['POST'])]
-    public function delete(GalleryImage $galleryImage, Request $request, GalleryImageRepository $repository): Response
+    public function delete(GalleryImage $galleryImage, Request $request, GalleryService $galleryService): Response
     {
         if ($this->isCsrfTokenValid('delete'.$galleryImage->getId(), $request->request->get('_token'))) {
-            $repository->remove($galleryImage, true);
+            $galleryService->deleteImage($galleryImage);
             $this->addFlash('success', 'Bild wurde erfolgreich gelöscht!');
         }
 
         return $this->redirectToRoute('admin_gallery');
     }
+
+    #[Route('/events', name: '_events', methods: ['GET', 'POST'])]
+    public function events(Request $request, GalleryService $galleryService): Response
+    {
+        $array = $galleryService->renderEvents();
+        $form = $this->createFormBuilder()
+            ->add('events', HiddenType::class, [
+                'required' => true,
+                'data' => json_encode($array, JSON_THROW_ON_ERROR),
+                'constraints' => [new Assert\Json()],
+            ])
+            ->getForm();
+
+        $form->handleRequest($request);
+        if ($form->isSubmitted() && $form->isValid()) {
+            $array = json_decode((string) $form->getData()['events'], true, 512, JSON_THROW_ON_ERROR);
+            $success = $galleryService->parseEvents($array);
+            if ($success) {
+                $this->addFlash('success', 'Events wurden erfolgreich gespeichert!');
+            } else {
+                $this->addFlash('danger', 'Events Speichern fehlgeschlagen');
+            }
+
+            return $this->redirectToRoute('admin_gallery_events');
+        }
+
+        return $this->render('admin/gallery/events.html.twig', [
+            'form' => $form->createView(),
+        ]);
+    }
+
 }

@@ -2,8 +2,7 @@
 
 namespace App\Controller\Site;
 
-use App\Entity\GalleryImage;
-use App\Repository\GalleryImageRepository;
+use App\Service\GalleryService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -12,29 +11,35 @@ use Symfony\Component\Routing\Annotation\Route;
 class GalleryController extends AbstractController
 {
     #[Route('', name: '', methods: ['GET'])]
-    public function index(GalleryImageRepository $repository): Response
+    public function index(GalleryService $galleryService): Response
     {
-        $photosByEvent = $repository->findAllGroupedByEvent();
-        $events = $repository->findEvents();
+        $eventsWithImages = $galleryService->getAllEventsWithImages();
 
         return $this->render('site/gallery/index.html.twig', [
-            'photosByEvent' => $photosByEvent,
-            'events' => $events,
+            'eventsWithImages' => $eventsWithImages,
         ]);
     }
 
-    #[Route('/event/{event}', name: '_event', methods: ['GET'])]
-    public function event(string $event, GalleryImageRepository $repository): Response
+    #[Route('/event/{id}', name: '_event', methods: ['GET'])]
+    public function event(int $id, GalleryService $galleryService): Response
     {
-        $photos = $repository->findByEvent($event);
+        // Get the specific event by ID
+        $event = $galleryService->getEventById($id);
         
-        if (empty($photos)) {
+        if (!$event) {
             throw $this->createNotFoundException('Event not found');
         }
 
+        // Get images for this event
+        $images = $event->getGalleryImages()->toArray();
+        
+        // Sort images by createdAt DESC
+        usort($images, fn($a, $b) => $b->getCreatedAt() <=> $a->getCreatedAt());
+
         return $this->render('site/gallery/event.html.twig', [
             'event' => $event,
-            'photos' => $photos,
+            'eventName' => $event->getName(),
+            'photos' => $images,
         ]);
     }
 }

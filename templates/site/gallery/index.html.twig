@@ -11,7 +11,7 @@
             </h1>
             <p>Taucht ein in die Highlights vergangener Events! Hier findet ihr eine kleine Auswahl an Bildern, die die Atmosphäre, die Begeisterung und die besten Momente der DoT-LANs einfangen. Lasst euch inspirieren und freut euch auf das nächste Event!</p>
             
-            {% if photosByEvent is empty %}
+            {% if eventsWithImages is empty %}
                 <div class="alert alert-info">
                     <i class="fas fa-info-circle me-2"></i>
                     Noch keine Bilder in der Galerie vorhanden.
@@ -20,14 +20,14 @@
                 {# Event Navigation #}
                 <div class="mb-4">
                     <div class="row">
-                        <div class="col-md-8">
-                            <div class="btn-group" role="group" aria-label="Event Navigation">
+                        <div class="col-md-12">
+                            <div class="btn-group flex-wrap" role="group" aria-label="Event Navigation">
                                 <button type="button" class="btn btn-outline-primary active" onclick="showAllEvents()">
                                     Alle Events
                                 </button>
-                                {% for event in events %}
-                                    <button type="button" class="btn btn-outline-primary" onclick="showEvent('{{ event }}')">
-                                        {{ event|replace({'-': ' '})|title }}
+                                {% for eventName, data in eventsWithImages %}
+                                    <button type="button" class="btn btn-outline-primary" onclick="showEvent('{{ eventName }}')" title="{{ eventName }}">
+                                        {{ eventName|length > 20 ? eventName|slice(0, 17) ~ '...' : eventName }}
                                     </button>
                                 {% endfor %}
                             </div>
@@ -36,21 +36,23 @@
                 </div>
 
                 {# Images by Event #}
-                {% for event, photos in photosByEvent %}
-                    <div class="event-section" data-event="{{ event }}">
-                        <h2 class="h3 mb-4">
-                            <i class="fas fa-calendar-alt me-2"></i>
-                            {{ event|replace({'-': ' '})|title }}
-                            <small class="text-muted">({{ photos|length }} Bilder)</small>
-                        </h2>
+                {% for eventName, data in eventsWithImages %}
+                    <div class="event-section" data-event="{{ eventName }}">
+                        <div class="d-flex justify-content-between align-items-center mb-4">
+                            <h2 class="h3 mb-0">
+                                <i class="fas fa-calendar-alt me-2"></i>
+                                {{ eventName }}
+                                <small class="text-muted">({{ data.images|length }} Bilder)</small>
+                            </h2>
+                        </div>
                         
-                        <div class="row g-3 mb-5">
-                            {% for photo in photos %}
+                        <div class="row g-3">
+                            {% for photo in data.images|slice(0, 8) %}
                                 <div class="col-6 col-md-4 col-lg-3 mb-4">
                                     <div class="card border-0">
                                         <a href="{{ photo.getImagePath() }}" 
                                            class="glightbox" 
-                                           data-gallery="{{ event }}"
+                                           data-gallery="{{ eventName }}"
                                            data-title="{{ photo.title ?? ''  }}"
                                            data-description="{{ photo.description ?? '' }}">
                                             <img src="{{ photo.getImagePath()|imagine_filter('gallery_thumb') }}"
@@ -63,6 +65,15 @@
                                 </div>
                             {% endfor %}
                         </div>
+                        {% if data.images|length > 8 %}
+                            <div class="text-center mb-4">
+                                {% if data.event %}
+                                    <a href="{{ path('gallery_event', {'id': data.event.id}) }}" class="btn btn-primary">
+                                        <i class="fas fa-images me-2"></i> Alle {{ data.images|length }} Bilder anzeigen
+                                    </a>
+                                {% endif %}
+                            </div>
+                        {% endif %}
                     </div>
                 {% endfor %}
             {% endif %}
@@ -71,49 +82,18 @@
 </div>
 {% endblock %}
 
+{% block stylesheets %}
+    {{ parent() }}
+    {# GLightbox CSS #}
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/glightbox/dist/css/glightbox.min.css">
+{% endblock %}
+
 {% block javascripts %}
     {{ parent() }}
     
-    {# GLightbox CSS and JS #}
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/glightbox/dist/css/glightbox.min.css">
+    {# GLightbox JS #}
     <script src="https://cdn.jsdelivr.net/npm/glightbox/dist/js/glightbox.min.js"></script>
     
-    <script>
-        // Initialize GLightbox
-        const lightbox = GLightbox({
-            touchNavigation: true,
-            loop: true,
-            autoplayVideos: false
-        });
-
-        // Event filtering
-        function showAllEvents() {
-            document.querySelectorAll('.event-section').forEach(section => {
-                section.style.display = 'block';
-            });
-            setActiveButton('Alle Events');
-        }
-
-        function showEvent(eventName) {
-            document.querySelectorAll('.event-section').forEach(section => {
-                if (section.dataset.event === eventName) {
-                    section.style.display = 'block';
-                } else {
-                    section.style.display = 'none';
-                }
-            });
-            setActiveButton(eventName);
-        }
-
-        function setActiveButton(activeEvent) {
-            document.querySelectorAll('.btn-group .btn').forEach(btn => {
-                btn.classList.remove('active');
-                if (btn.textContent.trim() === 'Alle Events' && activeEvent === 'Alle Events') {
-                    btn.classList.add('active');
-                } else if (btn.textContent.trim().toLowerCase() === activeEvent.replace(/-/g, ' ').toLowerCase()) {
-                    btn.classList.add('active');
-                }
-            });
-        }
-    </script>
+    {# Gallery functionality #}
+    {{ encore_entry_script_tags('gallery') }}
 {% endblock %}

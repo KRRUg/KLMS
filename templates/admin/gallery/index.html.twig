@@ -16,6 +16,9 @@
                     <a href="{{ path('admin_gallery_bulk_upload') }}" class="btn btn-success">
                         <i class="fas fa-cloud-upload me-2"></i> Mehrfach Upload
                     </a>
+                    <a href="{{ path('admin_gallery_events') }}" class="btn btn-success">
+                        <i class="fas fa-cogs me-2"></i> Events verwalten
+                    </a>
                 </div>
 
       
@@ -27,33 +30,36 @@
                 </div>
             {% endfor %}
 
-            {% if photosByEvent is empty %}
+            {% if eventsWithImages is empty %}
+                <div class="card-header">
                 <div class="alert alert-info">
                     <i class="fas fa-info-circle me-2"></i>
                     Noch keine Bilder in der Galerie vorhanden.
-                    <a href="{{ path('admin_gallery_upload') }}" class="btn btn-sm btn-primary ms-3">
-                        Jetzt Bilder hochladen
-                    </a>
+                </div>
                 </div>
             {% else %}
                 <div class="row">
                     <div class="col-md-3">
-                        <div class="card  ml-3">
+                        <div class="card ml-3">
                             <div class="card-header">
                                 <h5 class="mb-0">Events</h5>
                             </div>
                             <div class="list-group list-group-flush">
                                 <button type="button" class="list-group-item list-group-item-action active" onclick="showAllEvents()">
-                                    <i class="fas fa-images me-2"></i>Alle Events
+                                    <i class="fas fa-images me-2"></i> Alle Events
                                     <span class="badge bg-primary rounded-pill float-end">
-                                        {{ photosByEvent|reduce((carry, photos) => carry + photos|length, 0) }}
+                                        {% set totalImages = 0 %}
+                                        {% for eventName, data in eventsWithImages %}
+                                            {% set totalImages = totalImages + data.images|length %}
+                                        {% endfor %}
+                                        {{ totalImages }}
                                     </span>
                                 </button>
-                                {% for event in events %}
-                                    <button type="button" class="list-group-item list-group-item-action" onclick="showEvent('{{ event }}')">
-                                        <i class="fas fa-calendar-alt me-2"></i>{{ event|replace({'-': ' '})|title }}
+                                {% for eventName, data in eventsWithImages %}
+                                    <button type="button" class="list-group-item list-group-item-action" onclick="showEvent('{{ eventName }}')">
+                                        <i class="fas fa-calendar-alt me-2"></i> {{ eventName|length > 20 ? eventName|slice(0, 17) ~ '...' : eventName }}
                                         <span class="badge bg-secondary rounded-pill float-end">
-                                            {{ photosByEvent[event]|length }}
+                                            {{ data.images|length }}
                                         </span>
                                     </button>
                                 {% endfor %}
@@ -61,16 +67,25 @@
                         </div>
                     </div>
 
-                    <div class="col-md-9">
-                        {% for event, photos in photosByEvent %}
-                            <div class="event-section" data-event="{{ event }}">
-                                <h3 class="mb-3">
-                                    {{ event|replace({'-': ' '})|title }}
-                                    <small class="text-muted">({{ photos|length }} Bilder)</small>
-                                </h3>
+                    <div class="col-md-9  mt-3">
+                        {% for eventName, data in eventsWithImages %}
+                            <div class="event-section" data-event="{{ eventName }}">
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <h5 class="mb-0">
+                                        {% if data.event %}
+                                            {{ data.event.name }}
+                                        {% else %}
+                                            {{ eventName }}
+                                        {% endif %}
+                                        <small class="text-muted">({{ data.images|length }} Bilder)</small>
+                                    </h5>
+                                    {% if data.event %}
+                                        <span class="badge bg-info">Priorität: {{ data.event.priority }}</span>
+                                    {% endif %}
+                                </div>
                                 
                                 <div class="row g-3">
-                                    {% for photo in photos %}
+                                    {% for photo in data.images %}
                                         <div class="col-6 col-md-4 col-lg-3">
                                             <div class="card">
                                                 <img src="{{ photo.getImagePath()|imagine_filter('gallery_thumb') }}"
@@ -83,6 +98,9 @@
                                                     {% endif %}
                                                     <p class="card-text small text-muted mb-2">
                                                         <i class="fas fa-calendar me-1"></i> {{ photo.createdAt|date('d.m.Y H:i') }}
+                                                        {% if photo.galleryEvent %}
+                                                            <br><i class="fas fa-tag me-1"></i> {{ photo.galleryEvent.name }}
+                                                        {% endif %}
                                                     </p>
                                                     <div class="btn-group w-100" role="group">
                                                         <a href="{{ photo.getImagePath() }}" 
@@ -121,34 +139,9 @@
         </div>
     </div>
 </div>
+{% endblock %}
 
-<script>
-    function showAllEvents() {
-        document.querySelectorAll('.event-section').forEach(section => {
-            section.style.display = 'block';
-        });
-        setActiveButton('all');
-    }
-
-    function showEvent(eventName) {
-        document.querySelectorAll('.event-section').forEach(section => {
-            if (section.dataset.event === eventName) {
-                section.style.display = 'block';
-            } else {
-                section.style.display = 'none';
-            }
-        });
-        setActiveButton(eventName);
-    }
-
-    function setActiveButton(activeEvent) {
-        document.querySelectorAll('.list-group-item').forEach(btn => {
-            btn.classList.remove('active');
-            if ((activeEvent === 'all' && btn.textContent.includes('Alle Events')) ||
-                (btn.textContent.toLowerCase().includes(activeEvent.replace(/-/g, ' ').toLowerCase()))) {
-                btn.classList.add('active');
-            }
-        });
-    }
-</script>
+{% block javascripts %}
+    {{ parent() }}
+    {{ encore_entry_script_tags('admin_gallery') }}
 {% endblock %}
