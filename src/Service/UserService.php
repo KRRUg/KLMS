@@ -150,7 +150,7 @@ class UserService
 
     public function userAgeAbove(UuidInterface|User $user, int $age): ?bool
     {
-        $user = $user instanceof User ? $user : $this->userRepo->findOneById($user);
+        $user = $user instanceof User ? $user : $this->userRepo->findoneById($user);
         if (empty($user) || empty($user->getBirthdate())) {
             return null;
         }

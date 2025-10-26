@@ -9,6 +9,7 @@ use App\Exception\OrderLifecycleException;
 use App\Form\ShopAddonType;
 use App\Repository\ShopOrderRepository;
 use App\Service\ShopService;
+use App\Service\UserService;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -24,22 +25,36 @@ class ShopController extends AbstractController
     private readonly ShopService $shopService;
     private readonly ShopOrderRepository $orderRepository;
     private readonly SerializerInterface $serializer;
+    private readonly UserService $userService;
 
     private const CSRF_TOKEN_PAYED = 'shopToken';
 
-    public function __construct(ShopService $shopService, ShopOrderRepository $orderRepository, SerializerInterface $serializer)
+    public function __construct(ShopService $shopService, ShopOrderRepository $orderRepository, SerializerInterface $serializer, UserService $userService)
     {
         $this->shopService = $shopService;
         $this->orderRepository = $orderRepository;
         $this->serializer = $serializer;
+        $this->userService = $userService;
     }
 
     #[Route(path: '', name: '', methods: ['GET'])]
     public function index(): Response {
         $orders = $this->orderRepository->findAll();
-
+        
+        // Batch-load all users to avoid N+1 queries
+        $userIds = [];
+        foreach ($orders as $order) {
+            $userIds[] = (string) $order->getOrderer();
+        }
+        $userIds = array_unique(array_filter($userIds));
+        
+        // Load users only - skip clan loading for now to avoid N+1 queries
+        $userUuids = array_map(fn($id) => \Ramsey\Uuid\Uuid::fromString($id), $userIds);
+        $users = $this->userService->getUsers($userUuids, true);
+        
         return $this->render('admin/shop/index.html.twig', [
-            'orders' => $orders
+            'orders' => $orders,
+            'users' => $users
         ]);
     }
 

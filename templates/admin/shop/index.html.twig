@@ -28,18 +28,19 @@
                     </thead>
                     <tbody>
                     {% for order in orders %}
-                        {% set user = order.orderer | user %}
+                        {% set user = users[order.orderer ~ ''] ?? null %}
                         <tr>
                             <td class="text-center">{{ order.id }}</td>
                             <td data-order="{{ order.createdAt | date('U') }}">{{ order.createdAt | date('d.m.y H:i') }}</td>
-                            <td data-order="{{ user.nickname }}">
-                                {% for clan in user.clans %}
-                                    <a class="badge badge-pill badge-primary" href="{{ path('admin_clan_show', {'uuid' : clan.uuid }) }}" data-toggle="ajaxModal">{{clan.clantag }}</a>
-                                {% endfor %}
-                                <a href="{{ path('admin_user_show', {'uuid' : user.uuid }) }}" data-toggle="ajaxModal">{{ user.nickname }}</a>
+                            <td data-order="{{ user ? user.nickname : 'Unbekannt' }}">
+                                {% if user %}
+                                    <a href="{{ path('admin_user_show', {'uuid' : user.uuid }) }}" data-toggle="ajaxModal">{{ user.nickname }}</a>
+                                {% else %}
+                                    <span class="text-muted">Unbekannter User</span>
+                                {% endif %}
                             </td>
-                            <td>{{ user.firstname }}</td>
-                            <td>{{ user.surname }}</td>
+                            <td>{{ user ? user.firstname : '-' }}</td>
+                            <td>{{ user ? user.surname : '-' }}</td>
                             {% set total = order.calculateTotal %}
                             <td class="text-right" data-order="{{total}}">{{ (total / 100) | format_currency('EUR')}}</td>
                             <td>

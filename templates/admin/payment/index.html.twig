@@ -55,9 +55,6 @@
                             <td data-order="{{ ticket.redeemedAt | date('U') }}">{{ ticket.redeemedAt | date(dateformat) }}</td>
                             {% set user = users[ticket.redeemer.toString()] %}
                             <td data-order="{{ user.nickname }}">
-                                {% for clan in user.clans %}
-                                    <a class="badge badge-pill badge-primary" href="{{ path('admin_clan_show', {'uuid' : clan.uuid }) }}" data-toggle="ajaxModal">{{clan.clantag }}</a>
-                                {% endfor %}
                                 <a href="{{ path('admin_user_show', {'uuid' : user.uuid }) }}" data-toggle="ajaxModal">{{ user.nickname }}</a>
                             </td>
                             <td>{{ user.firstname }} {{ user.surname }}</td>
@@ -74,8 +71,8 @@
                                         <span class="badge badge-primary">Eingel&ouml;st</span>
                                     {% endif %}
 
-                                    {% set user = ticket.redeemer | user %}
-                                    {% if user is age_below(18) %}
+                                    {% set user = users[ticket.redeemer.toString()] ?? null %}
+                                    {% if user and user is age_below(18) %}
                                         <span class="badge badge-danger">U18</span>
                                     {% endif %}
                                 {% else %}
