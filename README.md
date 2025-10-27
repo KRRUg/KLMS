@@ -28,8 +28,8 @@ Es wurde von uns erweitert um:
 
 - **Clan-Discount** – Die Möglichkeit bei Clans einen speziellen Preis zu hinterlegen. 
 - **SumUp Integration** – Zahlungsfunktion via **[SumUp](https://www.sumup.com)**.
-- **Bildergallerie** – Bilder von vergangenen Veranstaltungen anzeigen.
-
+- **Bildergalerie** – Bilder von vergangenen Veranstaltungen anzeigen.
+- **FAQ** – Erstellen und bearbeiten von FAQs inkl. Sucht.
 ---
 
 ## Technologie
