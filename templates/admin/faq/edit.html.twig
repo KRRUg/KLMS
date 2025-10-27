@@ -1,0 +1,66 @@
+{% extends 'admin/adminBase.html.twig' %}
+
+{% block title %}
+	{% if faq.id %}FAQ bearbeiten{% else %}FAQ anlegen
+	{% endif %}
+	- KLMS - Admin
+{% endblock %}
+{% block siteheading %}
+	<i class="fas fa-question-circle"></i>
+	{% if faq.id %}FAQ bearbeiten{% else %}FAQ anlegen
+	{% endif %}
+{% endblock %}
+
+{% block main %}
+	<div class="row">
+		<div class="col-md-8">
+			<div class="card">
+				<div class="card-header">
+					<h5 class="card-title">
+						{% if faq.id %}FAQ #{{ faq.id }}
+							bearbeiten{% else %}Neue FAQ
+						{% endif %}
+					</h5>
+				</div>
+				<div class="card-body">
+					{{ form_start(form) }}
+					<div class="mb-3">
+						{{ form_label(form.priority) }}
+						{{ form_widget(form.priority) }}
+						{{ form_errors(form.priority) }}
+						<small class="form-text text-muted">
+							Niedrigere Zahlen werden zuerst angezeigt.
+						</small>
+					</div>
+
+					<div class="mb-3">
+						{{ form_label(form.question) }}
+						{{ form_widget(form.question) }}
+						{{ form_errors(form.question) }}
+					</div>
+
+					<div class="mb-3">
+						{{ form_label(form.answer) }}
+						{{ form_widget(form.answer) }}
+						{{ form_errors(form.answer) }}
+						<small class="form-text text-muted">
+							HTML-Tags sind erlaubt (z.B. &lt;strong&gt;, &lt;a href=""&gt;, &lt;ul&gt;, etc.)
+						</small>
+					</div>
+
+					<div class="mb-3 form-check">
+						{{ form_widget(form.active) }}
+						{{ form_label(form.active) }}
+						{{ form_errors(form.active) }}
+					</div>
+
+					<div class="float-right">
+						<a class="btn btn-secondary" href="{{ path('admin_faq') }}">Abbrechen</a>
+						<button type="submit" class="btn-primary btn">Speichern</button>
+					</div>
+					{{ form_end(form) }}
+				</div>
+			</div>
+		</div>
+	</div>
+{% endblock %}

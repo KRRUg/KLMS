@@ -1,0 +1,24 @@
+@import '../helper/variables.scss';
+
+.faq-list {
+  .faq-item {
+    .faq-question {
+      cursor: pointer;
+      border: 1px solid transparent;
+      transition: border-color 0.2s ease;
+      
+      &:hover {
+        border-color: $main-color;
+      }
+    }
+
+    .faq-toggle-icon {
+      color: $main-color;
+      transition: transform 0.3s ease;
+      
+      &.rotated {
+        transform: rotate(180deg);
+      }
+    }
+  }
+}
