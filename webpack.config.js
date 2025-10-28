@@ -35,6 +35,7 @@ Encore
     .addEntry('tourney', './assets/js/site/tourney.js')
     .addEntry('shop', './assets/js/site/shop.js')
     .addEntry('gallery', './assets/js/site/gallery.js')
+    .addEntry('faq', './assets/js/site/faq.js')
     .addEntry('admin_seatmap', './assets/js/admin/seatmap.js')
     .addEntry('admin_tourney', './assets/js/admin/tourney.js')
     .addStyleEntry('email', './assets/css/email.scss')

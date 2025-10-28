@@ -7,7 +7,7 @@
         <h1 class='text-center'>Clans</h1>
         <div class="card mb-4">
                 <div class="row">
-                    <div class="col mb-3 mb-md-0">
+                    <div class="col">
                         <form action="{{ path('clan') }}" method="get">
                             <div class="input-group">
                                 <div class="input-group-prepend">
@@ -16,14 +16,14 @@
                                     </span>
                                 </div>
                                 <input type="text" name="q" class="form-control block-search-input" placeholder="Clan suchen" value="{{ search }}">
-                                <div class="input-group-append ml-2">
-                                    <button class="btn btn-outline-primary" type="submit" id="button-addon2">Suchen</button>
+                                <div class="input-group-append">
+                                    <button class="btn btn-outline-primary ml-2" type="submit" id="button-addon2">Suchen</button>
+                                    <a role="button" class="btn btn-primary ml-2 d-flex align-items-center" href="{{ path('clan_create') }}">
+                                        <i class="fas fa-plus me-2"></i>&nbsp;Clan erstellen
+                                    </a>
                                 </div>
                             </div>
                         </form>
-                    </div>
-                    <div class="col-md-auto">
-                        <a role="button" class="btn btn-primary" href="{{ path('clan_create') }}"><i class="fas fa-plus"></i> Clan erstellen</a>
                     </div>
                 </div>
         </div>
@@ -31,7 +31,7 @@
         <div class="row block-search-results">
             {% if clans is empty %}
                 <div class="col mb-3">
-                    <div  role="alert">
+                    <div class="alert alert-info" role="alert">
                         <h4 class="alert-heading">Kein Ergebnis gefunden!</h4>
                         <p>Es konnte kein Clan mit dem Namen <strong>{{ search }}</strong> gefunden werden!</p>
                     </div>

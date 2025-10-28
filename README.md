@@ -1,6 +1,6 @@
 <p align="center"><img src="assets/images/logo-black.png" alt="Logo"></p>
 
-Repo der Website der **Days of Thunder LAN (DoT-LAN)** – entwickelt auf Basis des [KRRU LAN-Party Management Systems (KLMS)](https://github.com/KRRU/klms).  
+Repo der Website der **Days of Thunder LAN (DoT-LAN)** – entwickelt auf Basis des [KRRU LAN-Party Management Systems (KLMS)](https://github.com/KRRUg/klms).  
 Dieses Repository dient als Frontend- und Content-Plattform für die aktuelle sowie kommende Veranstaltungsausgabe.
 
 ---
@@ -10,7 +10,7 @@ Dieses Repository dient als Frontend- und Content-Plattform für die aktuelle so
 Dieses Repository enthält die Web-Instanz der **DoT-LAN**, einer der traditionsreichsten LAN-Partys in Österreich und deren Verein **LANBUDDYs**.
 Die Seite bietet Informationen rund um das Event, Sponsoren, Turniere, Tickets und aktuelle News.
 
-Die technische Grundlage stammt vom **[KRRU LAN-Party Management System](https://github.com/KRRU/klms)**, das von uns an das Branding, die Inhalte und Abläufe der DoT-LAN angepasst wurde.
+Die technische Grundlage stammt vom **[KRRU LAN-Party Management System](https://github.com/KRRUg/klms)**, das von uns an das Branding, die Inhalte und Abläufe der DoT-LAN angepasst wurde.
 
 ---
 
@@ -28,8 +28,8 @@ Es wurde von uns erweitert um:
 
 - **Clan-Discount** – Die Möglichkeit bei Clans einen speziellen Preis zu hinterlegen. 
 - **SumUp Integration** – Zahlungsfunktion via **[SumUp](https://www.sumup.com)**.
-- **Bildergallerie** – Bilder von vergangenen Veranstaltungen anzeigen.
-
+- **Bildergalerie** – Bilder von vergangenen Veranstaltungen anzeigen.
+- **FAQ** – Erstellen und bearbeiten von FAQs inkl. Suche.
 ---
 
 ## Technologie
