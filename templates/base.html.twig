@@ -1,13 +1,6 @@
 <!DOCTYPE html>
 <html lang="de">
 	<head>
-    	<!-- Google Tag Manager -->
-		<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
-		new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
-		j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-		'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-		})(window,document,'script','dataLayer','GTM-M7KCFVXM');</script>
-		<!-- End Google Tag Manager -->
 		{% if app.request.pathInfo == '/content/support' %}
 			<script src="https://desk.zoho.eu/portal/api/feedbackwidget/189051000000274310?orgId=20103009939&displayType=embeded"></script>
 		{% endif %}
@@ -33,10 +26,6 @@
 		{% endblock %}
 	</head>
 	<body>
-    	<!-- Google Tag Manager (noscript) -->
-		<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-M7KCFVXM"
-		height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
-		<!-- End Google Tag Manager (noscript) -->
 		{% if (settings.get('site.prepage.show') == "1" and not (app.request.pathInfo starts with '/admin' or app.request.pathInfo == '/login' or app.request.pathInfo == '/reset'))  %}
 			<div class="container mt-4">
 				{{ settings.get('site.prepage.text')|raw }}

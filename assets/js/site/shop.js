@@ -217,7 +217,49 @@ $.extend(Shop.prototype, {
 });
 
 $(document).ready(() => {
-    const shop = new Shop($('#shop'),{
-        path: '/shop/check',
-    });
+    const $shopRoot = $('#shop');
+    if ($shopRoot.length) {
+        // Only initialise the checkout helper when the checkout form is present
+        new Shop($shopRoot, {
+            path: '/shop/check',
+        });
+    }
+
+    initSumUpCard();
 });
+
+function initSumUpCard() {
+    const container = document.getElementById('sumup-card');
+    if (!container) {
+        return;
+    }
+
+    const checkoutId = container.dataset.checkoutId;
+    const verifyUrl = container.dataset.verifyUrl;
+    const locale = container.dataset.locale || 'de-DE';
+
+    if (!checkoutId || !verifyUrl) {
+        console.warn('SumUp checkout data missing.');
+        return;
+    }
+
+    if (!window.SumUpCard || typeof window.SumUpCard.mount !== 'function') {
+        console.error('SumUp SDK is not available.');
+        return;
+    }
+
+    window.SumUpCard.mount({
+        id: container.id,
+        checkoutId,
+        locale,
+        onResponse(type, body) {
+            if (type === 'success' && body && body.id) {
+                const separator = verifyUrl.includes('?') ? '&' : '?';
+                window.location.href = `${verifyUrl}${separator}checkoutId=${encodeURIComponent(body.id)}`;
+            } else if (type === 'error') {
+                const message = body && body.message ? body.message : 'Unbekannter Fehler';
+                window.alert(`Fehler bei der Zahlung: ${message}`);
+            }
+        },
+    });
+}

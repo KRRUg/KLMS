@@ -18,6 +18,7 @@
         "doctrine/doctrine-migrations-bundle": "^3.2",
         "doctrine/orm": "^2.13",
         "eko/feedbundle": "^2.1",
+        "endroid/qr-code-bundle": "^6.0",
         "excelwebzone/recaptcha-bundle": "^1.5",
         "liip/imagine-bundle": "^2.15",
         "nyholm/psr7": "^1.2",
@@ -75,9 +76,10 @@
         },
         "sort-packages": true,
         "allow-plugins": {
+            "endroid/installer": true,
+            "php-http/discovery": true,
             "symfony/flex": true,
-            "symfony/runtime": true,
-            "php-http/discovery": true
+            "symfony/runtime": true
         }
     },
     "autoload": {

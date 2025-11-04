@@ -8,6 +8,8 @@ use App\Form\UserSelectType;
 use App\Service\TicketService;
 use App\Service\TicketState;
 use App\Service\UserService;
+use App\Service\SeatmapService;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Ramsey\Uuid\UuidInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -24,12 +26,21 @@ class PaymentController extends AbstractController
 {
     private readonly TicketService $ticketService;
     private readonly UserService $userService;
+    private readonly SeatmapService $seatmapService;
 
     public function __construct(TicketService $ticketService,
-                                UserService   $userService)
+                                UserService   $userService,
+                                SeatmapService $seatmapService)
     {
         $this->ticketService = $ticketService;
         $this->userService = $userService;
+        $this->seatmapService = $seatmapService;
+    }
+
+    #[Route(path: '/quick-checkin', name: '_quick_checkin', methods: ['GET'])]
+    public function quickCheckin(): Response
+    {
+        return $this->render('admin/payment/checkin.html.twig');
     }
 
     private function createTicketCreateForm(string $action = "", bool $forceUser = false): FormInterface
@@ -40,10 +51,13 @@ class PaymentController extends AbstractController
         return $form->getForm();
     }
 
-    private function createTicketModificationForm(Ticket $ticket): FormInterface
+    private function createTicketModificationForm(Ticket $ticket, string $redirectRoute = 'admin_payment'): FormInterface
     {
         $form = $this->createFormBuilder()
-            ->setAction($this->generateUrl('admin_payment_update', ['id' => $ticket->getId()]));
+            ->setAction($this->generateUrl('admin_payment_update', [
+                'id' => $ticket->getId(),
+                'redirect' => $redirectRoute,
+            ]));
         $can_delete_ticket = empty($ticket->getShopOrderPosition());
         switch ($ticket->getState()) {
             case TicketState::NEW:
@@ -127,7 +141,8 @@ class PaymentController extends AbstractController
     #[Route(path: '/{id}', name: '_update', methods: ['POST'])]
     public function update(Request $request, Ticket $ticket): Response
     {
-        $form = $this->createTicketModificationForm($ticket);
+        $redirectRoute = $request->query->get('redirect', 'admin_payment');
+        $form = $this->createTicketModificationForm($ticket, $redirectRoute);
         $form->handleRequest($request);
         $id = $ticket->getId();
         $error = "";
@@ -158,11 +173,11 @@ class PaymentController extends AbstractController
                         break;
                     default:
                         $this->addFlash('error', "Aktion konnte nicht durchgeführt werden");
-                        return $this->redirectToRoute('admin_payment');
+                        return $this->redirectToRoute($redirectRoute);
                 }
             } catch (TicketLivecycleException $exception) {
                 $this->addFlash('error', "Aktion konnte nicht durchgeführt werden ({$exception->getMessage()}).");
-                return $this->redirectToRoute('admin_payment');
+                return $this->redirectToRoute($redirectRoute);
             }
             if (!empty($error)) {
                 $this->addFlash('error', $error);
@@ -171,13 +186,13 @@ class PaymentController extends AbstractController
             }
         }
 
-        return $this->redirectToRoute('admin_payment');
+        return $this->redirectToRoute($redirectRoute);
     }
 
     #[Route(path: '/{id}', name: '_show', methods: ['GET'])]
     public function show(Request $request, Ticket $ticket): Response
     {
-        $form = $this->createTicketModificationForm($ticket);
+        $form = $this->createTicketModificationForm($ticket, 'admin_payment');
         $user = $this->ticketService->userByTicket($ticket);
 
         return $this->render('admin/payment/show.html.twig', [
@@ -186,4 +201,24 @@ class PaymentController extends AbstractController
             'form' => $form->createView(),
         ]);
     }
+
+    #[Route(path: '/code/{code}', name: '_show_by_code', methods: ['GET'])]
+    public function showFromCode(Request $request, string $code): Response
+    {
+        $ticket = $this->ticketService->getTicketCode($code);
+        if (is_null($ticket)) {
+            $this->addFlash('error', sprintf('Kein Ticket mit dem Code "%s" gefunden.', $code));
+            return $this->redirectToRoute('admin_payment_quick_checkin');
+        }
+
+        $form = $this->createTicketModificationForm($ticket, 'admin_payment_quick_checkin');
+        $user = $this->ticketService->userByTicket($ticket);
+
+        return $this->render('admin/payment/show.html.twig', [
+            'user' => $user,
+            'ticket' => $ticket,
+            'form' => $form->createView(),
+        ]);
+    }
+
 }

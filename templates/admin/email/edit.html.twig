@@ -29,7 +29,7 @@
             {% for key, field in availableFields %}
                 <p>
                     &#123;&#123;{{ key }}&#125;&#125;<br>
-                    <small>{{ field }}</small>
+                    <small>{{ field | raw }}</small>
                 </p>
             {% endfor %}
         </div>

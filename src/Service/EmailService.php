@@ -7,7 +7,11 @@ use App\Entity\EmailSending;
 use App\Helper\EmailRecipient;
 use App\Messenger\MailingGroupNotification;
 use App\Messenger\MailingHookNotification;
+use App\Service\GroupService;
+use App\Service\TicketService;
 use Doctrine\ORM\EntityManagerInterface;
+use Endroid\QrCode\QrCode;
+use Endroid\QrCode\Writer\PngWriter;
 use Psr\Log\LoggerInterface;
 use Ramsey\Uuid\Uuid;
 use Ramsey\Uuid\UuidInterface;
@@ -19,6 +23,7 @@ use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Messenger\Stamp\DelayStamp;
 use Symfony\Component\Mime;
 use Twig\Environment;
+use function htmlspecialchars;
 
 class EmailService
 {
@@ -71,6 +76,7 @@ class EmailService
     private readonly Environment $twig;
     private readonly SettingService $settingService;
     private readonly MessageBusInterface $messageBus;
+    private readonly TicketService $ticketService;
     private readonly string $appSecret;
 
     public function __construct(MailerInterface $mailer,
@@ -79,6 +85,7 @@ class EmailService
                                 SettingService $settingService,
                                 Environment $twig,
                                 MessageBusInterface $messageBus,
+                                TicketService $ticketService,
                                 string $appSecret)
     {
         $this->logger = $logger;
@@ -91,6 +98,7 @@ class EmailService
         $mailName = $_ENV['MAILER_DEFAULT_SENDER_NAME'];
         $this->senderAddress = new Mime\Address($mailAddress, $mailName);
         $this->messageBus = $messageBus;
+        $this->ticketService = $ticketService;
     }
 
     public function scheduleSending(Email $template): bool
@@ -229,6 +237,11 @@ class EmailService
 
     private array $template_cache = [];
 
+    public function getAvailableFields(?EmailRecipient $recipient): array
+    {
+        return $this->buildRecipientData($recipient);
+    }
+
     public function renderTemplate(Email $template, EmailRecipient $recipient): array
     {
         $key = hash('sha256', serialize($template));
@@ -241,14 +254,62 @@ class EmailService
                 'unsubscribe' => 'UNSUBSCRIBE_URL_TOKEN_PLACEHOLDER',
             ]));
 
-        $subject = $this->replaceVariables($subject, $recipient->getDataArray());
-        $html = $this->replaceVariables($html, $recipient->getDataArray());
+        $recipientData = $this->buildRecipientData($recipient);
+
+        $subject = $this->replaceVariables($subject, $recipientData);
+        $html = $this->replaceVariables($html, $recipientData);
         $html = $this->replaceVariables($html, [
             'UNSUBSCRIBE_URL_TOKEN_PLACEHOLDER' => $this->generateUnsubscribeToken($recipient->getUuid()),
         ], false);
         $text = strip_tags($html);
 
         return ['subject' => $subject, 'html' => $html, 'text' => $text];
+    }
+
+    private function buildRecipientData(?EmailRecipient $recipient): array
+    {
+        $data = $recipient?->getDataArray() ?? [];
+        $data['ticket-code'] = '';
+        $data['ticket-qr-code'] = '';
+
+        if ($recipient?->getUuid()) {
+            $ticket = $this->ticketService->getTicketUser($recipient->getUuid());
+            if ($ticket && $ticket->getCode()) {
+                $data['ticket-code'] = $ticket->getCode();
+                $data['ticket-qr-code'] = $this->generateTicketQrCodeHtml($ticket->getCode());
+            }
+        }
+
+        return $data;
+    }
+
+    private function generateTicketQrCodeHtml(string $code): string
+    {
+        try {
+            $size = 240;
+
+            $qrCode = new QrCode(
+                data: $code,
+                size: $size,
+                margin: 10
+            );
+
+            $writer = new PngWriter();
+            $result = $writer->write($qrCode);
+
+            $escapedCode = htmlspecialchars($code, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+
+            return sprintf(
+                '<img src="%s" alt="Ticket QR-Code" class="mt-2" title="Ticket-Code %s" style="max-width:%dpx;height:auto;" />',
+                $result->getDataUri(),
+                $escapedCode,
+                $size
+            );
+        } catch (\Throwable $exception) {
+            $this->logger->error('Failed to generate ticket QR code', ['exception' => $exception]);
+
+            return '';
+        }
     }
 
     private function replaceVariables(string $text, array $replacements, bool $escapeSign = true): string

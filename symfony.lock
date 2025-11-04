@@ -113,6 +113,9 @@
             "config/packages/eko_feed.yaml"
         ]
     },
+    "endroid/qr-code-bundle": {
+        "version": "6.0.0"
+    },
     "excelwebzone/recaptcha-bundle": {
         "version": "1.5",
         "recipe": {

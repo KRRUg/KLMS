@@ -8,9 +8,11 @@ use App\Entity\TourneyGame;
 use App\Entity\TourneyRules;
 use App\Entity\TourneyStage;
 use App\Entity\TourneyTeam;
+use App\Entity\TourneyTeamMember;
 use App\Entity\User;
 use App\Exception\ServiceException;
 use App\Form\TourneyType;
+use App\Form\TourneyTeamType;
 use App\Idm\IdmManager;
 use App\Idm\IdmRepository;
 use App\Service\TourneyService;
@@ -279,5 +281,102 @@ class TourneyController extends AbstractController
             $this->addFlash('error', $e->getMessage());
         }
         return $this->redirectToRoute('admin_tourney');
+    }
+
+    #[Route(path: '/{id}/add-team', name: '_add_team', methods: ['GET', 'POST'])]
+    public function addTeam(Request $request, Tourney $tourney): Response
+    {
+        $this->denyAccessUnlessGranted('ROLE_ADMIN');
+
+        if (!$tourney->getStatus()->canRegister()) {
+            $this->addFlash('error', 'Teams können in diesem Turnier-Status nicht hinzugefügt werden.');
+            return $this->redirectToRoute('admin_tourney');
+        }
+
+        $team = new TourneyTeam();
+        $team->setTourney($tourney);
+
+        // Für Team-Turniere mindestens ein leeres Team-Member hinzufügen
+        if (!$tourney->isSinglePlayer()) {
+            $member = new TourneyTeamMember();
+            $member->setTeam($team);
+            $member->setAccepted(true);
+            $team->addMember($member);
+        }
+
+        $form = $this->createForm(TourneyTeamType::class, $team, [
+            'tourney' => $tourney,
+        ]);
+
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            try {
+                $this->service->createTeam($team);
+                $this->addFlash('success', 'Team wurde erfolgreich hinzugefügt.');
+                
+                if ($request->isXmlHttpRequest()) {
+                    return new Response('', 204); // No Content - Modal schließen
+                }
+                
+                return $this->redirectToRoute('admin_tourney');
+            } catch (ServiceException $e) {
+                $this->addFlash('error', 'Fehler beim Hinzufügen des Teams: ' . $e->getMessage());
+            }
+        }
+
+        $userRepo = $this->userRepo;
+        $availableUsers = $userRepo->findAll();
+
+        return $this->render('admin/tourney/team.modal.html.twig', [
+            'form' => $form->createView(),
+            'tourney' => $tourney,
+            'team' => $team,
+            'available_users' => $availableUsers,
+        ]);
+    }
+
+    #[Route(path: '/team/{id}/edit', name: '_edit_team', methods: ['GET', 'POST'])]
+    public function editTeam(Request $request, TourneyTeam $team): Response
+    {
+        $this->denyAccessUnlessGranted('ROLE_ADMIN');
+
+        $tourney = $team->getTourney();
+        
+        if (!$tourney->getStatus()->canRegister()) {
+            $this->addFlash('error', 'Teams können in diesem Turnier-Status nicht bearbeitet werden.');
+            return $this->redirectToRoute('admin_tourney');
+        }
+
+        $form = $this->createForm(TourneyTeamType::class, $team, [
+            'tourney' => $tourney,
+        ]);
+
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            try {
+                $this->service->updateTeam($team);
+                $this->addFlash('success', 'Team wurde erfolgreich aktualisiert.');
+                
+                if ($request->isXmlHttpRequest()) {
+                    return new Response('', 204); // No Content - Modal schließen
+                }
+                
+                return $this->redirectToRoute('admin_tourney');
+            } catch (ServiceException $e) {
+                $this->addFlash('error', 'Fehler beim Aktualisieren des Teams: ' . $e->getMessage());
+            }
+        }
+
+        $userRepo = $this->userRepo;
+        $availableUsers = $userRepo->findAll();
+
+        return $this->render('admin/tourney/team.modal.html.twig', [
+            'form' => $form->createView(),
+            'tourney' => $tourney,
+            'team' => $team,
+            'available_users' => $availableUsers,
+        ]);
     }
 }

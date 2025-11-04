@@ -23,6 +23,7 @@ class ClanDiscountType extends AbstractType
                 'hydrate' => false,
             ])
             ->add('price', IntegerType::class, [
+            'label' => 'Preis in Cent',
             'required' => true,
             'constraints' => [
                 new GreaterThan([

@@ -77,4 +77,37 @@ class TourneyRepository extends ServiceEntityRepository
             ->getQuery()
             ->getResult();
     }
+
+    /**
+     * Findet ein Team anhand des Namens in einem bestimmten Turnier
+     */
+    public function findTeamByName(Tourney $tourney, string $name): ?TourneyTeam
+    {
+        return $this->getEntityManager()
+            ->getRepository(TourneyTeam::class)
+            ->createQueryBuilder('tt')
+            ->where('tt.tourney = :tourney')
+            ->andWhere('tt.name = :name')
+            ->setParameter('tourney', $tourney)
+            ->setParameter('name', $name)
+            ->getQuery()
+            ->getOneOrNullResult();
+    }
+
+    /**
+     * Findet ein Team anhand eines Spielers in einem bestimmten Turnier
+     */
+    public function findTeamByGamer(Tourney $tourney, UuidInterface $gamer): ?TourneyTeam
+    {
+        return $this->getEntityManager()
+            ->getRepository(TourneyTeam::class)
+            ->createQueryBuilder('tt')
+            ->join('tt.members', 'ttm')
+            ->where('tt.tourney = :tourney')
+            ->andWhere('ttm.gamer = :gamer')
+            ->setParameter('tourney', $tourney)
+            ->setParameter('gamer', $gamer)
+            ->getQuery()
+            ->getOneOrNullResult();
+    }
 }

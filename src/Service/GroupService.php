@@ -13,6 +13,7 @@ use Ramsey\Uuid\UuidInterface;
 
 class GroupService
 {
+    final public const GROUP_ALL = 'a5f40a8f-67b1-4e5a-9f8a-3a5b6f1078f0';
     final public const GROUP_NEWSLETTER = '083ae2b4-0351-4f82-936c-4f8716cd790f';
     final public const GROUP_PAID = '8ae23ac3-ced7-40f7-b092-79da065f0b02';
     final public const GROUP_PAID_NO_SEAT = '5ec12941-0448-4a6f-a194-fd9ce2874925';
@@ -23,6 +24,11 @@ class GroupService
     private const FILTER = 'filter';
 
     private const GROUP_SETTING = [
+        self::GROUP_ALL => [
+            self::NAME => 'Alle Benutzer',
+            self::METHOD => 'getIdm',
+            self::FILTER => [],
+        ],
         self::GROUP_NEWSLETTER => [
             self::NAME => 'Newsletter',
             self::METHOD => 'getIdm',

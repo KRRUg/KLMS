@@ -83,7 +83,7 @@ class EmailController extends AbstractController
 
         return $this->render('admin/email/edit.html.twig', [
             'form' => $form->createView(),
-            'availableFields' => $recipient->getDataArray(),
+            'availableFields' => $this->mailService->getAvailableFields($recipient),
         ]);
     }
 
@@ -140,7 +140,7 @@ class EmailController extends AbstractController
 
         return $this->render('admin/email/edit.html.twig', [
             'form' => $form->createView(),
-            'availableFields' => $recipient->getDataArray(),
+            'availableFields' => $this->mailService->getAvailableFields($recipient),
             'csrf_token_delete' => self::CSRF_TOKEN_DELETE,
         ]);
     }

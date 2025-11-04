@@ -7,10 +7,21 @@
     {% block modalBody %}
         {{ form_start(form) }}
         {% set dateformat = "d.m.Y H:i" %}
+        {% set status = ticket.state %}
+        {% set statusLabels = {
+            'NEW': 'Ohne Zuordnung',
+            'REDEEMED': 'Zugeordnet',
+            'PUNCHED': 'Checked-in'
+        } %}
+        {% set statusBadges = {
+            'NEW': 'badge-danger',
+            'REDEEMED': 'badge-success',
+            'PUNCHED': 'badge-warning'
+        } %}
         <div class="container-fluid">
             <div class="row">
                 <div class="col-4 mr-2">
-                    <i class="fa fa-ticket fa-7x"></i>
+                    <i class="fa fa-ticket" style="font-size: clamp(3rem, 10vw, 7rem);"></i>
                 </div>
                 <div class="col">
                     <p>
@@ -33,8 +44,17 @@
                         <i class="fas fa-money-check fa-fw mr-2" title="Eingelöst"></i>
                         {% if ticket.redeemedAt is not empty %}
                             <span class="d-inline-block">{{ ticket.redeemedAt | date(dateformat) }}</span>
+                        {% endif %}
+                    </p>
+                    <p>
+                        <i class="fas fa-info-circle fa-fw mr-2" title="Status"></i>
+                        {% if status is not null %}
+                            {% set key = status.name %}
+                            <span class="badge {{ statusBadges[key]|default('badge-light') }}">
+                                {{ statusLabels[key]|default(key) }}
+                            </span>
                         {% else %}
-                            <span class="d-inline-block text-muted">nicht eingelöst</span>
+                            <span class="d-inline-block text-muted">Status unbekannt</span>
                         {% endif %}
                     </p>
                 </div>
@@ -48,7 +68,7 @@
                     {% if img is not empty %}
                         <img src="{{ img | imagine_filter('user_img') }}" alt="Image"/>
                     {% else %}
-                        <i class="far fa-user-circle fa-8x"></i>
+                        <i class="far fa-user-circle" style="font-size: clamp(3rem, 12vw, 8rem);"></i>
                     {% endif %}
                 </div>
                 <div class="col">

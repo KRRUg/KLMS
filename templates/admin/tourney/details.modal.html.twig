@@ -18,20 +18,36 @@
         {% else %}
             <div class="container-fluid row">
                 <div class="{% if tourney.canHaveGames %} col-lg-6 {% else %} col-lg-12 {% endif %}">
-                    <h5><i class="fa-solid fa-people-group"></i> Teams ({{ tourney.teams | length }} / {{ turney.maxTeams | default("&infin;") | raw }})</h5>
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <h5><i class="fa-solid fa-people-group"></i> Teams ({{ tourney.teams | length }} / {{ turney.maxTeams | default("&infin;") | raw }})</h5>
+                        {% if tourney.status.canRegister %}
+                            <button type="button" class="btn btn-sm btn-success" data-toggle="ajaxModal" href="{{ path('admin_tourney_add_team', {'id': tourney.id}) }}">
+                                <i class="fa-solid fa-plus"></i> Team hinzufügen
+                            </button>
+                        {% endif %}
+                    </div>
                     <span style="font-size: small;">Registrierte User{% if not tourney.singlePlayer %} (bestätigt, <i class="italic">nicht bestätigt</i>){% endif %}.</span>
                     <hr>
                     <ul class="list-group mb-3">
                         {% for team in tourney.teams %}
                             <li class="list-group-item">
-                                <b>{{ teamname(team) }}</b>
-                                {% if tourney.status.canRegister %}
-                                {{ _self.unregister_team(team, csrf_token_modify) }}
-                                {% endif %}
-                                {% if not tourney.singlePlayer %}
-                                    <br>
-                                    <span>{% for tm in team.members %}{% if not tm.accepted %}<i class="text-muted">{% endif %}{{ tm.gamer | username }}{% if not tm.accepted %}</i>{% endif %}{% if not loop.last %},  {% endif %}{% endfor %}</span>
-                                {% endif %}
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div class="flex-grow-1">
+                                        <b>{{ teamname(team) }}</b>
+                                        {% if not tourney.singlePlayer %}
+                                            <br>
+                                            <span>{% for tm in team.members %}{% if not tm.accepted %}<i class="text-muted">{% endif %}{{ tm.gamer | username }}{% if not tm.accepted %}</i>{% endif %}{% if not loop.last %},  {% endif %}{% endfor %}</span>
+                                        {% endif %}
+                                    </div>
+                                    {% if tourney.status.canRegister %}
+                                        <div class="btn-group btn-group-sm">
+                                            <button type="button" class="btn btn-outline-primary" data-toggle="ajaxModal" href="{{ path('admin_tourney_edit_team', {'id': team.id}) }}" title="Team bearbeiten">
+                                                <i class="fa-solid fa-pencil"></i>
+                                            </button>
+                                            {{ _self.unregister_team(team, csrf_token_modify) }}
+                                        </div>
+                                    {% endif %}
+                                </div>
                             </li>
                         {% endfor %}
                     </ul>

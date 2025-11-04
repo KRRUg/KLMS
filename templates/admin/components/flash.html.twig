@@ -1,8 +1,13 @@
 
-{% for label, messages in app.flashes(['success', 'info', 'warning', 'danger', 'error']) %}
+{% set flashMessages = (app.request is defined and app.request is not null and app.request.isXmlHttpRequest)
+    ? {}
+    : app.flashes(['success', 'info', 'warning', 'danger', 'error']) %}
+
+{% for label, messages in flashMessages %}
     {% for message in messages %}
-        <div class="alert alert-{{ label }} alert-dismissible fade show d-block">
-            <span class="badge badge-{{ label }} text-uppercase">{{ label }}</span>
+        {% set bootstrapLabel = label == 'error' ? 'danger' : label %}
+        <div class="alert alert-{{ bootstrapLabel }} alert-dismissible fade show d-block">
+            <span class="badge badge-{{ bootstrapLabel }} text-uppercase">{{ label }}</span>
             {{ message }}
             <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                 <span aria-hidden="true">&times;</span>

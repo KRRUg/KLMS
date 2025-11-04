@@ -26,7 +26,7 @@ class FaqType extends AbstractType
                 'label' => 'Frage',
                 'attr' => [
                     'class' => 'form-control',
-                    'placeholder' => 'Wie kann ich mich registrieren?'
+                    'placeholder' => 'zb. Wie kann ich mich registrieren?'
                 ]
             ])
             ->add('answer', HtmlTextareaType::class, [
