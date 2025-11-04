@@ -30,6 +30,7 @@ Es wurde von uns erweitert um:
 - **SumUp Integration** – Zahlungsfunktion via **[SumUp](https://www.sumup.com)**.
 - **Bildergalerie** – Bilder von vergangenen Veranstaltungen anzeigen.
 - **FAQ** – Erstellen und bearbeiten von FAQs inkl. Suche.
+- **QR-Code CheckIn** – Erstellen und Versenden eines QR-Codes (Ticket), der beim Check-In verifiziert werden kann.
 ---
 
 ## Technologie
