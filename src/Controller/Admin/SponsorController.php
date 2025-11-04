@@ -5,7 +5,7 @@ namespace App\Controller\Admin;
 use App\Entity\Sponsor;
 use App\Form\SponsorType;
 use App\Service\SponsorService;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\HttpFoundation\Request;

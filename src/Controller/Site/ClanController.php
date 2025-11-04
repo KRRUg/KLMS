@@ -13,7 +13,7 @@ use App\Service\SettingService;
 use App\Service\TicketService;
 use App\Service\TicketState;
 use App\Service\UserService;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\Extension\Core\Type\PasswordType;
 use Symfony\Component\Form\FormInterface;

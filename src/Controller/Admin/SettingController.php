@@ -5,7 +5,7 @@ namespace App\Controller\Admin;
 use App\Form\HtmlTextareaType;
 use App\Service\SettingService;
 use App\Service\SettingType;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\CallbackTransformer;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;

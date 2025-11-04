@@ -5,7 +5,7 @@ namespace App\Controller\Admin;
 use App\Entity\Faq;
 use App\Form\FaqType;
 use App\Service\FaqService;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;

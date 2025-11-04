@@ -11,7 +11,7 @@ use App\Service\UserService;
 use App\Service\SeatmapService;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Ramsey\Uuid\UuidInterface;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;

@@ -5,7 +5,7 @@ namespace App\Controller\Admin;
 use App\Entity\News;
 use App\Form\NewsType;
 use App\Service\NewsService;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
