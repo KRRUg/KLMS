@@ -2,6 +2,7 @@
 
 namespace App\Controller\Site;
 
+use App\Controller\LoginUserTrait;
 use App\Entity\Seat;
 use App\Exception\GamerLifecycleException;
 use App\Service\SeatmapService;
@@ -16,6 +17,8 @@ use Symfony\Component\Routing\Annotation\Route;
 #[Route(path: '/seatmap', name: 'seatmap')]
 class SeatmapController extends AbstractController
 {
+    use LoginUserTrait;
+
     private readonly SeatmapService $seatmapService;
     private readonly SettingService $settingService;
 
@@ -72,7 +75,7 @@ class SeatmapController extends AbstractController
             if ($locked) {
                 $form = null;
             } else {
-                $user = $this->getUser()->getUser();
+                $user = $this->requireDomainUser();
                 if ($this->seatmapService->canBookSeat($seat, $user)) {
                     $form = $this->generateForm($seat, 'book');
                 } elseif ($this->seatmapService->isSeatOwner($seat, $user)) {

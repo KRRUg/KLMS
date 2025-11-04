@@ -2,6 +2,7 @@
 
 namespace App\Controller\Site;
 
+use App\Controller\LoginUserTrait;
 use App\Entity\Clan;
 use App\Entity\User;
 use App\Form\ClanType;
@@ -24,6 +25,8 @@ use Symfony\Component\Routing\Annotation\Route;
 #[IsGranted('IS_AUTHENTICATED_REMEMBERED')]
 class ClanController extends AbstractController
 {
+    use LoginUserTrait;
+
     private const CSRF_TOKEN_DELETE = 'clanDeleteToken';
     private const CSRF_TOKEN_MEMBER_EDIT = 'clanMemberEditToken';
     private const CSRF_TOKEN_MEMBER_LEAVE = 'clanMemberLeaveToken';
@@ -103,7 +106,7 @@ class ClanController extends AbstractController
             throw $this->createAccessDeniedException('The CSRF token is invalid.');
         }
 
-        $user = $this->getUser()->getUser();
+        $user = $this->requireDomainUser();
 
         $this->removeUserFromClan($clan, $user);
 
@@ -123,7 +126,7 @@ class ClanController extends AbstractController
             throw $this->createAccessDeniedException('The CSRF token is invalid.');
         }
 
-        $admin = $this->getUser()->getUser();
+        $admin = $this->requireDomainUser();
         if (!$clan->isAdmin($admin)) {
             $this->addFlash('error', 'Nur Admins dürfen das.');
 
@@ -192,7 +195,7 @@ class ClanController extends AbstractController
             throw $this->createNotFoundException('Clan not found');
         }
 
-        $user = $this->getUser()->getUser();
+        $user = $this->requireDomainUser();
 
         foreach ($clan->getUsers() as $u) {
             if ($user === $u) {
@@ -236,7 +239,8 @@ class ClanController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             $clan = $form->getData();
             try {
-                $clan->setAdmins([$this->getUser()->getUser()]);
+                $admin = $this->requireDomainUser();
+                $clan->setAdmins([$admin]);
                 $this->im->persist($clan);
                 $this->im->flush();
                 $this->addFlash('success', 'Clan erfolgreich angelegt!');
@@ -272,7 +276,8 @@ class ClanController extends AbstractController
 
     private function throwOnUserNotAdminOfClan(Clan $clan): void
     {
-        if (!$clan->isAdmin($this->getUser()->getUser())) {
+    $admin = $this->requireDomainUser();
+    if (!$clan->isAdmin($admin)) {
             throw $this->createAccessDeniedException('Nur Admins können den Clan bearbeiten!');
         }
     }

@@ -2,11 +2,11 @@
 
 namespace App\Controller\Admin;
 
+use App\Controller\LoginUserTrait;
 use App\Entity\Email;
 use App\Form\EmailType;
 use App\Helper\EmailRecipient;
 use App\Repository\EmailRepository;
-use App\Security\LoginUser;
 use App\Service\EmailService;
 use App\Service\GroupService;
 use Doctrine\ORM\EntityManagerInterface;
@@ -21,6 +21,8 @@ use Symfony\Component\Routing\Annotation\Route;
 #[IsGranted('ROLE_ADMIN_MAIL')]
 class EmailController extends AbstractController
 {
+    use LoginUserTrait;
+
     private const CSRF_TOKEN_DELETE = 'emailDeleteToken';
     private const CSRF_TOKEN_CANCEL = 'emailCancelToken';
 
@@ -181,13 +183,13 @@ class EmailController extends AbstractController
 
     private function getUserFromLoginUser(): ?EmailRecipient
     {
-        $user = parent::getUser();
-        if (!($user instanceof LoginUser)) {
+        $user = $this->getDomainUser();
+        if (!$user) {
             $this->logger->critical('wrong user type given (should be instance of LoginUser)');
 
             return null;
         }
 
-        return EmailRecipient::fromUser($user->getUser());
+        return EmailRecipient::fromUser($user);
     }
 }

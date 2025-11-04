@@ -2,6 +2,7 @@
 
 namespace App\Controller\Site;
 
+use App\Controller\LoginUserTrait;
 use App\Entity\ShopAddon;
 use App\Entity\ShopOrder;
 use App\Entity\ShopOrderStatus;
@@ -25,6 +26,8 @@ use Symfony\Component\Routing\Annotation\Route;
 #[Route(path: '/shop', name: 'shop')]
 class ShopController extends AbstractController
 {
+    use LoginUserTrait;
+
     private readonly TicketService $ticketService;
     private readonly ShopService $shopService;
     private readonly SumupService $sumupService;
@@ -56,8 +59,7 @@ class ShopController extends AbstractController
             return $this->redirectToRoute('shop_orders');
         }
 
-        /** @var User $user */
-        $user = $this->getUser()->getUser();
+        $user = $this->requireDomainUser();
         $orders = $this->shopService->getOrderByUser($user);
         $open_order = array_filter($orders, function (ShopOrder $o) {
             return $o->isOpen();
@@ -166,7 +168,7 @@ class ShopController extends AbstractController
     public function orders(Request $request): Response
     {
         /** @var User $user */
-        $user = $this->getUser()->getUser();
+        $user = $this->requireDomainUser();
         $orders = $this->shopService->getOrderByUser($user);
 
         if ($request->getMethod() == 'POST') {
@@ -212,7 +214,7 @@ class ShopController extends AbstractController
     public function payment(): Response
     {
         /** @var User $user */
-        $user = $this->getUser()->getUser();
+        $user = $this->requireDomainUser();
         $order = $this->shopService->getOrderByUser($user, ShopOrderStatus::Created)[0] ?? null;
 
         if ($order === null) {
@@ -262,7 +264,7 @@ class ShopController extends AbstractController
             return $this->redirectToRoute('shop_orders');
         }
 
-        $user = $this->getUser()->getUser();
+        $user = $this->requireDomainUser();
         $order = $this->shopService->getOrderByUser($user, ShopOrderStatus::Created)[0] ?? null;
 
         if ($order === null) {
