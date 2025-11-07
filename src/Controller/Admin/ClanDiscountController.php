@@ -4,10 +4,12 @@ namespace App\Controller\Admin;
 
 use App\Entity\ClanDiscount;
 use App\Service\ClanDiscountService;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 
 #[IsGranted('ROLE_ADMIN_PAYMENT')]
@@ -15,11 +17,13 @@ class ClanDiscountController extends AbstractController
 {
     private ClanDiscountService $clanDiscountService;
     private \App\Service\UserService $userService;
+    private EntityManagerInterface $entityManager;
 
-    public function __construct(ClanDiscountService $clanDiscountService, \App\Service\UserService $userService)
+    public function __construct(ClanDiscountService $clanDiscountService, \App\Service\UserService $userService, EntityManagerInterface $entityManager)
     {
         $this->clanDiscountService = $clanDiscountService;
         $this->userService = $userService;
+        $this->entityManager = $entityManager;
     }
 
     #[Route(path: '/clandiscount', name: 'clandiscount', methods: ['GET'])]
@@ -58,8 +62,8 @@ class ClanDiscountController extends AbstractController
 
         if ($form->isSubmitted() && $form->isValid()) {
             $discount = $form->getData();
-            $this->getDoctrine()->getManager()->persist($discount);
-            $this->getDoctrine()->getManager()->flush();
+            $this->entityManager->persist($discount);
+            $this->entityManager->flush();
             $this->addFlash('success', 'Clan-Discount erfolgreich erstellt!');
             return $this->redirectToRoute('admin_clandiscount');
         }
@@ -86,7 +90,7 @@ class ClanDiscountController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $this->getDoctrine()->getManager()->flush();
+            $this->entityManager->flush();
             $this->addFlash('success', 'Clan-Discount erfolgreich bearbeitet!');
             return $this->redirectToRoute('admin_clandiscount');
         }
