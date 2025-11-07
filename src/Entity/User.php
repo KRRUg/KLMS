@@ -84,7 +84,7 @@ class User
     #[Assert\Regex('/^[+]?\d([ \/()]?\d)*$/', message: 'Invalid phone number format.')]
     private ?string $phone = null;
 
-    #[Assert\Url]
+    #[Assert\Url(requireTld: false)]
     #[Assert\Length(max: 250, maxMessage: 'The website url cannot be longer than {{ limit }} characters')]
     #[Groups(['read', 'write'])]
     private ?string $website = null;
