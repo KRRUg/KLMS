@@ -40,6 +40,5 @@ class AuthorInsertSubscriber implements EventSubscriberInterface
             $data->setAuthorId($uuid);
         }
         $data->setModifierId($uuid);
-        $event->setData($data);
     }
 }
