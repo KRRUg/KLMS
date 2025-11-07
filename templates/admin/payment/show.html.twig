@@ -105,7 +105,7 @@
         </div>
 
         {% macro confirm_button_form(field, title, danger = false) %}
-            {% if field is defined %}
+            {% if field is defined and field is not null %}
                 {% set attrs = {
                     'class': 'btn btn-sm mr-1 ' ~ (danger ? 'btn-outline-danger' : 'btn-outline-dark')
                 } %}
