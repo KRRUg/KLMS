@@ -1,6 +1,6 @@
 @use 'sass:color';
-@use 'variables' as *;
-@use './bootstrap' as *;
+@use 'variables' as emailVars;
+@use './bootstrap' as bootstrap;
 
 
 html, body {
@@ -17,43 +17,43 @@ main, #main {
 }
 
 footer, #footer {
-    box-shadow: $box-shadow;
+    box-shadow: emailVars.$box-shadow;
     flex-shrink: 0;
 }
 
 .navbar {
-    box-shadow:  $box-shadow-sm;
+    box-shadow:  emailVars.$box-shadow-sm;
 }
 
 .list-group-hover .list-group-item:hover {
     z-index: 1;
-    color: $list-group-action-hover-color;
+    color: bootstrap.$list-group-action-hover-color;
     text-decoration: none;
-    background-color: $list-group-hover-bg;
+    background-color: bootstrap.$list-group-hover-bg;
 }
 
 .bg-darker {
-    background-color: color.adjust($dark, $lightness: -5%);
+    background-color: color.adjust(bootstrap.$dark, $lightness: -5%);
 }
 
 .text-disabled {
-    color: $gray-300;
+    color: bootstrap.$gray-300;
 }
 
 .badge-pill {
-    border-radius: $badge-pill-border-radius;
+    border-radius: bootstrap.$badge-pill-border-radius;
 }
 
 .dropdown-menu-lg {
-    min-width: $dropdown-min-width * 2;
+    min-width: bootstrap.$dropdown-min-width * 2;
 }
 
 input.datetimepicker[readonly]:not([disabled]) {
-    background:$input-bg;
+    background:bootstrap.$input-bg;
 }
 
 input.datepicker[readonly]:not([disabled]) {
-    background:$input-bg;
+    background:bootstrap.$input-bg;
 }
 
 .social-btn-group {
