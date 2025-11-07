@@ -1,0 +1,18 @@
+@use 'variables' as vars;
+
+@forward '~bootstrap' with (
+  $body-bg: vars.$body-bg,
+  $navbar-dark-color: vars.$navbar-dark-color,
+  $navbar-dark-hover-color: vars.$navbar-dark-hover-color,
+  $primary: vars.$primary,
+  $theme-colors: vars.$theme-colors,
+  $mark-padding: vars.$mark-padding,
+  $grid-breakpoints: vars.$grid-breakpoints,
+  $container-max-widths: vars.$container-max-widths,
+  $sizes: vars.$sizes,
+  $enable-rounded: vars.$enable-rounded,
+  $enable-shadows: vars.$enable-shadows,
+  $box-shadow-sm: vars.$box-shadow-sm,
+  $box-shadow: vars.$box-shadow,
+  $box-shadow-lg: vars.$box-shadow-lg
+);

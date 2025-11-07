@@ -46,7 +46,7 @@ class Clan
     #[Groups(['read', 'write'])]
     private ?string $clantag = null;
 
-    #[Assert\Url]
+    #[Assert\Url(requireTld: false)]
     #[Groups(['read', 'write'])]
     private ?string $website = null;
 

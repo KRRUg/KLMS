@@ -10,7 +10,7 @@ use App\Idm\IdmRepository;
 use App\Repository\UserAdminsRepository;
 use App\Security\LoginUser;
 use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Component\Security\Core\Security;
+use Symfony\Bundle\SecurityBundle\Security;
 
 final class PermissionService
 {

@@ -3,6 +3,7 @@
 namespace App\Controller\Site;
 
 use App\Controller\HttpExceptionTrait;
+use App\Controller\LoginUserTrait;
 use App\Entity\Tourney;
 use App\Entity\TourneyGame;
 use App\Entity\TourneyRules;
@@ -28,6 +29,9 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 class TourneyController extends AbstractController
 {
+    use HttpExceptionTrait;
+    use LoginUserTrait;
+
     private readonly TourneyService $service;
     private readonly UserService $userService;
 
@@ -36,8 +40,6 @@ class TourneyController extends AbstractController
         $this->service = $service;
         $this->userService = $userService;
     }
-
-    use HttpExceptionTrait;
 
     private function createNamedFormBuilder(string $name): FormBuilderInterface
     {
@@ -157,7 +159,7 @@ class TourneyController extends AbstractController
 
     private function handleRegistrationForm(Request $request, FormInterface $form, callable $getTeam): ?Tourney
     {
-        $user = ($u = $this->getUser()) ? $u->getUser() : null;
+    $user = $this->getDomainUser();
         $id = $this->isFormSubmitted($request, $form);
 
         if (is_null($user) || is_null($id)) {
@@ -194,7 +196,7 @@ class TourneyController extends AbstractController
     private function handleUnregisterForm(Request $request): ?Tourney
     {
         $form = $this->generateFormUnregister();
-        $user = ($u = $this->getUser()) ? $u->getUser() : null;
+    $user = $this->getDomainUser();
         $id = $this->isFormSubmitted($request, $form);
         if (is_null($user) || is_null($id)) {
             return null;
@@ -224,7 +226,7 @@ class TourneyController extends AbstractController
     private function handleConfirmForm(Request $request): ?Tourney
     {
         $form = $this->generateFormConfirm();
-        $user = ($u = $this->getUser()) ? $u->getUser() : null;
+    $user = $this->getDomainUser();
         $id = $this->isFormSubmitted($request, $form);
         if (is_null($user) || is_null($id)) {
             return null;
@@ -260,7 +262,7 @@ class TourneyController extends AbstractController
     private function handleResultForm(Request $request): ?Tourney
     {
         $form = $this->generateFormResult();
-        $user = ($u = $this->getUser()) ? $u->getUser() : null;
+    $user = $this->getDomainUser();
         $id = $this->isFormSubmitted($request, $form);
         if (is_null($user) || is_null($id)) {
             return null;
@@ -299,7 +301,7 @@ class TourneyController extends AbstractController
             throw $this->createNotFoundException();
         }
 
-        $user = ($u = $this->getUser()) ? $u->getUser() : null;
+    $user = $this->getDomainUser();
         $tourneys = $this->service->getVisibleTourneys();
         $podiums = array();
 
@@ -414,7 +416,7 @@ class TourneyController extends AbstractController
         $gamers = $this->service->getAllUsersOfTourney($tourney);
         $this->userService->preloadUsers($gamers);
 
-        $user = ($u = $this->getUser()) ? $u->getUser() : null;
+    $user = $this->getDomainUser();
         $participates = false;
         if (!is_null($user) && $this->service->userMayParticipate($user)) {
             $participates = true;

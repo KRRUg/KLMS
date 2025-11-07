@@ -8,7 +8,7 @@ use App\Form\ClanType;
 use App\Idm\Exception\PersistException;
 use App\Idm\IdmManager;
 use App\Idm\IdmRepository;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;

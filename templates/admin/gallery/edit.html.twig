@@ -27,8 +27,8 @@
                                     </h5>
                                 </div>
                                 <div class="card-body text-center">
-                                    <img src="{{ galleryImage.getImagePath()|imagine_filter('gallery_thumb') }}" 
-                                         alt="{{ galleryImage.title ?? 'Bild' }}"
+                             <img src="{{ galleryImage.getImagePath()|imagine_filter('gallery_thumb') }}" 
+                                 alt="{{ (galleryImage.title ?? 'Bild') }}"
                                          class="img-fluid rounded shadow-sm"
                                          style="max-height: 300px;">
                                     

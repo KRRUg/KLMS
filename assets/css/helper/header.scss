@@ -1,4 +1,5 @@
-@import 'variables';
+@use 'variables' as vars;
+@use '../bootstrap-site' as bootstrap;
 
 #header .head-wrap {
     
@@ -21,13 +22,13 @@
     }
 }
 
-@include media-breakpoint-up(xxl) {
+@include bootstrap.media-breakpoint-up(xxl) {
 	.nav-only-collapsed {
 		display: none !important;
 	}
 }
 
-@include media-breakpoint-down(xl) {
+@include bootstrap.media-breakpoint-down(xl) {
     #header .head-wrap {
 
         &.startpage {

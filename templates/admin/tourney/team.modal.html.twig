@@ -2,7 +2,7 @@
 
 {% block modalTitle %}
     {% if team.id %}
-        Team bearbeiten: {{ team.name ?? 'Team #' ~ team.id }}
+    Team bearbeiten: {{ team.name ?? ('Team #' ~ team.id) }}
     {% else %}
         Neues Team erstellen
     {% endif %}
@@ -54,9 +54,9 @@
                 </div>
             {% endset %}
 
-            <div id="members-container"
-                 data-prototype="{{ memberPrototype|e('html_attr') }}"
-                 data-max-size="{{ tourney.rules.teamSize ?? '' }}">
+          <div id="members-container"
+              data-prototype="{{ memberPrototype|e('html_attr') }}"
+              data-max-size="{{ (tourney.rules.teamSize ?? '') }}">
                 {% for memberForm in form.members %}
                     <div class="member-item border rounded p-3 mb-2">
                         <div class="row align-items-center">
@@ -85,7 +85,7 @@
             </button>
 
             <small class="form-text text-muted d-block mt-2">
-                Maximale Teamgröße: {{ tourney.rules.teamSize ?? 'Unbegrenzt' }}
+                Maximale Teamgröße: {{ (tourney.rules.teamSize ?? 'Unbegrenzt') }}
             </small>
         {% endif %}
     </div>

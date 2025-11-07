@@ -1,12 +1,16 @@
+@use 'sass:map';
+@use 'variables' as vars;
+@use '../bootstrap-site' as bootstrap;
+
 .sidebar {
     position: relative;
     top: 0;
     z-index: 1000;
-    background-color: $dark;
-    box-shadow: $box-shadow;
+    background-color: bootstrap.$dark;
+    box-shadow: vars.$box-shadow;
     overflow: hidden;
 
-    @media (min-width: map-get($grid-breakpoints, md)) {
+    @media (min-width: map.get(vars.$grid-breakpoints, md)) {
         transition: all .3s ease;
         min-height:calc(100vh - 3.5rem);
         padding: 1rem 0;
@@ -16,7 +20,7 @@
         .nav-item {
             .nav-link {
                 padding: .75rem 0;
-                border-bottom: 1px solid $black;
+                border-bottom: 1px solid vars.$shadow-color;
                 position: relative;
 
                 i {
@@ -34,7 +38,7 @@
                     &:before {
                         content:" ";
                         position: absolute;
-                        border: 0.175rem solid $primary;
+                        border: 0.175rem solid vars.$primary;
                         border-top-width: 0;
                         border-left-width: 0;
                         right : 1rem;
@@ -49,7 +53,7 @@
                 }
             }
             .collapse,.collapsing {
-                .nav-item {
+            .nav-item {
                     .nav-link {
                         padding-left:1.5rem;
                     }

@@ -97,28 +97,37 @@
                     <span class="text-muted">Ticket nicht eingelöst.</span>
                     <div class="d-flex form-group">
                         {{ form_widget(form.user) }}
-                        {{ _self.confirm_button_form(form, "assign", 'Ticket zuweisen') }}
+                        {{ _self.confirm_button_form(form.assign ?? null, 'Ticket zuweisen') }}
                     </div>
                 </div>
             </div>
             {% endif %}
         </div>
 
-        {% macro confirm_button_form(form, attr, title, danger = false) %}
-            {% if attribute(form, attr) is defined %}
-                {% set btn = attribute(form, attr) %}
-                <button type="submit" name="{{ field_name(btn) }}" value="{{ field_value(btn) }}"
-                        class="btn btn-sm mr-1 {% if danger %} btn-outline-danger {% else %} btn-outline-dark {% endif %}"
-                        {% if danger %} data-toggle="confirmModal" data-modal-title="Bestätigen" data-modal-text="Sind Sie sicher?" {% endif %}
-                        >{{ title }}</button>
+        {% macro confirm_button_form(field, title, danger = false) %}
+            {% if field is defined and field is not null %}
+                {% set attrs = {
+                    'class': 'btn btn-sm mr-1 ' ~ (danger ? 'btn-outline-danger' : 'btn-outline-dark')
+                } %}
+                {% if danger %}
+                    {% set attrs = attrs|merge({
+                        'data-toggle': 'confirmModal',
+                        'data-modal-title': 'Bestätigen',
+                        'data-modal-text': 'Sind Sie sicher?'
+                    }) %}
+                {% endif %}
+                {{ form_widget(field, {
+                    label: title,
+                    attr: attrs
+                }) }}
             {% endif %}
         {% endmacro %}
         <hr/>
         <div class="container d-flex">
-            {{ _self.confirm_button_form(form, "unassign", 'Ticket freigeben') }}
-            {{ _self.confirm_button_form(form, "delete", (ticket.redeemed) ? 'Ticket freigeben & löschen' : 'Ticket löschen', true) }}
-            {{ _self.confirm_button_form(form, "punch", 'Ticket checkin') }}
-            {{ _self.confirm_button_form(form, "unpunch", 'Ticket checkout') }}
+            {{ _self.confirm_button_form(form.unassign ?? null, 'Ticket freigeben') }}
+            {{ _self.confirm_button_form(form.delete ?? null, ticket.redeemed ? 'Ticket freigeben & löschen' : 'Ticket löschen', true) }}
+            {{ _self.confirm_button_form(form.punch ?? null, 'Ticket checkin') }}
+            {{ _self.confirm_button_form(form.unpunch ?? null, 'Ticket checkout') }}
         </div>
         {{ form_end(form) }}
     {% endblock %}

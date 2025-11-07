@@ -10,7 +10,7 @@ use App\Form\ShopAddonType;
 use App\Repository\ShopOrderRepository;
 use App\Service\ShopService;
 use App\Service\UserService;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;

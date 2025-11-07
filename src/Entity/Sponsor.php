@@ -27,7 +27,7 @@ class Sponsor implements HistoryAwareEntity
     private ?string $name = null;
 
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
-    #[Assert\Url]
+    #[Assert\Url(requireTld: false)]
     private ?string $url = null;
 
     #[Vich\UploadableField(mapping: 'sponsor', fileNameProperty: 'logo.name', size: 'logo.size', mimeType: 'logo.mimeType', originalName: 'logo.originalName', dimensions: 'logo.dimensions')]

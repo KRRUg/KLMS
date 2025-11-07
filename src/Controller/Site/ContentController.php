@@ -4,7 +4,7 @@ namespace App\Controller\Site;
 
 use App\Entity\Content;
 use App\Repository\ContentRepository;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
+use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -34,8 +34,7 @@ class ContentController extends AbstractController
     }
 
     #[Route(path: '/content/{slug}', requirements: ['slug' => '[a-z]+'], name: 'content_slug')]
-    #[ParamConverter('content', options: ['mapping' => ['slug' => 'alias']])]
-    public function bySlug(Content $content): Response
+    public function bySlug(#[MapEntity(mapping: ['slug' => 'alias'])] Content $content): Response
     {
         return $this->render('site/content/index.html.twig', [
             'content' => $content,

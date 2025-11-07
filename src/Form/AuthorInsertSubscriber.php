@@ -7,7 +7,7 @@ use App\Security\LoginUser;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\Form\Event\PostSubmitEvent;
 use Symfony\Component\Form\FormEvents;
-use Symfony\Component\Security\Core\Security;
+use Symfony\Bundle\SecurityBundle\Security;
 
 class AuthorInsertSubscriber implements EventSubscriberInterface
 {
@@ -25,7 +25,7 @@ class AuthorInsertSubscriber implements EventSubscriberInterface
         ];
     }
 
-    public function onPostSubmit(PostSubmitEvent $event)
+    public function onPostSubmit(PostSubmitEvent $event): void
     {
         $data = $event->getData();
         $user = $this->security->getUser();
@@ -40,6 +40,5 @@ class AuthorInsertSubscriber implements EventSubscriberInterface
             $data->setAuthorId($uuid);
         }
         $data->setModifierId($uuid);
-        $event->setData($data);
     }
 }

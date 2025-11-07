@@ -1,4 +1,8 @@
-@import '../helper/variables.scss';
+@use '../helper/variables' as vars;
+
+$seat-point-distance: 11px;
+$seat-mark-border-width: 2px;
+$seat-orientations: n, e, s, w;
 
 @mixin seat($color) {
   background-color: $color;
@@ -9,16 +13,15 @@
   }
 }
 
-.seat-border {}
-@mixin seat-border($color) {
-  @extend .seat-border;
-  border: $seat-mark-border-width solid $color;
+.seat-border {
+  border-style: solid;
+  border-width: $seat-mark-border-width;
 }
 
-$seat-point-distance: 11px;
-$seat-mark-border-width: 2px;
-
-$seat-orientations: n, e, s, w;
+@mixin seat-border($color) {
+  @extend .seat-border;
+  border-color: $color;
+}
 
 @mixin char-seat-point($orientation, $distance) {
   @if $orientation == n  {
@@ -54,7 +57,7 @@ $seat-orientations: n, e, s, w;
   }
 
   .seat-own {
-    @include seat($primary)
+    @include seat(vars.$primary)
   }
 
   .seat-locked {

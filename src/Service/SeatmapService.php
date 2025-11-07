@@ -12,7 +12,7 @@ use App\Idm\IdmRepository;
 use App\Repository\SeatRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Ramsey\Uuid\UuidInterface;
-use Symfony\Component\Security\Core\Security;
+use Symfony\Bundle\SecurityBundle\Security;
 
 class SeatmapService
 {

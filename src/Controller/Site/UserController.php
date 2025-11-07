@@ -2,19 +2,19 @@
 
 namespace App\Controller\Site;
 
+use App\Controller\LoginUserTrait;
 use App\Entity\User;
 use App\Form\UserType;
 use App\Helper\EmailRecipient;
 use App\Idm\Exception\PersistException;
 use App\Idm\IdmManager;
 use App\Idm\IdmRepository;
-use App\Security\LoginUser;
 use App\Service\EmailService;
 use App\Service\SettingService;
 use App\Service\TicketService;
 use App\Service\TicketState;
 use Psr\Log\LoggerInterface;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\Extension\Core\Type\PasswordType;
 use Symfony\Component\Form\Extension\Core\Type\RepeatedType;
@@ -24,6 +24,8 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class UserController extends AbstractController
 {
+    use LoginUserTrait;
+
     private readonly IdmManager $manager;
     private readonly IdmRepository $userRepo;
     private readonly EmailService $emailService;
@@ -43,16 +45,6 @@ class UserController extends AbstractController
         $this->settingService = $settingService;
         $this->ticketService = $ticketService;
         $this->logger = $logger;
-    }
-
-    public function getUser(): User
-    {
-        $u = parent::getUser();
-        if (!$u instanceof LoginUser) {
-            $this->logger->critical('User Object of invalid type in session found.');
-        }
-
-        return $u->getUser();
     }
 
     private const SHOW_LIMIT = 20;
@@ -97,7 +89,7 @@ class UserController extends AbstractController
     #[Route(path: '/user/profile', name: 'user_profile')]
     public function userProfile(): Response
     {
-        $user = $this->getUser();
+    $user = $this->requireDomainUser();
 
         return $this->render('site/user/show.html.twig', [
             'user' => $user,
@@ -110,7 +102,7 @@ class UserController extends AbstractController
         $user = $this->userRepo->findOneById($uuid);
 
         if ($this->isGranted('IS_AUTHENTICATED_REMEMBERED')
-            && $user === $this->getUser()) {
+            && $user && $user === $this->getDomainUser()) {
             return $this->redirectToRoute('user_profile');
         }
 
@@ -123,7 +115,7 @@ class UserController extends AbstractController
     #[Route(path: '/user/profile/edit/pw', name: 'user_profile_edit_pw')]
     public function userProfileEditPw(Request $request): Response
     {
-        $user = $this->getUser();
+    $user = $this->requireDomainUser();
 
         $form = $this->createFormBuilder($user)
             ->add('oldPassword', PasswordType::class, [
@@ -174,7 +166,7 @@ class UserController extends AbstractController
     #[Route(path: '/user/profile/edit', name: 'user_profile_edit')]
     public function userProfileEdit(Request $request): Response
     {
-        $user = $this->getUser();
+    $user = $this->requireDomainUser();
 
         $form = $this->createForm(UserType::class, $user);
         $form->handleRequest($request);

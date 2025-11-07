@@ -15,7 +15,7 @@ final class UuidNormalizer implements NormalizerInterface, DenormalizerInterface
     /**
      * {@inheritdoc}
      */
-    public function normalize($object, $format = null, array $context = []): string
+    public function normalize(mixed $object, ?string $format = null, array $context = []): string
     {
         return $object->toString();
     }
@@ -23,7 +23,7 @@ final class UuidNormalizer implements NormalizerInterface, DenormalizerInterface
     /**
      * {@inheritdoc}
      */
-    public function denormalize($data, $type, $format = null, array $context = []): mixed
+    public function denormalize(mixed $data, string $type, ?string $format = null, array $context = []): mixed
     {
         if (!$this->isValid($data)) {
             throw new UnexpectedValueException('Expected a valid Uuid.');
@@ -39,7 +39,7 @@ final class UuidNormalizer implements NormalizerInterface, DenormalizerInterface
     /**
      * {@inheritdoc}
      */
-    public function supportsNormalization($data, $format = null): bool
+    public function supportsNormalization(mixed $data, ?string $format = null, array $context = []): bool
     {
         return $data instanceof UuidInterface;
     }
@@ -47,12 +47,17 @@ final class UuidNormalizer implements NormalizerInterface, DenormalizerInterface
     /**
      * {@inheritdoc}
      */
-    public function supportsDenormalization($data, $type, $format = null): bool
+    public function supportsDenormalization(mixed $data, string $type, ?string $format = null, array $context = []): bool
     {
         return Uuid::class === $type || UuidInterface::class === $type;
     }
 
-    private function isValid($data): bool
+    public function getSupportedTypes(?string $format): array
+    {
+        return [UuidInterface::class => true];
+    }
+
+    private function isValid(mixed $data): bool
     {
         return $data === null || (is_string($data) && Uuid::isValid($data));
     }

@@ -20,7 +20,7 @@ class TeamsiteType extends AbstractType
         $this->authorInsertSubscriber = $authorInsertSubscriber;
     }
 
-    public function buildForm(FormBuilderInterface $builder, array $options)
+    public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
             ->add('title', TextType::class, [
@@ -41,7 +41,7 @@ class TeamsiteType extends AbstractType
         ;
     }
 
-    public function configureOptions(OptionsResolver $resolver)
+    public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([
             'data_class' => Teamsite::class,

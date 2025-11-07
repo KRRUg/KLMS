@@ -86,7 +86,12 @@ Encore
     })
 
     // enables Sass/SCSS support
-    .enableSassLoader()
+    .enableSassLoader((options) => {
+        options.sassOptions = {
+            ...(options.sassOptions || {}),
+            quietDeps: true,
+        };
+    })
 
     // uncomment if you use TypeScript
     //.enableTypeScriptLoader()

@@ -53,10 +53,10 @@
                                         <a href="{{ photo.getImagePath() }}" 
                                            class="glightbox" 
                                            data-gallery="{{ eventName }}"
-                                           data-title="{{ photo.title ?? ''  }}"
-                                           data-description="{{ photo.description ?? '' }}">
+                             data-title="{{ (photo.title ?? '') }}"
+                             data-description="{{ (photo.description ?? '') }}">
                                             <img src="{{ photo.getImagePath()|imagine_filter('gallery_thumb') }}"
-                                                 alt="{{ photo.title ?? 'Bild'}}"
+                                 alt="{{ (photo.title ?? 'Bild') }}"
                                                  class="card-img-top"
                                                  loading="lazy"
                                                  style="height: 200px; object-fit: cover;">

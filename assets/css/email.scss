@@ -1,5 +1,8 @@
-@import 'email/klms_base';
+@use 'sass:map';
+@use 'email/bootstrap';
+@use 'email/variables' as emailVars;
+@use 'email/klms_base';
 
 .container {
-  max-width: map-get($container-max-widths, md) ;
+  max-width: map.get(emailVars.$container-max-widths, md);
 }
