@@ -1,25 +1,25 @@
-@use 'variables' as *;
-@use '../bootstrap-site' as *;
+@use 'variables' as vars;
+@use '../bootstrap-site' as bootstrap;
 
 .card {
     border:none;
-    background-color: $bg-dark;
+    background-color: vars.$bg-dark;
 }
 
 .card-avatar {
     position: relative;
     left: 50%;
-    margin-left: calc($card-avatar-size / -2);
-    margin-top:  calc($card-avatar-size / -2);
-    width: $card-avatar-size;
-    height: $card-avatar-size;
-    line-height: $card-avatar-size;
-    font-size: $card-avatar-size * 0.5;
+    margin-left: calc(vars.$card-avatar-size / -2);
+    margin-top:  calc(vars.$card-avatar-size / -2);
+    width: vars.$card-avatar-size;
+    height: vars.$card-avatar-size;
+    line-height: vars.$card-avatar-size;
+    font-size: vars.$card-avatar-size * 0.5;
     text-align: center;    
 }
 
 .mt-avatar {
-    margin-top: $card-avatar-size*0.75;
+    margin-top: vars.$card-avatar-size*0.75;
 }
 
 .card-img-btn-bar {
@@ -33,17 +33,17 @@
 }
 
 .box {
-    border: 1px solid $primary;
-    background-color: rgba($primary,.35);
+    border: 1px solid vars.$primary;
+    background-color: rgba(vars.$primary,.35);
     margin: 0.5rem;
 }
 
 .box-header {
     @extend .card-header;
-    background-color: rgba($primary,.5);
+    background-color: rgba(vars.$primary,.5);
     font-weight: bold;
     padding: 0.3rem;
-    border-bottom: 1px solid $primary;
+    border-bottom: 1px solid vars.$primary;
 }
 
 .box-body {

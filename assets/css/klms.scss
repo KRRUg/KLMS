@@ -1,5 +1,5 @@
 @use 'helper/variables' as *;
-@use 'bootstrap-site';
+@use 'bootstrap-site' as bootstrap;
 @use 'helper/header';
 @use 'helper/card';
 @use 'helper/hover';
@@ -147,7 +147,7 @@ background: rgba(0,0,0,0.60);
     font-weight: 700 !important;
 }
 
-@include media-breakpoint-down(xl) {
+@include bootstrap.media-breakpoint-down(xl) {
   .navbar {
     font-size: 1rem !important;
     font-family: Montserrat Alternates !important;
@@ -194,9 +194,9 @@ background: rgba(0,0,0,0.60);
 
 .list-group-hover .list-group-item:hover {
     z-index: 1;
-    color: $list-group-action-hover-color;
+  color: bootstrap.$list-group-action-hover-color;
     text-decoration: none;
-    background-color: $list-group-hover-bg;
+  background-color: bootstrap.$list-group-hover-bg;
 }
 
 .bg-darker {
@@ -208,23 +208,23 @@ background: rgba(0,0,0,0.60);
 }
 
 .text-disabled {
-    color: $gray-300;
+  color: bootstrap.$gray-300;
 }
 
 .badge-pill {
-    border-radius: $badge-pill-border-radius;
+  border-radius: bootstrap.$badge-pill-border-radius;
 }
 
 .dropdown-menu-lg {
-    min-width: $dropdown-min-width * 2;
+  min-width: bootstrap.$dropdown-min-width * 2;
 }
 
 input.datetimepicker[readonly]:not([disabled]) {
-    background:$input-bg;
+  background:bootstrap.$input-bg;
 }
 
 input.datepicker[readonly]:not([disabled]) {
-    background:$input-bg;
+  background:bootstrap.$input-bg;
 }
 
 .social-btn-group {
