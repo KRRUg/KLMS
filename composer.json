@@ -2,7 +2,7 @@
     "type": "project",
     "license": "proprietary",
     "require": {
-        "php": "^8.1",
+    "php": "^8.2",
         "ext-ctype": "*",
         "ext-dom": "*",
         "ext-gd": "*",
@@ -27,26 +27,26 @@
         "ramsey/uuid-doctrine": "^1.6",
         "sentry/sentry-symfony": "^5.6",
         "sumup/sumup-ecom-php-sdk": "^1.2",
-        "symfony/asset": "^6.4",
-        "symfony/console": "^6.4",
-        "symfony/dom-crawler": "^6.4",
-        "symfony/dotenv": "^6.4",
-        "symfony/filesystem": "^6.4",
+    "symfony/asset": "^7.3",
+    "symfony/console": "^7.3",
+    "symfony/dom-crawler": "^7.3",
+    "symfony/dotenv": "^7.3",
+    "symfony/filesystem": "^7.3",
         "symfony/flex": "^2.4",
-        "symfony/form": "^6.4",
-        "symfony/framework-bundle": "^6.4",
-        "symfony/http-client": "^6.4",
-        "symfony/mailer": "^6.4",
-        "symfony/messenger": "^6.4",
+    "symfony/form": "^7.3",
+    "symfony/framework-bundle": "^7.3",
+    "symfony/http-client": "^7.3",
+    "symfony/mailer": "^7.3",
+    "symfony/messenger": "^7.3",
         "symfony/monolog-bundle": "^3.7",
-        "symfony/property-info": "^6.4",
-        "symfony/runtime": "^6.4",
-        "symfony/security-bundle": "^6.4",
-        "symfony/serializer": "^6.4",
-        "symfony/twig-bundle": "^6.4",
-        "symfony/validator": "^6.4",
-        "symfony/webpack-encore-bundle": "^1.15",
-        "symfony/yaml": "^6.4",
+    "symfony/property-info": "^7.3",
+    "symfony/runtime": "^7.3",
+    "symfony/security-bundle": "^7.3",
+    "symfony/serializer": "^7.3",
+    "symfony/twig-bundle": "^7.3",
+    "symfony/validator": "^7.3",
+    "symfony/webpack-encore-bundle": "^1.15",
+    "symfony/yaml": "^7.3",
         "twig/cssinliner-extra": "^3.3",
         "twig/extra-bundle": "^2.12|^3.0",
         "twig/intl-extra": "^3.2",
@@ -61,13 +61,13 @@
         "joshtronic/php-loremipsum": "^1.0",
         "liip/test-fixtures-bundle": "^2.6",
         "phpunit/phpunit": "^9.5",
-        "symfony/browser-kit": "^6.4",
-        "symfony/css-selector": "^6.4",
-        "symfony/debug-bundle": "^6.4",
+    "symfony/browser-kit": "^7.3",
+    "symfony/css-selector": "^7.3",
+    "symfony/debug-bundle": "^7.3",
         "symfony/maker-bundle": "^1.61",
-        "symfony/phpunit-bridge": "^6.4",
-        "symfony/stopwatch": "^6.4",
-        "symfony/web-profiler-bundle": "^6.4"
+    "symfony/phpunit-bridge": "^7.3",
+    "symfony/stopwatch": "^7.3",
+    "symfony/web-profiler-bundle": "^7.3"
     },
     "config": {
         "preferred-install": {
@@ -127,7 +127,7 @@
     "extra": {
         "symfony": {
             "allow-contrib": true,
-            "require": "^6.4"
+            "require": "^7.3"
         }
     }
 }
