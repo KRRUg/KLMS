@@ -1,4 +1,4 @@
-@use '../helper/variables' as *;
+@use '../helper/variables' as vars;
 
 .faq-list {
   .faq-item {
@@ -8,12 +8,12 @@
       transition: border-color 0.2s ease;
       
       &:hover {
-        border-color: $main-color;
+  border-color: vars.$main-color;
       }
     }
 
     .faq-toggle-icon {
-      color: $main-color;
+  color: vars.$main-color;
       transition: transform 0.3s ease;
       
       &.rotated {

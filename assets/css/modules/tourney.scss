@@ -1,9 +1,9 @@
 @use 'sass:math';
-@use '../helper/variables' as *;
+@use '../helper/variables' as vars;
 
-$color-white:   $body-bg;
-$color-black:   $shadow-color;
-$color-primary: $main-color;
+$color-white:   vars.$body-bg;
+$color-black:   vars.$shadow-color;
+$color-primary: vars.$main-color;
 
 $color-heading:     #363636;
 $color-content:	    #858585;

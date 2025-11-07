@@ -1,4 +1,4 @@
-@use '../helper/variables' as *;
+@use '../helper/variables' as vars;
 
 $seat-point-distance: 11px;
 $seat-mark-border-width: 2px;
@@ -57,7 +57,7 @@ $seat-orientations: n, e, s, w;
   }
 
   .seat-own {
-    @include seat($primary)
+    @include seat(vars.$primary)
   }
 
   .seat-locked {
