@@ -1,4 +1,6 @@
 @use 'sass:map';
+@use 'variables' as *;
+@use '../bootstrap-site' as *;
 
 .sidebar {
     position: relative;

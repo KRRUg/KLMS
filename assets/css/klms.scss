@@ -1,10 +1,8 @@
-@import 'helper/variables';
-
-@import '~bootstrap';
-
-@import 'helper/header';
-@import 'helper/card';
-@import 'helper/hover';
+@use 'helper/variables' as *;
+@use 'bootstrap-site';
+@use 'helper/header';
+@use 'helper/card';
+@use 'helper/hover';
 
 html, body {
     height: 100%;
@@ -12,9 +10,10 @@ html, body {
 }
 
 h1 {
-    background: linear-gradient(60deg, #ff6a3f, #df1238);
-    -webkit-background-clip: text;
-    color: transparent;
+  background: linear-gradient(60deg, #ff6a3f, #df1238);
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
   font-family: Montserrat Alternates;
   font-weight: 700;
   font-size: 3.8rem;
@@ -26,9 +25,10 @@ margin-bottom: 1.5rem;
 }
 
 h2 {
-    background: linear-gradient(60deg, #ff6a3f, #df1238);
-    -webkit-background-clip: text;
-    color: transparent;
+  background: linear-gradient(60deg, #ff6a3f, #df1238);
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
   font-family: Montserrat Alternates;
   font-weight: 700;
   font-size: 2.5rem;
@@ -52,9 +52,10 @@ h3 {
 }
 
 h4 {
-    background: linear-gradient(60deg, #ff6a3f, #df1238);
-    -webkit-background-clip: text;
-    color: transparent;
+  background: linear-gradient(60deg, #ff6a3f, #df1238);
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
   font-family: Montserrat Alternates;
   font-weight: 700;
   font-size: 2rem;
@@ -64,11 +65,6 @@ h4 {
   text-transform: none;
   margin-bottom: 1.5rem;
 }
-
-
-body {
-}
-
 main, #main {
     flex: 1 0 auto;
     margin-top: 12.5rem;
@@ -124,6 +120,7 @@ background: rgba(0,0,0,0.60);
 
 .fbfpoptitle {
   background: linear-gradient(60deg, #ff6a3f, #df1238);
+    background-clip: text;
     -webkit-background-clip: text;
     color: transparent !important;
   font-family: Montserrat Alternates;

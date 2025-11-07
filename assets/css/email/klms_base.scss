@@ -1,7 +1,6 @@
 @use 'sass:color';
-@import 'variables';
-
-@import '~bootstrap';
+@use 'variables' as *;
+@use './bootstrap' as *;
 
 
 html, body {

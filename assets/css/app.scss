@@ -1,18 +1,5 @@
 @use 'klms';
-
-@import url('~@fortawesome/fontawesome-free/css/all.min.css');
-
-//Import Select 2 Styles
-@import url('~select2/dist/css/select2.css');
-@import url('~@ttskch/select2-bootstrap4-theme/dist/select2-bootstrap4.min.css');
-
-//lightbox2
-@import url('~lightbox2/dist/css/lightbox.min.css');
-
-//datatables
 @use './helper/dataTables';
-
-// site specific part (not email)
 @use 'helper/navigation';
 @use 'helper/forms';
 @use 'helper/sidebar';
@@ -20,3 +7,9 @@
 @use 'helper/clan';
 @use 'helper/hrText';
 @use 'helper/popover';
+
+// third party CSS (left as @import url to keep generated CSS intact)
+@import url('~@fortawesome/fontawesome-free/css/all.min.css');
+@import url('~select2/dist/css/select2.css');
+@import url('~@ttskch/select2-bootstrap4-theme/dist/select2-bootstrap4.min.css');
+@import url('~lightbox2/dist/css/lightbox.min.css');
