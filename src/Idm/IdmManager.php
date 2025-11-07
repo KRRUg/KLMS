@@ -22,7 +22,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\PropertyInfo\Extractor\ReflectionExtractor;
 use Symfony\Component\Serializer\Encoder\JsonEncoder;
 use Symfony\Component\Serializer\Mapping\Factory\ClassMetadataFactory;
-use Symfony\Component\Serializer\Mapping\Loader\AnnotationLoader;
+use Symfony\Component\Serializer\Mapping\Loader\AttributeLoader;
 use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 use Symfony\Component\Serializer\Normalizer\DateTimeNormalizer;
 use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
@@ -65,7 +65,7 @@ final class IdmManager
         $this->logger = $logger;
         $this->repoFactory = new IdmRepositoryFactory();
 
-        $on = new ObjectNormalizer(new ClassMetadataFactory(new AnnotationLoader()), null, null, new ReflectionExtractor());
+    $on = new ObjectNormalizer(new ClassMetadataFactory(new AttributeLoader()), null, null, new ReflectionExtractor());
         $this->serializer = new Serializer([
             new DateTimeNormalizer(),
             new UuidNormalizer(),
