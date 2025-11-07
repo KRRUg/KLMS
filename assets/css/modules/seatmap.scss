@@ -1,4 +1,4 @@
-@import '../helper/variables.scss';
+@use '../helper/variables' as *;
 
 @mixin seat($color) {
   background-color: $color;
@@ -9,10 +9,13 @@
   }
 }
 
-.seat-border {}
+.seat-border {
+  border-style: solid;
+  border-width: $seat-mark-border-width;
+}
 @mixin seat-border($color) {
   @extend .seat-border;
-  border: $seat-mark-border-width solid $color;
+  border-color: $color;
 }
 
 $seat-point-distance: 11px;
