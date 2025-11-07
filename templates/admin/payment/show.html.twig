@@ -97,7 +97,7 @@
                     <span class="text-muted">Ticket nicht eingelöst.</span>
                     <div class="d-flex form-group">
                         {{ form_widget(form.user) }}
-                        {{ _self.confirm_button_form(form.assign, 'Ticket zuweisen') }}
+                        {{ _self.confirm_button_form(form.assign ?? null, 'Ticket zuweisen') }}
                     </div>
                 </div>
             </div>
@@ -124,8 +124,8 @@
         {% endmacro %}
         <hr/>
         <div class="container d-flex">
-            {{ _self.confirm_button_form(form.unassign, 'Ticket freigeben') }}
-            {{ _self.confirm_button_form(form.delete, ticket.redeemed ? 'Ticket freigeben & löschen' : 'Ticket löschen', true) }}
+            {{ _self.confirm_button_form(form.unassign ?? null, 'Ticket freigeben') }}
+            {{ _self.confirm_button_form(form.delete ?? null, ticket.redeemed ? 'Ticket freigeben & löschen' : 'Ticket löschen', true) }}
             {{ _self.confirm_button_form(form.punch ?? null, 'Ticket checkin') }}
             {{ _self.confirm_button_form(form.unpunch ?? null, 'Ticket checkout') }}
         </div>
