@@ -1,20 +1,22 @@
-@import 'klms';
-@import '~@fortawesome/fontawesome-free/css/all.min.css';
+@use 'klms';
+
+@import url('~@fortawesome/fontawesome-free/css/all.min.css');
 
 //Import Select 2 Styles
-@import 'select2';
+@import url('~select2/dist/css/select2.css');
+@import url('~@ttskch/select2-bootstrap4-theme/dist/select2-bootstrap4.min.css');
 
 //lightbox2
-@import '~lightbox2/dist/css/lightbox.min';
+@import url('~lightbox2/dist/css/lightbox.min.css');
 
 //datatables
-@import './helper/dataTables';
+@use './helper/dataTables';
 
 // site specific part (not email)
-@import 'helper/navigation';
-@import 'helper/forms';
-@import 'helper/sidebar';
-@import 'helper/nav_tree';
-@import 'helper/clan';
-@import 'helper/hrText';
-@import 'helper/popover';
+@use 'helper/navigation';
+@use 'helper/forms';
+@use 'helper/sidebar';
+@use 'helper/nav_tree';
+@use 'helper/clan';
+@use 'helper/hrText';
+@use 'helper/popover';

@@ -1,5 +1,9 @@
 @use '../helper/variables' as *;
 
+$seat-point-distance: 11px;
+$seat-mark-border-width: 2px;
+$seat-orientations: n, e, s, w;
+
 @mixin seat($color) {
   background-color: $color;
 
@@ -13,15 +17,11 @@
   border-style: solid;
   border-width: $seat-mark-border-width;
 }
+
 @mixin seat-border($color) {
   @extend .seat-border;
   border-color: $color;
 }
-
-$seat-point-distance: 11px;
-$seat-mark-border-width: 2px;
-
-$seat-orientations: n, e, s, w;
 
 @mixin char-seat-point($orientation, $distance) {
   @if $orientation == n  {

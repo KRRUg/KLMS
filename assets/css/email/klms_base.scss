@@ -1,3 +1,4 @@
+@use 'sass:color';
 @import 'variables';
 
 @import '~bootstrap';
@@ -33,7 +34,7 @@ footer, #footer {
 }
 
 .bg-darker {
-    background-color: darken($dark, 5);
+    background-color: color.adjust($dark, $lightness: -5%);
 }
 
 .text-disabled {

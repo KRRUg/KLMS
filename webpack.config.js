@@ -90,7 +90,6 @@ Encore
         options.sassOptions = {
             ...(options.sassOptions || {}),
             quietDeps: true,
-            silenceDeprecations: ['all'],
         };
     })
 
