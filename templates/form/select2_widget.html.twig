@@ -1,5 +1,4 @@
 {% block select2_widget %}
-    {% apply spaceless %}
     <select {{ stimulus_controller('select2', {'remoteTarget': path(remoteController)}) }} {{ block('widget_attributes') }}>
         {% if value is not empty and value is iterable %}
             {% for k,v in value %}
@@ -7,5 +6,4 @@
             {% endfor %}
         {% endif %}
     </select>
-    {% endapply %}
 {% endblock %}

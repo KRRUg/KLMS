@@ -88,8 +88,8 @@
                                     {% for photo in data.images %}
                                         <div class="col-6 col-md-4 col-lg-3">
                                             <div class="card">
-                                                <img src="{{ photo.getImagePath()|imagine_filter('gallery_thumb') }}"
-                                                     alt="{{ photo.title ?? 'Bild ' ~ photo.uuid }}"
+                                       <img src="{{ photo.getImagePath()|imagine_filter('gallery_thumb') }}"
+                                           alt="{{ (photo.title ?? ('Bild ' ~ photo.uuid)) }}"
                                                      class="card-img-top"
                                                      style="height: 150px; object-fit: cover;">
                                                 <div class="card-body p-2">
