@@ -107,10 +107,12 @@
         {% macro confirm_button_form(form, attr, title, danger = false) %}
             {% if attribute(form, attr) is defined %}
                 {% set btn = attribute(form, attr) %}
-                <button type="submit" name="{{ field_name(btn) }}" value="{{ field_value(btn) }}"
-                        class="btn btn-sm mr-1 {% if danger %} btn-outline-danger {% else %} btn-outline-dark {% endif %}"
-                        {% if danger %} data-toggle="confirmModal" data-modal-title="Bestätigen" data-modal-text="Sind Sie sicher?" {% endif %}
-                        >{{ title }}</button>
+                {% set value = btn.vars.value ?? '' %}
+                <button type="submit"
+                        name="{{ btn.vars.full_name }}"
+                        value="{{ value }}"
+                        class="btn btn-sm mr-1 {% if danger %}btn-outline-danger{% else %}btn-outline-dark{% endif %}"
+                        {% if danger %}data-toggle="confirmModal" data-modal-title="Bestätigen" data-modal-text="Sind Sie sicher?"{% endif %}>{{ title }}</button>
             {% endif %}
         {% endmacro %}
         <hr/>
