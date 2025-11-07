@@ -22,7 +22,7 @@ class EmailType extends AbstractType
         $this->userInsertSubscriber = $userInsertSubscriber;
     }
 
-    public function buildForm(FormBuilderInterface $builder, array $options)
+    public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
             ->add('name', TextType::class, ['label' => 'Name'])
@@ -52,7 +52,7 @@ class EmailType extends AbstractType
         $builder->addEventSubscriber($this->userInsertSubscriber);
     }
 
-    public function configureOptions(OptionsResolver $resolver)
+    public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([
             'data_class' => Email::class,

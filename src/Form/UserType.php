@@ -20,7 +20,7 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class UserType extends AbstractType
 {
-    public function buildForm(FormBuilderInterface $builder, array $options)
+    public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
             ->add('email', EmailType::class, [
@@ -111,7 +111,7 @@ class UserType extends AbstractType
 
     private const CONFIRMABLE_FIELDS = ['nickname', 'firstname', 'surname', 'birthdate', 'gender'];
 
-    public function onPreSetData(FormEvent $event)
+    public function onPreSetData(FormEvent $event): void
     {
         $form = $event->getForm();
         $data = $event->getData();
@@ -134,7 +134,7 @@ class UserType extends AbstractType
         }
     }
 
-    public function onPostSubmit(FormEvent $event)
+    public function onPostSubmit(FormEvent $event): void
     {
         $form = $event->getForm();
         $confirmed = $form->get('personalDataConfirmed');
@@ -153,7 +153,7 @@ class UserType extends AbstractType
         }
     }
 
-    public function configureOptions(OptionsResolver $resolver)
+    public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([
             'data_class' => User::class,
