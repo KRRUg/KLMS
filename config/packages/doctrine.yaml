@@ -16,6 +16,7 @@ doctrine:
             auto_mapping: false
         identity_generation_preferences:
             Doctrine\DBAL\Platforms\PostgreSQLPlatform: sequence
+        report_fields_where_declared: true
         mappings:
             App:
                 type: attribute
@@ -23,7 +24,6 @@ doctrine:
                 dir: '%kernel.project_dir%/src/Entity'
                 prefix: 'App\Entity'
                 alias: App
-                report_fields_where_declared: true
 
 #when@test:
 #    doctrine:
