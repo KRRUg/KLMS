@@ -126,8 +126,8 @@
         <div class="container d-flex">
             {{ _self.confirm_button_form(form.unassign, 'Ticket freigeben') }}
             {{ _self.confirm_button_form(form.delete, ticket.redeemed ? 'Ticket freigeben & löschen' : 'Ticket löschen', true) }}
-            {{ _self.confirm_button_form(form.punch, 'Ticket checkin') }}
-            {{ _self.confirm_button_form(form.unpunch, 'Ticket checkout') }}
+            {{ _self.confirm_button_form(form.punch ?? null, 'Ticket checkin') }}
+            {{ _self.confirm_button_form(form.unpunch ?? null, 'Ticket checkout') }}
         </div>
         {{ form_end(form) }}
     {% endblock %}
