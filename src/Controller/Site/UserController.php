@@ -4,15 +4,18 @@ namespace App\Controller\Site;
 
 use App\Controller\LoginUserTrait;
 use App\Entity\User;
+use App\Entity\UserImage;
 use App\Form\UserType;
 use App\Helper\EmailRecipient;
 use App\Idm\Exception\PersistException;
 use App\Idm\IdmManager;
 use App\Idm\IdmRepository;
+use App\Repository\UserImageRepository;
 use App\Service\EmailService;
 use App\Service\SettingService;
 use App\Service\TicketService;
 use App\Service\TicketState;
+use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -32,12 +35,16 @@ class UserController extends AbstractController
     private readonly SettingService $settingService;
     private readonly TicketService $ticketService;
     private readonly LoggerInterface $logger;
+    private readonly EntityManagerInterface $entityManager;
+    private readonly UserImageRepository $userImgRepo;
 
     public function __construct(IdmManager $manager,
                                 EmailService $emailService,
                                 SettingService $settingService,
                                 TicketService $ticketService,
-                                LoggerInterface $logger)
+                                LoggerInterface $logger,
+                                EntityManagerInterface $entityManager,
+                                UserImageRepository $userImgRepo)
     {
         $this->manager = $manager;
         $this->userRepo = $manager->getRepository(User::class);
@@ -45,6 +52,8 @@ class UserController extends AbstractController
         $this->settingService = $settingService;
         $this->ticketService = $ticketService;
         $this->logger = $logger;
+        $this->entityManager = $entityManager;
+        $this->userImgRepo = $userImgRepo;
     }
 
     private const SHOW_LIMIT = 20;
@@ -166,9 +175,13 @@ class UserController extends AbstractController
     #[Route(path: '/user/profile/edit', name: 'user_profile_edit')]
     public function userProfileEdit(Request $request): Response
     {
-    $user = $this->requireDomainUser();
+        $user = $this->requireDomainUser();
 
-        $form = $this->createForm(UserType::class, $user);
+        $image = $this->userImgRepo->findOneByUser($user) ?? new UserImage($user->getUuid());
+        $form = $this->createForm(UserType::class, $user, ['with_image' => true]);
+        if ($form->has('image')) {
+            $form->get('image')->setData($image);
+        }
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
@@ -177,6 +190,21 @@ class UserController extends AbstractController
             try {
                 $this->manager->persist($user);
                 $this->manager->flush();
+
+                if ($form->has('image')) {
+                    $image = $form->get('image')->getData();
+                    if ($image instanceof UserImage) {
+                        if ($image->isEmpty()) {
+                            if ($this->entityManager->contains($image)) {
+                                $this->entityManager->remove($image);
+                            }
+                        } else {
+                            $image->setUuid($user->getUuid());
+                            $this->entityManager->persist($image);
+                        }
+                        $this->entityManager->flush();
+                    }
+                }
 
                 return $this->redirectToRoute('user_profile');
             } catch (PersistException $e) {

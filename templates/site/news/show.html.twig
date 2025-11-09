@@ -12,7 +12,7 @@
              {% endif %}
              />
         <div class="card">
-            <div class="card-body">
+            <div class="card-body bg-darker text-light">
                 <h1 class="card-title">{{ content.title }}</h1>
                 <p class="card-subtitle mb-3 text-muted">
                     <small><i class="fas fa-clock"></i> gepostet {% if content.publishedFrom is null %}{{ content.created | ago }}{% else %}{{ content.publishedFrom | ago }}{% endif %} </small>
@@ -20,6 +20,79 @@
                 <div class="card-text">
                     {{ content.content|raw }}
                 </div>
+            </div>
+        </div>
+
+        <div class="card mt-4" id="comments">
+            <div class="card-header bg-darker text-light">
+                <i class="fas fa-comments"></i> Kommentare ({{ comments|length }})
+            </div>
+            <div class="card-body bg-darker text-light">
+                {% if comments is empty %}
+                    <p class="text-muted mb-0">Noch keine Kommentare vorhanden. Sei der/die Erste!</p>
+                {% else %}
+                    <ul class="list-unstyled mb-0">
+                        {% for comment in comments %}
+                            {% set authorUuid = comment.authorId is not null ? comment.authorId.toString : null %}
+                            {% set author = authorUuid ? commentAuthors[authorUuid]|default(null) : null %}
+                            <li class="{% if not loop.last %}mb-4 pb-4 border-bottom{% else %}mb-2{% endif %}">
+                                <div class="d-flex align-items-start">
+                                    <div class="mr-3">
+                                        {% if author %}
+                                            {% set authorImage = author | user_image %}
+                                            {% if authorImage %}
+                                                <img src="{{ authorImage | imagine_filter('user_img') }}" alt="{{ author.nickname }}" class="rounded-circle border" style="width: 48px; height: 48px; object-fit: cover;">
+                                            {% else %}
+                                                <div class="rounded-circle bg-secondary text-white d-flex align-items-center justify-content-center" style="width: 48px; height: 48px;">
+                                                    <i class="far fa-user"></i>
+                                                </div>
+                                            {% endif %}
+                                        {% else %}
+                                            <div class="rounded-circle bg-secondary text-white d-flex align-items-center justify-content-center" style="width: 48px; height: 48px;">
+                                                <i class="far fa-user"></i>
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                    <div class="flex-grow-1">
+                                        <div class="d-flex justify-content-between">
+                                            <div>
+                                                {% if author %}
+                                                    <strong><a href="{{ path('user_show', {'uuid': author.uuid.toString}) }}">{{ author.nickname }}</a></strong>
+                                                {% else %}
+                                                    <strong class="text-muted">Gelöschter Nutzer</strong>
+                                                {% endif %}
+                                                <div class="text-muted">
+                                                    <small><i class="fas fa-clock"></i>
+                                                        {% if comment.created %}
+                                                            {{ comment.created | ago }}
+                                                        {% endif %}
+                                                    </small>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="mt-2">
+                                            {{ comment.content | nl2br }}
+                                        </div>
+                                    </div>
+                                </div>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+            </div>
+            <div class="card-footer bg-darker text-light">
+                {% if commentForm %}
+                    {{ form_start(commentForm, {'attr': {'novalidate': 'novalidate'}}) }}
+                        {{ form_row(commentForm.content) }}
+                        <div class="text-right">
+                            <button type="submit" class="btn btn-primary"><i class="fas fa-paper-plane"></i> Kommentieren</button>
+                        </div>
+                    {{ form_end(commentForm) }}
+                {% else %}
+                    <p class="mb-0">
+                        <a href="{{ path('app_login') }}">Melde dich an</a>, um einen Kommentar zu schreiben.
+                    </p>
+                {% endif %}
             </div>
         </div>
     </div>

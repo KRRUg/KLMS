@@ -2,7 +2,11 @@
 
 namespace App\Controller\Site;
 
+use App\Controller\LoginUserTrait;
 use App\Entity\News;
+use App\Entity\NewsComment;
+use App\Form\NewsCommentType;
+use App\Service\NewsCommentService;
 use App\Service\NewsService;
 use App\Service\SettingService;
 use App\Service\UserService;
@@ -20,19 +24,22 @@ use Vich\UploaderBundle\Templating\Helper\UploaderHelper;
 #[Route(path: '/news', name: 'news')]
 class NewsController extends AbstractController
 {
+    use LoginUserTrait;
+
     private readonly NewsService $newsService;
     private readonly UserService $userService;
     private readonly FeedManager $feedManager;
     private readonly RouterInterface $router;
     private readonly UploaderHelper $vich;
     private readonly SettingService $settings;
+    private readonly NewsCommentService $commentService;
 
     private const PRELOAD_NEWS_CNT = 6;
 
     /**
      * NewsController constructor.
      */
-    public function __construct(NewsService $newsService, UserService $userService, FeedManager $feedManager, RouterInterface $router, UploaderHelper $vich, SettingService $settings)
+    public function __construct(NewsService $newsService, UserService $userService, FeedManager $feedManager, RouterInterface $router, UploaderHelper $vich, SettingService $settings, NewsCommentService $commentService)
     {
         $this->newsService = $newsService;
         $this->userService = $userService;
@@ -40,6 +47,7 @@ class NewsController extends AbstractController
         $this->router = $router;
         $this->vich = $vich;
         $this->settings = $settings;
+        $this->commentService = $commentService;
     }
 
     #[Route(path: '', name: '')]
@@ -70,15 +78,58 @@ class NewsController extends AbstractController
         ]);
     }
 
-    #[Route(path: '/{id}', requirements: ['id' => '\d+'], name: '_detail')]
-    public function byId(News $news): Response
+    #[Route(path: '/{id}', requirements: ['id' => '\\d+'], name: '_detail', methods: ['GET', 'POST'])]
+    public function byId(Request $request, News $news): Response
     {
         if (!$news->isActive()) {
             throw $this->createNotFoundException();
         }
 
+        $commentFormView = null;
+        /** @var NewsComment[] $comments */
+        $comments = $this->commentService->getForNews($news);
+        $commentAuthors = [];
+        foreach ($comments as $comment) {
+            $authorId = $comment->getAuthorId();
+            if ($authorId) {
+                $commentAuthors[$authorId->toString()] = $authorId;
+            }
+        }
+        if ($commentAuthors !== []) {
+            $commentAuthors = $this->userService->getUsers(array_values($commentAuthors), true);
+        }
+
+        if ($this->isGranted('IS_AUTHENTICATED_REMEMBERED')) {
+            $comment = new NewsComment();
+            $form = $this->createForm(NewsCommentType::class, $comment);
+            $form->handleRequest($request);
+
+            if ($form->isSubmitted()) {
+                if ($form->isValid()) {
+                    try {
+                        $this->commentService->addComment($news, $comment, $this->requireDomainUser());
+                        $this->addFlash('success', 'Kommentar wurde veröffentlicht.');
+
+                        return $this->redirectToRoute('news_detail', [
+                            'id' => $news->getId(),
+                            '_fragment' => 'comments',
+                        ]);
+                    } catch (\Throwable $e) {
+                        $this->addFlash('error', 'Kommentar konnte nicht gespeichert werden.');
+                    }
+                } else {
+                    $this->addFlash('error', 'Bitte überprüfe deinen Kommentar.');
+                }
+            }
+
+            $commentFormView = $form->createView();
+        }
+
         return $this->render('site/news/show.html.twig', [
             'content' => $news,
+            'comments' => $comments,
+            'commentAuthors' => $commentAuthors,
+            'commentForm' => $commentFormView,
         ]);
     }
 

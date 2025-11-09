@@ -1,0 +1,36 @@
+{% if form.image is defined %}
+    {% set currentImage = '' %}
+    {% if form.image.vars.data is not null %}
+        {% set currentImage = vich_uploader_asset(form.image.vars.data, 'imageFile') %}
+    {% endif %}
+    {% if currentImage is empty %}
+        {% set fallbackImage = user | user_image %}
+        {% set currentImage = fallbackImage is not empty ? fallbackImage : '' %}
+    {% endif %}
+    {% set hasImage = currentImage is not empty %}
+    
+    <div class="d-flex flex-column align-items-center" data-profile-image-field>
+        <img id="profile-image-preview"
+             data-initial-src="{{ hasImage ? currentImage : '' }}"
+             data-has-image="{{ hasImage ? '1' : '0' }}"
+             class="rounded-circle border mb-3"
+             style="width: 150px; height: 150px; object-fit: cover;{{ hasImage ? '' : ' display:none;' }}"
+             alt="Profilbild Vorschau">
+        
+        <i id="profile-image-placeholder" 
+           class="fas fa-user-circle mb-3" 
+           style="font-size: 150px;{{ hasImage ? ' display:none;' : '' }}"></i>
+        
+        <button type="button" class="btn btn-sm btn-outline-primary mb-2 js-profile-image-select">
+            <i class="fas fa-image"></i> Bild ändern
+        </button>
+        
+        <button type="button"
+                class="btn btn-sm btn-outline-light js-profile-image-remove"
+                {% if not hasImage %}style="display:none;"{% endif %}>
+            <i class="fas fa-trash-alt"></i> Entfernen
+        </button>
+    </div>
+{% else %}
+    {{ parent() }}
+{% endif %}

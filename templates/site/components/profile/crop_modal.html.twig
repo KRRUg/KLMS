@@ -1,0 +1,46 @@
+<div class="modal fade" id="profileImageCropModal" tabindex="-1" role="dialog" aria-labelledby="profileImageCropModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+        <div class="modal-content bg-white text-body">
+            <div class="modal-header border-0">
+                <h5 class="modal-title text-body" id="profileImageCropModalLabel">
+                    <i class="fas fa-crop"></i> Bild zuschneiden
+                </h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Schließen">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            
+            <div class="modal-body">
+                <div class="profile-image-crop-container bg-dark p-2 rounded">
+                    <cropper-canvas background>
+                        <cropper-image rotatable scalable skewable translatable></cropper-image>
+                        <cropper-shade hidden></cropper-shade>
+                        <cropper-handle action="select" plain></cropper-handle>
+                        <cropper-selection initial-coverage="0.8" movable resizable outlined>
+                            <cropper-grid role="grid" covered></cropper-grid>
+                            <cropper-crosshair centered></cropper-crosshair>
+                            <cropper-handle action="move" theme-color="rgba(255, 255, 255, 0.35)"></cropper-handle>
+                            <cropper-handle action="n-resize"></cropper-handle>
+                            <cropper-handle action="e-resize"></cropper-handle>
+                            <cropper-handle action="s-resize"></cropper-handle>
+                            <cropper-handle action="w-resize"></cropper-handle>
+                            <cropper-handle action="ne-resize"></cropper-handle>
+                            <cropper-handle action="nw-resize"></cropper-handle>
+                            <cropper-handle action="se-resize"></cropper-handle>
+                            <cropper-handle action="sw-resize"></cropper-handle>
+                        </cropper-selection>
+                    </cropper-canvas>
+                </div>
+            </div>
+            
+            <div class="modal-footer border-0">
+                <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">
+                    Abbrechen
+                </button>
+                <button type="button" class="btn btn-primary" id="profileImageCropSave">
+                    <i class="fas fa-check"></i> Zuschnitt übernehmen
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

@@ -9,7 +9,11 @@
     <div class="card-body">
         <h2 class="card-title"><a href="{{ link }}">{{ content.title }}</a></h2>
         <p class="card-subtitle mb-3 text-muted">
-            <small><i class="fas fa-clock"></i> gepostet {% if content.publishedFrom is null %}{{ content.created | ago }}{% else %}{{ content.publishedFrom | ago }}{% endif %} </small>
+            <small>
+                <i class="fas fa-clock"></i>
+                gepostet {% if content.publishedFrom is null %}{{ content.created | ago }}{% else %}{{ content.publishedFrom | ago }}{% endif %}
+                <span class="ml-3"><i class="fas fa-comments"></i> {{ content.comments | length }} Kommentar(e)</span>
+            </small>
         </p>
         <p class="card-text">
             {# u.trim trims non-breaking whitespaces as well #}

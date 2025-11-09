@@ -24,9 +24,12 @@
                                     <div class="row no-gutters">
                                         <div class="col-auto">
                                             {% if image %}
-                                                <img class="card-img" src="{{ image | imagine_filter('user_img') }}" alt="User Image">
+                                                <img class="card-img rounded-circle border" 
+                                                     src="{{ image | imagine_filter('user_img') }}" 
+                                                     style="width: 200px; height: 200px; object-fit: cover;"
+                                                     alt="User Image">
                                             {% else %}
-                                                <i style="font-size:64px; padding: 118px 68px;" class="far fa-user-circle"></i>
+                                                <i class="fas fa-user-circle" style="font-size: 200px;"></i>
                                             {% endif %}
                                         </div>
                                         <div class="col">

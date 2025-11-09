@@ -1,0 +1,34 @@
+#profileImageCropModal {
+    .modal-dialog {
+        max-width: min(90vw, 960px);
+    }
+
+    .modal-body {
+        padding: 1.5rem;
+        overflow: hidden;
+    }
+
+    // Provide generous viewport for the cropper while keeping it responsive.
+    .profile-image-crop-container {
+        width: 100%;
+        height: clamp(360px, 70vh, 720px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+
+        cropper-canvas {
+            width: 100%;
+            height: 100%;
+        }
+    }
+
+    // Make the selection circular for profile images
+    cropper-selection {
+        border-radius: 50%;
+        
+        &::part(outlined) {
+            border-radius: 50%;
+        }
+    }
+}

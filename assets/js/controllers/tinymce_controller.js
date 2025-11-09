@@ -4,40 +4,48 @@ import tinymce from 'tinymce/tinymce';
 
 import 'tinymce/icons/default';
 import 'tinymce/themes/silver';
+import 'tinymce/models/dom';
 
-import 'tinymce/plugins/paste';
-import 'tinymce/plugins/link';
-import 'tinymce/plugins/image';
-import 'tinymce/plugins/table';
-import 'tinymce/plugins/code';
-import 'tinymce/plugins/lists';
-import 'tinymce/plugins/fullscreen';
-import 'tinymce/plugins/code';
-import 'tinymce/plugins/anchor';
-import 'tinymce/plugins/media';
 import 'tinymce/plugins/advlist';
+import 'tinymce/plugins/anchor';
+import 'tinymce/plugins/code';
+import 'tinymce/plugins/fullscreen';
+import 'tinymce/plugins/image';
 import 'tinymce/plugins/importcss';
+import 'tinymce/plugins/link';
+import 'tinymce/plugins/lists';
+import 'tinymce/plugins/media';
 import 'tinymce/plugins/searchreplace';
-import 'tinymce/plugins/hr';
+import 'tinymce/plugins/table';
+
+const DEFAULT_PLUGINS = [
+    'advlist',
+    'anchor',
+    'code',
+    'fullscreen',
+    'image',
+    'importcss',
+    'link',
+    'lists',
+    'media',
+    'searchreplace',
+    'table',
+];
 
 export default class extends Controller {
     static values = {
         height: Number,
+        licenseKey: String,
     }
 
     initialize() {
         this.defaults = {
             theme: 'silver',
-            //plugins: 'image paste link table code lists advlist',
-            plugins: [
-                'advlist lists link image anchor',
-                'code fullscreen',
-                'media table importcss searchreplace hr'
-            ],
+            plugins: DEFAULT_PLUGINS,
             toolbar: 'undo redo | formatselect | ' +
                 'bold italic backcolor | alignleft aligncenter ' +
                 'alignright alignjustify | bullist numlist | outdent indent | ' +
-                'removeformat',
+                'link image media table | code fullscreen | removeformat',
             font_formats: '',
             fontsize_formats:'0.5rem 0.75rem 1rem 1.25rem 1.5rem 1.75rem 2rem',
             relative_urls: false,
@@ -66,11 +74,18 @@ export default class extends Controller {
 
     connect() {
         const height = this.heightValue || 640;
-        const config = Object.assign({ target: this.element, height: height }, this.defaults)
+        const licenseKey = this.hasLicenseKeyValue ? this.licenseKeyValue : 'gpl';
+        const config = Object.assign(
+            { target: this.element, height: height, license_key: licenseKey },
+            this.defaults,
+        );
         tinymce.init(config);
     }
 
     disconnect() {
-        tinymce.get(this.element.id).remove();
+        const instance = tinymce.get(this.element.id);
+        if (instance) {
+            instance.remove();
+        }
     }
 }

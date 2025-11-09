@@ -2,10 +2,13 @@
 
 namespace App\Entity;
 
+use App\Entity\NewsComment;
 use App\Entity\Traits\HistoryAwareEntity;
 use App\Repository\NewsRepository;
 use DateTime;
 use DateTimeInterface;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -43,9 +46,14 @@ class News implements HistoryAwareEntity
     #[ORM\Embedded(class: 'Vich\UploaderBundle\Entity\File')]
     private EmbeddedFile $image;
 
+    #[ORM\OneToMany(mappedBy: 'news', targetEntity: NewsComment::class, orphanRemoval: true, fetch: 'EXTRA_LAZY')]
+    #[ORM\OrderBy(['created' => 'ASC'])]
+    private Collection $comments;
+
     public function __construct()
     {
         $this->image = new EmbeddedFile();
+        $this->comments = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -142,5 +150,32 @@ class News implements HistoryAwareEntity
         } else {
             return $this->getPublishedFrom();
         }
+    }
+
+    /**
+     * @return Collection<int, NewsComment>
+     */
+    public function getComments(): Collection
+    {
+        return $this->comments;
+    }
+
+    public function addComment(NewsComment $comment): self
+    {
+        if (!$this->comments->contains($comment)) {
+            $this->comments->add($comment);
+            $comment->setNews($this);
+        }
+
+        return $this;
+    }
+
+    public function removeComment(NewsComment $comment): self
+    {
+        if ($this->comments->removeElement($comment) && $comment->getNews() === $this) {
+            $comment->setNews(null);
+        }
+
+        return $this;
     }
 }

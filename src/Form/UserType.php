@@ -49,7 +49,7 @@ class UserType extends AbstractType
                 ],
             ])
             ->add('infoMails', CheckboxType::class, [
-                'label' => 'Newsletter abonnieren',
+                'label' => 'Infomails erhalten',
                 'required' => false,
             ])
             ->add('postcode', TextType::class, [
