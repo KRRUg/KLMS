@@ -1,0 +1,62 @@
+{% extends 'admin/adminBase.html.twig' %}
+
+{% block title %}KLMS - Admin{% endblock %}
+{% block siteheading %}<i class="fas fa-poll"></i> Umfrage{% endblock %}
+
+{% block main %}
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h3 mb-1">Antwortmöglichkeiten verwalten</h1>
+            <div class="text-muted">
+                <strong>Frage:</strong> {{ poll.question }}
+            </div>
+        </div>
+        <div>
+            <a class="btn btn-link" href="{{ path('admin_poll') }}">
+                <i class="fas fa-arrow-left"></i>
+                Zurück zur Übersicht
+            </a>
+            <a class="btn btn-success" href="{{ path('admin_poll_option_create', {'id': poll.id}) }}">
+                <i class="fas fa-plus"></i>
+                Antwort hinzufügen
+            </a>
+        </div>
+    </div>
+
+    <div class="card">
+        <table class="table table-striped mb-0">
+            <thead>
+                <tr>
+                    <th>Antwort</th>
+                    <th class="text-nowrap">Position</th>
+                    <th class="text-nowrap w-1">Aktionen</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for option in options %}
+                <tr>
+                    <td>{{ option.label }}</td>
+                    <td>{{ option.position }}</td>
+                    <td class="text-nowrap">
+                        <a class="btn btn-sm btn-outline-dark" href="{{ path('admin_poll_option_edit', {'id': option.id}) }}">
+                            <i class="fas fa-edit"></i>
+                            Bearbeiten
+                        </a>
+                        <form method="post" action="{{ path('admin_poll_option_delete', {'id': option.id}) }}" class="d-inline-block" data-toggle="confirmModal">
+                            <input type="hidden" name="_token" value="{{ csrf_token(delete_token_prefix ~ option.id) }}">
+                            <button class="btn btn-sm btn-outline-danger" type="submit">
+                                <i class="fas fa-trash-alt"></i>
+                                Löschen
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+            {% else %}
+                <tr>
+                    <td colspan="3" class="text-center text-muted">Noch keine Antwortmöglichkeiten hinterlegt.</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% endblock %}

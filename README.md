@@ -33,6 +33,7 @@ Es wurde von uns erweitert um:
 - **QR-Code CheckIn** – Erstellen und Versenden eines QR-Codes (Ticket), der beim Check-In verifiziert werden kann.
 - **News Kommentare** – Kommentieren von News Beiträgen
 - **Profile Pictures** – Profilbilder, die auf der gesamten Seite angezeigt werden.
+- **Community Polls** – Umfragen für die Community.
 
 ---
 

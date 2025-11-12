@@ -97,6 +97,3 @@ rector.php
 /phpunit.xml
 .phpunit.result.cache
 ###< phpunit/phpunit ###
-
-# Ignore base template
-/templates/base.html.twig

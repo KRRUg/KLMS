@@ -50,6 +50,11 @@
 				</div>
 			{% endblock %}
 		</footer>
+		{% if not (app.request.pathInfo starts with '/admin')  %}
+			<div id="poll-widget-root"
+				 data-fetch-url="{{ path('poll_current') }}"
+				 data-vote-url="{{ path('poll_vote') }}"></div>
+		{% endif %}
 		{% block javascripts %}
 				{{ encore_entry_script_tags('app') }}
 		{% endblock %}

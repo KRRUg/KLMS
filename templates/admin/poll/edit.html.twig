@@ -1,0 +1,72 @@
+{% extends 'admin/adminBase.html.twig' %}
+
+{% block title %}KLMS - Admin{% endblock %}
+{% block siteheading %}<i class="fas fa-poll"></i> Umfrage{% endblock %}
+
+{% block main %}
+    <h1 class="h3 card-title mb-4">Umfrage bearbeiten</h1>
+
+    {{ form_start(form) }}
+        {% if not form.vars.valid %}
+            <div class="alert alert-danger">
+                <i class="fas fa-exclamation-circle"></i>
+                {{ form_errors(form) }}
+            </div>
+        {% endif %}
+
+        <div class="row">
+            <div class="col-md-4 order-md-2 mb-4">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <dl class="properties">
+                            <dt>ID</dt>
+                            <dd>{{ poll.id }}</dd>
+                            <dt>Start</dt>
+                            <dd>{{ poll.startAt ? poll.startAt|date('d.m.Y H:i') : '-' }}</dd>
+                            <dt>Ende</dt>
+                            <dd>{{ poll.endAt ? poll.endAt|date('d.m.Y H:i') : '-' }}</dd>
+                            <dt>Nur registrierte Nutzer:innen</dt>
+                            <dd>{{ poll.onlyRegistered ? 'Ja' : 'Nein' }}</dd>
+                        </dl>
+                        <a class="btn btn-sm btn-outline-secondary mt-3" href="{{ path('admin_poll_options', {'id': poll.id}) }}">
+                            <i class="fas fa-list"></i>
+                            Optionen verwalten
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-8 order-md-1 mb-4">
+                {{ form_row(form.question) }}
+                {{ form_row(form.startAt, {
+                    attr: {
+                        class: 'datetimepicker',
+                        'data-time-end': '#' ~ form.endAt.vars.id
+                    }
+                }) }}
+                {{ form_row(form.endAt, {
+                    attr: {
+                        class: 'datetimepicker',
+                        'data-time-start': '#' ~ form.startAt.vars.id
+                    }
+                }) }}
+                {{ form_row(form.onlyRegistered) }}
+            </div>
+        </div>
+        <hr/>
+        {{ form_rest(form) }}
+        <div class="float-right">
+            <a class="btn btn-secondary" href="{{ path('admin_poll') }}">Abbrechen</a>
+            <button type="submit" class="btn btn-primary">Speichern</button>
+        </div>
+    {{ form_end(form, {'render_rest': false}) }}
+
+    <div class="float-left mt-3">
+        <form method="post" action="{{ path('admin_poll_delete', {'id': poll.id}) }}" class="d-inline-block" data-toggle="confirmModal">
+            <input type="hidden" name="_token" value="{{ csrf_token(delete_token) }}">
+            <button class="btn btn-danger" type="submit">
+                <i class="fas fa-trash-alt"></i>
+                Löschen
+            </button>
+        </form>
+    </div>
+{% endblock %}

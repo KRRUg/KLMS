@@ -1,0 +1,65 @@
+{% extends 'admin/adminBase.html.twig' %}
+
+{% block title %}Polls - KLMS - Admin{% endblock %}
+{% block siteheading %}<i class="fas fa-poll"></i> Umfragen{% endblock %}
+
+{% block main %}
+    <div class="row">
+        <div class="col mb-4">
+            <a role="button" class="btn btn-success" href="{{ path('admin_poll_create') }}">
+                <i class="fas fa-plus"></i>
+                Umfrage erstellen
+            </a>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <table id="pollTable" class="table table-striped admin-data-table" data-order='[[1, "desc"]]'>
+                    <thead>
+                        <tr>
+                            <th scope="col" style="width: 2em;" class="text-center">&#8470;</th>
+                            <th>Frage</th>
+                            <th class="text-nowrap">Start</th>
+                            <th class="text-nowrap">Ende</th>
+                            <th class="text-nowrap">Status</th>
+                            <th class="text-nowrap">Nur registriert</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    {% for poll in polls %}
+                        {% set active = poll.isActive() %}
+                        {% set ended = poll.hasEnded() %}
+                        <tr>
+                            <td class="text-center">{{ poll.id }}</td>
+                            <td>
+                                <a href="{{ path('admin_poll_edit', {'id': poll.id}) }}">
+                                    {{ poll.question }}
+                                </a>
+                            </td>
+                            <td>{{ poll.startAt ? poll.startAt|date('d.m.Y H:i') : '-' }}</td>
+                            <td>{{ poll.endAt ? poll.endAt|date('d.m.Y H:i') : '-' }}</td>
+                            <td>
+                                {% if ended %}
+                                    <span class="badge badge-secondary">Beendet</span>
+                                {% elseif active %}
+                                    <span class="badge badge-success">Aktiv</span>
+                                {% else %}
+                                    <span class="badge badge-info">Geplant</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ poll.onlyRegistered ? 'Ja' : 'Nein' }}</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+                {% if polls is empty %}
+                    <div class="card-body text-center text-muted">
+                        Noch keine Umfragen vorhanden.
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+{% endblock %}

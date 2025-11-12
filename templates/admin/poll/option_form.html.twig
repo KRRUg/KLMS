@@ -1,0 +1,29 @@
+{% extends 'admin/adminBase.html.twig' %}
+
+{% block title %}KLMS - Admin{% endblock %}
+{% block siteheading %}<i class="fas fa-poll"></i> Umfrage{% endblock %}
+
+{% block main %}
+    {% set isEdit = option is defined %}
+
+    <div class="row">
+        <div class="col">
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h1 class="h4 mb-3">Antwort {{ isEdit ? 'bearbeiten' : 'hinzufügen' }}</h1>
+                    <div class="text-muted mb-4">
+                        <strong>Frage:</strong> {{ poll.question }}
+                    </div>
+                    {{ form_start(form) }}
+                        {{ form_row(form.label) }}
+                        {{ form_row(form.position) }}
+                        <div class="float-right">
+                            <a class="btn btn-secondary" href="{{ path('admin_poll_options', {'id': poll.id}) }}">Abbrechen</a>
+                            <button type="submit" class="btn btn-primary">Speichern</button>
+                        </div>
+                    {{ form_end(form) }}
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

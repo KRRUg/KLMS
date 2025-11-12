@@ -17,6 +17,7 @@ import 'lightbox2';
 const cfi = require('bs-custom-file-input');
 
 import './modules/confirmModal/confirmModal.js';
+import './site/poll.js';
 
 $(document).ready(function () {
     cfi.init();
