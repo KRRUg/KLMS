@@ -1,0 +1,58 @@
+{% embed "modules/modals/skeleton.html.twig"
+    with {
+    'id': 'seedModal',
+    'title' : tourney.name ~ ' - Seed bearbeiten',
+    'dialogClass' : 'modal-lg modal-dialog-scrollable'
+} %}
+    {% block modalContentPrepend %}
+        {{ form_start(form) }}
+    {% endblock %}
+
+    {% block modalBody %}
+        {% from 'site/tourney/show.html.twig' import teamname %}
+        
+        <div class="alert alert-info">
+            <i class="fa-solid fa-info-circle"></i> 
+            Ziehe die Teams in die gewünschte Reihenfolge (Bestes Team = oben).
+        </div>
+
+        <div id="seedList" class="list-group">
+            {% for team in teams %}
+                <div class="list-group-item d-flex align-items-center" draggable="true" data-team-id="{{ team.id }}">
+                    <span class="badge badge-primary mr-3">{{ loop.index }}</span>
+                    <i class="fa-solid fa-grip-vertical mr-2 text-muted" style="cursor: grab;"></i>
+                    <span class="flex-grow-1">{{ teamname(team) }}</span>
+                    <input type="hidden" name="seed[]" value="{{ team.id }}">
+                </div>
+            {% endfor %}
+        </div>
+
+        <style>
+            #seedModal .modal-body {
+                max-height: calc(100vh - 210px);
+                overflow-y: auto;
+            }
+            #seedList .list-group-item {
+                cursor: move;
+                transition: background-color 0.2s;
+                user-select: none;
+            }
+            #seedList .list-group-item:hover {
+                background-color: #f8f9fa;
+            }
+            #seedList .list-group-item.dragging {
+                opacity: 0.5;
+                background-color: #e9ecef;
+            }
+        </style>
+    {% endblock %}
+
+    {% block modalFooter %}
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Abbrechen</button>
+        {{ form_row(form.submit) }}
+    {% endblock %}
+
+    {% block modalContentAppend %}
+        {{ form_end(form) }}
+    {% endblock %}
+{% endembed %}

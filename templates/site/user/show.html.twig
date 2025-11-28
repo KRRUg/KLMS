@@ -8,29 +8,32 @@
             {% set profile = is_granted('IS_AUTHENTICATED_REMEMBERED') and app.user.user == user %}
             {% set details = is_granted('ROLE_ADMIN') or profile %}
             {% block cardBody %}
-                {% if profile %}
-                    <div class="float-right py-2">
-                        <a class="btn btn-outline-primary" href="{{ path('user_profile_edit') }}"><i class="fas fa-user-edit"></i> Profil bearbeiten</a>
-                    </div>
-                {% endif %}
                 <div class="d-lg-flex align-items-center pb-4">
-                    <h1 class="card-title mb-0">
-                        {{ user.nickname }}
-                    </h1>
-                    <h5 class="text-muted d-block d-lg-inline mb-0 ml-lg-3">
-                        aka.
-			{% if is_granted('IS_AUTHENTICATED_REMEMBERED') %}
-                            {{ user.firstname }}
-                        {% endif %}
-                        {% if details %}
-                            {{ user.surname }}
-                        {% endif %}
-                    </h5>
-                    {% if details and user.personalDataConfirmed %}
-                        <span class="ml-lg-3 badge badge-pill badge-primary" title="Persönliche Daten wurden überprüft!">
-                            <i class="fas fa-check"></i> geprüft
-                        </span>
+                    {% if profile %}
+                        <div class="w-100 mb-3 mb-lg-0 order-0 order-lg-2 text-md-right py-2">
+                            <a class="btn btn-outline-primary" href="{{ path('user_profile_edit') }}"><i class="fas fa-user-edit"></i> Profil bearbeiten</a>
+                        </div>
                     {% endif %}
+
+                    <div class="d-flex align-items-center order-1 order-lg-1">
+                        <h1 class="card-title mb-0">
+                            {{ user.nickname }}
+                        </h1>
+                        <h5 class="text-muted d-block d-lg-inline mb-0 ml-lg-3">
+                            aka.
+                            {% if is_granted('IS_AUTHENTICATED_REMEMBERED') %}
+                                {{ user.firstname }}
+                            {% endif %}
+                            {% if details %}
+                                {{ user.surname }}
+                            {% endif %}
+                        </h5>
+                        {% if details and user.personalDataConfirmed %}
+                            <span class="ml-lg-3 badge badge-pill badge-primary" title="Persönliche Daten wurden überprüft!">
+                                <i class="fas fa-check"></i> geprüft
+                            </span>
+                        {% endif %}
+                    </div>
                 </div>
                 {% if user.statements | trim %}
                     <div class="card-text mb-3">

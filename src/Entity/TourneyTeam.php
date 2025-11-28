@@ -29,6 +29,9 @@ class TourneyTeam
     #[ORM\OneToMany(mappedBy: 'team', targetEntity: TourneyTeamMember::class, orphanRemoval: true, cascade: ['persist'])]
     private Collection $members;
 
+    #[ORM\Column(length: 8, nullable: true)]
+    private ?string $group_key = null;
+
     public function __construct()
     {
         $this->members = new ArrayCollection();
@@ -106,5 +109,17 @@ class TourneyTeam
     public static function createTeamWithUser(UuidInterface $user, string $name = null): self
     {
         return (new self())->setName($name)->addMember((new TourneyTeamMember())->setGamer($user)->setAccepted(true));
+    }
+
+    public function getGroupKey(): ?string
+    {
+        return $this->group_key;
+    }
+
+    public function setGroupKey(?string $group_key): self
+    {
+        $this->group_key = $group_key;
+
+        return $this;
     }
 }

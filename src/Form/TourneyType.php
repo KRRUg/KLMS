@@ -6,6 +6,7 @@ use App\Entity\Tourney;
 use App\Entity\TourneyRules;
 use App\Service\TourneyService;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\EnumType;
 use Symfony\Component\Form\Extension\Core\Type\IntegerType;
@@ -13,6 +14,8 @@ use Symfony\Component\Form\Extension\Core\Type\NumberType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Component\Form\FormEvent;
+use Symfony\Component\Form\FormEvents;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -88,6 +91,7 @@ class TourneyType extends AbstractType
                 'label' => 'Modus',
                 'class' => TourneyRules::class,
                 'choice_label' => fn ($c) => $c->getMessage(),
+                'choice_filter' => fn ($c) => $c !== null && !$c->requiresGroupStage(),
                 'expanded' => true,
                 'multiple' => false,
                 'disabled' => !$options['create'],
@@ -98,7 +102,66 @@ class TourneyType extends AbstractType
                 'empty_data' => null,
                 'disabled' => !$options['create'],
             ])
+            ->add('hasGroupStage', CheckboxType::class, [
+                'label' => 'Gruppenphase',
+                'required' => false,
+                'mapped' => false,
+                'disabled' => !$options['create'],
+                'attr' => [
+                    'class' => 'group-stage-toggle',
+                ],
+                'help' => 'Teams spielen erst in Gruppen, bevor die K.o.-Phase beginnt.',
+            ])
+            ->add('groupCount', IntegerType::class, [
+                'label' => 'Anzahl Gruppen',
+                'required' => false,
+                'empty_data' => null,
+                'attr' => [
+                    'min' => '1',
+                    'class' => 'group-stage-field',
+                ],
+                'disabled' => !$options['create'],
+            ])
+            ->add('groupAdvance', IntegerType::class, [
+                'label' => 'Teams pro Gruppe, die weiterkommen',
+                'required' => false,
+                'empty_data' => null,
+                'attr' => [
+                    'min' => '1',
+                    'class' => 'group-stage-field',
+                ],
+                'disabled' => !$options['create'],
+            ])
         ;
+
+        // Set initial value for hasGroupStage checkbox based on existing mode
+        $builder->addEventListener(FormEvents::PRE_SET_DATA, function (FormEvent $event) {
+            $tourney = $event->getData();
+            $form = $event->getForm();
+            
+            if ($tourney && $tourney->getMode() !== null) {
+                $hasGroupStage = $tourney->getMode()->requiresGroupStage();
+                $form->get('hasGroupStage')->setData($hasGroupStage);
+            }
+        });
+
+        // Convert mode + hasGroupStage to correct TourneyRules enum
+        $builder->addEventListener(FormEvents::SUBMIT, function (FormEvent $event) {
+            $tourney = $event->getData();
+            $form = $event->getForm();
+            
+            $hasGroupStage = $form->get('hasGroupStage')->getData();
+            $mode = $tourney->getMode();
+            
+            if ($hasGroupStage && $mode) {
+                $newMode = match($mode) {
+                    TourneyRules::SingleElimination => TourneyRules::GroupSingleElimination,
+                    TourneyRules::DoubleElimination => TourneyRules::GroupDoubleElimination,
+                    default => $mode,
+                };
+                $tourney->setMode($newMode);
+            }
+        });
 
         $builder->addEventSubscriber($this->userInsertSubscriber);
     }

@@ -102,6 +102,9 @@ class TourneyRuleDoubleElimination extends TourneyRule
 
     public function processGame(TourneyGame $game, bool $overwrite): void
     {
+        if ($game->isGroupStage()) {
+            return;
+        }
         // in proper double-elim, if the winner of the loser bracket (side B) wins the finale, there is a second finale
         if ($game === $this->getFinal()) {
             if ($this->settingService->get('lan.tourney.proper_double_elim')
@@ -158,7 +161,7 @@ class TourneyRuleDoubleElimination extends TourneyRule
     function getFinal(): ?TourneyGame
     {
         foreach ($this->tourney->getGames() as $game) {
-            if (is_null($game->getParent()))
+            if (!$game->isGroupStage() && is_null($game->getParent()))
                 return $game;
         }
         return null;

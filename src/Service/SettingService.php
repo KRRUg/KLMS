@@ -56,7 +56,7 @@ class SettingService
         'lan.signup.payment_sumupenabled' => [self::TB_DESCRIPTION => 'SumUp-Zahlungen aktivieren', self::TB_TYPE => SettingType::Bool, self::TB_DEFAULT_VALUE => false],
         'lan.signup.payment_sumupclientid' => [self::TB_DESCRIPTION => 'SumUp-Client-ID', self::TB_TYPE => SettingType::String, self::TB_DEFAULT_VALUE => ''],
         'lan.signup.payment_sumupclientsecret' => [self::TB_DESCRIPTION => 'SumUp-Client-Secret', self::TB_TYPE => SettingType::String, self::TB_DEFAULT_VALUE => ''],
-        'lan.signup.payment_paytoemail' => [self::TB_DESCRIPTION => 'Zahlungen an diese E-Mail-Adresse senden (SumUp Account)', self::TB_TYPE => SettingType::String, self::TB_DEFAULT_VALUE => ''],
+        'lan.signup.payment_sumupmerchantid' => [self::TB_DESCRIPTION => 'Merchant-ID des SumUp Accounts', self::TB_TYPE => SettingType::String, self::TB_DEFAULT_VALUE => ''],
 
         'lan.seatmap.enabled' => [self::TB_DESCRIPTION => 'Sitzplanbuchungen einschalten', self::TB_TYPE => SettingType::Bool],
         'lan.seatmap.allow_booking_for_non_paid' => [self::TB_DESCRIPTION => 'Sitzplanbuchungen für nicht bezahlte Gamer erlauben', self::TB_TYPE => SettingType::Bool],

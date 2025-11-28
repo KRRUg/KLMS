@@ -229,7 +229,7 @@ class ShopController extends AbstractController
                 $amount = $order->calculateTotal() / 100;
                 $currency = 'EUR'; // Adjust as needed
                 $checkoutRef = 'Order-' . $order->getId();
-                $payToEmail = $this->settingService->get('lan.signup.payment_paytoemail');
+                $payToEmail = $this->settingService->get('lan.signup.payment_sumupmerchantid');
                 $payFromEmail = $user->getEmail();
 
                 $checkoutId = $this->sumupService->createCheckout($amount, $currency, $checkoutRef, $payToEmail, $checkoutRef, $payFromEmail);

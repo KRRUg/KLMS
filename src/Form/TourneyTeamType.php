@@ -8,8 +8,6 @@ use App\Entity\User;
 use App\Idm\IdmManager;
 use Ramsey\Uuid\Uuid;
 use Symfony\Component\Form\AbstractType;
-use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
-use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\CollectionType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
@@ -30,41 +28,25 @@ class TourneyTeamType extends AbstractType
     {
         $tourney = $options['tourney'];
         $userRepo = $this->idmManager->getRepository(User::class);
-        $allUsers = $userRepo->findAll();
-        
-        // Benutzer-Choices für Select-Felder
-        $userChoices = [];
-        foreach ($allUsers as $user) {
-            $userChoices[$user->getNickname()] = $user->getUuid()->toString();
-        }
-
-        $builder
-            ->add('name', TextType::class, [
-                'label' => 'Teamname',
-                'required' => !$tourney->isSinglePlayer(),
-                'attr' => [
-                    'class' => 'form-control',
-                    'placeholder' => $tourney->isSinglePlayer() ? 'Wird automatisch gesetzt' : 'Team Name eingeben...'
-                ],
-            ]);
 
         if ($tourney->isSinglePlayer()) {
-            // Für 1vs1 nur einen Spieler auswählen
-            $builder->add('singlePlayer', ChoiceType::class, [
+            $builder->add('singlePlayer', UserSelectType::class, [
                 'label' => 'Spieler auswählen',
-                'choices' => $userChoices,
-                'placeholder' => 'Spieler auswählen...',
                 'required' => true,
                 'mapped' => false,
-                'attr' => ['class' => 'form-control'],
+                'hydrate' => false,
             ]);
         } else {
-            // Für Team-Turniere Collection von Team-Mitgliedern
+            $builder->add('name', TextType::class, [
+                'label' => 'Teamname',
+                'required' => true,
+                'attr' => [
+                    'class' => 'form-control',
+                    'placeholder' => 'Team Name eingeben...'
+                ],
+            ]);
             $builder->add('members', CollectionType::class, [
                 'entry_type' => TourneyTeamMemberType::class,
-                'entry_options' => [
-                    'user_choices' => $userChoices,
-                ],
                 'allow_add' => true,
                 'allow_delete' => true,
                 'by_reference' => false,
@@ -79,15 +61,18 @@ class TourneyTeamType extends AbstractType
             $form = $event->getForm();
             
             if ($tourney->isSinglePlayer() && $form->has('singlePlayer')) {
-                $selectedUserId = $form->get('singlePlayer')->getData();
-                
-                if ($selectedUserId) {
-                    $user = $userRepo->findOneById(Uuid::fromString((string) $selectedUserId));
-                    
+                $selectedUser = $form->get('singlePlayer')->getData();
+
+                if ($selectedUser) {
+                    if ($selectedUser instanceof User) {
+                        $user = $selectedUser;
+                    } else {
+                        $user = $userRepo->findOneById(Uuid::fromString((string) $selectedUser));
+                    }
+
                     if ($user) {
-                        $team->setName($user->getNickname());
-                        
-                        // Team-Member erstellen oder aktualisieren
+                        $team->setName(null);
+
                         $member = $team->getMembers()->first();
                         if (!$member) {
                             $member = new TourneyTeamMember();

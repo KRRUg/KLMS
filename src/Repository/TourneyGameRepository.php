@@ -67,4 +67,23 @@ class TourneyGameRepository extends ServiceEntityRepository
             ->getQuery()
             ->getResult();
     }
+
+    /**
+     * Check if there are still incomplete group stage games for a tourney
+     */
+    public function hasIncompleteGroupGames(Tourney $tourney): bool
+    {
+        $qb = $this->createQueryBuilder('g');
+        $qb
+            ->select('COUNT(g.id)')
+            ->andWhere('g.tourney = :tourney')
+            ->andWhere('g.group_stage = true')
+            ->andWhere($qb->expr()->orX(
+                $qb->expr()->isNull('g.scoreA'),
+                $qb->expr()->isNull('g.scoreB')
+            ))
+            ->setParameter('tourney', $tourney);
+
+        return $qb->getQuery()->getSingleScalarResult() > 0;
+    }
 }

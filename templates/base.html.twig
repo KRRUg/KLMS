@@ -26,7 +26,7 @@
 		{% endblock %}
 	</head>
 	<body>
-		{% if (settings.get('site.prepage.show') == "1" and not (app.request.pathInfo starts with '/admin' or app.request.pathInfo == '/login' or app.request.pathInfo == '/reset'))  %}
+		{% if (settings.get('site.prepage.show') == "1" and not (app.request.pathInfo starts with '/admin' or app.request.pathInfo == '/login' or app.request.pathInfo == '/reset')) and not is_granted('ROLE_ADMIN') %}
 			<div class="container mt-4">
 				{{ settings.get('site.prepage.text')|raw }}
 			</div>

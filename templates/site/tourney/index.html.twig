@@ -14,6 +14,14 @@
             {% set participates = participates | default(false) %}
             {% set teams = teams_registered | default([]) %}
             {% set games = games_active | default([]) %}
+            {% set groupGamesIncomplete = group_games_incomplete | default([]) %}
+                        {% if app.user and vapid_public_key %}
+                <div class="mb-3 text-right">
+                    <button id="push-subscribe-btn" class="btn btn-outline-primary" data-vapid-key="{{ vapid_public_key }}" title="Erhalte Browser-Push-Benachrichtigungen, wenn ein Turnier startet oder du dran bist.">
+                        <i class="fa-solid fa-bell"></i>  Push-Benachrichtigungen abonnieren
+                    </button>
+                </div>
+            {% endif %}
             {% if token | default(null) is not null %}
                 <div class="mb-3 text-right">
                     Verfügbare Token: <span class="badge badge-pill {{ token > 0 ? 'badge-primary' : 'badge-secondary' }} p-2" title="Noch {{ token }} Token verfügbar"><i class="fa-solid fa-coins"></i> {{ token }}/{{ constant('App\\Service\\TourneyService::TOKEN_COUNT') }}</span>
@@ -30,7 +38,8 @@
                         'expand' : (tourney == (show ?? null)),
                         'tm': teams[tourney.id],
                         'current_game' : (games[tourney.id] ?? null),
-                        'forms': forms[tourney.id] ?? []
+                        'forms': forms[tourney.id] ?? [],
+                        'hasIncompleteGroupGames': groupGamesIncomplete[tourney.id] ?? false
                     } %}
                     {% if loop.last %}
                         <h2 class="mt-4">Weitere Turniere</h2>
@@ -50,9 +59,8 @@
             </div>
         </div>
     </div>
-    <script>
-        if (location.hash !== null && location.hash !== "") {
-            document.querySelector(location.hash).querySelector('.collapse').classList.add('show');
-        }
-    </script>
+{% endblock %}
+{% block javascripts %}
+    {{ parent() }}
+    {{ encore_entry_script_tags('tourney') }}
 {% endblock %}

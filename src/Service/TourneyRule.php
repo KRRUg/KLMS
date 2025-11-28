@@ -51,6 +51,8 @@ abstract class TourneyRule
             TourneyRules::RegistrationOnly => new TourneyRuleNone($tourney, $settings),
             TourneyRules::DoubleElimination => new TourneyRuleDoubleElimination($tourney, $settings),
             TourneyRules::SingleElimination => new TourneyRuleSingleElimination($tourney, $settings),
+            TourneyRules::GroupSingleElimination => new TourneyRuleGroupSingleElimination($tourney, $settings),
+            TourneyRules::GroupDoubleElimination => new TourneyRuleGroupDoubleElimination($tourney, $settings),
         };
     }
 

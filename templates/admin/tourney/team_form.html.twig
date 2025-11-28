@@ -1,0 +1,84 @@
+{% set modal_id = (is_edit ? 'tourneyTeamModalEdit' ~ (team.id | default('new')) : 'tourneyTeamModalCreate-' ~ tourney.id) %}
+{% set modal_title = (is_edit ? 'Team bearbeiten' : 'Team hinzufügen') ~ ' – ' ~ tourney.name %}
+
+{% embed 'modules/modals/skeleton.html.twig' with {
+    id: modal_id,
+    title: modal_title,
+    dialogClass: 'modal-lg'
+} %}
+    {% block modalContent %}
+        {{ form_start(form, {'action': path(is_edit ? 'admin_tourney_edit_team' : 'admin_tourney_add_team', is_edit ? {'id': team.id} : {'id': tourney.id}) ~ (redirect ? '?redirect=' ~ redirect|url_encode : ''), 'method': 'POST'}) }}
+        {% if redirect %}
+            <input type="hidden" name="redirect" value="{{ redirect }}">
+        {% endif %}
+        
+        <div class="modal-header">
+            <h5 class="modal-title" id="{{ id }}Label">{{ title | raw }}</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        
+        <div class="modal-body">
+            {{ block('modalBody') }}
+        </div>
+        
+        <div class="modal-footer">
+            {{ block('modalFooter') }}
+        </div>
+        
+        {{ form_end(form) }}
+    {% endblock %}
+
+    {% block modalBody %}
+        {{ form_errors(form) }}
+
+        {% if tourney.singlePlayer %}
+            <div class="mb-3">
+                {{ form_row(form.singlePlayer) }}
+            </div>
+        {% else %}
+            <div class="mb-3">
+                {{ form_row(form.name) }}
+            </div>
+
+            {% if form.members is defined %}
+                {% set prototype %}
+                    {% include 'admin/tourney/helpers/_team_member_row.html.twig' with { memberForm: form.members.vars.prototype } %}
+                {% endset %}
+
+                <div class="mb-2">
+                    <label class="font-weight-bold d-block">Teammitglieder</label>
+                    <p class="text-muted small mb-3">Füge bis zu {{ tourney.teamsize }} Spieler hinzu und markiere, ob sie bereits bestätigt sind.</p>
+                    <div
+                        data-controller="form-collection"
+                        data-form-collection-index-value="{{ form.members|length }}"
+                        data-form-collection-max-value="{{ tourney.teamsize }}"
+                        data-form-collection-prototype-value="{{ prototype|e('html_attr') }}"
+                    >
+                        <div class="text-muted small {% if form.members|length > 0 %}d-none{% endif %}"
+                             data-form-collection-target="empty">
+                            Noch keine Mitglieder hinzugefügt.
+                        </div>
+                        <div data-form-collection-target="container">
+                            {% for memberForm in form.members %}
+                                {% include 'admin/tourney/helpers/_team_member_row.html.twig' with { memberForm: memberForm } %}
+                            {% endfor %}
+                        </div>
+                        <button type="button" class="btn btn-outline-primary btn-sm mt-2"
+                                data-form-collection-target="add"
+                                data-action="form-collection#add">
+                            <i class="fa-solid fa-plus"></i> Mitglied hinzufügen
+                        </button>
+                        <small class="form-text text-muted mt-1">Maximal {{ tourney.teamsize }} Mitglieder erlaubt.</small>
+                    </div>
+                </div>
+            {% endif %}
+        {% endif %}
+    {% endblock %}
+
+    {% block modalFooter %}
+        <button type="button" class="btn btn-secondary btn-sm" data-dismiss="modal">Abbrechen</button>
+        <button type="submit" class="btn btn-primary btn-sm">{{ is_edit ? 'Aktualisieren' : 'Speichern' }}</button>
+    {% endblock %}
+{% endembed %}

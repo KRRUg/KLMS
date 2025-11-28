@@ -17,12 +17,10 @@ use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\ORM\NoResultException;
 use LogicException;
-use Psr\Log\LoggerInterface;
 
 class TourneyService extends OptimalService
 {
     private readonly EntityManagerInterface $em;
-    private readonly LoggerInterface $logger;
     private readonly TourneyRepository $repository;
     private readonly TourneyGameRepository $gameRepository;
     private readonly TourneyTeamRepository $teamRepository;
@@ -37,8 +35,7 @@ class TourneyService extends OptimalService
         TourneyTeamMemberRepository $teamMemberRepository,
         SettingService              $settings,
         TicketService               $ticketService,
-        EntityManagerInterface      $em,
-        LoggerInterface             $logger,
+        EntityManagerInterface      $em
     ) {
         parent::__construct($settings);
         $this->repository = $repository;
@@ -48,10 +45,7 @@ class TourneyService extends OptimalService
         $this->settings = $settings;
         $this->ticketService = $ticketService;
         $this->em = $em;
-        $this->logger = $logger;
     }
-
-    // TODO log everything
 
     public const TOKEN_COUNT = 40;
     public const TEAM_NAME_MAX_LENGTH = 25;
@@ -373,6 +367,21 @@ class TourneyService extends OptimalService
     {
         return TourneyRule::construct($tourney, $this->settings)->podium();
     }
+
+    public function getGroupTables(Tourney $tourney): array
+    {
+        $rule = TourneyRule::construct($tourney, $this->settings);
+        if ($rule instanceof GroupStageAwareRule) {
+            return $rule->getGroupTables();
+        }
+
+        return [];
+    }
+
+    public function hasIncompleteGroupGames(Tourney $tourney): bool
+    {
+        return $this->gameRepository->hasIncompleteGroupGames($tourney);
+    }
     
     /* Result logging */
 
@@ -414,8 +423,14 @@ class TourneyService extends OptimalService
         if (!$userInTeamA && !$userInTeamB) {
             throw new ServiceException(ServiceException::CAUSE_INCONSISTENT, 'Only members of the teams are allowed to enter results');
         }
-        if (($scoreA >= $scoreB && $userInTeamA) || ($scoreB >= $scoreA && $userInTeamB)) {
-            throw new ServiceException(ServiceException::CAUSE_FORBIDDEN, 'Loser must enter the result');
+        if ($game->isGroupStage()) {
+            if (($scoreA > $scoreB && $userInTeamA) || ($scoreB > $scoreA && $userInTeamB)) {
+                throw new ServiceException(ServiceException::CAUSE_FORBIDDEN, 'Loser must enter the result');
+            }
+        } else {
+            if (($scoreA >= $scoreB && $userInTeamA) || ($scoreB >= $scoreA && $userInTeamB)) {
+                throw new ServiceException(ServiceException::CAUSE_FORBIDDEN, 'Loser must enter the result');
+            }
         }
         if (!$game->isPending()) {
             throw new ServiceException(ServiceException::CAUSE_DONT_EXIST, 'Game is not pending.');
@@ -429,7 +444,7 @@ class TourneyService extends OptimalService
         if (!$game->isSeeded()) {
             throw new ServiceException(ServiceException::CAUSE_DONT_EXIST, 'Game is not seeded yet.');
         }
-        if ($scoreA == $scoreB) {
+        if ($scoreA == $scoreB && !$game->isGroupStage()) {
             throw new ServiceException(ServiceException::CAUSE_INVALID, 'Tie not allowed.');
         }
         $game->setScoreA($scoreA);
@@ -473,6 +488,21 @@ class TourneyService extends OptimalService
         }
         $this->em->beginTransaction();
         $this->clearGames($tourney);
+        
+        // Distribute teams to groups based on seed order (if groups are configured)
+        if ($tourney->getGroupCount() > 0) {
+            // Teams are already in seed order (index 0 = seed 1, index 1 = seed 2, etc.)
+            // Create group labels (A, B, C, ...)
+            $groups = range('A', chr(ord('A') + $tourney->getGroupCount() - 1));
+            
+            // Distribute: Seed 1→A, 2→B, 3→C, 4→A, 5→B, ...
+            foreach ($seed as $index => $team) {
+                $team->setGroupKey($groups[$index % count($groups)]);
+            }
+            
+            $this->em->flush();
+        }
+        
         TourneyRule::construct($tourney, $this->settings)->seed($seed);
         $this->em->flush();
         $this->em->commit();
@@ -488,6 +518,9 @@ class TourneyService extends OptimalService
     private function clearGames(Tourney $tourney): void
     {
         $tourney->getGames()->forAll(function($key, $game) {$this->em->remove($game); return true;});
+        foreach ($tourney->getTeams() as $team) {
+            $team->setGroupKey(null);
+        }
         $this->em->flush();
     }
 

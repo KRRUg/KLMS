@@ -13,11 +13,11 @@ enum TourneyStage : int
     public function getMessage(): string
     {
         return match ($this) {
-            self::Created => 'Erstellt',
-            self::Registration => 'Anmeldung',
-            self::Seeding => 'Vorbereitung',
+            self::Created => 'Anmeldung noch nicht offen',
+            self::Registration => 'Anmeldung offen',
+            self::Seeding => 'Seeding',
             self::Running => 'Spielen',
-            self::Finished => 'Resultat',
+            self::Finished => 'Beendet',
         };
     }
 

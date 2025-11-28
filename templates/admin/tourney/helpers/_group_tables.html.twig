@@ -1,0 +1,43 @@
+{% import 'admin/tourney/helpers/_macros.html.twig' as m %}
+
+<div class="card shadow-sm h-100">
+    <div class="card-body">
+        <h5 class="mb-3"><i class="fa-solid fa-layer-group"></i> Gruppentabellen</h5>
+        <hr>
+        <div class="row">
+            {% for groupName, standings in group_tables %}
+                <div class="col-md-6 mb-3">
+                    <h6 class="font-weight-bold">Gruppe {{ groupName }}</h6>
+                    <div class="table-responsive">
+                        <table class="table table-sm table-striped mb-0">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Team</th>
+                                    <th>Pkt</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for row in standings %}
+                                    <tr>
+                                        <td>{{ loop.index }}</td>
+                                        <td>{{ m.teamname(row.team) }}</td>
+                                        <td>{{ row.points }}</td>
+                                    </tr>
+                                {% else %}
+                                    <tr>
+                                        <td colspan="3" class="text-center text-muted">Noch keine Teams zugewiesen.</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+        <p class="text-muted mt-3 mb-0" style="font-size: 0.85rem;">
+            <strong>Rangfolge bei Punktgleichheit:</strong>
+            1. Punkte &bull; 2. Direkter Vergleich &bull; 3. Score-Differenz &bull; 4. Erzielte Scores
+        </p>
+    </div>
+</div>

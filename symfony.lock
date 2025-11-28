@@ -181,6 +181,9 @@
     "liip/test-fixtures-bundle": {
         "version": "2.6.0"
     },
+    "minishlink/web-push-bundle": {
+        "version": "v6.3.0"
+    },
     "monolog/monolog": {
         "version": "1.25.3"
     },

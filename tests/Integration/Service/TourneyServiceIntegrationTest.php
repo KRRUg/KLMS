@@ -2,6 +2,8 @@
 
 namespace App\Tests\Integration\Service;
 
+use App\DataFixtures\SeatmapFixture;
+use App\DataFixtures\SettingsFixture;
 use App\DataFixtures\TourneyFixture;
 use App\DataFixtures\TourneyFixtureGames;
 use App\DataFixtures\UserFixtures;
@@ -356,6 +358,49 @@ class TourneyServiceIntegrationTest extends DatabaseTestCase
         $this->assertFalse($service->userCanRegisterForTourney($tourney, $user1));
         $service->userUnregister($tourney, $user1);
         $this->assertTrue($service->userCanRegisterForTourney($tourney, $user1));
+    }
+
+    public function testGroupStageAdvancesToKnockout(): void
+    {
+        $this->databaseTool->loadFixtures([SettingsFixture::class, UserFixtures::class, SeatmapFixture::class]);
+        $service = self::getContainer()->get(TourneyService::class);
+        $em = self::getContainer()->get('doctrine')->getManager();
+
+        $tourney = (new Tourney())
+            ->setName('Group Stage Test')
+            ->setDescription('')
+            ->setHidden(false)
+            ->setStatus(TourneyStage::Seeding)
+            ->setToken(5)
+            ->setTeamsize(1)
+            ->setMode(TourneyRules::GroupSingleElimination)
+            ->setShowPoints(true)
+            ->setGroupCount(2)
+            ->setGroupAdvance(2)
+            ->setAuthorId(Uuid::fromInteger(1))
+            ->setModifierId(Uuid::fromInteger(1));
+
+        for ($i = 0; $i < 6; $i++) {
+            $tourney->addTeam(TourneyTeam::createTeamWithUser(Uuid::fromInteger(100 + $i)));
+        }
+
+        $em->persist($tourney);
+        $em->flush();
+
+        $service->seed($tourney, $tourney->getTeams()->toArray());
+        $tourney->setStatus(TourneyStage::Running);
+        $em->flush();
+
+        foreach ($tourney->getGames() as $game) {
+            if ($game->isGroupStage()) {
+                $service->logResult($game, 2, 1);
+            }
+        }
+
+        $this->assertNotEmpty($service->getRoots($tourney));
+        $tables = $service->getGroupTables($tourney);
+        $this->assertArrayHasKey('A', $tables);
+        $this->assertGreaterThan(0, $tables['A'][0]['played']);
     }
 
     private function provideLogResultInvalidUser(): array

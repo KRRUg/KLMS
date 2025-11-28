@@ -1,116 +1,97 @@
-document.addEventListener('DOMContentLoaded', function () {
-	const form = document.getElementById('tourney-team-form');
-	if (!form) {
-		return;
-	}
+import $ from 'jquery';
 
-	const modal = form.closest('.modal');
-	const submitButton = document.querySelector('button[form="tourney-team-form"][type="submit"]');
-	if (submitButton && !submitButton.dataset.originalText) {
-		submitButton.dataset.originalText = submitButton.innerHTML;
-	}
+import '../modules/adminDataTable/jquery.adminDataTable.js';
 
-	const membersContainer = document.getElementById('members-container');
-	const addMemberBtn = document.getElementById('add-member');
-	let memberCount = membersContainer ? membersContainer.querySelectorAll('.member-item').length : 0;
-	const prototype = membersContainer ? membersContainer.dataset.prototype : null;
-	const maxSizeAttr = membersContainer ? membersContainer.dataset.maxSize : '';
-	const maxTeamSize = maxSizeAttr ? parseInt(maxSizeAttr, 10) || 0 : 0;
+const initAdminTables = () => {
+    const tables = $('.admin-data-table');
+    if (tables.length && typeof tables.AdminDataTable === 'function') {
+        tables.AdminDataTable();
+    }
+};
 
-	if (addMemberBtn && membersContainer && prototype) {
-		addMemberBtn.addEventListener('click', function (event) {
-			event.preventDefault();
+const initSeedDragAndDrop = () => {
+    const seedList = document.getElementById('seedList');
+    if (!seedList || seedList.dataset.dragInitialized === 'true') {
+        return;
+    }
+    seedList.dataset.dragInitialized = 'true';
 
-			if (maxTeamSize > 0 && getMemberItems().length >= maxTeamSize) {
-				window.alert('Maximale Teamgröße erreicht (' + maxTeamSize + ' Spieler).');
-				return;
-			}
+    const updateBadges = () => {
+        seedList.querySelectorAll('.list-group-item').forEach((item, index) => {
+            const badge = item.querySelector('.badge');
+            if (badge) {
+                badge.textContent = index + 1;
+            }
+        });
+    };
 
-			const index = memberCount;
-			const html = prototype.replace(/__name__/g, String(index));
-			const wrapper = document.createElement('div');
-			wrapper.innerHTML = html;
-			const newItem = wrapper.firstElementChild;
-			if (!newItem) {
-				return;
-			}
+    let draggedItem = null;
 
-			membersContainer.appendChild(newItem);
-			memberCount += 1;
-			wireRemoveButtons(newItem.querySelectorAll('.remove-member'));
-			enhanceSelects(newItem.querySelectorAll('select[data-user-select]'));
-		});
-	}
+    seedList.querySelectorAll('.list-group-item').forEach(item => {
+        item.draggable = true;
 
-	wireRemoveButtons(document.querySelectorAll('.remove-member'));
-	enhanceSelects(document.querySelectorAll('select[data-user-select]'));
+        item.addEventListener('dragstart', event => {
+            draggedItem = item;
+            item.classList.add('dragging');
+            event.dataTransfer.effectAllowed = 'move';
+            event.dataTransfer.setData('text/html', item.innerHTML);
+        });
 
-	form.addEventListener('submit', function () {
-		if (submitButton) {
-			submitButton.disabled = true;
-			submitButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Speichere...';
-		}
-	});
+        item.addEventListener('dragend', () => {
+            item.classList.remove('dragging');
+            draggedItem = null;
+            updateBadges();
+        });
+    });
 
-	const tourneyType = form.dataset.tourneyType;
-	const teamNameInput = document.getElementById('tourney_team_name');
-	if (tourneyType === 'single' && teamNameInput) {
-		const nameGroup = teamNameInput.closest('.form-group');
-		if (nameGroup) {
-			nameGroup.style.display = 'none';
-		}
+    seedList.addEventListener('dragover', event => {
+        if (!draggedItem) {
+            return;
+        }
 
-		const singleSelect = document.getElementById('tourney_team_singlePlayer');
-		if (singleSelect) {
-			singleSelect.addEventListener('change', function () {
-				const option = this.selectedOptions[0];
-				if (option) {
-					teamNameInput.value = option.text;
-				}
-			});
-		}
-	}
+        const target = event.target.closest('.list-group-item');
+        event.preventDefault();
 
-	if (modal) {
-		modal.addEventListener('hidden.bs.modal', function () {
-			form.reset();
-			if (submitButton) {
-				submitButton.disabled = false;
-				submitButton.innerHTML = submitButton.dataset.originalText || 'Speichern';
-			}
-		});
-	}
+        if (!target) {
+            seedList.appendChild(draggedItem);
+            updateBadges();
+            return;
+        }
+        if (target === draggedItem) {
+            return;
+        }
 
-	function getMemberItems() {
-		return membersContainer ? Array.from(membersContainer.querySelectorAll('.member-item')) : [];
-	}
+        const { top, height } = target.getBoundingClientRect();
+        const insertAfter = event.clientY > top + height / 2;
+        seedList.insertBefore(draggedItem, insertAfter ? target.nextSibling : target);
+        updateBadges();
+    });
 
-	function wireRemoveButtons(buttons) {
-		buttons.forEach(function (btn) {
-			btn.addEventListener('click', function () {
-				const item = btn.closest('.member-item');
-				if (!item) {
-					return;
-				}
-				const items = getMemberItems();
-				if (items.length <= 1) {
-					window.alert('Mindestens ein Spieler muss im Team sein.');
-					return;
-				}
-				item.remove();
-			}, { once: true });
-		});
-	}
+    seedList.addEventListener('drop', event => {
+        event.preventDefault();
+        draggedItem = null;
+        updateBadges();
+    });
+};
 
-	function enhanceSelects(selects) {
-		selects.forEach(function (select) {
-			if (window.jQuery && window.jQuery.fn.select2 && !select.dataset.select2) {
-				window.jQuery(select).select2({
-					theme: 'bootstrap4',
-					placeholder: 'Spieler auswählen...',
-					allowClear: true
-				});
-			}
-		});
-	}
+const init = () => {
+    initAdminTables();
+    initSeedDragAndDrop();
+};
+
+document.readyState === 'loading'
+    ? document.addEventListener('DOMContentLoaded', init)
+    : init();
+
+// Lausche auf AJAX-Modal das dynamisch geladen wird
+$(document).on('shown.bs.modal', '.modal', function() {
+    // Prüfe ob das Seed-Modal geöffnet wurde
+    if ($(this).find('#seedList').length > 0) {
+        // Reset das Flag
+        const seedList = document.getElementById('seedList');
+        if (seedList) {
+            delete seedList.dataset.dragInitialized;
+        }
+        setTimeout(initSeedDragAndDrop, 100);
+    }
 });

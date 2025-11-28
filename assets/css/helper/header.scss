@@ -46,6 +46,19 @@
     #rightTopBar {
 	display: none !important;
     }
+
+    // Fix dropdown alignment in collapsed mobile navbar
+    .navbar-collapse {
+        .nav-only-collapsed {
+            .dropdown-menu-right {
+                right: auto;
+                left: 0;
+            }
+            .dropdown-menu-lg {
+                min-width: 100%;
+            }
+        }
+    }
 }
 
 

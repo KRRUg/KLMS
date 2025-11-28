@@ -1,8 +1,9 @@
 {% set registered = registered | default(false) %}
 {% set current_game = current_game | default(null) %}
 {% set expand = expand | default(false) %}
+{% set hasIncompleteGroupGames = hasIncompleteGroupGames | default(false) %}
 
-{% macro game_icon(tourney, game = null, tm = null) %}
+{% macro game_icon(tourney, game = null, tm = null, hasIncompleteGroupGames = false) %}
     {% set TourneyStage = enum('\\App\\Entity\\TourneyStage') %}
     {% if tourney.status == TourneyStage.Registration %}
         <span class="badge badge-pill badge-success"> <i class="fa-solid fa-table-list"></i> Angemeldet</span>
@@ -14,7 +15,12 @@
     {% elseif tourney.status == TourneyStage.Running %}
         <span class="badge badge-pill badge-primary"> <i class="fa-solid fa-gamepad"></i> Turnier läuft</span>
         {% if game is null %}
-            <span class="badge badge-pill badge-secondary"> Ausgeschieden</span>
+            {# Prüfen ob Team in Gruppenphase ist und noch Gruppenspiele laufen #}
+            {% if tourney.groupCount > 0 and tm is not null and tm.team.groupKey is not null and hasIncompleteGroupGames %}
+                <span class="badge badge-pill badge-info" title="Alle eigenen Spiele beendet, warte auf andere Ergebnisse"> <i class="fa-solid fa-hourglass-half"></i> Warten</span>
+            {% else %}
+                <span class="badge badge-pill badge-secondary"> Ausgeschieden</span>
+            {% endif %}
         {% elseif game.isPending() %}
             <span class="badge badge-pill badge-secondary"> Du bist dran!</span>
             <i title="Du bist dran zum Zocken!" class="fa-solid fa-gamepad fa-2xl text-primary fa-beat-fade"></i>
@@ -32,7 +38,7 @@
             {{ tourney.name }}
             <span class="statusbar">
             {% if registered %}
-                {{ _self.game_icon(tourney, current_game, tm) }}
+                {{ _self.game_icon(tourney, current_game, tm, hasIncompleteGroupGames) }}
             {% elseif participates %}
                 {% if tourney.status == TourneyStage.Registration %}
                     {% if availableToken is defined and tourney.token is defined %}

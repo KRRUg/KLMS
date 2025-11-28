@@ -33,6 +33,12 @@ class TourneyGame
     #[ORM\Column(nullable: true)]
     private ?int $scoreB = null;
 
+    #[ORM\Column(name: 'is_group_stage', type: 'boolean', options: ['default' => false])]
+    private bool $group_stage = false;
+
+    #[ORM\Column(length: 16, nullable: true)]
+    private ?string $group_key = null;
+
     #[ORM\ManyToOne(targetEntity: self::class, inversedBy: 'children')]
     #[ORM\JoinColumn(name: 'parent', nullable: true, onDelete: 'SET NULL')]
     private ?self $parent = null;
@@ -117,6 +123,30 @@ class TourneyGame
     public function setScoreB(?int $scoreB): self
     {
         $this->scoreB = $scoreB;
+
+        return $this;
+    }
+
+    public function isGroupStage(): bool
+    {
+        return $this->group_stage;
+    }
+
+    public function setGroupStage(bool $group_stage): self
+    {
+        $this->group_stage = $group_stage;
+
+        return $this;
+    }
+
+    public function getGroupKey(): ?string
+    {
+        return $this->group_key;
+    }
+
+    public function setGroupKey(?string $group_key): self
+    {
+        $this->group_key = $group_key;
 
         return $this;
     }

@@ -21,4 +21,5 @@ return [
     EWZ\Bundle\RecaptchaBundle\EWZRecaptchaBundle::class => ['all' => true],
     Eko\FeedBundle\EkoFeedBundle::class => ['all' => true],
     Endroid\QrCodeBundle\EndroidQrCodeBundle::class => ['all' => true],
+    Minishlink\Bundle\WebPushBundle\MinishlinkWebPushBundle::class => ['all' => true],
 ];

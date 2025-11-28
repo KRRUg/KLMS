@@ -1,0 +1,27 @@
+{% import 'admin/tourney/helpers/_macros.html.twig' as m %}
+{% set TourneyStage = enum('\\App\\Entity\\TourneyStage') %}
+
+{% if tourney.status == TourneyStage.Created %}
+    {{ m.action_button('Registrierung starten', path('admin_tourney_advance', {'id': tourney.id}), csrf_token_advance, detailRedirectPath, 'arrow-circle-right') }}
+{% elseif tourney.status == TourneyStage.Registration %}
+    {{ m.action_button('Registrierung zurücksetzen', path('admin_tourney_back', {'id': tourney.id}), csrf_token_advance, detailRedirectPath, 'arrow-circle-left') }}
+    {{ m.action_button('Registrierung schließen', path('admin_tourney_advance', {'id': tourney.id}), csrf_token_advance, detailRedirectPath, 'arrow-circle-right') }}
+{% elseif tourney.status == TourneyStage.Seeding %}
+    {{ m.action_button('Registrierung wiederöffnen', path('admin_tourney_back', {'id': tourney.id}), csrf_token_advance, detailRedirectPath, 'arrow-circle-left') }}
+    {{ m.action_button('Turnier starten', path('admin_tourney_advance', {'id': tourney.id}), csrf_token_advance, detailRedirectPath, 'arrow-circle-right') }}
+    <button type="button" class="btn btn-outline-primary border-primary text-nowrap btn-sm mb-2 mr-2"
+            data-toggle="ajaxModal" href="{{ path('admin_tourney_seed', {'id': tourney.id}) }}">
+        <i class="fa-solid fa-circle-info"></i> Seed bearbeiten
+    </button>
+{% elseif tourney.status == TourneyStage.Running %}
+    {{ m.action_button('Turnier neustarten', path('admin_tourney_back', {'id': tourney.id}), csrf_token_advance, detailRedirectPath, 'arrow-circle-left') }}
+    {% if not tourney.mode.canHaveGames %}
+        <button type="button" class="btn btn-outline-dark text-nowrap btn-sm mb-2 mr-2"
+                data-toggle="ajaxModal" href="{{ path('admin_tourney_result', {'id': tourney.id}) }}">
+            <i class="fa-solid fa-trophy"></i> Ergebnis eintragen
+        </button>
+    {% endif %}
+    {{ m.action_button('Turnier beenden', path('admin_tourney_advance', {'id': tourney.id}), csrf_token_advance, detailRedirectPath, 'arrow-circle-right') }}
+{% elseif tourney.status == TourneyStage.Finished %}
+    {{ m.action_button('Turnier wiedereröffnen', path('admin_tourney_back', {'id': tourney.id}), csrf_token_advance, detailRedirectPath, 'arrow-circle-left') }}
+{% endif %}

@@ -10,25 +10,30 @@
                 <li class="nav-item">
                     <a class="nav-link" href="/">Home</a>
                 </li>
-            {% else %}
+                {% else %}
                 {% for node in root['children'] %}
                     {% set name = node['name'] %}
                     {% set path = node['path'] %}
                     {% set children = node['children'] %}
-		    {% set active_route = app.request.pathInfo %}
+                    {% set active_route = app.request.pathInfo %}
                     {% if children is empty %}
                         <li class="nav-item">
                             <a class="nav-link{% if (active_route == path) %} active{% endif %}" href="{{ path | default('#') }}">{{ name }}</a>
                         </li>
                     {% else %}
-                        <li class="nav-item dropdown" }}>
-                            <a class="nav-link dropdown-toggle" href="{{ path | default('#') }}" role="button" data-toggle="dropdown">{{ name }}</a>
+                        {# determine if any child is active #}
+                        {% set parent_active = false %}
+                        {% for childNode in children %}
+                            {% if active_route == childNode['path'] %}
+                                {% set parent_active = true %}
+                            {% endif %}
+                        {% endfor %}
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle{% if parent_active %} active{% endif %}" href="{{ path | default('#') }}" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{{ name }}</a>
                             <ul class="dropdown-menu">
-                                {% for node in children %}
-                                    {% set name = node['name'] %}
-                                    {% set path = node['path'] %}
-                                    <li class="dropdown-item">
-                                        <a href="{{ path | default('#') }}">{{ name }}</a>
+                                {% for childNode in children %}
+                                    <li>
+                                        <a class="dropdown-item{% if active_route == childNode['path'] %} active{% endif %}" href="{{ childNode['path'] | default('#') }}">{{ childNode['name'] }}</a>
                                     </li>
                                 {% endfor %}
                             </ul>
@@ -36,11 +41,13 @@
                     {% endif %}
                 {% endfor %}
             {% endif %}
+            {# User/Login dropdown - only visible in collapsed (mobile) state #}
             <li class="nav-item nav-only-collapsed">
-            	<a class="btn btn-link" href="/shop/checkout"><i class="fa fa-ticket"></i> Ticket kaufen</a>
-            </li>
-            <li class="nav-item nav-only-collapsed">
-            	<a class="btn btn-link" href="/login"><i class="fas fa-user-circle"></i> Anmelden</a>
+                {% if app.user.user is defined %}
+                    {% include 'site/components/topBar/userDropdown.html.twig' %}
+                {% else %}
+                    {% include 'site/components/topBar/loginDropdown.html.twig' %}
+                {% endif %}
             </li>
         </ul>
     </div>

@@ -7,10 +7,14 @@
     <div class="container">
         {% embed "site/components/cards/skeletons/cardProfile.html.twig" %}
             {% block cardImage %}
-                {% include 'site/components/profile/image_editor.html.twig' with {
-                    'form': form,
-                    'user': user
-                } %}
+                {% if form.image is defined %}
+                    {% include 'site/components/profile/image_editor.html.twig' with {
+                        'form': form,
+                        'user': user
+                    } %}
+                {% else %}
+                    {{ parent() }}
+                {% endif %}
             {% endblock %}
             
             {% block cardBody %}
@@ -25,7 +29,7 @@
                     </div>
                 {% endif %}
                 
-                <div class="float-right">
+                <div class="mb-3 text-md-right">
                     <a class="btn btn-outline-primary" href="{{ path('user_profile_edit_pw') }}">
                         <i class="fas fa-user-edit"></i> Passwort ändern
                     </a>

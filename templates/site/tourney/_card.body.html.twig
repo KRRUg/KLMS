@@ -51,6 +51,9 @@
                         <dd>
                             {% if tourney.mode.canHaveGames %}{{ tourney.teamsize }}v{{ tourney.teamsize }} {% endif %}
                             {{ tourney.mode.message }}
+                            {% if tourney.mode.requiresGroupStage and tourney.groupCount > 0 and tourney.groupAdvance > 0 %}
+                                <br><small class="text-muted">{{ tourney.groupCount }} Gruppen, Top {{ tourney.groupAdvance }} kommen weiter</small>
+                            {% endif %}
                         </dd>
                         <dt>Teams:</dt>
                         <dd>

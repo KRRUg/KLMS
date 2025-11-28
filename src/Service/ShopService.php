@@ -270,7 +270,7 @@ class ShopService
             ->setCreatedAt(new DateTimeImmutable());
     }
 
-    public function orderAddTickets(ShopOrder $order, int $ticketCnt, int $price): void
+    public function orderAddTickets(ShopOrder $order, int $ticketCnt, ?int $price): void
     {
         if ($price === null) {
             $price = $this->settingService->get('lan.signup.price', self::DEFAULT_TICKET_PRICE);

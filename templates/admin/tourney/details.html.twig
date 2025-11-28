@@ -1,0 +1,67 @@
+{% extends 'admin/adminBase.html.twig' %}
+
+{% block title %}Turnierdetails – {{ tourney.name }}{% endblock %}
+{% block siteheading %}<i class="fa-solid fa-trophy"></i> Turniere{% endblock %}
+
+{% block main %}
+    {% set detailRedirectPath = path('admin_tourney_details', {'id': tourney.id}) %}
+
+    {# Header with title and action buttons #}
+    <div class="row mb-4">
+        <div class="col-12">
+            {% include 'admin/tourney/helpers/_header.html.twig' %}
+        </div>
+    </div>
+
+    {% if not tourney.canHaveTeams %}
+        <div class="row">
+            <div class="col-12">
+                <div class="alert alert-info text-center mb-0">Dieses Turnier hat noch keine Details.</div>
+            </div>
+        </div>
+    {% else %}
+        {% set groupPending = tourney.games | filter(game => game.groupStage and game.pending) %}
+        {% set groupDone = tourney.games | filter(game => game.groupStage and game.done) %}
+        {% set bracketPending = tourney.games | filter(game => (not game.groupStage) and game.pending) %}
+        {% set bracketDone = tourney.games | filter(game => (not game.groupStage) and game.done) %}
+        
+        {# Teams and Games Section #}
+        <div class="row">
+            <div class="{% if tourney.canHaveGames %}col-lg-6{% else %}col-lg-12{% endif %} mb-4">
+                {% include 'admin/tourney/helpers/_teams_card.html.twig' %}
+            </div>
+
+            {% if tourney.canHaveGames %}
+                <div class="col-lg-6 mb-4">
+                    {% include 'admin/tourney/helpers/_games_card.html.twig' %}
+                </div>
+            {% endif %}
+        </div>
+
+        {# Group Tables Section #}
+        {% if group_tables is not empty %}
+            <div class="row">
+                <div class="col-12 mb-4">
+                    {% include 'admin/tourney/helpers/_group_tables.html.twig' %}
+                </div>
+            </div>
+        {% endif %}
+
+        {# Tournament Tree Section #}
+        {% if trees is not empty %}
+            <div class="row">
+                <div class="col-12 mb-4">
+                    {% include 'admin/tourney/helpers/_tree.html.twig' %}
+                </div>
+            </div>
+        {% endif %}
+    {% endif %}
+{% endblock %}
+{% block javascripts %}
+    {{ parent() }}
+    {{ encore_entry_script_tags('admin_tourney') }}
+{% endblock %}
+{% block stylesheets %}
+    {{ parent() }}
+    {{ encore_entry_link_tags('tourney') }}
+{% endblock %}

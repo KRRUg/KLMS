@@ -57,6 +57,12 @@ class Tourney implements HistoryAwareEntity
     #[ORM\Column(nullable: true)]
     private ?int $max_teams = null;
 
+    #[ORM\Column(name: 'group_count', nullable: true)]
+    private ?int $group_count = null;
+
+    #[ORM\Column(name: 'group_advance', nullable: true)]
+    private ?int $group_advance = null;
+
     use EntityHistoryTrait;
 
     public function __construct()
@@ -276,6 +282,11 @@ class Tourney implements HistoryAwareEntity
         return $this->status->canHaveGames() && $this->mode->canHaveGames();
     }
 
+    public function requiresGroupStage(): bool
+    {
+        return $this->mode?->requiresGroupStage() ?? false;
+    }
+
     public function hasSpotsLeft(): bool
     {
         if (is_null($this->getMaxTeams())) return true;
@@ -290,6 +301,30 @@ class Tourney implements HistoryAwareEntity
     public function setMaxTeams(?int $max_teams): static
     {
         $this->max_teams = $max_teams;
+
+        return $this;
+    }
+
+    public function getGroupCount(): ?int
+    {
+        return $this->group_count;
+    }
+
+    public function setGroupCount(?int $group_count): static
+    {
+        $this->group_count = $group_count;
+
+        return $this;
+    }
+
+    public function getGroupAdvance(): ?int
+    {
+        return $this->group_advance;
+    }
+
+    public function setGroupAdvance(?int $group_advance): static
+    {
+        $this->group_advance = $group_advance;
 
         return $this;
     }

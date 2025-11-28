@@ -24,8 +24,13 @@
                         <div class="card-body">
                             <h5>Modus</h5>
                             {{ form_row(form.teamsize) }}
-                            {{ form_row(form.mode) }}
                             {{ form_row(form.maxTeams) }}
+                            {{ form_row(form.mode) }}
+                            {{ form_row(form.hasGroupStage) }}
+                            <div id="group-stage-fields" style="display: none;">
+                                {{ form_row(form.groupCount) }}
+                                {{ form_row(form.groupAdvance) }}
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -71,4 +76,43 @@
             {% endif %}
         </div>
     </div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const groupStageCheckbox = document.querySelector('.group-stage-toggle');
+            const groupStageFields = document.getElementById('group-stage-fields');
+            const modeRadios = document.querySelectorAll('input[name="tourney[mode]"]');
+            
+            function updateGroupStageVisibility() {
+                if (!groupStageCheckbox) return;
+                
+                const isChecked = groupStageCheckbox.checked;
+                const selectedMode = document.querySelector('input[name="tourney[mode]"]:checked');
+                const isRegistrationOnly = selectedMode && selectedMode.value === 'ro';
+                
+                // Hide group stage option for "externes Turnier"
+                if (isRegistrationOnly) {
+                    groupStageCheckbox.closest('.form-group').style.display = 'none';
+                    groupStageFields.style.display = 'none';
+                } else {
+                    groupStageCheckbox.closest('.form-group').style.display = 'block';
+                    groupStageFields.style.display = isChecked ? 'block' : 'none';
+                }
+            }
+            
+            if (groupStageCheckbox) {
+                groupStageCheckbox.addEventListener('change', updateGroupStageVisibility);
+            }
+            
+            modeRadios.forEach(function(radio) {
+                radio.addEventListener('change', updateGroupStageVisibility);
+            });
+            
+            // Initial state
+            updateGroupStageVisibility();
+        });
+    </script>
 {% endblock %}

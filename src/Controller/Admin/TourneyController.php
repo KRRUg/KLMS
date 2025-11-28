@@ -110,20 +110,106 @@ class TourneyController extends AbstractController
     {
         // TODO render either full site or partial content, depending on xhr request (here and everywhere)
 
-        return $this->render('admin/tourney/details.modal.html.twig', [
+        $roots = $this->service->getRoots($tourney);
+        
+        // Convert roots to tree structure for display
+        $calc = function(array $a) {
+            $root = $a[0];
+            $max_level = $a[1];
+            $array = [[$root]];
+            $level = 0;
+            $next = true;
+            while ($next) {
+                $array[] = [];
+                $next = false;
+                foreach ($array[$level] as $game) {
+                    if (is_null($game)) {
+                        $array[$level + 1][] = null;
+                        $array[$level + 1][] = null;
+                        continue;
+                    }
+                    $next = true;
+                    $array[$level + 1][] = is_null($game) ? null : $game->getChild(true);
+                    $array[$level + 1][] = is_null($game) ? null : $game->getChild(false);
+                }
+                $level++;
+                if ($max_level > 0 && $level > $max_level) {
+                    break;
+                }
+            }
+            array_pop($array);
+            array_pop($array);
+            return array_reverse($array);
+        };
+
+        $trees = array_map($calc, $roots);
+
+        return $this->render('admin/tourney/details.html.twig', [
             'tourney' => $tourney,
             'csrf_token_advance' => self::CSRF_TOKEN_ADVANCE,
             'csrf_token_modify' => self::CSRF_TOKEN_MODIFY,
+            'group_tables' => $this->service->getGroupTables($tourney),
+            'trees' => $trees,
         ]);
     }
 
-    #[Route(path: '/seed/{id}', name: '_seed')]
+    #[Route(path: '/seed/{id}', name: '_seed', methods: ['GET', 'POST'])]
     public function seed(Request $request, Tourney $tourney): Response
     {
-        // TODO generate form and make the seed accordingly
-        $this->service->seed($tourney);
-        $this->addFlash('success', 'Seed wurde neu berechnet');
-        return $this->redirectToRoute('admin_tourney');
+        if ($tourney->getStatus() != TourneyStage::Seeding) {
+            throw $this->createNotFoundException('Tourney is not in seeding stage.');
+        }
+
+        $teams = $tourney->getTeams()->toArray();
+        
+        $form = $this->createFormBuilder()
+            ->add('submit', SubmitType::class, ['label' => 'Seed speichern'])
+            ->setAction($request->getUri())
+            ->getForm();
+
+        $form->handleRequest($request);
+        
+        if ($form->isSubmitted() && $form->isValid()) {
+            // Get the team order from POST data
+            $seedOrder = $request->request->all('seed');
+            
+            if (empty($seedOrder) || !is_array($seedOrder)) {
+                $this->addFlash('error', 'Keine gültige Seed-Reihenfolge übermittelt.');
+                return $this->redirectToRoute('admin_tourney_details', ['id' => $tourney->getId()]);
+            }
+
+            // Build ordered team array based on submitted IDs
+            $orderedTeams = [];
+            foreach ($seedOrder as $teamId) {
+                foreach ($teams as $team) {
+                    if ($team->getId() == $teamId) {
+                        $orderedTeams[] = $team;
+                        break;
+                    }
+                }
+            }
+
+            // Validate that all teams are included
+            if (count($orderedTeams) !== count($teams)) {
+                $this->addFlash('error', 'Seed-Reihenfolge ist unvollständig.');
+                return $this->redirectToRoute('admin_tourney_details', ['id' => $tourney->getId()]);
+            }
+
+            try {
+                $this->service->seed($tourney, $orderedTeams);
+                $this->addFlash('success', 'Seed wurde erfolgreich gespeichert.');
+            } catch (ServiceException $e) {
+                $this->addFlash('error', 'Seed konnte nicht gespeichert werden: ' . $e->getMessage());
+            }
+            
+            return $this->redirectToRoute('admin_tourney_details', ['id' => $tourney->getId()]);
+        }
+
+        return $this->render('admin/tourney/seed.html.twig', [
+            'tourney' => $tourney,
+            'teams' => $teams,
+            'form' => $form->createView(),
+        ]);
     }
 
     #[Route(path: '/game-result/{id}', name: '_game_result')]
@@ -153,7 +239,7 @@ class TourneyController extends AbstractController
             } catch (ServiceException $e) {
                 $this->addFlash('error', 'Ergebnis konnte nicht gesetzt werden: ' . $e->getMessage());
             }
-            return $this->redirectToRoute('admin_tourney');
+            return $this->redirectToRoute('admin_tourney_details', ['id' => $tourney->getId()]);
         }
 
         return $this->render('admin/tourney/gameresult.html.twig', [
@@ -241,6 +327,10 @@ class TourneyController extends AbstractController
         } catch (ServiceException $e) {
             $this->addFlash('error', $e->getMessage());
         }
+        $redirect = $this->resolveRedirectPath($request);
+        if ($redirect) {
+            return $this->redirect($redirect);
+        }
         return $this->redirectToRoute('admin_tourney');
     }
 
@@ -259,6 +349,10 @@ class TourneyController extends AbstractController
             $this->addFlash('success', "Tourney {$tourney->getName()} {$tourney->getStatus()->getAdjective()}.");
         } catch (ServiceException $e) {
             $this->addFlash('error', $e->getMessage());
+        }
+        $redirect = $this->resolveRedirectPath($request);
+        if ($redirect) {
+            return $this->redirect($redirect);
         }
         return $this->redirectToRoute('admin_tourney');
     }
@@ -280,103 +374,123 @@ class TourneyController extends AbstractController
         } catch (ServiceException $e) {
             $this->addFlash('error', $e->getMessage());
         }
+        $redirect = $this->resolveRedirectPath($request);
+        if ($redirect) {
+            return $this->redirect($redirect);
+        }
         return $this->redirectToRoute('admin_tourney');
     }
 
-    #[Route(path: '/{id}/add-team', name: '_add_team', methods: ['GET', 'POST'])]
+    #[Route(path: '/add-team/{id}', name: '_add_team', methods: ['GET', 'POST'])]
     public function addTeam(Request $request, Tourney $tourney): Response
     {
-        $this->denyAccessUnlessGranted('ROLE_ADMIN');
-
         if (!$tourney->getStatus()->canRegister()) {
-            $this->addFlash('error', 'Teams können in diesem Turnier-Status nicht hinzugefügt werden.');
-            return $this->redirectToRoute('admin_tourney');
+            throw $this->createNotFoundException();
         }
 
         $team = new TourneyTeam();
         $team->setTourney($tourney);
-
-        // Für Team-Turniere mindestens ein leeres Team-Member hinzufügen
-        if (!$tourney->isSinglePlayer()) {
-            $member = new TourneyTeamMember();
-            $member->setTeam($team);
-            $member->setAccepted(true);
-            $team->addMember($member);
+        if (!$tourney->isSinglePlayer() && $team->getMembers()->count() === 0) {
+            $team->addMember(new TourneyTeamMember());
         }
 
-        $form = $this->createForm(TourneyTeamType::class, $team, [
-            'tourney' => $tourney,
-        ]);
+        $form = $this->createForm(TourneyTeamType::class, $team, ['tourney' => $tourney]);
 
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
             try {
                 $this->service->createTeam($team);
-                $this->addFlash('success', 'Team wurde erfolgreich hinzugefügt.');
-                
-                if ($request->isXmlHttpRequest()) {
-                    return new Response('', 204); // No Content - Modal schließen
-                }
-                
-                return $this->redirectToRoute('admin_tourney');
+                $this->addFlash('success', "Team {$team->getName()} wurde erstellt.");
             } catch (ServiceException $e) {
-                $this->addFlash('error', 'Fehler beim Hinzufügen des Teams: ' . $e->getMessage());
+                $this->addFlash('error', 'Team konnte nicht erstellt werden: ' . $e->getMessage());
             }
+            
+            $redirect = $this->resolveRedirectPath($request);
+            return $redirect ? $this->redirect($redirect) : $this->redirectToRoute('admin_tourney_details', ['id' => $tourney->getId()]);
         }
 
-        $userRepo = $this->userRepo;
-        $availableUsers = $userRepo->findAll();
+        // Bei Validierungsfehlern
+        if ($form->isSubmitted()) {
+            $errors = [];
+            foreach ($form->getErrors(true) as $error) {
+                $errors[] = $error->getMessage();
+            }
+            if ($errors) {
+                $this->addFlash('error', 'Validierungsfehler: ' . implode(', ', $errors));
+            }
+            
+            $redirect = $this->resolveRedirectPath($request);
+            return $redirect ? $this->redirect($redirect) : $this->redirectToRoute('admin_tourney_details', ['id' => $tourney->getId()]);
+        }
 
-        return $this->render('admin/tourney/team.modal.html.twig', [
+        $redirectTarget = $this->resolveRedirectPath($request);
+
+        return $this->render('admin/tourney/team_form.html.twig', [
             'form' => $form->createView(),
             'tourney' => $tourney,
             'team' => $team,
-            'available_users' => $availableUsers,
+            'redirect' => $redirectTarget,
+            'is_edit' => false,
         ]);
     }
 
-    #[Route(path: '/team/{id}/edit', name: '_edit_team', methods: ['GET', 'POST'])]
+    #[Route(path: '/edit-team/{id}', name: '_edit_team', methods: ['GET', 'POST'])]
     public function editTeam(Request $request, TourneyTeam $team): Response
     {
-        $this->denyAccessUnlessGranted('ROLE_ADMIN');
-
         $tourney = $team->getTourney();
-        
         if (!$tourney->getStatus()->canRegister()) {
-            $this->addFlash('error', 'Teams können in diesem Turnier-Status nicht bearbeitet werden.');
-            return $this->redirectToRoute('admin_tourney');
+            throw $this->createNotFoundException();
         }
 
-        $form = $this->createForm(TourneyTeamType::class, $team, [
-            'tourney' => $tourney,
-        ]);
+        $form = $this->createForm(TourneyTeamType::class, $team, ['tourney' => $tourney]);
 
         $form->handleRequest($request);
-
+        
         if ($form->isSubmitted() && $form->isValid()) {
             try {
                 $this->service->updateTeam($team);
-                $this->addFlash('success', 'Team wurde erfolgreich aktualisiert.');
-                
-                if ($request->isXmlHttpRequest()) {
-                    return new Response('', 204); // No Content - Modal schließen
-                }
-                
-                return $this->redirectToRoute('admin_tourney');
+                $this->addFlash('success', "Team {$team->getName()} wurde aktualisiert.");
             } catch (ServiceException $e) {
-                $this->addFlash('error', 'Fehler beim Aktualisieren des Teams: ' . $e->getMessage());
+                $this->addFlash('error', 'Team konnte nicht aktualisiert werden: ' . $e->getMessage());
             }
+            
+            $redirect = $this->resolveRedirectPath($request);
+            return $redirect ? $this->redirect($redirect) : $this->redirectToRoute('admin_tourney_details', ['id' => $tourney->getId()]);
         }
 
-        $userRepo = $this->userRepo;
-        $availableUsers = $userRepo->findAll();
+        // Bei Validierungsfehlern
+        if ($form->isSubmitted()) {
+            $errors = [];
+            foreach ($form->getErrors(true) as $error) {
+                $errors[] = $error->getMessage();
+            }
+            if ($errors) {
+                $this->addFlash('error', 'Validierungsfehler: ' . implode(', ', $errors));
+            }
+            
+            $redirect = $this->resolveRedirectPath($request);
+            return $redirect ? $this->redirect($redirect) : $this->redirectToRoute('admin_tourney_details', ['id' => $tourney->getId()]);
+        }
 
-        return $this->render('admin/tourney/team.modal.html.twig', [
+        $redirectTarget = $this->resolveRedirectPath($request);
+
+        return $this->render('admin/tourney/team_form.html.twig', [
             'form' => $form->createView(),
             'tourney' => $tourney,
             'team' => $team,
-            'available_users' => $availableUsers,
+            'redirect' => $redirectTarget,
+            'is_edit' => true,
         ]);
+    }
+
+    private function resolveRedirectPath(Request $request): ?string
+    {
+        $redirect = $request->get('redirect');
+        if (is_string($redirect) && str_starts_with($redirect, '/')) {
+            return $redirect;
+        }
+
+        return null;
     }
 }

@@ -1,0 +1,16 @@
+{% import 'admin/tourney/helpers/_macros.html.twig' as m %}
+
+<div class="card shadow-sm h-100">
+    <div class="card-body">
+        <h5 class="mb-3"><i class="fa-solid fa-tree"></i> Turnierbaum</h5>
+        <hr>
+        <div class="tournament" {{ stimulus_controller('tourney_tree') }}>
+            {% for name, tree_data in trees %}
+                {% if name is not empty %}
+                    <h5 {% if not loop.first %}class="mt-4"{% endif %}>{{ name }}</h5>
+                {% endif %}
+                {{ m.tree(tourney, tree_data, null, false) }}
+            {% endfor %}
+        </div>
+    </div>
+</div>

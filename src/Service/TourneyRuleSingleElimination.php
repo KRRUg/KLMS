@@ -16,8 +16,8 @@ class TourneyRuleSingleElimination extends TourneyRule
     public function seed(array $list): void
     {
         $count = count($list);
-        if ($count < 3)
-            throw new ServiceException(ServiceException::CAUSE_INCONSISTENT, 'at least three teams are required');
+        if ($count < 2)
+            throw new ServiceException(ServiceException::CAUSE_INCONSISTENT, 'at least two teams are required');
 
         $list = self::seedList($list);
         while (count($list) > 1) {
@@ -31,6 +31,9 @@ class TourneyRuleSingleElimination extends TourneyRule
 
     public function processGame(TourneyGame $game, bool $overwrite): void
     {
+        if ($game->isGroupStage()) {
+            return;
+        }
         $parent = $game->getParent();
         if (!is_null($parent)) {
             if ($game->isChildA()) {
@@ -78,7 +81,7 @@ class TourneyRuleSingleElimination extends TourneyRule
     public function getFinal(): ?TourneyGame
     {
        foreach ($this->tourney->getGames() as $game) {
-           if (is_null($game->getParent()) && !$game->getChildren()->isEmpty()) {
+           if (!$game->isGroupStage() && is_null($game->getParent()) && !$game->getChildren()->isEmpty()) {
                return $game;
            }
        }
@@ -88,7 +91,7 @@ class TourneyRuleSingleElimination extends TourneyRule
     public function getSmallFinal(): ?TourneyGame
     {
         foreach ($this->tourney->getGames() as $game) {
-            if (is_null($game->getParent()) && $game->getChildren()->isEmpty()) {
+            if (!$game->isGroupStage() && is_null($game->getParent()) && $game->getChildren()->isEmpty()) {
                 return $game;
             }
         }

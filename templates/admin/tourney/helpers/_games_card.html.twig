@@ -1,0 +1,50 @@
+{% import 'admin/tourney/helpers/_macros.html.twig' as m %}
+
+{% macro game_list(games, title, empty_text, edit_button = false, show_group = false) %}
+    <h6>{{ title }}</h6>
+    <ul class="list-group {{ edit_button ? 'mb-3' : 'mb-0' }}">
+        {% for game in games %}
+            <li class="list-group-item {% if edit_button %}d-flex justify-content-between align-items-center{% endif %}">
+                <div>
+                    {% if show_group and game.groupKey %}<span class="badge badge-light mr-2">Gruppe {{ game.groupKey }}</span>{% endif %}
+                    {% if game.done %}
+                        {% if game.hasWon(true) %}<b>{% endif %}{{ m.teamnameA(game) }}{% if game.hasWon(true) %}</b>{% endif %}
+                        vs
+                        {% if game.hasWon(false) %}<b>{% endif %}{{ m.teamnameB(game) }}{% if game.hasWon(false) %}</b>{% endif %}
+                        ({{ game.scoreA }} : {{ game.scoreB }})
+                    {% else %}
+                        {{ m.teamnameA(game) }} <span class="font-weight-bold">vs</span> {{ m.teamnameB(game) }}
+                    {% endif %}
+                </div>
+                {% if edit_button %}
+                    <button type="button" class="btn btn-outline-dark text-nowrap btn-sm"
+                            data-toggle="ajaxModal" href="{{ path('admin_tourney_game_result', {'id': game.id}) }}">
+                        <i class="fa-solid fa-pencil"></i>
+                    </button>
+                {% endif %}
+            </li>
+        {% else %}
+            <li class="list-group-item text-muted">{{ empty_text }}</li>
+        {% endfor %}
+    </ul>
+{% endmacro %}
+
+{% import _self as gl %}
+
+<div class="card shadow-sm h-100">
+    <div class="card-body">
+        <h5><i class="fa-solid fa-gamepad"></i> Spiele</h5>
+        <hr>
+
+        {% if group_tables is not empty %}
+            <h5 class="text-muted text-uppercase">Gruppenspiele</h5>
+            {{ gl.game_list(groupPending, 'Ausstehende Spiele', 'Keine ausstehenden Gruppenspiele vorhanden.', true, true) }}
+            {{ gl.game_list(groupDone, 'Abgeschlossene Spiele', 'Noch keine Gruppenergebnisse vorhanden.', false, true) }}
+            <div class="mb-4"></div>
+        {% endif %}
+
+        <h5 class="text-muted text-uppercase">K.-o.-Spiele</h5>
+        {{ gl.game_list(bracketPending, 'Ausstehende Spiele', 'Keine ausstehenden K.-o.-Spiele vorhanden.', true, false) }}
+        {{ gl.game_list(bracketDone, 'Abgeschlossene Spiele', 'Noch keine Ergebnisse vorhanden.', false, false) }}
+    </div>
+</div>

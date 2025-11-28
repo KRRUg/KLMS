@@ -5,23 +5,19 @@ namespace App\Form;
 use App\Entity\TourneyTeamMember;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
-use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use App\Form\UserSelectType;
 
 class TourneyTeamMemberType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
-        $userChoices = $options['user_choices'] ?? [];
-
         $builder
-            ->add('gamer', ChoiceType::class, [
-                'label' => false,
-                'choices' => $userChoices,
-                'placeholder' => 'Spieler auswählen...',
+            ->add('gamer', UserSelectType::class, [
+                'label' => 'Spieler',
                 'required' => true,
-                'attr' => ['class' => 'form-control'],
+                'hydrate' => false,
             ])
             ->add('accepted', CheckboxType::class, [
                 'label' => 'Bestätigt',
@@ -34,7 +30,6 @@ class TourneyTeamMemberType extends AbstractType
     {
         $resolver->setDefaults([
             'data_class' => TourneyTeamMember::class,
-            'user_choices' => [],
         ]);
     }
 }

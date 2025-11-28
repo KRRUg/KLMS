@@ -1,0 +1,116 @@
+{# Team name helpers #}
+{% macro teamname(team) %}
+    {{- team.name is not empty ? team.name : team.members[0].gamer | username -}}
+{% endmacro %}
+
+{% macro teamnameA(game) %}
+    {{- _self.teamname(game.teamA) -}}
+{% endmacro %}
+
+{% macro teamnameB(game) %}
+    {{- _self.teamname(game.teamB) -}}
+{% endmacro %}
+
+{# Team card components #}
+{% macro team_card_title(team, show_seat = true) %}
+    {% if team.name %}
+        <strong>{{ team.name }}</strong>
+    {% else %}
+        {{ team.members[0].gamer | username }}
+        {% if show_seat %}
+            {% set gs = team.members[0].gamer | user | seat %}
+            {% if gs is not null and gs is not empty %}
+                <span class="badge badge-secondary ml-3"><i class="fa-solid fa-chair"></i> {{ gs }}</span>
+            {% endif %}
+        {% endif %}
+    {% endif %}
+{% endmacro %}
+
+{% macro team_card_body(team, show_seat = true) %}
+    {% if team.name %}
+        <ul class="list-group list-group-flush">
+            {% for member in team.members %}
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <span>{{ member.gamer | username }}</span>
+                    {% if show_seat %}
+                        {% set gs = member.gamer | user | seat %}
+                        {% if gs is not null and gs is not empty %}
+                            <span class="badge badge-secondary ml-3"><i class="fa-solid fa-chair"></i> {{ gs }}</span>
+                        {% endif %}
+                    {% endif %}
+                </li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+{% endmacro %}
+
+{# Action buttons #}
+{% macro action_button(text, path, token, redirect, icon, color = 'danger') %}
+    <form data-toggle="confirmModal" data-modal-title="Bestätigen" 
+          data-modal-text="Wirklich {{ text|lower }}?" method="post" 
+          action="{{ path }}" class="d-inline-block mr-2 mb-2">
+        <input type="hidden" name="_token" value="{{ csrf_token(token) }}">
+        {% if redirect %}<input type="hidden" name="redirect" value="{{ redirect }}">{% endif %}
+        <button type="submit" class="btn btn-sm btn-{{ color }}">
+            <i class="fa-solid fa-{{ icon }}"></i> {{ text }}
+        </button>
+    </form>
+{% endmacro %}
+
+{% macro delete_button(team, token, redirect) %}
+    <form data-toggle="confirmModal" data-modal-title="Bestätigen" 
+          data-modal-text="Wirklich abmelden?" method="post" 
+          action="{{ path('admin_tourney_remove_team', {'id': team.id}) }}" class="d-inline-block">
+        <input type="hidden" name="_token" value="{{ csrf_token(token) }}">
+        {% if redirect %}<input type="hidden" name="redirect" value="{{ redirect }}">{% endif %}
+        <button type="submit" class="btn btn-sm btn-outline-danger"><i class="fa-solid fa-trash"></i></button>
+    </form>
+{% endmacro %}
+
+{# Tournament tree #}
+{% macro tree(tourney, tree, team = null, show_seat = false) %}
+    <div class="tree">
+        {% for round in tree %}
+            <div class="round">
+                {% for game in round %}
+                    {% if game is not empty %}
+                        {{ _self.game_match(game, tourney, team, show_seat) }}
+                    {% else %}
+                        <div class="match empty"></div>
+                    {% endif %}
+                {% endfor %}
+            </div>
+        {% endfor %}
+    </div>
+{% endmacro %}
+
+{% macro game_match(game, tourney, team = null, show_seat = false) %}
+    <div id="game{{ game.id }}" class="match"
+         {% if game.loserNext is not null %}data-ref-loser="game{{ game.loserNext.id ~ (game.isLoserNextA ? 'a' : 'b') }}"{% endif %}
+         {% if game.parent is not null %}data-ref-winner="game{{ game.parent.id ~ (game.isChildA ? 'a' : 'b') }}"{% endif %}>
+        <div class="teams">
+            {{ _self.game_team(game, game.teamA, true, tourney, team, show_seat) }}
+            {{ _self.game_team(game, game.teamB, false, tourney, team, show_seat) }}
+        </div>
+    </div>
+{% endmacro %}
+
+{% macro game_team(game, gameTeam, isTeamA, tourney, ownTeam = null, show_seat = false) %}
+    {% set side = isTeamA ? 'a' : 'b' %}
+    <div id="game{{ game.id }}{{ side }}" 
+         class="team {{ gameTeam is null ? 'team-empty' : '' }} {{ game.hasWon(isTeamA) ? 'winner' : '' }} {{ gameTeam is same as ownTeam ? 'team-own' : '' }}">
+        {% if gameTeam is not null %}
+            <span class="team-name">{{ _self.teamname(gameTeam) }}</span>
+            <span class="team-score">
+                {% if tourney.showPoints %}
+                    {% set score = isTeamA ? game.scoreA() : game.scoreB() %}
+                    {{ score is not null ? score : '' }}
+                {% endif %}
+            </span>
+            <div class="team-info" style="display: none;">
+                <div class="team-info-head">{{ _self.team_card_title(gameTeam, show_seat) }}</div>
+                <div class="team-info-body">{{ _self.team_card_body(gameTeam, show_seat) }}</div>
+            </div>
+        {% endif %}
+    </div>
+{% endmacro %}
