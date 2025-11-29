@@ -45,6 +45,16 @@ class SettingsFixture extends Fixture
         $this->addSetting($manager, 'lan.signup.discount.limit', 3);
         $this->addSetting($manager, 'lan.signup.payment_details', "<b>ACME Bank</b><br>IBAN: XX12 3456 7890 1337<br>BIC: ACME123");
 
+        // New payment methods
+        $this->addSetting($manager, 'lan.payment.bank_transfer.enabled', true);
+        $this->addSetting($manager, 'lan.payment.bank_transfer.account_holder', 'KLMS Team e.V.');
+        $this->addSetting($manager, 'lan.payment.bank_transfer.iban', 'DE89 3704 0044 0532 0130 00');
+        $this->addSetting($manager, 'lan.payment.bank_transfer.bic', 'COBADEFFXXX');
+        
+        $this->addSetting($manager, 'lan.payment.paypal.enabled', true);
+        $this->addSetting($manager, 'lan.payment.paypal.email', 'payment@klms-example.com');
+        $this->addSetting($manager, 'lan.payment.paypal.paypal_me_link', 'https://paypal.me/klmsexample');
+
         $this->addSetting($manager, 'lan.stats.show', true);
 
         $manager->flush();

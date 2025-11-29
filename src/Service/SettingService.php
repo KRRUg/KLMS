@@ -50,7 +50,15 @@ class SettingService
         'lan.signup.price' => [self::TB_DESCRIPTION => 'Preis für einen Eintritt.', self::TB_TYPE => SettingType::Money, self::TB_DEFAULT_VALUE => ShopService::DEFAULT_TICKET_PRICE],
         'lan.signup.discount.price' => [self::TB_DESCRIPTION => 'Preis für einen Eintritt mit Gruppenermäßigung.', self::TB_TYPE => SettingType::Money],
         'lan.signup.discount.limit' => [self::TB_DESCRIPTION => 'Gruppenermäßigung ab x Eintritte.', self::TB_TYPE => SettingType::Integer],
-        'lan.signup.payment_details' => [self::TB_DESCRIPTION => 'Bankdaten für die Zahlung von Bestellungen', self::TB_TYPE => SettingType::HTML],
+        'lan.signup.payment_details' => [self::TB_DESCRIPTION => 'Bankdaten für die Zahlung von Bestellungen. Wird ignoriert wenn eine der lan.payment.*.enabled Optionen aktiviert ist.', self::TB_TYPE => SettingType::HTML],
+
+        'lan.payment.bank_transfer.enabled' => [self::TB_DESCRIPTION => 'Bezahlung per Überweisung aktivieren', self::TB_TYPE => SettingType::Bool],
+        'lan.payment.bank_transfer.account_holder' => [self::TB_DESCRIPTION => 'Kontoinhaber', self::TB_TYPE => SettingType::String],
+        'lan.payment.bank_transfer.iban' => [self::TB_DESCRIPTION => 'IBAN', self::TB_TYPE => SettingType::String],
+        'lan.payment.bank_transfer.bic' => [self::TB_DESCRIPTION => 'BIC', self::TB_TYPE => SettingType::String],
+        'lan.payment.paypal.enabled' => [self::TB_DESCRIPTION => 'Bezahlung per PayPal aktivieren', self::TB_TYPE => SettingType::Bool],
+        'lan.payment.paypal.email' => [self::TB_DESCRIPTION => 'PayPal E-Mail Adresse', self::TB_TYPE => SettingType::String],
+        'lan.payment.paypal.paypal_me_link' => [self::TB_DESCRIPTION => 'PayPal.me Link (z.B. https://paypal.me/username)', self::TB_TYPE => SettingType::URL],
 
         'lan.seatmap.enabled' => [self::TB_DESCRIPTION => 'Sitzplanbuchungen einschalten', self::TB_TYPE => SettingType::Bool],
         'lan.seatmap.allow_booking_for_non_paid' => [self::TB_DESCRIPTION => 'Sitzplanbuchungen für nicht bezahlte Gamer erlauben', self::TB_TYPE => SettingType::Bool],
