@@ -11,7 +11,7 @@ class NavigationNodeTeamsite extends NavigationNode
     #[ORM\JoinColumn(name: 'teamsite_id', referencedColumnName: 'id')]
     private ?Teamsite $teamsite;
 
-    public function __construct(Teamsite $teamsite = null)
+    public function __construct(?Teamsite $teamsite = null)
     {
         parent::__construct();
         $this->teamsite = $teamsite;

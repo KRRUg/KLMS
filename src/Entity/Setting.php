@@ -34,7 +34,7 @@ class Setting
     #[Vich\UploadableField(mapping: 'setting', fileNameProperty: 'text')]
     private ?File $file = null;
 
-    public function setFile(File $file = null): void
+    public function setFile(?File $file = null): void
     {
         $this->file = $file;
 
