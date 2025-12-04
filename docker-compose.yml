@@ -16,6 +16,21 @@ services:
       - "1080:1080"
     labels:
       com.symfony.server.service-prefix: 'MailCatcher'
+  
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    environment:
+      PGADMIN_DEFAULT_EMAIL: 'krru@krru.at'
+      PGADMIN_DEFAULT_PASSWORD: 'admin'
+      PGADMIN_CONFIG_SERVER_MODE: 'False'
+      PGADMIN_CONFIG_MASTER_PASSWORD_REQUIRED: 'False'
+    ports:
+      - "5050:80"
+    volumes:
+      - pgadmin:/var/lib/pgadmin
+    labels:
+      com.symfony.server.service-prefix: 'pgAdmin'
 
 volumes:
   database:
+  pgadmin:

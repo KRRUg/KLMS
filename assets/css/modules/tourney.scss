@@ -143,10 +143,10 @@ $max-power-of-two: 8; // max x where 2**x is max teams, 8 means max number of te
     @for $round from 0 through $max-power-of-two {
       &:nth-child(#{$round + 1}) > .match {
         $gap: if($round == 0, $match-gap, (2 * pow(2, $round - 1) * ($match-height + $match-gap + $group-gap / 2) - $match-height));
-        margin-top:    ($gap / 2);
-        margin-bottom: ($gap / 2);
+        margin-top:     calc($gap / 2);
+        margin-bottom: calc($gap / 2);
         &:after {
-          height: ($gap / 2);
+          height: calc($gap / 2);
         }
       }
     }
@@ -156,11 +156,11 @@ $max-power-of-two: 8; // max x where 2**x is max teams, 8 means max number of te
     }
 
     &:first-child > .match:nth-child(2n) {
-      margin-bottom: (($match-gap + $group-gap) / 2);
+      margin-bottom: calc(($match-gap + $group-gap) / 2);
     }
 
     &:first-child > .match:nth-child(2n-1) {
-      margin-top: (($match-gap + $group-gap) / 2);
+      margin-top: calc(($match-gap + $group-gap) / 2);
     }
   }
 }

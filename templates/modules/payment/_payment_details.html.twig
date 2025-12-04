@@ -1,0 +1,129 @@
+{#
+    Central payment details template
+    
+    Variables:
+    - amount: float - Amount in EUR cents (e.g., 4500 for 45.00 EUR)
+    - reference: string - Payment reference (e.g., order number)
+    - context: string - 'email' or 'web' (default: 'web')
+#}
+
+{% set bank_enabled = settings.get('lan.payment.bank_transfer.enabled') %}
+{% set paypal_enabled = settings.get('lan.payment.paypal.enabled') %}
+{% set legacy_enabled = settings.get('lan.signup.payment_details') %}
+
+{# If new payment methods are enabled, use them; otherwise fall back to legacy #}
+{% if bank_enabled or paypal_enabled %}
+    {% set amount_eur = (amount / 100) %}
+    {% set amount_formatted = amount_eur | format_currency('EUR') %}
+    
+    <div class="row mt-5">
+        {% if bank_enabled %}
+            {% set account_holder = settings.get('lan.payment.bank_transfer.account_holder') %}
+            {% set iban = settings.get('lan.payment.bank_transfer.iban') %}
+            {% set bic = settings.get('lan.payment.bank_transfer.bic') %}
+            
+            <div class="col-md-6">
+                <div class="card mb-3">
+                    <div class="card-header">
+                        <h5 class="mb-0">
+                            <i class="fas fa-university"></i> Bezahle per Überweisung
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <table class="table table-sm table-borderless mb-2">
+                            <tr>
+                                <td>Inhaber:</td>
+                                <td><strong>{{ account_holder }}</strong></td>
+                            </tr>
+                            <tr>
+                                <td>IBAN:</td>
+                                <td><strong>{{ iban }}</strong></td>
+                            </tr>
+                            {% if bic %}
+                            <tr>
+                                <td>BIC:</td>
+                                <td><strong>{{ bic }}</strong></td>
+                            </tr>
+                            {% endif %}
+                            <tr>
+                                <td>Betrag:</td>
+                                <td><strong>{{ amount_formatted }}</strong></td>
+                            </tr>
+                            <tr>
+                                <td>Verwendung:</td>
+                                <td><strong>{{ reference }}</strong></td>
+                            </tr>
+                        </table>
+                        
+                        {% if context|default('web') == 'web' %}
+                            {# For web view, generate QR code on the fly #}
+                            {% set qr_path = payment_qr_code(account_holder, iban, bic, amount_eur, reference) %}
+                            <div class="text-center">
+                                <img src="{{ qr_path }}" alt="Banking QR Code" class="img-fluid" style="max-width: 250px;">
+                                <p class="small text-muted mt-2">Scanne den QR-Code mit deiner Banking-App</p>
+                            </div>
+                        {% else %}
+                            {# For email view, use absolute URL #}
+                            {% set qr_path = payment_qr_code(account_holder, iban, bic, amount_eur, reference) %}
+                            <div class="text-center">
+                                <img src="{{ absolute_url(qr_path) }}" alt="Banking QR Code" style="max-width: 250px;">
+                                <p class="small text-muted mt-2">Scanne den QR-Code mit deiner Banking-App</p>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+        
+        {% if paypal_enabled %}
+            {% set paypal_email = settings.get('lan.payment.paypal.email') %}
+            {% set paypal_me = settings.get('lan.payment.paypal.paypal_me_link') %}
+            
+            <div class="col-md-6">
+                <div class="card mb-3">
+                    <div class="card-header">
+                        <h5 class="mb-0">
+                            <i class="fab fa-paypal"></i> Bezahle per PayPal
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        {% if paypal_me or paypal_email %}
+                            {% set paypal_link = paypal_me ~ '/' ~ amount_eur ~ 'EUR' %}
+                            {% if paypal_me %}
+                            <div class="text-center mb-3">
+                                <a href="{{ paypal_link }}" target="_blank" class="btn btn-primary btn-lg">
+                                    <i class="fab fa-paypal"></i> Direkt mit PayPal bezahlen
+                                </a>
+                            </div>
+                            {% endif %}
+                            {% if paypal_email %}
+                            <div class="text-center mb-3">
+                                {{ paypal_me ? 'Oder per PayPal an' : 'Per PayPal an' }} <strong>{{ paypal_email }}</strong>
+                            </div>
+                            {% endif %}
+                            <p class="text-center">
+                                Betrag: <strong>{{ amount_formatted }}</strong><br>
+                                Verwendungszweck: <strong>{{ reference }}</strong>
+                            </p>
+                        {% else %}
+                            <p class="text-center">
+                                Betrag: <strong>{{ amount_formatted }}</strong><br>
+                                PayPal: <strong>{{ paypal_email }}</strong><br>
+                                Verwendungszweck: <strong>{{ reference }}</strong>
+                            </p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+{% elseif legacy_enabled %}
+    <p class="mb-3">
+        Bitte bezahle <b>{{ (o.calculateTotal() / 100) | format_currency('EUR') }}</b>
+        unter der Angabe <b>Bestellung {{ o.id }}</b>:
+    </p>
+    {# Fall back to legacy payment details if no new methods are configured #}
+    <div class="border p-2 m-1">
+        {{ settings.get('lan.signup.payment_details') | raw }}
+    </div>
+{% endif %}

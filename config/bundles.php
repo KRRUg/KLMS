@@ -20,4 +20,5 @@ return [
     Sentry\SentryBundle\SentryBundle::class => ['prod' => true],
     EWZ\Bundle\RecaptchaBundle\EWZRecaptchaBundle::class => ['all' => true],
     Eko\FeedBundle\EkoFeedBundle::class => ['all' => true],
+    Endroid\QrCodeBundle\EndroidQrCodeBundle::class => ['all' => true],
 ];
