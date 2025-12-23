@@ -1,4 +1,11 @@
 {
-    "controllers": [],
+    "controllers": {
+        "@symfony/ux-google-map": {
+            "map": {
+                "enabled": true,
+                "fetch": "eager"
+            }
+        }
+    },
     "entrypoints": []
 }

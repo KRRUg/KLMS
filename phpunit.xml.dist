@@ -16,6 +16,13 @@
         <server name="SHELL_VERBOSITY" value="-1" />
         <server name="SYMFONY_PHPUNIT_REMOVE" value="" />
         <server name="SYMFONY_PHPUNIT_VERSION" value="9.5" />
+
+        <!-- ###+ symfony/ux-google-map ### -->
+        <!-- Options available at https://github.com/symfony/ux/blob/2.x/src/Map/src/Bridge/Google/README.md -->
+        <!--  -->
+        <env name="GOOGLE_MAPS_API_KEY" value="# Get your API key at https://developers.google.com/maps/documentation/javascript/get-api-key"/>
+        <env name="UX_MAP_DSN" value="google://%env(GOOGLE_MAPS_API_KEY)%@default"/>
+        <!-- ###- symfony/ux-google-map ### -->
     </php>
 
     <testsuites>

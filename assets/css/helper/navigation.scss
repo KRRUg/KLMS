@@ -5,23 +5,21 @@
     border:none;
 
     .dropdown-item {
-        padding: 0;
+        padding: 0.3rem 1rem 0.3rem 1.25rem;
+        color: bootstrap.$gray-900;
+        border-left: 3px solid transparent;
 
-        a {
-            width:100%;
-            display:block;
-            padding: 0.3rem 1rem;
-            color: bootstrap.$gray-900;
-            border-left: 3px solid transparent;
+        &:hover {
+            border-color:vars.$primary;
+        }
 
-            &:hover {
-                border-color:vars.$primary;
-            }
+        &.active {
+            border-color:vars.$primary;
+        }
 
-            &:after {
-                float:right;
-                margin-top: calc((1em - bootstrap.$caret-width) / 2);
-            }
+        &:after {
+            float:right;
+            margin-top: calc((1em - bootstrap.$caret-width) / 2);
         }
     }
 }

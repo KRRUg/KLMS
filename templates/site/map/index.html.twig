@@ -1,0 +1,39 @@
+{% extends 'site/siteBase.html.twig' %}
+
+{% block title %}{{ settings.get('site.title') }} - User Map{% endblock %}
+
+{% block main %}
+    <div class="container my-4">
+        <div class="row">
+            <div class="col-12">
+                <h1 class="text-center mb-4">User Map</h1>
+                <div>
+                    <p>
+                        Unsere Community wächst und verbreitet sich über viele Grenzen hinweg. Auf dieser Karte machen wir sichtbar,
+                        von wo aus ihr euch vernetzt und gemeinsam in digitale Welten eintaucht.
+                    </p>
+                    <p>
+                        Dabei steht eure Privatsphäre an erster Stelle: Die Karte zeigt lediglich die Heimatorte an, niemals exakte Adressen.
+                        Es geht uns darum, die Gemeinschaft als Ganzes sichtbar zu machen und zu zeigen, dass Gaming Menschen überall verbindet.
+                     </p>
+                     <p>
+                        Siehst du deinen Ort schon? <a href="{{ path('user_profile_edit') }}">Werde Teil der Karte</a> und zeig uns, von wo aus du dabei bist!
+                    </p>
+                </div>
+                {% if apiKeyMissing %}
+                    <div class="alert alert-warning">
+                        Google Maps API Key fehlt. Bitte in der Umgebungskonfiguration (<code>GOOGLE_MAPS_API_KEY</code> bzw. <code>UX_MAP_DSN</code>) hinterlegen.
+                    </div>
+                {% endif %}
+                <div class="card shadow-sm">
+                    <div class="card-body p-0">
+                        {{ ux_map(map, {
+                            style: 'height: 640px',
+                            'data-testid': 'user-map'
+                        }) }}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

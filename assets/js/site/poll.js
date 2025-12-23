@@ -71,7 +71,7 @@ class PollWidget {
             metaParts.push('Nur angemeldete Nutzer können abstimmen');
         }
         if (results && typeof results.total === 'number') {
-            metaParts.push(`${results.total} Stimme${results.total === 1 ? '' : 'n'}`);
+            metaParts.push(`${results.total} Stimme(n) gesamt`);
         }
 
         if (metaParts.length) {
@@ -106,11 +106,15 @@ class PollWidget {
             return '<div class="poll-results">Keine Stimmen vorhanden.</div>';
         }
 
+        // Finde die Option(en) mit den meisten Stimmen
+        const maxVotes = Math.max(...results.options.map(opt => opt.votes || 0));
+
         const rows = results.options.map(option => {
             const width = Math.min(100, Math.max(0, option.percentage || 0));
             const percentageLabel = this.formatPercentage(option.percentage);
             const classes = ['poll-result-row'];
-            if (option.isSelected) {
+            // Markiere die Option mit den meisten Stimmen
+            if ((option.votes || 0) === maxVotes && maxVotes > 0) {
                 classes.push('is-selected');
             }
             return `

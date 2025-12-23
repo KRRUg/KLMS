@@ -102,6 +102,8 @@ class SettingService
         'link.teamspeak' => [self::TB_DESCRIPTION => 'Teamspeak Invite Link', self::TB_TYPE => SettingType::URL],
         'link.twitch' => [self::TB_DESCRIPTION => 'Link zum Twitchkanal', self::TB_TYPE => SettingType::URL],
 
+        'map.center_coordinates' => [self::TB_DESCRIPTION => 'Kartenzentrum als "Breitengrad, Längengrad" (z. B. 48.210266,13.479509)', self::TB_TYPE => SettingType::String],
+
         // extend here
     ];
 

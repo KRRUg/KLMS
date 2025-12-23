@@ -1,0 +1,4 @@
+ux_map:
+    renderer: 'google://%env(resolve:GOOGLE_MAPS_API_KEY)%@default'
+    google_maps:
+        default_map_id: '%env(default::GOOGLE_MAPS_DEFAULT_MAP_ID)%'
