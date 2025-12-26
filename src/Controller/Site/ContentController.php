@@ -8,6 +8,7 @@ use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 class ContentController extends AbstractController
 {
@@ -30,6 +31,9 @@ class ContentController extends AbstractController
 
         return $this->render('site/content/index.html.twig', [
             'content' => $content,
+            'metaDescription' => $this->buildMetaDescription($content),
+            'metaTitle' => $content->getTitle(),
+            'canonicalUrl' => $this->generateUrl('content', ['id' => $content->getId()], UrlGeneratorInterface::ABSOLUTE_URL),
         ]);
     }
 
@@ -38,6 +42,29 @@ class ContentController extends AbstractController
     {
         return $this->render('site/content/index.html.twig', [
             'content' => $content,
+            'metaDescription' => $this->buildMetaDescription($content),
+            'metaTitle' => $content->getTitle(),
+            'canonicalUrl' => $this->generateUrl('content_slug', ['slug' => $content->getAlias()], UrlGeneratorInterface::ABSOLUTE_URL),
         ]);
+    }
+
+    private function buildMetaDescription(Content $content): ?string
+    {
+        if (!empty($content->getDescription())) {
+            return $content->getDescription();
+        }
+
+        $raw = strip_tags($content->getContent() ?? '');
+        $normalized = trim(preg_replace('/\s+/', ' ', $raw));
+
+        if ($normalized === '') {
+            return null;
+        }
+
+        if (mb_strlen($normalized) <= 160) {
+            return $normalized;
+        }
+
+        return rtrim(mb_substr($normalized, 0, 157)) . '…';
     }
 }

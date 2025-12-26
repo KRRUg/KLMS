@@ -24,7 +24,10 @@ class SettingService
         'site.title.show' => [self::TB_DESCRIPTION => 'Titel der Seite anzeigen', self::TB_TYPE => SettingType::Bool],
         'site.subtitle' => [self::TB_DESCRIPTION => 'Untertitel der Seite', self::TB_TYPE => SettingType::String],
         'site.subtitle.show' => [self::TB_DESCRIPTION => 'Untertitel der Seite anzeigen', self::TB_TYPE => SettingType::Bool],
-        'site.about' => [self::TB_DESCRIPTION => 'Über uns, Homepage links unten', self::TB_TYPE => SettingType::HTML],
+        'site.subtitle-2' => [self::TB_DESCRIPTION => 'Untertitel Nr. 2 der Seite', self::TB_TYPE => SettingType::String],
+        'site.subtitle-2.show' => [self::TB_DESCRIPTION => 'Untertitel Nr. 2 der Seite anzeigen', self::TB_TYPE => SettingType::Bool],
+        'site.about' => [self::TB_DESCRIPTION => 'Über uns, Homepage links unten und Meta-Description für SEO', self::TB_TYPE => SettingType::HTML],
+        'site.keywords' => [self::TB_DESCRIPTION => 'SEO Keywords (kommagetrennt)', self::TB_TYPE => SettingType::String],
         'site.organisation' => [self::TB_DESCRIPTION => 'Organisationsname / Vereinsname', self::TB_TYPE => SettingType::String],
         'site.prepage.show' => [self::TB_DESCRIPTION => 'Vorschau der Seite anzeigen', self::TB_TYPE => SettingType::Bool],
         'site.prepage.text' => [self::TB_DESCRIPTION => 'Text der Vorschau-Seite', self::TB_TYPE => SettingType::HTML],
@@ -71,6 +74,7 @@ class SettingService
 
         'lan.stats.show' => [self::TB_DESCRIPTION => 'Statistiken zur Anmeldung anzeigen', self::TB_TYPE => SettingType::Bool],
         'lan.stats.show_seats' => [self::TB_DESCRIPTION => 'Statistik über Sitzplätze statt Tickets', self::TB_TYPE => SettingType::Bool],
+        'lan.stats.tickets_total' => [self::TB_DESCRIPTION => 'Anzahl der verfügbaren Tickets gesamt', self::TB_TYPE => SettingType::Integer, self::TB_DEFAULT_VALUE => 0],
 
         'lan.tourney.enabled' => [self::TB_DESCRIPTION => 'Tourney einschalten', self::TB_TYPE => SettingType::Bool],
         'lan.tourney.text' => [self::TB_DESCRIPTION => 'Tourney Einleitungstext', self::TB_TYPE => SettingType::HTML],

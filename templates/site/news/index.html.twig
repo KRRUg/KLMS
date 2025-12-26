@@ -7,10 +7,13 @@
         {% block headerContent %}
             {{ parent() }}
             {% if settings.get('site.title.show', false) %}
-            <h3>{{ settings.get('site.title') }}</h3>
+            <h1>{{ settings.get('site.title') }}</h1>
             {% endif %}
             {% if settings.get('site.subtitle.show', false) %}
             <h3>{{ settings.get('site.subtitle') }}</h3>
+            {% endif %}
+            {% if settings.get('site.subtitle-2.show', false) %}
+            <h5>{{ settings.get('site.subtitle-2') }}</h5>
             {% endif %}
         {% endblock %}
     {% endembed %}

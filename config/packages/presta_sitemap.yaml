@@ -1,0 +1,12 @@
+presta_sitemap:
+    # Basis URL der Website (muss angepasst werden!)
+    timetolive: 3600
+    
+    # Standard-Einstellungen für Sitemap-URLs
+    defaults:
+        priority: 0.5
+        changefreq: weekly
+        lastmod: ~
+    
+    # Sitemap-Index aktivieren (empfohlen für größere Seiten)
+    items_by_set: 50000

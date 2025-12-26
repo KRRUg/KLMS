@@ -27,6 +27,7 @@ class SettingsFixture extends Fixture
         $this->addSetting($manager, 'site.title', 'KRRU Lan Management System');
         $this->addSetting($manager, 'site.subtitle', 'System zur Organisation von professionellen LAN-Partys');
         $this->addSetting($manager, 'site.about', $lipsum->words(20));
+    $this->addSetting($manager, 'site.keywords', 'LAN-Party, LAN, Esports, Gaming, Turniere');
         $this->addSetting($manager, 'link.steam', 'https://store.steampowered.com/');
         $this->addSetting($manager, 'link.discord', 'https://discord.com/');
 

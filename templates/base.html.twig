@@ -13,6 +13,36 @@
 		<meta charset="UTF-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 		<meta http-equiv="cache-control" content="no-cache"/>
+		{% block meta_description %}
+			{% set resolvedMetaDescription = metaDescription|default(settings.get('site.about')) %}
+			<meta name="description" content="{{ resolvedMetaDescription|striptags|trim }}">
+		{% endblock %}
+		{% block meta_keywords %}
+			{% set resolvedMetaKeywords = metaKeywords|default(settings.get('site.keywords')) %}
+			<meta name="keywords" content="{{ resolvedMetaKeywords|striptags|trim }}">
+		{% endblock %}
+		{% block meta_robots %}
+			<meta name="robots" content="{{ metaRobots|default('index,follow') }}">
+		{% endblock %}
+		<link rel="canonical" href="{{ canonicalUrl|default(app.request.uri) }}">
+		{% block meta_social %}
+			{% set socialTitle = metaTitle|default(settings.get('site.title')) %}
+			{% set socialDescription = metaDescription|default(settings.get('site.about')) %}
+			{% set socialUrl = canonicalUrl|default(app.request.uri) %}
+			<meta property="og:title" content="{{ socialTitle|striptags|trim }}">
+			<meta property="og:description" content="{{ socialDescription|striptags|trim }}">
+			<meta property="og:type" content="{{ metaType|default('website') }}">
+			<meta property="og:url" content="{{ socialUrl }}">
+			{% if metaImage is defined and metaImage %}
+				<meta property="og:image" content="{{ metaImage }}">
+				<meta name="twitter:card" content="summary_large_image">
+				<meta name="twitter:image" content="{{ metaImage }}">
+			{% else %}
+				<meta name="twitter:card" content="summary">
+			{% endif %}
+			<meta name="twitter:title" content="{{ socialTitle|striptags|trim }}">
+			<meta name="twitter:description" content="{{ socialDescription|striptags|trim }}">
+		{% endblock %}
 		{% block favicon %}<link rel="shortcut icon" href="{{ asset('favicon.ico') }}"/>
 		{% endblock %}
 		<title>

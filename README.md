@@ -34,6 +34,8 @@ Es wurde von uns erweitert um:
 - **News Kommentare** – Kommentieren von News Beiträgen
 - **Profile Pictures** – Profilbilder, die auf der gesamten Seite angezeigt werden.
 - **Community Polls** – Umfragen für die Community.
+- **Turnier Gruppenphase** - Gruppenphase vor Single- bzw. Double Elimination Turnieren
+- **User-Map** - Anonymisierte Anzeige der Orte, woher die Personen kommen.
 
 ---
 
