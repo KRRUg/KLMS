@@ -97,3 +97,6 @@ rector.php
 /phpunit.xml
 .phpunit.result.cache
 ###< phpunit/phpunit ###
+
+# Symfony auto-generated configuration reference
+/config/reference.php

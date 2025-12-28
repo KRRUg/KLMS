@@ -35,7 +35,7 @@ class EmailRepository extends ServiceEntityRepository
      */
     public function countMails(Email $template): array
     {
-        $qb = $this->_em->createQueryBuilder()
+        $qb = $this->getEntityManager()->createQueryBuilder()
             ->select('si.success as val, count(si) as cnt')
             ->from(EmailSendingItem::class, 'si')
             ->innerJoin('si.sending', 's')

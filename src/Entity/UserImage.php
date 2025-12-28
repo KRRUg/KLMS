@@ -9,11 +9,12 @@ use Doctrine\ORM\Mapping as ORM;
 use Ramsey\Uuid\UuidInterface;
 use Symfony\Component\HttpFoundation\File\File;
 use Vich\UploaderBundle\Entity\File as EmbeddedFile;
-use Vich\UploaderBundle\Mapping\Annotation as Vich;
+use Vich\UploaderBundle\Mapping\Attribute\Uploadable;
+use Vich\UploaderBundle\Mapping\Attribute\UploadableField;
 
 #[ORM\Entity(repositoryClass: UserImageRepository::class)]
 #[ORM\HasLifecycleCallbacks]
-#[Vich\Uploadable]
+#[Uploadable]
 class UserImage
 {
     #[ORM\Id]
@@ -23,7 +24,7 @@ class UserImage
     #[ORM\Embedded(class: 'Vich\UploaderBundle\Entity\File')]
     private ?EmbeddedFile $image;
 
-    #[Vich\UploadableField(mapping: 'user', fileNameProperty: 'image.name', size: 'image.size', mimeType: 'image.mimeType', originalName: 'image.originalName', dimensions: 'image.dimensions')]
+    #[UploadableField(mapping: 'user', fileNameProperty: 'image.name', size: 'image.size', mimeType: 'image.mimeType', originalName: 'image.originalName', dimensions: 'image.dimensions')]
     private ?File $imageFile = null;
 
     #[ORM\Column(type: 'datetime', nullable: false)]

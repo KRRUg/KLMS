@@ -62,7 +62,7 @@ class TourneyRepository extends ServiceEntityRepository
 
     public function getTourneysByUser(UuidInterface $user): array
     {
-        $sq = $this->_em->createQueryBuilder()
+        $sq = $this->getEntityManager()->createQueryBuilder()
             ->from(TourneyTeam::class, 'tt')
             ->select('IDENTITY(tt.tourney)')
             ->join('tt.members', 'ttm')

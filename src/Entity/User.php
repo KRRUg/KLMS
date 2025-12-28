@@ -50,7 +50,7 @@ class User
     #[Groups(['read', 'write'])]
     private ?DateTimeInterface $birthdate = null;
 
-    #[Assert\Choice(['m', 'f', 'x'])]
+    #[Assert\Choice(choices: ['m', 'f', 'x'])]
     #[Groups(['read', 'write'])]
     private ?string $gender = null;
 

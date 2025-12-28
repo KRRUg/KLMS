@@ -9,11 +9,12 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\Validator\Constraints as Assert;
 use Vich\UploaderBundle\Entity\File as EmbeddedFile;
-use Vich\UploaderBundle\Mapping\Annotation as Vich;
+use Vich\UploaderBundle\Mapping\Attribute\Uploadable;
+use Vich\UploaderBundle\Mapping\Attribute\UploadableField;
 
 #[ORM\Entity(repositoryClass: SponsorRepository::class)]
 #[ORM\HasLifecycleCallbacks]
-#[Vich\Uploadable]
+#[Uploadable]
 class Sponsor implements HistoryAwareEntity
 {
     use Traits\EntityHistoryTrait;
@@ -30,7 +31,7 @@ class Sponsor implements HistoryAwareEntity
     #[Assert\Url(requireTld: false)]
     private ?string $url = null;
 
-    #[Vich\UploadableField(mapping: 'sponsor', fileNameProperty: 'logo.name', size: 'logo.size', mimeType: 'logo.mimeType', originalName: 'logo.originalName', dimensions: 'logo.dimensions')]
+    #[UploadableField(mapping: 'sponsor', fileNameProperty: 'logo.name', size: 'logo.size', mimeType: 'logo.mimeType', originalName: 'logo.originalName', dimensions: 'logo.dimensions')]
     private ?File $logoFile = null;
 
     #[ORM\Embedded(class: 'Vich\UploaderBundle\Entity\File')]

@@ -14,7 +14,7 @@ class EmailSendingItem
 
     #[ORM\Id]
     #[ORM\ManyToOne()]
-    #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE', name: 'sending_id')]
+    #[ORM\JoinColumn(onDelete: 'CASCADE', name: 'sending_id')]
     private ?EmailSending $sending = null;
 
     #[ORM\Column(type: 'boolean', nullable: true)]

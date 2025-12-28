@@ -8,13 +8,14 @@ use DateTime;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\Validator\Constraints as Assert;
-use Vich\UploaderBundle\Mapping\Annotation as Vich;
+use Vich\UploaderBundle\Mapping\Attribute\Uploadable;
+use Vich\UploaderBundle\Mapping\Attribute\UploadableField;
 
 #[ORM\Table]
 #[ORM\Index(name: 'filename_indes', columns: ['file_name'])]
 #[ORM\Entity(repositoryClass: MediaRepository::class)]
 #[ORM\HasLifecycleCallbacks]
-#[Vich\Uploadable]
+#[Uploadable]
 class Media implements HistoryAwareEntity
 {
     use Traits\EntityHistoryTrait;
@@ -26,7 +27,7 @@ class Media implements HistoryAwareEntity
     #[ORM\Column(type: 'integer')]
     private ?int $id = null;
 
-    #[Vich\UploadableField(mapping: 'media', fileNameProperty: 'fileName', mimeType: 'mimeType', originalName: 'displayName')]
+    #[UploadableField(mapping: 'media', fileNameProperty: 'fileName', mimeType: 'mimeType', originalName: 'displayName')]
     #[Assert\File(maxSize: Media::MAX_FILE_SIZE, mimeTypes: Media::MIME_TYPES, mimeTypesMessage: 'Please upload a valid file (Image, PDF or ZIP)')]
     private ?File $mediaFile = null;
 

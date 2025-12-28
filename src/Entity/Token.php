@@ -24,10 +24,10 @@ class Token
     #[ORM\Column(type: 'string', length: 255)]
     private ?string $type = null;
 
-    #[ORM\Column(type: 'datetime')]
+    #[ORM\Column(type: 'datetime_immutable')]
     private ?DateTimeInterface $requestedAt = null;
 
-    #[ORM\Column(type: 'datetime')]
+    #[ORM\Column(type: 'datetime_immutable')]
     private ?DateTimeInterface $expiresAt = null;
 
     public function __construct()

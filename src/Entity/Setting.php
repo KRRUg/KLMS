@@ -8,13 +8,14 @@ use DateTimeInterface;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
-use Vich\UploaderBundle\Mapping\Annotation as Vich;
+use Vich\UploaderBundle\Mapping\Attribute\Uploadable;
+use Vich\UploaderBundle\Mapping\Attribute\UploadableField;
 
 #[ORM\Table]
 #[ORM\Index(columns: ['`key`'], name: 'key_idx')]
 #[ORM\Entity(repositoryClass: SettingRepository::class)]
 #[ORM\HasLifecycleCallbacks]
-#[Vich\Uploadable]
+#[Uploadable]
 class Setting
 {
     #[ORM\Id]
@@ -31,7 +32,7 @@ class Setting
     #[ORM\Column(type: 'datetime')]
     private ?DateTimeInterface $last_modified = null;
 
-    #[Vich\UploadableField(mapping: 'setting', fileNameProperty: 'text')]
+    #[UploadableField(mapping: 'setting', fileNameProperty: 'text')]
     private ?File $file = null;
 
     public function setFile(File $file = null): void

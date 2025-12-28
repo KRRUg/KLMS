@@ -7,10 +7,11 @@ use Doctrine\ORM\Mapping as ORM;
 use Ramsey\Uuid\Doctrine\UuidGenerator;
 use Ramsey\Uuid\UuidInterface;
 use Symfony\Component\HttpFoundation\File\File;
-use Vich\UploaderBundle\Mapping\Annotation as Vich;
+use Vich\UploaderBundle\Mapping\Attribute\Uploadable;
+use Vich\UploaderBundle\Mapping\Attribute\UploadableField;
 
 #[ORM\Entity(repositoryClass: GalleryImageRepository::class)]
-#[Vich\Uploadable]
+#[Uploadable]
 class GalleryImage
 {
     #[ORM\Id]
@@ -22,7 +23,7 @@ class GalleryImage
     #[ORM\Column(type: 'string', length: 255)]
     private ?string $imageName = null;
 
-    #[Vich\UploadableField(mapping: 'gallery', fileNameProperty: 'imageName')]
+    #[UploadableField(mapping: 'gallery', fileNameProperty: 'imageName')]
     private ?File $imageFile = null;
 
     #[ORM\ManyToOne(targetEntity: GalleryEvent::class, inversedBy: 'galleryImages')]

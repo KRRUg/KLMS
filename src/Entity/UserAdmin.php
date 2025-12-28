@@ -13,7 +13,7 @@ class UserAdmin
     #[ORM\Column(type: 'uuid', unique: true)]
     private ?UuidInterface $uuid;
 
-    #[ORM\Column(type: 'array')]
+    #[ORM\Column(type: 'json')]
     private array $permissions = [];
 
     public function __construct(?UuidInterface $uuid)

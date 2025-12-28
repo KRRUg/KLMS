@@ -30,14 +30,12 @@ class GeoDataRepository extends ServiceEntityRepository
         $qb = $this->createQueryBuilder('g')
             ->andWhere('g.country = :country')
             ->andWhere('g.zip = :zip')
-            ->andWhere('g.city = :city');
+            ->andWhere('g.city = :city')
+            ->setParameter('country', $country)
+            ->setParameter('zip', $zip)
+            ->setParameter('city', $city);
 
         return $qb
-            ->setParameters([
-                'country' => $country,
-                'zip' => $zip,
-                'city' => $city,
-            ])
             ->getQuery()
             ->getOneOrNullResult();
     }

@@ -8,7 +8,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
-#[Route(path: '/map', name: 'map')]
+#[IsGranted('IS_AUTHENTICATED_REMEMBERED')]
 class MapController extends AbstractController
 {
     public function __construct(
@@ -17,7 +17,7 @@ class MapController extends AbstractController
     ) {
     }
 
-    #[Route(path: '', name: '')]
+    #[Route(path: '/map', name: 'map', methods: ['GET'])]
     public function index(): Response
     {
         return $this->render('site/map/index.html.twig', [

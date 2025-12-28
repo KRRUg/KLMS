@@ -22,16 +22,16 @@ class Ticket
     #[ORM\Column(type: 'uuid', unique: true, nullable: true)]
     private ?UuidInterface $redeemer = null;
 
-    #[ORM\Column]
+    #[ORM\Column(type: 'datetime_immutable')]
     #[Assert\LessThanOrEqual('now')]
     private ?\DateTimeImmutable $createdAt = null;
 
-    #[ORM\Column(nullable: true)]
+    #[ORM\Column(type: 'datetime_immutable', nullable: true)]
     #[Assert\GreaterThanOrEqual(propertyPath: 'createdAt')]
     #[Assert\LessThanOrEqual('now')]
     private ?\DateTimeImmutable $redeemedAt = null;
 
-    #[ORM\Column(nullable: true)]
+    #[ORM\Column(type: 'datetime_immutable', nullable: true)]
     #[Assert\GreaterThanOrEqual(propertyPath: 'redeemedAt')]
     #[Assert\LessThanOrEqual('now')]
     private ?\DateTimeImmutable $punchedAt = null;
