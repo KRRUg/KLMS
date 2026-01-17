@@ -5,6 +5,7 @@ namespace App\Repository;
 use App\Entity\Tourney;
 use App\Entity\TourneyTeam;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\ORM\NoResultException;
 use Doctrine\Persistence\ManagerRegistry;
@@ -20,26 +21,26 @@ use Ramsey\Uuid\UuidInterface;
  */
 class TourneyRepository extends ServiceEntityRepository
 {
-    public function __construct(ManagerRegistry $registry)
+    public function __construct(ManagerRegistry $registry, private EntityManagerInterface $entityManager)
     {
         parent::__construct($registry, Tourney::class);
     }
 
     public function save(Tourney $entity, bool $flush = false): void
     {
-        $this->getEntityManager()->persist($entity);
+        $this->entityManager->persist($entity);
 
         if ($flush) {
-            $this->getEntityManager()->flush();
+            $this->entityManager->flush();
         }
     }
 
     public function remove(Tourney $entity, bool $flush = false): void
     {
-        $this->getEntityManager()->remove($entity);
+        $this->entityManager->remove($entity);
 
         if ($flush) {
-            $this->getEntityManager()->flush();
+            $this->entityManager->flush();
         }
     }
 
@@ -62,7 +63,7 @@ class TourneyRepository extends ServiceEntityRepository
 
     public function getTourneysByUser(UuidInterface $user): array
     {
-        $sq = $this->getEntityManager()->createQueryBuilder()
+        $sq = $this->entityManager->createQueryBuilder()
             ->from(TourneyTeam::class, 'tt')
             ->select('IDENTITY(tt.tourney)')
             ->join('tt.members', 'ttm')
@@ -83,7 +84,7 @@ class TourneyRepository extends ServiceEntityRepository
      */
     public function findTeamByName(Tourney $tourney, string $name): ?TourneyTeam
     {
-        return $this->getEntityManager()
+        return $this->entityManager
             ->getRepository(TourneyTeam::class)
             ->createQueryBuilder('tt')
             ->where('tt.tourney = :tourney')
@@ -99,7 +100,7 @@ class TourneyRepository extends ServiceEntityRepository
      */
     public function findTeamByGamer(Tourney $tourney, UuidInterface $gamer): ?TourneyTeam
     {
-        return $this->getEntityManager()
+        return $this->entityManager
             ->getRepository(TourneyTeam::class)
             ->createQueryBuilder('tt')
             ->join('tt.members', 'ttm')

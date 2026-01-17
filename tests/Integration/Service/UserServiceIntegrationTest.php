@@ -7,6 +7,7 @@ use App\Entity\User;
 use App\Idm\IdmManager;
 use App\Service\UserService;
 use App\Tests\Integration\DatabaseTestCase;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Ramsey\Uuid\Nonstandard\Uuid;
 use Ramsey\Uuid\UuidInterface;
 
@@ -36,9 +37,7 @@ class UserServiceIntegrationTest extends DatabaseTestCase
         ];
     }
 
-    /**
-     * @dataProvider getUserData
-     */
+    #[DataProvider('getUserData')]
     public function testGetUsers(array $uuids)
     {
         $userService = self::getContainer()->get(UserService::class);
@@ -51,9 +50,7 @@ class UserServiceIntegrationTest extends DatabaseTestCase
         }
     }
 
-    /**
-     * @dataProvider getUserData
-     */
+    #[DataProvider('getUserData')]
     public function testGetUsersAssoc(array $uuids)
     {
         $userService = self::getContainer()->get(UserService::class);
@@ -67,9 +64,7 @@ class UserServiceIntegrationTest extends DatabaseTestCase
         }
     }
 
-    /**
-     * @dataProvider getClanData
-     */
+    #[DataProvider('getClanData')]
     public function testGetGetClans(array $uuids)
     {
         $userService = self::getContainer()->get(UserService::class);
@@ -84,9 +79,7 @@ class UserServiceIntegrationTest extends DatabaseTestCase
         }
     }
 
-    /**
-     * @dataProvider getClanData
-     */
+    #[DataProvider('getClanData')]
     public function testGetGetClansAssoc(array $uuids)
     {
         $userService = self::getContainer()->get(UserService::class);
@@ -102,9 +95,7 @@ class UserServiceIntegrationTest extends DatabaseTestCase
         }
     }
 
-    /**
-     * @dataProvider getUserData
-     */
+    #[DataProvider('getUserData')]
     public function testGetClansByUser(array $uuids, array $clanUuids)
     {
         $userService = self::getContainer()->get(UserService::class);
@@ -119,9 +110,7 @@ class UserServiceIntegrationTest extends DatabaseTestCase
         }
     }
 
-    /**
-     * @dataProvider getUserData
-     */
+    #[DataProvider('getUserData')]
     public function testGetClansByUserAssoc(array $uuids, array $clanUuids)
     {
         $userService = self::getContainer()->get(UserService::class);
@@ -147,9 +136,7 @@ class UserServiceIntegrationTest extends DatabaseTestCase
         ];
     }
 
-    /**
-     * @dataProvider getUserClanData
-     */
+    #[DataProvider('getUserClanData')]
     public function testUserInClan(UuidInterface $userUuid, UuidInterface $clanUuid, bool $expected)
     {
         $userService = self::getContainer()->get(UserService::class);
@@ -173,9 +160,7 @@ class UserServiceIntegrationTest extends DatabaseTestCase
         ];
     }
 
-    /**
-     * @dataProvider getUserClansData
-     */
+    #[DataProvider('getUserClansData')]
     public function testUserInClans(UuidInterface $userUuid, array $clanUuids, bool $expected)
     {
         $userService = self::getContainer()->get(UserService::class);

@@ -14,6 +14,7 @@ use App\Service\SettingService;
 use App\Service\ShopService;
 use App\Service\TicketService;
 use App\Tests\Integration\DatabaseTestCase;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Ramsey\Uuid\Nonstandard\Uuid;
 
 class ShopServiceIntegrationTest extends DatabaseTestCase
@@ -149,9 +150,7 @@ class ShopServiceIntegrationTest extends DatabaseTestCase
         ];
     }
 
-    /**
-     * @dataProvider getPriceData
-     */
+    #[DataProvider('getPriceData')]
     public function testCreateOrderTicket(int $count, ?int $price, ?int $discountPrice, ?int $discountLimit, int $expectedTotal)
     {
         $this->databaseTool->loadFixtures([ShopFixture::class, SettingsFixture::class]);

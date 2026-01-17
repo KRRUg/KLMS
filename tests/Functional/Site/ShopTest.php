@@ -7,6 +7,7 @@ use App\DataFixtures\ShopFixture;
 use App\DataFixtures\UserFixtures;
 use App\Service\TicketService;
 use App\Tests\Functional\DatabaseWebTestCase;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Ramsey\Uuid\Uuid;
 
 class ShopTest extends DatabaseWebTestCase
@@ -266,9 +267,7 @@ class ShopTest extends DatabaseWebTestCase
         ];
     }
 
-    /**
-     * @dataProvider provideCodes
-     */
+    #[DataProvider('provideCodes')]
     public function testCodeCheck(string $code, bool $expected): void
     {
         $this->databaseTool->loadFixtures([ShopFixture::class, UserFixtures::class]);

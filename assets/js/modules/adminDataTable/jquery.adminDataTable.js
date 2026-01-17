@@ -37,7 +37,7 @@ import '../../modules/confirmModal/confirmModal.js';
                         dataSrc: 'items',
                         dataFilter: function (data) {
                             //Process server response from KLMS API
-                            var json = jQuery.parseJSON(data);
+                            const json = JSON.parse(data);
                             json.recordsTotal = json.total;
                             json.recordsFiltered = json.total;
                             json.data = json.items;

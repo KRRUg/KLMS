@@ -1,6 +1,7 @@
 @use 'sass:color';
 @use 'variables' as emailVars;
 @use 'bootstrap' as emailBootstrap;
+@use '../helper/common';
 
 
 html, body {
@@ -26,9 +27,7 @@ footer, #footer {
 }
 
 .list-group-hover .list-group-item:hover {
-    z-index: 1;
     color: emailBootstrap.$list-group-action-hover-color;
-    text-decoration: none;
     background-color: emailBootstrap.$list-group-hover-bg;
 }
 
@@ -40,27 +39,10 @@ footer, #footer {
     color: emailBootstrap.$gray-300;
 }
 
-.badge-pill {
-    border-radius: emailBootstrap.$badge-pill-border-radius;
-}
-
-.dropdown-menu-lg {
-    min-width: emailBootstrap.$dropdown-min-width * 2;
-}
-
 input.datetimepicker[readonly]:not([disabled]) {
     background:emailBootstrap.$input-bg;
 }
 
 input.datepicker[readonly]:not([disabled]) {
     background:emailBootstrap.$input-bg;
-}
-
-.social-btn-group {
-    .btn {
-        font-size:1.5rem;
-        padding: 0.1rem 0.3rem;
-        margin-right: 0.5rem;
-        margin-bottom: 0.7rem;
-    }
 }

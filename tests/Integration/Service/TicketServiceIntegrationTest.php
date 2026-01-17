@@ -10,6 +10,7 @@ use App\Service\TicketService;
 use App\Service\TicketState;
 use App\Tests\Integration\DatabaseTestCase;
 use Ramsey\Uuid\Nonstandard\Uuid;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 class TicketServiceIntegrationTest extends DatabaseTestCase
 {
@@ -56,9 +57,7 @@ class TicketServiceIntegrationTest extends DatabaseTestCase
         ];
     }
 
-    /**
-     * @dataProvider provideUsers
-     */
+    #[DataProvider('provideUsers')]
     public function testUserRegistration(int $uid, bool $registered)
     {
         $this->databaseTool->loadFixtures([ShopFixture::class]);
@@ -79,9 +78,7 @@ class TicketServiceIntegrationTest extends DatabaseTestCase
         $this->assertFalse($tickteService->hasInvalid());
     }
 
-    /**
-     * @dataProvider provideUsers
-     */
+    #[DataProvider('provideUsers')]
     public function testUserUnRegistration(int $uid, bool $registered, bool $punched, bool $purchasedTicket)
     {
         $this->databaseTool->loadFixtures([ShopFixture::class]);
@@ -106,9 +103,7 @@ class TicketServiceIntegrationTest extends DatabaseTestCase
         $this->assertFalse($tickteService->hasInvalid());
     }
 
-    /**
-     * @dataProvider provideUsers
-     */
+    #[DataProvider('provideUsers')]
     public function testUserUnRegistrationKeep(int $uid, bool $registered, bool $punched)
     {
         $this->databaseTool->loadFixtures([ShopFixture::class]);
@@ -131,9 +126,7 @@ class TicketServiceIntegrationTest extends DatabaseTestCase
         $this->assertFalse($tickteService->hasInvalid());
     }
 
-    /**
-     * @dataProvider provideUsers
-     */
+    #[DataProvider('provideUsers')]
     public function testRedeemTicket(int $uid, bool $registered)
     {
         $this->databaseTool->loadFixtures([ShopFixture::class]);
@@ -156,9 +149,7 @@ class TicketServiceIntegrationTest extends DatabaseTestCase
         $this->assertFalse($tickteService->hasInvalid());
     }
 
-    /**
-     * @dataProvider provideUsers
-     */
+    #[DataProvider('provideUsers')]
     public function testPunchTicketUser(int $uid, bool $registered, bool $punched)
     {
         $this->databaseTool->loadFixtures([ShopFixture::class]);
@@ -182,9 +173,7 @@ class TicketServiceIntegrationTest extends DatabaseTestCase
         $this->assertFalse($tickteService->hasInvalid());
     }
 
-    /**
-     * @dataProvider provideTickets
-     */
+    #[DataProvider('provideTickets')]
     public function testPunchTicketCode(string $code, bool $redeemed, bool $punched)
     {
         $this->databaseTool->loadFixtures([ShopFixture::class]);

@@ -4,6 +4,7 @@ namespace App\Repository;
 
 use App\Entity\SponsorCategory;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
 use Doctrine\Persistence\ManagerRegistry;
@@ -18,24 +19,24 @@ use Doctrine\Persistence\ManagerRegistry;
  */
 class SponsorCategoryRepository extends ServiceEntityRepository
 {
-    public function __construct(ManagerRegistry $registry)
+    public function __construct(ManagerRegistry $registry, private EntityManagerInterface $entityManager)
     {
         parent::__construct($registry, SponsorCategory::class);
     }
 
     public function add(SponsorCategory $entity, bool $flush = true): void
     {
-        $this->getEntityManager()->persist($entity);
+        $this->entityManager->persist($entity);
         if ($flush) {
-            $this->getEntityManager()->flush();
+            $this->entityManager->flush();
         }
     }
 
     public function remove(SponsorCategory $entity, bool $flush = true): void
     {
-        $this->getEntityManager()->remove($entity);
+        $this->entityManager->remove($entity);
         if ($flush) {
-            $this->getEntityManager()->flush();
+            $this->entityManager->flush();
         }
     }
 

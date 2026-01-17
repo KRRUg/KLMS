@@ -7,7 +7,7 @@ use App\Service\SettingService;
 use App\Service\SponsorService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 
 #[Route(path: '/sponsor', name: 'sponsor')]
 class SponsorController extends AbstractController

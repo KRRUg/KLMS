@@ -4,6 +4,7 @@ namespace App\Repository;
 
 use App\Entity\GeoData;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -11,17 +12,17 @@ use Doctrine\Persistence\ManagerRegistry;
  */
 class GeoDataRepository extends ServiceEntityRepository
 {
-    public function __construct(ManagerRegistry $registry)
+    public function __construct(ManagerRegistry $registry, private EntityManagerInterface $entityManager)
     {
         parent::__construct($registry, GeoData::class);
     }
 
     public function save(GeoData $entity, bool $flush = false): void
     {
-        $this->getEntityManager()->persist($entity);
+        $this->entityManager->persist($entity);
 
         if ($flush) {
-            $this->getEntityManager()->flush();
+            $this->entityManager->flush();
         }
     }
 

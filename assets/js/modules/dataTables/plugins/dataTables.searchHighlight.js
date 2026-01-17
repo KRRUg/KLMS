@@ -44,7 +44,7 @@ function highlight( body, table )
 	// Don't highlight the "not found" row, so we get the rows using the api
 	if ( table.rows( { filter: 'applied' } ).data().length ) {
 		table.columns().every( function () {
-				var column = this;
+				const column = this;
 				column.nodes().flatten().to$().unmark({ className: 'column_highlight' });
 				column.nodes().flatten().to$().mark( $.trim( column.search() ).split(/\s+/), { className: 'column_highlight' } );
 		} );
@@ -59,8 +59,8 @@ $(document).on( 'init.dt.dth', function (e, settings, json) {
 		return;
 	}
 
-	var table = new $.fn.dataTable.Api( settings );
-	var body = $( table.table().body() );
+	const table = new $.fn.dataTable.Api( settings );
+	const body = $( table.table().body() );
 
 	if (
 		$( table.table().node() ).hasClass( 'searchHighlight' ) || // table has class

@@ -457,7 +457,7 @@ class GalleryBulkUpload {
 
 // Utility function for unsaved changes warning
 let showAreYouSureFunction = function (e) {
-    var confirmationMessage = "You have unchanged things!";
+    const confirmationMessage = "You have unchanged things!";
     (e || window.event).returnValue = confirmationMessage;
     return confirmationMessage;
 };
@@ -530,7 +530,7 @@ $(document).ready(() => {
     // Initialize Gallery Events Management if elements exist
     if ($('#eventList').length) {
         let eventList = new GalleryEventList($('#eventList'));
-        var changeEvent = null;
+        let changeEvent = null;
 
         eventList.dispatcher.on("changed", function (e) {
             if (changeEvent === null) {

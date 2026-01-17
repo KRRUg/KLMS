@@ -4,6 +4,7 @@ namespace App\Repository;
 
 use App\Entity\TourneyTeam;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\ORM\NoResultException;
 use Doctrine\Persistence\ManagerRegistry;
@@ -19,26 +20,26 @@ use Ramsey\Uuid\UuidInterface;
  */
 class TourneyTeamRepository extends ServiceEntityRepository
 {
-    public function __construct(ManagerRegistry $registry)
+    public function __construct(ManagerRegistry $registry, private EntityManagerInterface $entityManager)
     {
         parent::__construct($registry, TourneyTeam::class);
     }
 
     public function save(TourneyTeam $entity, bool $flush = false): void
     {
-        $this->getEntityManager()->persist($entity);
+        $this->entityManager->persist($entity);
 
         if ($flush) {
-            $this->getEntityManager()->flush();
+            $this->entityManager->flush();
         }
     }
 
     public function remove(TourneyTeam $entity, bool $flush = false): void
     {
-        $this->getEntityManager()->remove($entity);
+        $this->entityManager->remove($entity);
 
         if ($flush) {
-            $this->getEntityManager()->flush();
+            $this->entityManager->flush();
         }
     }
 

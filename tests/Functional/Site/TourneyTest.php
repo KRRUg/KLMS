@@ -7,6 +7,7 @@ use App\DataFixtures\TourneyFixtureGames;
 use App\DataFixtures\UserFixtures;
 use App\Tests\Functional\DatabaseWebTestCase;
 use Generator;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 class TourneyTest extends DatabaseWebTestCase
 {
@@ -19,9 +20,7 @@ class TourneyTest extends DatabaseWebTestCase
         ];
     }
 
-    /**
-     * @dataProvider provideUsersNotOnLan
-     */
+    #[DataProvider('provideUsersNotOnLan')]
     public function testTourneyWithoutLogin(string $user)
     {
         $this->databaseTool->loadFixtures([TourneyFixture::class, UserFixtures::class]);
@@ -539,9 +538,7 @@ class TourneyTest extends DatabaseWebTestCase
         }
     }
 
-    /**
-     * @dataProvider provideUsers
-     */
+    #[DataProvider('provideUsers')]
     public function testTourneyResult(string $fixture, string $user)
     {
         $this->databaseTool->loadFixtures([$fixture]);
@@ -564,9 +561,7 @@ class TourneyTest extends DatabaseWebTestCase
         }
     }
 
-    /**
-     * @dataProvider provideUsers
-     */
+    #[DataProvider('provideUsers')]
     public function testTourneyTree(string $fixture, string $user)
     {
         $this->databaseTool->loadFixtures([$fixture]);

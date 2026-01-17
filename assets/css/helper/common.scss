@@ -1,0 +1,30 @@
+// Shared styles used across both main site and email templates
+// Note: This file should NOT use @use directives to remain context-agnostic
+// Parent files (klms.scss and email/klms_base.scss) provide the necessary context
+
+.list-group-hover .list-group-item:hover {
+  z-index: 1;
+  text-decoration: none;
+}
+
+.text-disabled {
+  opacity: 0.6;
+}
+
+.badge-pill {
+  border-radius: 50rem;
+}
+
+.dropdown-menu-lg {
+  min-width: 20rem;
+}
+
+.social-btn-group {
+  .btn {
+    font-size: 1.5rem;
+    padding: 0.1rem 0.3rem;
+    margin-right: 0.5rem;
+    margin-bottom: 0.7rem;
+  }
+}
+

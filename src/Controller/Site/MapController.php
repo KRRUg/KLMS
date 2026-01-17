@@ -6,7 +6,7 @@ use App\Service\GeocodingService;
 use App\Service\MapService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 
 #[IsGranted('IS_AUTHENTICATED_REMEMBERED')]
 class MapController extends AbstractController

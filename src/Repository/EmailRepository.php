@@ -5,6 +5,7 @@ namespace App\Repository;
 use App\Entity\Email;
 use App\Entity\EmailSendingItem;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -15,7 +16,7 @@ use Doctrine\Persistence\ManagerRegistry;
  */
 class EmailRepository extends ServiceEntityRepository
 {
-    public function __construct(ManagerRegistry $registry)
+    public function __construct(ManagerRegistry $registry, private EntityManagerInterface $entityManager)
     {
         parent::__construct($registry, Email::class);
     }
@@ -35,7 +36,7 @@ class EmailRepository extends ServiceEntityRepository
      */
     public function countMails(Email $template): array
     {
-        $qb = $this->getEntityManager()->createQueryBuilder()
+        $qb = $this->entityManager->createQueryBuilder()
             ->select('si.success as val, count(si) as cnt')
             ->from(EmailSendingItem::class, 'si')
             ->innerJoin('si.sending', 's')

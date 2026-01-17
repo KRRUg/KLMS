@@ -4,6 +4,7 @@ namespace App\Repository;
 
 use App\Entity\GalleryImage;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -11,26 +12,26 @@ use Doctrine\Persistence\ManagerRegistry;
  */
 class GalleryImageRepository extends ServiceEntityRepository
 {
-    public function __construct(ManagerRegistry $registry)
+    public function __construct(ManagerRegistry $registry, private EntityManagerInterface $entityManager)
     {
         parent::__construct($registry, GalleryImage::class);
     }
 
     public function save(GalleryImage $entity, bool $flush = false): void
     {
-        $this->getEntityManager()->persist($entity);
+        $this->entityManager->persist($entity);
 
         if ($flush) {
-            $this->getEntityManager()->flush();
+            $this->entityManager->flush();
         }
     }
 
     public function remove(GalleryImage $entity, bool $flush = false): void
     {
-        $this->getEntityManager()->remove($entity);
+        $this->entityManager->remove($entity);
 
         if ($flush) {
-            $this->getEntityManager()->flush();
+            $this->entityManager->flush();
         }
     }
 

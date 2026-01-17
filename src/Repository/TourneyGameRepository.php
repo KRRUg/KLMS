@@ -6,6 +6,7 @@ use App\Entity\Tourney;
 use App\Entity\TourneyGame;
 use App\Entity\TourneyTeam;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ManagerRegistry;
 use Ramsey\Uuid\UuidInterface;
 
@@ -19,26 +20,26 @@ use Ramsey\Uuid\UuidInterface;
  */
 class TourneyGameRepository extends ServiceEntityRepository
 {
-    public function __construct(ManagerRegistry $registry)
+    public function __construct(ManagerRegistry $registry, private EntityManagerInterface $entityManager)
     {
         parent::__construct($registry, TourneyGame::class);
     }
 
     public function save(TourneyGame $entity, bool $flush = false): void
     {
-        $this->getEntityManager()->persist($entity);
+        $this->entityManager->persist($entity);
 
         if ($flush) {
-            $this->getEntityManager()->flush();
+            $this->entityManager->flush();
         }
     }
 
     public function remove(TourneyGame $entity, bool $flush = false): void
     {
-        $this->getEntityManager()->remove($entity);
+        $this->entityManager->remove($entity);
 
         if ($flush) {
-            $this->getEntityManager()->flush();
+            $this->entityManager->flush();
         }
     }
 

@@ -8,6 +8,7 @@ use App\Entity\ShopOrderPositionAddon;
 use App\Entity\ShopOrderPositionTicket;
 use App\Entity\ShopOrderStatus;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ManagerRegistry;
 use Ramsey\Uuid\UuidInterface;
 
@@ -21,7 +22,7 @@ use Ramsey\Uuid\UuidInterface;
  */
 class ShopOrderPositionRepository extends ServiceEntityRepository
 {
-    public function __construct(ManagerRegistry $registry)
+    public function __construct(ManagerRegistry $registry, private EntityManagerInterface $entityManager)
     {
         parent::__construct($registry, ShopOrderPosition::class);
     }
@@ -60,7 +61,7 @@ public function countTicketsNotCancelled(): int
      */
     public function countOrderedAddonsById(?UuidInterface $uuid = null, array $statusFilter = []): array
     {
-        $qb = $this->getEntityManager()->createQueryBuilder();
+        $qb = $this->entityManager->createQueryBuilder();
         $q = $qb->select('identity(op.addon) as aid, count(op) as cnt')
             ->from(ShopOrderPositionAddon::class, 'op')
             ->groupBy('op.addon')
@@ -86,7 +87,7 @@ public function countTicketsNotCancelled(): int
      */
     public function countOrderedAddons(ShopAddon $addon, ?UuidInterface $uuid = null, array $statusFilter = []): int
     {
-        $qb = $this->getEntityManager()->createQueryBuilder();
+        $qb = $this->entityManager->createQueryBuilder();
         $q = $qb->select('count(op)')
             ->from(ShopOrderPositionAddon::class, 'op')
             ->join('op.order', 'o')

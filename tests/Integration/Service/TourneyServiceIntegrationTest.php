@@ -19,6 +19,7 @@ use App\Service\TourneyService;
 use App\Tests\Integration\DatabaseTestCase;
 use LogicException;
 use Ramsey\Uuid\Nonstandard\Uuid;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 class TourneyServiceIntegrationTest extends DatabaseTestCase
 {
@@ -412,9 +413,7 @@ class TourneyServiceIntegrationTest extends DatabaseTestCase
         ];
     }
 
-    /**
-     * @dataProvider provideLogResultInvalidUser
-     */
+    #[DataProvider('provideLogResultInvalidUser')]
     public function testLogResultInvalidUser(User $user, ?string $exception)
     {
         $this->databaseTool->loadFixtures([TourneyFixture::class, UserFixtures::class]);
