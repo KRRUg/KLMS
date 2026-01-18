@@ -92,7 +92,7 @@ footer,
   height: 100%;
   z-index: -1000;
   overflow: hidden;
-  background: rgba(0, 0, 0, 0.60);
+  background: rgba(0, 0, 0, 0.40);
 }
 
 .vid-overlay {
@@ -101,7 +101,7 @@ footer,
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.60);
+  background: rgba(0, 0, 0, 0.40);
   z-index: -999;
 }
 
@@ -161,7 +161,7 @@ footer,
   }
 
   .vid-overlay {
-    // background-image: url("../../public/media/header_dot_bg.jpg");
+    background-image: url("../../public/media/header_dot_bg.jpg");
     background-position: center;
     /* Center the image */
     background-repeat: no-repeat;
