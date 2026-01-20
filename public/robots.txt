@@ -10,16 +10,12 @@ Disallow: /var/
 Disallow: /vendor/
 Disallow: /config/
 Disallow: /src/
+Disallow: /user/
+Disallow: /media/
+Disallow: /seat/
 Disallow: /shop/payment/
 
 Sitemap: https://www.dot-lan.at/sitemap.xml
-
-# Crawl-delay für spezifische Bots (optional)
-User-agent: Googlebot
-Crawl-delay: 0
-
-User-agent: bingbot
-Crawl-delay: 1
 
 # Schlechte Bots blockieren
 User-agent: AhrefsBot
@@ -29,7 +25,4 @@ User-agent: SemrushBot
 Disallow: /
 
 User-agent: MJ12bot
-Disallow: /
-
-User-agent: DotBot
 Disallow: /
