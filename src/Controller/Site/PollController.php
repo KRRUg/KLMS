@@ -11,19 +11,31 @@ use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\RateLimiter\RateLimiterFactory;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
+use Symfony\Component\Security\Csrf\CsrfToken;
 use Symfony\Component\Serializer\SerializerInterface;
 
 class PollController extends BaseController
 {
     private readonly PollService $pollService;
     private readonly EntityManagerInterface $entityManager;
+    private readonly CsrfTokenManagerInterface $csrfTokenManager;
+    private readonly RateLimiterFactory $pollVoteLimiter;
 
-    public function __construct(SerializerInterface $serializer, PollService $pollService, EntityManagerInterface $entityManager)
-    {
+    public function __construct(
+        SerializerInterface $serializer,
+        PollService $pollService,
+        EntityManagerInterface $entityManager,
+        CsrfTokenManagerInterface $csrfTokenManager,
+        RateLimiterFactory $pollVoteLimiter
+    ) {
         parent::__construct($serializer);
         $this->pollService = $pollService;
         $this->entityManager = $entityManager;
+        $this->csrfTokenManager = $csrfTokenManager;
+        $this->pollVoteLimiter = $pollVoteLimiter;
     }
 
     #[Route(path: '/poll', name: 'poll_current', methods: ['GET'])]
@@ -35,12 +47,41 @@ class PollController extends BaseController
         return $this->apiResponse($payload);
     }
 
+    #[Route(path: '/poll/csrf-token', name: 'poll_csrf_token', methods: ['GET'])]
+    public function csrfToken(): JsonResponse
+    {
+        $token = $this->csrfTokenManager->getToken('poll_vote');
+
+        return $this->apiResponse([
+            'token' => $token->getValue(),
+        ]);
+    }
+
     #[Route(path: '/poll/vote', name: 'poll_vote', methods: ['POST'])]
     public function vote(Request $request): JsonResponse
     {
+        // Rate Limiting
+        $limiter = $this->pollVoteLimiter->create($request->getClientIp() ?? 'unknown');
+        $limit = $limiter->consume(1);
+
+        if (!$limit->isAccepted()) {
+            return $this->apiResponse([
+                'Error' => [
+                    'message' => 'Zu viele Abstimmungsversuche. Bitte versuche es später erneut.',
+                    'retryAfter' => $limit->getRetryAfter()->getTimestamp(),
+                ]
+            ], Response::HTTP_TOO_MANY_REQUESTS);
+        }
+
         $body = json_decode((string) $request->getContent(), true);
         if (!is_array($body)) {
             return $this->apiError('Ungültige Anfrage.', Response::HTTP_BAD_REQUEST);
+        }
+
+        // CSRF Token Validierung
+        $csrfToken = $body['csrfToken'] ?? '';
+        if (!$this->csrfTokenManager->isTokenValid(new CsrfToken('poll_vote', $csrfToken))) {
+            return $this->apiError('Ungültiges CSRF-Token.', Response::HTTP_FORBIDDEN);
         }
 
         $pollId = (int) ($body['pollId'] ?? 0);
