@@ -9,9 +9,9 @@ use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ObjectRepository;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Mailer\Exception\TransportExceptionInterface;
-use Symfony\Component\Messenger\Handler\MessageSubscriberInterface;
+use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
-class MailingNotificationHandler implements MessageSubscriberInterface
+class MailingNotificationHandler
 {
     private readonly LoggerInterface $logger;
     private readonly EntityManagerInterface $em;
@@ -31,6 +31,7 @@ class MailingNotificationHandler implements MessageSubscriberInterface
     /**
      * @throws TransportExceptionInterface
      */
+    #[AsMessageHandler]
     public function handle(MailingNotification $mailingNotification)
     {
         $id = $mailingNotification->getSendingId();
@@ -75,21 +76,12 @@ class MailingNotificationHandler implements MessageSubscriberInterface
     /**
      * @throws TransportExceptionInterface
      */
+    #[AsMessageHandler]
     public function hook(MailingHookNotification $mailingHookNotification)
     {
         $this->mailService->sendByApplicationHook(
             $mailingHookNotification->getHook(),
             $mailingHookNotification->getRecipient(),
             $mailingHookNotification->getContext(), true);
-    }
-
-    public static function getHandledMessages(): iterable
-    {
-        yield MailingNotification::class => [
-            'method' => 'handle',
-        ];
-        yield MailingHookNotification::class => [
-            'method' => 'hook',
-        ];
     }
 }
