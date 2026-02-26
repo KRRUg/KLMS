@@ -134,11 +134,15 @@ import '../../modules/confirmModal/confirmModal.js';
                             elem.setAttribute(attrName, attrValue);
                         });
 
-                        if ((typeof data === 'undefined' || data === null) && colElement.dataset.defaultContent) {
-                            data = colElement.dataset.defaultContent;
+                        // Set content: innerHTML from renderFunction (controlled) or data (user content)
+                        if (renderFunction.innerHTML) {
+                            elem.innerHTML = renderFunction.innerHTML;
+                        } else if (data !== undefined && data !== null) {
+                            elem.textContent = data;
+                        } else if (colElement.dataset.defaultContent) {
+                            elem.textContent = colElement.dataset.defaultContent;
                         }
-
-                        elem.textContent = data;
+                        
                         return elem.outerHTML;
                     };
                 } else if (this.settings.remoteTarget) {

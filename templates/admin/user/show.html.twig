@@ -1,7 +1,7 @@
 {% embed "modules/modals/skeleton.html.twig"
     with {
         'id': 'showUserModal',
-        'title' : 'Benutzer ' ~ user.nickname,
+        'title' : 'Benutzer ' ~ user.nickname|e,
         'dialogClass' : 'modal-lg'
     }
 %}

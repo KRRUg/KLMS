@@ -1,7 +1,7 @@
 {% embed "modules/modals/skeleton.html.twig"
     with {
         'id': 'showUserModal',
-        'title' : 'Clan ' ~ clan.name,
+        'title' : 'Clan ' ~ clan.name|e,
         'dialogClass' : 'modal-lg'
     }
 %}
@@ -12,7 +12,7 @@
                     <span class="badge badge-secondary">UUID: {{ clan.uuid }}</span>
                 </div>
                 <div class="p-1">
-                    <a class="btn btn-outline-primary" href="{{ path('admin_clan_edit', {'uuid' : clan.uuid}) }}" title="{{ clan.name }} bearbeiten"><i class="fas fa-user-edit"></i> Clan bearbeiten</a>   
+                    <a class="btn btn-outline-primary" href="{{ path('admin_clan_edit', {'uuid' : clan.uuid}) }}" title="{{ clan.name|e }} bearbeiten"><i class="fas fa-user-edit"></i> Clan bearbeiten</a>   
                 </div>
             </div>
             <div class="row">
