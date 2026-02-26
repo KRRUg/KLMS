@@ -60,7 +60,7 @@ class SponsorService extends OptimalService
      */
     public function getAll(): array
     {
-        return $this->sponsorRepository->findAll();
+        return $this->sponsorRepository->findAllSorted();
     }
 
     public function getRandom(): ?Sponsor

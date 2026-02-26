@@ -22,7 +22,6 @@ class SponsorCategory
     private ?int $priority = null;
 
     #[ORM\OneToMany(targetEntity: Sponsor::class, mappedBy: 'category')]
-    #[ORM\OrderBy(['name' => 'ASC'])]
     private Collection $sponsors;
 
     public function __construct()
@@ -64,7 +63,29 @@ class SponsorCategory
      */
     public function getSponsors(): Collection
     {
-        return $this->sponsors;
+        $iterator = $this->sponsors->getIterator();
+        $iterator->uasort(function (Sponsor $a, Sponsor $b) {
+            $sortA = $a->getSortOrder();
+            $sortB = $b->getSortOrder();
+            
+            // Wenn beide sortOrder haben, sortiere danach
+            if ($sortA !== null && $sortB !== null) {
+                return $sortA <=> $sortB;
+            }
+            
+            // Wenn nur einer sortOrder hat, kommt dieser zuerst
+            if ($sortA !== null) {
+                return -1;
+            }
+            if ($sortB !== null) {
+                return 1;
+            }
+            
+            // Wenn beide keine sortOrder haben, sortiere alphabetisch nach Name
+            return strcasecmp($a->getName(), $b->getName());
+        });
+        
+        return new ArrayCollection(iterator_to_array($iterator));
     }
 
     public function addSponsor(Sponsor $sponsor): self

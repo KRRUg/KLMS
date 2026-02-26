@@ -58,8 +58,21 @@ class SponsorRepository extends ServiceEntityRepository
     public function findAllVisible()
     {
         return $this->createQueryBuilder('s')
-            ->andWhere("entity.isVisible = :isVisible")
+            ->andWhere("s.isVisible = :isVisible")
             ->setParameter("isVisible", true)
+            ->addOrderBy('s.sortOrder', 'ASC')
+            ->addOrderBy('s.name', 'ASC')
+            ->getQuery()
+            ->getResult();
+    }
+
+    public function findAllSorted()
+    {
+        return $this->createQueryBuilder('s')
+            ->addSelect('CASE WHEN s.sortOrder IS NULL THEN 1 ELSE 0 END AS HIDDEN sortOrderNull')
+            ->addOrderBy('sortOrderNull', 'ASC')
+            ->addOrderBy('s.sortOrder', 'ASC')
+            ->addOrderBy('s.name', 'ASC')
             ->getQuery()
             ->getResult();
     }
