@@ -3,10 +3,12 @@ class PollWidget {
         this.root = root;
         this.fetchUrl = root.dataset.fetchUrl || '';
         this.voteUrl = root.dataset.voteUrl || '';
+        this.csrfTokenUrl = root.dataset.csrfTokenUrl || '';
         this.element = document.createElement('div');
         this.element.className = 'poll-widget is-hidden';
         root.appendChild(this.element);
         this.state = null;
+        this.csrfToken = null;
         this.isVoting = false;
         this.dismissStorageKey = 'pollWidgetDismissed';
         this.load();
@@ -18,14 +20,26 @@ class PollWidget {
         }
 
         try {
-            const response = await fetch(this.fetchUrl, { headers: { Accept: 'application/json' } });
-            if (!response.ok) {
+            // Lade CSRF-Token und Poll-Daten parallel
+            const [pollResponse, tokenResponse] = await Promise.all([
+                fetch(this.fetchUrl, { headers: { Accept: 'application/json' } }),
+                this.csrfTokenUrl ? fetch(this.csrfTokenUrl, { headers: { Accept: 'application/json' } }) : Promise.resolve(null)
+            ]);
+
+            if (!pollResponse.ok) {
                 return;
             }
-            const data = await response.json();
+            const data = await pollResponse.json();
             if (!data) {
                 return;
             }
+
+            // Token laden, falls verfügbar
+            if (tokenResponse && tokenResponse.ok) {
+                const tokenData = await tokenResponse.json();
+                this.csrfToken = tokenData?.token || null;
+            }
+
             this.state = data;
             this.render();
         } catch (error) {
@@ -148,6 +162,19 @@ class PollWidget {
             return;
         }
 
+        // CSRF-Token laden falls noch nicht vorhanden
+        if (!this.csrfToken && this.csrfTokenUrl) {
+            try {
+                const tokenResponse = await fetch(this.csrfTokenUrl, { headers: { Accept: 'application/json' } });
+                if (tokenResponse.ok) {
+                    const tokenData = await tokenResponse.json();
+                    this.csrfToken = tokenData?.token || null;
+                }
+            } catch (error) {
+                // Token-Fehler ignorieren, Server wird mit 403 antworten
+            }
+        }
+
         this.isVoting = true;
         try {
             const response = await fetch(this.voteUrl, {
@@ -159,7 +186,8 @@ class PollWidget {
                 },
                 body: JSON.stringify({
                     pollId: this.state.poll.id,
-                    optionId
+                    optionId,
+                    csrfToken: this.csrfToken || ''
                 })
             });
 
@@ -168,6 +196,8 @@ class PollWidget {
                     alert('Bitte melde dich an, um abzustimmen.');
                 } else if (response.status === 409) {
                     alert('Du hast bereits abgestimmt.');
+                } else if (response.status === 429) {
+                    alert('Zu viele Abstimmungsversuche. Bitte versuche es später erneut.');
                 }
                 return;
             }

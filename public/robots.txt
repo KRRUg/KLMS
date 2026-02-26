@@ -12,7 +12,7 @@ Disallow: /config/
 Disallow: /src/
 Disallow: /user/
 Disallow: /media/
-Disallow: /seat/
+Disallow: /seatmap/seat/
 Disallow: /shop/payment/
 
 Sitemap: https://www.dot-lan.at/sitemap.xml

@@ -64,12 +64,8 @@ $seat-orientations: n, e, s, w;
     @include seat(gray)
   }
 
-  .seat-own-clan {
-    @include seat-border(#e0a800);
-  }
-
   .seat-clan-reserved {
-    @include seat-border(#303030);
+    @include seat-border(#e0a800);
   }
 }
 

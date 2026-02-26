@@ -6,7 +6,9 @@ framework:
         transports:
             # https://symfony.com/doc/current/messenger.html#transport-configuration
             #sync: 'sync://'
-            async: '%env(MESSENGER_TRANSPORT_DSN)%'
+            async:
+                dsn: '%env(MESSENGER_TRANSPORT_DSN)%'
+                rate_limiter: mailing_rate_limiter
             failed: 'doctrine://default?queue_name=failed'
 
         routing:

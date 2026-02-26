@@ -43,8 +43,7 @@
 			<meta name="twitter:title" content="{{ socialTitle|striptags|trim }}">
 			<meta name="twitter:description" content="{{ socialDescription|striptags|trim }}">
 		{% endblock %}
-		{% block favicon %}<link rel="shortcut icon" href="{{ asset('favicon.ico') }}"/>
-		{% endblock %}
+		{% block favicon %}<link rel="icon" href="{{ asset('favicon.ico') }}"/>{% endblock %}
 		<title>
 			{% block title %}
 				{{ settings.get('site.title') }}
@@ -83,7 +82,8 @@
 		{% if not (app.request.pathInfo starts with '/admin')  %}
 			<div id="poll-widget-root"
 				 data-fetch-url="{{ path('poll_current') }}"
-				 data-vote-url="{{ path('poll_vote') }}"></div>
+			 data-vote-url="{{ path('poll_vote') }}"
+			 data-csrf-token-url="{{ path('poll_csrf_token') }}"></div>
 		{% endif %}
 		{% block javascripts %}
 				{{ encore_entry_script_tags('app') }}

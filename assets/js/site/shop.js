@@ -259,6 +259,12 @@ function initSumUpCard() {
             } else if (type === 'error') {
                 const message = body && body.message ? body.message : 'Unbekannter Fehler';
                 window.alert(`Fehler bei der Zahlung: ${message}`);
+            } else if (type === 'fail') {
+                const message = body && body.message ? body.message : 'Die Zahlung ist fehlgeschlagen. Bitte versuche es erneut.';
+                window.alert(`Zahlung fehlgeschlagen: ${message}`);
+            } else if (type === 'invalid') {
+                const message = body && body.message ? body.message : 'Ungültige Zahlungsdaten. Bitte überprüfe deine Eingaben.';
+                window.alert(`Ungültige Zahlung: ${message}`);
             }
         },
     });

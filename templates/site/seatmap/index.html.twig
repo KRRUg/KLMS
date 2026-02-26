@@ -16,7 +16,7 @@
                         <div class="col-md-4 col-lg-2 d-flex"><span class="seat seat-locked"></span><span class="align-self-center ml-1"> Gesperrt</span></div>
                         {% if user is not empty %}
                             <div class="col-md-4 col-lg-2 d-flex"><span class="seat seat-own"></span><span class="align-self-center ml-1">{{ tempSeat ? "Vorgemerkt" : "Dein Platz" }}</span></div>
-                            <div class="col-md-4 col-lg-2 d-flex"><span class="seat seat-own-clan"></span><span class="align-self-center ml-1"> Dein Clan</span></div>
+                            <div class="col-md-4 col-lg-2 d-flex"><span class="seat seat-clan-reserved"></span><span class="align-self-center ml-1"> Dein Clan</span></div>
                         {% endif %}
                     </div>
                 </div>
@@ -71,11 +71,11 @@
                                     {% if ownSeat %}
                                         seat-own
                                     {% elseif taken %}
-                                        seat-taken {% if ownClan %}seat-own-clan{% endif %}
+                                        seat-taken {% if ownClan %}seat-clan-reserved{% endif %}
                                     {% elseif locked %}
                                         seat-locked
                                     {% elseif reserved %}
-                                        {% if ownClan %}seat-empty seat-own-clan{% else %}seat-locked{% endif %}
+                                        {% if ownClan %}seat-empty seat-clan-reserved{% else %}seat-locked{% endif %}
                                     {% else %}
                                         seat-empty
                                     {% endif %}

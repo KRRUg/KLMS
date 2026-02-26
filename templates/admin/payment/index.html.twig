@@ -21,7 +21,7 @@
     <div class="row">
         <div class="col-12">
             <div class="card">
-                <table id="GamerTable" class="table table-striped admin-data-table" data-order='[[2, "asc"]]'
+                <table id="GamerTable" class="table table-striped admin-data-table" data-order='[[0, "desc"]]'
                 >
                     <thead>
                     <tr>
@@ -53,11 +53,16 @@
                             <td data-order="{{ ticket.createdAt | date('U') }}">{{ ticket.createdAt | date(dateformat) }}</td>
                         {% if ticket.redeemed %}
                             <td data-order="{{ ticket.redeemedAt | date('U') }}">{{ ticket.redeemedAt | date(dateformat) }}</td>
-                            {% set user = users[ticket.redeemer.toString()] %}
+                            {% set user = users[ticket.redeemer.toString()] ?? null %}
+                            {% if user %}
                             <td data-order="{{ user.nickname }}">
                                 <a href="{{ path('admin_user_show', {'uuid' : user.uuid }) }}" data-toggle="ajaxModal">{{ user.nickname }}</a>
                             </td>
                             <td>{{ user.firstname }} {{ user.surname }}</td>
+                            {% else %}
+                            <td></td>
+                            <td></td>
+                            {% endif %}
                         {% else %}
                             <td></td>
                             <td></td>

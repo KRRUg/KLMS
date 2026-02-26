@@ -13,10 +13,10 @@ use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ObjectRepository;
 use Exception;
 use Psr\Log\LoggerInterface;
-use Symfony\Component\Messenger\Handler\MessageHandlerInterface;
+use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 use Symfony\Component\Messenger\MessageBusInterface;
 
-class MailingGroupNotificationHandler implements MessageHandlerInterface
+class MailingGroupNotificationHandler
 {
     private readonly EmailService $mailService;
     private readonly GroupService $groupService;
@@ -40,6 +40,7 @@ class MailingGroupNotificationHandler implements MessageHandlerInterface
         $this->sendingRepo = $this->em->getRepository(EmailSending::class);
     }
 
+    #[AsMessageHandler]
     public function __invoke(MailingGroupNotification $mailingNotification)
     {
         $id = $mailingNotification->getSendingId();

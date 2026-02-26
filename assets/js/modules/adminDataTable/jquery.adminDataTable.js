@@ -138,7 +138,7 @@ import '../../modules/confirmModal/confirmModal.js';
                             data = colElement.dataset.defaultContent;
                         }
 
-                        elem.innerHTML = data;
+                        elem.textContent = data;
                         return elem.outerHTML;
                     };
                 } else if (this.settings.remoteTarget) {
