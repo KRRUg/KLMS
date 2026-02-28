@@ -90,10 +90,20 @@ class UserExtension extends AbstractExtension
             return '';
         }
 
-        // HTML-encode output and neutralize template expression delimiters
-        // to prevent SSTI (Twig) and CSTI (e.g. AngularJS) attacks.
-        $name = htmlspecialchars($user->getNickname() ?? '', ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
-        return str_replace(['{{', '}}'], ['&#123;&#123;', '&#125;&#125;'], $name);
+        $nickname = $this->sanitizeTemplateDelimiters(trim((string) ($user->getNickname() ?? '')));
+        $firstname = $this->sanitizeTemplateDelimiters(trim((string) ($user->getFirstname() ?? '')));
+        $surname = $this->sanitizeTemplateDelimiters(trim((string) ($user->getSurname() ?? '')));
+
+        if ($nickname !== '') {
+            return $nickname;
+        }
+
+        return trim($firstname.' '.$surname);
+    }
+
+    private function sanitizeTemplateDelimiters(string $value): string
+    {
+        return str_replace(['{{', '}}', '{%', '%}', '{#', '#}'], '', $value);
     }
 
     public function getGroupName($groupUuid): string

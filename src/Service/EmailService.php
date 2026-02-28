@@ -324,19 +324,23 @@ class EmailService
         $mapping = [];
         foreach ($replacements as $key => $value) {
             $search = $wrapInBraces ? '{{'.$key.'}}' : $key;
-            $mapping[$search] = trim((string) $value);
+            $replacement = trim((string) $value);
+            if ($wrapInBraces) {
+                $replacement = $this->sanitizeTemplateDelimiters($replacement);
+            }
+            $mapping[$search] = $replacement;
         }
 
         return strtr($text, $mapping);
     }
 
     /**
-     * Encode Twig/template expression delimiters in user-supplied strings
+     * Remove Twig/template delimiters in user-supplied strings
      * to prevent server-side and client-side template injection.
      */
     private function sanitizeTemplateDelimiters(string $value): string
     {
-        return str_replace(['{{', '}}'], ['&#123;&#123;', '&#125;&#125;'], $value);
+        return str_replace(['{{', '}}', '{%', '%}', '{#', '#}'], '', $value);
     }
 
     private function getDesignFile(Email $template): string
