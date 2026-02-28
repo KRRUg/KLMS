@@ -268,7 +268,7 @@ class EmailService
         $html = $this->replaceVariables($html, [
             self::UNSUBSCRIBE_TEMPLATE_PLACEHOLDER => $this->generateUnsubscribeToken($recipient->getUuid()),
         ], false);
-        $text = strip_tags($html);
+        $text = html_entity_decode(strip_tags($html), ENT_QUOTES | ENT_HTML5, 'UTF-8');
 
         return ['subject' => $subject, 'html' => $html, 'text' => $text];
     }
@@ -328,6 +328,15 @@ class EmailService
         }
 
         return strtr($text, $mapping);
+    }
+
+    /**
+     * Encode Twig/template expression delimiters in user-supplied strings
+     * to prevent server-side and client-side template injection.
+     */
+    private function sanitizeTemplateDelimiters(string $value): string
+    {
+        return str_replace(['{{', '}}'], ['&#123;&#123;', '&#125;&#125;'], $value);
     }
 
     private function getDesignFile(Email $template): string
