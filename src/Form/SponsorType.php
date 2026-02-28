@@ -52,6 +52,10 @@ class SponsorType extends AbstractType
             'image_uri' => false,
             'asset_helper' => false,
             'imagine_pattern' => 'sponsor_logo',
+            'help' => 'Erlaubte Formate: PNG, JPEG, WebP. Maximale Größe: 5 MB.',
+            'attr' => [
+                'accept' => 'image/png,image/jpeg,image/webp',
+            ],
         ]);
         $builder->addEventSubscriber($this->userInsertSubscriber);
     }

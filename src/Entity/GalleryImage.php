@@ -3,10 +3,12 @@
 namespace App\Entity;
 
 use App\Repository\GalleryImageRepository;
+use App\Validator\SafeImageFile;
 use Doctrine\ORM\Mapping as ORM;
 use Ramsey\Uuid\Doctrine\UuidGenerator;
 use Ramsey\Uuid\UuidInterface;
 use Symfony\Component\HttpFoundation\File\File;
+use Symfony\Component\Validator\Constraints as Assert;
 use Vich\UploaderBundle\Mapping\Attribute\Uploadable;
 use Vich\UploaderBundle\Mapping\Attribute\UploadableField;
 
@@ -24,6 +26,8 @@ class GalleryImage
     private ?string $imageName = null;
 
     #[UploadableField(mapping: 'gallery', fileNameProperty: 'imageName')]
+    #[Assert\File(maxSize: '20M')]
+    #[SafeImageFile]
     private ?File $imageFile = null;
 
     #[ORM\ManyToOne(targetEntity: GalleryEvent::class, inversedBy: 'galleryImages')]

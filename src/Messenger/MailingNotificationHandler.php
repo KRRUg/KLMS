@@ -32,7 +32,7 @@ class MailingNotificationHandler
      * @throws TransportExceptionInterface
      */
     #[AsMessageHandler]
-    public function handle(MailingNotification $mailingNotification)
+    public function __invoke(MailingNotification $mailingNotification)
     {
         $id = $mailingNotification->getSendingId();
         $recipient = $mailingNotification->getRecipient();
@@ -71,17 +71,5 @@ class MailingNotificationHandler
             $this->em->flush();
             $this->em->commit();
         }
-    }
-
-    /**
-     * @throws TransportExceptionInterface
-     */
-    #[AsMessageHandler]
-    public function hook(MailingHookNotification $mailingHookNotification)
-    {
-        $this->mailService->sendByApplicationHook(
-            $mailingHookNotification->getHook(),
-            $mailingHookNotification->getRecipient(),
-            $mailingHookNotification->getContext(), true);
     }
 }

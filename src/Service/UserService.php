@@ -38,15 +38,12 @@ class UserService
         return $this->uploadHelper->asset($image, 'imageFile');
     }
 
-    public function user2Array(User $user): array
+    public function user2Array(User $user, bool $includeSensitiveData = true): array
     {
-        return [
+        $data = [
             'uuid' => $user->getUuid(),
             'id' => $user->getId(),
-            'email' => $user->getEmail(),
             'nickname' => $user->getNickname(),
-            'firstname' => $user->getFirstname(),
-            'surname' => $user->getSurname(),
             'image' => $this->getUserImage($user),
             'clans' => array_map(fn ($clan) => [
                 'uuid' => $clan->getUuid(),
@@ -54,6 +51,14 @@ class UserService
                 'clantag' => $clan->getClantag(),
             ], $user->getClans()->toArray()),
         ];
+
+        if ($includeSensitiveData) {
+            $data['email'] = $user->getEmail();
+            $data['firstname'] = $user->getFirstname();
+            $data['surname'] = $user->getSurname();
+        }
+
+        return $data;
     }
 
     public static function array2Uuid(array $a): ?UuidInterface

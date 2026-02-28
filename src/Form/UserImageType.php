@@ -21,8 +21,9 @@ class UserImageType extends AbstractType
             'label' => 'Userbild',
             'delete_label' => 'Bild löschen',
             'attr' => [
-                'accept' => 'image/*',
+                'accept' => 'image/png,image/jpeg,image/webp',
             ],
+            'help' => 'Erlaubte Formate: PNG, JPEG, WebP. Maximale Größe: 5 MB.',
         ]);
     }
 

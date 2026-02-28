@@ -4,6 +4,7 @@ namespace App\Entity;
 
 use App\Entity\Traits\HistoryAwareEntity;
 use App\Repository\SponsorRepository;
+use App\Validator\SafeImageFile;
 use DateTime;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\HttpFoundation\File\File;
@@ -32,6 +33,8 @@ class Sponsor implements HistoryAwareEntity
     private ?string $url = null;
 
     #[UploadableField(mapping: 'sponsor', fileNameProperty: 'logo.name', size: 'logo.size', mimeType: 'logo.mimeType', originalName: 'logo.originalName', dimensions: 'logo.dimensions')]
+    #[Assert\File(maxSize: '5M')]
+    #[SafeImageFile]
     private ?File $logoFile = null;
 
     #[ORM\Embedded(class: 'Vich\UploaderBundle\Entity\File')]

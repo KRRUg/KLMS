@@ -28,10 +28,6 @@ framework:
             policy: 'sliding_window'
             limit: 1
             interval: '5 minutes'
-        mailing_rate_limiter:
-            policy: 'sliding_window'
-            limit: '%env(int:MAILER_RATE_LIMIT)%'
-            interval: '%env(MAILER_RATE_LIMIT_INTERVAL)%'
 
     http_client:
         scoped_clients:

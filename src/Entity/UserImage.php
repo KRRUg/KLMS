@@ -3,11 +3,13 @@
 namespace App\Entity;
 
 use App\Repository\UserImageRepository;
+use App\Validator\SafeImageFile;
 use DateTime;
 use DateTimeInterface;
 use Doctrine\ORM\Mapping as ORM;
 use Ramsey\Uuid\UuidInterface;
 use Symfony\Component\HttpFoundation\File\File;
+use Symfony\Component\Validator\Constraints as Assert;
 use Vich\UploaderBundle\Entity\File as EmbeddedFile;
 use Vich\UploaderBundle\Mapping\Attribute\Uploadable;
 use Vich\UploaderBundle\Mapping\Attribute\UploadableField;
@@ -25,6 +27,8 @@ class UserImage
     private ?EmbeddedFile $image;
 
     #[UploadableField(mapping: 'user', fileNameProperty: 'image.name', size: 'image.size', mimeType: 'image.mimeType', originalName: 'image.originalName', dimensions: 'image.dimensions')]
+    #[Assert\File(maxSize: '5M')]
+    #[SafeImageFile]
     private ?File $imageFile = null;
 
     #[ORM\Column(type: 'datetime', nullable: false)]

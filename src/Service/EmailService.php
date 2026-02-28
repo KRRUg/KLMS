@@ -23,10 +23,13 @@ use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Messenger\Stamp\DelayStamp;
 use Symfony\Component\Mime;
 use Twig\Environment;
-use function htmlspecialchars;
 
 class EmailService
 {
+    private const SUBJECT_TEMPLATE_PLACEHOLDER = '__KLMS_EMAIL_SUBJECT_PLACEHOLDER_9f0d31f1__';
+    private const BODY_TEMPLATE_PLACEHOLDER = '__KLMS_EMAIL_BODY_PLACEHOLDER_9f0d31f1__';
+    private const UNSUBSCRIBE_TEMPLATE_PLACEHOLDER = 'UNSUBSCRIBE_URL_TOKEN_PLACEHOLDER';
+
     final public const APP_HOOK_REGISTRATION_CONFIRM = 'REGISTRATION_CONFIRMATION';
     final public const APP_HOOK_RESET_PW = 'PASSWORD_RESET';
     final public const APP_HOOK_CHANGE_NOTIFICATION = 'CHANGE_NOTIFICATION';
@@ -78,6 +81,7 @@ class EmailService
     private readonly MessageBusInterface $messageBus;
     private readonly TicketService $ticketService;
     private readonly string $appSecret;
+    private array $template_cache = [];
 
     public function __construct(MailerInterface $mailer,
                                 LoggerInterface $logger,
@@ -114,7 +118,7 @@ class EmailService
         $this->em->persist($sending);
         $this->em->flush();
         $this->messageBus->dispatch(new MailingGroupNotification($sending->getId()), [
-            new DelayStamp(intval($_ENV['MAILER_NEWSLETTER_SEND_WAITTIME'] ?? 60) * 1000),
+            new DelayStamp((int) ($_ENV['MAILER_NEWSLETTER_SEND_WAITTIME'] ?? 60) * 1000),
         ]);
 
         return true;
@@ -200,11 +204,10 @@ class EmailService
 
     private function generateUnsubscribeToken(UuidInterface $uuid): string
     {
-        $uuid = str_replace('-', '', $uuid->toString());
-        $token = 'un'.$uuid.'subscribe';
-        $token = hash_hmac('sha256', $token, $this->appSecret);
+        $uuidStr = str_replace('-', '', $uuid->toString());
+        $token = hash_hmac('sha256', 'un'.$uuidStr.'subscribe', $this->appSecret);
 
-        return $uuid.$token;
+        return $uuidStr.$token;
     }
 
     public function handleUnsubscribeToken(string $token): ?UuidInterface
@@ -221,7 +224,7 @@ class EmailService
 
     private function generateEmailFromTemplate(Email $template, EmailRecipient $recipient): ?Mime\Email
     {
-        if (empty($recipient) || empty($recipient->getEmailAddress())) {
+        if (empty($recipient->getEmailAddress())) {
             $this->logger->error('No email address given');
             return null;
         }
@@ -235,8 +238,6 @@ class EmailService
             ->text($email['text']);
     }
 
-    private array $template_cache = [];
-
     public function getAvailableFields(?EmailRecipient $recipient): array
     {
         return $this->buildRecipientData($recipient);
@@ -245,21 +246,27 @@ class EmailService
     public function renderTemplate(Email $template, EmailRecipient $recipient): array
     {
         $key = hash('sha256', serialize($template));
-        $body = $template->getBody();
-        $subject = $template->getSubject();
+        $body = (string) $template->getBody();
+        $subject = (string) $template->getSubject();
         $html = $this->template_cache[$key]
             ?? ($this->template_cache[$key] = $this->twig->render($this->getDesignFile($template), [
-                'subject' => $subject,
-                'body' => $body,
-                'unsubscribe' => 'UNSUBSCRIBE_URL_TOKEN_PLACEHOLDER',
+                'subject' => self::SUBJECT_TEMPLATE_PLACEHOLDER,
+                'body' => self::BODY_TEMPLATE_PLACEHOLDER,
+                'unsubscribe' => self::UNSUBSCRIBE_TEMPLATE_PLACEHOLDER,
             ]));
+
+        $html = str_replace(
+            [self::SUBJECT_TEMPLATE_PLACEHOLDER, self::BODY_TEMPLATE_PLACEHOLDER],
+            [$subject, $body],
+            $html
+        );
 
         $recipientData = $this->buildRecipientData($recipient);
 
         $subject = $this->replaceVariables($subject, $recipientData);
         $html = $this->replaceVariables($html, $recipientData);
         $html = $this->replaceVariables($html, [
-            'UNSUBSCRIBE_URL_TOKEN_PLACEHOLDER' => $this->generateUnsubscribeToken($recipient->getUuid()),
+            self::UNSUBSCRIBE_TEMPLATE_PLACEHOLDER => $this->generateUnsubscribeToken($recipient->getUuid()),
         ], false);
         $text = strip_tags($html);
 
@@ -312,13 +319,15 @@ class EmailService
         }
     }
 
-    private function replaceVariables(string $text, array $replacements, bool $escapeSign = true): string
+    private function replaceVariables(string $text, array $replacements, bool $wrapInBraces = true): string
     {
+        $mapping = [];
         foreach ($replacements as $key => $value) {
-            $text = preg_replace($escapeSign ? '/{{2}'.$key.'}{2}/' : '/'.$key.'/', trim((string) $value), $text) ?? $text;
+            $search = $wrapInBraces ? '{{'.$key.'}}' : $key;
+            $mapping[$search] = trim((string) $value);
         }
 
-        return $text;
+        return strtr($text, $mapping);
     }
 
     private function getDesignFile(Email $template): string

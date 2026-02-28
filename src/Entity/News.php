@@ -5,6 +5,7 @@ namespace App\Entity;
 use App\Entity\NewsComment;
 use App\Entity\Traits\HistoryAwareEntity;
 use App\Repository\NewsRepository;
+use App\Validator\SafeImageFile;
 use DateTime;
 use DateTimeInterface;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -42,6 +43,8 @@ class News implements HistoryAwareEntity
     private ?DateTimeInterface $publishedTo = null;
 
     #[UploadableField(mapping: 'news', fileNameProperty: 'image.name', size: 'image.size', mimeType: 'image.mimeType', originalName: 'image.originalName', dimensions: 'image.dimensions')]
+    #[Assert\File(maxSize: '10M')]
+    #[SafeImageFile]
     private ?File $imageFile = null;
 
     #[ORM\Embedded(class: 'Vich\UploaderBundle\Entity\File')]

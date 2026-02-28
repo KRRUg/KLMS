@@ -61,15 +61,14 @@ class GalleryController extends AbstractController
                 'label' => 'Bild auswählen',
                 'constraints' => [
                     new File([
-                        'maxSize' => '10M',
+                        'maxSize' => '20M',
                         'mimeTypes' => [
                             'image/jpeg',
                             'image/jpg',
                             'image/png',
-                            'image/gif',
                             'image/webp',
                         ],
-                        'mimeTypesMessage' => 'Bitte wählen Sie eine gültige Bilddatei (JPEG, PNG, GIF, WebP)'
+                        'mimeTypesMessage' => 'Bitte wählen Sie eine gültige Bilddatei (JPEG, PNG, WebP). SVG und andere Formate sind nicht erlaubt.'
                     ])
                 ]
             ])
@@ -114,14 +113,14 @@ class GalleryController extends AbstractController
             foreach ($files as $file) {
                 try {
                     // Validate file
-                    $allowedMimes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+                    $allowedMimes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
                     if (!in_array($file->getMimeType(), $allowedMimes)) {
-                        $errors[] = $file->getClientOriginalName() . ': Invalid file type';
+                        $errors[] = $file->getClientOriginalName() . ': Ungültiger Dateityp. Nur JPEG, PNG und WebP sind erlaubt.';
                         continue;
                     }
 
-                    if ($file->getSize() > 10 * 1024 * 1024) { // 10MB
-                        $errors[] = $file->getClientOriginalName() . ': File too large';
+                    if ($file->getSize() > 20 * 1024 * 1024) { // 20MB
+                        $errors[] = $file->getClientOriginalName() . ': Datei ist zu groß (max. 20MB)';
                         continue;
                     }
 
