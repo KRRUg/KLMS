@@ -12,7 +12,8 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 #[Route(path: '/users', name: 'users')]
 class UserController extends AbstractController
@@ -42,10 +43,13 @@ class UserController extends AbstractController
 
         $items = $lazyLoadingCollection->getPage($page, $limit);
 
+        // Nur Admins dürfen sensible Daten (E-Mail, Vorname, Nachname) sehen
+        $isAdmin = $this->isGranted('ROLE_ADMIN');
+
         $result = [];
         $result['count'] = count($items);
         $result['total'] = $lazyLoadingCollection->count();
-        $result['items'] = array_map(fn (User $user) => $this->userService->user2Array($user), $items);
+        $result['items'] = array_map(fn (User $user) => $this->userService->user2Array($user, $isAdmin), $items);
 
         return new JsonResponse(json_encode($result, JSON_THROW_ON_ERROR), Response::HTTP_OK, [], true);
     }
