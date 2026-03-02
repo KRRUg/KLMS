@@ -1,202 +1,56 @@
 <?php
 
-namespace App\Controller\Site;
+namespace App\Controller\API;
 
 use App\Entity\User;
-use App\Form\UserType;
-use App\Helper\EmailRecipient;
-use App\Idm\Exception\PersistException;
 use App\Idm\IdmManager;
 use App\Idm\IdmRepository;
-use App\Security\LoginUser;
-use App\Service\EmailService;
-use App\Service\SettingService;
-use App\Service\TicketService;
-use App\Service\TicketState;
-use Psr\Log\LoggerInterface;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
+use App\Service\UserService;
+use App\Transfer\Error;
+use InvalidArgumentException;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\Form\Extension\Core\Type\PasswordType;
-use Symfony\Component\Form\Extension\Core\Type\RepeatedType;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
+#[Route(path: '/users', name: 'users')]
 class UserController extends AbstractController
 {
-    private readonly IdmManager $manager;
     private readonly IdmRepository $userRepo;
-    private readonly EmailService $emailService;
-    private readonly SettingService $settingService;
-    private readonly TicketService $ticketService;
-    private readonly LoggerInterface $logger;
+    private readonly UserService $userService;
 
-    public function __construct(IdmManager $manager,
-                                EmailService $emailService,
-                                SettingService $settingService,
-                                TicketService $ticketService,
-                                LoggerInterface $logger)
+    public function __construct(IdmManager $manager, UserService $userService)
     {
-        $this->manager = $manager;
         $this->userRepo = $manager->getRepository(User::class);
-        $this->emailService = $emailService;
-        $this->settingService = $settingService;
-        $this->ticketService = $ticketService;
-        $this->logger = $logger;
+        $this->userService = $userService;
     }
 
-    public function getUser(): User
+    #[Route(path: '', name: '', methods: ['GET'])]
+    public function search(Request $request): Response
     {
-        $u = parent::getUser();
-        if (!$u instanceof LoginUser) {
-            $this->logger->critical('User Object of invalid type in session found.');
-        }
-
-        return $u->getUser();
-    }
-
-    private const SHOW_LIMIT = 20;
-
-    #[IsGranted('IS_AUTHENTICATED_REMEMBERED')]
-    #[Route(path: '/user', name: 'user')]
-    public function index(Request $request): Response
-    {
-        if (!$this->settingService->get('community.enabled', false)) {
-            throw $this->createNotFoundException();
-        }
-
         $search = $request->query->get('q', '');
+        $limit = $request->query->getInt('limit', 10);
         $page = $request->query->getInt('page', 1);
-        $page = max($page, 1);
+        $sort = $request->query->all('sort');
 
-        if ($this->settingService->get('community.all', false)) {
-            $collection = $this->userRepo->findFuzzy($search);
-            $users = $collection->getPage($page, self::SHOW_LIMIT);
-            $count = $collection->count();
-        } else {
-            $uuids = $this->ticketService->queryUserUuids(TicketState::REDEEMED);
-            $users = $this->userRepo->findById($uuids);
-            if (!empty($search)) {
-                $users = array_filter($users, fn (User $u) => stripos($u->getNickname(), (string) $search) !== false || stripos($u->getFirstname(), (string) $search) !== false);
-            }
-            usort($users, fn (User $a, User $b) => $a->getNickname() <=> $b->getNickname());
-            $count = count($users);
-            $users = array_slice($users, ($page - 1) * self::SHOW_LIMIT, self::SHOW_LIMIT);
+        try {
+            $lazyLoadingCollection = $this->userRepo->findFuzzy($search, $sort);
+        } catch (InvalidArgumentException) {
+            return new JsonResponse(Error::withMessage('Invalid sort parameter'), Response::HTTP_BAD_REQUEST);
         }
 
-        return $this->render('site/user/list.html.twig', [
-            'search' => $search,
-            'users' => $users,
-            'page' => $page,
-            'total' => $count,
-            'limit' => self::SHOW_LIMIT,
-        ]);
-    }
+        $items = $lazyLoadingCollection->getPage($page, $limit);
 
-    #[IsGranted('IS_AUTHENTICATED_REMEMBERED')]
-    #[Route(path: '/user/profile', name: 'user_profile')]
-    public function userProfile(): Response
-    {
-        $user = $this->getUser();
+        // Nur Admins dürfen sensible Daten (E-Mail, Vorname, Nachname) sehen
+        $isAdmin = $this->isGranted('ROLE_ADMIN');
 
-        return $this->render('site/user/show.html.twig', [
-            'user' => $user,
-        ]);
-    }
+        $result = [];
+        $result['count'] = count($items);
+        $result['total'] = $lazyLoadingCollection->count();
+        $result['items'] = array_map(fn (User $user) => $this->userService->user2Array($user, $isAdmin), $items);
 
-    #[Route(path: '/user/{uuid}', name: 'user_show', requirements: ['uuid' => '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}'])]
-    public function userShow(string $uuid): Response
-    {
-        $user = $this->userRepo->findOneById($uuid);
-
-        if ($this->isGranted('IS_AUTHENTICATED_REMEMBERED')
-            && $user === $this->getUser()) {
-            return $this->redirectToRoute('user_profile');
-        }
-
-        return $this->render('site/user/show.html.twig', [
-            'user' => $user,
-        ]);
-    }
-
-    #[IsGranted('IS_AUTHENTICATED_REMEMBERED')]
-    #[Route(path: '/user/profile/edit/pw', name: 'user_profile_edit_pw')]
-    public function userProfileEditPw(Request $request): Response
-    {
-        $user = $this->getUser();
-
-        $form = $this->createFormBuilder($user)
-            ->add('oldPassword', PasswordType::class, [
-                'required' => true,
-                'mapped' => false,
-                'label' => 'Aktuelles Passwort',
-            ])
-            ->add('password', RepeatedType::class, [
-                'type' => PasswordType::class,
-                'invalid_message' => 'Das Passwort muss übereinstimmen.',
-                'required' => true,
-                'first_options' => ['label' => 'Neues Passwort'],
-                'second_options' => ['label' => 'Passwort wiederholen'],
-            ])
-            ->getForm()
-        ;
-
-        $form->handleRequest($request);
-        if ($form->isSubmitted() && $form->isValid()) {
-            $data = $form->get('oldPassword')->getData();
-            try {
-                if ($this->userRepo->authenticate($user->getEmail(), $data)) {
-                    $this->manager->flush();
-                    $this->addFlash('success', 'Passwort wurde geändert');
-                    $this->emailService->scheduleHook(
-                        EmailService::APP_HOOK_CHANGE_NOTIFICATION,
-                        EmailRecipient::fromUser($user), [
-                            'message' => 'Dein Passwort wurde geändert',
-                        ]
-                    );
-
-                    return $this->redirectToRoute('user_profile');
-                } else {
-                    $this->addFlash('error', 'Altes Passwort inkorrekt.');
-                }
-            } catch (PersistException) {
-                $this->addFlash('error', 'Passwort konnte nicht geändert werden');
-                $this->logger->error('PW change failed');
-            }
-        }
-
-        return $this->render('site/user/edit.pw.html.twig', [
-            'form' => $form->createView(),
-        ]);
-    }
-
-    #[IsGranted('IS_AUTHENTICATED_FULLY')]
-    #[Route(path: '/user/profile/edit', name: 'user_profile_edit')]
-    public function userProfileEdit(Request $request): Response
-    {
-        $user = $this->getUser();
-
-        $form = $this->createForm(UserType::class, $user);
-        $form->handleRequest($request);
-
-        if ($form->isSubmitted() && $form->isValid()) {
-            // TODO: add Support for changing the EMail
-            $user = $form->getData();
-            try {
-                $this->manager->persist($user);
-                $this->manager->flush();
-
-                return $this->redirectToRoute('user_profile');
-            } catch (PersistException $e) {
-                match ($e->getCode()) {
-                    PersistException::REASON_NON_UNIQUE => $this->addFlash('error', 'Nickname und/oder Email gibt es schon.'),
-                    default => $this->addFlash('error', 'Unbekannter Fehler beim Speichern.'),
-                };
-            }
-        }
-
-        return $this->render('site/user/edit.html.twig', [
-            'form' => $form->createView(),
-        ]);
+        return new JsonResponse(json_encode($result, JSON_THROW_ON_ERROR), Response::HTTP_OK, [], true);
     }
 }
