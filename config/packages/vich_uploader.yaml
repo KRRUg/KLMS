@@ -59,6 +59,14 @@ vich_uploader:
             delete_on_update: true
             delete_on_remove: true
 
+        beamer_news:
+            uri_prefix: /images/beamernews
+            upload_destination: '%kernel.project_dir%/public/images/beamernews'
+            namer: Vich\UploaderBundle\Naming\SmartUniqueNamer
+            inject_on_load: false
+            delete_on_update: true
+            delete_on_remove: true
+
 # set different upload destination for testing
 when@test:
     vich_uploader:
@@ -75,3 +83,5 @@ when@test:
                 upload_destination: '%kernel.cache_dir%/vich_data/images/sponsor'
             gallery:
                 upload_destination: '%kernel.cache_dir%/vich_data/images/gallery'
+            beamer_news:
+                upload_destination: '%kernel.cache_dir%/vich_data/images/beamernews'

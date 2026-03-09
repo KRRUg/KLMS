@@ -41,6 +41,7 @@ class StatisticService extends OptimalService
             'seats_total' => $this->countSeatsTotal(),
             'seats_taken' => $this->countSeatsTaken(),
             'seats_locked' => $this->countSeatsLocked(),
+            'seats_consumed' => $this->countConsumedSeats(),
             'tickets_total' => $this->getTicketsTotal(),
             'tickets_ordered' => $this->countOrderedTickets(),
             'tickets_sold' => $this->countSoldTickets(),
@@ -55,7 +56,7 @@ class StatisticService extends OptimalService
 
     public function countSeatsFree(): int
     {
-        return $this->seatRepository->countFreeSeats();
+        return $this->seatRepository->countFreeSeats() - $this->countConsumedSeats();
     }
 
     public function countSeatsTaken(): int
@@ -68,6 +69,11 @@ class StatisticService extends OptimalService
         return $this->seatRepository->countLockedSeats() + $this->seatRepository->countClanReservedSeats();
     }
 
+    public function countConsumedSeats(): int
+    {
+        return $this->shopOrderPositionRepository->countConsumedSeats();
+    }
+
     public function getTicketsTotal(): int
     {
         $setting = $this->settingRepository->findByKey('lan.stats.tickets_total');
@@ -76,16 +82,17 @@ class StatisticService extends OptimalService
 
     public function countOrderedTickets(): int
     {
-        return $this->ticketRepository->countRedeemedWithoutOrder() + $this->shopOrderPositionRepository->countTicketsNotCancelled();
+        // Bestellte Tickets (nicht storniert) + je 1 Ticket pro Addon-Einheit mit consumesSeats (nicht storniert)
+        return $this->ticketRepository->countRedeemedWithoutOrder()
+            + $this->shopOrderPositionRepository->countTicketsNotCancelled()
+            + $this->shopOrderPositionRepository->countConsumedTickets(ShopOrderStatus::STATUS_NOT_DEAD);
     }
 
     public function countSoldTickets(): int
     {
-        return $this->ticketRepository->countRedeemed() + $this->ticketRepository->countFromTicket();
-    }
-
-    public function countRedeemedTickets(): int
-    {
-        return $this->ticketRepository->countRedeemed();
+        // Bezahlte Tickets + je 1 Ticket pro Addon-Einheit mit consumesSeats aus bezahlten Bestellungen
+        return $this->ticketRepository->countRedeemed()
+            + $this->ticketRepository->countFromTicket()
+            + $this->shopOrderPositionRepository->countConsumedTickets(ShopOrderStatus::STATUS_ACTIVE);
     }
 }

@@ -3,170 +3,115 @@
 {% block title %}KLMS - Admin{% endblock %}
 {% block siteheading %}<i class="fas fa-home fa-fw"></i> Dashboard{% endblock %}
 {% block main %}
-    {% if is_granted('ROLE_ADMIN_NEWS') or is_granted('ROLE_ADMIN_CONTENT') or is_granted('ROLE_ADMIN_MEDIA') %}
-        <h5><i class="far fa-file-alt fa-fw"></i> Inhalt</h5>
+    {# Community Statistics #}
+    {% if is_granted('ROLE_ADMIN_USER') %}
+        <h5><i class="fas fa-users fa-fw"></i> Community</h5>
         <hr>
-        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 row-cols-xl-4">
-            {% if is_granted('ROLE_ADMIN_NEWS') %}
-                <div class="col mb-4">
-                    <a class="card" href="{{ path('admin_news') }}">
-                        <div class="card-body text-center">
-                            <h3><i class="far fa-newspaper fa-fw"></i></h3>
-                            News
-                        </div>
-                    </a>
+        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3">
+            <div class="col mb-3">
+                <div class="card text-center h-100">
+                    <div class="card-body">
+                        <h4 class="card-title text-primary">{{ communityStats.totalUsers }}</h4>
+                        <p class="card-text small text-muted">Gesamtbenutzer</p>
+                    </div>
                 </div>
-            {% endif %}
-            {% if is_granted('ROLE_ADMIN_CONTENT') %}
-                <div class="col mb-4">
-                    <a class="card" href="{{ path('admin_content') }}">
-                        <div class="card-body text-center">
-                            <h3><i class="far fa-file-alt fa-fw"></i></h3>
-                            Content
-                        </div>
-                    </a>
+            </div>
+            <div class="col mb-3">
+                <div class="card text-center h-100">
+                    <div class="card-body">
+                        <h4 class="card-title text-info">{{ communityStats.clansTotal }}</h4>
+                        <p class="card-text small text-muted">Clans</p>
+                    </div>
                 </div>
-            {% endif %}
-            {% if is_granted('ROLE_ADMIN_MEDIA') %}
-                <div class="col mb-4">
-                    <a class="card" href="{{ path('admin_media') }}">
-                        <div class="card-body text-center">
-                            <h3><i class="far fa-file-image fa-fw"></i></h3>
-                            Media
-                        </div>
-                    </a>
+            </div>
+            <div class="col mb-3">
+                <div class="card text-center h-100">
+                    <div class="card-body">
+                        <h4 class="card-title text-warning">{{ communityStats.clansOpen }}</h4>
+                        <p class="card-text small text-muted">Clans offen</p>
+                    </div>
                 </div>
-            {% endif %}
-            {% if is_granted('ROLE_ADMIN_CONTENT') %}
-                <div class="col mb-4">
-                    <a class="card" href="{{ path('admin_navigation') }}">
-                        <div class="card-body text-center">
-                            <h3><i class="fas fa-map-signs fa-fw"></i></h3>
-                            Navigation
-                        </div>
-                    </a>
-                </div>
-                <div class="col mb-4">
-                    <a class="card" href="{{ path('admin_teamsite') }}">
-                        <div class="card-body text-center">
-                            <h3><i class="fas fa-sitemap"></i></h3>
-                            Teamsite
-                        </div>
-                    </a>
-                </div>
-                <div class="col mb-4">
-                    <a class="card" href="{{ path('admin_sponsor') }}">
-                        <div class="card-body text-center">
-                            <h3><i class="fas fa-coins fa-fw"></i></h3>
-                            Sponsor
-                        </div>
-                    </a>
-                </div>
-                <div class="col mb-4">
-                    <a class="card" href="{{ path('admin_setting') }}">
-                        <div class="card-body text-center">
-                            <h3><i class="fas fa-th-large fa-fw"></i></h3>
-                            Einstellungen
-                        </div>
-                    </a>
-                </div>
-            {% endif %}
+            </div>
         </div>
     {% endif %}
 
-    {% if is_granted('ROLE_ADMIN_USER') %}
-        <h5 class="mt-4"><i class="fas fa-user-friends fa-fw"></i> Community</h5>
+
+    {# Shop & Tickets Statistics #}
+    {% if is_granted('ROLE_ADMIN_PAYMENT') %}
+        <h5 class="mt-5"><i class="fas fa-shopping-cart fa-fw"></i> Shop & Tickets</h5>
         <hr>
-        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 row-cols-xl-4">
-            <div class="col mb-4">
-                <a class="card" href="{{ path('admin_user') }}">
-                    <div class="card-body text-center">
-                        <h3><i class="fas fa-user fa-fw"></i></h3>
-                        User </div>
-                </a>
-            </div>
-            <div class="col mb-4">
-                <a class="card" href="{{ path('admin_clan') }}">
-                    <div class="card-body text-center">
-                        <h3><i class="fas fa-users fa-fw"></i></h3>
-                        Clan </div>
-                </a>
-            </div>
-        </div>
-    {% endif %}
-    {% if is_granted('ROLE_ADMIN_PAYMENT') or is_granted('ROLE_ADMIN_SEATMAP') or is_granted('ROLE_ADMIN_TOURNEY') %}
-        <h5 class="mt-4"><i class="fas fa-user-friends fa-fw"></i> LAN</h5>
-        <hr>
-        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 row-cols-xl-4">
-            {% if is_granted('ROLE_ADMIN_PAYMENT') %}
-                <div class="col mb-4">
-                    <a class="card" href="{{ path('admin_shop') }}">
-                        <div class="card-body text-center">
-                            <h3><i class="fas fa-cart-shopping fa-fw"></i></h3>
-                            Bestellungen </div>
-                    </a>
-                </div>
-                <div class="col mb-4">
-                    <a class="card" href="{{ path('admin_shop_addon') }}">
-                        <div class="card-body text-center">
-                            <h3><i class="fas fa-plus fa-fw"></i></h3>
-                            Addons </div>
-                    </a>
-                </div>
-                <div class="col mb-4">
-                    <a class="card" href="{{ path('admin_payment') }}">
-                        <div class="card-body text-center">
-                            <h3><i class="fas fa-ticket fa-fw"></i></h3>
-                            Tickets </div>
-                    </a>
-                </div>
-            {% endif %}
-            {% if is_granted('ROLE_ADMIN_SEATMAP') %}
-                <div class="col mb-4">
-                    <a class="card" href="{{ path('admin_seatmap') }}">
-                        <div class="card-body text-center">
-                            <h3><i class="fas fa-chair fa-fw"></i></h3>
-                            Seatmap </div>
-                    </a>
-                </div>
-            {% endif %}
-            {% if is_granted('ROLE_ADMIN_TOURNEY') %}
-                <div class="col mb-4">
-                    <a class="card" href="{{ path('admin_tourney') }}">
-                        <div class="card-body text-center">
-                            <h3><i class="fas fa-trophy fa-fw"></i></h3>
-                            Turniere </div>
-                    </a>
-                </div>
-            {% endif %}
-        </div>
-    {% endif %}
-    {% if is_granted('ROLE_ADMIN_MAIL') %}
-        <h5 class="mt-4"><i class="fas fa-comments"></i> Kommunikation</h5>
-        <hr>
-        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 row-cols-xl-4">
-            <div class="col mb-4">
-                <a  href="{{ path('admin_email') }}" class="card">
-                    <div class="card-body text-center">
-                        <h3><i class="fas fa-envelope fa-fw"></i></h3>
-                        E-Mail Newsletter
+        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3">
+            {# Ticket Sales #}
+            <div class="col mb-3">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <h6 class="card-title">Tickets Auslastung</h6>
+                        <div class="progress mb-2" style="height: 25px;">
+                            <div class="progress-bar bg-success" role="progressbar"
+                                 style="width: {{ shopStats.ticketPercentage }}%;"
+                                 aria-valuenow="{{ shopStats.ticketPercentage }}" aria-valuemin="0" aria-valuemax="100">
+                                {{ shopStats.ticketPercentage }}%
+                            </div>
+                        </div>
+                        <small class="text-muted">
+                            <strong>{{ shopStats.ticketsSold }}</strong> bezahlt
+                            von <strong>{{ shopStats.ticketsTotal }}</strong> verfügbar
+                        </small>
                     </div>
-                </a>
+                </div>
             </div>
-        </div>
-    {% endif %}
-    {% if is_granted('ROLE_ADMIN_SUPER') %}
-        <h5 class="mt-4"><i class="fas fa-cogs"></i> Einstellungen</h5>
-        <hr>
-        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 row-cols-xl-4">
-            <div class="col mb-4">
-                <a  href="{{ path('admin_permission') }}" class="card">
-                    <div class="card-body text-center">
-                        <h3><i class="fas fa-key fa-fw"></i></h3>
-                        Berechtigungen
+
+            {# Pending Orders #}
+            <div class="col mb-3">
+                <div class="card h-100 bg-light">
+                    <div class="card-body">
+                        <h4 class="card-title text-danger">{{ shopStats.pendingOrders }}</h4>
+                        <p class="card-text small text-muted">Ausstehende Bestellungen</p>
+                        <a href="{{ path('admin_shop') }}" class="btn btn-sm btn-primary">Anzeigen</a>
                     </div>
-                </a>
+                </div>
+            </div>
+
+            {# Revenue Week #}
+            <div class="col mb-3">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <h6 class="card-title">Umsatz diese Woche</h6>
+                        <h4 class="text-success">{{ shopStats.revenueWeek|number_format(2, ',', '.') }}€</h4>
+                    </div>
+                </div>
+            </div>
+
+            {# Revenue Month #}
+            <div class="col mb-3">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <h6 class="card-title">Umsatz diesen Monat</h6>
+                        <h4 class="text-info">{{ shopStats.revenueMonth|number_format(2, ',', '.') }}€</h4>
+                    </div>
+                </div>
+            </div>
+
+            {# Top Items #}
+            <div class="col mb-3">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <h6 class="card-title">Top-Artikel</h6>
+                        {% if shopStats.topItems %}
+                            <div class="small">
+                                {% for item in shopStats.topItems %}
+                                    <div class="d-flex justify-content-between py-1">
+                                        <span>{{ item.name|u.truncate(150, '...') }}</span>
+                                        <span class="badge bg-primary">{{ item.cnt }}</span>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            <p class="text-muted small">—</p>
+                        {% endif %}
+                    </div>
+                </div>
             </div>
         </div>
     {% endif %}
-{% endblock %}
+    {% endblock %}

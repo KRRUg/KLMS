@@ -13,6 +13,8 @@ class StatisticServiceIntegrationTest extends DatabaseTestCase
         $stat = $this->getContainer()->get(StatisticService::class);
         $this->assertEmpty($stat->get('invalid_key'));
         $this->assertEquals('', $stat->get(''));
+        // seats_consumed is 0 in fixtures (no addon has consumesSeats set)
+        $this->assertEquals(0, $stat->get('seats_consumed'));
         $this->assertEquals(3, $stat->get('seats_free'));
         $this->assertEquals(9, $stat->get('seats_total'));
         $this->assertEquals(3, $stat->get('seats_taken'));

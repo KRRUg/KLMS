@@ -36,6 +36,7 @@ Es wurde von uns erweitert um:
 - **Community Polls** – Umfragen für die Community.
 - **Turnier Gruppenphase** - Gruppenphase vor Single- bzw. Double Elimination Turnieren
 - **User-Map** - Anonymisierte Anzeige der Orte, woher die Personen kommen.
+- **Beamer-News** - Anzeige von News auf der LAN auf dem Beamer mittels RSS-Feed.
 
 ---
 

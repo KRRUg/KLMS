@@ -1,0 +1,47 @@
+{% extends 'admin/adminBase.html.twig' %}
+
+{% block title %}KLMS - Admin{% endblock %}
+{% block siteheading %}<i class="fas fa-tv"></i> Beamer{% endblock %}
+{% block main %}
+    <div class="row mb-4">
+        <div class="col-12">
+            <a class="btn btn-success" href="{{ path('admin_beamer_new') }}"><i class="fas fa-plus"></i> Anlegen</a>
+        </div>
+    </div>
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <h6 class="card-title">RSS-Feed für Yodeck <a href="https://www.yodeck.com/docs/user-manual/custom-rss-widget/" target="_blank" rel="noopener noreferrer"><i class="fas fa-external-link-alt fa-sm"></i></a></h6>
+                    <p class="text-muted mb-0"><code>{{ absolute_url(path('beamer_feed')) }}</code></p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <table class="table table-striped admin-data-table" data-order="[[ 0, &quot;desc&quot; ]]">
+                    <thead>
+                        <tr>
+                            <th scope="col" style="width: 4em" class="text-center">#</th>
+                            <th scope="col" style="width: auto">Titel</th>
+                            <th scope="col" style="width: 1em"></th>
+                            <th scope="col" style="width: 20%">Autor</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for newsentry in news %}
+                            <tr>
+                                <td class="text-center">{{ newsentry.getId() }}</td>
+                                <td><a href="{{ path('admin_beamer_edit', {'id' : newsentry.id}) }}" title="Bearbeiten {{ newsentry.title }}"> {{ newsentry.title }}</a></td>
+                                <td class="text-center">{% if newsentry.isVisible() %}<i class="fas fa-eye" title="sichtbar"></i>{% else %}<i class="fas fa-eye-slash" title="nicht sichtbar"></i>{% endif %}</td>
+                                <td>{{ newsentry.authorId | username }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+{% endblock %}

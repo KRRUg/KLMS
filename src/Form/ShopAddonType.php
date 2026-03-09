@@ -23,6 +23,13 @@ class ShopAddonType extends AbstractType
             ->add('active', CheckboxType::class, ['label' => 'Aktiv', 'required' => false])
             ->add('onlyOnce', CheckboxType::class, ['label' => 'Kann nur einmal pro User gekauft werden.', 'required' => false])
             ->add('maxQuantityGlobal', IntegerType::class, ['label' => 'Maximale Anzahl (global)', 'required' => false, 'attr' => ['min' => 1], 'constraints' => [new Assert\Positive()]])
+            ->add('consumesSeats', IntegerType::class, [
+                'label' => 'Verbrauchte Sitzplätze & Tickets pro Einheit',
+                'required' => false,
+                'attr' => ['min' => 1],
+                'help' => 'Anzahl der Sitzplätze und Tickets, die dieses Addon pro gekaufter Einheit aus der verfügbaren Kapazität abzieht (z.B. Feier Nebenplatz).',
+                'constraints' => [new Assert\Positive()],
+            ])
             ->add('sortIndex', IntegerType::class, ['label' => 'Sortierung', 'required' => false, 'attr' => ['min' => 1], 'constraints' => [new Assert\Positive()]])
             ->add('description', TextAreaType::class, ['label' => 'Beschreibung', 'required' => false])
         ;

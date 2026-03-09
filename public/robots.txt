@@ -14,6 +14,7 @@ Disallow: /user/
 Disallow: /media/
 Disallow: /seatmap/seat/
 Disallow: /shop/payment/
+Disallow: /beamer/
 
 Sitemap: https://www.dot-lan.at/sitemap.xml
 

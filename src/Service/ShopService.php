@@ -121,9 +121,8 @@ class ShopService
         // handle tickets
         foreach ($order->getShopOrderPositions() as $pos) {
             if ($pos instanceof ShopOrderPositionTicket) {
-                // invalidate ticket
-                $pos->setTicket(null);
                 $ticket = $pos->getTicket();
+                $pos->setTicket(null);
                 if ($deleteTickets && $ticket) {
                     $this->ticketService->deleteTicket($ticket);
                 }

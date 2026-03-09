@@ -65,3 +65,9 @@ liip_imagine:
             filters:
                 downscale:
                     max: [1200, 800]
+
+        beamer_news_image:
+            filters:
+                fixed:
+                    width: 1920
+                    height: 1080

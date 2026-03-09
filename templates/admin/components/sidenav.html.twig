@@ -91,6 +91,11 @@
                         <a class="nav-link {% if app.request.get('_route') starts with 'admin_tourney' %}active{% endif %}" href="{{ path('admin_tourney') }}"><i class="fas fa-trophy fa-fw"></i> Turniere </a>
                     </li>
                 {% endif %}
+                {% if is_granted('ROLE_ADMIN_NEWS') %}
+                    <li class="nav-item">
+                        <a class="nav-link {% if app.request.get('_route') starts with 'admin_beamer' %}active{% endif %}" href="{{ path('admin_beamer') }}"><i class="fas fa-tv fa-fw"></i> Beamer </a>
+                    </li>
+                {% endif %}
             </ul>
         </li>
     {% endif %}

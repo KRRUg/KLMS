@@ -35,6 +35,9 @@ class ShopAddon
     #[ORM\Column(nullable: true)]
     private ?int $maxQuantityGlobal = null;
 
+    #[ORM\Column(nullable: true)]
+    private ?int $consumesSeats = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -120,6 +123,18 @@ class ShopAddon
     public function setMaxQuantityGlobal(?int $maxQuantityGlobal): static
     {
         $this->maxQuantityGlobal = $maxQuantityGlobal;
+
+        return $this;
+    }
+
+    public function getConsumesSeats(): ?int
+    {
+        return $this->consumesSeats;
+    }
+
+    public function setConsumesSeats(?int $consumesSeats): static
+    {
+        $this->consumesSeats = $consumesSeats;
 
         return $this;
     }

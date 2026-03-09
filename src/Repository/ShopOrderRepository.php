@@ -7,6 +7,7 @@ use App\Entity\ShopOrderPosition;
 use App\Entity\ShopOrderPositionAddon;
 use App\Entity\ShopOrderPositionTicket;
 use App\Entity\ShopOrderStatus;
+use DateTimeInterface;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
@@ -56,5 +57,24 @@ class ShopOrderRepository extends ServiceEntityRepository
             ->select('count(o)')
             ->getQuery()
             ->getSingleScalarResult();
+    }
+
+    /**
+     * Sum of all position prices (in cents) for orders with the given status,
+     * optionally limited to orders created on or after $since.
+     */
+    public function sumRevenue(ShopOrderStatus $status, ?DateTimeInterface $since = null): int
+    {
+        $qb = $this->createQueryBuilder('o')
+            ->select('SUM(pos.price)')
+            ->join('o.shopOrderPositions', 'pos')
+            ->andWhere('o.status = :status')
+            ->setParameter('status', $status);
+
+        if ($since !== null) {
+            $qb->andWhere('o.createdAt >= :since')->setParameter('since', $since);
+        }
+
+        return (int) ($qb->getQuery()->getSingleScalarResult() ?? 0);
     }
 }
