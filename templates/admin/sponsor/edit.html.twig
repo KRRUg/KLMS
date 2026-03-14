@@ -50,7 +50,7 @@
         </div>
         {{ form_end(form) }}
         <div class="float-left">
-            {% if data is not empty %}
+            {% if data is not null and data.id is not null and csrf_token_delete is defined %}
                 <form data-toggle="confirmModal" method="post" action="{{ path('admin_sponsor_delete', {'id' : data.id}) }}" class="d-inline-block">
                     <input type="hidden" name="_token" value="{{ csrf_token(csrf_token_delete) }}">
                     <button class="btn btn-danger" type="submit" value="delete"><i class="fas fa-trash-alt"></i> Löschen</button>

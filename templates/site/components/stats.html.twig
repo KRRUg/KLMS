@@ -1,15 +1,15 @@
 {% if settings.get("lan.stats.show") %}
     {% if settings.get("lan.stats.show_seats") %}
         {% set display = [
-            {name: 'Tickets gesamt', key: 'tickets_total', icon: 'fas fa-users' },
+            {name: 'Plätze gesamt', key: 'tickets_total', icon: 'fas fa-users' },
             {name: 'Reservierte Plätze', key: 'seats_taken', icon: 'fas fa-user' },
             {name: 'Vorgemerkte Plätze', key: 'seats_locked', icon: 'fas fa-lock' },
         ] %}
     {% else %}
         {% set display = [
-            {name: 'Tickets gesamt', key: 'tickets_total', icon: 'fas fa-users' },
-            {name: 'Tickets bestellt', key: 'tickets_ordered', icon: 'fas fa-user' },
-            {name: 'Tickets bezahlt', key: 'tickets_sold', icon: 'fas fa-money-bill' },
+            {name: 'Plätze gesamt', key: 'tickets_total', icon: 'fas fa-users' },
+            {name: 'Plätze reserviert', key: 'seats_taken_locked_sum', icon: 'fas fa-user' },
+            {name: 'Plätze bezahlt', key: 'tickets_sold', icon: 'fas fa-money-bill' },
         ] %}
     {% endif %}
     <div class="container mt-4">

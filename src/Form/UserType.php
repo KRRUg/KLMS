@@ -17,6 +17,7 @@ use Symfony\Component\Form\FormError;
 use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\Validator\Constraints as Assert;
 
 class UserType extends AbstractType
 {
@@ -93,6 +94,9 @@ class UserType extends AbstractType
         if ($options['with_image']) {
             $builder->add('image', UserImageType::class, [
                 'mapped' => false,
+                'constraints' => [
+                    new Assert\Valid(),
+                ],
             ]);
         }
 

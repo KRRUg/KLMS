@@ -30,5 +30,11 @@
                 {% if not hasImage %}style="display:none;"{% endif %}>
             <i class="fas fa-trash-alt"></i> Entfernen
         </button>
+
+        <div class="js-profile-image-error alert alert-danger mt-2 mb-0 py-2 px-3" style="display:none;" role="alert"></div>
+
+        {% if form.imageFile is defined %}
+            {{ form_errors(form.imageFile) }}
+        {% endif %}
     </div>
 {% endif %}

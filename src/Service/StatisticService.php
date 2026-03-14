@@ -41,6 +41,7 @@ class StatisticService extends OptimalService
             'seats_total' => $this->countSeatsTotal(),
             'seats_taken' => $this->countSeatsTaken(),
             'seats_locked' => $this->countSeatsLocked(),
+            'seats_taken_locked_sum' => $this->countSeatsTaken() + $this->countSeatsLocked(),
             'seats_consumed' => $this->countConsumedSeats(),
             'tickets_total' => $this->getTicketsTotal(),
             'tickets_ordered' => $this->countOrderedTickets(),

@@ -3,7 +3,6 @@
 namespace App\Entity;
 
 use App\Repository\UserImageRepository;
-use App\Validator\SafeImageFile;
 use DateTime;
 use DateTimeInterface;
 use Doctrine\ORM\Mapping as ORM;
@@ -27,8 +26,13 @@ class UserImage
     private ?EmbeddedFile $image;
 
     #[UploadableField(mapping: 'user', fileNameProperty: 'image.name', size: 'image.size', mimeType: 'image.mimeType', originalName: 'image.originalName', dimensions: 'image.dimensions')]
-    #[Assert\File(maxSize: '5M')]
-    #[SafeImageFile]
+    #[Assert\Image(
+        maxSize: '5M',
+        mimeTypes: ['image/png', 'image/jpeg', 'image/webp'],
+        mimeTypesMessage: 'Die Datei "{{ filename }}" hat einen ungültigen MIME-Type "{{ mimeType }}". Nur image/png, image/jpeg und image/webp sind erlaubt.',
+        corruptedMessage: 'Die Datei "{{ filename }}" ist kein gültiges Bild oder ist beschädigt.',
+        maxSizeMessage: 'Die Datei "{{ filename }}" ist zu groß ({{ size }} {{ suffix }}). Erlaubt sind maximal {{ limit }} {{ suffix }}.'
+    )]
     private ?File $imageFile = null;
 
     #[ORM\Column(type: 'datetime', nullable: false)]
