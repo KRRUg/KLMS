@@ -81,7 +81,7 @@ class NewsController extends AbstractController
     #[Route(path: '/{id}', requirements: ['id' => '\\d+'], name: '_detail', methods: ['GET', 'POST'])]
     public function byId(Request $request, News $news): Response
     {
-        if (!$news->isActive()) {
+        if (!$news->isActive() && !$this->isGranted('ROLE_ADMIN_NEWS')) {
             throw $this->createNotFoundException();
         }
 

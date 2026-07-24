@@ -2,6 +2,32 @@
 
 {% block title %}{{ settings.get('site.title') }} - User Map{% endblock %}
 
+{% block stylesheets %}
+    {{ parent() }}
+    <link
+        rel="stylesheet"
+        href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+        integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+        crossorigin=""
+    >
+    <style>
+        #user-map {
+            height: 640px;
+            width: 100%;
+            background:
+                radial-gradient(circle at 15% 20%, rgba(223, 18, 56, 0.1), transparent 45%),
+                radial-gradient(circle at 80% 70%, rgba(0, 0, 0, 0.08), transparent 50%),
+                #f7f8fa;
+        }
+
+        @media (max-width: 768px) {
+            #user-map {
+                height: 460px;
+            }
+        }
+    </style>
+{% endblock %}
+
 {% block main %}
     <div class="container my-4">
         <div class="row">
@@ -20,20 +46,116 @@
                         Siehst du deinen Ort schon? <a href="{{ path('user_profile_edit') }}">Werde Teil der Karte</a> und zeig uns, von wo aus du dabei bist!
                     </p>
                 </div>
-                {% if apiKeyMissing %}
-                    <div class="alert alert-warning">
-                        Google Maps API Key fehlt. Bitte in der Umgebungskonfiguration (<code>GOOGLE_MAPS_API_KEY</code> bzw. <code>UX_MAP_DSN</code>) hinterlegen.
-                    </div>
-                {% endif %}
                 <div class="card shadow-sm">
                     <div class="card-body p-0">
-                        {{ ux_map(map, {
-                            style: 'height: 640px',
-                            'data-testid': 'user-map'
-                        }) }}
+                        <div
+                            id="user-map"
+                            data-testid="user-map"
+                            data-map-payload="{{ mapPayload|json_encode|e('html_attr') }}"
+                        ></div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script
+        src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+        integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+        crossorigin=""
+        defer
+    ></script>
+    <script>
+        (function () {
+            const mapElement = document.getElementById('user-map');
+
+            if (!mapElement) {
+                return;
+            }
+
+            const initMap = () => {
+                if (mapElement.dataset.initialized === '1' || typeof window.L === 'undefined') {
+                    return;
+                }
+
+                mapElement.dataset.initialized = '1';
+
+                let payload = null;
+                try {
+                    payload = JSON.parse(mapElement.dataset.mapPayload || '{}');
+                } catch (e) {
+                    payload = {};
+                }
+
+                const center = payload.center || { lat: 48.2082, lng: 16.3738, zoom: 5, title: 'Center' };
+                const markers = Array.isArray(payload.markers) ? payload.markers : [];
+
+                const map = window.L.map(mapElement, {
+                    preferCanvas: true,
+                    scrollWheelZoom: true,
+                }).setView([center.lat, center.lng], center.zoom || 5);
+
+                window.L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    maxZoom: 19,
+                    attribution: '&copy; OpenStreetMap-Mitwirkende',
+                }).addTo(map);
+
+                const bounds = [];
+                markers.forEach((marker) => {
+                    if (typeof marker.lat !== 'number' || typeof marker.lng !== 'number') {
+                        return;
+                    }
+
+                    const count = Number(marker.count || 1);
+                    const radius = Math.max(5, Math.min(16, 5 + Math.log2(Math.max(1, count)) * 3));
+
+                    const dot = window.L.circleMarker([marker.lat, marker.lng], {
+                        radius,
+                        color: '#8f0f27',
+                        weight: 1,
+                        fillColor: '#df1238',
+                        fillOpacity: 0.8,
+                    });
+
+                    const title = marker.title || 'Community-Standort';
+                    const address = marker.address || '';
+                    dot.bindPopup('<strong>' + title + '</strong><br>' + address);
+                    dot.addTo(map);
+                    bounds.push([marker.lat, marker.lng]);
+                });
+
+                const centerMarker = window.L.circleMarker([center.lat, center.lng], {
+                    radius: 8,
+                    color: '#0a0a0a',
+                    weight: 2,
+                    fillColor: '#ffffff',
+                    fillOpacity: 1,
+                });
+                centerMarker.bindPopup('<strong>' + (center.title || 'Center') + '</strong>');
+                centerMarker.addTo(map);
+
+                if (bounds.length > 0) {
+                    map.fitBounds(bounds, { padding: [24, 24], maxZoom: 9 });
+                }
+            };
+
+            if ('IntersectionObserver' in window) {
+                const observer = new IntersectionObserver((entries) => {
+                    if (entries.some((entry) => entry.isIntersecting)) {
+                        initMap();
+                        observer.disconnect();
+                    }
+                }, { rootMargin: '200px 0px' });
+
+                observer.observe(mapElement);
+            } else {
+                initMap();
+            }
+
+            window.addEventListener('load', initMap, { once: true });
+        })();
+    </script>
 {% endblock %}

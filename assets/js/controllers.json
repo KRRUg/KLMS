@@ -2,7 +2,7 @@
     "controllers": {
         "@symfony/ux-google-map": {
             "map": {
-                "enabled": true,
+                "enabled": false,
                 "fetch": "eager"
             }
         }

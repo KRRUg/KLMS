@@ -5,11 +5,9 @@ namespace App\Service;
 use App\Entity\User;
 use App\Idm\IdmManager;
 use App\Idm\IdmRepository;
-use App\Service\GeoDataCacheService;
-use Symfony\UX\Map\Icon\Icon;
-use Symfony\UX\Map\InfoWindow;
-use Symfony\UX\Map\Map;
-use Symfony\UX\Map\Marker;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
+use Symfony\Contracts\Cache\CacheInterface;
+use Symfony\Contracts\Cache\ItemInterface;
 use Symfony\UX\Map\Point;
 
 class MapService
@@ -21,28 +19,21 @@ class MapService
         private readonly GeocodingService $geocodingService,
         private readonly SettingService $settings,
         private readonly GeoDataCacheService $geoDataCacheService,
+        #[Autowire(service: 'cache.app')] private readonly CacheInterface $cache,
     ) {
         $this->userRepository = $manager->getRepository(User::class);
     }
 
-    public function buildUserMap(): Map
+    /**
+     * @return array{center: array{lat: float, lng: float, title: string, zoom: int}, markers: array<int, array{lat: float, lng: float, title: string, address: string, count: int, distanceKm: float|null}>}
+     */
+    public function getUserMapPayload(): array
     {
-        $centerAddress = $this->getCenterAddress();
-        $centerPoint = $this->parseCoordinateString($centerAddress);
+        return $this->cache->get('site.user_map_payload.v1', function (ItemInterface $item): array {
+            $item->expiresAfter(600);
 
-        $map = (new Map())
-            ->zoom(7)
-            ->fitBoundsToMarkers(true);
-
-        $locationBuckets = $this->collectUserLocations();
-
-        foreach ($locationBuckets as $bucket) {
-            $map->addMarker($this->createUserMarker($bucket, $centerPoint));
-        }
-
-        $this->configureMapCenter($map, $centerPoint, $centerAddress);
-
-        return $map;
+            return $this->buildUserMapPayload();
+        });
     }
 
     public function getCenterAddress(): string
@@ -145,99 +136,54 @@ class MapService
     }
 
     /**
-     * @param array{point: Point, address: string, count: int} $bucket
+     * @return array{center: array{lat: float, lng: float, title: string, zoom: int}, markers: array<int, array{lat: float, lng: float, title: string, address: string, count: int, distanceKm: float|null}>}
      */
-    private function createUserMarker(array $bucket, ?Point $centerPoint): Marker
+    private function buildUserMapPayload(): array
     {
-        $title = $this->formatDistanceTitle($centerPoint, $bucket['point']);
-        if ($bucket['count'] > 1) {
-            $title .= sprintf(' · %d Nutzer', $bucket['count']);
-        }
+        $siteTitle = (string) $this->settings->get('site.title', 'LAN-Party');
+        $configuredCenter = $this->parseCoordinateString($this->getCenterAddress());
+        $centerPoint = $configuredCenter ?? new Point(48.2082, 16.3738);
+        $centerZoom = $configuredCenter ? 7 : 5;
 
-        $infoContent = sprintf(
-            '<div style="color: black;"><strong>%s</strong><br>%s</div>',
-            htmlspecialchars($title, ENT_QUOTES),
-            htmlspecialchars($bucket['address'], ENT_QUOTES)
-        );
+        $markers = [];
+        foreach ($this->collectUserLocations() as $bucket) {
+            $distanceKm = $configuredCenter
+                ? $this->geocodingService->calculateDistanceKm($centerPoint, $bucket['point'])
+                : null;
 
-        return new Marker(
-            position: $bucket['point'],
-            title: $title,
-            infoWindow: new InfoWindow(content: $infoContent, opened: false, autoClose: true),
-            extra: [
-                'userCount' => $bucket['count'],
+            $title = $distanceKm === null
+                ? 'Community-Standort'
+                : sprintf('Entfernung: %.1f km', $distanceKm);
+
+            if ($bucket['count'] > 1) {
+                $title .= sprintf(' · %d Nutzer', $bucket['count']);
+            }
+
+            $markers[] = [
+                'lat' => $bucket['point']->getLatitude(),
+                'lng' => $bucket['point']->getLongitude(),
+                'title' => $title,
                 'address' => $bucket['address'],
+                'count' => $bucket['count'],
+                'distanceKm' => $distanceKm,
+            ];
+        }
+
+        usort($markers, static fn (array $a, array $b): int => $b['count'] <=> $a['count']);
+
+        return [
+            'center' => [
+                'lat' => $centerPoint->getLatitude(),
+                'lng' => $centerPoint->getLongitude(),
+                'title' => $siteTitle,
+                'zoom' => $centerZoom,
             ],
-            icon: $this->buildUserDotIcon(),
-        );
-    }
-
-    private function configureMapCenter(Map $map, ?Point $centerPoint, string $centerAddress): void
-    {
-        if ($centerPoint) {
-            $map->center($centerPoint);
-            $map->addMarker($this->createCenterMarker($centerPoint));
-        } else {
-            $defaultCenter = new Point(48.2082, 16.3738); // Vienna
-            $map->center($defaultCenter);
-            $map->zoom(5);
-            $map->addMarker($this->createCenterMarker($defaultCenter));
-        }
-    }
-
-    private function createCenterMarker(Point $point): Marker
-    {
-        $siteTitle = $this->settings->get('site.title', 'LAN-Party');
-        $content = sprintf('<div style="color: black;"><strong>%s</strong></div>', htmlspecialchars($siteTitle, ENT_QUOTES));
-
-        return new Marker(
-            position: $point,
-            title: $siteTitle,
-            infoWindow: new InfoWindow(content: $content, opened: false),
-            extra: ['type' => 'center'],
-            id: 'map-center',
-            icon: $this->buildCenterIcon(),
-        );
-    }
-
-    private function formatDistanceTitle(?Point $centerPoint, Point $markerPoint): string
-    {
-        if (!$centerPoint) {
-            return 'Zentrum nicht gesetzt';
-        }
-
-        $distanceKm = $this->geocodingService->calculateDistanceKm($centerPoint, $markerPoint);
-
-        return sprintf('Entfernung: %.1f km', $distanceKm);
+            'markers' => $markers,
+        ];
     }
 
     private function buildPointKey(Point $point): string
     {
         return sprintf('%.6f:%.6f', $point->getLatitude(), $point->getLongitude());
-    }
-
-    private function buildCenterIcon(): Icon
-    {
-        $svg = <<<'SVG'
-<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 40 40">
-  <circle cx="20" cy="20" r="16" fill="#df1238" fill-opacity="0.12" />
-  <circle cx="20" cy="20" r="9" fill="#df1238" />
-  <circle cx="20" cy="20" r="3" fill="#ffffff" />
-  <path d="M20 6v6M20 28v6M6 20h6M28 20h6" stroke="#df1238" stroke-width="2" stroke-linecap="round" />
-</svg>
-SVG;
-
-        return Icon::svg($svg);
-    }
-
-    private function buildUserDotIcon(): Icon
-    {
-        $svg = <<<'SVG'
-<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16">
-    <circle cx="8" cy="8" r="4" fill="#df1238"/>
-</svg>
-SVG;
-
-        return Icon::svg($svg);
     }
 }
