@@ -13,16 +13,17 @@
         <ini name="error_reporting" value="-1" />
         <ini name="memory_limit" value="-1" />
         <server name="APP_ENV" value="test" force="true" />
+        <server name="RECAPTCHA3_ENABLED" value="0" force="true" />
         <server name="SHELL_VERBOSITY" value="-1" />
         <server name="SYMFONY_PHPUNIT_REMOVE" value="" />
         <server name="SYMFONY_PHPUNIT_VERSION" value="11.2" />
 
-        <!-- ###+ symfony/ux-google-map ### -->
-        <!-- Options available at https://github.com/symfony/ux/blob/2.x/src/Map/src/Bridge/Google/README.md -->
-        <!--  -->
-        <env name="GOOGLE_MAPS_API_KEY" value="# Get your API key at https://developers.google.com/maps/documentation/javascript/get-api-key"/>
-        <env name="UX_MAP_DSN" value="google://%env(GOOGLE_MAPS_API_KEY)%@default"/>
-        <!-- ###- symfony/ux-google-map ### -->
+        <!-- ###+ karser/karser-recaptcha3-bundle ### -->
+        <!-- Get your API key and secret from https://g.co/recaptcha/v3 -->
+        <env name="RECAPTCHA3_KEY" value="my_site_key"/>
+        <env name="RECAPTCHA3_SECRET" value="my_secret"/>
+        <!-- ###- karser/karser-recaptcha3-bundle ### -->
+
     </php>
 
     <testsuites>

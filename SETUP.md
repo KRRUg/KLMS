@@ -63,8 +63,9 @@ MAILER_DSN=smtp://<user>:<passwd>@<mailserver>:587
 MAILER_DEFAULT_SENDER_NAME='<name of your event>'
 MAILER_DEFAULT_SENDER_EMAIL=noreply@<yourdomain.com>
 
-EWZ_RECAPTCHA_SECRET=<your-recaptcha-secret>
-EWZ_RECAPTCHA_SITE_KEY=<your-recaptcha-site-key>
+RECAPTCHA3_SECRET=<your-recaptcha-v3-secret>
+RECAPTCHA3_KEY=<your-recaptcha-v3-site-key>
+RECAPTCHA3_ENABLED=1
 ```
 
 To set up the required third party libraries go to the project directory and run

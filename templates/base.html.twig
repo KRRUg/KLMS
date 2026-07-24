@@ -4,9 +4,6 @@
 		{% if app.request.pathInfo == '/content/support' %}
 			<script src="https://desk.zoho.eu/portal/api/feedbackwidget/189051000000274310?orgId=20103009939&displayType=embeded"></script>
 		{% endif %}
-		{% if app.request.pathInfo == '/register' %}
-			<script src="https://www.google.com/recaptcha/api.js" async defer></script>
-		{% endif %}
 		{% if app.request.pathInfo starts with '/shop/payment' %}
 			<script src="https://gateway.sumup.com/gateway/ecom/card/v2/sdk.js"></script>
 		{% endif %}

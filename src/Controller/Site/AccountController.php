@@ -2,11 +2,6 @@
 
 namespace App\Controller\Site;
 
-use Google\Cloud\RecaptchaEnterprise\V1\RecaptchaEnterpriseServiceClient;
-use Google\Cloud\RecaptchaEnterprise\V1\Event;
-use Google\Cloud\RecaptchaEnterprise\V1\Assessment;
-use Google\Cloud\RecaptchaEnterprise\V1\TokenProperties\InvalidReason;
-
 use App\Entity\User;
 use App\Exception\TokenException;
 use App\Form\UserRegisterType;
@@ -235,48 +230,4 @@ class AccountController extends AbstractController
             'form' => $form->createView(),
         ]);
     }
-
-    function create_assessment(
-  string $recaptchaKey,
-  string $token,
-  string $project,
-  string $action
-): void {
-  // Erstellen Sie den reCAPTCHA-Client.
-  // AUFGABE: Speichern Sie den Clientgenerierungscode im Cache (empfohlen) oder rufen Sie „client.close()“ auf, bevor Sie die Methode verlassen.
-  $client = new RecaptchaEnterpriseServiceClient();
-  $projectName = $client->projectName($project);
-
-  // Legen Sie die Attribute des Ereignisses fest, das verfolgt werden soll.
-  $event = (new Event())
-    ->setSiteKey($recaptchaKey)
-    ->setToken($token);
-
-  // Erstellen Sie die Bewertungsanfrage.
-  $assessment = (new Assessment())
-    ->setEvent($event);
-
-    $response = $client->createAssessment(
-      $projectName,
-      $assessment
-    );
-
-    // Prüfen Sie, ob das Token gültig ist.
-    if ($response->getTokenProperties()->getValid() == false) {
-      printf('The CreateAssessment() call failed because the token was invalid for the following reason: ');
-      printf(InvalidReason::name($response->getTokenProperties()->getInvalidReason()));
-      return;
-    }
-
-    // Prüfen Sie, ob die erwartete Aktion ausgeführt wurde.
-    if ($response->getTokenProperties()->getAction() == $action) {
-      // Rufen Sie den Risikowert und den oder die Gründe ab.
-      // Weitere Informationen zum Interpretieren der Bewertung finden Sie hier:
-      // https://cloud.google.com/recaptcha-enterprise/docs/interpret-assessment
-      printf('The score for the protection action is:');
-      printf($response->getRiskAnalysis()->getScore());
-    } else {
-      printf('The action attribute in your reCAPTCHA tag does not match the action you are expecting to score');
-    }
-}
 }

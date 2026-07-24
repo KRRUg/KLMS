@@ -98,33 +98,8 @@
     "endroid/qr-code-bundle": {
         "version": "6.0.0"
     },
-    "excelwebzone/recaptcha-bundle": {
-        "version": "1.5",
-        "recipe": {
-            "repo": "github.com/symfony/recipes-contrib",
-            "branch": "master",
-            "version": "1.5",
-            "ref": "fd4da7bc71749db65bc83abf5d164bfa9c839cf4"
-        },
-        "files": [
-            "config/packages/dev/ewz_recaptcha.yaml",
-            "config/packages/ewz_recaptcha.yaml"
-        ]
-    },
     "friendsofphp/proxy-manager-lts": {
         "version": "v1.0.3"
-    },
-    "google/recaptcha": {
-        "version": "1.1",
-        "recipe": {
-            "repo": "github.com/symfony/recipes-contrib",
-            "branch": "master",
-            "version": "1.1",
-            "ref": "e5a4aa21f2e98d7440ae9aab6b56e307f99dd084"
-        },
-        "files": [
-            "config/packages/google_recaptcha.yaml"
-        ]
     },
     "guzzlehttp/psr7": {
         "version": "1.6.1"
@@ -140,6 +115,18 @@
     },
     "joshtronic/php-loremipsum": {
         "version": "1.0.6"
+    },
+    "karser/karser-recaptcha3-bundle": {
+        "version": "0.3",
+        "recipe": {
+            "repo": "github.com/symfony/recipes-contrib",
+            "branch": "main",
+            "version": "0.1",
+            "ref": "c51ce07c10331d506762efe25b6f5843c1a5ea17"
+        },
+        "files": [
+            "config/packages/karser_recaptcha3.yaml"
+        ]
     },
     "laminas/laminas-code": {
         "version": "3.4.1"
@@ -600,15 +587,6 @@
             "config/packages/twig.yaml",
             "templates/base.html.twig"
         ]
-    },
-    "symfony/ux-google-map": {
-        "version": "2.31",
-        "recipe": {
-            "repo": "github.com/symfony/recipes",
-            "branch": "main",
-            "version": "2.22",
-            "ref": "eb432453bc0c173074427dad1b2fb4dab2137769"
-        }
     },
     "symfony/ux-map": {
         "version": "2.31",

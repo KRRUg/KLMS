@@ -3,8 +3,8 @@
 namespace App\Form;
 
 use App\Entity\User;
-use EWZ\Bundle\RecaptchaBundle\Form\Type\EWZRecaptchaType;
-use EWZ\Bundle\RecaptchaBundle\Validator\Constraints\IsTrue as RecaptchaTrue;
+use Karser\Recaptcha3Bundle\Form\Recaptcha3Type;
+use Karser\Recaptcha3Bundle\Validator\Constraints\Recaptcha3;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\EmailType;
@@ -42,24 +42,19 @@ class UserRegisterType extends AbstractType
                 'label' => 'Ich möchte Informationen zum Event per Mail erhalten.',
                 'required' => false,
             ]);
-        $recaptchaSiteKey = !empty($_ENV['EWZ_RECAPTCHA_SITE_KEY']) && $_ENV['EWZ_RECAPTCHA_SITE_KEY'];
-        $recaptchaSecret = !empty($_ENV['EWZ_RECAPTCHA_SECRET']) && $_ENV['EWZ_RECAPTCHA_SECRET'];
-        if ($options['captcha'] && $recaptchaSiteKey && $recaptchaSecret) {
-            $builder->add('recaptcha', EWZRecaptchaType::class, [
+        $recaptchaSiteKey = !empty($_ENV['RECAPTCHA3_KEY']) && $_ENV['RECAPTCHA3_KEY'];
+        $recaptchaSecret = !empty($_ENV['RECAPTCHA3_SECRET']) && $_ENV['RECAPTCHA3_SECRET'];
+        $recaptchaEnabled = !isset($_ENV['RECAPTCHA3_ENABLED']) || $_ENV['RECAPTCHA3_ENABLED'] !== '0';
+
+        if ($options['captcha'] && $recaptchaEnabled && $recaptchaSiteKey && $recaptchaSecret) {
+            $builder->add('recaptcha', Recaptcha3Type::class, [
                 'label' => false,
-                'attr' => [
-                    'options' => [
-                        'theme' => 'light',
-                        'type' => 'image',
-                        'size' => 'normal',
-                        'defer' => true,
-                        'async' => true,
-                    ],
-                ],
+                'action_name' => 'register',
+                'locale' => 'de',
                 'mapped' => false,
                 'required' => true,
                 'constraints' => [
-                    new RecaptchaTrue(),
+                    new Recaptcha3(),
                 ],
             ]);
         }

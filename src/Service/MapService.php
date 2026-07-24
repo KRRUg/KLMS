@@ -5,10 +5,10 @@ namespace App\Service;
 use App\Entity\User;
 use App\Idm\IdmManager;
 use App\Idm\IdmRepository;
+use App\ValueObject\GeoPoint;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\Cache\ItemInterface;
-use Symfony\UX\Map\Point;
 
 class MapService
 {
@@ -41,7 +41,7 @@ class MapService
         return trim((string) $this->settings->get('map.center_coordinates', ''));
     }
 
-    private function parseCoordinateString(string $input): ?Point
+    private function parseCoordinateString(string $input): ?GeoPoint
     {
         if ($input === '') {
             return null;
@@ -63,11 +63,11 @@ class MapService
             return null;
         }
 
-        return new Point($latitude, $longitude);
+          return new GeoPoint($latitude, $longitude);
     }
 
     /**
-     * @return array<string, array{point: Point, address: string, count: int}>
+      * @return array<string, array{point: GeoPoint, address: string, count: int}>
      */
     private function collectUserLocations(): array
     {
@@ -142,7 +142,7 @@ class MapService
     {
         $siteTitle = (string) $this->settings->get('site.title', 'LAN-Party');
         $configuredCenter = $this->parseCoordinateString($this->getCenterAddress());
-        $centerPoint = $configuredCenter ?? new Point(48.2082, 16.3738);
+        $centerPoint = $configuredCenter ?? new GeoPoint(48.2082, 16.3738);
         $centerZoom = $configuredCenter ? 7 : 5;
 
         $markers = [];
@@ -182,7 +182,7 @@ class MapService
         ];
     }
 
-    private function buildPointKey(Point $point): string
+    private function buildPointKey(GeoPoint $point): string
     {
         return sprintf('%.6f:%.6f', $point->getLatitude(), $point->getLongitude());
     }

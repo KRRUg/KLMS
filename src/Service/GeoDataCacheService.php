@@ -4,7 +4,7 @@ namespace App\Service;
 
 use App\Entity\GeoData;
 use App\Repository\GeoDataRepository;
-use Symfony\UX\Map\Point;
+use App\ValueObject\GeoPoint;
 
 class GeoDataCacheService
 {
@@ -14,7 +14,7 @@ class GeoDataCacheService
     ) {
     }
 
-    public function getPointForLocation(string $country, string $zip, string $city): ?Point
+    public function getPointForLocation(string $country, string $zip, string $city): ?GeoPoint
     {
         $normalized = $this->normalizeComponents($country, $zip, $city);
         if ($normalized === null) {
@@ -28,7 +28,7 @@ class GeoDataCacheService
         );
 
         if ($cached instanceof GeoData) {
-            return new Point($cached->getLat(), $cached->getLon());
+            return new GeoPoint($cached->getLat(), $cached->getLon());
         }
 
         $point = $this->geocodingService->geocode($this->formatAddress($normalized));
