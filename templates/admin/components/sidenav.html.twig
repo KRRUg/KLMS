@@ -41,6 +41,9 @@
                         <a class="nav-link {% if app.request.get('_route') starts with 'admin_faq' %}active{% endif %}" href="{{ path('admin_faq') }}"><i class="fas fa-question-circle fa-fw"></i> FAQ </a>
                     </li>
                     <li class="nav-item">
+                        <a class="nav-link {% if app.request.get('_route') starts with 'admin_booking' %}active{% endif %}" href="{{ path('admin_booking') }}"><i class="fas fa-calendar-check fa-fw"></i> Buchungen </a>
+                    </li>
+                    <li class="nav-item">
                         <a class="nav-link {% if app.request.get('_route') starts with 'admin_setting' %}active{% endif %}" href="{{ path('admin_setting') }}"><i class="fas fa-th-large fa-fw"></i> Einstellungen </a>
                     </li>
                 {% endif %}

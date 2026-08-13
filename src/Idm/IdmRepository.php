@@ -40,10 +40,13 @@ class IdmRepository
         }
     }
 
-    public function findById(array $ids): array
+    /**
+     * @param int $cacheTtl if > 0, caches the raw bulk response for this many seconds (see IdmManager::bulk())
+     */
+    public function findById(array $ids, int $cacheTtl = 0): array
     {
         try {
-            return $this->manager->bulk($this->class, $ids);
+            return $this->manager->bulk($this->class, $ids, $cacheTtl);
         } catch (UnsupportedClassException) {
             return array_map(fn ($id) => $this->findOneById($id), $ids);
         }
@@ -87,11 +90,11 @@ class IdmRepository
     /**
      * Use request() instead of find when searching for id only.
      */
-    public function findBy(array $filter = [], array $sort = []): IdmPagedCollection
+    public function findBy(array $filter = [], array $sort = [], int $pageSize = 10): IdmPagedCollection
     {
         $this->checkProperties($filter, $sort);
 
-        return IdmPagedCollection::create($this->manager, $this->class, $filter, false, true, $sort);
+        return IdmPagedCollection::create($this->manager, $this->class, $filter, false, true, $sort, $pageSize);
     }
 
     public function findCiBy(array $filter = [], array $sort = []): IdmPagedCollection
@@ -108,9 +111,13 @@ class IdmRepository
         return IdmPagedCollection::create($this->manager, $this->class, $query, true, false, $sort);
     }
 
-    public function findAll(): Collection
+    /**
+     * @param int $pageSize larger values reduce the number of requests when enumerating the whole
+     *                      collection (e.g. via foreach), at the cost of a bigger single response
+     */
+    public function findAll(int $pageSize = 10): Collection
     {
-        return $this->findBy();
+        return $this->findBy(pageSize: $pageSize);
     }
 
     private function checkProperties(array $filter, array $sort): void

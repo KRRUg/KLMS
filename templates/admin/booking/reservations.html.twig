@@ -1,0 +1,71 @@
+{% extends 'admin/adminBase.html.twig' %}
+
+{% block title %}Buchungen - {{ resource.name }} - KLMS - Admin{% endblock %}
+{% block siteheading %}<i class="fas fa-calendar-check"></i> Buchungen - {{ resource.name }}{% endblock %}
+
+{% block main %}
+<div class="row mb-4">
+    <div class="col-12">
+        <a class="btn btn-secondary" href="{{ path('admin_booking') }}">
+            <i class="fas fa-arrow-left"></i> Zurück
+        </a>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        {% if rows %}
+        <div class="card">
+            <table class="table table-striped admin-data-table">
+                <thead>
+                <tr>
+                    <th scope="col" style="width: 2em;" class="text-center">&#8470;</th>
+                    <th scope="col" style="width: auto">User</th>
+                    <th scope="col" style="width: 18em;" class="text-center">Einheit</th>
+                    <th scope="col" style="width: 14em;" class="text-center">Zeitraum</th>
+                    <th scope="col" style="width: 8em;" class="text-center">Status</th>
+                    <th scope="col" style="width: 12em;" class="text-center">Aktionen</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for row in rows %}
+                    {% set booking = row.booking %}
+                    <tr>
+                        <td class="text-center">{{ booking.id }}</td>
+                        <td>{{ row.user ? row.user.nickname : 'Unbekannter User' }}</td>
+                        <td class="text-center">{{ resource.getUnitLabel(booking.unitNumber) }}</td>
+                        <td class="text-center">{{ booking.startAt|date('d.m.Y H:i') }} - {{ booking.endAt|date('H:i') }}</td>
+                        <td class="text-center">
+                            {% if booking.cancelled %}
+                                <span class="badge bg-danger">Storniert</span>
+                            {% else %}
+                                <span class="badge bg-success">Aktiv</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-center">
+                            {% if not booking.cancelled %}
+                                <form method="post" action="{{ path('admin_booking_reservation_cancel', {'id': booking.id}) }}" class="d-inline-block"
+                                      onsubmit="return confirm('Buchung wirklich stornieren?')">
+                                    <input type="hidden" name="_token" value="{{ csrf_token(csrf_token_cancel) }}">
+                                    <button type="submit" class="btn btn-outline-danger btn-sm" title="Stornieren">
+                                        <i class="fas fa-ban"></i> Stornieren
+                                    </button>
+                                </form>
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="card">
+            <div class="card-body text-center text-muted">
+                <i class="fas fa-calendar-check fa-3x mb-3"></i>
+                <h5>Keine Buchungen vorhanden</h5>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

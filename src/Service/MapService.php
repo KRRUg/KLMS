@@ -12,6 +12,9 @@ use Symfony\Contracts\Cache\ItemInterface;
 
 class MapService
 {
+    // reduces the number of serial IDM requests when enumerating all users for the map
+    private const IDM_PAGE_SIZE = 1000;
+
     private readonly IdmRepository $userRepository;
 
     public function __construct(
@@ -73,7 +76,9 @@ class MapService
     {
         $buckets = [];
 
-        foreach ($this->userRepository->findAll() as $user) {
+        // findAll() defaults to 10 users per request; a larger page size means fewer requests
+        // to enumerate everyone, since every user is looked at here anyway (not just one page)
+        foreach ($this->userRepository->findAll(self::IDM_PAGE_SIZE) as $user) {
             if (!$user instanceof User) {
                 continue;
             }

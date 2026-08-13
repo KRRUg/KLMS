@@ -1,0 +1,101 @@
+{% extends 'admin/adminBase.html.twig' %}
+
+{% block title %}
+	{% if resource.id %}Ressource bearbeiten{% else %}Ressource anlegen
+	{% endif %}
+	- KLMS - Admin
+{% endblock %}
+{% block siteheading %}
+	<i class="fas fa-calendar-check"></i>
+	{% if resource.id %}Ressource bearbeiten{% else %}Ressource anlegen
+	{% endif %}
+{% endblock %}
+
+{% block main %}
+	<div class="row">
+		<div class="col-md-8">
+			<div class="card">
+				<div class="card-header">
+					<h5 class="card-title">
+						{% if resource.id %}Ressource #{{ resource.id }}
+							bearbeiten{% else %}Neue Ressource
+						{% endif %}
+					</h5>
+				</div>
+				<div class="card-body">
+					{{ form_start(form) }}
+					<div class="mb-3">
+						{{ form_row(form.priority) }}
+						<small class="form-text text-muted">
+							Niedrigere Zahlen werden zuerst angezeigt.
+						</small>
+					</div>
+
+					<div class="mb-3">
+						{{ form_row(form.name) }}
+					</div>
+
+					<div class="mb-3">
+						{{ form_row(form.description) }}
+					</div>
+
+					<div class="mb-3">
+						{{ form_row(form.unitCount) }}
+						<small class="form-text text-muted">
+							Anzahl gleichartiger, austauschbarer Einheiten (zb. 5 Duschen).
+						</small>
+					</div>
+
+					<div class="mb-3">
+						{{ form_row(form.unitNamesText) }}
+						<small class="form-text text-muted">
+							Optional: pro Zeile einen Namen für eine konkrete Einheit hinterlegen.
+							Die Buchung vergibt diese Einheiten weiterhin automatisch.
+						</small>
+					</div>
+
+					<div class="mb-3">
+						{{ form_row(form.slotDurationMinutes) }}
+					</div>
+
+					<div class="mb-3">
+						{{ form_row(form.bufferMinutes) }}
+						<small class="form-text text-muted">
+							Pause zwischen zwei Buchungen derselben Einheit in Minuten.
+						</small>
+					</div>
+
+					<div class="mb-3">
+						{{ form_row(form.availableFrom, {'attr': {'class': 'datetimepicker', 'data-time-end': '#'~form.availableUntil.vars.id}}) }}
+					</div>
+
+					<div class="mb-3">
+						{{ form_row(form.availableUntil, {'attr': {'class': 'datetimepicker', 'data-time-start': '#'~form.availableFrom.vars.id}}) }}
+					</div>
+
+					<div class="mb-3">
+						{{ form_row(form.maxBookingsPerUser) }}
+					</div>
+
+					<div class="mb-3">
+						{{ form_row(form.active) }}
+					</div>
+
+					<div class="float-right">
+						<a class="btn btn-secondary" href="{{ path('admin_booking') }}">Abbrechen</a>
+						<button type="submit" class="btn-primary btn">Speichern</button>
+					</div>
+					{{ form_end(form) }}
+					<div class="float-left">
+						{% if resource.id %}
+							<form data-toggle="confirmModal" method="post" action="{{ path('admin_booking_delete', {'id' : resource.id}) }}" class="d-inline-block">
+								<input type="hidden" name="_token" value="{{ csrf_token(csrf_token_delete) }}">
+								<button class="btn btn-danger" type="submit" value="delete"><i class="fas fa-trash-alt"></i> Löschen</button>
+							</form>
+						{% endif %}
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+{% endblock %}

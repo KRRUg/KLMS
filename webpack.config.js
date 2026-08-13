@@ -41,6 +41,7 @@ Encore
     .addEntry('admin_tourney', './assets/js/admin/tourney.js')
     .addEntry('admin_checkin', './assets/js/admin/checkin.js')
     .addStyleEntry('email', './assets/css/email.scss')
+    .addStyleEntry('booking', './assets/css/modules/booking.scss')
 
     // enables the Symfony UX Stimulus bridge (used in assets/bootstrap.js)
     .enableStimulusBridge('./assets/js/controllers.json')

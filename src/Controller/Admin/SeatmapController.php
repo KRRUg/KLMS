@@ -11,6 +11,7 @@ use App\Repository\SeatRepository;
 use App\Service\SeatmapService;
 use App\Service\SettingService;
 use App\Service\TicketService;
+use App\Service\UserService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -32,13 +33,15 @@ class SeatmapController extends AbstractController
     private readonly SettingService $settingService;
     private readonly SeatRepository $seatRepository;
     private readonly SerializerInterface $serializer;
+    private readonly UserService $userService;
 
     public function __construct(EntityManagerInterface $em,
                                 SeatmapService         $seatmapService,
                                 SettingService         $settingService,
                                 TicketService          $ticketService,
                                 SeatRepository         $seatRepository,
-                                SerializerInterface    $serializer)
+                                SerializerInterface    $serializer,
+                                UserService            $userService)
     {
         $this->em = $em;
         $this->seatmapService = $seatmapService;
@@ -46,6 +49,7 @@ class SeatmapController extends AbstractController
         $this->seatRepository = $seatRepository;
         $this->serializer = $serializer;
         $this->ticketService = $ticketService;
+        $this->userService = $userService;
     }
 
     #[Route(path: '', name: '', methods: ['GET'])]
@@ -53,12 +57,13 @@ class SeatmapController extends AbstractController
     {
         $seats = $this->seatmapService->getSeatmap();
         $dim = $this->seatmapService->getDimension();
+        [$users, $clans] = $this->seatmapService->getSeatedUsersAndReservedClans($seats);
 
         return $this->render('admin/seatmap/index.html.twig', [
             'seatmap' => $seats,
             'dim' => $dim,
-            'users' => $this->seatmapService->getSeatedUser($seats),
-            'clans' => $this->seatmapService->getReservedClans($seats),
+            'users' => $users,
+            'clans' => $clans,
         ]);
     }
 
@@ -192,6 +197,8 @@ class SeatmapController extends AbstractController
 
         $seatmap = $this->seatRepository->findTakenSeats();
         $seatmapUsers = $this->seatmapService->getSeatedUser($seatmap);
+        // preload clans of seated users in bulk to avoid an individual IDM request per user in the loop below
+        $this->userService->getClansByUsers(array_map(fn ($user) => $user->getUuid()->toString(), array_filter($seatmapUsers)));
 
         foreach ($seatmap as $seat) {
             $seatName = $seat->getName() ?: null;

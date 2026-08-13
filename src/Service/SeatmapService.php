@@ -16,10 +16,15 @@ use Symfony\Bundle\SecurityBundle\Security;
 
 class SeatmapService
 {
+    // short-lived cache since seat assignments can change at any time, but this avoids
+    // redundant IDM bulk calls for the many concurrent /seatmap page views in a short window
+    private const IDM_CACHE_TTL = 45;
+
     private readonly EntityManagerInterface $em;
     private readonly SeatRepository $seatRepository;
     private readonly TicketService $ticketService;
     private readonly Security $security;
+    private readonly IdmManager $manager;
     private readonly IdmRepository $userRepo;
     private readonly IdmRepository $clanRepo;
     private readonly SettingService $settingService;
@@ -35,6 +40,7 @@ class SeatmapService
         UserService            $userService)
     {
         $this->em = $entityManager;
+        $this->manager = $manager;
         $this->userRepo = $manager->getRepository(User::class);
         $this->clanRepo = $manager->getRepository(Clan::class);
         $this->seatRepository = $seatRepository;
@@ -50,6 +56,34 @@ class SeatmapService
     }
 
     /**
+     * Preloads the owners and clan reservations of the given seats in two concurrent IDM bulk
+     * requests instead of two serial ones, populating the cache used by getSeatedUser()/getReservedClans().
+     *
+     * @param Seat[] $seats
+     * @return array{0: (?User)[], 1: (?Clan)[]} seat id => owner map, seat id => clan reservation map
+     */
+    public function getSeatedUsersAndReservedClans(array $seats): array
+    {
+        $userUuids = array_filter(array_map(fn (Seat $seat) => $seat->getOwner()?->toString(), $seats));
+        $clanUuids = array_filter(array_map(fn (Seat $seat) => $seat->getClanReservation()?->toString(), $seats));
+
+        // both requests are dispatched together and their responses are awaited concurrently
+        $this->manager->bulkMany([
+            'users' => ['class' => User::class, 'ids' => $userUuids, 'cacheTtl' => self::IDM_CACHE_TTL],
+            'clans' => ['class' => Clan::class, 'ids' => $clanUuids, 'cacheTtl' => self::IDM_CACHE_TTL],
+        ]);
+
+        $users = [];
+        $clans = [];
+        foreach ($seats as $seat) {
+            $users[$seat->getId()] = $this->getSeatOwner($seat);
+            $clans[$seat->getId()] = $this->getClanReservation($seat);
+        }
+
+        return [$users, $clans];
+    }
+
+    /**
      * @param Seat[] $seats
      * @return (?User)[]
      */
@@ -58,9 +92,7 @@ class SeatmapService
         $uuids = array_map(fn (Seat $seat) => $seat->getOwner()?->toString(), $seats);
         $uuids = array_filter($uuids); // remove null from uuids
         // preload users
-        $this->userRepo->findById($uuids);
-        // preload clans
-        $this->userService->getClansByUsers($uuids);
+        $this->userRepo->findById($uuids, self::IDM_CACHE_TTL);
 
         $ret = [];
         foreach ($seats as $seat) {
@@ -79,7 +111,7 @@ class SeatmapService
         $uuids = array_map(fn (Seat $seat) => $seat->getClanReservation()?->toString(), $seats);
         $uuids = array_filter($uuids); // remove null from uuids
         // preload clans
-        $this->clanRepo->findById($uuids);
+        $this->clanRepo->findById($uuids, self::IDM_CACHE_TTL);
 
         $ret = [];
         foreach ($seats as $seat) {

@@ -15,9 +15,11 @@ use App\Idm\Transfer\PaginationCollection;
 use App\Idm\Transfer\UuidObject;
 use Closure;
 use InvalidArgumentException;
+use Psr\Cache\CacheItemPoolInterface;
 use Psr\Log\LoggerInterface;
 use ReflectionClass;
 use ReflectionException;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\PropertyInfo\Extractor\ReflectionExtractor;
 use Symfony\Component\Serializer\Encoder\JsonEncoder;
@@ -43,6 +45,7 @@ final class IdmManager
     private readonly HttpClientInterface $httpClient;
     private readonly IdmRepositoryFactory $repoFactory;
     private readonly Serializer $serializer;
+    private readonly ?CacheItemPoolInterface $cache;
 
     /**
      * @var Entity[]
@@ -59,10 +62,11 @@ final class IdmManager
     private const URL_PREFIX = '/api';
 
     // Name of HttpClientInterface $idmClient is important to get idm.client injected by symfony
-    public function __construct(HttpClientInterface $idmClient, LoggerInterface $logger)
+    public function __construct(HttpClientInterface $idmClient, LoggerInterface $logger, #[Autowire(service: 'cache.app')] ?CacheItemPoolInterface $cache = null)
     {
         $this->httpClient = $idmClient;
         $this->logger = $logger;
+        $this->cache = $cache;
         $this->repoFactory = new IdmRepositoryFactory();
 
     $on = new ObjectNormalizer(new ClassMetadataFactory(new AttributeLoader()), null, null, new ReflectionExtractor());
@@ -453,22 +457,135 @@ final class IdmManager
         return $code === Response::HTTP_OK;
     }
 
-    public function bulk(string $class, array $ids): array
+    /**
+     * @param int $cacheTtl if > 0, the raw (un-hydrated) bulk response is cached for this many seconds,
+     *                      keyed by the exact set of requested ids. Requires cache.app to be available.
+     */
+    public function bulk(string $class, array $ids, int $cacheTtl = 0): array
     {
         if (!$this->hasBulkByClass($class)) {
             throw new UnsupportedClassException("Class {$class} does not support bulk access.");
         }
 
+        $ids = array_values(array_filter($ids));
         if (empty($ids)) {
             return array();
         }
 
-        $collection = $this->post($this->createUrl($class, 'bulk'), new BulkRequest($ids));
+        $cacheItem = $cacheTtl > 0 && $this->cache !== null
+            ? $this->cache->getItem($this->bulkCacheKey($class, $ids))
+            : null;
+
+        if ($cacheItem !== null && $cacheItem->isHit()) {
+            $collection = $cacheItem->get();
+        } else {
+            $collection = $this->post($this->createUrl($class, 'bulk'), new BulkRequest($ids));
+            if ($cacheItem !== null) {
+                $cacheItem->set($collection)->expiresAfter($cacheTtl);
+                $this->cache->save($cacheItem);
+            }
+        }
+
         foreach ($collection as &$item) {
             $item = $this->hydrateObject($item, $class);
         }
 
         return $collection;
+    }
+
+    /**
+     * Executes several bulk() requests concurrently instead of one after another.
+     * Symfony's HttpClient dispatches a request as soon as ->request() is called; the actual
+     * network wait only happens once a response's content is read. By firing all requests first
+     * and only reading their content afterwards, they run in parallel on the wire.
+     *
+     * @param array<string, array{class: string, ids: array, cacheTtl?: int}> $requests keyed by an arbitrary label
+     * @return array<string, object[]> hydrated results, keyed by the same label
+     */
+    public function bulkMany(array $requests): array
+    {
+        $pending = [];
+        foreach ($requests as $key => $request) {
+            $class = $request['class'];
+            $ids = array_values(array_filter($request['ids']));
+            $cacheTtl = $request['cacheTtl'] ?? 0;
+
+            if (empty($ids)) {
+                $pending[$key] = ['class' => $class, 'raw' => []];
+                continue;
+            }
+            if (!$this->hasBulkByClass($class)) {
+                throw new UnsupportedClassException("Class {$class} does not support bulk access.");
+            }
+
+            $cacheItem = $cacheTtl > 0 && $this->cache !== null
+                ? $this->cache->getItem($this->bulkCacheKey($class, $ids))
+                : null;
+
+            if ($cacheItem !== null && $cacheItem->isHit()) {
+                $pending[$key] = ['class' => $class, 'raw' => $cacheItem->get()];
+                continue;
+            }
+
+            // dispatched immediately, does not block until the response is read below
+            $pending[$key] = [
+                'class' => $class,
+                'response' => $this->httpClient->request('POST', $this->createUrl($class, 'bulk'), ['json' => $this->object2Array(new BulkRequest($ids))]),
+                'cacheItem' => $cacheItem,
+                'cacheTtl' => $cacheTtl,
+            ];
+        }
+
+        $results = [];
+        foreach ($pending as $key => $entry) {
+            $class = $entry['class'];
+            if (array_key_exists('raw', $entry)) {
+                $raw = $entry['raw'];
+            } else {
+                $response = [];
+                $code = $this->readBulkResponse($entry['response'], $response);
+                $this->throwOnCode($code);
+                $raw = $response;
+                if ($entry['cacheItem'] !== null) {
+                    $entry['cacheItem']->set($raw)->expiresAfter($entry['cacheTtl']);
+                    $this->cache->save($entry['cacheItem']);
+                }
+            }
+
+            foreach ($raw as &$item) {
+                $item = $this->hydrateObject($item, $class);
+            }
+            $results[$key] = $raw;
+        }
+
+        return $results;
+    }
+
+    private function readBulkResponse($response, array &$result): bool|int
+    {
+        try {
+            if ($response->getContent()) {
+                $result = $response->toArray(false);
+            }
+
+            return $response->getStatusCode();
+        } catch (ClientExceptionInterface $e) {
+            $this->logger->error('Invalid request to IDM ('.$e->getMessage().')');
+        } catch (ServerExceptionInterface|RedirectionExceptionInterface|DecodingExceptionInterface $e) {
+            $this->logger->error('IDM behaving incorrect ('.$e->getMessage().')');
+        } catch (TransportExceptionInterface $e) {
+            $this->logger->error('Connection to IDM failed ('.$e->getMessage().')');
+        }
+
+        return false;
+    }
+
+    private function bulkCacheKey(string $class, array $ids): string
+    {
+        $ids = array_map('strval', $ids);
+        sort($ids);
+
+        return 'idm_bulk.'.str_replace('\\', '_', $class).'.'.sha1(implode(',', $ids));
     }
 
     public function search(string $class, array $parameter = [])

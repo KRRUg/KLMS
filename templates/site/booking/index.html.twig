@@ -1,0 +1,89 @@
+{% extends 'site/siteBase.html.twig' %}
+
+{% block title %}{{ settings.get('site.title') }} - Buchungen{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    {{ encore_entry_link_tags('booking') }}
+{% endblock %}
+
+{% block main %}
+<div class="container my-5">
+    <div class="row">
+        <div class="col-12">
+            <h1 class="text-center mb-4">Buchungen</h1>
+            <p>
+                Buche dir Annehmlichkeiten und andere Dinge auf der LAN. Hier kannst du verfügbare Ressourcen auswählen und die verfügbaren Zeitslots einsehen.
+                Deine aktiven Buchungen findest du weiter unten und kannst sie dort bei Bedarf auch wieder stornieren.
+            </p>
+
+            {% if resources %}
+                <div class="row">
+                    <div class="col">
+                        <h2>Du kannst folgende Dinge buchen:</h2>
+                    </div>
+                </div>
+
+                <div class="row row-cols-1 row-cols-md-2" id="booking-resources">
+                    {% for resource in resources %}
+                        <div class="col mb-3">
+                            <a class="card booking-resource-select text-reset text-decoration-none" href="{{ path('booking_resource', {'id': resource.id}) }}" aria-label="Ressource {{ resource.name }} auswählen">
+                                <div class="card-body">
+                                    <h4 class="my-0 font-weight-normal">{{ resource.name }}</h4>
+                                </div>
+                                <div class="card-body pt-0">
+                                    {% if resource.description %}
+                                        <p class="mb-2">{{ resource.description }}</p>
+                                    {% endif %}
+                                    <p class="text-muted mb-1"><small><i class="fas fa-layer-group"></i> {{ resource.unitCount }} parallel vorhanden</small></p>
+                                    <p class="text-muted mb-1"><small><i class="far fa-clock"></i> Slotdauer: {{ resource.slotDurationMinutes }} min</small></p>
+                                    {% if resource.bufferMinutes > 0 %}
+                                        <p class="text-muted mb-0"><small><i class="fas fa-stopwatch"></i> Puffer: {{ resource.bufferMinutes }} min</small></p>
+                                    {% endif %}
+                                    <p class="text-muted mb-1"><small><i class="fas fa-user-check"></i> Pro Person buchbar: {{ resource.maxBookingsPerUser is null ? 'unbegrenzt' : resource.maxBookingsPerUser }}x</small></p>
+                                </div>
+                            </a>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="alert alert-info" role="alert">
+                    Aktuell sind keine Ressourcen buchbar.
+                </div>
+            {% endif %}
+
+            {% if myBookings %}
+                   <div class="row">
+                    <div class="col">
+                        <h2>Meine Buchungen</h2>
+                    </div>
+                </div>
+                    <ul class="list-group list-group-flush" id="booking-my-list">
+                        {% for booking in myBookings %}
+                            {% set isPast = booking.startAt <= date() %}
+                            <li class="list-group-item d-flex justify-content-between align-items-center" data-booking-id="{{ booking.id }}">
+                                <span>
+                                    <strong>{{ booking.resource.getUnitLabel(booking.unitNumber) }}</strong>
+                                    - {{ booking.startAt|date('d.m.Y H:i') }} - {{ booking.endAt|date('H:i') }}
+                                    {% if isPast %}
+                                        <span class="badge badge-secondary ml-2">Vergangen</span>
+                                    {% endif %}
+                                </span>
+                                {% if not isPast %}
+                                    <form method="post" action="{{ path('booking_reservation_cancel', {'id': booking.id}) }}" class="d-inline-block"
+                                          onsubmit="return confirm('Buchung wirklich stornieren?')">
+                                        <input type="hidden" name="_token" value="{{ csrf_token('booking_action') }}">
+                                        <button type="submit" class="btn btn-sm btn-outline-danger">
+                                            <i class="fas fa-ban"></i> Stornieren
+                                        </button>
+                                    </form>
+                                {% endif %}
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
