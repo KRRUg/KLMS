@@ -6,6 +6,7 @@ use App\Entity\User;
 use Karser\Recaptcha3Bundle\Form\Recaptcha3Type;
 use Karser\Recaptcha3Bundle\Validator\Constraints\Recaptcha3;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\BirthdayType;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\EmailType;
 use Symfony\Component\Form\Extension\Core\Type\PasswordType;
@@ -33,6 +34,12 @@ class UserRegisterType extends AbstractType
             ])
             ->add('surname', TextType::class, [
                 'label' => 'Nachname',
+            ])
+            ->add('birthdate', BirthdayType::class, [
+                'label' => 'Geburtsdatum',
+                'widget' => 'single_text',
+                'attr' => ['class' => 'datepicker'],
+                'required' => true,
             ])
             ->add('nickname', TextType::class, [
                 'label' => 'Nickname',
