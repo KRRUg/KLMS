@@ -30,6 +30,16 @@
         </div>
     </div>
 
+    {% if not mayBook %}
+        <div class="row mb-3">
+            <div class="col-12">
+                <div class="alert alert-warning" role="alert">
+                    Um eine Buchung durchführen zu können, musst du ein Ticket besitzen oder sogar auf der LAN eingecheckt sein.
+                </div>
+            </div>
+        </div>
+    {% endif %}
+
     <div class="row">
         <div class="col-12">
             <div class="card">
@@ -54,7 +64,7 @@
                             <form method="post" action="{{ path('booking_book', {'id': resource.id}) }}" class="d-inline-block mb-2 mr-2">
                                 <input type="hidden" name="_token" value="{{ csrf_token('booking_action') }}">
                                 <input type="hidden" name="start" value="{{ slot.start|date('c') }}">
-                                <button type="submit" class="btn btn-sm booking-slot-btn {{ slot.free > 0 ? 'btn-outline-success' : 'btn-outline-secondary' }}" {{ slot.free > 0 ? '' : 'disabled' }}>
+                                <button type="submit" class="btn btn-sm booking-slot-btn {{ slot.free > 0 ? 'btn-outline-success' : 'btn-outline-secondary' }}" {{ (slot.free > 0 and mayBook) ? '' : 'disabled' }}>
                                     {{ slot.start|date('H:i') }} - {{ slot.end|date('H:i') }} ({{ slot.free }}/{{ slot.total }})
                                 </button>
                             </form>

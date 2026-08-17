@@ -13,23 +13,59 @@ use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 use Ramsey\Uuid\UuidInterface;
 
-class BookingService
+class BookingService extends OptimalService
 {
+    private const SETTING_PREFIX = 'booking.';
+
     private readonly BookingResourceRepository $resourceRepository;
     private readonly BookingRepository $bookingRepository;
+    private readonly SettingService $settings;
+    private readonly TicketService $ticketService;
     private readonly EntityManagerInterface $em;
     private readonly LoggerInterface $logger;
 
     public function __construct(
         BookingResourceRepository $resourceRepository,
         BookingRepository $bookingRepository,
+        SettingService $settings,
+        TicketService $ticketService,
         EntityManagerInterface $em,
         LoggerInterface $logger
     ) {
+        parent::__construct($settings);
         $this->resourceRepository = $resourceRepository;
         $this->bookingRepository = $bookingRepository;
+        $this->settings = $settings;
+        $this->ticketService = $ticketService;
         $this->em = $em;
         $this->logger = $logger;
+    }
+
+    protected static function getSettingKey(): string
+    {
+        return self::SETTING_PREFIX.'enabled';
+    }
+
+    /**
+     * Whether the given user is allowed to create bookings, based on the
+     * booking.registration_require_checkin / booking.registration_require_ticket settings.
+     */
+    public function userMayBook(User $user): bool
+    {
+        $requireCheckin = $this->settings->get(self::SETTING_PREFIX.'registration_require_checkin', true);
+        $requireTicket = $this->settings->get(self::SETTING_PREFIX.'registration_require_ticket', true);
+
+        if (!$requireCheckin && !$requireTicket) {
+            return true;
+        }
+
+        $status = $this->ticketService->getTicketUser($user)?->getState();
+
+        if ($requireCheckin) {
+            return $status === TicketState::PUNCHED;
+        }
+
+        return $status === TicketState::PUNCHED || $status === TicketState::REDEEMED;
     }
 
     /**
@@ -156,6 +192,10 @@ class BookingService
 
         if (!$resource->isActive()) {
             throw BookingException::resourceInactive();
+        }
+
+        if (!$this->userMayBook($user)) {
+            throw BookingException::notAllowed();
         }
 
         if (!$this->isValidSlotStart($resource, $start, $now)) {

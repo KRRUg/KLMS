@@ -47,6 +47,10 @@ class SettingService
         'community.enabled' => [self::TB_DESCRIPTION => 'Community Sektion einschalten', self::TB_TYPE => SettingType::Bool],
         'community.all' => [self::TB_DESCRIPTION => 'Alle IDM User in Community anzeigen', self::TB_TYPE => SettingType::Bool],
 
+        'booking.enabled' => [self::TB_DESCRIPTION => 'Buchungssystem einschalten', self::TB_TYPE => SettingType::Bool],
+        'booking.registration_require_checkin' => [self::TB_DESCRIPTION => 'Buchung nur mit Check-in erlauben', self::TB_TYPE => SettingType::Bool, self::TB_DEFAULT_VALUE => true],
+        'booking.registration_require_ticket' => [self::TB_DESCRIPTION => 'Buchung nur mit Ticket erlauben', self::TB_TYPE => SettingType::Bool, self::TB_DEFAULT_VALUE => true],
+
         'lan.signup.enabled' => [self::TB_DESCRIPTION => 'LAN-Anmeldung erlauben', self::TB_TYPE => SettingType::Bool],
         'lan.signup.info' => [self::TB_DESCRIPTION => 'Text der beim Bestellbutton angezeigt wird.', self::TB_TYPE => SettingType::HTML],
         'lan.signup.info.ticket' => [self::TB_DESCRIPTION => 'Text der beim Ticketshop angezeigt wird.', self::TB_TYPE => SettingType::HTML],

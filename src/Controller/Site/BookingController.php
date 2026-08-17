@@ -41,6 +41,10 @@ class BookingController extends BaseController
     #[Route(path: '', name: '', methods: ['GET'])]
     public function index(): Response
     {
+        if (!$this->bookingService->active()) {
+            throw $this->createNotFoundException();
+        }
+
         $user = $this->requireDomainUser();
         $resources = $this->bookingService->getActiveResources();
         $myBookings = $this->bookingService->getUserBookings($user);
@@ -48,23 +52,30 @@ class BookingController extends BaseController
         return $this->render('site/booking/index.html.twig', [
             'resources' => $resources,
             'myBookings' => $myBookings,
+            'mayBook' => $this->bookingService->userMayBook($user),
         ]);
     }
 
     #[Route(path: '/{id}', name: '_resource', requirements: ['id' => '\\d+'], methods: ['GET'])]
     public function resource(BookingResource $resource): Response
     {
+        if (!$this->bookingService->active()) {
+            throw $this->createNotFoundException();
+        }
+
         if (!$resource->isActive()) {
             $this->addFlash('error', 'Diese Ressource ist nicht verfügbar.');
 
             return $this->redirectToRoute('booking');
         }
 
+        $user = $this->requireDomainUser();
         $slots = $this->bookingService->getAvailability($resource);
 
         return $this->render('site/booking/resource.html.twig', [
             'resource' => $resource,
             'slots' => $slots,
+            'mayBook' => $this->bookingService->userMayBook($user),
         ]);
     }
 
@@ -81,7 +92,7 @@ class BookingController extends BaseController
     #[Route(path: '/{id}/availability', name: '_availability', requirements: ['id' => '\d+'], methods: ['GET'])]
     public function availability(Request $request, BookingResource $resource): JsonResponse
     {
-        if (!$resource->isActive()) {
+        if (!$this->bookingService->active() || !$resource->isActive()) {
             return $this->apiError('Ressource ist nicht verfügbar.', Response::HTTP_NOT_FOUND);
         }
 
@@ -105,6 +116,14 @@ class BookingController extends BaseController
     public function book(Request $request, BookingResource $resource): Response
     {
         $isJson = $this->isJsonRequest($request);
+
+        if (!$this->bookingService->active()) {
+            if ($isJson) {
+                return $this->apiError('Buchungssystem ist nicht verfügbar.', Response::HTTP_NOT_FOUND);
+            }
+
+            throw $this->createNotFoundException();
+        }
 
         if ($isJson) {
             $body = json_decode((string) $request->getContent(), true);
@@ -248,6 +267,7 @@ class BookingController extends BaseController
             BookingException::CODE_PAST_BOOKING => 'Vergangene Buchungen können nicht storniert werden.',
             BookingException::CODE_NOT_OWNER => 'Diese Buchung gehört dir nicht.',
             BookingException::CODE_ALREADY_CANCELLED => 'Diese Buchung wurde bereits storniert.',
+            BookingException::CODE_NOT_ALLOWED => 'Du erfüllst die Voraussetzungen für eine Buchung nicht.',
             default => 'Buchung nicht möglich.',
         };
     }

@@ -14,6 +14,7 @@ class BookingException extends RuntimeException
     public const CODE_PAST_BOOKING = 'past_booking';
     public const CODE_NOT_OWNER = 'not_owner';
     public const CODE_ALREADY_CANCELLED = 'already_cancelled';
+    public const CODE_NOT_ALLOWED = 'not_allowed';
 
     public static function slotFull(): self
     {
@@ -53,5 +54,10 @@ class BookingException extends RuntimeException
     public static function alreadyCancelled(): self
     {
         return new self(self::CODE_ALREADY_CANCELLED);
+    }
+
+    public static function notAllowed(): self
+    {
+        return new self(self::CODE_NOT_ALLOWED);
     }
 }

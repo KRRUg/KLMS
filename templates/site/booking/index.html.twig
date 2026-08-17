@@ -17,6 +17,12 @@
                 Deine aktiven Buchungen findest du weiter unten und kannst sie dort bei Bedarf auch wieder stornieren.
             </p>
 
+            {% if not mayBook %}
+                <div class="alert alert-warning" role="alert">
+                    Um eine Buchung durchführen zu können, musst du ein Ticket besitzen oder sogar auf der LAN eingecheckt sein.
+                </div>
+            {% endif %}
+
             {% if resources %}
                 <div class="row">
                     <div class="col">
