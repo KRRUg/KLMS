@@ -33,7 +33,10 @@
                         <tr>
                             <td class="text-center">{{ addon.id }}</td>
                             <td class="text-center" data-order="{{ addon.isActive }}">
-                                <a href="{{ path('admin_shop_addon_toggle', {'id' : addon.id}) }}" title="Sichtbarkeit ändern">{% if addon.isActive %}<i class="fas fa-eye text-success" title="sichtbar"></i>{% else %}<i class="fas fa-eye-slash text-danger" title="ausgeblendet"></i>{% endif %}</a>
+                                <form method="post" action="{{ path('admin_shop_addon_toggle', {'id' : addon.id}) }}" style="display: inline;">
+                                    <input type="hidden" name="_token" value="{{ csrf_token(csrf_token) }}">
+                                    <button type="submit" class="btn btn-link p-0" title="Sichtbarkeit ändern">{% if addon.isActive %}<i class="fas fa-eye text-success" title="sichtbar"></i>{% else %}<i class="fas fa-eye-slash text-danger" title="ausgeblendet"></i>{% endif %}</button>
+                                </form>
                             </td>
                             <td class="text-center" data-order="{{ countAddons[addon.id] ?? 0 }}">
                                 <span title="bestellt/bezahlt/verfügbar">{{ countAddons[addon.id] ?? 0 }}&nbsp;/&nbsp;{{ countAddonsPaid[addon.id] ?? 0 }}&nbsp;/&nbsp;{% if addon.maxQuantityGlobal is not null %}{{ addon.maxQuantityGlobal }}{% else %}∞{% endif %}</span>

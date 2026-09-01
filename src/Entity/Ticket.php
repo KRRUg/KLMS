@@ -39,6 +39,9 @@ class Ticket
     #[ORM\OneToOne(inversedBy: 'ticket', cascade: ['persist'])]
     private ?ShopOrderPositionTicket $shopOrderPosition = null;
 
+    #[ORM\Column(type: 'text', nullable: true)]
+    private ?string $comment = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -112,6 +115,18 @@ class Ticket
     public function setShopOrderPosition(?ShopOrderPositionTicket $shopOrderPosition): static
     {
         $this->shopOrderPosition = $shopOrderPosition;
+
+        return $this;
+    }
+
+    public function getComment(): ?string
+    {
+        return $this->comment;
+    }
+
+    public function setComment(?string $comment): static
+    {
+        $this->comment = $comment;
 
         return $this;
     }

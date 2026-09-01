@@ -4,7 +4,7 @@ namespace App\Tests\Integration\Service;
 
 use App\DataFixtures\ShopFixture;
 use App\Entity\User;
-use App\Exception\TicketLivecycleException;
+use App\Exception\TicketLifecycleException;
 use App\Idm\IdmManager;
 use App\Service\TicketService;
 use App\Service\TicketState;
@@ -92,7 +92,7 @@ class TicketServiceIntegrationTest extends DatabaseTestCase
         $cp = $tickteService->countPunchedTickets();
 
         if ($purchasedTicket)
-            $this->expectException(TicketLivecycleException::class);
+            $this->expectException(TicketLifecycleException::class);
         $r = $tickteService->unregisterUser($user);
 
         $this->assertEquals($registered, $r);

@@ -1,0 +1,237 @@
+{% extends 'admin/adminBase.html.twig' %}
+
+{% block title %}Bestellung erfassen - KLMS - Admin{% endblock %}
+{% block siteheading %}<i class="fas fa-file-invoice-dollar"></i> Bestellung erfassen{% endblock %}
+
+{% block main %}
+    {{ form_start(form, {'attr': {'id': 'order-capture-form'}}) }}
+
+    <div class="row">
+        <div class="col-12">
+            <div class="card mb-4">
+                <div class="card-body">
+                    <div class="col-lg-8 px-0">
+                        {{ form_row(form.user, {'label': 'User'}) }}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12">
+            <div class="card mb-4">
+                <div class="card-body">
+                    <div class="d-flex justify-content-start mb-2">
+                        <button type="button" class="btn btn-sm btn-success" id="add-line-btn">
+                            <i class="fas fa-plus"></i> Zeile hinzufügen
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body pt-0">
+                    <div class="table-responsive">
+                        <table class="table table-striped mb-0" id="order-lines-table">
+                            <thead>
+                            <tr>
+                                <th style="min-width: 18rem;">Artikel</th>
+                                <th class="text-nowrap" style="width: 9rem;">Anzahl</th>
+                                <th class="text-nowrap" style="width: 12rem;">Preis pro Stk.</th>
+                                <th class="text-nowrap text-right" style="width: 12rem;">Zeilensumme</th>
+                                <th class="text-nowrap text-center" style="width: 4rem;">Aktion</th>
+                            </tr>
+                            </thead>
+                            <tbody id="order-lines-body"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body d-flex justify-content-between align-items-center flex-wrap">
+                    <div class="small text-muted">Gesamtbetrag der aktuellen Bestellzeigen:</div>
+                    <div class="h4 mb-0 text-right" id="order-grand-total">0,00 EUR</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-12 text-right">
+            <button type="submit" class="btn btn-primary">
+                <i class="fas fa-check"></i> Bestellung anlegen
+            </button>
+        </div>
+    </div>
+
+    <template id="order-line-template">
+        <tr class="order-line-row">
+            <td>
+                <select class="form-control line-item" data-role="item"></select>
+            </td>
+            <td>
+                <input type="number" class="form-control line-qty text-right" data-role="quantity" min="0" step="1" value="1" />
+            </td>
+            <td>
+                <div class="input-group">
+                    <div class="input-group-prepend"><span class="input-group-text">EUR</span></div>
+                        <input type="number" class="form-control line-price text-right" data-role="price" min="0" max="{{ (maxPriceCents / 100)|round(2) }}" step="0.01" value="0" />
+                </div>
+            </td>
+            <td class="text-right align-middle">
+                <strong class="line-total">0,00 EUR</strong>
+            </td>
+            <td class="text-center align-middle">
+                <button type="button" class="btn btn-sm btn-outline-danger remove-line-btn" title="Zeile entfernen">
+                    <i class="fas fa-trash"></i>
+                </button>
+            </td>
+        </tr>
+    </template>
+
+    {{ form_end(form) }}
+
+    {% set jsonFlags = constant('JSON_HEX_TAG') b-or constant('JSON_HEX_AMP') b-or constant('JSON_HEX_APOS') b-or constant('JSON_HEX_QUOT') %}
+    <script>
+        (function () {
+            const addons = {{ addons|json_encode(jsonFlags)|raw }};
+            const defaultTicketPriceCents = {{ defaultTicketPriceCents }};
+
+            const body = document.getElementById('order-lines-body');
+            const template = document.getElementById('order-line-template');
+            const addLineBtn = document.getElementById('add-line-btn');
+            const totalTarget = document.getElementById('order-grand-total');
+
+            let rowCount = 0;
+
+            const formatEur = (value) => value.toLocaleString('de-DE', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+            }) + ' EUR';
+
+            const parseNumber = (value) => {
+                const normalized = String(value ?? '').replace(',', '.').trim();
+                const num = Number.parseFloat(normalized);
+                return Number.isFinite(num) ? num : 0;
+            };
+
+            const ticketDefaultEur = () => (defaultTicketPriceCents / 100);
+
+            const findAddon = (id) => addons.find((addon) => String(addon.id) === String(id));
+
+            const setFieldNames = (row, index) => {
+                row.querySelector('[data-role="item"]').setAttribute('name', `lines[${index}][item]`);
+                row.querySelector('[data-role="quantity"]').setAttribute('name', `lines[${index}][quantity]`);
+                row.querySelector('[data-role="price"]').setAttribute('name', `lines[${index}][price]`);
+            };
+
+            const recalcRow = (row) => {
+                const qty = Math.max(0, Math.floor(parseNumber(row.querySelector('.line-qty').value)));
+                const price = Math.max(0, parseNumber(row.querySelector('.line-price').value));
+                const lineTotal = qty * price;
+                row.querySelector('.line-total').textContent = formatEur(lineTotal);
+                return lineTotal;
+            };
+
+            const recalcTotal = () => {
+                let total = 0;
+                body.querySelectorAll('.order-line-row').forEach((row) => {
+                    total += recalcRow(row);
+                });
+                totalTarget.textContent = formatEur(total);
+            };
+
+            const syncItemSelectState = (row) => {
+                const itemSelect = row.querySelector('.line-item');
+                const qtyInput = row.querySelector('.line-qty');
+                const itemKey = String(itemSelect.value || 'ticket');
+
+                if (itemKey === 'ticket') {
+                    qtyInput.max = String({{ constant('App\\Service\\ShopService::MAX_TICKET_COUNT') }});
+                    row.querySelector('.line-price').value = ticketDefaultEur().toFixed(2);
+                } else {
+                    const addonId = itemKey.replace('addon:', '');
+                    const selectedAddon = findAddon(addonId);
+                    if (selectedAddon) {
+                        qtyInput.max = selectedAddon.onlyOnce ? '1' : String({{ constant('App\\Service\\ShopService::MAX_ADDON_COUNT') }});
+                        if (selectedAddon.onlyOnce && parseNumber(qtyInput.value) > 1) {
+                            qtyInput.value = '1';
+                        }
+                        if (!row.dataset.priceTouched || row.dataset.priceTouched === '0') {
+                            row.querySelector('.line-price').value = (selectedAddon.priceCents / 100).toFixed(2);
+                        }
+                    }
+                }
+
+                recalcTotal();
+            };
+
+            const buildItemOptions = (select) => {
+                select.innerHTML = '';
+
+                const ticketOption = document.createElement('option');
+                ticketOption.value = 'ticket';
+                ticketOption.textContent = `Ticket (${formatEur(ticketDefaultEur())})`;
+                select.appendChild(ticketOption);
+
+                addons.forEach((addon) => {
+                    const option = document.createElement('option');
+                    option.value = `addon:${addon.id}`;
+                    option.textContent = `${addon.name} (${formatEur(addon.priceCents / 100)})`;
+                    select.appendChild(option);
+                });
+            };
+
+            const addLine = () => {
+                const fragment = template.content.cloneNode(true);
+                const row = fragment.querySelector('.order-line-row');
+                const index = rowCount++;
+                setFieldNames(row, index);
+
+                const itemSelect = row.querySelector('.line-item');
+                const qtyInput = row.querySelector('.line-qty');
+                const priceInput = row.querySelector('.line-price');
+                const removeBtn = row.querySelector('.remove-line-btn');
+
+                buildItemOptions(itemSelect);
+                priceInput.value = ticketDefaultEur().toFixed(2);
+                row.dataset.priceTouched = '0';
+
+                itemSelect.addEventListener('change', () => {
+                    row.dataset.priceTouched = '0';
+                    syncItemSelectState(row);
+                });
+
+                qtyInput.addEventListener('input', recalcTotal);
+
+                priceInput.addEventListener('input', () => {
+                    row.dataset.priceTouched = '1';
+                    recalcTotal();
+                });
+
+                removeBtn.addEventListener('click', () => {
+                    row.remove();
+                    recalcTotal();
+                });
+
+                body.appendChild(fragment);
+                syncItemSelectState(body.lastElementChild);
+            };
+
+            if (addLineBtn) {
+                addLineBtn.addEventListener('click', addLine);
+            }
+            addLine();
+        })();
+    </script>
+
+    <style>
+        #order-lines-table th:first-child,
+        #order-lines-table td:first-child {
+            padding-left: 0;
+        }
+    </style>
+{% endblock %}

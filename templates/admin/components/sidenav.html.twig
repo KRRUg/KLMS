@@ -78,10 +78,13 @@
                     <a class="nav-link {% if app.request.get('_route') starts with 'admin_shop_addon' %}active{% endif %}" href="{{ path('admin_shop_addon') }}"><i class="fas fa-plus fa-fw"></i> Addons </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link {% if app.request.get('_route') starts with 'admin_payment' %}active{% endif %}" href="{{ path('admin_payment') }}"><i class="fas fa-ticket fa-fw"></i> Tickets </a>
+                    <a class="nav-link {% if app.request.get('_route') == 'admin_payment' %}active{% endif %}" href="{{ path('admin_payment') }}"><i class="fas fa-ticket fa-fw"></i> Tickets </a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link {% if app.request.get('_route') starts with 'admin_payment_quick_checkin' %}active{% endif %}" href="{{ path('admin_payment_quick_checkin') }}"><i class="fas fa-qrcode fa-fw"></i> QR Check-In </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {% if app.request.get('_route') starts with 'admin_payment_desktop_checkin' %}active{% endif %}" href="{{ path('admin_payment_desktop_checkin') }}"><i class="fas fa-barcode fa-fw"></i> Desktop Check-in </a>
                 </li>
                 {% endif %}
                 {% if is_granted('ROLE_ADMIN_SEATMAP') %}

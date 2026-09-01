@@ -23,6 +23,11 @@ class SafeImageFileValidator extends ConstraintValidator
             throw new UnexpectedTypeException($value, File::class);
         }
 
+        // Check if the file path is valid and the file exists
+        if (!$value->getRealPath() || !is_file($value->getRealPath())) {
+            return;
+        }
+
         $filename  = $value->getFilename();
         $mimeType  = $value->getMimeType() ?? 'unknown';
         $extension = strtolower($value->guessExtension() ?? pathinfo($filename, PATHINFO_EXTENSION));

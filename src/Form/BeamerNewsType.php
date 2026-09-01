@@ -43,7 +43,7 @@ class BeamerNewsType extends AbstractType
             'asset_helper' => false,
             'imagine_pattern' => 'beamer_news_image',
             'label' => 'Bild',
-            'help' => 'Die optimale Größe ist 1920x1080px (Full-HD). Erlaubte Formate: PNG, JPEG, WebP. Maximale Größe: 10 MB.',
+            'help' => 'Das Bild wird quadratisch angezeigt und ggf. beschnitten. Erlaubte Formate: PNG, JPEG, WebP. Maximale Größe: 10 MB.',
             'attr' => [
                 'accept' => 'image/png,image/jpeg,image/webp',
             ],

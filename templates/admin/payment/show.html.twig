@@ -57,6 +57,12 @@
                             <span class="d-inline-block text-muted">Status unbekannt</span>
                         {% endif %}
                     </p>
+                    {% if ticket.comment %}
+                        <p>
+                            <i class="fas fa-comment fa-fw mr-2" title="Kommentar"></i>
+                            <span class="d-inline-block">{{ ticket.comment }}</span>
+                        </p>
+                    {% endif %}
                 </div>
             </div>
             <hr/>

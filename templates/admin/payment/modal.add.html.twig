@@ -2,14 +2,27 @@
     with {
     'id': 'newModal',
     'title' : 'Gamer anmelden',
-    'attr' : {'data-remote-target' : path('admin_payment_add'), 'data-backdrop': 'static'},
+    'attr' : {'data-backdrop': 'static'},
     'button_save' : 'Anmelden',
-    'form' : form_add
+    'form' : form_register
 }
 %}
     {% block modalForm %}
-        <div class="form-group">
-            {{ form_row(form_add.user) }}
-        </div>
+        {{ form_row(form_register.user) }}
+        {{ form_row(form_register.comment) }}
+    {% endblock %}
+{% endembed %}
+
+{% embed "modules/modals/form.html.twig"
+    with {
+    'id': 'newEmptyModal',
+    'title' : 'Kostenloses Ticket anlegen',
+    'attr' : {'data-backdrop': 'static'},
+    'button_save' : 'Ticket anlegen',
+    'form' : form_free
+}
+%}
+    {% block modalForm %}
+        {{ form_row(form_free.comment) }}
     {% endblock %}
 {% endembed %}

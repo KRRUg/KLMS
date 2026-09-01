@@ -13,6 +13,7 @@ class MapController extends AbstractController
 {
     public function __construct(
         private readonly MapService $mapService,
+        private readonly string $cartoBasemapApiKey,
     ) {
     }
 
@@ -21,6 +22,7 @@ class MapController extends AbstractController
     {
         return $this->render('site/map/index.html.twig', [
             'mapPayload' => $this->mapService->getUserMapPayload(),
+            'cartoBasemapApiKey' => $this->cartoBasemapApiKey,
         ]);
     }
 }

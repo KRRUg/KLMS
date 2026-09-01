@@ -98,7 +98,7 @@
                     scrollWheelZoom: true,
                 }).setView([center.lat, center.lng], center.zoom || 5);
 
-                window.L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+                window.L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png?key={{ cartoBasemapApiKey|url_encode|e('js') }}', {
                     maxZoom: 19,
                     attribution: '&copy; OpenStreetMap-Mitwirkende &copy; CARTO',
                 }).addTo(map);

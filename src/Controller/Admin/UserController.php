@@ -97,6 +97,11 @@ class UserController extends AbstractController
                 $this->em->flush();
                 $this->addFlash('success', 'User erfolgreich bearbeitet!');
 
+                $returnUrl = $request->query->get('return');
+                if (is_string($returnUrl) && str_starts_with($returnUrl, '/') && !str_starts_with($returnUrl, '//')) {
+                    return $this->redirect($returnUrl);
+                }
+
                 return $this->redirectToRoute('admin_user');
             } catch (PersistException $e) {
                 match ($e->getCode()) {

@@ -5,7 +5,7 @@ namespace App\Exception;
 use App\Entity\Ticket;
 use RuntimeException;
 
-class TicketLivecycleException extends RuntimeException
+class TicketLifecycleException extends RuntimeException
 {
     public readonly Ticket $ticketCode;
 

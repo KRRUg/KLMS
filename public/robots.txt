@@ -2,19 +2,22 @@ User-agent: *
 Allow: /
 Disallow: /admin/
 Disallow: /login
+Disallow: /logout
 Disallow: /register
 Disallow: /reset
 Disallow: /api/
+Disallow: /users
+Disallow: /clans
 Disallow: /cache/
 Disallow: /var/
 Disallow: /vendor/
 Disallow: /config/
 Disallow: /src/
-Disallow: /user/
+Disallow: /user
 Disallow: /media/
 Disallow: /seatmap/seat/
-Disallow: /shop/payment/
-Disallow: /beamer/
+Disallow: /shop/
+Disallow: /beamer
 
 Sitemap: https://www.dot-lan.at/sitemap.xml
 

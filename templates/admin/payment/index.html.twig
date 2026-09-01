@@ -5,12 +5,9 @@
 {% block main %}
     <div class="row mb-4">
         <div class="col-auto pr-0">
-            {{ form_start(form_new) }}
-                <button type="submit" class="btn btn-sm btn-success" id="new-empty">
-                    <i class="fas fa-plus"></i> Ticket anlegen
-                </button>
-            {% do form_new.user.setRendered() %}
-            {{ form_end(form_new) }}
+            <button class="btn btn-sm btn-success" data-toggle="modal" data-target="#newEmptyModal" id="new-empty">
+                <i class="fas fa-plus"></i> Ticket anlegen
+            </button>
         </div>
         <div class="col-auto">
             <button class="btn btn-sm btn-success" data-toggle="modal" data-target="#newModal" id="new">
@@ -49,7 +46,13 @@
                         <tr>
                             <td class="text-nowrap text-monospace text-right">{{ ticket.id }}</td>
                             <td class="text-nowrap text-monospace">{{ ticket.code }}</td>
-                            <td>{% if ticket.shopOrderPosition %} <span class="badge badge-secondary" title="Gekauft"><i class="fas fa-euro-sign"></i></span>{% endif %}</td>
+                            <td>
+                                {% if ticket.shopOrderPosition %}
+                                    <span class="badge badge-secondary" title="Gekauft"><i class="fas fa-euro-sign"></i></span>
+                                {% elseif ticket.comment %}
+                                    <span class="badge badge-info" title="{{ ticket.comment }}"><i class="fas fa-info-circle"></i></span>
+                                {% endif %}
+                            </td>
                             <td data-order="{{ ticket.createdAt | date('U') }}">{{ ticket.createdAt | date(dateformat) }}</td>
                         {% if ticket.redeemed %}
                             <td data-order="{{ ticket.redeemedAt | date('U') }}">{{ ticket.redeemedAt | date(dateformat) }}</td>

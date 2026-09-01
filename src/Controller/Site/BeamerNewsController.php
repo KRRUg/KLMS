@@ -40,7 +40,10 @@ class BeamerNewsController extends AbstractController
         $feed->addItemField(new MediaItemField('getFeedItemMedia'));
         $feed->addFromArray($feedItems);
 
-        return new Response($feed->render('rss'), 200, ['Content-Type' => 'application/rss+xml']);
+        return new Response($feed->render('rss'), 200, [
+            'Content-Type' => 'application/rss+xml',
+            'Access-Control-Allow-Origin' => '*',
+        ]);
     }
 
     private function toFeedElement(BeamerNews $beamerNews, string $baseUrl): ItemInterface

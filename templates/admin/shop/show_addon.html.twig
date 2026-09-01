@@ -25,7 +25,7 @@
             </form>
         {% endmacro %}
 
-        {% if csrf_token is defined %}
+        {% if addon is defined %}
             {{ _self.confirm_button('Löschen', path('admin_shop_addon_delete', { 'id': addon.id }), csrf_token, "danger", true) }}
         {% endif %}
         <button type="button" class="btn btn-sm btn-secondary" data-dismiss="modal">Schließen</button>

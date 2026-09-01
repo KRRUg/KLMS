@@ -4,7 +4,7 @@ namespace App\Service;
 
 use App\Entity\Ticket;
 use App\Entity\User;
-use App\Exception\TicketLivecycleException;
+use App\Exception\TicketLifecycleException;
 use App\Idm\IdmManager;
 use App\Idm\IdmRepository;
 use App\Repository\TicketRepository;
@@ -25,6 +25,16 @@ class TicketService
         $this->ticketRepository = $ticketRepository;
         $this->em = $em;
         $this->userRepo = $iem->getRepository(User::class);
+    }
+
+    private static function normalizeComment(?string $comment): ?string
+    {
+        if ($comment === null) {
+            return null;
+        }
+
+        $comment = trim($comment);
+        return $comment === '' ? null : $comment;
     }
 
     /**
@@ -112,7 +122,7 @@ class TicketService
         }
     }
 
-    public function registerUser(User|UuidInterface $user): Ticket
+    public function registerUser(User|UuidInterface $user, ?string $comment = null): Ticket
     {
         $uuid = $user instanceof User ? $user->getUuid() : $user;
         // check for existing ticket
@@ -126,7 +136,8 @@ class TicketService
         $ticket = (new Ticket())
             ->setCreatedAt($now)
             ->setRedeemedAt($now)
-            ->setRedeemer($uuid);
+            ->setRedeemer($uuid)
+            ->setComment(self::normalizeComment($comment));
 
         $this->persistTicket($ticket);
         return $ticket;
@@ -160,16 +171,17 @@ class TicketService
     public function deleteTicket(Ticket $ticket): void
     {
         if ($ticket->getShopOrderPosition()) {
-            throw new TicketLivecycleException($ticket);
+            throw new TicketLifecycleException($ticket);
         }
         $this->em->remove($ticket);
         $this->em->flush();
     }
 
-    public function createTicket(): Ticket
+    public function createTicket(?string $comment = null): Ticket
     {
         $ticket = (new Ticket())
-            ->setCreatedAt(new DateTimeImmutable());
+            ->setCreatedAt(new DateTimeImmutable())
+            ->setComment(self::normalizeComment($comment));
         $this->persistTicket($ticket);
         return $ticket;
     }
@@ -183,7 +195,7 @@ class TicketService
         }
         $state = $ticket->getState();
         if (is_null($state)) {
-            throw new TicketLivecycleException($ticket);
+            throw new TicketLifecycleException($ticket);
         }
         if ($state == TicketState::NEW && !$this->isUserRegistered($uuid)) {
             $ticket
@@ -218,7 +230,7 @@ class TicketService
     {
         $state = $ticket->getState();
         if (is_null($state)) {
-            throw new TicketLivecycleException($ticket);
+            throw new TicketLifecycleException($ticket);
         }
         if ($state == TicketState::REDEEMED) {
             $ticket
@@ -242,7 +254,7 @@ class TicketService
     {
         $state = $ticket->getState();
         if (is_null($state)) {
-            throw new TicketLivecycleException($ticket);
+            throw new TicketLifecycleException($ticket);
         }
         if ($state == TicketState::PUNCHED) {
             $ticket

@@ -40,6 +40,7 @@ Encore
     .addEntry('admin_seatmap', './assets/js/admin/seatmap.js')
     .addEntry('admin_tourney', './assets/js/admin/tourney.js')
     .addEntry('admin_checkin', './assets/js/admin/checkin.js')
+    .addEntry('admin_desktop_checkin', './assets/js/admin/desktop-checkin.js')
     .addStyleEntry('email', './assets/css/email.scss')
     .addStyleEntry('booking', './assets/css/modules/booking.scss')
 

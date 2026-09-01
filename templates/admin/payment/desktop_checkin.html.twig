@@ -1,0 +1,175 @@
+{% extends 'admin/adminBase.html.twig' %}
+
+{% block title %}Desktop Check-in{% endblock %}
+
+{% block main %}
+<div class="container-fluid py-3 desktop-checkin" data-checkin-page>
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <div>
+            <h1 class="h3 mb-1">Desktop Check-in</h1>
+            <p class="text-muted mb-0">Barcode scannen oder Ticket manuell suchen.</p>
+        </div>
+        <span class="badge badge-secondary"><i class="fas fa-barcode mr-1"></i> Hardware-Scanner</span>
+    </div>
+
+    <div class="card mb-3">
+        <div class="card-body">
+            <form method="get" action="{{ path('admin_payment_desktop_checkin') }}" data-scan-form>
+                <label for="desktop-checkin-input">Ticketcode</label>
+                <div class="input-group input-group-lg">
+                    <input id="desktop-checkin-input" name="q" value="{{ searchQuery }}" class="form-control text-monospace" autocomplete="off" autofocus data-scan-input>
+                    <div class="input-group-append">
+                        <button class="btn btn-primary" type="submit"><i class="fas fa-search mr-1"></i> Suchen</button>
+                    </div>
+                </div>
+                <small class="form-text text-muted">Der Scanner kann direkt in dieses Feld scannen und mit Enter abschließen.</small>
+            </form>
+        </div>
+    </div>
+
+    {% if searchQuery and not ticket and searchResults is empty %}
+        <div class="alert alert-danger"><i class="fas fa-times-circle mr-2"></i>Kein Ticket gefunden.</div>
+    {% endif %}
+
+    {% if searchResults is not empty %}
+        <div class="card mb-3">
+            <div class="card-header">Treffer für „{{ searchQuery }}“</div>
+            <div class="table-responsive">
+                <table class="table table-striped mb-0">
+                    <thead>
+                        <tr>
+                            <th>Nickname</th>
+                            <th>Vorname</th>
+                            <th>Nachname</th>
+                            <th>Ticketcode</th>
+                            <th class="text-nowrap">Aktion</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for result in searchResults %}
+                            <tr>
+                                <td>{{ result.user ? result.user.nickname|default('Nickname n.v.') : 'Nicht zugeordnet' }}</td>
+                                <td>{{ result.user ? result.user.firstname|default('-') : '-' }}</td>
+                                <td>{{ result.user ? result.user.surname|default('-') : '-' }}</td>
+                                <td class="text-monospace">{{ result.ticket.code }}</td>
+                                <td>
+                                    <a class="btn btn-sm btn-outline-primary text-nowrap" href="{{ path('admin_payment_desktop_checkin', {q: result.ticket.code}) }}">
+                                        <i class="fas fa-ticket-alt mr-1"></i>Auswählen
+                                    </a>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    {% endif %}
+
+    {% if ticket %}
+        {% set status = ticket.state %}
+        {% set statusLabels = {
+            'NEW': 'Ohne Zuordnung',
+            'REDEEMED': 'Zugeordnet',
+            'PUNCHED': 'Checked-in'
+        } %}
+        {% set statusBadges = {
+            'NEW': 'badge-danger',
+            'REDEEMED': 'badge-success',
+            'PUNCHED': 'badge-warning'
+        } %}
+        <div class="row">
+            <div class="col-xl-5 mb-3">
+                <div class="card h-100">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <span><i class="fas fa-user mr-2"></i>Stammdaten</span>
+                        {% if user and is_granted('ROLE_ADMIN_USER') %}
+                            <a class="btn btn-sm btn-outline-primary" href="{{ path('admin_user_edit', {uuid: user.uuid, return: path('admin_payment_desktop_checkin', {q: ticket.code})}) }}"><i class="fas fa-user-edit mr-1"></i>Bearbeiten</a>
+                        {% endif %}
+                    </div>
+                    <div class="card-body">
+                        {% if user %}
+                            <h2 class="h4">{{ user.firstname }} {{ user.surname }}</h2>
+                            <p class="text-muted mb-3">{{ user.nickname|default('Nickname n.v.') }}</p>
+                            <dl class="row mb-0">
+                                <dt class="col-sm-5">Geburtsdatum</dt>
+                                <dd class="col-sm-7 {% if not user.birthdate %}text-danger font-weight-bold{% endif %}">
+                                    {{ user.birthdate ? user.birthdate|date('d.m.Y') : 'Fehlt' }}
+                                </dd>
+                                <dt class="col-sm-5">E-Mail</dt><dd class="col-sm-7">{{ user.email|default('n.v.') }}</dd>
+                                <dt class="col-sm-5">Telefon</dt><dd class="col-sm-7">{{ user.phone|default('n.v.') }}</dd>
+                            </dl>
+                        {% else %}
+                            <div class="alert alert-warning mb-0">Ticket ist noch keinem Benutzer zugeordnet.</div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            <div class="col-xl-7 mb-3">
+                <div class="card h-100">
+                    <div class="card-header"><i class="fas fa-ticket-alt mr-2"></i>Ticket und Bestellung</div>
+                    <div class="card-body">
+                        {% if not user or not user.birthdate %}
+                            <div class="alert alert-warning"><i class="fas fa-exclamation-triangle mr-2"></i>Geburtsdatum fehlt. Bitte vor dem Check-in ergänzen.</div>
+                        {% endif %}
+                        {% if ticket.shopOrderPosition and ticket.shopOrderPosition.order.isDead %}
+                            <div class="alert alert-danger"><i class="fas fa-ban mr-2"></i>Die Bestellung ist storniert oder erstattet.</div>
+                        {% elseif ticket.shopOrderPosition and ticket.shopOrderPosition.order.isOpen %}
+                            <div class="alert alert-warning"><i class="fas fa-hourglass-half mr-2"></i>Die Bestellung ist noch nicht bezahlt.</div>
+                        {% endif %}
+                        <div class="row">
+                            <div class="col-md-6">
+                                <dl>
+                                    <dt>Ticketcode</dt><dd class="text-monospace">{{ ticket.code }}</dd>
+                                    <dt>Status</dt><dd><span class="badge {{ status is not null ? statusBadges[status.name]|default('badge-light') : 'badge-light' }}">{{ status is not null ? statusLabels[status.name]|default('Status unbekannt') : 'Status unbekannt' }}</span></dd>
+                                    <dt>Sitzplatz</dt><dd>{{ seatNames ? seatNames|join(', ') : 'Keiner' }}</dd>
+                                </dl>
+                            </div>
+                            <div class="col-md-6">
+                                <dl>
+                                    <dt>Gekauft</dt><dd>{{ ticket.shopOrderPosition ? ticket.shopOrderPosition.order.createdAt|date('d.m.Y H:i') : 'Nicht gekauft' }}</dd>
+                                    <dt>Einlösung</dt><dd>{{ ticket.redeemedAt ? ticket.redeemedAt|date('d.m.Y H:i') : 'Nicht eingelöst' }}</dd>
+                                    <dt>Bestellung</dt><dd>{{ ticket.shopOrderPosition ? '#' ~ ticket.shopOrderPosition.order.id : 'Keine' }}</dd>
+                                </dl>
+                            </div>
+                        </div>
+                        <h3 class="h5 border-top pt-3">Add-ons</h3>
+                        {% if addons %}
+                            <ul class="list-group mb-3">
+                                {% for addon in addons %}<li class="list-group-item d-flex justify-content-between"><span>{{ addon.text }}</span><span class="text-muted">{{ (addon.price / 100)|number_format(2, ',', '.') }} €</span></li>{% endfor %}
+                            </ul>
+                        {% else %}<p class="text-muted">Keine Add-ons gekauft.</p>{% endif %}
+                        <div class="border-top pt-3 d-flex flex-wrap">
+                            {{ form_start(form, {'attr': {'class': 'd-flex flex-wrap mr-2'}}) }}
+                            {% if status and status.name == 'NEW' %}
+                                <div class="mr-2" style="min-width: 16rem">{{ form_widget(form.user) }}</div>
+                                {{ form_widget(form.assign, {'attr': {'class': 'btn btn-sm mr-1 btn-primary'}, 'label': 'Ticket zuweisen'}) }}
+                            {% endif %}
+                            {% if form.unassign is defined %}{{ form_widget(form.unassign, {'attr': {'class': 'btn btn-sm mr-1 btn-secondary'}, 'label': 'Ticket freigeben'}) }}{% endif %}
+                            {% if form.delete is defined %}
+                                {{ form_widget(form.delete, {
+                                    'label': ticket.redeemed ? 'Ticket freigeben & löschen' : 'Ticket löschen',
+                                    'attr': {
+                                        'class': 'btn btn-sm mr-1 btn-outline-danger',
+                                        'data-toggle': 'confirmModal',
+                                        'data-modal-title': 'Bestätigen',
+                                        'data-modal-text': 'Sind Sie sicher?'
+                                    }
+                                }) }}
+                            {% endif %}
+                            {% if form.punch is defined %}{{ form_widget(form.punch, {'attr': {'class': 'btn btn-sm mr-1 btn-primary'}, 'label': 'Ticket checkin'}) }}{% endif %}
+                            {% if form.unpunch is defined %}{{ form_widget(form.unpunch, {'attr': {'class': 'btn btn-sm mr-1 btn-primary'}, 'label': 'Ticket checkout'}) }}{% endif %}
+                            {{ form_end(form) }}
+                            <a class="btn btn-sm btn-secondary" href="{{ path('admin_payment_desktop_checkin') }}"><i class="fas fa-redo mr-1"></i>Nächster Scan</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    {{ encore_entry_script_tags('admin_desktop_checkin') }}
+{% endblock %}

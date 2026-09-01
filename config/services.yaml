@@ -19,6 +19,7 @@ services:
             string $vapidSubject: '%env(VAPID_SUBJECT)%'
             string $vapidPublicKey: '%env(VAPID_PUBLIC_KEY)%'
             string $vapidPrivateKey: '%env(VAPID_PRIVATE_KEY)%'
+            'string $cartoBasemapApiKey': '%env(CARTO_BASEMAP_API_KEY)%'
 
     #Register PSR-3 LogHandler for Sentry to resolve PSR-3 Placeholders in Reports
     Monolog\Processor\PsrLogMessageProcessor:

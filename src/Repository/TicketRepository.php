@@ -33,6 +33,18 @@ class TicketRepository extends ServiceEntityRepository
         return $this->findOneBy(['code' => $code]);
     }
 
+    /** @return Ticket[] */
+    public function findByOrderId(int $orderId): array
+    {
+        return $this->createQueryBuilder('t')
+            ->join('t.shopOrderPosition', 'ticketPosition')
+            ->join('ticketPosition.order', 'o')
+            ->andWhere('o.id = :orderId')
+            ->setParameter('orderId', $orderId)
+            ->getQuery()
+            ->getResult();
+    }
+
     public function countFromTicket(): int
     {
         return $this->createQueryBuilder('t')

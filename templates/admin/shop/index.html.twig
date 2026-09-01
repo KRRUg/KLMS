@@ -3,11 +3,18 @@
 {% block title %}Bestellungen - KLMS - Admin{% endblock %}
 {% block siteheading %}<i class="fas fa-cart-shopping"></i> Bestellungen{% endblock %}
 {% block main %}
+    <div class="row mb-2">
+        <div class="col-auto pr-0">
+            <a class="btn btn-sm btn-success" href="{{ path('admin_shop_new') }}" id="new-order">
+                <i class="fas fa-plus"></i> Bestellung erfassen
+            </a>
+        </div>
+        <div class="col-auto">
+            <a id="export" class="btn btn-sm btn-primary" href="{{ path('admin_shop_order_export') }}">Bestellungen exportieren (.csv)</a>
+        </div>
+    </div>
     <div class="row">
         <div class="col-12">
-            <div class="mb-2">
-                <a id="export" class="btn btn-sm btn-primary"  href="{{ path('admin_shop_order_export') }}">Bestellungen exportieren (.csv)</a>
-            </div>
             <div class="card">
                 <table class="table table-striped admin-data-table" data-order='[[ 0, "desc" ]]'>
                     <thead>
