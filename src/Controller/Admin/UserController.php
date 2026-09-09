@@ -4,7 +4,7 @@ namespace App\Controller\Admin;
 
 use App\Entity\User;
 use App\Entity\UserImage;
-use App\Form\UserType;
+use App\Form\UserAdminType;
 use App\Idm\Exception\PersistException;
 use App\Idm\IdmManager;
 use App\Idm\IdmRepository;
@@ -78,7 +78,7 @@ class UserController extends AbstractController
         }
 
         $image = $this->userImgRepo->findOneByUser($user) ?? new UserImage($user->getUuid());
-        $form = $this->createForm(UserType::class, $user, ['disable_on_lock' => false, 'with_image' => true]);
+        $form = $this->createForm(UserAdminType::class, $user, ['disable_on_lock' => false, 'with_image' => true]);
         $form->get('image')->setData($image);
         $form->handleRequest($request);
 

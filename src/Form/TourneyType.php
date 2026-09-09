@@ -18,6 +18,7 @@ use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Validator\Constraints as Assert;
+use Vich\UploaderBundle\Form\Type\VichFileType;
 
 class TourneyType extends AbstractType
 {
@@ -91,7 +92,8 @@ class TourneyType extends AbstractType
                 'label' => 'Modus',
                 'class' => TourneyRules::class,
                 'choice_label' => fn ($c) => $c->getMessage(),
-                'choice_filter' => fn ($c) => $c !== null && !$c->requiresGroupStage(),
+                // On create we derive group modes from the checkbox, on edit we must still show stored group modes.
+                'choice_filter' => fn ($c) => $c !== null && (!$options['create'] || !$c->requiresGroupStage()),
                 'expanded' => true,
                 'multiple' => false,
                 'disabled' => !$options['create'],
@@ -132,10 +134,18 @@ class TourneyType extends AbstractType
                 ],
                 'disabled' => !$options['create'],
             ])
+            ->add('rulesFile', VichFileType::class, [
+                'label' => 'Regelwerk (PDF)',
+                'required' => false,
+                'allow_delete' => true,
+                'delete_label' => 'Regelwerk löschen',
+                'download_uri' => true,
+            ])
         ;
 
-        // Set initial value for hasGroupStage checkbox based on existing mode
-        $builder->addEventListener(FormEvents::PRE_SET_DATA, function (FormEvent $event) {
+        // Set initial value for hasGroupStage checkbox based on existing mode.
+        // POST_SET_DATA ensures mapped child values are already initialized.
+        $builder->addEventListener(FormEvents::POST_SET_DATA, function (FormEvent $event) {
             $tourney = $event->getData();
             $form = $event->getForm();
             

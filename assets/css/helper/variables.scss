@@ -1,7 +1,7 @@
 $main-color: #df1238;
 $body-bg:#2b2b2b;
 $shadow-color:#000;
-$bg-dark:#2b2b2b;
+$bg-dark:$body-bg;
 
 $font-family-base:Open Sans;
 $font-size-base:1.25rem;
@@ -20,7 +20,7 @@ $table-color: $light-muted;
 $body-color: $light-muted;
 $hr-border-color: $light-muted;
 
-$card-border-width: 1px;
+$card-border-width: 0;
 $table-border-width: 0;
 $card-border-color: $light-muted;
 
@@ -38,21 +38,19 @@ $grid-breakpoints: (
   sm: 576px,
   md: 768px,
   lg: 992px,
-  xl: 1200px,
-  xxl: 1400px
-)!default;
-
+  xl: 1200px
+);
 
 $container-max-widths: (
   sm: 540px,
   md: 720px,
   lg: 1000px,
   xl: 1300px
-) !default;
+);
 
 $sizes: (
   1: 1%
-) !default;
+);
 
 $enable-rounded: false;
 $enable-shadows: false;
@@ -63,7 +61,6 @@ $dropdown-font-size: 1rem;
 $box-shadow-sm: 0 1.6px 3.6px 0 rgba($shadow-color,.132),0 .3px .9px 0 rgba($shadow-color,.108);
 $box-shadow:    0 3.2px 7.2px 0 rgba($shadow-color,.132),0 .6px 1.8px 0 rgba($shadow-color,.108);
 $box-shadow-lg: 0 6.4px 14.4px 0 rgba($shadow-color,.132),0 1.2px 3.6px 0 rgba($shadow-color,.108);
-$box-shadow-xl: 0 25.6px 57.6px 0 rgba($shadow-color,.22),0 4.8px 14.4px 0 rgba($shadow-color,.18);
 
 $card-avatar-size:6rem;
 
@@ -73,6 +70,5 @@ $navbar-padding-x:1.8rem;
 
 $list-group-bg: none;
 $popover-header-color: #000;
-$list-group-border-width: 0px;
-$card-border-width: 0px;
+$list-group-border-width: 0;
 

@@ -52,6 +52,7 @@
                                     <img class="h-100 w-100 p-1" style="object-fit: contain;"
                                          src="{{ vich_uploader_asset(i, 'mediaFile') | imagine_filter('thumbnail_small') }}"
                                          alt="{{ i.displayName }}"
+                                         loading="lazy"
                                          >
                                 </a>
                             {% else %}

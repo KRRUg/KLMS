@@ -152,7 +152,7 @@ footer,
   font-weight: 700 !important;
 }
 
-@include bootstrap.media-breakpoint-down(xl) {
+@include bootstrap.media-breakpoint-down(lg) {
   .navbar {
     font-size: 1rem !important;
     font-family: Montserrat Alternates !important;

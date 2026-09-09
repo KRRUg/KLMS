@@ -5,8 +5,11 @@
 
 {% block main %}
     <div class="row mb-4">
-        <div class="col-12">
+        <div class="col-12 d-flex justify-content-between align-items-center">
             <a class="btn btn-success" id="new" href="{{ path('admin_tourney_new') }}"><i class="fas fa-plus"></i> Anlegen</a>
+            <span class="badge badge-pill badge-primary p-2">
+                <i class="fa-solid fa-coins"></i> Spieler-Budget: {{ constant('App\\Service\\TourneyService::TOKEN_COUNT') }} Token
+            </span>
         </div>
     </div>
     <div class="row">

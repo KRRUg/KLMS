@@ -32,6 +32,11 @@
                                 </p>
                             </div>
                         {% endif %}
+                        {% if tourney.rulesFileName is not empty %}
+                            <div class="col-12">
+                                <a href="{{ vich_uploader_asset(tourney, 'rulesFile') }}" target="_blank"><i class="fa-solid fa-file-pdf"></i> Regelwerk</a>
+                            </div>
+                        {% endif %}
                     {% endblock %}
                 </div>
             </div>
@@ -59,10 +64,6 @@
                         <dd>
                             {{ tourney.teams.count }} / {{ tourney.maxTeams | default("&infin;") | raw }}
                         </dd>
-                        {#            {% if tourney.rules is not empty %}#}
-                        {#                <dt>Regeln:</dt> #}
-                        {#                <dd>{tourney.rules}</dd> #}
-                        {#            {% endif %}#}
                     </dl>
                 {% endblock %}
             </div>

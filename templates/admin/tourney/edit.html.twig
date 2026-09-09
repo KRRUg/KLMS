@@ -27,7 +27,7 @@
                             {{ form_row(form.maxTeams) }}
                             {{ form_row(form.mode) }}
                             {{ form_row(form.hasGroupStage) }}
-                            <div id="group-stage-fields" style="display: none;">
+                            <div id="group-stage-fields" style="display: {{ form.hasGroupStage.vars.checked ? 'block' : 'none' }};">
                                 {{ form_row(form.groupCount) }}
                                 {{ form_row(form.groupAdvance) }}
                             </div>
@@ -49,6 +49,16 @@
                             <h5>Turnier</h5>
                             {{ form_row(form.token) }}
                             {{ form_row(form.show_points) }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col">
+                    <div class="card mb-4">
+                        <div class="card-body">
+                            <h5>Regelwerk</h5>
+                            {{ form_row(form.rulesFile) }}
                         </div>
                     </div>
                 </div>
@@ -82,23 +92,28 @@
     {{ parent() }}
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            const groupStageCheckbox = document.querySelector('.group-stage-toggle');
+            const groupStageCheckbox = document.getElementById('{{ form.hasGroupStage.vars.id }}');
             const groupStageFields = document.getElementById('group-stage-fields');
-            const modeRadios = document.querySelectorAll('input[name="tourney[mode]"]');
+            const modeRadios = document.querySelectorAll('input[name="{{ form.mode.vars.full_name }}"]');
             
             function updateGroupStageVisibility() {
-                if (!groupStageCheckbox) return;
+                if (!groupStageCheckbox || !groupStageFields) return;
                 
                 const isChecked = groupStageCheckbox.checked;
-                const selectedMode = document.querySelector('input[name="tourney[mode]"]:checked');
+                const selectedMode = document.querySelector('input[name="{{ form.mode.vars.full_name }}"]:checked');
                 const isRegistrationOnly = selectedMode && selectedMode.value === 'ro';
+                const groupStageWrapper = groupStageCheckbox.closest('.form-group, .mb-3, .form-check');
                 
                 // Hide group stage option for "externes Turnier"
                 if (isRegistrationOnly) {
-                    groupStageCheckbox.closest('.form-group').style.display = 'none';
+                    if (groupStageWrapper) {
+                        groupStageWrapper.style.display = 'none';
+                    }
                     groupStageFields.style.display = 'none';
                 } else {
-                    groupStageCheckbox.closest('.form-group').style.display = 'block';
+                    if (groupStageWrapper) {
+                        groupStageWrapper.style.display = '';
+                    }
                     groupStageFields.style.display = isChecked ? 'block' : 'none';
                 }
             }

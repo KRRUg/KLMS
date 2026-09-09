@@ -22,6 +22,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Authentication\UserAuthenticatorInterface;
+use Symfony\Component\Validator\Constraints as Assert;
 
 class AccountController extends AbstractController
 {
@@ -86,19 +87,26 @@ class AccountController extends AbstractController
         if (!($user = $this->checkTokenAndGetUser($request, self::TOKEN_PW_RESET_STRING))) {
             return $this->redirectToRoute('app_login');
         }
-        $fb = $this->createFormBuilder($user)
+        // don't bind the form to $user directly: that would validate the whole User entity
+        // (e.g. NotBlank birthdate) even though only the password is being changed here
+        $fb = $this->createFormBuilder()
             ->add('password', RepeatedType::class, [
                 'type' => PasswordType::class,
                 'invalid_message' => 'Das Passwort muss übereinstimmen.',
                 'required' => true,
                 'first_options' => ['label' => 'Passwort'],
                 'second_options' => ['label' => 'Password wiederholen'],
+                'constraints' => [
+                    new Assert\NotBlank(),
+                    new Assert\Length(min: 6, max: 128, minMessage: 'Das Passwort muss mindestens {{ limit }} Zeichen lang sein', maxMessage: 'Das Passwort darf höchstens {{ limit }} Zeichen lang sein'),
+                ],
             ])
         ;
 
         $form = $fb->getForm();
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
+            $user->setPassword($form->get('password')->getData());
             $this->clearToken($request);
             try {
                 $this->manager->flush();

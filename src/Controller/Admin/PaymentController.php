@@ -86,6 +86,7 @@ class PaymentController extends AbstractController
             ->setMethod('POST')
             ->add('user', UserSelectType::class, [
                 'required' => true,
+                'hydrate' => false,
                 'constraints' => [new Assert\NotNull()],
             ])
             ->add('comment', TextareaType::class, [
@@ -114,7 +115,7 @@ class PaymentController extends AbstractController
         $can_delete_ticket = empty($ticket->getShopOrderPosition());
         switch ($ticket->getState()) {
             case TicketState::NEW:
-                $form->add('user', UserSelectType::class, ['required' => false]);
+                $form->add('user', UserSelectType::class, ['required' => false, 'hydrate' => false]);
                 $form->add('assign', SubmitType::class);
                 if ($can_delete_ticket) $form->add('delete', SubmitType::class);
                 break;
@@ -235,7 +236,9 @@ class PaymentController extends AbstractController
             }
 
             $comment = trim((string) ($registerForm->getData()['comment'] ?? ''));
-            $user = $registerForm->getData()['user'];
+            // 'user' is only a UUID here (hydrate: false, see UserSelectType) - resolve and confirm the user actually exists
+            $userUuid = $registerForm->getData()['user'];
+            $user = $userUuid ? $this->userRepo->findOneById($userUuid) : null;
             if (empty($user)) {
                 $this->addFlash('error', 'Ungültigen User ausgewählt.');
             } elseif ($this->ticketService->isUserRegistered($user)) {
@@ -289,7 +292,9 @@ class PaymentController extends AbstractController
             try {
                 switch (true) {
                     case self::clickedIfExists($form, 'assign'):
-                        $user = $form->get('user')->getData();
+                        // 'user' is only a UUID here (hydrate: false, see UserSelectType) - resolve and confirm the user actually exists
+                        $userUuid = $form->get('user')->getData();
+                        $user = $userUuid ? $this->userRepo->findOneById($userUuid) : null;
                         if (empty($user)) {
                             $error = "Keinen User ausgewählt.";
                         } elseif ($this->ticketService->isUserRegistered($user)) {

@@ -5,13 +5,18 @@ namespace App\Entity;
 use App\Entity\Traits\EntityHistoryTrait;
 use App\Entity\Traits\HistoryAwareEntity;
 use App\Repository\TourneyRepository;
+use DateTime;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\Validator\Constraints as Assert;
+use Vich\UploaderBundle\Mapping\Attribute\Uploadable;
+use Vich\UploaderBundle\Mapping\Attribute\UploadableField;
 
 #[ORM\Entity(repositoryClass: TourneyRepository::class)]
 #[ORM\HasLifecycleCallbacks]
+#[Uploadable]
 class Tourney implements HistoryAwareEntity
 {
     #[ORM\Id]
@@ -62,6 +67,13 @@ class Tourney implements HistoryAwareEntity
 
     #[ORM\Column(name: 'group_advance', nullable: true)]
     private ?int $group_advance = null;
+
+    #[UploadableField(mapping: 'tourney_rules', fileNameProperty: 'rulesFileName')]
+    #[Assert\File(mimeTypes: ['application/pdf'], mimeTypesMessage: 'Bitte nur PDF-Dateien hochladen.')]
+    private ?File $rulesFile = null;
+
+    #[ORM\Column(name: 'rules_file_name', nullable: true)]
+    private ?string $rulesFileName = null;
 
     use EntityHistoryTrait;
 
@@ -325,6 +337,35 @@ class Tourney implements HistoryAwareEntity
     public function setGroupAdvance(?int $group_advance): static
     {
         $this->group_advance = $group_advance;
+
+        return $this;
+    }
+
+    public function getRulesFile(): ?File
+    {
+        return $this->rulesFile;
+    }
+
+    public function setRulesFile(?File $rulesFile): static
+    {
+        $this->rulesFile = $rulesFile;
+
+        // ensure Doctrine detects a change even if no other field was touched
+        if ($rulesFile !== null) {
+            $this->setLastModified(new DateTime());
+        }
+
+        return $this;
+    }
+
+    public function getRulesFileName(): ?string
+    {
+        return $this->rulesFileName;
+    }
+
+    public function setRulesFileName(?string $rulesFileName): static
+    {
+        $this->rulesFileName = $rulesFileName;
 
         return $this;
     }
