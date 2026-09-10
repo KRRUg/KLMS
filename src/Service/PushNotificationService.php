@@ -5,6 +5,7 @@ use App\Entity\PushSubscription;
 use Doctrine\ORM\EntityManagerInterface;
 use Minishlink\WebPush\Subscription;
 use Minishlink\WebPush\WebPush;
+use Psr\Log\LoggerInterface;
 use Ramsey\Uuid\Uuid;
 use Ramsey\Uuid\UuidInterface;
 
@@ -13,16 +14,19 @@ class PushNotificationService
     private EntityManagerInterface $em;
     private array $vapidAuth;
     private string $notificationTitle;
+    private LoggerInterface $logger;
 
     public function __construct(
         EntityManagerInterface $em,
         string $vapidSubject,
         string $vapidPublicKey,
         string $vapidPrivateKey,
-        SettingService $settingService
+        SettingService $settingService,
+        LoggerInterface $logger
     )
     {
         $this->em = $em;
+        $this->logger = $logger;
         $this->vapidAuth = [
             'VAPID' => [
                 'subject' => $vapidSubject,
@@ -42,8 +46,7 @@ class PushNotificationService
         int $tourneyId,
         string $message,
         string $url,
-        ?array $targetGamers = null,
-        bool $flushExpiredSubscriptions = false
+        ?array $targetGamers = null
     ): void
     {
         $repo = $this->em->getRepository(PushSubscription::class);
@@ -90,18 +93,32 @@ class PushNotificationService
             $webPush->queueNotification($subscription, $payload);
         }
         
+        $expiredEndpoints = [];
         foreach ($webPush->flush() as $report) {
-            if (!$report->isSuccess() && $report->isSubscriptionExpired()) {
-                $endpoint = $report->getEndpoint();
-                $expiredSub = $this->em->getRepository(PushSubscription::class)
-                    ->findOneBy(['endpoint' => $endpoint]);
-                if ($expiredSub) {
-                    $this->em->remove($expiredSub);
-                }
+            if ($report->isSuccess()) {
+                continue;
+            }
+            if ($report->isSubscriptionExpired()) {
+                $expiredEndpoints[] = $report->getEndpoint();
+            } else {
+                $this->logger->warning('Push notification failed', [
+                    'endpoint' => $report->getEndpoint(),
+                    'reason' => $report->getReason(),
+                ]);
             }
         }
-        if ($flushExpiredSubscriptions) {
-            $this->em->flush();
+
+        if ($expiredEndpoints) {
+            // Direktes DQL-Delete statt em->remove()+flush(): wir werden oft aus einem
+            // Doctrine preUpdate/postPersist-Listener heraus aufgerufen, also mitten in
+            // einem laufenden Flush eines anderen Entity - ein verschachtelter em->flush()
+            // wäre dort unsicher/schlägt fehl.
+            $this->em->createQueryBuilder()
+                ->delete(PushSubscription::class, 's')
+                ->where('s.endpoint IN (:endpoints)')
+                ->setParameter('endpoints', $expiredEndpoints)
+                ->getQuery()
+                ->execute();
         }
     }
 }

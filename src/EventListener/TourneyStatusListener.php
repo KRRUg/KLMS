@@ -7,12 +7,15 @@ use App\Service\PushNotificationService;
 use Doctrine\Bundle\DoctrineBundle\Attribute\AsEntityListener;
 use Doctrine\ORM\Event\PreUpdateEventArgs;
 use Doctrine\ORM\Events;
+use Psr\Log\LoggerInterface;
 
 #[AsEntityListener(event: Events::preUpdate, method: 'preUpdate', entity: Tourney::class)]
 class TourneyStatusListener
 {
     public function __construct(
-        private PushNotificationService $pushNotificationService
+        private PushNotificationService $pushNotificationService,
+        private TourneyGameListener $tourneyGameListener,
+        private LoggerInterface $logger
     ) {
     }
 
@@ -37,9 +40,21 @@ class TourneyStatusListener
                     $message,
                     $url
                 );
+
+                // Spiele (z.B. Gruppenphase) wurden bereits beim Seeding angelegt, als das
+                // Turnier noch nicht "Running" war - daher hier zusätzlich pro Spiel benachrichtigen.
+                foreach ($tourney->getGames() as $game) {
+                    if ($game->isPending()) {
+                        $this->tourneyGameListener->notifyIfReady($game);
+                    }
+                }
             } catch (\Throwable $e) {
                 // Fehler ignorieren, um den Spielablauf nicht zu stören
                 // WICHTIG: Exception NICHT re-throwen, sonst wird das Update blockiert
+                $this->logger->error('Failed to send tourney start push notification', [
+                    'tourneyId' => $tourney->getId(),
+                    'exception' => $e,
+                ]);
             }
         }
     }

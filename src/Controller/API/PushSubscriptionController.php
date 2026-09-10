@@ -22,22 +22,35 @@ class PushSubscriptionController extends AbstractController
             return new JsonResponse(['error' => 'Invalid subscription'], 400);
         }
         
+        if (mb_strlen($data['endpoint']) > 500) {
+            return new JsonResponse(['error' => 'Invalid subscription'], 400);
+        }
+
+        /** @var LoginUser $user */
+        $user = $this->getUser();
+        $gamerUuid = $user->getUser()->getUuid();
+
         // Check if subscription already exists
         $repo = $em->getRepository(PushSubscription::class);
         $existing = $repo->findOneBy(['endpoint' => $data['endpoint']]);
         if ($existing) {
+            // Gleicher Endpoint, aber anderer eingeloggter User (z.B. Shared Device):
+            // Abo auf den aktuellen User ummelden, sonst bekommt der alte Owner weiter Nachrichten.
+            if (!$gamerUuid->equals($existing->getGamer())) {
+                $existing->setGamer($gamerUuid);
+                $em->flush();
+            }
             return new JsonResponse(['success' => true, 'message' => 'Already subscribed']);
         }
-        
-        /** @var LoginUser $user */
-        $user = $this->getUser();
-        
+
         $subscription = new PushSubscription();
         $subscription->setEndpoint($data['endpoint']);
         $subscription->setPublicKey($data['keys']['p256dh'] ?? null);
         $subscription->setAuthToken($data['keys']['auth'] ?? null);
-        $subscription->setContentEncoding($data['contentEncoding'] ?? 'aesgcm');
-        $subscription->setGamer($user->getUser()->getUuid());
+        // Browsers never include contentEncoding in PushSubscription.toJSON(); modern
+        // push services only support aes128gcm (RFC 8291), the legacy aesgcm draft is dead.
+        $subscription->setContentEncoding($data['contentEncoding'] ?? 'aes128gcm');
+        $subscription->setGamer($gamerUuid);
 
         $em->persist($subscription);
         $em->flush();
@@ -51,8 +64,17 @@ class PushSubscriptionController extends AbstractController
         if (!$data || !isset($data['endpoint'])) {
             return new JsonResponse(['error' => 'Invalid subscription'], 400);
         }
+
+        /** @var LoginUser $user */
+        $user = $this->getUser();
+
         $repo = $em->getRepository(PushSubscription::class);
-        $subscription = $repo->findOneBy(['endpoint' => $data['endpoint']]);
+        // Nur das eigene Abo darf gelöscht werden, sonst könnte jeder eingeloggte
+        // User fremde Push-Subscriptions per bekanntem Endpoint deaktivieren (IDOR).
+        $subscription = $repo->findOneBy([
+            'endpoint' => $data['endpoint'],
+            'gamer' => $user->getUser()->getUuid(),
+        ]);
         if ($subscription) {
             $em->remove($subscription);
             $em->flush();
