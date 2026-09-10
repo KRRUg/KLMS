@@ -9,6 +9,7 @@ use DateTime;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Ramsey\Uuid\UuidInterface;
 use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\Validator\Constraints as Assert;
 use Vich\UploaderBundle\Mapping\Attribute\Uploadable;
@@ -67,6 +68,9 @@ class Tourney implements HistoryAwareEntity
 
     #[ORM\Column(name: 'group_advance', nullable: true)]
     private ?int $group_advance = null;
+
+    #[ORM\Column(name: 'main_organizer', type: 'uuid', nullable: true)]
+    private ?UuidInterface $mainOrganizer = null;
 
     #[UploadableField(mapping: 'tourney_rules', fileNameProperty: 'rulesFileName')]
     #[Assert\File(mimeTypes: ['application/pdf'], mimeTypesMessage: 'Bitte nur PDF-Dateien hochladen.')]
@@ -337,6 +341,18 @@ class Tourney implements HistoryAwareEntity
     public function setGroupAdvance(?int $group_advance): static
     {
         $this->group_advance = $group_advance;
+
+        return $this;
+    }
+
+    public function getMainOrganizer(): ?UuidInterface
+    {
+        return $this->mainOrganizer;
+    }
+
+    public function setMainOrganizer(?UuidInterface $mainOrganizer): static
+    {
+        $this->mainOrganizer = $mainOrganizer;
 
         return $this;
     }

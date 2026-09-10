@@ -14,13 +14,15 @@
                         <div class="card-body">
                             {{ form_row(form.name) }}
                             {{ form_row(form.description) }}
+                            {{ form_row(form.mainOrganizer) }}
+                            {{ form_row(form.rulesFile) }}
                         </div>
                     </div>
                 </div>
             </div>
             <div class="row">
                 <div class="col-lg-4">
-                    <div class="card mb-4">
+                    <div class="card mb-2">
                         <div class="card-body">
                             <h5>Modus</h5>
                             {{ form_row(form.teamsize) }}
@@ -35,7 +37,7 @@
                     </div>
                 </div>
                 <div class="col-lg-4">
-                    <div class="card mb-4">
+                    <div class="card mb-2">
                         <div class="card-body">
                             <h5>Anzeige</h5>
                             {{ form_row(form.hidden) }}
@@ -44,21 +46,11 @@
                     </div>
                 </div>
                 <div class="col-lg-4">
-                    <div class="card mb-4">
+                    <div class="card mb-2">
                         <div class="card-body">
                             <h5>Turnier</h5>
                             {{ form_row(form.token) }}
                             {{ form_row(form.show_points) }}
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="row">
-                <div class="col">
-                    <div class="card mb-4">
-                        <div class="card-body">
-                            <h5>Regelwerk</h5>
-                            {{ form_row(form.rulesFile) }}
                         </div>
                     </div>
                 </div>

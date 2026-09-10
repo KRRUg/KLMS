@@ -32,8 +32,19 @@
                                 </p>
                             </div>
                         {% endif %}
-                        {% if tourney.rulesFileName is not empty %}
+                        {% set mainOrganizer = tourney.mainOrganizer | user %}
+                        {% if mainOrganizer is not null %}
                             <div class="col-12">
+                                <b>Turnierorga</b><br>
+                                {{ tourney.mainOrganizer | username }}
+                                {% set organizerSeat = mainOrganizer | seat %}
+                                {% if organizerSeat is not empty %}
+                                    <span class="badge badge-secondary ml-3"><i class="fa-solid fa-chair"></i> {{ organizerSeat }}</span>
+                                {% endif %}
+                            </div>
+                        {% endif %}
+                        {% if tourney.rulesFileName is not empty %}
+                            <div class="col-12 mt-3">
                                 <a href="{{ vich_uploader_asset(tourney, 'rulesFile') }}" target="_blank"><i class="fa-solid fa-file-pdf"></i> Regelwerk</a>
                             </div>
                         {% endif %}
