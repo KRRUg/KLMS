@@ -108,7 +108,8 @@ abstract class TourneyRuleGroupStage extends TourneyRule implements GroupStageAw
 
         ksort($tables);
         foreach ($tables as &$standings) {
-            usort($standings, fn (array $a, array $b) => $this->compareStandings($a, $b));
+            usort($standings, fn (array $a, array $b) => $b['points'] <=> $a['points']);
+            $standings = $this->resolveTieBlocks($standings);
         }
 
         return $tables;
@@ -277,21 +278,114 @@ abstract class TourneyRuleGroupStage extends TourneyRule implements GroupStageAw
         }
     }
 
-    private function compareStandings(array $a, array $b): int
+    /**
+     * Splits standings (already sorted by points) into blocks of equal points and
+     * resolves each block's internal order separately.
+     *
+     * @param array<int, array> $standings
+     * @return array<int, array>
+     */
+    private function resolveTieBlocks(array $standings): array
     {
-        // 1. Punkte
-        $pointsDiff = $b['points'] <=> $a['points'];
-        if ($pointsDiff !== 0) {
-            return $pointsDiff;
+        $result = [];
+        $count = count($standings);
+        $i = 0;
+        while ($i < $count) {
+            $j = $i;
+            while ($j + 1 < $count && $standings[$j + 1]['points'] === $standings[$i]['points']) {
+                $j++;
+            }
+            $block = array_slice($standings, $i, $j - $i + 1);
+            if (count($block) > 1) {
+                $block = $this->resolveTieBlock($block);
+            }
+            array_push($result, ...$block);
+            $i = $j + 1;
         }
 
-        // 2. Head-to-Head (direkter Vergleich)
-        $h2h = $this->getHeadToHeadResult($a['team'], $b['team']);
-        if ($h2h !== 0) {
-            return $h2h;
+        return $result;
+    }
+
+    /**
+     * Resolves the order of a single block of teams that are tied on points.
+     *
+     * Head-to-head is only meaningful for exactly two teams, or for 3+ teams if a
+     * mini table restricted to their mutual games fully separates them. A cyclic
+     * result (e.g. A beats B, B beats C, C beats A) cannot be resolved by
+     * head-to-head at all, so we skip straight to score difference in that case.
+     *
+     * @param array<int, array> $block
+     * @return array<int, array>
+     */
+    private function resolveTieBlock(array $block): array
+    {
+        if (count($block) === 2) {
+            usort($block, function (array $a, array $b) {
+                $h2h = $this->getHeadToHeadResult($a['team'], $b['team']);
+                if ($h2h !== 0) {
+                    return $h2h;
+                }
+                return $this->compareByScoreDifference($a, $b);
+            });
+            return $block;
         }
 
-        // 3. Score-Differenz
+        $miniPoints = $this->getMiniHeadToHeadPoints($block);
+        if (count(array_unique($miniPoints)) === count($block)) {
+            // Mini-Tabelle unter den betroffenen Teams löst die Gruppe eindeutig auf
+            usort($block, fn (array $a, array $b) => $miniPoints[$this->teamKey($b['team'])] <=> $miniPoints[$this->teamKey($a['team'])]);
+            return $block;
+        }
+
+        // Zyklischer bzw. nicht eindeutig auflösbarer direkter Vergleich (z.B. A>B>C>A): Head-to-Head
+        // überspringen und direkt auf Score-Differenz ausweichen.
+        usort($block, fn (array $a, array $b) => $this->compareByScoreDifference($a, $b));
+        return $block;
+    }
+
+    /**
+     * @param array<int, array> $block
+     * @return array<int|string, int> Points per team, counting only games among the given block's teams
+     */
+    private function getMiniHeadToHeadPoints(array $block): array
+    {
+        $keys = array_map(fn (array $row) => $this->teamKey($row['team']), $block);
+        $points = array_fill_keys($keys, 0);
+
+        foreach ($this->tourney->getGames() as $game) {
+            if (!$game->isGroupStage() || !$game->isDone()) {
+                continue;
+            }
+            $teamA = $game->getTeamA();
+            $teamB = $game->getTeamB();
+            if (!$teamA || !$teamB) {
+                continue;
+            }
+            $keyA = $this->teamKey($teamA);
+            $keyB = $this->teamKey($teamB);
+            if (!in_array($keyA, $keys, true) || !in_array($keyB, $keys, true)) {
+                continue;
+            }
+            $scoreA = $game->getScoreA();
+            $scoreB = $game->getScoreB();
+            if ($scoreA === null || $scoreB === null) {
+                continue;
+            }
+            if ($scoreA > $scoreB) {
+                $points[$keyA] += 3;
+            } elseif ($scoreB > $scoreA) {
+                $points[$keyB] += 3;
+            } else {
+                $points[$keyA]++;
+                $points[$keyB]++;
+            }
+        }
+
+        return $points;
+    }
+
+    private function compareByScoreDifference(array $a, array $b): int
+    {
         $diffA = $a['scored'] - $a['conceded'];
         $diffB = $b['scored'] - $b['conceded'];
         $scoreDiff = $diffB <=> $diffA;
@@ -299,14 +393,17 @@ abstract class TourneyRuleGroupStage extends TourneyRule implements GroupStageAw
             return $scoreDiff;
         }
 
-        // 4. Erzielte Scores
         $scoredDiff = $b['scored'] <=> $a['scored'];
         if ($scoredDiff !== 0) {
             return $scoredDiff;
         }
 
-        // 5. Alphabetisch (Fallback)
         return strcmp($a['team']->getName() ?? '', $b['team']->getName() ?? '');
+    }
+
+    private function teamKey(TourneyTeam $team): int|string
+    {
+        return $team->getId() ?? spl_object_hash($team);
     }
 
     /**
