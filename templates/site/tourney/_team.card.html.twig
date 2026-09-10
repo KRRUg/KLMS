@@ -1,6 +1,8 @@
 {% macro team_card_title(team, show_seat = true) %}
     {% if team.name %}
         <strong>{{ team.name }}</strong>
+        {% if show_seat and team.members|length == 1 %}{% set gs = team.members[0].gamer | user | seat %}
+            {% if gs | default(null) is not empty %}<span class="badge badge-secondary ml-3"><i class="fa-solid fa-chair"></i> {{ gs }}</span>{% endif %}{% endif %}
     {% else %}
         {{ team.members[0].gamer | username }}
         {% if show_seat %}{% set gs = team.members[0].gamer | user | seat %}
@@ -9,7 +11,8 @@
 {% endmacro %}
 
 {% macro team_card_body(team, show_seat = true) %}
-    {% if team.name %}
+    {# Bei nur einem Mitglied (1vs1) steht der Name schon im Titel - Liste w\u00e4re redundant #}
+    {% if team.name and team.members|length > 1 %}
         <ul class="list-group list-group-flush">
             {% for member in team.members %}
                 <li class="list-group-item d-flex justify-content-between align-items-center">

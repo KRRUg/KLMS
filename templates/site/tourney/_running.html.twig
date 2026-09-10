@@ -12,15 +12,6 @@
 {% extends 'site/tourney/_card.body.html.twig' %}
 
 {% block blockButtonBarMain %}
-    {% set pendingGames = (current_games | default([])) | filter(g => g.isPending()) %}
-    {% if participates and pendingGames is not empty %}
-        <div class="text-right mb-3">
-            {% set resultForms = forms[constant('App\\Controller\\Site\\TourneyController::FORM_NAME_RESULT')] | default([]) %}
-            {% for game in pendingGames %}
-                {{ _self.enter_result_button(game, resultForms[game.id] ?? null) }}
-            {% endfor %}
-        </div>
-    {% endif %}
 {% endblock %}
 
 {% block mainColTop %}
@@ -33,6 +24,7 @@
                 {% else %}
                     <div class="text-center h4 mb-3 mt-3"><strong>Ausstehendes Spiel</strong></div>
                 {% endif %}
+                {% set resultForms = forms[constant('App\\Controller\\Site\\TourneyController::FORM_NAME_RESULT')] | default([]) %}
                 {% for game in pendingGames %}
                     <div class="row align-items-center mb-3">
                         <div class="col">
@@ -45,6 +37,11 @@
                             {% include 'site/tourney/_team.card.html.twig' with {team: game.teamB} %}
                         </div>
                     </div>
+                    {% if participates %}
+                        <div class="text-right mb-3">
+                            {{ _self.enter_result_button(game, resultForms[game.id] ?? null) }}
+                        </div>
+                    {% endif %}
                 {% endfor %}
             {% else %}
                 {% if current_games | default([]) is empty and tourney.hasTree %}
