@@ -19,11 +19,13 @@
             <span class="badge badge-pill badge-secondary"> Du bist dran!</span>
             <i title="Du bist dran zum Zocken!" class="fa-solid fa-gamepad fa-2xl text-primary fa-beat-fade"></i>
         {% elseif games is not empty %}
-            {# Team hat noch ein zuk\u00fcnftiges Spiel (z.B. Loser-Bracket-Slot), Gegner steht nur noch nicht fest #}
+            {# Team hat noch ein zukünftiges Spiel (z.B. Loser-Bracket-Slot), Gegner steht nur noch nicht fest #}
             <span class="badge badge-pill badge-info" title="Warte auf Gegner aus einem anderen Spiel"> <i class="fa-solid fa-hourglass-half"></i> Warten</span>
         {% else %}
-            {# Pr\u00fcfen ob Team in Gruppenphase ist und noch Gruppenspiele laufen #}
-            {% if tourney.groupCount > 0 and tm is not null and tm.team.groupKey is not null and hasIncompleteGroupGames %}
+            {% set finalGame = tourney.games | filter(g => g.parent is null and not g.isGroupStage()) | first %}
+            {% if tm is not null and finalGame is not null and finalGame.isDone() and finalGame.getWinner() == tm.team %}
+                <span class="badge badge-pill badge-success" title="Herzlichen Glückwunsch, du hast das Turnier gewonnen!"> <i class="fa-solid fa-trophy"></i> Turnier gewonnen!</span>
+            {% elseif tourney.groupCount > 0 and tm is not null and tm.team.groupKey is not null and hasIncompleteGroupGames %}
                 <span class="badge badge-pill badge-info" title="Alle eigenen Spiele beendet, warte auf andere Ergebnisse"> <i class="fa-solid fa-hourglass-half"></i> Warten</span>
             {% else %}
                 <span class="badge badge-pill badge-secondary"> Ausgeschieden</span>

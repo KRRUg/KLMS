@@ -19,9 +19,9 @@ $match-connection-border: 1px solid $color-content;
 $border-radius: .5rem;
 $max-power-of-two: 8; // max x where 2**x is max s, 8 means max number of teams is 256
 
-// Bootstraps default .list-group-item padding is too generous for a compact roster list
+// Bootstraps default .list-group-item padding (.75rem 1.25rem) is far too generous vertically for a compact roster list
 .team-member-list .list-group-item {
-  padding: .35rem .75rem;
+  padding: .15rem 1.25rem;
 }
 
 @function pow($number, $exponent) {

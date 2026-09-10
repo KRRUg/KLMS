@@ -45,8 +45,10 @@
                 {% endfor %}
             {% else %}
                 {% if current_games | default([]) is empty and tourney.hasTree %}
-                    {# Nur "nicht mehr im Rennen" anzeigen, wenn nicht in Gruppenphase wartend #}
-                    {% if tourney.groupCount > 0 and tm.team.groupKey is not null and (hasIncompleteGroupGames | default(false)) %}
+                    {% set finalGame = tourney.games | filter(g => g.parent is null and not g.isGroupStage()) | first %}
+                    {% if finalGame is not null and finalGame.isDone() and finalGame.getWinner() == tm.team %}
+                        <div class="alert alert-success mb-3"><i class="fa-solid fa-trophy"></i> Herzlichen Glückwunsch, du hast das Turnier gewonnen!</div>
+                    {% elseif tourney.groupCount > 0 and tm.team.groupKey is not null and (hasIncompleteGroupGames | default(false)) %}
                         <div class="alert alert-info mb-3"><i class="fa-solid fa-hourglass-half"></i> Alle eigenen Gruppenspiele beendet. Warte auf andere Ergebnisse...</div>
                     {% else %}
                         <div class="alert alert-danger mb-3">Du bist nicht mehr im Rennen!</div>
