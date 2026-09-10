@@ -37,7 +37,7 @@
                         'registered' : true,
                         'expand' : (tourney == (show ?? null)),
                         'tm': teams[tourney.id],
-                        'current_game' : (games[tourney.id] ?? null),
+                        'current_games' : (games[tourney.id] ?? []),
                         'forms': forms[tourney.id] ?? [],
                         'hasIncompleteGroupGames': groupGamesIncomplete[tourney.id] ?? false
                     } %}

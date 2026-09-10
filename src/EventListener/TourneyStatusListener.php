@@ -43,6 +43,9 @@ class TourneyStatusListener
 
                 // Spiele (z.B. Gruppenphase) wurden bereits beim Seeding angelegt, als das
                 // Turnier noch nicht "Running" war - daher hier zusätzlich pro Spiel benachrichtigen.
+                // Bei Round-Robin-Gruppenphasen kann ein Team mehrere Spiele gleichzeitig offen
+                // haben, das ist normal - daher jedes offene Spiel einzeln benachrichtigen
+                // (die Seite zeigt jetzt ebenfalls alle offenen Spiele an, siehe TourneyController).
                 foreach ($tourney->getGames() as $game) {
                     if ($game->isPending()) {
                         $this->tourneyGameListener->notifyIfReady($game);

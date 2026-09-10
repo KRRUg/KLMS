@@ -65,6 +65,10 @@ class TourneyGameRepository extends ServiceEntityRepository
         }
 
         return $qb->setParameter('uuid', $user)
+            // deterministische Reihenfolge: niedrigste id = frühestes/aktuelles Spiel.
+            // Wird von der Turnierseite genutzt, um "das aktuelle Spiel" pro Turnier zu
+            // bestimmen, und muss daher konsistent mit der Push-Benachrichtigungslogik sein.
+            ->orderBy('g.id', 'ASC')
             ->getQuery()
             ->getResult();
     }

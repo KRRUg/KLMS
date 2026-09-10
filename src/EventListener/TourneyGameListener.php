@@ -35,7 +35,7 @@ class TourneyGameListener
         $this->notifyIfReady($game);
     }
 
-    public function notifyIfReady(TourneyGame $game): void
+    public function notifyIfReady(TourneyGame $game, ?array $onlyGamerUuids = null): void
     {
         $tourney = $game->getTourney();
         if (!$tourney || $tourney->getStatus() !== TourneyStage::Running) {
@@ -56,6 +56,10 @@ class TourneyGameListener
                     $playerUuidMap[$uuid->toString()] = $uuid;
                 }
             }
+        }
+
+        if ($onlyGamerUuids !== null) {
+            $playerUuidMap = array_intersect_key($playerUuidMap, array_flip($onlyGamerUuids));
         }
 
         if (empty($playerUuidMap)) {

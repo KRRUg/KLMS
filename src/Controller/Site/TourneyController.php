@@ -373,11 +373,13 @@ class TourneyController extends AbstractController
         }
         foreach ($this->service->getActiveGames($user) as $game) {
             $t = $game->getTourney();
-            $userActiveGames[$t->getId()] = $game;
+            // Bei der Gruppenphase kann ein Team mehrere Spiele gleichzeitig offen haben
+            // (Round-Robin), daher hier alle sammeln statt nur eines auszuwählen.
+            $userActiveGames[$t->getId()][] = $game;
             if (!$game->isPending()) {
                 continue;
             }
-            $forms[$t->getId()] = [self::FORM_NAME_RESULT => $this->generateFormResult()->setData(['id' => $game->getId()])->createView()];
+            $forms[$t->getId()][self::FORM_NAME_RESULT][$game->getId()] = $this->generateFormResult()->setData(['id' => $game->getId()])->createView();
         }
 
         // Check which tourneys have incomplete group games
