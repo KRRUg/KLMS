@@ -98,7 +98,7 @@
 {% macro game_team(game, gameTeam, isTeamA, tourney, ownTeam = null, show_seat = false) %}
     {% set side = isTeamA ? 'a' : 'b' %}
     <div id="game{{ game.id }}{{ side }}" 
-         class="team {{ gameTeam is null ? 'team-empty' : '' }} {{ game.hasWon(isTeamA) ? 'winner' : '' }} {{ gameTeam is same as ownTeam ? 'team-own' : '' }}">
+         class="team {{ gameTeam is null ? 'team-empty' : '' }} {{ game.hasWon(isTeamA) ? 'winner' : '' }} {{ ownTeam is not null and gameTeam is same as ownTeam ? 'team-own' : '' }}">
         {% if gameTeam is not null %}
             <span class="team-name">{{ _self.teamname(gameTeam) }}</span>
             <span class="team-score">

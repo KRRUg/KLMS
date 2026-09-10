@@ -42,7 +42,7 @@
                              {% if game.parent is not null %}data-ref-winner="game{{ game.parent.id ~ (game.isChildA ? 'a' : 'b') }}"{% endif %}
                         >
                             <div class="teams">
-                                <div id="game{{ game.id }}a" class="team {{ game.teamA is null ? 'team-empty' : '' }} {{ game.hasWon(true) ? 'winner' : '' }} {{ game.teamA is same as team ? 'team-own' : '' }} ">
+                                <div id="game{{ game.id }}a" class="team {{ game.teamA is null ? 'team-empty' : '' }} {{ game.hasWon(true) ? 'winner' : '' }} {{ team is not null and game.teamA is same as team ? 'team-own' : '' }} ">
                                     {% if game.teamA is not null %}
                                         <span class="team-name">{{ _self.teamnameA(game) }}</span>
                                         <span class="team-score">{{ tourney.showPoints ? (game.scoreA() ?? '') : '' }}</span>
@@ -56,7 +56,7 @@
                                         </div>
                                     {% endif %}
                                 </div>
-                                <div id="game{{ game.id }}b" class="team {{ game.teamB is null ? 'team-empty' : '' }} {{ game.hasWon(false) ? 'winner' : '' }} {{ game.teamB is same as team ? 'team-own' : '' }}">
+                                <div id="game{{ game.id }}b" class="team {{ game.teamB is null ? 'team-empty' : '' }} {{ game.hasWon(false) ? 'winner' : '' }} {{ team is not null and game.teamB is same as team ? 'team-own' : '' }}">
                                     {% if game.teamB is not null %}
                                         <span class="team-name">{{ _self.teamnameB(game) }}</span>
                                         <span class="team-score">{{ tourney.showPoints ? (game.scoreB() ?? '') : '' }}</span>
