@@ -15,16 +15,19 @@
         <span class="badge badge-pill badge-primary"> <i class="fa-solid fa-tree"></i> Turnierbaum wird vorbereitet</span>
     {% elseif tourney.status == TourneyStage.Running %}
         <span class="badge badge-pill badge-primary"> <i class="fa-solid fa-gamepad"></i> Turnier läuft</span>
-        {% if pendingGames is empty %}
-            {# Prüfen ob Team in Gruppenphase ist und noch Gruppenspiele laufen #}
+        {% if pendingGames is not empty %}
+            <span class="badge badge-pill badge-secondary"> Du bist dran!</span>
+            <i title="Du bist dran zum Zocken!" class="fa-solid fa-gamepad fa-2xl text-primary fa-beat-fade"></i>
+        {% elseif games is not empty %}
+            {# Team hat noch ein zuk\u00fcnftiges Spiel (z.B. Loser-Bracket-Slot), Gegner steht nur noch nicht fest #}
+            <span class="badge badge-pill badge-info" title="Warte auf Gegner aus einem anderen Spiel"> <i class="fa-solid fa-hourglass-half"></i> Warten</span>
+        {% else %}
+            {# Pr\u00fcfen ob Team in Gruppenphase ist und noch Gruppenspiele laufen #}
             {% if tourney.groupCount > 0 and tm is not null and tm.team.groupKey is not null and hasIncompleteGroupGames %}
                 <span class="badge badge-pill badge-info" title="Alle eigenen Spiele beendet, warte auf andere Ergebnisse"> <i class="fa-solid fa-hourglass-half"></i> Warten</span>
             {% else %}
                 <span class="badge badge-pill badge-secondary"> Ausgeschieden</span>
             {% endif %}
-        {% else %}
-            <span class="badge badge-pill badge-secondary"> Du bist dran!</span>
-            <i title="Du bist dran zum Zocken!" class="fa-solid fa-gamepad fa-2xl text-primary fa-beat-fade"></i>
         {% endif %}
     {% elseif tourney.status == TourneyStage.Finished %}
         <span class="badge badge-pill badge-success"><i class="fa-solid fa-trophy"></i> Turnier beendet</span>
