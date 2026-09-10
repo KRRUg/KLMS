@@ -171,6 +171,11 @@ class TourneyRuleDoubleElimination extends TourneyRule
     {
         $tree = array();
         $final = $this->getFinal();
+        if (is_null($final)) {
+            // noch nicht geseedet, es gibt noch keine Spiele
+            $tree[''] = [null, -1];
+            return $tree;
+        }
         $orig_finale = TourneyRuleDoubleElimination::getOriginalFinale($final);
         if ($orig_finale !== $final) {
             $tree["Finale (Round 1)"] = [$orig_finale, 1];
