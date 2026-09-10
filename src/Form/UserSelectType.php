@@ -65,11 +65,11 @@ class UserSelectType extends AbstractType
 
         switch (true) {
             case $entity instanceof User:
-                $data[$entity->getUuid()->toString()] = $entity->getEmail();
+                $data[$entity->getUuid()->toString()] = $entity->getNickname() ?: $entity->getEmail();
                 break;
             case $entity instanceof UuidInterface:
                 $user = $this->userRepository->findOneById($entity);
-                $data[$entity->toString()] = $user->getEmail();
+                $data[$entity->toString()] = $user->getNickname() ?: $user->getEmail();
                 break;
             default:
                 throw new TransformationFailedException('Unknown type to convert');
