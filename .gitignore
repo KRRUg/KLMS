@@ -56,6 +56,9 @@
 .idea
 .php_cs.cache
 
+# macOS metadata
+**/.DS_Store
+
 #Ignore NodeJS Modules
 /node_modules
 
