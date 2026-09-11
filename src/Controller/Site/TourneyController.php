@@ -19,7 +19,6 @@ use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\FormBuilderInterface;
-use Symfony\Component\Form\FormError;
 use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
 use Symfony\Component\Form\FormInterface;
@@ -35,8 +34,6 @@ class TourneyController extends AbstractController
 
     private readonly TourneyService $service;
     private readonly UserService $userService;
-    private ?int $resultErrorGameId = null;
-    private ?string $resultErrorMessage = null;
 
     public function __construct(TourneyService $service, UserService $userService)
     {
@@ -283,15 +280,16 @@ class TourneyController extends AbstractController
         try {
             $this->service->logResultUser($game, $user, $scoreA, $scoreB);
         } catch (ServiceException $e) {
-            $this->resultErrorMessage = 'Fehler: ' . match ($e->getCode()) {
-                ServiceException::CAUSE_INCONSISTENT => 'Nur Spieler dieses Spiels dürfen das Ergebnis eintragen.',
-                ServiceException::CAUSE_FORBIDDEN => 'Der Verlierer muss das Ergebnis eintragen.',
-                ServiceException::CAUSE_INVALID => 'Gleichstand ist nicht erlaubt',
-                ServiceException::CAUSE_IN_USE => 'Turnier läuft nicht.',
-                default => 'unbekannter Fehler.'
-            };
-            $this->resultErrorGameId = $id;
-            return null;
+            $this->addFlash('error',
+                'Fehler: ' .
+                match ($e->getCode()) {
+                    ServiceException::CAUSE_INCONSISTENT => 'Nur Spieler dieses Spiels dürfen das Ergebnis eintragen.',
+                    ServiceException::CAUSE_FORBIDDEN => 'Der Verlierer muss das Ergebnis eintragen.',
+                    ServiceException::CAUSE_INVALID => 'Gleichstand ist nicht erlaubt',
+                    ServiceException::CAUSE_IN_USE => 'Turnier läuft nicht.',
+                    default => 'unbekannter Fehler.'
+                }
+            );
         }
         return $tourney;
     }
@@ -381,11 +379,7 @@ class TourneyController extends AbstractController
             if (!$game->isPending()) {
                 continue;
             }
-            $resultForm = $this->generateFormResult()->setData(['id' => $game->getId()]);
-            if ($game->getId() === $this->resultErrorGameId) {
-                $resultForm->addError(new FormError($this->resultErrorMessage));
-            }
-            $forms[$t->getId()][self::FORM_NAME_RESULT][$game->getId()] = $resultForm->createView();
+            $forms[$t->getId()][self::FORM_NAME_RESULT][$game->getId()] = $this->generateFormResult()->setData(['id' => $game->getId()])->createView();
         }
 
         // Check which tourneys have incomplete group games

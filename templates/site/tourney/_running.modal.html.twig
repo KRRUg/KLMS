@@ -1,9 +1,5 @@
 {% embed "modules/modals/skeleton.html.twig"
-    with {
-        id: id,
-        title: 'Ergebnis eintragen',
-        attr: form.vars.errors|length > 0 ? {'data-show-on-load': 'true'} : {}
-    }
+    with {id: id, title: 'Ergebnis eintragen'}
 %}
     {% block modalContentPrepend %}
         {{ form_start(form) }}
@@ -11,11 +7,6 @@
 
     {% block modalBody %}
         {% from 'site/tourney/show.html.twig' import teamnameA, teamnameB %}
-        {% if form.vars.errors|length > 0 %}
-            <div class="alert alert-danger">
-                {{ form_errors(form) }}
-            </div>
-        {% endif %}
         <div class="d-flex justify-content-around m-1">
             <div class="alert alert-primary">
                 Achtung: Nur der <strong>Verlierer</strong> kann das Ergebnis eintragen!
