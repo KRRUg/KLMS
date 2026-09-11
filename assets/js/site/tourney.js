@@ -1,5 +1,9 @@
 import '../../css/modules/tourney.scss';
 
+document.querySelectorAll('[data-show-on-load="true"]').forEach((modal) => {
+    $(modal).modal('show');
+});
+
 // Hash navigation for accordion
 if (location.hash !== null && location.hash !== "") {
     document.querySelector(location.hash)?.querySelector('.collapse')?.classList.add('show');
